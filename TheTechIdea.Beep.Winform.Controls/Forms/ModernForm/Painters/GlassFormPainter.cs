@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Glass-effect form painter with advanced transparency, blur effects, and mica-style appearance.
+    /// Glass-effect form painter with advanced transparency, blur effects, and mica-Style appearance.
     /// Features multi-layer transparency, subtle noise texture, and frosted glass caption bar.
     /// </summary>
     internal sealed class GlassFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintGlassButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+                PaintGlassButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
                         break;
-                    case "style":
+                    case "Style":
                         // Palette icon
                         g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
                         g.FillEllipse(Brushes.White, centerX - 1, centerY - 1, 2, 2);
@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -302,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
@@ -437,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             return path;
         }
 
-        // Painter-owned non-client border rendering for Glass style
+        // Painter-owned non-client border rendering for Glass Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);

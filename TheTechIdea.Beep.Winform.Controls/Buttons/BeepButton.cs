@@ -607,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = true;
             CanBeFocused = true;
 
-            // Enable material style for modern button appearance, but keep it compact
+            // Enable material Style for modern button appearance, but keep it compact
             //EnableMaterialStyle = true;
           
             ButtonAutoSizeForMaterial = false; // Default to false to prevent large buttons
@@ -819,7 +819,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply font from theme if configured to use theme fonts
             if (UseThemeFont)
             {
-                // Get font from button style or fall back to default style
+                // Get font from button Style or fall back to default Style
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                     
 
@@ -1174,7 +1174,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 baseContentSize = totalBounds.Size;
             }
 
-            // If Material style is enabled, expand by Material paddings/effects properly
+            // If Material Style is enabled, expand by Material paddings/effects properly
             if (PainterKind ==BaseControlPainterKind.Material)
             {
                 // Ask BaseControl to compute effective minimum including Material paddings, icons, effects, DPI, etc.

@@ -9,9 +9,9 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Modern file manager tree painter (Google Drive, OneDrive style).
+    /// Modern file manager tree painter (Google Drive, OneDrive Style).
     /// Clean minimal design with folder icons, nested structure, and smooth animations.
-    /// Features: Rounded selection, subtle shadows, colorful folder icons, breadcrumb-style hierarchy.
+    /// Features: Rounded selection, subtle shadows, colorful folder icons, breadcrumb-Style hierarchy.
     /// </summary>
     public class FileManagerTreePainter : BaseTreePainter
     {
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int IconPadding = 4;
 
         /// <summary>
-        /// Modern file manager tree painting (Google Drive/OneDrive style).
+        /// Modern file manager tree painting (Google Drive/OneDrive Style).
         /// Features: Rounded selection (6px corners), subtle shadows, colorful gradient folder icons, chevron toggles, bold text on selection.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             try
             {
-                // STEP 1: Draw rounded selection with subtle shadow (Google Drive style)
+                // STEP 1: Draw rounded selection with subtle shadow (Google Drive Style)
                 if (isSelected || isHovered)
                 {
                     Rectangle selectionBounds = new Rectangle(
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 3: Draw checkbox (rounded style)
+                // STEP 3: Draw checkbox (rounded Style)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw colorful gradient folder icon (Google Drive style)
+                // STEP 4: Draw colorful gradient folder icon (Google Drive Style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 5: Draw text with bold on selection (Google Drive style)
+                // STEP 5: Draw text with bold on selection (Google Drive Style)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = node.TextRectContent;
@@ -430,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         public override int GetPreferredRowHeight(SimpleItem item, Font font)
         {
-            // File manager style needs comfortable spacing
+            // File manager Style needs comfortable spacing
             return Math.Max(28, base.GetPreferredRowHeight(item, font));
         }
     }

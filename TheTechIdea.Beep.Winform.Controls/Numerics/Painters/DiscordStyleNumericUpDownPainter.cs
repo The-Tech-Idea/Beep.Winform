@@ -25,7 +25,7 @@ public class DiscordStyleNumericUpDownPainter : BaseNumericUpDownPainter
                 ? blurple
                 : Color.FromArgb(47, 49, 54); // Darker gray
 
-            // Draw background with Discord's rounded style
+            // Draw background with Discord's rounded Style
             int radius = context.IsRounded ? Math.Min(context.BorderRadius, 8) : 8;
             using (var bgBrush = new SolidBrush(backColor))
             using (var path = CreateRoundedPath(bounds, radius))

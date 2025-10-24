@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Button-group style renderer. Delegates drawing to CardRadioRenderer for button-like visuals.
+    /// Button-group Style renderer. Delegates drawing to CardRadioRenderer for button-like visuals.
     /// </summary>
     public class ButtonRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {

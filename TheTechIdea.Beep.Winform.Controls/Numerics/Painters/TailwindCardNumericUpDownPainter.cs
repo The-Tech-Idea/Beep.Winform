@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Tailwind Card style painter for NumericUpDown
+    /// Tailwind Card Style painter for NumericUpDown
     /// Features: Card-like container, shadows, Tailwind color palette, utility-first design
     /// </summary>
     public class TailwindCardNumericUpDownPainter : BaseNumericUpDownPainter

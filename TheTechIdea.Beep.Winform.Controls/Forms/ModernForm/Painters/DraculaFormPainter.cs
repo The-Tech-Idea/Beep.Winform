@@ -380,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             
@@ -392,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonWidth;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);

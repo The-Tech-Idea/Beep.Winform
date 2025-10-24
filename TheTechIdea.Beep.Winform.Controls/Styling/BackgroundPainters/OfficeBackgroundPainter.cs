@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Office background painter - Microsoft Office Ribbon UI style
+    /// Office background painter - Microsoft Office Ribbon UI Style
     /// Clean white background with subtle gradients and professional appearance
     /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
     /// </summary>
@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Office: Clean white background with subtle gradients (ribbon style)
+            // Office: Clean white background with subtle gradients (ribbon Style)
             Color backgroundColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Office);
             Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
 
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            // Paint with subtle vertical gradient (Office ribbon style)
+            // Paint with subtle vertical gradient (Office ribbon Style)
             var bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(
                 new PointF(bounds.Left, bounds.Top),

@@ -1693,7 +1693,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 Height = ScaledDefaultHeight;
             }
 
-            Invalidate(); // triggers redraw (ResizeRedraw style alrea
+            Invalidate(); // triggers redraw (ResizeRedraw Style alrea
         }
         #endregion "Overrides"
         /// <summary>

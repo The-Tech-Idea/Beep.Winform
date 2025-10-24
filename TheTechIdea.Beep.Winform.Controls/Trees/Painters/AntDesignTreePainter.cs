@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (checkboxRect.Width <= 0 || checkboxRect.Height <= 0) return;
 
-            // Ant Design checkbox style
+            // Ant Design checkbox Style
             Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
             Color fillColor = isChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -291,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             Color iconColor = _theme.AccentColor;
 
-            // Ant Design folder style
+            // Ant Design folder Style
             int padding = iconRect.Width / 5;
             Rectangle innerRect = new Rectangle(
                 iconRect.X + padding,

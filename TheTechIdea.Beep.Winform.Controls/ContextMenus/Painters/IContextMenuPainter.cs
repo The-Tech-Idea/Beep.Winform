@@ -18,11 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         FormStyle Style { get; }
         
         /// <summary>
-        /// Gets the metrics for this painter style
+        /// Gets the metrics for this painter Style
         /// </summary>
         /// <param name="theme">Optional theme to apply</param>
         /// <param name="useThemeColors">Whether to use theme colors</param>
-        /// <returns>ContextMenuMetrics configured for this style</returns>
+        /// <returns>ContextMenuMetrics configured for this Style</returns>
         ContextMenuMetrics GetMetrics(IBeepTheme theme = null, bool useThemeColors = false);
         
         /// <summary>

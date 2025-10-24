@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// macOS-style form painter with traffic light buttons and subtle borders.
+    /// macOS-Style form painter with traffic light buttons and subtle borders.
     /// </summary>
     internal sealed class MacOSFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
          metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // Built-in caption elements (icon/title/theme/style/custom/system buttons)
+            // Built-in caption elements (icon/title/theme/Style/custom/system buttons)
             owner.PaintBuiltInCaptionElements(g);
         }
 
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             return path;
         }
 
-        // Painter-owned non-client border rendering for macOS style
+        // Painter-owned non-client border rendering for macOS Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);
@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
 
         /// <summary>
-        /// Draws macOS-style traffic light buttons with 3D effects
+        /// Draws macOS-Style traffic light buttons with 3D effects
         /// </summary>
         private void DrawTrafficLights(Graphics g, Rectangle captionRect)
         {
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 leftX += buttonSize + buttonSpacing;
             }
             
-            // RIGHT side: Theme/Style buttons (standard Windows-style placement)
+            // RIGHT side: Theme/Style buttons (standard Windows-Style placement)
             var rightButtonWidth = 32;
             var rightX = owner.ClientSize.Width - rightButtonWidth;
             
@@ -322,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(rightX, 0, rightButtonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 rightX -= rightButtonWidth;
             }
             
@@ -334,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 rightX -= rightButtonWidth;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(rightX, 0, rightButtonWidth, captionHeight);

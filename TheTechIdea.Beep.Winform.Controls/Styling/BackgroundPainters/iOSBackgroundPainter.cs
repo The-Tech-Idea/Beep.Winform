@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for iOS15 style
+    /// Background painter for iOS15 Style
     /// </summary>
     public static class iOSBackgroundPainter
     {

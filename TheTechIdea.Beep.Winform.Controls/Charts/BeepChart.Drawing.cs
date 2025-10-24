@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             var bounds = ctx.PlotRect != Rectangle.Empty ? ctx.PlotRect : ctx.DrawingRect;

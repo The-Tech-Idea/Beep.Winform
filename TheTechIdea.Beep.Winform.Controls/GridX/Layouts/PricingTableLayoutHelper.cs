@@ -4,7 +4,7 @@ using System.Drawing;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
     /// <summary>
-    /// Pricing table-style layout preset.
+    /// Pricing table-Style layout preset.
     /// - Taller headers to allow plan badges/images (painter may draw images if provided by columns)
     /// - First (feature) column left-aligned and sticky
     /// - Plan columns centered (headers and cells)

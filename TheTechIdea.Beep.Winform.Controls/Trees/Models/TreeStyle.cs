@@ -4,30 +4,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Models
 {
     /// <summary>
     /// Defines different visual styles for BeepTree rendering.
-    /// Each style represents a distinct UI design pattern from popular frameworks and applications.
+    /// Each Style represents a distinct UI design pattern from popular frameworks and applications.
     /// </summary>
     public enum TreeStyle
     {
         /// <summary>
-        /// Standard Windows Explorer-style tree with simple lines and folders.
+        /// Standard Windows Explorer-Style tree with simple lines and folders.
         /// Classic hierarchical view with minimal styling.
         /// </summary>
         Standard = 0,
 
         /// <summary>
-        /// VMware vSphere-style infrastructure tree with colored tags and status indicators.
+        /// VMware vSphere-Style infrastructure tree with colored tags and status indicators.
         /// Dark theme with hierarchical datacenter/host/VM structure.
         /// </summary>
         InfrastructureTree = 1,
 
         /// <summary>
-        /// Jira/Atlassian Portfolio-style tree with progress bars and effort indicators.
+        /// Jira/Atlassian Portfolio-Style tree with progress bars and effort indicators.
         /// Grouped themes/epics/features with state tracking.
         /// </summary>
         PortfolioTree = 2,
 
         /// <summary>
-        /// Modern file manager tree (Google Drive, OneDrive style).
+        /// Modern file manager tree (Google Drive, OneDrive Style).
         /// Clean minimal design with folder icons and nested structure.
         /// </summary>
         FileManagerTree = 3,
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Models
         ActivityLogTree = 4,
 
         /// <summary>
-        /// Component/sidebar navigation tree (Figma, VS Code style).
+        /// Component/sidebar navigation tree (Figma, VS Code Style).
         /// Grouped sections with drag handles and visibility toggles.
         /// </summary>
         ComponentTree = 5,
@@ -66,55 +66,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Models
         Material3 = 10,
 
         /// <summary>
-        /// Fluent Design 2 tree (Microsoft 365 style).
+        /// Fluent Design 2 tree (Microsoft 365 Style).
         /// Acrylic backgrounds, subtle shadows, and modern Microsoft design language.
         /// </summary>
         Fluent2 = 11,
 
         /// <summary>
-        /// iOS 15/iPadOS style tree with SF Symbols and rounded rectangles.
+        /// iOS 15/iPadOS Style tree with SF Symbols and rounded rectangles.
         /// Apple design language with subtle animations and clean aesthetics.
         /// </summary>
         iOS15 = 12,
 
         /// <summary>
-        /// macOS Big Sur style tree with sidebar design.
+        /// macOS Big Sur Style tree with sidebar design.
         /// Native macOS appearance with transparency and native controls.
         /// </summary>
         MacOSBigSur = 13,
 
         /// <summary>
-        /// Notion-style minimal tree with clean indentation.
+        /// Notion-Style minimal tree with clean indentation.
         /// Database/page hierarchy with simple but effective visual design.
         /// </summary>
         NotionMinimal = 14,
 
         /// <summary>
-        /// Vercel dashboard clean tree style.
+        /// Vercel dashboard clean tree Style.
         /// Minimalist design with subtle hover effects and clear hierarchy.
         /// </summary>
         VercelClean = 15,
 
         /// <summary>
-        /// Discord channel/server tree style.
+        /// Discord channel/server tree Style.
         /// Dark theme optimized for chat/channel hierarchies with icons.
         /// </summary>
         Discord = 16,
 
         /// <summary>
-        /// Ant Design tree component style.
+        /// Ant Design tree component Style.
         /// Enterprise-grade Chinese design system with balanced aesthetics.
         /// </summary>
         AntDesign = 17,
 
         /// <summary>
-        /// Chakra UI tree component style.
+        /// Chakra UI tree component Style.
         /// Modern accessible React component library design.
         /// </summary>
         ChakraUI = 18,
 
         /// <summary>
-        /// Bootstrap tree view style.
+        /// Bootstrap tree view Style.
         /// Classic Bootstrap framework aesthetics with card-based nodes.
         /// </summary>
         Bootstrap = 19,
@@ -126,37 +126,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Models
         TailwindCard = 20,
 
         /// <summary>
-        /// DevExpress tree view style.
+        /// DevExpress tree view Style.
         /// Professional enterprise control library appearance.
         /// </summary>
         DevExpress = 21,
 
         /// <summary>
-        /// Syncfusion tree view style.
+        /// Syncfusion tree view Style.
         /// Modern enterprise component suite design.
         /// </summary>
         Syncfusion = 22,
 
         /// <summary>
-        /// Telerik UI tree view style.
+        /// Telerik UI tree view Style.
         /// Professional controls with rich features and polished appearance.
         /// </summary>
         Telerik = 23,
 
         /// <summary>
-        /// Pill/rail style tree (sidebar navigation).
+        /// Pill/rail Style tree (sidebar navigation).
         /// Rounded pill-shaped selection indicators for navigation.
         /// </summary>
         PillRail = 24,
 
         /// <summary>
-        /// Stripe Dashboard tree style.
+        /// Stripe Dashboard tree Style.
         /// Clean fintech dashboard design with clear data hierarchy.
         /// </summary>
         StripeDashboard = 25,
 
         /// <summary>
-        /// Figma Layers panel card style.
+        /// Figma Layers panel card Style.
         /// Design tool hierarchy with visual layer representation.
         /// </summary>
         FigmaCard = 26

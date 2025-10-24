@@ -197,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Syncfusion arrow style
+            // Syncfusion arrow Style
             Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
             using (var pen = new Pen(arrowColor, 2f))

@@ -389,16 +389,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// Creates a Font from a TypographyStyle object with null handling
         /// </summary>
         /// <param name="style">The TypographyStyle to convert to a Font</param>
-        /// <returns>A Font object created from the style, or a default font if style is null</returns>
+        /// <returns>A Font object created from the Style, or a default font if Style is null</returns>
         public static Font CreateFontFromTypography(TypographyStyle style)
         {
             if (style == null)
             {
-                // Return default font if style is null
+                // Return default font if Style is null
                 return GetFontWithFallback("Arial", "Segoe UI", 9.0f, FontStyle.Regular);
             }
 
-            // Start with basic font style
+            // Start with basic font Style
             FontStyle fontStyle = style.FontStyle;
 
             // Add underline if specified
@@ -423,7 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets a font by name with specified size and style. Uses cache and robust matching.
+        /// Gets a font by name with specified size and Style. Uses cache and robust matching.
         /// </summary>
         public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
@@ -517,7 +517,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets a font by index with specified size and style
+        /// Gets a font by index with specified size and Style
         /// </summary>
         public static Font GetFontByIndex(int index, float size, FontStyle style = FontStyle.Regular)
         {

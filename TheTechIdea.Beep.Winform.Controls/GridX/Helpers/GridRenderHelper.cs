@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid = grid;
         }
 
-        // Grid style properties
+        // Grid Style properties
         public bool ShowGridLines { get; set; } = true;
         public bool ShowRowStripes { get; set; } = false;
         public System.Drawing.Drawing2D.DashStyle GridLineStyle { get; set; } = System.Drawing.Drawing2D.DashStyle.Solid;

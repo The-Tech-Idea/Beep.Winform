@@ -485,7 +485,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public void AttachControlAddedHandlers() { if (_form != null) AttachContainer(_form); }
         public void DetachControlAddedHandlers() { if (_form != null) DetachContainer(_form); }
 
-        // ---------------------------- Apply/Remove generated BeepForm style
+        // ---------------------------- Apply/Remove generated BeepForm Style
         private bool _applyBeepFormStyle;
         [Browsable(true), Category("BeepiForm"), Description("Apply generated BeepForm chrome to host form.")]
         public bool ApplyBeepFormStyle

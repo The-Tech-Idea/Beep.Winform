@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         Descriptive,
 
         /// <summary>
-        /// Notification/alert style
+        /// Notification/alert Style
         /// Similar to toast notifications but anchored to element
         /// Used for real-time updates, status changes
         /// </summary>

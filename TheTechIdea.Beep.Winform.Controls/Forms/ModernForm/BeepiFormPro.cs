@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 if (_formpaintermaterics == null)
                 {
-                    // Lazy load metrics based on current style and theme
+                    // Lazy load metrics based on current Style and theme
                     _formpaintermaterics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null);
                 }
                 return _formpaintermaterics;
@@ -238,8 +238,8 @@ this.DoubleBuffered = true;
                 PerformLayout();
             }
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
-            
-            // CRITICAL: Update window region to match new style's corner radius
+           
+            // CRITICAL: Update window region to match new Style's corner radius
             UpdateWindowRegion();
             
             Invalidate();

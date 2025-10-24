@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
 {
     /// <summary>
-    /// Material Design style context menu painter
+    /// Material Design Style context menu painter
     /// </summary>
     public class MaterialContextMenuPainter : IContextMenuPainter
     {

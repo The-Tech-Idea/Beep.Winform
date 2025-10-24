@@ -15,10 +15,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         #region Public Properties
         
         /// <summary>
-        /// Gets or sets the visual style of the context menu
+        /// Gets or sets the visual Style of the context menu
         /// </summary>
         [Category("Beep")]
-        [Description("The visual style of the context menu")]
+        [Description("The visual Style of the context menu")]
         [Browsable(true)]
         public FormStyle ContextMenuType
         {

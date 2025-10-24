@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
     /// A painter inspired by chat UI bubbles: soft gradients, speech bubble tails, and message-like appearance.
-    /// Features rounded bubble shapes, message-style shadows, and chat application aesthetics.
+    /// Features rounded bubble shapes, message-Style shadows, and chat application aesthetics.
     /// </summary>
     internal sealed class ChatBubbleFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             return path;
         }
 
-        // Painter-owned non-client border rendering for ChatBubble style
+        // Painter-owned non-client border rendering for ChatBubble Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);
@@ -296,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Calculate caption height based on font and padding (Chat bubble uses rounded padding)
-            var captionHeight = owner.Font.Height + 20; // 10px padding top and bottom for chat bubble style
+            var captionHeight = owner.Font.Height + 20; // 10px padding top and bottom for chat bubble Style
             
             // Set caption rectangle
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
@@ -304,7 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Set content rectangle (below caption)
             layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
             
-            // Calculate button positions (right-aligned in caption, chat bubble style)
+            // Calculate button positions (right-aligned in caption, chat bubble Style)
             var buttonSize = new Size(32, captionHeight);
             var buttonY = 0;
             var buttonX = owner.ClientSize.Width - buttonSize.Width;
@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -345,14 +345,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
             }
             
-            // Icon and title areas (left side of caption, chat bubble style)
+            // Icon and title areas (left side of caption, chat bubble Style)
             var iconSize = 16;
             var iconPadding = 12; // Rounded padding for chat bubble
             layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);

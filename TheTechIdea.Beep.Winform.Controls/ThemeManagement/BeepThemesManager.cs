@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
@@ -14,8 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
     {
         public static readonly Guid DefaultThemeGuid = Guid.Parse("00000000-0000-0000-0000-000000000000");
         private static string _currentThemeName = "DefaultTheme";
-  
+       
         public static event EventHandler<ThemeChangeEventArgs> ThemeChanged;
+        public static event EventHandler <StyleChangeEventArgs> FormStyleChanged;
         // Static themes collection
         public static readonly List<IBeepTheme> _themes = new List<IBeepTheme>();
 
@@ -216,7 +218,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             }
         }
 
-      
+        private static FormStyle _currentstyle = FormStyle.Modern;
+        public static FormStyle CurrentStyle
+        {
+            get { return _currentstyle; }
+            set
+            {
+                FormStyle oldstyle = _currentstyle;
+                _currentstyle = value;
+
+                StyleChangeEventArgs x = new()
+                {
+                    OldStyle = oldstyle,
+                    NewStyle = _currentstyle
+                };
+                FormStyleChanged?.Invoke(null, x);
+            }
+        }
 
         // Current theme property
         public static string CurrentThemeName
@@ -244,6 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         public static IBeepTheme CurrentTheme => GetTheme(_currentThemeName);
 
         public static IBeepTheme DefaultTheme { get; internal set; }
+      
 
         // Get theme by name
         public static IBeepTheme GetTheme(string themeName)
@@ -344,7 +363,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
                 CurrentThemeName = themeName;
             }
         }
-
+        public static void SetCurrentStyle(FormStyle style)
+        {
+            // Only set if we can find the style
+            if (Enum.IsDefined(typeof(FormStyle), style))
+            {
+                CurrentStyle = style;
+            }
+        }
         // Set current theme by object
         public static void SetCurrentTheme(IBeepTheme theme)
         {
@@ -561,71 +587,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             }
         }
 
-        // Helper method to add the AddPredefinedThemes call to the InitializeThemes method
-        private static void InitializeThemesWithPredefined()
-        {
-            // Call the original initialization
-            InitializeThemes();
+   
 
-            // Add predefined themes from the TheTechIdea.Beep.Vis.Modules2.0 project
-            AddPredefinedThemes();
-        }
-        //#region Legacy Support Adapters
-
-        //// This inner class provides adapters for code that still uses EnumBeepThemes
-        //public static class Legacy
-        //{
-        //    // For backward compatibility with existing code that uses EnumBeepThemes
-        //    public static BeepTheme GetTheme(EnumBeepThemes theme)
-        //    {
-        //        string themeName = Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
-        //        return BeepThemesManager.GetTheme(themeName);
-        //    }
-
-        //    public static string GetThemeName(EnumBeepThemes theme)
-        //    {
-        //        return Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
-        //    }
-
-        //    public static EnumBeepThemes GetThemeToEnum(BeepTheme theme)
-        //    {
-        //        if (theme == null) return EnumBeepThemes.DefaultTheme;
-
-        //        if (Enum.TryParse(theme.ThemeName, out EnumBeepThemes result))
-        //            return result;
-
-        //        return EnumBeepThemes.DefaultTheme;
-        //    }
-
-        //    public static EnumBeepThemes GetEnumFromTheme(string themeName)
-        //    {
-        //        if (string.IsNullOrEmpty(themeName)) return EnumBeepThemes.DefaultTheme;
-
-        //        if (Enum.TryParse(themeName, out EnumBeepThemes result))
-        //            return result;
-
-        //        return EnumBeepThemes.DefaultTheme;
-        //    }
-
-        //    // Enum-based current theme property for legacy code
-        //    public static EnumBeepThemes CurrentTheme
-        //    {
-        //        get => GetEnumFromTheme(BeepThemesManager._currentThemeName);
-        //        set => BeepThemesManager.CurrentThemeName = GetThemeName(value);
-        //    }
-
-        //    public static EnumBeepThemes GetCurrentTheme()
-        //    {
-        //        return GetEnumFromTheme(BeepThemesManager._currentThemeName);
-        //    }
-
-        //    public static void SetCurrentTheme(EnumBeepThemes theme)
-        //    {
-        //        BeepThemesManager.CurrentThemeName = GetThemeName(theme);
-        //    }
-        //}
-
-        //#endregion
+       
     }
 
    

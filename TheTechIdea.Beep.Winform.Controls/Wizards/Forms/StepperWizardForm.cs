@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
     /// <summary>
-    /// Horizontal stepper wizard form (Image 3 style)
+    /// Horizontal stepper wizard form (Image 3 Style)
     /// Shows all steps in a horizontal line with connectors
     /// </summary>
     public class StepperWizardForm : BaseWizardForm

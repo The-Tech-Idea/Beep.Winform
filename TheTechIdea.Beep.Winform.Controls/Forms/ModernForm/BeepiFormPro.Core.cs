@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public bool ScreenReaderSupport { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the focus indicator style for keyboard navigation
+        /// Gets or sets the focus indicator Style for keyboard navigation
         /// </summary>
         [System.ComponentModel.Category("Beep Accessibility")]
         [System.ComponentModel.DefaultValue(FocusIndicatorStyle.Subtle)]
@@ -430,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// Gets or sets whether to show the style button in the caption bar
+        /// Gets or sets whether to show the Style button in the caption bar
         /// </summary>
         [System.ComponentModel.Category("Beep Caption")]
         [System.ComponentModel.DefaultValue(false)]
@@ -695,21 +695,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Style button (layout icon)
             _styleButton = new FormRegion
             {
-                Id = "system:style",
+                Id = "system:Style",
                 Dock = RegionDock.Caption,
                 OnPaint = (g, r) =>
                 {
                     if (r.Width <= 0 || r.Height <= 0 || !_showStyleButton) return;
                    
-                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("style")) ?? false;
-                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea("style")) ?? false;
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("Style")) ?? false;
+                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea("Style")) ?? false;
                     
                     // Hover/press indicator: circle outline
                     var hoverColor = isPressed ? pnt.CaptionButtonPressedColor : pnt.CaptionButtonHoverColor;
                     if (isHovered || isPressed)
                         FormPainterRenderHelper.DrawHoverOutlineCircle(g, r, hoverColor, isPressed ? 3 : 2, 6);
 
-                    // Draw icon (◧ layout/style icon)
+                    // Draw icon (◧ layout/Style icon)
                     var fg = pnt.ForegroundColor;
                     using var font = new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
                     TextRenderer.DrawText(g, "◧", font, r, fg,
@@ -732,7 +732,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "maximize": key = "region:system:maximize"; break;
                 case "minimize": key = "region:system:minimize"; break;
                 case "theme": key = "region:system:theme"; break;
-                case "style": key = "region:system:style"; break;
+                case "Style": key = "region:system:Style"; break;
                 case "customAction": key = "region:custom:action"; break;
                 case "title": key = "caption"; break; // treat title hit as caption drag
 
@@ -741,7 +741,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "system:maximize": key = "region:system:maximize"; break;
                 case "system:minimize": key = "region:system:minimize"; break;
                 case "system:theme": key = "region:system:theme"; break;
-                case "system:style": key = "region:system:style"; break;
+                case "system:Style": key = "region:system:Style"; break;
                 case "custom:action": key = "region:custom:action"; break;
             }
 
@@ -777,7 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     ShowThemeMenu();
                     break;
 
-                case "region:system:style":
+                case "region:system:Style":
                     // Style button clicked
                     StyleButtonClicked?.Invoke(this, EventArgs.Empty);
                     ShowFormStyleMenu();
@@ -803,17 +803,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     var item = new ToolStripMenuItem(style.ToString());
                     item.Click += (s, e) =>
                     {
-                        try
+                        // Defer theme change to avoid repaints during menu interaction
+                        BeginInvoke(new Action(() =>
                         {
-                            FormStyle = style;
-                        }
-                        catch { }
+                            try
+                            {
+
+                                FormStyle = style;
+                                BeepThemesManager.SetCurrentStyle(style);
+                            }
+                            catch { }
+                        }));
+
+                      
                     };
                     menu.Items.Add(item);
                 }
             }
             catch { }
-            // Show menu below the style button using the current layout rectangle
+            // Show menu below the Style button using the current layout rectangle
             var styleRect = CurrentLayout.StyleButtonRect;
             Point pt;
             if (styleRect.Width > 0 && styleRect.Height > 0)
@@ -838,15 +846,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     item.Click += (s, e) =>
                     {
                          // Defer theme change to avoid repaints during menu interaction
-                BeginInvoke(new Action(() =>
-                {
-                    try
-                    {
+                         BeginInvoke(new Action(() =>
+                          {
+                            try
+                          {
                         BeepThemesManager.SetCurrentTheme(theme);
                         Theme = theme; // This will handle invalidation smartly
-                    }
-                    catch { }
-                }));
+                          }
+                             catch { }
+                            }));
                     };
                     menu.Items.Add(item);
                 }

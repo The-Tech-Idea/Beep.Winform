@@ -9,12 +9,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
     /// Standard/classic Windows tree view painter.
-    /// Features: Windows Explorer style with tree lines, plus/minus toggles, standard checkboxes.
+    /// Features: Windows Explorer Style with tree lines, plus/minus toggles, standard checkboxes.
     /// </summary>
     public class StandardTreePainter : BaseTreePainter
     {
         /// <summary>
-        /// Standard Windows tree painting with classic Explorer style.
+        /// Standard Windows tree painting with classic Explorer Style.
         /// Features: Tree lines connecting nodes, plus/minus box toggles, standard checkboxes, simple icons.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 2: Draw plus/minus toggle (classic Windows style)
+                // STEP 2: Draw plus/minus toggle (classic Windows Style)
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {

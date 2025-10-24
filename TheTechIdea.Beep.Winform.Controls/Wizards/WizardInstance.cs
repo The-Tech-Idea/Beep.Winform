@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
 
         private void CreateWizardForm()
         {
-            // Create wizard form based on style
+            // Create wizard form based on Style
             switch (_config.Style)
             {
                 case WizardStyle.Classic:

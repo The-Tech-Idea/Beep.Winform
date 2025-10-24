@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Neon-lit futuristic dystopian style
+    /// Neon-lit futuristic dystopian Style
     /// </summary>
     internal sealed class CyberpunkFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
 
         /// <summary>
-        /// Paint Cyberpunk-style neon hexagon buttons with multi-layer glow
+        /// Paint Cyberpunk-Style neon hexagon buttons with multi-layer glow
         /// </summary>
         private void PaintCyberpunkNeonButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintNeonHexagonButton(g, styleRect, Color.FromArgb(255, 200, 0), "style");
+                PaintNeonHexagonButton(g, styleRect, Color.FromArgb(255, 200, 0), "Style");
             }
         }
 
@@ -187,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         g.DrawPath(iconPen, smallHex);
                         break;
 
-                    case "style":
+                    case "Style":
                         // Brush/paint icon (triangle)
                         var points = new PointF[]
                         {
@@ -399,7 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             
@@ -411,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonWidth;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);

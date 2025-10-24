@@ -9,19 +9,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            if (isSelected || isHovered)
+            // Use BeepStyling for MaterialOutlined Style background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                Color bgColor = isSelected ? _helper.GetSelectedBackColor() : _helper.GetHoverBackColor();
-                using (var brush = new SolidBrush(bgColor))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
-            
             // Draw ripple effect on selected
             if (isSelected)
             {
-                using (var pen = new Pen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, 2f))
+                using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Blue, 2f))
                 {
                     g.DrawLine(pen, itemRect.Left, itemRect.Top, itemRect.Left, itemRect.Bottom);
                 }

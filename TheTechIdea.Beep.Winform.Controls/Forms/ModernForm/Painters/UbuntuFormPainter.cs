@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Ubuntu Unity desktop style
+    /// Ubuntu Unity desktop Style
     /// </summary>
     internal sealed class UbuntuFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
         
         /// <summary>
-        /// Paint Ubuntu Unity-style circular buttons (REDESIGNED - cleaner look)
+        /// Paint Ubuntu Unity-Style circular buttons (REDESIGNED - cleaner look)
         /// </summary>
         private void PaintUbuntuButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
@@ -405,7 +405,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             

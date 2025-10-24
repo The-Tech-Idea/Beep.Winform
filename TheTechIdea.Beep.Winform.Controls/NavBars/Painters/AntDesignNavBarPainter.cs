@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 g.DrawLine(borderPen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
             }
             
-            // Draw all nav items - Ant Design clean style
+            // Draw all nav items - Ant Design clean Style
             if (context.Items == null || context.Items.Count == 0) return;
 
             bool isHorizontal = context.Orientation == NavBarOrientation.Horizontal;

@@ -45,38 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            if (isSelected)
+            // Use BeepStyling for ColoredSelection background, border, and shadow
+           
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                // Use item-specific colors
-                bgColor = GetSelectionBackgroundColor(isSelected);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
-            else if (isHovered)
-            {
-                bgColor = Color.FromArgb(248, 248, 248);
-            }
-            else
-            {
-                bgColor = Color.White;
-            }
-            
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, itemRect);
-            }
-            
-            // Draw bottom border
-            using (var pen = new Pen(Color.FromArgb(235, 235, 235), 1f))
-            {
-                g.DrawLine(pen, itemRect.Left, itemRect.Bottom - 1, itemRect.Right, itemRect.Bottom - 1);
-            }
-        }
-        
-        private Color GetSelectionBackgroundColor(bool isSelected)
-        {
-            // Return different colors based on item state
-            // Gray for default, green for custom choice
-            return Color.FromArgb(220, 245, 230); // Light green
         }
         
         private Color GetSelectionColor(SimpleItem item)

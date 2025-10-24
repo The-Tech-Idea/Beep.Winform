@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Effect shadow painter - Dynamic visual effects style
+    /// Effect shadow painter - Dynamic visual effects Style
     /// Effect UX: Dramatic shadows, glows, long shadows, perspective
     /// </summary>
     public static class EffectShadowPainter

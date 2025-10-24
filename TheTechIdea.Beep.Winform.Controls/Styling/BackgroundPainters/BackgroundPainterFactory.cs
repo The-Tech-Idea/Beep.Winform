@@ -11,10 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     public static class BackgroundPainterFactory
     {
         /// <summary>
-        /// Creates a background painter instance for the specified style
+        /// Creates a background painter instance for the specified Style
         /// </summary>
-        /// <param name="style">The control style to create a painter for</param>
-        /// <returns>An IBackgroundPainter implementation, or null for None style</returns>
+        /// <param name="style">The control Style to create a painter for</param>
+        /// <returns>An IBackgroundPainter implementation, or null for None Style</returns>
         public static IBackgroundPainter CreatePainter(BeepControlStyle style)
         {
             return style switch

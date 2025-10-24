@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                // Remove the row style and decrement the row count
+                // Remove the row Style and decrement the row count
                 tableLayoutPanel.RowStyles.RemoveAt(rowIndex);
                 tableLayoutPanel.RowCount--;
             }
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                // Remove the column style and decrement the column count
+                // Remove the column Style and decrement the column count
                 tableLayoutPanel.ColumnStyles.RemoveAt(columnIndex);
                 tableLayoutPanel.ColumnCount--;
             }

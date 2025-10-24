@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         /// <summary>
         /// Bootstrap-specific node painting with card-based design.
-        /// Features: Card-style nodes with shadows, thick 2px borders, Bootstrap primary color accents, badge-style icons.
+        /// Features: Card-Style nodes with shadows, thick 2px borders, Bootstrap primary color accents, badge-Style icons.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 6: Draw Bootstrap badge-style icon
+                // STEP 6: Draw Bootstrap badge-Style icon
                 if (node.IconRectContent != Rectangle.Empty && !string.IsNullOrEmpty(node.Item.ImagePath))
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: Bootstrap badge-style icon
+            // Default: Bootstrap badge-Style icon
             PaintDefaultBootstrapIcon(g, iconRect);
         }
 
@@ -286,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             Color iconColor = _theme.AccentColor;
 
-            // Bootstrap badge style
+            // Bootstrap badge Style
             using (var path = CreateRoundedRectangle(iconRect, 3))
             {
                 using (var brush = new SolidBrush(iconColor))

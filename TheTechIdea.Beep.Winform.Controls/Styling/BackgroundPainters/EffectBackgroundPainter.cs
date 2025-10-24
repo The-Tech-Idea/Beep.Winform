@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Effect background painter - Dynamic visual effects style
+    /// Effect background painter - Dynamic visual effects Style
     /// Effect UX: Gradients, glows, animated appearance (static snapshot)
     /// </summary>
     public static class EffectBackgroundPainter
@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Effect style: Rich gradients with vibrant color shifts
+            // Effect Style: Rich gradients with vibrant color shifts
             Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Effect);
 
             // Effect-specific state handling - dynamic color shifts
@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            // Effect style: Rich diagonal gradient with multiple color stops
+            // Effect Style: Rich diagonal gradient with multiple color stops
             var bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(
                 new PointF(bounds.Left, bounds.Top),

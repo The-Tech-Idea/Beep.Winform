@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
             
-            // No separator for rounded style - cleaner look
+            // No separator for rounded Style - cleaner look
             
             // Draw arrow
             Color arrowColor = _theme?.SecondaryColor ?? Color.Gray;
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         public override Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(16, 8, 12, 8); // More padding for rounded style
+            return new System.Windows.Forms.Padding(16, 8, 12, 8); // More padding for rounded Style
         }
     }
 }

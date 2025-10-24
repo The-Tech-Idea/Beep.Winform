@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
-            // Very subtle border for minimal style
+            // Very subtle border for minimal Style
             Color borderColor = Color.FromArgb(200, _theme?.BorderColor ?? Color.LightGray);
             
             using (var pen = new Pen(borderColor, 1f))
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         public override Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(8, 4, 8, 4); // Slightly more padding for minimal style
+            return new System.Windows.Forms.Padding(8, 4, 8, 4); // Slightly more padding for minimal Style
         }
     }
 }

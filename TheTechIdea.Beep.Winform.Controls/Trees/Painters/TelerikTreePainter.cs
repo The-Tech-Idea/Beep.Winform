@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
     /// Telerik tree painter.
-    /// Features: Professional polish, subtle gradients, rich visuals, office-style appearance.
+    /// Features: Professional polish, subtle gradients, rich visuals, office-Style appearance.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
     public class TelerikTreePainter : BaseTreePainter

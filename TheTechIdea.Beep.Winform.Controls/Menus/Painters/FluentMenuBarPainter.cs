@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
     /// <summary>
-    /// Fluent-style menu bar: pill selection, soft reveal hover, rounded corners.
+    /// Fluent-Style menu bar: pill selection, soft reveal hover, rounded corners.
     /// </summary>
     public sealed class FluentMenuBarPainter : MenuBarPainterBase
     {

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// ActivityFeed - Timeline-style activities with hover and per-item hit areas
+    /// ActivityFeed - Timeline-Style activities with hover and per-item hit areas
     /// </summary>
     internal sealed class ActivityFeedPainter : WidgetPainterBase
     {

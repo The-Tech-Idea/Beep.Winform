@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Update context colors from theme
             UpdateContextColors(ctx);
 
-            // Override some colors for modern style
+            // Override some colors for modern Style
             ctx.ItemBackColor = Color.Transparent; // No background by default
             ctx.ItemBorderColor = Color.Transparent; // No borders
             ctx.CornerRadius = 6; // Slightly rounded corners
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int padding = 2;
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
 
-            // For modern style, use full content area for menu items
+            // For modern Style, use full content area for menu items
             ctx.MenuItemsRect = ctx.ContentRect;
             ctx.TitleRect = Rectangle.Empty;
             ctx.ActionsRect = Rectangle.Empty;
@@ -57,11 +57,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             if (g == null || ctx.DrawingRect.IsEmpty) return;
 
-            // Modern style: clean flat background
+            // Modern Style: clean flat background
             using var bgBrush = new SolidBrush(GetBackgroundColor());
             g.FillRectangle(bgBrush, ctx.DrawingRect);
 
-            // No borders for modern style - clean and minimal
+            // No borders for modern Style - clean and minimal
         }
 
         public override void DrawContent(Graphics g, MenuBarContext ctx)

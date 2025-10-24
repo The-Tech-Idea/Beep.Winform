@@ -25,7 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _listBoxPainter?.Initialize(this, _currentTheme);
                 _needsLayoutUpdate = true;
             }
-
+            if (_listBoxPainter.Style != ControlStyle)
+            {
+                _listBoxPainter.Style = ControlStyle;
+            }
             // Hover over search area
             if (_showSearch && _searchAreaRect.Contains(e.Location))
             {

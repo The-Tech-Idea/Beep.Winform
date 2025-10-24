@@ -53,10 +53,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         Minimal,       // Ultra-thin, no icon
         Material,      // Tall Google Material Design
         Fluent,        // Microsoft Fluent Design
-        Ribbon,        // Office-style with ribbon area
+        Ribbon,        // Office-Style with ribbon area
         Mobile,        // Mobile-inspired touch layout
-        Console,       // Terminal/IDE style
-        Floating       // Floating panel style
+        Console,       // Terminal/IDE Style
+        Floating       // Floating panel Style
     }
 
     /// <summary>

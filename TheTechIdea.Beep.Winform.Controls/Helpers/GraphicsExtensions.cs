@@ -848,7 +848,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Creates a GraphicsPath for a rectangle with elliptical corners
         /// allowing different horizontal and vertical radii. This can be used
-        /// for more �modern� or �material� style corners.
+        /// for more �modern� or �material� Style corners.
         /// </summary>
         /// <param name="rect">The overall bounding rectangle.</param>
         /// <param name="radiusX">Horizontal radius for corners.</param>
@@ -1028,7 +1028,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
         /// <summary>
-        /// Creates a hexagonal path (for Gaming style)
+        /// Creates a hexagonal path (for Gaming Style)
         /// </summary>
         public static GraphicsPath CreateHexagonPath(RectangleF bounds, float cutSize)
         {

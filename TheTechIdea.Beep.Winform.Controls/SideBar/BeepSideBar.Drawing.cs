@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
             }
 
@@ -61,8 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             }
         }
         /// <summary>
-        /// Paint background color based on the selected style
-        /// Each style has a distinct, recognizable background color
+        /// Paint background color based on the selected Style
+        /// Each Style has a distinct, recognizable background color
         /// </summary>
         protected void PaintBackgroundPerStyle(Graphics g)
         {
@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                     break;
 
                 case BeepControlStyle.Fluent2:
-                    // Fluent 2 - Warm neutral gray (Microsoft style)
+                    // Fluent 2 - Warm neutral gray (Microsoft Style)
                     backColor = Color.FromArgb(243, 242, 241);
                     break;
 

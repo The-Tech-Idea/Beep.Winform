@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Time Settings")]
-        [Description("Sets the predefined time format style")]
+        [Description("Sets the predefined time format Style")]
         [DefaultValue(TimeFormatStyle.TwentyFourHour)]
         public TimeFormatStyle TimeFormatStyle
         {

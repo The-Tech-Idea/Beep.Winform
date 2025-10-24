@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         }
 
         /// <summary>
-        /// Show a temporary notification-style tooltip
+        /// Show a temporary notification-Style tooltip
         /// </summary>
         public static async Task<string> ShowNotificationAsync(this Control control, string text, 
             ToolTipType type = ToolTipType.Info, int duration = 3000)

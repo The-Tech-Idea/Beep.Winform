@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         /// <param name="fontResourcePath">The font resource path from BeepFontPaths</param>
         /// <param name="size">Font size</param>
-        /// <param name="style">Font style</param>
+        /// <param name="style">Font Style</param>
         /// <returns>Font object or null if failed</returns>
         public static Font CreateFontFromResource(string fontResourcePath, float size, FontStyle style = FontStyle.Regular)
         {
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// Gets a font using the BeepFontPaths system with fallback.
         /// </summary>
         /// <param name="familyName">Font family name</param>
-        /// <param name="style">Font style</param>
+        /// <param name="style">Font Style</param>
         /// <param name="size">Font size</param>
         /// <param name="fallbackFontName">Fallback font name if primary not found</param>
         /// <returns>Font object</returns>

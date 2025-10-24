@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [Description("The visual Style/painter to use for rendering the sidebar.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
             }
             painter.Paint(g, rect, _currentTheme, this, Parameters);

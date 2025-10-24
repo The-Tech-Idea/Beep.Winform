@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 g.FillRectangle(brush, bounds);
             }
-            // No border for compact style - BaseControl painter handles outer border if any
+            // No border for compact Style - BaseControl painter handles outer border if any
         }
 
         private void PaintCompactHeader(Graphics g, Rectangle bounds, string headerText, DateTimePickerHoverState hoverState)
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
 
-            // Tighter cell padding for compact style
+            // Tighter cell padding for compact Style
             cellBounds.Inflate(-1, -1);
 
             // Paint selection - simple fill, no border
@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 }
             }
 
-            // Smaller arrows for compact style
+            // Smaller arrows for compact Style
             using (var pen = new Pen(iconColor, 1.5f))
             {
                 pen.StartCap = LineCap.Round;

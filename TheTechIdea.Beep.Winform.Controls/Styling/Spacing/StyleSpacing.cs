@@ -4,12 +4,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
 {
     /// <summary>
     /// Spacing and padding definitions for all design systems
-    /// Each style has distinct spacing patterns
+    /// Each Style has distinct spacing patterns
     /// </summary>
     public static class StyleSpacing
     {
         /// <summary>
-        /// Get standard padding for a specific style
+        /// Get standard padding for a specific Style
         /// </summary>
         public static int GetPadding(BeepControlStyle style)
         {
@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
         }
 
         /// <summary>
-        /// Get item spacing/gap for a specific style
+        /// Get item spacing/gap for a specific Style
         /// </summary>
         public static int GetItemSpacing(BeepControlStyle style)
         {
@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
         }
 
         /// <summary>
-        /// Get icon size for a specific style
+        /// Get icon size for a specific Style
         /// </summary>
         public static int GetIconSize(BeepControlStyle style)
         {

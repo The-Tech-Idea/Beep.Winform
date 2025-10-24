@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 {
-    // New optional style using chevron-like right arrow shapes between items
+    // New optional Style using chevron-like right arrow shapes between items
     internal sealed class ChevronBreadcrumbPainter : BreadcrumbPainterBase
     {
         public override Rectangle CalculateItemRect(Graphics g, SimpleItem item, int x, int y, int height, bool isHovered)

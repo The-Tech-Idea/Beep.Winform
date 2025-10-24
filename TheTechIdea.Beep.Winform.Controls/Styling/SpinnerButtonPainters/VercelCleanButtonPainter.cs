@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             ControlState upState = ControlState.Normal,
             ControlState downState = ControlState.Normal)
         {
-            // Vercel: Clean monochrome style
+            // Vercel: Clean monochrome Style
             Color borderColor = Color.FromArgb(234, 234, 234);
             Color arrowColor = Color.Black;
 

@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [Description("The visual Style/painter to use for rendering the sidebar.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Appearance/Layout Properties
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The render style for the radio group items.")]
+        [Description("The render Style for the radio group items.")]
         [DefaultValue(RadioGroupRenderStyle.Material)]
         public RadioGroupRenderStyle RadioGroupStyle
         {

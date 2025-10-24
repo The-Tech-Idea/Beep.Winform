@@ -234,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "React-Style UI Properties"
         // Add these properties to BeepControl
         [Category("React UI")]
-        [Description("Determines the visual variant style of the control similar to React components")]
+        [Description("Determines the visual variant Style of the control similar to React components")]
         public ReactUIVariant UIVariant { get; set; } = ReactUIVariant.Default;
 
         [Category("React UI")]
@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ReactUIShape UIShape { get; set; } = ReactUIShape.Rounded;
 
         [Category("React UI")]
-        [Description("Sets the animation style for user interactions")]
+        [Description("Sets the animation Style for user interactions")]
         public ReactUIAnimation UIAnimation { get; set; } = ReactUIAnimation.None;
 
         [Category("React UI")]
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int UICustomElevation { get; set; } = 0;
         // Add these properties to BeepControl
         [Category("Material UI")]
-        [Description("Material UI TextField border style variant")]
+        [Description("Material UI TextField border Style variant")]
         public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
 
         [Category("Material UI")]
@@ -326,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Material UI")]
-        [Description("Whether to show a ripple effect on click (Material Design style)")]
+        [Description("Whether to show a ripple effect on click (Material Design Style)")]
         public bool EnableRippleEffect { get; set; } = false;
         // Ripple effect properties
         private Point _rippleCenter;
@@ -708,14 +708,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Custom DashStyle for the border
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The dash style of the border.")]
+        [Description("The dash Style of the border.")]
         public DashStyle BorderDashStyle
         {
             get => _borderDashStyle;
             set
             {
                 _borderDashStyle = value;
-                Invalidate(); // Redraw the control when the dash style changes
+                Invalidate(); // Redraw the control when the dash Style changes
             }
         }
         [Browsable(true)]
@@ -1252,7 +1252,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Theme"
         #region "React-Style UI Implementation"
         /// <summary>
-        /// Applies React-style UI properties to the control's visual appearance
+        /// Applies React-Style UI properties to the control's visual appearance
         /// </summary>
         public virtual void ApplyReactUIStyles(Graphics g)
         {
@@ -1956,7 +1956,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                         else
                         {
-                            // Fill the entire background for non-rounded style
+                            // Fill the entire background for non-rounded Style
                             g.FillRectangle(fillBrush, borderRect);
 
                             // Draw bottom border
@@ -1996,7 +1996,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         /// <summary>
-        /// Starts a Material Design style ripple effect from the specified point
+        /// Starts a Material Design Style ripple effect from the specified point
         /// </summary>
         protected void StartMaterialRipple(Point clickPosition)
         {
@@ -2368,7 +2368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Updated signature and logic for DrawBorder
         protected void DrawBorder(Graphics graphics, Rectangle drawingRect, Pen borderPen)
         {
-            // Assumes borderPen is already configured with correct color, thickness, dash style, alignment
+            // Assumes borderPen is already configured with correct color, thickness, dash Style, alignment
 
             // Draw individual borders based on settings
             if (ShowTopBorder)
@@ -2455,8 +2455,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (var pen = new Pen(color, brder))
             {
                 pen.DashStyle = _borderDashStyle;
-                // Set the border style
-                // set pen to draw based on border style
+                // Set the border Style
+                // set pen to draw based on border Style
                 switch (BorderDashStyle)
                 {
                     case DashStyle.Dash:
@@ -2618,7 +2618,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Creates a GraphicsPath for a rectangle with elliptical corners
         /// allowing different horizontal and vertical radii. This can be used
-        /// for more “modern” or “material” style corners.
+        /// for more “modern” or “material” Style corners.
         /// </summary>
         /// <param name="rect">The overall bounding rectangle.</param>
         /// <param name="radiusX">Horizontal radius for corners.</param>

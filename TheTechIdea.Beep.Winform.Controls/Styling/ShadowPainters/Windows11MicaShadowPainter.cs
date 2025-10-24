@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// Windows 11 Mica shadow painter
-    /// Uses subtle mica-style shadows
+    /// Uses subtle mica-Style shadows
     /// </summary>
     public static class Windows11MicaShadowPainter
     {
@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         {
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Paint minimal shadow for Mica style
+            // Paint minimal shadow for Mica Style
             GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), 0.08f, StyleShadows.GetShadowBlur(style) / 4);
             return remainingPath;
         }

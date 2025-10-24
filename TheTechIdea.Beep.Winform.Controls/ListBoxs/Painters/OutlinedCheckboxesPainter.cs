@@ -35,23 +35,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            if (isSelected)
-                bgColor = Color.FromArgb(255, 240, 240); // Light red background
-            else if (isHovered)
-                bgColor = Color.FromArgb(255, 248, 248);
-            else
-                bgColor = Color.White;
-            
-            using (var brush = new SolidBrush(bgColor))
+            // Use BeepStyling for OutlinedCheckboxes background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillRectangle(brush, itemRect);
-            }
-            
-            // Draw bottom border
-            using (var pen = new Pen(Color.FromArgb(255, 220, 220), 1f))
-            {
-                g.DrawLine(pen, itemRect.Left, itemRect.Bottom - 1, itemRect.Right, itemRect.Bottom - 1);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         
@@ -73,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillRectangle(brush, checkboxRect);
             }
             
-            // Draw border (2px for outlined style)
+            // Draw border (2px for outlined Style)
             using (var pen = new Pen(borderColor, 2f))
             {
                 g.DrawRectangle(pen, checkboxRect.X + 1, checkboxRect.Y + 1, checkboxRect.Width - 3, checkboxRect.Height - 3);

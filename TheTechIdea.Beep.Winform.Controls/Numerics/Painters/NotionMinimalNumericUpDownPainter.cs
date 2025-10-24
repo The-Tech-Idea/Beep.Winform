@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Notion Minimal style painter for NumericUpDown
+    /// Notion Minimal Style painter for NumericUpDown
     /// Features: Subtle grays, minimal borders, clean spacing, workspace aesthetic
     /// </summary>
     public class NotionMinimalNumericUpDownPainter : BaseNumericUpDownPainter

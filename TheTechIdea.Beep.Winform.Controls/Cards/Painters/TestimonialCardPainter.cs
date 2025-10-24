@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
     /// <summary>
-    /// TestimonialCard - Quote style with avatar and rating stars
+    /// TestimonialCard - Quote Style with avatar and rating stars
     /// </summary>
     internal sealed class TestimonialCardPainter : CardPainterBase
     {

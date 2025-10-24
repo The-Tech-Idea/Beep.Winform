@@ -10,11 +10,11 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
 {
     /// <summary>
-    /// Standard Windows-style context menu painter
+    /// Standard Windows-Style context menu painter
     /// </summary>
     public class StandardContextMenuPainter : IContextMenuPainter
     {
-        public FormStyle Style => FormStyle.Modern; // Standard style maps to Modern
+        public FormStyle Style => FormStyle.Modern; // Standard Style maps to Modern
 
         public ContextMenuMetrics GetMetrics(IBeepTheme theme = null, bool useThemeColors = false)
         {

@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                     g.DrawLine(borderPen, bounds.Right - 1, bounds.Top, bounds.Right - 1, bounds.Bottom);
             }
 
-            // Draw Windows 11 style nav items
+            // Draw Windows 11 Style nav items
             if (context.Items == null || context.Items.Count == 0) return;
 
             bool isHorizontal = context.Orientation == NavBarOrientation.Horizontal;

@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             ControlState state = ControlState.Normal,
             MaterialElevation elevation = MaterialElevation.Level0)
         {
-            // Pill rail style has no shadows for clean flat appearance
+            // Pill rail Style has no shadows for clean flat appearance
             if (!StyleShadows.HasShadow(style))
                 return path;
 

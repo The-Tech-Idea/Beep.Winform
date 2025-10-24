@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: Tailwind-style icon
+            // Default: Tailwind-Style icon
             PaintDefaultTailwindIcon(g, iconRect);
         }
 

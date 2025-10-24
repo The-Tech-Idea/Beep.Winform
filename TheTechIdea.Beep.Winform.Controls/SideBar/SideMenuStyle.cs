@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         /// <summary>Bootstrap-like card-based sidebar</summary>
         Bootstrap = 3,
 
-        /// <summary>Figma-style cards with subtle shadows</summary>
+        /// <summary>Figma-Style cards with subtle shadows</summary>
         FigmaCard = 4,
 
         /// <summary>Pill-shaped navigation rail</summary>
@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         /// <summary>Dark mode optimized with glowing accents</summary>
         DarkGlow = 14,
 
-        /// <summary>iOS 15+ sidebar style</summary>
+        /// <summary>iOS 15+ sidebar Style</summary>
         iOS15 = 15,
 
         /// <summary>Material You adaptive color sidebar</summary>

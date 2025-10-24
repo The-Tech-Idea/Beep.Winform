@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for GlassAcrylic style
+    /// Background painter for GlassAcrylic Style
     /// </summary>
     public static class GlassBackgroundPainter
     {

@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int MetadataSpacing = 4;
 
         /// <summary>
-        /// Document tree-specific node painting with document management style.
+        /// Document tree-specific node painting with document management Style.
         /// Features: Card elevation with shadows, rounded corners (4px), document type badges, metadata display, thumbnail placeholders.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             if (isSelected)
             {
-                // Selected: card-style elevation
+                // Selected: card-Style elevation
                 Color selectedColor = _theme.TreeNodeSelectedBackColor;
                 using (var path = CreateRoundedRectangle(nodeBounds, 4))
                 {

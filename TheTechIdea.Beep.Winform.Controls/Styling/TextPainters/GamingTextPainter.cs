@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint gaming HUD-style text with scanlines effect
+        /// Paint gaming HUD-Style text with scanlines effect
         /// </summary>
         public static void PaintHUDStyle(Graphics g, Rectangle bounds, string text, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)

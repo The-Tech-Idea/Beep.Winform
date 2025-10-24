@@ -1,13 +1,13 @@
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
 {
     /// <summary>
-    /// Defines the visual style/variant of the list box
+    /// Defines the visual Style/variant of the list box
     /// Based on modern list and dropdown design patterns
     /// </summary>
     public enum ListBoxType
     {
         /// <summary>
-        /// Standard list box (default Windows style)
+        /// Standard list box (default Windows Style)
         /// </summary>
         Standard = 0,
         
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         LanguageSelector = 12,
         
         /// <summary>
-        /// Card-style list with elevated items
+        /// Card-Style list with elevated items
         /// </summary>
         CardList = 13,
         
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         TeamMembers = 16,
         
         /// <summary>
-        /// Filled style list with colored backgrounds (from image 1 - bottom right)
+        /// Filled Style list with colored backgrounds (from image 1 - bottom right)
         /// Blue filled background for selected items
         /// </summary>
         FilledStyle = 17,
@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         ColoredSelection = 22,
         
         /// <summary>
-        /// Single choice radio-style list (from image 5 - Tickets Setup)
+        /// Single choice radio-Style list (from image 5 - Tickets Setup)
         /// Radio buttons on right, one item has colored background
         /// </summary>
         RadioSelection = 23,
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         ErrorStates = 24,
         
         /// <summary>
-        /// Custom list box style where developers can provide their own item rendering logic
+        /// Custom list box Style where developers can provide their own item rendering logic
         /// Allows full customization through CustomItemRenderer delegate
         /// </summary>
         Custom = 25

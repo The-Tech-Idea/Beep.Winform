@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// macOS Big Sur style painter for NumericUpDown
+    /// macOS Big Sur Style painter for NumericUpDown
     /// Features: Vibrancy effects, subtle gradients, SF Pro fonts, desktop-focused design
     /// </summary>
     public class MacOSBigSurNumericUpDownPainter : BaseNumericUpDownPainter
@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
                 ? macOSBlue
                 : Color.FromArgb(210, 210, 215);
 
-            // Draw background with macOS rounded style
+            // Draw background with macOS rounded Style
             int radius = context.IsRounded ? Math.Max(context.BorderRadius, 6) : 6;
             using (var path = CreateRoundedPath(bounds, radius))
             {

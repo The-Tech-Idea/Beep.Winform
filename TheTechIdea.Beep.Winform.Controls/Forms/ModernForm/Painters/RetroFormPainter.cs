@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
-            // Retro: Solid caption with 3D bevel effect (Win95 style)
+            // Retro: Solid caption with 3D bevel effect (Win95 Style)
             g.SmoothingMode = SmoothingMode.None;
             using var capBrush = new SolidBrush(metrics.CaptionColor);
             g.FillRectangle(capBrush, captionRect);
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Retro: Multi-line 3D border (inset/outset style)
+            // Retro: Multi-line 3D border (inset/outset Style)
             g.SmoothingMode = SmoothingMode.None;
 
             var rect = owner.BorderShape.GetBounds();
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             

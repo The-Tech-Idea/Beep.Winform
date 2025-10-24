@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override void PaintPositionIndicator(Graphics g, Rectangle bounds, int currentPosition, 
             int totalRecords, IBeepTheme theme)
         {
-            // Not used in minimal style
+            // Not used in minimal Style
         }
 
         private void PaintPageNumber(Graphics g, Rectangle bounds, int pageNumber, 

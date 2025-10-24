@@ -210,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Appearance Properties
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The render style for the radio group items.")]
+        [Description("The render Style for the radio group items.")]
         [DefaultValue(RadioGroupRenderStyle.Flat)]
         public RadioGroupRenderStyle RenderStyle
         {

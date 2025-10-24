@@ -9,19 +9,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            if (isHovered || isSelected)
+            // Use BeepStyling for Minimal Style background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                Color bgColor = isSelected ? _helper.GetSelectedBackColor() : _helper.GetHoverBackColor();
-                using (var brush = new SolidBrush(bgColor))
-                {
-                    g.FillRectangle(brush, itemRect);
-                }
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         
         public override int GetPreferredItemHeight()
         {
-            return 28; // Slightly smaller for minimal style
+            return 28; // Slightly smaller for minimal Style
         }
     }
 }

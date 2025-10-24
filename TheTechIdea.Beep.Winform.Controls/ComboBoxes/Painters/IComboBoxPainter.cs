@@ -15,17 +15,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         void Initialize(BeepComboBox owner, IBeepTheme theme);
         
         /// <summary>
-        /// Paint the combo box in the specified style
+        /// Paint the combo box in the specified Style
         /// </summary>
         void Paint(Graphics g, BeepComboBox owner, Rectangle drawingRect);
         
         /// <summary>
-        /// Get the preferred button width for this style
+        /// Get the preferred button width for this Style
         /// </summary>
         int GetPreferredButtonWidth();
         
         /// <summary>
-        /// Get the preferred padding for this style
+        /// Get the preferred padding for this Style
         /// </summary>
         Padding GetPreferredPadding();
     }

@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Gradient Modern style painter for NumericUpDown
+    /// Gradient Modern Style painter for NumericUpDown
     /// Features: Vibrant gradients, purple-pink colors, glowing buttons, modern colorful aesthetic
     /// </summary>
     public class GradientModernNumericUpDownPainter : BaseNumericUpDownPainter

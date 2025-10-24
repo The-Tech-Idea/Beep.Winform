@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         #region Painter Properties
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [Description("The visual Style/painter to use for rendering the sidebar.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {

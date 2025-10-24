@@ -16,12 +16,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Discord: Dark theme with gaming-style glow/brightness feedback
+            // Discord: Dark theme with gaming-Style glow/brightness feedback
             Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.DiscordStyle);
             Color primaryColor = useThemeColors ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.DiscordStyle);
 
             // DiscordStyle-specific state handling - NO HELPER FUNCTIONS
-            // Unique gaming-style glow and brightness for Discord dark theme
+            // Unique gaming-Style glow and brightness for Discord dark theme
             Color stateColor;
             switch (state)
             {

@@ -488,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             // Draw header

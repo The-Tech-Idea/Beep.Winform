@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int TimelinePadding = 20;
 
         /// <summary>
-        /// Activity log-specific node painting with timeline/event style.
+        /// Activity log-specific node painting with timeline/event Style.
         /// Features: Timeline dots with glow effects, vertical timeline line, chronological indicators, status colors (green/blue/red), timestamp display.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)

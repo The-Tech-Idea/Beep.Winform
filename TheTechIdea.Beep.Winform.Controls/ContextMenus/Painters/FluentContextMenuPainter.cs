@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
 
         private void DrawCheckbox(Graphics g, Rectangle rect, bool isChecked, bool isDisabled, ContextMenuMetrics metrics)
         {
-            // Fluent-style checkbox
+            // Fluent-Style checkbox
             var checkColor = isDisabled ? metrics.ItemDisabledForeColor : metrics.AccentColor;
             
             using (var path = GetRoundedRect(rect, 3))
@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
                 int leftX = chevronRect.X + 5;
                 int rightX = chevronRect.Right - 5;
 
-                // Fluent-style chevron
+                // Fluent-Style chevron
                 g.DrawLine(pen, leftX, midY - 5, rightX, midY);
                 g.DrawLine(pen, rightX, midY, leftX, midY + 5);
             }

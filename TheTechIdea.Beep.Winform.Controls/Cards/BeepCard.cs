@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         // Profile & User Cards (Material UI, Bootstrap Card, Ant Design Card)
         ProfileCard,        // Vertical profile card with avatar, name, bio, action buttons
-        CompactProfile,     // Minimal profile badge/chip style
+        CompactProfile,     // Minimal profile badge/chip Style
         UserCard,           // User info card with stats/badges (followers, posts, etc.)
         TeamMemberCard,     // Team member showcase with role and social links
         
@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Feature & Service Cards (Tailwind, Chakra UI)
         FeatureCard,        // Icon-based feature highlight with title and description
         ServiceCard,        // Service offering card with icon, title, price/CTA
-        IconCard,           // Centered icon with text below (landing page style)
+        IconCard,           // Centered icon with text below (landing page Style)
         BenefitCard,        // Benefit/value proposition with check marks
         
         // E-commerce & Product Cards (Material UI, Ant Design)
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         OfferCard,          // Special offer/deal card with discount badge
         CartItemCard,       // Shopping cart item with quantity controls
         
-        // Social & Interaction Cards (Twitter, Facebook, LinkedIn style)
+        // Social & Interaction Cards (Twitter, Facebook, LinkedIn Style)
         SocialMediaCard,    // Social post with avatar, content, likes, comments, share
         TestimonialCard,    // Customer testimonial with quote, avatar, name, rating
         ReviewCard,         // Product/service review with rating and detailed feedback
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Communication & Messaging Cards
         NotificationCard,   // Notification item with icon, message, timestamp
-        MessageCard,        // Chat message bubble style
+        MessageCard,        // Chat message bubble Style
         AlertCard,          // Alert/warning card with icon and actions
         AnnouncementCard,   // Announcement banner card
         
@@ -604,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Design-Time Data
 
-        // Apply design-time dummy data based on card style - inspired by modern web frameworks
+        // Apply design-time dummy data based on card Style - inspired by modern web frameworks
         private void ApplyDesignTimeData()
         {
             if (!DesignMode) return;
@@ -1286,7 +1286,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Enhanced Properties
         [Category("Appearance")]
-        [Description("Visual style of the card layout and design.")]
+        [Description("Visual Style of the card layout and design.")]
         public CardStyle CardStyle
         {
             get => _style;
@@ -1294,7 +1294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             { 
                 _style = value; 
                 InitializePainter(); 
-                ApplyDesignTimeData(); // Refresh dummy data when style changes
+                ApplyDesignTimeData(); // Refresh dummy data when Style changes
                 Invalidate(); 
             }
         }
@@ -1477,7 +1477,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Appearance")]
-        [Description("The alignment of the image (style-specific usage).")]
+        [Description("The alignment of the image (Style-specific usage).")]
         public ContentAlignment ImageAlignment
         {
             get => imageAlignment;

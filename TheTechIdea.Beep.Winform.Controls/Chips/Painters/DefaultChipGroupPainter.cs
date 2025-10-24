@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             var (bg, fg, border) = GetColors(state, opt);
             using var path = RoundedPath(bounds, opt.CornerRadius);
 
-            // Background per style (same as before)
+            // Background per Style (same as before)
             switch (opt.Style)
             {
                 case Chips.ChipStyle.Minimalist:

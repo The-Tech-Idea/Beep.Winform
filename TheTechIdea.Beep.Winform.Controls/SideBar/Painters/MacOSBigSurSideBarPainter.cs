@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 ? context.Theme.PrimaryColor 
                 : Color.FromArgb(10, 132, 255);
             
-            // Big Sur style rounded rect
+            // Big Sur Style rounded rect
             using (var path = CreateRoundedPath(toggleRect, 8)) 
             using (var brush = new SolidBrush(buttonColor)) 
             { 
@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 
                 int x = childRect.X + 10;
                 
-                // Draw connector line - macOS style
+                // Draw connector line - macOS Style
                 Color lineColor = context.UseThemeColors && context.Theme != null 
                     ? Color.FromArgb(30, context.Theme.SideMenuForeColor)
                     : Color.FromArgb(30, 142, 142, 147);

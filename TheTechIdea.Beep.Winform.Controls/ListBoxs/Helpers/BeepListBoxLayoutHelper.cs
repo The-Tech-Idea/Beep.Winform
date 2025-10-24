@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
 {
@@ -51,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             int checkboxArea = _owner.ShowCheckBox ? (checkboxSize + paddingX) : 0;
             int iconSize = _owner.ImageSize;
             int iconArea = iconSize > 0 ? (iconSize + paddingX) : 0;
-
+            itemHeight= (int)(itemHeight +StyleBorders.GetBorderWidth(_owner.ControlStyle)*2);
             foreach (var item in visibleItems)
             {
                 var row = new Rectangle(x, y, w, itemHeight);

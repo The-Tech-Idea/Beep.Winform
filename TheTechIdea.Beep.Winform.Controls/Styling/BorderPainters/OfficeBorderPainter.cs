@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
-    /// Office border painter - Microsoft Office Ribbon UI style
+    /// Office border painter - Microsoft Office Ribbon UI Style
     /// 1px borders with 4px radius, 3px blue accent bar on left (ribbon signature)
     /// Professional, clean appearance with subtle rounded corners
     /// </summary>
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Office); // 1.0f
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Paint Office signature 3px accent bar on left (ribbon style)
+            // Paint Office signature 3px accent bar on left (ribbon Style)
             if (showAccentBar)
             {
                 int accentBarWidth = StyleBorders.GetAccentBarWidth(BeepControlStyle.Office); // 3px

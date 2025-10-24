@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
     public interface ISideBarPainter
     {
         /// <summary>
-        /// Name of the painter style
+        /// Name of the painter Style
         /// </summary>
         string Name { get; }
 

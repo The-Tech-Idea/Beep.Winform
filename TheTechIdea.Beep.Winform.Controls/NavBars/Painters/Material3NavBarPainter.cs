@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                     g.DrawLine(keyline, bounds.Right - 1, bounds.Top, bounds.Right - 1, bounds.Bottom);
             }
 
-            // Draw nav items with Material 3 style
+            // Draw nav items with Material 3 Style
             if (context.Items == null || context.Items.Count == 0) return;
 
             bool isHorizontal = context.Orientation == NavBarOrientation.Horizontal;

@@ -59,12 +59,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     /// <summary>
     /// Interface for form painters that handle custom rendering of BeepiFormPro forms.
     /// Provides methods for painting background, caption bar, and borders with modern effects.
-    /// Now also handles layout calculations and hit area registration for its specific style.
+    /// Now also handles layout calculations and hit area registration for its specific Style.
     /// </summary>
     public interface IFormPainter
     {
         /// <summary>
-        /// Calculates layout positions specific to this painter's style and registers hit areas.
+        /// Calculates layout positions specific to this painter's Style and registers hit areas.
         /// </summary>
         /// <param name="owner">The form instance being laid out.</param>
         void CalculateLayoutAndHitAreas(BeepiFormPro owner);
@@ -120,14 +120,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     /// <summary>
     /// Optional interface for painters that want to customize non-client border painting
     /// (when the form reserves a non-client frame and paints it via WM_NCPAINT).
-    /// Implement this to render per-style borders in the window's non-client area.
+    /// Implement this to render per-Style borders in the window's non-client area.
     /// </summary>
     public interface IFormNonClientPainter
     {
         /// <param name="g">Graphics for the entire window surface (non-client coordinates).</param>
         /// <param name="owner">The form.</param>
         /// <param name="borderThickness">Effective non-client border thickness in device pixels.</param>
-        /// <remarks>The painter is responsible for determining the window shape/path appropriate for its style.</remarks>
+        /// <remarks>The painter is responsible for determining the window shape/path appropriate for its Style.</remarks>
         void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness);
     }
 

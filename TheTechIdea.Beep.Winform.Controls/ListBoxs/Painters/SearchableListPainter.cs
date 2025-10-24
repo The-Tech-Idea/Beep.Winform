@@ -16,11 +16,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Rectangle searchRect = new Rectangle(drawingRect.X + 8, yOffset + 8, drawingRect.Width - 16, searchHeight);
             
             // Draw search box background with rounded corners
-            Color searchBg = Color.FromArgb(245, 245, 245);
-            using (var brush = new SolidBrush(searchBg))
-            using (var path = GetRoundedRectPath(searchRect, 8))
+            var style = BeepControlStyle.Material3;
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(searchRect, style))
             {
-                g.FillPath(brush, path);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, style);
             }
             
             // Draw search icon

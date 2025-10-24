@@ -3,7 +3,7 @@ using System.ComponentModel;
 namespace TheTechIdea.Beep.Winform.Controls.Menus
 {
     /// <summary>
-    /// Defines the visual style of the BeepMenuBar control
+    /// Defines the visual Style of the BeepMenuBar control
     /// </summary>
     public enum MenuBarStyle
     {
@@ -13,22 +13,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus
         [Description("Modern flat design with subtle hover effects")]
         Modern = 1,
 
-        [Description("Material Design 3.0 style with elevation and rounded corners")]
+        [Description("Material Design 3.0 Style with elevation and rounded corners")]
         Material = 2,
 
         [Description("Minimalist compact design with reduced spacing")]
         Compact = 3,
 
-        [Description("Breadcrumb-style navigation with chevron separators")]
+        [Description("Breadcrumb-Style navigation with chevron separators")]
         Breadcrumb = 4,
 
-        [Description("Tab-style menu bar with active tab highlighting")]
+        [Description("Tab-Style menu bar with active tab highlighting")]
         Tab = 5,
 
-        [Description("Fluent-style with pill selection and soft reveal hover")]
+        [Description("Fluent-Style with pill selection and soft reveal hover")]
         Fluent = 6,
 
-        [Description("Bubble-style with circular/rounded item backgrounds")]
+        [Description("Bubble-Style with circular/rounded item backgrounds")]
         Bubble = 7,
 
         [Description("Floating bar with rounded container and subtle shadow")]

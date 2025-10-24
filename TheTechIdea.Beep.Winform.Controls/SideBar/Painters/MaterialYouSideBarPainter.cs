@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 
                 int x = childRect.X + 8;
                 
-                // Draw connector line with Material You style
+                // Draw connector line with Material You Style
                 Color lineColor = context.UseThemeColors && context.Theme != null 
                     ? Color.FromArgb(40, context.Theme.SideMenuForeColor)
                     : Color.FromArgb(40, 124, 117, 126);

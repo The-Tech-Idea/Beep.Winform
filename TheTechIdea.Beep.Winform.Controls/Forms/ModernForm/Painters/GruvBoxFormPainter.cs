@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// GruvBox retro style with 3D beveled buttons and warm textured aesthetic
+    /// GruvBox retro Style with 3D beveled buttons and warm textured aesthetic
     /// </summary>
     internal sealed class GruvBoxFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         
         /// <summary>
         /// Paint GruvBox 3D beveled rectangle buttons (UNIQUE RETRO SKIN)
-        /// Classic Win95-style raised buttons with ControlPaint bevels
+        /// Classic Win95-Style raised buttons with ControlPaint bevels
         /// </summary>
         private void PaintGruvBeveledButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
@@ -355,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             
@@ -367,7 +367,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonWidth;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);

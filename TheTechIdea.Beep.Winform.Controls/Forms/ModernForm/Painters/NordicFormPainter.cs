@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintRuneButton(g, styleRect, Color.FromArgb(120, 90, 130), padding, buttonSize, "style");
+                PaintRuneButton(g, styleRect, Color.FromArgb(120, 90, 130), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
-                    case "style":
+                    case "Style":
                         // Tree icon (Nordic nature)
                         g.DrawLine(iconPen, iconCenterX, iconCenterY - iconSize / 2, iconCenterX, iconCenterY + iconSize / 2);
                         g.DrawLine(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 4,
@@ -364,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             

@@ -3,7 +3,7 @@ using System.Drawing;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Card-style list with elevated items (taller than standard filled)
+    /// Card-Style list with elevated items (taller than standard filled)
     /// </summary>
     internal class CardListPainter : FilledListBoxPainter
     {

@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Vercel Clean style painter for NumericUpDown
+    /// Vercel Clean Style painter for NumericUpDown
     /// Features: High contrast, bold borders, sharp corners, monochrome geometric design
     /// </summary>
     public class VercelCleanNumericUpDownPainter : BaseNumericUpDownPainter
@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
                 ? vercelBlack
                 : Color.FromArgb(234, 234, 234);
 
-            // Draw background with minimal 4px radius (Vercel style)
+            // Draw background with minimal 4px radius (Vercel Style)
             int radius = context.IsRounded ? Math.Min(context.BorderRadius, 4) : 4;
             using (var bgBrush = new SolidBrush(backColor))
             using (var path = CreateRoundedPath(bounds, radius))
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 
             // Button icon with high contrast
             using (var textBrush = new SolidBrush(foreColor))
-            using (var font = new Font("Segoe UI", 11f, FontStyle.Bold)) // Bold for Vercel style
+            using (var font = new Font("Segoe UI", 11f, FontStyle.Bold)) // Bold for Vercel Style
             using (var sf = new StringFormat
             {
                 Alignment = StringAlignment.Center,

@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
     /// <summary>
-    /// SocialFeed - Social media style feed painter
+    /// SocialFeed - Social media Style feed painter
     /// </summary>
     internal sealed class SocialFeedPainter : WidgetPainterBase
     {

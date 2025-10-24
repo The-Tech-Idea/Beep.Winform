@@ -4,16 +4,16 @@ using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Factory for creating navigation painter instances based on style
+    /// Factory for creating navigation painter instances based on Style
     /// </summary>
     public static class NavigationPainterFactory
     {
         /// <summary>
-        /// Creates a navigation painter instance for the specified style
+        /// Creates a navigation painter instance for the specified Style
         /// </summary>
-        /// <param name="style">The navigation style to create a painter for</param>
+        /// <param name="style">The navigation Style to create a painter for</param>
         /// <returns>An INavigationPainter implementation</returns>
-        /// <exception cref="ArgumentException">Thrown when an unknown style is specified</exception>
+        /// <exception cref="ArgumentException">Thrown when an unknown Style is specified</exception>
         public static INavigationPainter CreatePainter(navigationStyle style)
         {
             return style switch
@@ -31,24 +31,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 navigationStyle.DataTables => new DataTablesNavigationPainter(),
                 navigationStyle.Card => new CardNavigationPainter(),
                 navigationStyle.Tailwind => new TailwindNavigationPainter(),
-                _ => throw new ArgumentException($"Unknown navigation style: {style}", nameof(style))
+                _ => throw new ArgumentException($"Unknown navigation Style: {style}", nameof(style))
             };
         }
 
         /// <summary>
-        /// Gets the recommended height for a navigation style
+        /// Gets the recommended height for a navigation Style
         /// </summary>
         public static int GetRecommendedHeight(navigationStyle style)
         {
             if (style == navigationStyle.None)
-                return 0; // No height needed for None style
+                return 0; // No height needed for None Style
                 
             var painter = CreatePainter(style);
             return painter.RecommendedHeight;
         }
 
         /// <summary>
-        /// Gets the recommended minimum width for a navigation style
+        /// Gets the recommended minimum width for a navigation Style
         /// </summary>
         public static int GetRecommendedMinWidth(navigationStyle style)
         {

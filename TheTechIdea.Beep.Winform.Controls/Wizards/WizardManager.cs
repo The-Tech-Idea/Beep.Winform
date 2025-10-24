@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     #region Enums
 
     /// <summary>
-    /// Visual style for wizard
+    /// Visual Style for wizard
     /// </summary>
     public enum WizardStyle
     {

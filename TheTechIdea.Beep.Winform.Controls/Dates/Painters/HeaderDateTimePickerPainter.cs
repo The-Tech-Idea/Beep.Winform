@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintQuickSelectionButtons(Graphics g, Rectangle buttonAreaBounds, DateTimePickerProperties properties, DateTimePickerHoverState hoverState) { }
         public void PaintQuickButton(Graphics g, Rectangle buttonBounds, string text, bool isHovered, bool isPressed)
         {
-            // Minimal, theme-consistent quick button for header style
+            // Minimal, theme-consistent quick button for header Style
             var bgColor = _theme?.BackgroundColor ?? Color.White;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
             var pressedColor = Color.FromArgb(235, 235, 235);

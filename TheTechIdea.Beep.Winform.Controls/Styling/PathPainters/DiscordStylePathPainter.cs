@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
     /// <summary>
-    /// Discord style path painter
+    /// Discord Style path painter
     /// Uses Discord's signature blurple color
     /// </summary>
     public static class DiscordStylePathPainter

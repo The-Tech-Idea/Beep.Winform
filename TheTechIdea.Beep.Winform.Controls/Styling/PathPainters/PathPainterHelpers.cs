@@ -13,8 +13,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
     /// </summary>
     public static class PathPainterHelpers
     {
-       
 
+        /// <summary>
+        /// Creates a chat bubble-style path (speech balloon shape)
+        /// </summary>
+        public static GraphicsPath CreateChatBubblePath(Rectangle bounds, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+
+            // Create rounded rectangle for the main bubble
+            int tailHeight = Math.Min(bounds.Height / 4, 15);
+            int tailWidth = Math.Min(bounds.Width / 4, 20);
+
+            Rectangle bubbleBounds = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height - tailHeight);
+
+            // Add rounded rectangle
+            path = PathPainterHelpers.CreateRoundedRectangle(bubbleBounds, radius);
+
+            // Add triangular tail pointing down
+            Point[] tailPoints = new Point[]
+            {
+                new Point(bounds.X + bounds.Width / 3, bounds.Bottom - tailHeight),
+                new Point(bounds.X + bounds.Width / 3 + tailWidth / 2, bounds.Bottom),
+                new Point(bounds.X + bounds.Width / 3 + tailWidth, bounds.Bottom - tailHeight)
+            };
+
+            path.AddPolygon(tailPoints);
+            path.CloseFigure();
+
+            return path;
+        }
         /// <summary>
         /// Creates a rounded rectangle path
         /// </summary>
@@ -39,6 +67,225 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             arc.X = bounds.Left;
             path.AddArc(arc, 90, 90);
 
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a neumorphism-style path with soft, extruded appearance
+        /// </summary>
+        public static GraphicsPath CreateNeumorphismPath(Rectangle bounds, int radius)
+        {
+            // Neumorphism uses slightly larger radius for soft shadows
+            return CreateRoundedRectangle(bounds, radius + 2);
+        }
+
+        /// <summary>
+        /// Creates a gaming-style path with sharp, angular edges
+        /// </summary>
+        public static GraphicsPath CreateGamingPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            // Create angular, aggressive shape
+            int cutSize = Math.Min(bounds.Width, bounds.Height) / 8;
+            
+            // Start from top-left
+            path.AddLine(bounds.Left + cutSize, bounds.Top, bounds.Right - cutSize, bounds.Top);
+            path.AddLine(bounds.Right - cutSize, bounds.Top, bounds.Right, bounds.Top + cutSize);
+            path.AddLine(bounds.Right, bounds.Top + cutSize, bounds.Right, bounds.Bottom - cutSize);
+            path.AddLine(bounds.Right, bounds.Bottom - cutSize, bounds.Right - cutSize, bounds.Bottom);
+            path.AddLine(bounds.Right - cutSize, bounds.Bottom, bounds.Left + cutSize, bounds.Bottom);
+            path.AddLine(bounds.Left + cutSize, bounds.Bottom, bounds.Left, bounds.Bottom - cutSize);
+            path.AddLine(bounds.Left, bounds.Bottom - cutSize, bounds.Left, bounds.Top + cutSize);
+            path.AddLine(bounds.Left, bounds.Top + cutSize, bounds.Left + cutSize, bounds.Top);
+            
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a retro-style path with pixelated, 80s aesthetic
+        /// </summary>
+        public static GraphicsPath CreateRetroPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            // Create a slightly irregular shape reminiscent of retro design
+            int irregularity = Math.Min(bounds.Width, bounds.Height) / 20;
+            
+            path.AddLine(bounds.Left + irregularity, bounds.Top, bounds.Right - irregularity, bounds.Top);
+            path.AddLine(bounds.Right - irregularity, bounds.Top, bounds.Right, bounds.Top + irregularity);
+            path.AddLine(bounds.Right, bounds.Top + irregularity, bounds.Right, bounds.Bottom - irregularity);
+            path.AddLine(bounds.Right, bounds.Bottom - irregularity, bounds.Right - irregularity, bounds.Bottom);
+            path.AddLine(bounds.Right - irregularity, bounds.Bottom, bounds.Left + irregularity, bounds.Bottom);
+            path.AddLine(bounds.Left + irregularity, bounds.Bottom, bounds.Left, bounds.Bottom - irregularity);
+            path.AddLine(bounds.Left, bounds.Bottom - irregularity, bounds.Left, bounds.Top + irregularity);
+            path.AddLine(bounds.Left, bounds.Top + irregularity, bounds.Left + irregularity, bounds.Top);
+            
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a cyberpunk-style path with neon glow effect simulation
+        /// </summary>
+        public static GraphicsPath CreateCyberpunkPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            // Sharp edges with slight bevels
+            int bevel = Math.Min(bounds.Width, bounds.Height) / 16;
+            
+            path.AddLine(bounds.Left + bevel, bounds.Top, bounds.Right - bevel, bounds.Top);
+            path.AddLine(bounds.Right - bevel, bounds.Top, bounds.Right, bounds.Top + bevel);
+            path.AddLine(bounds.Right, bounds.Top + bevel, bounds.Right, bounds.Bottom - bevel);
+            path.AddLine(bounds.Right, bounds.Bottom - bevel, bounds.Right - bevel, bounds.Bottom);
+            path.AddLine(bounds.Right - bevel, bounds.Bottom, bounds.Left + bevel, bounds.Bottom);
+            path.AddLine(bounds.Left + bevel, bounds.Bottom, bounds.Left, bounds.Bottom - bevel);
+            path.AddLine(bounds.Left, bounds.Bottom - bevel, bounds.Left, bounds.Top + bevel);
+            path.AddLine(bounds.Left, bounds.Top + bevel, bounds.Left + bevel, bounds.Top);
+            
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a pill-shaped path (rounded rectangle with high radius)
+        /// </summary>
+        public static GraphicsPath CreatePillPath(Rectangle bounds)
+        {
+            int radius = Math.Min(bounds.Width, bounds.Height) / 2;
+            return CreateRoundedRectangle(bounds, radius);
+        }
+
+        /// <summary>
+        /// Creates a hexagonal path
+        /// </summary>
+        public static GraphicsPath CreateHexagonPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            int width = bounds.Width;
+            int height = bounds.Height;
+            int x = bounds.X;
+            int y = bounds.Y;
+            
+            Point[] points = new Point[]
+            {
+                new Point(x + width / 4, y),
+                new Point(x + 3 * width / 4, y),
+                new Point(x + width, y + height / 2),
+                new Point(x + 3 * width / 4, y + height),
+                new Point(x + width / 4, y + height),
+                new Point(x, y + height / 2)
+            };
+            
+            path.AddPolygon(points);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a star-shaped path
+        /// </summary>
+        public static GraphicsPath CreateStarPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            int centerX = bounds.X + bounds.Width / 2;
+            int centerY = bounds.Y + bounds.Height / 2;
+            int outerRadius = Math.Min(bounds.Width, bounds.Height) / 2;
+            int innerRadius = outerRadius / 2;
+            
+            Point[] points = new Point[10];
+            
+            for (int i = 0; i < 10; i++)
+            {
+                double angle = i * Math.PI / 5;
+                int radius = (i % 2 == 0) ? outerRadius : innerRadius;
+                points[i] = new Point(
+                    centerX + (int)(radius * Math.Sin(angle)),
+                    centerY - (int)(radius * Math.Cos(angle))
+                );
+            }
+            
+            path.AddPolygon(points);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a trapezoid path
+        /// </summary>
+        public static GraphicsPath CreateTrapezoidPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            int width = bounds.Width;
+            int height = bounds.Height;
+            int x = bounds.X;
+            int y = bounds.Y;
+            int inset = width / 4;
+            
+            Point[] points = new Point[]
+            {
+                new Point(x + inset, y),
+                new Point(x + width - inset, y),
+                new Point(x + width, y + height),
+                new Point(x, y + height)
+            };
+            
+            path.AddPolygon(points);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a diamond/rhombus path
+        /// </summary>
+        public static GraphicsPath CreateDiamondPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            int centerX = bounds.X + bounds.Width / 2;
+            int centerY = bounds.Y + bounds.Height / 2;
+            
+            Point[] points = new Point[]
+            {
+                new Point(centerX, bounds.Y),
+                new Point(bounds.Right, centerY),
+                new Point(centerX, bounds.Bottom),
+                new Point(bounds.Left, centerY)
+            };
+            
+            path.AddPolygon(points);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a notched rectangle path (like macOS dock items)
+        /// </summary>
+        public static GraphicsPath CreateNotchedPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            int notchWidth = Math.Min(bounds.Width / 4, 20);
+            int notchHeight = Math.Min(bounds.Height / 4, 10);
+            int notchCenterX = bounds.X + bounds.Width / 2;
+            
+            // Top side with notch
+            path.AddLine(bounds.Left, bounds.Top, notchCenterX - notchWidth / 2, bounds.Top);
+            path.AddLine(notchCenterX - notchWidth / 2, bounds.Top, notchCenterX, bounds.Top + notchHeight);
+            path.AddLine(notchCenterX, bounds.Top + notchHeight, notchCenterX + notchWidth / 2, bounds.Top);
+            path.AddLine(notchCenterX + notchWidth / 2, bounds.Top, bounds.Right, bounds.Top);
+            
+            // Right side
+            path.AddLine(bounds.Right, bounds.Top, bounds.Right, bounds.Bottom);
+            
+            // Bottom side
+            path.AddLine(bounds.Right, bounds.Bottom, bounds.Left, bounds.Bottom);
+            
+            // Left side
+            path.AddLine(bounds.Left, bounds.Bottom, bounds.Left, bounds.Top);
+            
             path.CloseFigure();
             return path;
         }
@@ -177,7 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         }
 
         /// <summary>
-        /// Gets a color from style or theme
+        /// Gets a color from Style or theme
         /// </summary>
         public static Color GetColorFromStyleOrTheme(IBeepTheme theme, bool useThemeColors, string themeColorKey, Color fallbackColor)
         {

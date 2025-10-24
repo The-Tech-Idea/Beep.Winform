@@ -5,8 +5,8 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
     /// <summary>
-    /// Vertical stepper wizard form (Image 2 style)
-    /// Timeline-style vertical stepper on the left
+    /// Vertical stepper wizard form (Image 2 Style)
+    /// Timeline-Style vertical stepper on the left
     /// </summary>
     public class VerticalStepperWizardForm : BaseWizardForm
     {

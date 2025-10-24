@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Classic Windows Forms navigation style with traditional button appearance
+    /// Classic Windows Forms navigation Style with traditional button appearance
     /// </summary>
     public class StandardNavigationPainter : BaseNavigationPainter
     {

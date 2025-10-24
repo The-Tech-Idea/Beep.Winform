@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
             {
                 DisposeImages();
                 _svgDocument = LoadSanitizedSvg(svgPath);
-                _svgDocument.CustomAttributes.Remove("style");
+                _svgDocument.CustomAttributes.Remove("Style");
                 _svgDocument.FlushStyles();
                 _isSvg = true;
                 _stateChanged = true;
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 
                             using var sanitizedStream = new MemoryStream(Encoding.UTF8.GetBytes(svgContent));
                             _svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
-                            _svgDocument.CustomAttributes.Remove("style");
+                            _svgDocument.CustomAttributes.Remove("Style");
                             _svgDocument.FlushStyles();
                             _isSvg = true;
                         }

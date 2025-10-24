@@ -56,11 +56,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region Core Fields
         
-        // Visual style
-        private ListBoxType _listBoxType = ListBoxType.Standard;
-        
+        // Visual Style
+        private ListBoxType _listBoxType =  ListBoxType.Standard;
+
         // List management
-    private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
+        private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         private SimpleItem _selectedItem;
         private List<SimpleItem> _selectedItems = new List<SimpleItem>();
         private int _selectedIndex = -1;
@@ -147,13 +147,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = 250;
             }
-            
+           
             // Panel settings
             ApplyThemeToChilds = false;
             CanBeSelected = false;
             CanBePressed = false;
             BorderRadius = 3;
-            
+           
             // Get DPI scaling
             using (var g = CreateGraphics())
             {
@@ -200,16 +200,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         
         #region DPI Scaling Helpers
-        
-        private int ScaleValue(int value)
-        {
-            return (int)(value * _scaleFactor);
-        }
-        
-        private Size ScaleSize(Size size)
-        {
-            return new Size(ScaleValue(size.Width), ScaleValue(size.Height));
-        }
+     
+     
         
         #endregion
         
@@ -229,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     clientRect.Left,
                     currentY,
                     clientRect.Width,
-                    ScaleValue(36));
+                    36);
                 currentY += _searchAreaRect.Height;
             }
             else

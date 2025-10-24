@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             var cursorY = bounds.Y + 2;
             var cursorHeight = bounds.Height - 4;
 
-            // Draw blinking cursor (solid block style)
+            // Draw blinking cursor (solid block Style)
             using (var cursorBrush = new SolidBrush(Color.FromArgb(180, textColor)))
             {
                 g.FillRectangle(cursorBrush, cursorX, cursorY, font.Height / 2, cursorHeight);

@@ -154,14 +154,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint monospace text with glow effect (for DarkGlow style)
+        /// Paint monospace text with glow effect (for DarkGlow Style)
         /// </summary>
         public static void PaintGlow(Graphics g, Rectangle bounds, string text, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             if (style != BeepControlStyle.DarkGlow)
             {
-                // Not a glow style, use regular painting
+                // Not a glow Style, use regular painting
                 Paint(g, bounds, text, isFocused, style, theme, useThemeColors);
                 return;
             }
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint terminal-style text
+        /// Paint terminal-Style text
         /// </summary>
         public static void PaintTerminal(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint dark glow-style text
+        /// Paint dark glow-Style text
         /// </summary>
         public static void PaintDarkGlow(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)

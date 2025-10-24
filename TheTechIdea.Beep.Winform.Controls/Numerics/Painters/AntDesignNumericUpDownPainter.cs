@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Ant Design style painter for NumericUpDown
+    /// Ant Design Style painter for NumericUpDown
     /// Features: Clean borders, Ant blue accent, 2px focus border, subtle hover states
     /// </summary>
     public class AntDesignNumericUpDownPainter : BaseNumericUpDownPainter

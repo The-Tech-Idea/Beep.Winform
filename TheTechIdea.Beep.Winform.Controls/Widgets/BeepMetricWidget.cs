@@ -16,13 +16,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         ProgressMetric,   // Number with progress bar
         GaugeMetric,      // Circular gauge display
         ComparisonMetric, // Two values side-by-side
-        CardMetric        // Card-style with icon
+        CardMetric        // Card-Style with icon
     }
 
     [ToolboxItem(true)]
     [DisplayName("Beep Metric Widget")]
     [Category("Beep Widgets")]
-    [Description("A metric/KPI display widget with multiple style variations.")]
+    [Description("A metric/KPI display widget with multiple Style variations.")]
     public class BeepMetricWidget : BaseControl
     {
         #region Fields
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Widget")]
-        [Description("Visual style of the metric widget.")]
+        [Description("Visual Style of the metric widget.")]
         public MetricWidgetStyle Style
         {
             get => _style;

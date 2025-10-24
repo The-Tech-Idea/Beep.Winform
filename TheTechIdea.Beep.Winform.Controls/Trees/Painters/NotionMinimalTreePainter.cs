@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         /// <summary>
         /// Notion-specific node painting with minimal clean design.
-        /// Features: Bottom accent line (2px on selection), flat backgrounds, simple arrow toggles, emoji-style icons, compact spacing.
+        /// Features: Bottom accent line (2px on selection), flat backgrounds, simple arrow toggles, emoji-Style icons, compact spacing.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 5: Draw Notion emoji-style icon
+                // STEP 5: Draw Notion emoji-Style icon
                 if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 }
                 else if (node.IconRectContent != Rectangle.Empty)
                 {
-                    // Draw default emoji-style icon
+                    // Draw default emoji-Style icon
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     Color iconBg = Color.FromArgb(40, _theme.AccentColor);
 
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Notion style: simple arrow
+            // Notion Style: simple arrow
             Color arrowColor = _theme.TreeForeColor;
 
             using (var pen = new Pen(arrowColor, 1.5f))
@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: emoji-style icon (simple square with character)
+            // Default: emoji-Style icon (simple square with character)
             PaintDefaultNotionIcon(g, iconRect);
         }
 

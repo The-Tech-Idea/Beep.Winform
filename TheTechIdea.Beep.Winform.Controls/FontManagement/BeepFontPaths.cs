@@ -22,10 +22,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
     // 
     // All existing functionality remains available:
     // - BeepFontPaths.GetAllFamilies()
-    // - BeepFontPaths.GetFontPath(familyName, style)
+    // - BeepFontPaths.GetFontPath(familyName, Style)
     // - BeepFontPaths.Families.Roboto.Regular
     // - BeepFontPaths.ResourceExists(path)
-    // - BeepFontPathsExtensions.GetBeepFont(family, style, size)
+    // - BeepFontPathsExtensions.GetBeepFont(family, Style, size)
     // 
     // Total font families now supported: 25+
     // Total font files referenced: 200+

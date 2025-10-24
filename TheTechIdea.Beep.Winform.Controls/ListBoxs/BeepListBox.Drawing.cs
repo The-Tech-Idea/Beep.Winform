@@ -24,8 +24,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _listBoxPainter = CreatePainter(_listBoxType);
                 _listBoxPainter.Initialize(this, _currentTheme);
+                _listBoxPainter.Style = ControlStyle;
             }
-            
+            if( _listBoxPainter.Style != ControlStyle)
+            {
+                _listBoxPainter.Style = ControlStyle;
+            }
             // Update layout if needed
             if (_needsLayoutUpdate)
             {
@@ -84,7 +88,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ListBoxType.Custom => new CustomListPainter(),
                 _ => new StandardListBoxPainter()
             };
-            
+            ControlStyle = BeepStyling.GetControlStyle(BeepThemesManager.CurrentStyle);
+            painter.Style = ControlStyle    ;
+
             // If custom painter and we have a custom renderer, set it
             if (painter is CustomListPainter customPainter && _customItemRenderer != null)
             {

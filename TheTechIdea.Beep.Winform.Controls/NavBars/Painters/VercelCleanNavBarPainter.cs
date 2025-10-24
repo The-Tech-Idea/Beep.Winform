@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 g.FillRectangle(bgBrush, bounds);
             }
             
-            // Vercel style border
+            // Vercel Style border
             using (var borderPen = new Pen(borderColor, 1f))
             {
                 if (context.Orientation == NavBarOrientation.Horizontal)
@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
 
         public override void DrawSelection(Graphics g, INavBarPainterContext context, Rectangle selectedRect)
         {
-            // Bold black line - signature Vercel style
+            // Bold black line - signature Vercel Style
             using (var pen = new Pen(Color.Black, 2.5f))
             {
                 if (context.Orientation == NavBarOrientation.Horizontal)

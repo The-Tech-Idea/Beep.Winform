@@ -53,12 +53,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     }
     
     /// <summary>
-    /// Menu-style dropdown with categories/sections
+    /// Menu-Style dropdown with categories/sections
     /// </summary>
     internal class MenuComboBoxPainter : OutlinedComboBoxPainter
     {
         // TODO: Add section dividers in dropdown
-        // For now, uses outlined style
+        // For now, uses outlined Style
     }
     
     /// <summary>

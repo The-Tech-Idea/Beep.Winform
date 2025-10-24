@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Discord style shadow painter
+    /// Discord Style shadow painter
     /// Uses Discord's card shadow system
     /// </summary>
     public static class DiscordStyleShadowPainter

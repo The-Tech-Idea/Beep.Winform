@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         public static ToolTipType DefaultType { get; set; } = ToolTipType.Default;
 
         /// <summary>
-        /// Default visual style for all tooltips (can be overridden per tooltip)
+        /// Default visual Style for all tooltips (can be overridden per tooltip)
         /// </summary>
         public static BeepControlStyle DefaultStyle { get; set; } = BeepControlStyle.Material3;
 

@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         void PaintNavigation(Graphics g, Rectangle navigationRect, BeepGridPro grid);
 
         /// <summary>
-        /// Get the name/identifier of this painter style
+        /// Get the name/identifier of this painter Style
         /// </summary>
         string StyleName { get; }
 
@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         void UpdatePageInfo(int currentPage, int totalPages, int totalRecords);
 
         /// <summary>
-        /// Get preferred height for this navigation style
+        /// Get preferred height for this navigation Style
         /// </summary>
         int GetPreferredHeight();
     }

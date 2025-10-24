@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Checkbox-style renderer. Delegates drawing to FlatRadioRenderer but exposes proper style name and behavior.
+    /// Checkbox-Style renderer. Delegates drawing to FlatRadioRenderer but exposes proper Style name and behavior.
     /// </summary>
     public class CheckboxRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {

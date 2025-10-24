@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Toggle switch style renderer.
+    /// Toggle switch Style renderer.
     /// </summary>
     public class ToggleRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {

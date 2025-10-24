@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showIcons = true;
         private bool _showHomeIcon = true;
 
-        private IBreadcrumbPainter _painter; // strategy painter per style
+        private IBreadcrumbPainter _painter; // strategy painter per Style
         #endregion
 
         #region Properties
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Visual style of the breadcrumb")]
+        [Description("Visual Style of the breadcrumb")]
         public BreadcrumbStyle BreadcrumbStyle
         {
             get => _style;
@@ -315,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             if (_items.Count == 0) return;

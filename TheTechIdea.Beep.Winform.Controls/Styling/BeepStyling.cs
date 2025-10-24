@@ -35,14 +35,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         // Cache for ImagePainters to avoid recreating them
         public static Dictionary<string, ImagePainter> ImageCachedPainters = new Dictionary<string, ImagePainter>();
         
-        // Current style and theme
+        // Current Style and theme
         public static BeepControlStyle CurrentControlStyle { get; set; }
         public static IBeepTheme CurrentTheme { get; set; }
         public static bool UseThemeColors { get; set; } = false;  // Global setting to use theme colors
         
         static BeepStyling()
         {
-            CurrentControlStyle = BeepControlStyle.Minimal; // Default style
+            CurrentControlStyle = BeepControlStyle.Minimal; // Default Style
         }
         public static event EventHandler<BeepControlStyle> ControlStyleChanged;
         
@@ -159,14 +159,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         #endregion
         
         #region Form Style to Control Style Mapping
-        
+        public static GraphicsPath CreateControlPath(Rectangle bounds, FormStyle formStyle)
+        {
+            BeepControlStyle controlStyle = GetControlStyle(formStyle);
+            return CreateControlStylePath(bounds, controlStyle);
+        }
         /// <summary>
         /// Maps FormStyle enum values to appropriate BeepControlStyle enum values
         /// This provides a consistent way to map form-level styling to control-level styling
         /// </summary>
         /// <param name="formStyle">The FormStyle to map</param>
         /// <returns>The corresponding BeepControlStyle</returns>
-        public static BeepControlStyle MapFormStyleToControlStyle(FormStyle formStyle)
+        public static BeepControlStyle GetControlStyle(FormStyle formStyle)
         {
             switch (formStyle)
             {
@@ -224,9 +228,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case FormStyle.Retro:
                     return BeepControlStyle.Retro;
                 
-                case FormStyle.Cyberpunk:
-                    return BeepControlStyle.DarkGlow;
-                
                 // Design Themes
                 case FormStyle.Dracula:
                 case FormStyle.OneDark:
@@ -255,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case FormStyle.Terminal:
                     return BeepControlStyle.Terminal;
                 
-                // Custom → Use current style
+                // Custom → Use current Style
                 case FormStyle.Custom:
                     return CurrentControlStyle;
                 
@@ -266,12 +267,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Maps FormStyle to BeepControlStyle and sets it as the current control style
+        /// Maps FormStyle to BeepControlStyle and sets it as the current control Style
         /// </summary>
         /// <param name="formStyle">The FormStyle to apply</param>
         public static void ApplyFormStyle(FormStyle formStyle)
         {
-            BeepControlStyle controlStyle = MapFormStyleToControlStyle(formStyle);
+            BeepControlStyle controlStyle = GetControlStyle(formStyle);
             SetControlStyle(controlStyle);
         }
         
@@ -280,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         #region Style Painting Methods
         
         /// <summary>
-        /// Paint background for the current style with GraphicsPath
+        /// Paint background for the current Style with GraphicsPath
         /// </summary>
         public static void PaintStyleBackground(Graphics g, GraphicsPath path)
         {
@@ -288,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Paint background for a specific style with GraphicsPath
+        /// Paint background for a specific Style with GraphicsPath
         /// </summary>
         public static void PaintStyleBackground(Graphics g, GraphicsPath path, BeepControlStyle style)
         {
@@ -319,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             return GetColor(style, StyleColors.GetBorder, "Border");
         }
         /// <summary>
-        /// Paint background for a specific style with GraphicsPath
+        /// Paint background for a specific Style with GraphicsPath
         /// </summary>
         public static void PaintStyleBackground(Graphics g, GraphicsPath path, BeepControlStyle style, bool useThemeColors)
         {
@@ -338,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     shadowResult = StandardShadowPainter.Paint(g, path, style, path);
             }
 
-            // Delegate to individual style background painter
+            // Delegate to individual Style background painter
             switch (style)
             {
                 case BeepControlStyle.Material3:
@@ -442,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         #region Style Painting Methods - Border, Text, Buttons
         
         /// <summary>
-        /// Paint border for the current style with GraphicsPath
+        /// Paint border for the current Style with GraphicsPath
         /// </summary>
         public static void PaintStyleBorder(Graphics g, GraphicsPath path, bool isFocused)
         {
@@ -450,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Paint border for a specific style with GraphicsPath
+        /// Paint border for a specific Style with GraphicsPath
         /// </summary>
         public static void PaintStyleBorder(Graphics g, GraphicsPath path, bool isFocused, BeepControlStyle style)
         {
@@ -462,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
 
         /// <summary>
-        /// Paint text for the current style with GraphicsPath
+        /// Paint text for the current Style with GraphicsPath
         /// </summary>
         public static void PaintStyleText(Graphics g, GraphicsPath path, string text, bool isFocused)
         {
@@ -470,7 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Paint text for a specific style with GraphicsPath
+        /// Paint text for a specific Style with GraphicsPath
         /// </summary>
         public static void PaintStyleText(Graphics g, GraphicsPath path, string text, bool isFocused, BeepControlStyle style)
         {
@@ -519,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
         }
         /// <summary>
-        /// Paint buttons (e.g., up/down for numeric controls) for the current style
+        /// Paint buttons (e.g., up/down for numeric controls) for the current Style
         /// </summary>
         public static void PaintStyleButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath, bool isFocused)
         {
@@ -527,7 +528,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Paint spinner buttons (up/down arrows for numeric controls) for a specific style
+        /// Paint spinner buttons (up/down arrows for numeric controls) for a specific Style
         /// </summary>
         public static void PaintStyleSpinnerButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath, bool isFocused, BeepControlStyle style)
         {
@@ -540,7 +541,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             Rectangle upButtonRect = Rectangle.Round(upBoundsF);
             Rectangle downButtonRect = Rectangle.Round(downBoundsF);
             
-            // Delegate to individual style button painter
+            // Delegate to individual Style button painter
             switch (style)
             {
                 case BeepControlStyle.Material3:
@@ -639,7 +640,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
         }
         /// <summary>
-        /// Paint value text (e.g., for numeric or date controls) for the current style
+        /// Paint value text (e.g., for numeric or date controls) for the current Style
         /// </summary>
         public static void PaintStyleValueText(Graphics g, GraphicsPath textPath, string formattedText, bool isFocused)
         {
@@ -647,7 +648,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Paint value text for a specific style
+        /// Paint value text for a specific Style
         /// </summary>
         public static void PaintStyleValueText(Graphics g, GraphicsPath textPath, string formattedText, bool isFocused, BeepControlStyle style)
         {
@@ -661,39 +662,341 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             ValueTextPainter.Paint(g, textRect, formattedText, isFocused, style, CurrentTheme, UseThemeColors);
         }
         /// <summary>
-        /// Create graphics path for the current style from Rectangle
+        /// Create graphics path for the current Style from Rectangle
         /// </summary>
         public static GraphicsPath CreateStylePath(Rectangle bounds)
         {
-            return CreateStylePath(bounds, CurrentControlStyle);
+            return CreateControlStylePath(bounds, CurrentControlStyle);
+        }
+        public static GraphicsPath CreateFormStylePath(Rectangle bounds, FormStyle formStyle)
+        {
+            FormPainterMetrics metrics = new FormPainterMetrics();
+            metrics = FormPainterMetrics.DefaultFor(formStyle, CurrentTheme);
+            int radius = metrics.BorderRadius;
+            int borderWidth = metrics.BorderWidth;
+            GraphicsPath path = null;
+
+            switch (formStyle)
+            {
+                // Modern styles - clean, contemporary
+                case FormStyle.Modern:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    break;
+
+                case FormStyle.Material:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    break;
+
+                case FormStyle.Minimal:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    break;
+
+                // Apple Design - smooth, continuous curves
+                case FormStyle.MacOS:
+                case FormStyle.iOS:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 10));
+                    break;
+
+                // Microsoft styles - subtle, professional
+                case FormStyle.Fluent:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    break;
+
+                // Playful/Cartoon styles - exaggerated shapes
+                case FormStyle.Cartoon:
+                    // Create a more rounded, playful shape
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 20));
+                    break;
+
+                case FormStyle.ChatBubble:
+                    path = PathPainterHelpers.CreateChatBubblePath(bounds, radius);
+                    break;
+
+                // Glass/Acrylic - smooth, modern
+                case FormStyle.Glass:
+                case FormStyle.Glassmorphism:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    break;
+
+                // Metro/Windows 8-10 - sharp edges
+                case FormStyle.Metro:
+                case FormStyle.Metro2:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
+                    break;
+
+                // GNOME/Adwaita - clean, subtle
+                case FormStyle.GNOME:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+
+                // KDE Plasma - smooth, modern
+                case FormStyle.KDE:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 5));
+                    break;
+
+                // Ubuntu/Unity - distinctive, modern
+                case FormStyle.Ubuntu:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    break;
+
+                // Linux distributions - varied but clean
+                case FormStyle.ArcLinux:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 7));
+                    break;
+
+                // Special effects styles
+                case FormStyle.NeoMorphism:
+                    path = PathPainterHelpers.CreateNeumorphismPath(bounds, radius);
+                    break;
+
+                case FormStyle.Brutalist:
+                    // Neo-brutalist - thick borders, sharp edges
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(0, radius - 2));
+                    break;
+
+                case FormStyle.Retro:
+                    path = PathPainterHelpers.CreateRetroPath(bounds);
+                    break;
+
+                case FormStyle.Cyberpunk:
+                    path = PathPainterHelpers.CreateCyberpunkPath(bounds);
+                    break;
+
+                // Nordic - clean, minimal
+                case FormStyle.Nordic:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 3));
+                    break;
+
+                // Design themes - varied aesthetics
+                case FormStyle.Dracula:
+                case FormStyle.OneDark:
+                case FormStyle.Tokyo:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+
+                case FormStyle.Solarized:
+                case FormStyle.GruvBox:
+                case FormStyle.Nord:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    break;
+
+                // Modern effects
+                case FormStyle.Paper:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    break;
+
+                case FormStyle.Neon:
+                    path = PathPainterHelpers.CreateCyberpunkPath(bounds);
+                    break;
+
+                case FormStyle.Holographic:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 14));
+                    break;
+
+                // Terminal/Console - sharp, technical
+                case FormStyle.Terminal:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
+                    break;
+
+                // Custom - use default metrics
+                case FormStyle.Custom:
+                default:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius);
+                    break;
+            }
+
+            return path;
         }
         
         /// <summary>
-        /// Create graphics path for a specific style from Rectangle
+        /// Create graphics path for a specific Style from Rectangle
         /// </summary>
-        public static GraphicsPath CreateStylePath(Rectangle bounds, BeepControlStyle style)
+        public static GraphicsPath CreateControlStylePath(Rectangle bounds, BeepControlStyle style)
         {
             int radius = StyleBorders.GetRadius(style);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
+          
             GraphicsPath path = new GraphicsPath();
             
-            if (radius == 0)
+            switch (style)
             {
-                path.AddRectangle(bounds);
-            }
-            else
-            {
-                int diameter = radius * 2;
-                Size size = new Size(diameter, diameter);
-                Rectangle arc = new Rectangle(bounds.Location, size);
+                // Create Distinctive shapes for specific Styles using PathPainterHelpers
+                // Create new Function as needed in PathPainterHelpers.cs
+                // Return those paths here
+                case BeepControlStyle.Neumorphism:
+                    path = PathPainterHelpers.CreateNeumorphismPath(bounds, radius);
+                    break;
                 
-                path.AddArc(arc, 180, 90);
-                arc.X = bounds.Right - diameter;
-                path.AddArc(arc, 270, 90);
-                arc.Y = bounds.Bottom - diameter;
-                path.AddArc(arc, 0, 90);
-                arc.X = bounds.Left;
-                path.AddArc(arc, 90, 90);
-                path.CloseFigure();
+                case BeepControlStyle.Gaming:
+                    path = PathPainterHelpers.CreateGamingPath(bounds);
+                    break;
+                
+                case BeepControlStyle.Retro:
+                    path = PathPainterHelpers.CreateRetroPath(bounds);
+                    break;
+                case BeepControlStyle.PillRail:
+                    path = PathPainterHelpers.CreatePillPath(bounds);
+                    break;
+                
+                case BeepControlStyle.NeoBrutalist:
+                    // Neo-brutalist uses sharp edges, minimal radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(0, radius - 4));
+                    break;
+                
+                case BeepControlStyle.HighContrast:
+                    // High contrast uses sharp, clear edges
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 2));
+                    break;
+                
+                case BeepControlStyle.Neon:
+                case BeepControlStyle.NeonGlow:
+                    // Neon styles use slightly irregular edges for glow effect
+                    path = PathPainterHelpers.CreateCyberpunkPath(bounds);
+                    break;
+                
+                case BeepControlStyle.FigmaCard:
+                    // Figma cards use modern rounded corners
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    break;
+                
+                case BeepControlStyle.DiscordStyle:
+                    // Discord uses slightly angular but rounded corners
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+                
+                case BeepControlStyle.Material3:
+                    // Material 3 uses specific radius values
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    break;
+                
+                case BeepControlStyle.iOS15:
+                    // iOS 15 uses larger radius for modern look
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 16));
+                    break;
+                
+                case BeepControlStyle.MacOSBigSur:
+                    // macOS Big Sur uses continuous corner radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 10));
+                    break;
+                
+                case BeepControlStyle.Windows11Mica:
+                    // Windows 11 uses subtle radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    break;
+                
+                case BeepControlStyle.GlassAcrylic:
+                    // Glass effects use smooth, continuous curves
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    break;
+                
+                case BeepControlStyle.GradientModern:
+                    // Gradient modern uses flowing curves
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 14));
+                    break;
+                
+                case BeepControlStyle.ChakraUI:
+                    // Chakra UI uses consistent, modern radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+                
+                case BeepControlStyle.TailwindCard:
+                    // Tailwind uses utility-based radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    break;
+                
+                case BeepControlStyle.Bootstrap:
+                    // Bootstrap uses specific radius values
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 4));
+                    break;
+                
+                case BeepControlStyle.AntDesign:
+                    // Ant Design uses consistent radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+                
+                case BeepControlStyle.Fluent2:
+                    // Fluent 2 uses Windows-style radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    break;
+                
+                case BeepControlStyle.MaterialYou:
+                    // Material You uses adaptive radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 16));
+                    break;
+                
+                case BeepControlStyle.Minimal:
+                    // Minimal uses very subtle radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 2));
+                    break;
+                
+                case BeepControlStyle.NotionMinimal:
+                    // Notion uses clean, minimal radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 3));
+                    break;
+                
+                case BeepControlStyle.VercelClean:
+                    // Vercel uses sharp, clean edges
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    break;
+                
+                case BeepControlStyle.StripeDashboard:
+                    // Stripe uses professional, subtle radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+                
+                case BeepControlStyle.DarkGlow:
+                    // Dark glow uses neon-style edges
+                    path = PathPainterHelpers.CreateCyberpunkPath(bounds);
+                    break;
+                
+                case BeepControlStyle.Terminal:
+                    // Terminal uses sharp, console-style edges
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
+                    break;
+                
+                case BeepControlStyle.Metro:
+                    // Metro uses sharp edges
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
+                    break;
+                
+                case BeepControlStyle.Office:
+                    // Office uses subtle radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 3));
+                    break;
+                
+                case BeepControlStyle.Gnome:
+                    // GNOME uses standard radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+                
+                case BeepControlStyle.Kde:
+                    // KDE uses smooth radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 5));
+                    break;
+                
+                case BeepControlStyle.Cinnamon:
+                    // Cinnamon uses larger radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    break;
+                
+                case BeepControlStyle.Elementary:
+                    // Elementary uses clean radius
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    break;
+                
+                case BeepControlStyle.Apple:
+                    // Apple design uses continuous curves
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    break;
+                
+                case BeepControlStyle.Fluent:
+                case BeepControlStyle.Material:
+                case BeepControlStyle.WebFramework:
+                case BeepControlStyle.Effect:
+                default:
+                    // Standard rounded rectangle path for all other styles
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius);
+                    break;
             }
             
             return path;
@@ -708,7 +1011,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Paint styled image for a specific style using GraphicsPath
+        /// Paint styled image for a specific Style using GraphicsPath
         /// </summary>
         public static void PaintStyleImage(Graphics g, GraphicsPath path, string imagePath, BeepControlStyle style)
         {
@@ -745,7 +1048,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// </summary>
         /// <param name="g">Graphics context</param>
         /// <param name="controlPath">Control bounds as GraphicsPath</param>
-        /// <param name="style">Control style to use</param>
+        /// <param name="style">Control Style to use</param>
         /// <param name="theme">Theme to apply</param>
         /// <param name="useThemeColors">Whether to use theme colors</param>
         /// <param name="state">Control state (Normal, Hovered, Pressed, etc.)</param>
@@ -818,7 +1121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
 
         /// <summary>
-        /// Paint complete control with current style and theme
+        /// Paint complete control with current Style and theme
         /// </summary>
         public static GraphicsPath PaintControl(
             Graphics g,
@@ -903,6 +1206,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
             return contentPath; // Caller is responsible for disposing
         }
+
+      
 
         /// <summary>
         /// Helper method to create rounded rectangle path from RectangleF
@@ -1048,7 +1353,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         public static void PaintStyleBackground(Graphics g, Rectangle drawingRect, BeepControlStyle controlStyle)
         {
             if (g == null) throw new ArgumentNullException(nameof(g));
-            GraphicsPath path = CreateStylePath(drawingRect, controlStyle);
+            GraphicsPath path = CreateControlStylePath(drawingRect, controlStyle);
             PaintStyleBackground(g, path, controlStyle, UseThemeColors);
         }
 

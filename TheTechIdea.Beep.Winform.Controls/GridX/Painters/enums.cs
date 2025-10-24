@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         Right
     }
     /// <summary>
-    /// Grid style presets inspired by popular JavaScript frameworks and design systems
+    /// Grid Style presets inspired by popular JavaScript frameworks and design systems
     /// </summary>
     //public enum BeepGridStyle
     //{
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
     {
         None,
         /// <summary>
-        /// Classic Windows Forms style with standard buttons
+        /// Classic Windows Forms Style with standard buttons
         /// </summary>
         Standard,
         
@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         AGGrid,
         
         /// <summary>
-        /// DataTables (jQuery) inspired pagination style
+        /// DataTables (jQuery) inspired pagination Style
         /// </summary>
         DataTables,
         

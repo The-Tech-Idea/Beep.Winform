@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
     public interface INavigationPainter
     {
         /// <summary>
-        /// Gets the style type this painter implements
+        /// Gets the Style type this painter implements
         /// </summary>
         navigationStyle Style { get; }
 
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public Rectangle RecordCountRect { get; set; }
         public Rectangle StatusTextRect { get; set; }
         
-        // Pagination Controls (for web-style navigation)
+        // Pagination Controls (for web-Style navigation)
         public Rectangle PageSizeComboRect { get; set; }
         public Rectangle PageNumberInputRect { get; set; }
         public Rectangle GoToPageButtonRect { get; set; }

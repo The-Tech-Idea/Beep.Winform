@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(BeepControlStyle.Office); // 2px below
             int offsetX = StyleShadows.GetShadowOffsetX(BeepControlStyle.Office); // 0px (centered)
 
-            // Paint subtle soft shadow (Office professional style)
+            // Paint subtle soft shadow (Office professional Style)
             GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 4);
 

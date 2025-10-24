@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
     /// Bootstrap-inspired navigation painter with numbered pagination
-    /// Similar to the blue "Previous 1 2 3 4 ... 20 Next" style
+    /// Similar to the blue "Previous 1 2 3 4 ... 20 Next" Style
     /// </summary>
     public class BootstrapNavigationPainter : BaseNavigationPainter
     {
@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override void PaintPositionIndicator(Graphics g, Rectangle bounds, int currentPosition, 
             int totalRecords, IBeepTheme theme)
         {
-            // Not used in Bootstrap style - uses PaintRecordInfo instead
+            // Not used in Bootstrap Style - uses PaintRecordInfo instead
         }
 
         private void PaintPageNumberButton(Graphics g, Rectangle bounds, int pageNumber, 

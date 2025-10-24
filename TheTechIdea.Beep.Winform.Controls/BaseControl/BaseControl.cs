@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -311,6 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_subscribedToThemeChanged)
                 {
                     try { BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged; } catch { }
+                    try { BeepThemesManager.FormStyleChanged -= OnGlobalFormStyleChanged; } catch { }
                     _subscribedToThemeChanged = false;
                 }
 
@@ -323,6 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             base.Dispose(disposing);
         }
 
+       
         private void ClearChildExternalDrawing(BaseControl baseControl)
         {
            // Fix: only clear registrations for the specified child on this parent
@@ -478,6 +481,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
                 BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
+                BeepThemesManager.FormStyleChanged -= OnGlobalFormStyleChanged;
+                BeepThemesManager.FormStyleChanged += OnGlobalFormStyleChanged;
                 _subscribedToThemeChanged = true;
             }
             catch { /* best-effort */ }
@@ -498,9 +503,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 System.Diagnostics.Debug.WriteLine($"BaseControl: OnGlobalThemeChanged error: {ex.Message}");
             }
         }
+        private void OnGlobalFormStyleChanged(object? sender, StyleChangeEventArgs e)
+        {
+            if (IsDisposed) return;
+            try
+            {
+                var newFormStyle = e.NewStyle;
+                ControlStyle= BeepStyling.GetControlStyle(newFormStyle);
+                Invalidate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl: OnGlobalFormStyleChanged error: {ex.Message}");
+            }
+        }
 
         #region DPI Awareness Support (Microsoft High-DPI Best Practices)
-        
+
         /// <summary>
         /// Handle DPI changes for Per-Monitor V2 DPI awareness
         /// Per Microsoft docs: Use DpiChanged events for dynamic DPI scenarios

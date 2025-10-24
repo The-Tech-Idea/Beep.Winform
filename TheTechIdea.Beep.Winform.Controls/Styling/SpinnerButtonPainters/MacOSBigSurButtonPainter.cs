@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
 {
     /// <summary>
-    /// macOS Big Sur button painter - System style with subtle borders and 6px radius
+    /// macOS Big Sur button painter - System Style with subtle borders and 6px radius
     /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
     /// </summary>
     public static class MacOSBigSurButtonPainter
@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             ControlState upState = ControlState.Normal,
             ControlState downState = ControlState.Normal)
         {
-            // macOS Big Sur: System control style
+            // macOS Big Sur: System control Style
             Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 122, 255);
             Color borderColor = Color.FromArgb(220, 220, 220);
             Color backgroundColor = Color.FromArgb(250, 250, 250);

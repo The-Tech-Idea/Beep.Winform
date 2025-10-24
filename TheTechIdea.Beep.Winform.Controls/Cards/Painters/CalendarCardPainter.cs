@@ -64,10 +64,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
-            // Draw date block with calendar-style layout
+            // Draw date block with calendar-Style layout
             if (ctx.ShowImage && !string.IsNullOrEmpty(ctx.SubtitleText))
             {
-                // Draw month/day in calendar block style
+                // Draw month/day in calendar block Style
                 using var dateBrush = new SolidBrush(ctx.AccentColor);
                 using var monthFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
                 using var dayFont = new Font(Owner.Font.FontFamily, 18f, FontStyle.Bold);

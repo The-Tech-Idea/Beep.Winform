@@ -53,35 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            bool hasError = false; // Would check item state
-            
-            if (hasError)
-            {
-                bgColor = Color.FromArgb(255, 245, 245); // Light red
-            }
-            else if (isSelected)
-            {
-                bgColor = Color.FromArgb(245, 248, 255); // Light blue
-            }
-            else if (isHovered)
-            {
-                bgColor = Color.FromArgb(250, 250, 250);
-            }
-            else
-            {
-                bgColor = Color.White;
-            }
-            
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, itemRect);
-            }
-            
-            // Draw bottom border
-            using (var pen = new Pen(Color.FromArgb(235, 235, 235), 1f))
-            {
-                g.DrawLine(pen, itemRect.Left, itemRect.Bottom - 1, itemRect.Right, itemRect.Bottom - 1);
+            // Use BeepStyling for ErrorStates background, border, and shadow
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+                {
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         

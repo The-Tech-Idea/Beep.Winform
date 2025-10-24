@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 {
     /// <summary>
     /// PaymentCard - Payment method display painter with enhanced visual presentation and interactive elements
-    /// Uses BaseControl DrawingRect and BeepAppBar-style hit area methodology
+    /// Uses BaseControl DrawingRect and BeepAppBar-Style hit area methodology
     /// </summary>
     internal sealed class PaymentCardPainter : WidgetPainterBase, IDisposable
     {

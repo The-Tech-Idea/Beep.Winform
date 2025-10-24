@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
     /// - Header shows "Friday, April 12" and year in white text on accent color
     /// - Clean compact calendar grid below header
     /// - Minimal calendar styling (subtle month/year header, simple grid)
-    /// - Inspired by modern mobile date picker designs (Material Design style)
+    /// - Inspired by modern mobile date picker designs (Material Design Style)
     /// 
     /// INTERACTION MODEL:
     /// 1. Single-click date selection, immediate close

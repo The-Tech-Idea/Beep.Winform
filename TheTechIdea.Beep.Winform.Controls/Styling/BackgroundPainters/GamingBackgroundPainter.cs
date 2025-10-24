@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// <summary>
     /// Gaming background painter - RGB gaming aesthetic
     /// Dark background with angular 0px radius, green glow (#00FF7F)
-    /// Orbitron font aesthetic, aggressive cyberpunk style
+    /// Orbitron font aesthetic, aggressive cyberpunk Style
     /// </summary>
     public static class GamingBackgroundPainter
     {

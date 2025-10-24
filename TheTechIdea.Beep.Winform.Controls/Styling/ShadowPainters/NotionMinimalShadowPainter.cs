@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// Notion minimal shadow painter - no shadow (placeholder for consistency)
-    /// Notion style emphasizes clean, flat design without shadows
+    /// Notion Style emphasizes clean, flat design without shadows
     /// </summary>
     public static class NotionMinimalShadowPainter
     {

@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 g.FillRectangle(brush, bounds); 
             }
             
-            // No visible border - Notion style
+            // No visible border - Notion Style
             
             int padding = 4;
             int currentY = bounds.Top + padding + 8;
@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 
                 int x = itemRect.X + 6;
                 
-                // Draw expand/collapse first (Notion style - left side)
+                // Draw expand/collapse first (Notion Style - left side)
                 if (item.Children != null && item.Children.Count > 0 && !context.IsCollapsed)
                 {
                     Rectangle expandRect = new Rectangle(x, itemRect.Y + (itemRect.Height - 14) / 2, 14, 14);

@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Chart")]
-        [Description("Visual style of the chart widget.")]
+        [Description("Visual Style of the chart widget.")]
         public ChartWidgetStyle Style
         {
             get => _style;

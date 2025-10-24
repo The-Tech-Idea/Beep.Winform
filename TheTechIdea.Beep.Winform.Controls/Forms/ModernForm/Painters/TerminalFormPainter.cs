@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Terminal/Console style form painter with monospace aesthetic and minimal UI.
+    /// Terminal/Console Style form painter with monospace aesthetic and minimal UI.
     /// Features sharp edges, monochrome colors, and text-focused design.
     /// </summary>
     internal sealed class TerminalFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
@@ -61,17 +61,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var capBrush = new SolidBrush(metrics.CaptionColor);
             g.FillRectangle(capBrush, captionRect);
             
-            // Terminal prompt-style bottom border with ASCII characters
+            // Terminal prompt-Style bottom border with ASCII characters
             using (var borderPen = new Pen(Color.FromArgb(0, 255, 0), 2)) // Classic green terminal color
             {
                 g.DrawLine(borderPen, captionRect.Left, captionRect.Bottom - 1, 
                     captionRect.Right, captionRect.Bottom - 1);
             }
             
-            // Paint Terminal ASCII-style buttons (UNIQUE SKIN)
+            // Paint Terminal ASCII-Style buttons (UNIQUE SKIN)
             PaintTerminalButtons(g, owner, captionRect, metrics);
 
-            // Draw title text with terminal font style
+            // Draw title text with terminal font Style
             var textRect = owner.CurrentLayout.TitleRect;
             
             // Use monospace font if possible
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
 
         /// <summary>
-        /// Paint Terminal ASCII-style buttons (UNIQUE SKIN)
+        /// Paint Terminal ASCII-Style buttons (UNIQUE SKIN)
         /// Features: ASCII characters, monochrome, pixelated rectangles
         /// </summary>
         private void PaintTerminalButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintTerminalButton(g, styleRect, Color.FromArgb(128, 128, 255), padding, buttonSize, "style");
+                PaintTerminalButton(g, styleRect, Color.FromArgb(128, 128, 255), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillRectangle(bgBrush, rect);
             }
 
-            // ASCII-style border (double-line effect)
+            // ASCII-Style border (double-line effect)
             using (var borderPen = new Pen(baseColor, 2))
             {
                 g.DrawRectangle(borderPen, rect.X, rect.Y, rect.Width, rect.Height);
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawRectangle(innerPen, rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
             }
 
-            // Draw terminal-style icons using GDI+ primitives instead of Unicode
+            // Draw terminal-Style icons using GDI+ primitives instead of Unicode
             // FIXED: Was using Unicode characters that might not render properly
             using (var iconPen = new Pen(baseColor, 2f))
             {
@@ -200,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
                         break;
                         
-                    case "style":
+                    case "Style":
                         // Palette icon (was Unicode ◘) - circle with dots
                         g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
                         using (var dotBrush = new SolidBrush(baseColor))
@@ -300,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Terminal: No shadow, just direct painting
             PaintBackground(g, owner);
 
-            // No clipping needed for terminal style (sharp edges)
+            // No clipping needed for terminal Style (sharp edges)
             
             PaintBorders(g, owner);
             if (owner.ShowCaptionBar)
@@ -364,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private bool _drawCustomWindowBorder = true;
         [Category("Beep Window")]
         [DefaultValue(true)]
-        [Description("Enables custom skinned form borders and title bar (DevExpress style). Uses proper AutoScale-compatible implementation.")]
+        [Description("Enables custom skinned form borders and title bar (DevExpress Style). Uses proper AutoScale-compatible implementation.")]
         public bool DrawCustomWindowBorder
         {
             get => _drawCustomWindowBorder;
@@ -64,11 +64,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     private const int WM_CTLCOLORDLG = 0x0136;
     private const int WM_CTLCOLORSTATIC = 0x0138;
 
-    // Window style constants
+    // Window Style constants
     private const int WS_SIZEBOX = 0x00040000;
     private const int WS_CLIPCHILDREN = 0x02000000;
     private const int WS_CLIPSIBLINGS = 0x04000000;
-    private const int WS_EX_COMPOSITED = 0x02000000; // Extended style: reduces flicker/overdraw
+    private const int WS_EX_COMPOSITED = 0x02000000; // Extended Style: reduces flicker/overdraw
 
     // Legacy default; actual margin computed per-hit from FormPainterMetrics and DPI
     private int _resizeMarginWin32 = 8;
@@ -210,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 // 3) Treat caption rect as native caption for drag if shown
                 if (ShowCaptionBar && CurrentLayout.CaptionRect.Contains(pos))
                 {
-                    // Exclude clicks over system/style/theme/custom buttons
+                    // Exclude clicks over system/Style/theme/custom buttons
                     if (!IsPointInCaptionButtons(pos)) { m.Result = (IntPtr)HTCAPTION; return; }
                 }
 
@@ -301,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// <summary>
         /// Updates the window region to match the form's shape (rounded corners, etc.)
         /// This clips the window so rectangular corners don't show through
-        /// CRITICAL: This must be called whenever the form size changes or style changes
+        /// CRITICAL: This must be called whenever the form size changes or Style changes
         /// </summary>
         private void UpdateWindowRegion()
         {

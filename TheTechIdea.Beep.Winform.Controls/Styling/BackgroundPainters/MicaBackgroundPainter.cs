@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for Windows 11 Mica style
+    /// Background painter for Windows 11 Mica Style
     /// </summary>
     public static class MicaBackgroundPainter
     {

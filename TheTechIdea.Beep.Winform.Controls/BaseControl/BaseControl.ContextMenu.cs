@@ -324,10 +324,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Context Menu Configuration
 
         /// <summary>
-        /// Configures the context menu with items and style
+        /// Configures the context menu with items and Style
         /// </summary>
         /// <param name="items">List of menu items</param>
-        /// <param name="menuType">Visual style of the menu</param>
+        /// <param name="menuType">Visual Style of the menu</param>
         /// <param name="multiSelect">Enable multi-select mode</param>
         public void ConfigureContextMenu(List<SimpleItem> items, FormStyle menuType =  FormStyle.Modern, bool multiSelect = false)
         {
@@ -352,9 +352,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         /// <summary>
-        /// Sets the context menu style
+        /// Sets the context menu Style
         /// </summary>
-        /// <param name="menuType">Visual style to apply</param>
+        /// <param name="menuType">Visual Style to apply</param>
         public void SetContextMenuStyle(FormStyle menuType)
         {
             if (_beepContextMenu != null)

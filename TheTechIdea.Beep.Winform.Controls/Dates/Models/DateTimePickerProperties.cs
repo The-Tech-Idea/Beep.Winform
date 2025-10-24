@@ -53,22 +53,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         public DatePickerDisabledDateStyle DisabledDateStyle { get; set; } = DatePickerDisabledDateStyle.GrayedOut;
         public DatePickerAnimationType AnimationType { get; set; } = DatePickerAnimationType.Fade;
 
-        // Quick Selection Options (for ModernCard style)
+        // Quick Selection Options (for ModernCard Style)
         public bool ShowTodayButton { get; set; } = true;
         public bool ShowTomorrowButton { get; set; } = true;
         public bool ShowCustomQuickDates { get; set; } = true;
 
-        // Appointment Picker Settings (for AppointmentPicker style)
+        // Appointment Picker Settings (for AppointmentPicker Style)
         public TimeSpan AppointmentStartHour { get; set; } = TimeSpan.FromHours(8);
         public TimeSpan AppointmentEndHour { get; set; } = TimeSpan.FromHours(18);
         public TimeSpan AppointmentSlotDuration { get; set; } = TimeSpan.FromMinutes(30);
 
-        // Quarterly Range Settings (for QuarterlyRange style)
+        // Quarterly Range Settings (for QuarterlyRange Style)
         public bool ShowQuarterButtons { get; set; } = true;
         public bool ShowMonthButtons { get; set; } = true;
         public bool ShowYearButtons { get; set; } = true;
 
-        // Dual Calendar Settings (for DualCalendar style)
+        // Dual Calendar Settings (for DualCalendar Style)
         public int MonthsToShow { get; set; } = 2;
         public bool SyncMonthNavigation { get; set; } = true;
 

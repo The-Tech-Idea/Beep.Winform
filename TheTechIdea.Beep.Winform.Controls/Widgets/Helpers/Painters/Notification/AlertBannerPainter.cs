@@ -12,7 +12,7 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// AlertBanner - Banner-style alerts with hit areas and hover
+    /// AlertBanner - Banner-Style alerts with hit areas and hover
     /// </summary>
     internal sealed class AlertBannerPainter : WidgetPainterBase
     {

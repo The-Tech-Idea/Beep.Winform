@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
     /// Outlined combo box painter - Style #2
-    /// Outlined style with clear border and rounded corners
+    /// Outlined Style with clear border and rounded corners
     /// </summary>
     internal class OutlinedComboBoxPainter : BaseComboBoxPainter
     {

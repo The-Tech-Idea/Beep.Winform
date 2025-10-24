@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         SidebarNav,       // Sidebar navigation
         WizardSteps,      // Wizard step navigation
         ProcessFlow,      // Process flow indicator
-        TreeNavigation,   // Tree-style navigation
+        TreeNavigation,   // Tree-Style navigation
         QuickActions      // Quick action buttons
     }
 
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Navigation")]
-        [Description("Visual style of the navigation widget.")]
+        [Description("Visual Style of the navigation widget.")]
         public NavigationWidgetStyle Style
         {
             get => _style;

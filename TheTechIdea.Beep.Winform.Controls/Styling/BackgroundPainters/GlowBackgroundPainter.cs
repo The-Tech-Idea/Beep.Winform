@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for DarkGlow style with neon effects
+    /// Background painter for DarkGlow Style with neon effects
     /// </summary>
     public static class GlowBackgroundPainter
     {

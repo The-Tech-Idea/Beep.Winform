@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
             }
             // Use DrawingRect from BaseControl for proper bounds

@@ -5,12 +5,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
 {
     /// <summary>
     /// Centralized color definitions for all BeepControlStyle design systems
-    /// Each style has distinct, recognizable colors
+    /// Each Style has distinct, recognizable colors
     /// </summary>
     public static class StyleColors
     {
         /// <summary>
-        /// Get background color for a specific style
+        /// Get background color for a specific Style
         /// </summary>
         public static Color GetBackground(BeepControlStyle style)
         {
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
         }
 
         /// <summary>
-        /// Get primary/accent color for a specific style
+        /// Get primary/accent color for a specific Style
         /// </summary>
         public static Color GetPrimary(BeepControlStyle style)
         {
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
         }
 
         /// <summary>
-        /// Get secondary/surface color for a specific style
+        /// Get secondary/surface color for a specific Style
         /// </summary>
         public static Color GetSecondary(BeepControlStyle style)
         {
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
         }
 
         /// <summary>
-        /// Get text/foreground color for a specific style
+        /// Get text/foreground color for a specific Style
         /// </summary>
         public static Color GetForeground(BeepControlStyle style)
         {
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
         }
 
         /// <summary>
-        /// Get border color for a specific style
+        /// Get border color for a specific Style
         /// </summary>
         public static Color GetBorder(BeepControlStyle style)
         {
@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
         }
 
         /// <summary>
-        /// Get hover/interaction color for a specific style
+        /// Get hover/interaction color for a specific Style
         /// </summary>
         public static Color GetHover(BeepControlStyle style)
         {
@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
         }
 
         /// <summary>
-        /// Get selection/active color for a specific style
+        /// Get selection/active color for a specific Style
         /// </summary>
         public static Color GetSelection(BeepControlStyle style)
         {

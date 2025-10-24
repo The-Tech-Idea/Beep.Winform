@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Form")]
-        [Description("Visual style of the form widget.")]
+        [Description("Visual Style of the form widget.")]
         public FormWidgetStyle Style
         {
             get => _style;
@@ -305,7 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         }
 
         [Category("Form")]
-        [Description("Layout style for form fields.")]
+        [Description("Layout Style for form fields.")]
         public FormLayout Layout
         {
             get => _layout;

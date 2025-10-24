@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         #region Painter Properties
         [Category("Appearance")]
-        [Description("The visual style painter for the numeric up-down control")]
+        [Description("The visual Style painter for the numeric up-down control")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {

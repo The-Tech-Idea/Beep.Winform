@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Vercel style: minimalist plus/minus
+            // Vercel Style: minimalist plus/minus
             Color iconColor = _theme.TreeForeColor;
 
             using (var pen = new Pen(iconColor, 1.5f))

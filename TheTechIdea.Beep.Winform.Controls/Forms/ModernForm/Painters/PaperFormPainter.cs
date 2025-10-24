@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Material Design Paper style with elevation shadows and layered depth
+    /// Material Design Paper Style with elevation shadows and layered depth
     /// </summary>
     internal sealed class PaperFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintPaperTexturedButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+                PaintPaperTexturedButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -186,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
                         break;
-                    case "style":
+                    case "Style":
                         // Palette icon
                         g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
                         g.FillEllipse(Brushes.White, centerX - 1, centerY - 1, 2, 2);
@@ -502,7 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             

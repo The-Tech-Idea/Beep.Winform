@@ -33,60 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     itemRect.Height - 8
                 );
 
-                // STEP 1: Draw item background with rounded corners
-                using (var path = CreateRoundedRectangle(contentBounds, 8))
-                {
-                    // Background color based on state
-                    Color bgColor;
-                    if (isSelected)
-                    {
-                        // Primary color with opacity
-                        bgColor = Color.FromArgb(240, _theme.AccentColor);
-                    }
-                    else if (isHovered)
-                    {
-                        // Subtle hover state
-                        bgColor = Color.FromArgb(20, _theme.AccentColor);
-                    }
-                    else
-                    {
-                        bgColor = Color.Transparent;
-                    }
-
-                    if (bgColor != Color.Transparent)
-                    {
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, path);
-                        }
-                    }
-
-                    // STEP 2: Draw subtle shadow on selected items
-                    if (isSelected)
-                    {
-                        var shadowRect = contentBounds;
-                        shadowRect.Offset(0, 2);
-                        using (var shadowPath = CreateRoundedRectangle(shadowRect, 8))
-                        using (var shadowBrush = new SolidBrush(Color.FromArgb(10, 0, 0, 0)))
-                        {
-                            g.FillPath(shadowBrush, shadowPath);
-                        }
-                    }
-
-                    // STEP 3: Draw focus ring
-                    // Focus handled by owner, optional here; keeping hover/selected only
-                    bool isFocused = false;
-                    if (isFocused)
-                    {
-                        var focusRect = contentBounds;
-                        focusRect.Inflate(2, 2);
-                        using (var focusPath = CreateRoundedRectangle(focusRect, 10))
-                        using (var focusPen = new Pen(Color.FromArgb(150, _theme.AccentColor), 2))
-                        {
-                            g.DrawPath(focusPen, focusPath);
-                        }
-                    }
-                }
+                // STEP 1: Draw item background
+                DrawItemBackground(g, itemRect, isHovered, isSelected);
 
                 // Calculate content areas
                 int leftOffset = contentBounds.X + 12;
@@ -183,7 +131,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is drawn inside DrawItem with rounded corners and shadows
+            // Use BeepStyling for HeroUI background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+            {
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+            }
         }
 
         private GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)

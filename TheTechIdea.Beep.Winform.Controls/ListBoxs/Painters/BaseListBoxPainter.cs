@@ -21,12 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     protected IBeepTheme _theme;
     protected BeepListBoxHelper _helper;
     protected BeepListBoxLayoutHelper _layout;
-        
-        public virtual void Initialize(BeepListBox owner, IBeepTheme theme)
-        {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _theme = theme;
-            _helper = new BeepListBoxHelper(owner);
+    public BeepControlStyle Style { get; set; } = BeepControlStyle.Minimal;
+
+    public virtual void Initialize(BeepListBox owner, IBeepTheme theme)
+    {
+        _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+        _theme = theme;
+        _helper = new BeepListBoxHelper(owner);
             _layout = owner.LayoutHelper;
         }
         
@@ -160,8 +161,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             try
             {
-                var style = BeepStyling.CurrentControlStyle;
-                StyledImagePainter.Paint(g, imageRect, imagePath, style);
+                
+                StyledImagePainter.Paint(g, imageRect, imagePath, Style);
             }
             catch
             {

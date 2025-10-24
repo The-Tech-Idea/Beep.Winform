@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
 
-            // Minimal style: whisper-light vertical highlight
+            // Minimal Style: whisper-light vertical highlight
             using (var grad = new System.Drawing.Drawing2D.LinearGradientBrush(
                 owner.ClientRectangle,
                 Color.FromArgb(12, 255, 255, 255), // slight top highlight
@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintZenButton(g, styleRect, Color.FromArgb(140, 120, 160), metrics.BorderColor, padding, buttonSize, "style");
+                PaintZenButton(g, styleRect, Color.FromArgb(140, 120, 160), metrics.BorderColor, padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
                         break;
-                    case "style":
+                    case "Style":
                         // Brush icon (Japanese calligraphy)
                         g.DrawLine(iconPen, centerX, centerY - iconSize / 2, centerX, centerY + iconSize / 2);
                         g.DrawLine(iconPen, centerX - iconSize / 3, centerY - iconSize / 4,
@@ -244,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         // Minimal has no special background effects, keep for pattern consistency
         private void PaintBackgroundEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            // No-op for Minimal style
+            // No-op for Minimal Style
         }
 
         private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -350,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
@@ -371,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             owner.CurrentLayout = layout;
         }
 
-        // Painter-owned non-client border rendering for Minimal style
+        // Painter-owned non-client border rendering for Minimal Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);

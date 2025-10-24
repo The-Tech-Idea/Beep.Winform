@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Pill/rail style tree painter for sidebar navigation.
+    /// Pill/rail Style tree painter for sidebar navigation.
     /// Features: Rounded pill-shaped selection, sidebar rail appearance, compact icons.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int PillPadding = 6;
 
         /// <summary>
-        /// Pill/rail style tree painting for sidebar navigation.
+        /// Pill/rail Style tree painting for sidebar navigation.
         /// Features: Pill-shaped backgrounds (high radius rounded ends, 6px horizontal padding, 3px vertical padding), dot toggles (filled when expanded, outlined when collapsed), circular icons (100 alpha), bold text on selection.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 3: Draw checkbox (pill rail style with rounded corners)
+                // STEP 3: Draw checkbox (pill rail Style with rounded corners)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw circular icon (pill rail sidebar style)
+                // STEP 4: Draw circular icon (pill rail sidebar Style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);

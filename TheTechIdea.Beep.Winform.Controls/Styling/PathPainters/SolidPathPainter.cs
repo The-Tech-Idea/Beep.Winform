@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
     /// <summary>
-    /// LEGACY: Path painter dispatcher - delegates to individual style painters
+    /// LEGACY: Path painter dispatcher - delegates to individual Style painters
     /// This class is maintained for backward compatibility
     /// Use individual painters (Material3PathPainter, iOS15PathPainter, etc.) directly for better maintainability
     /// </summary>

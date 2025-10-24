@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             grid.AddHitArea(text, bounds, null, action);
 
-            // Flat Tailwind style
+            // Flat Tailwind Style
             if (isPrimary)
             {
                 // Filled button
@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override void PaintPositionIndicator(Graphics g, Rectangle bounds, int currentPosition, 
             int totalRecords, IBeepTheme theme)
         {
-            // Not used in Tailwind style (pagination handles display)
+            // Not used in Tailwind Style (pagination handles display)
         }
 
         public override NavigationLayout CalculateLayout(Rectangle availableBounds, 

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     public enum NotificationWidgetStyle
     {
         ToastNotification,    // Pop-up toast messages
-        AlertBanner,          // Banner-style alerts
+        AlertBanner,          // Banner-Style alerts
         ProgressAlert,        // Progress with message
         StatusCard,           // Status card with icon
         MessageCenter,        // Message center widget
@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Notification")]
-        [Description("Visual style of the notification widget.")]
+        [Description("Visual Style of the notification widget.")]
         public NotificationWidgetStyle Style
         {
             get => _style;

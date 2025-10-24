@@ -109,12 +109,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Fill style for the shape")]
+        [Description("Fill Style for the shape")]
         public ShapeFillStyle FillStyle { get; set; } = ShapeFillStyle.Solid;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Line style for the shape outline")]
+        [Description("Line Style for the shape outline")]
         public DashStyle LineStyle { get; set; } = DashStyle.Solid;
 
         [Browsable(true)]

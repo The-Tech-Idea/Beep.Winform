@@ -5,7 +5,7 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
     /// <summary>
-    /// Classic wizard form with left sidebar (Image 1 style)
+    /// Classic wizard form with left sidebar (Image 1 Style)
     /// Traditional installation wizard design
     /// </summary>
     public class ClassicWizardForm : BaseWizardForm

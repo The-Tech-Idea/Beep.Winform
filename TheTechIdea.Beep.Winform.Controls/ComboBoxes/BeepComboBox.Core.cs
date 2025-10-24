@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region Core Fields
         
-        // Visual style
+        // Visual Style
         private ComboBoxType _comboBoxType = ComboBoxType.Standard;
         
         // List management

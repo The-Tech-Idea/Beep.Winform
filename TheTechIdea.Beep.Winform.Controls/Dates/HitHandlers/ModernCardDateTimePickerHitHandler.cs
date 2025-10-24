@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
 {
     /// <summary>
     /// Hit handler for ModernCardDateTimePickerPainter
-    /// - Card-style UI with shadow and rounded corners
+    /// - Card-Style UI with shadow and rounded corners
     /// - Quick date buttons at top (Today, Tomorrow, etc.) in 2x2 grid
     /// - Uses DateTimePickerQuickButtonHelper for consistent button definitions
     /// - Calendar below separator for manual selection

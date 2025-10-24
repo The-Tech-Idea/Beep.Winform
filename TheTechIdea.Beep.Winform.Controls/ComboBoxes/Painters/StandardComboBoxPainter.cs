@@ -4,7 +4,7 @@ using System.Drawing.Drawing2D;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// Standard combo box painter - default Windows-like style
+    /// Standard combo box painter - default Windows-like Style
     /// Clean rectangular design with subtle border
     /// </summary>
     internal class StandardComboBoxPainter : BaseComboBoxPainter

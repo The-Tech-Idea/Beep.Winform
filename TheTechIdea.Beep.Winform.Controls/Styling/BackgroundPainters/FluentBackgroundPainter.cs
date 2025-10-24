@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Fluent style: Semi-transparent with subtle lighting
+            // Fluent Style: Semi-transparent with subtle lighting
             Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Fluent);
 
             // Fluent-specific state handling - subtle reveals
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            // Fluent style: Subtle acrylic-like gradient
+            // Fluent Style: Subtle acrylic-like gradient
             var bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(
                 new PointF(bounds.Left, bounds.Top),

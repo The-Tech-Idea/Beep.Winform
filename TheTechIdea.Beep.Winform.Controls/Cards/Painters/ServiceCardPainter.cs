@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
-            // Draw icon background circle (Material Design style)
+            // Draw icon background circle (Material Design Style)
             if (ctx.ShowImage)
             {
                 // Draw circular background for icon with accent color

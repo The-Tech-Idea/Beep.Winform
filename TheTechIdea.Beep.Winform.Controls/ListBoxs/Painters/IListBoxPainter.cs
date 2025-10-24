@@ -9,33 +9,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     /// </summary>
     internal interface IListBoxPainter
     {
+
+        BeepControlStyle Style { get; set; }
         /// <summary>
         /// Initialize the painter with owner and theme
         /// </summary>
         void Initialize(BeepListBox owner, IBeepTheme theme);
         
         /// <summary>
-        /// Paint the list box in the specified style
+        /// Paint the list box in the specified Style
         /// </summary>
         void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect);
         
         /// <summary>
-        /// Get the preferred item height for this style
+        /// Get the preferred item height for this Style
         /// </summary>
         int GetPreferredItemHeight();
         
         /// <summary>
-        /// Get the preferred padding for this style
+        /// Get the preferred padding for this Style
         /// </summary>
         Padding GetPreferredPadding();
         
         /// <summary>
-        /// Get whether this style supports search
+        /// Get whether this Style supports search
         /// </summary>
         bool SupportsSearch();
         
         /// <summary>
-        /// Get whether this style supports checkboxes
+        /// Get whether this Style supports checkboxes
         /// </summary>
         bool SupportsCheckboxes();
     }

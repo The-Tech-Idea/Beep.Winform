@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         /// <summary>
-        /// Override CreateParams to add WS_EX_COMPOSITED style for better flicker reduction
+        /// Override CreateParams to add WS_EX_COMPOSITED Style for better flicker reduction
         /// </summary>
         protected override CreateParams CreateParams
         {
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         private BeepGridStyle _gridStyle = BeepGridStyle.Default;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style preset for the grid, inspired by popular JavaScript frameworks.")]
+        [Description("The visual Style preset for the grid, inspired by popular JavaScript frameworks.")]
         [DefaultValue(BeepGridStyle.Default)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [RefreshProperties(RefreshProperties.Repaint)]
@@ -308,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         private navigationStyle _navigationStyle = navigationStyle.Standard;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Navigation bar style - choose from 12 framework-inspired designs")]
+        [Description("Navigation bar Style - choose from 12 framework-inspired designs")]
         [DefaultValue(navigationStyle.Standard)]
         [RefreshProperties(RefreshProperties.Repaint)]
         public navigationStyle NavigationStyle
@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _navigationStyle = value;
                     NavigatorPainter.NavigationStyle = value;
                     
-                    // Update navigator height based on the new style
+                    // Update navigator height based on the new Style
                     if (_usePainterNavigation)
                     {
                         if (value == navigationStyle.None)
@@ -575,7 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             NavigatorPainter.UsePainterNavigation = _usePainterNavigation;
             NavigatorPainter.NavigationStyle = _navigationStyle;
             
-            // Set initial navigator height based on style
+            // Set initial navigator height based on Style
             if (_usePainterNavigation)
             {
                 if (_navigationStyle == navigationStyle.None)
@@ -618,7 +618,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ShowColumnHeaders = true;
         }
 
-        //// Ensure window style flags are set during handle creation
+        //// Ensure window Style flags are set during handle creation
         //protected override CreateParams CreateParams
         //{
         //    get
@@ -698,7 +698,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (!DesignMode)
             {
                 ScrollBars?.UpdateBars();
-                // Don't call Invalidate() here - ResizeRedraw style already triggers repaint
+                // Don't call Invalidate() here - ResizeRedraw Style already triggers repaint
                 // Calling Invalidate() here causes flicker because it forces an extra paint cycle
             }
         }
@@ -765,12 +765,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             base.ApplyTheme();
             ThemeHelper.ApplyTheme();
-            ApplyGridStyle(); // Apply grid style after theme
+            ApplyGridStyle(); // Apply grid Style after theme
             Invalidate();
         }
 
         /// <summary>
-        /// Applies the selected grid style preset to customize the grid's appearance
+        /// Applies the selected grid Style preset to customize the grid's appearance
         /// </summary>
         public void ApplyGridStyle()
         {
@@ -778,7 +778,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             var theme = BeepThemesManager.GetTheme(Theme);
             if (theme == null) return;
 
-            // Apply style-specific customizations (layout and visual effects only, no color changes)
+            // Apply Style-specific customizations (layout and visual effects only, no color changes)
             switch (_gridStyle)
             {
                 case BeepGridStyle.Default:
@@ -795,7 +795,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     break;
 
                 case BeepGridStyle.Clean:
-                    // Clean style: subtle borders, minimal styling
+                    // Clean Style: subtle borders, minimal styling
                     RowHeight = 26;
                     ColumnHeaderHeight = 28;
                     Render.ShowGridLines = true;
@@ -925,7 +925,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     break;
             }
 
-            // Recalculate layout after style changes
+            // Recalculate layout after Style changes
             Layout.Recalculate();
         }
 

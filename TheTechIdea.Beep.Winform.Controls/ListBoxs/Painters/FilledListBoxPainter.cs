@@ -15,12 +15,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var rect = itemRect;
             rect.Inflate(-4, -2);
             
-            // Draw shadow for elevation
-            if (isHovered || isSelected)
-            {
-                DrawShadow(g, rect);
-            }
-            
             DrawItemBackground(g, rect, isHovered, isSelected);
 
             // Use layout rects for content
@@ -39,18 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            if (isSelected)
-                bgColor = _theme?.PrimaryColor ?? Color.Blue;
-            else if (isHovered)
-                bgColor = Color.FromArgb(240, 240, 245);
-            else
-                bgColor = Color.FromArgb(250, 250, 250);
-            
-            using (var brush = new SolidBrush(bgColor))
-            using (var path = GetRoundedRectPath(itemRect, 6))
+            // Use BeepStyling for Filled Style background, border, and shadow
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillPath(brush, path);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         

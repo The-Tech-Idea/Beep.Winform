@@ -60,14 +60,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
         #region Standard Design Font Management
         /// <summary>
-        /// Get standard font with style-specific family preferences
+        /// Get standard font with Style-specific family preferences
         /// </summary>
         protected override Font GetFont(BeepControlStyle style, bool isFocused)
         {
             float fontSize = GetFontSize(style);
             FontStyle fontStyle = isFocused ? FontStyle.Bold : FontStyle.Regular;
             
-            // Get style-specific font family
+            // Get Style-specific font family
             string fontFamily = GetStyleSpecificFontFamily(style);
             
             Font styledFont = FontListHelper.GetFont(fontFamily, fontSize, fontStyle);
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Get font family specific to each style
+        /// Get font family specific to each Style
         /// </summary>
         private string GetStyleSpecificFontFamily(BeepControlStyle style)
         {
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 BeepControlStyle.StripeDashboard => "Inter",           // Stripe uses Inter
                 BeepControlStyle.DiscordStyle => "Whitney",            // Discord uses Whitney
                 BeepControlStyle.GradientModern => "Inter",            // Modern designs use Inter
-                BeepControlStyle.GlassAcrylic => "Segoe UI Variable",  // Windows 11 style
+                BeepControlStyle.GlassAcrylic => "Segoe UI Variable",  // Windows 11 Style
                 BeepControlStyle.Neumorphism => "Montserrat",          // Soft, rounded font
                 BeepControlStyle.PillRail => "Inter",                  // Clean, minimal
                 _ => PrimaryFontFamily
@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
         #region Style-Specific Typography Variants
         /// <summary>
-        /// Paint Discord-style text with appropriate styling
+        /// Paint Discord-Style text with appropriate styling
         /// </summary>
         public static void PaintDiscord(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)
@@ -251,7 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint text for any remaining style not covered by specialized painters
+        /// Paint text for any remaining Style not covered by specialized painters
         /// </summary>
         public static void PaintGeneric(Graphics g, Rectangle bounds, string text, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)

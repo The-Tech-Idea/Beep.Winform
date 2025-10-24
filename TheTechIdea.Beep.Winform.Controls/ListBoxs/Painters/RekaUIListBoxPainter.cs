@@ -33,27 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     itemBounds.Height - 4
                 );
 
-                // STEP 1: Draw item background (subtle, flat design)
-                Color bgColor = Color.Transparent;
-                
-                if (isSelected)
-                {
-                    // Subtle selection background
-                    bgColor = Color.FromArgb(30, _theme.AccentColor);
-                }
-                else if (isHovered)
-                {
-                    // Very subtle hover
-                    bgColor = Color.FromArgb(10, _theme.LabelForeColor);
-                }
-
-                if (bgColor != Color.Transparent)
-                {
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, contentBounds);
-                    }
-                }
+                // STEP 1: Draw item background
+                DrawItemBackground(g, itemBounds, isHovered, isSelected);
 
                 // STEP 2: Draw left accent bar on selected items
                 if (isSelected)
@@ -197,7 +178,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Background is handled within DrawItem for this painter (flat/minimal)
+            // Use BeepStyling for RekaUI background, border, and shadow
+           
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+            {
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
-            // Filled style has bottom border only (Material Design pattern)
+            // Filled Style has bottom border only (Material Design pattern)
             Color borderColor = _owner.Focused 
                 ? _theme?.PrimaryColor ?? Color.Blue
                 : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Gray));
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
             
-            // No separator for filled style
+            // No separator for filled Style
             Color arrowColor = _owner.Focused 
                 ? (_theme?.PrimaryColor ?? Color.Blue)
                 : (_theme?.SecondaryColor ?? Color.Gray);
@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             var path = new GraphicsPath();
             int diameter = radius * 2;
             
-            // Top corners rounded, bottom corners sharp for filled style
+            // Top corners rounded, bottom corners sharp for filled Style
             path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
             path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
             path.AddLine(rect.Right - 1, rect.Y + radius, rect.Right - 1, rect.Bottom - 1);

@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Jira/Atlassian-style portfolio tree painter for project management.
+    /// Jira/Atlassian-Style portfolio tree painter for project management.
     /// Features: Progress bars, effort indicators, theme grouping, epic/story hierarchy.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int BadgeSize = 18;
 
         /// <summary>
-        /// Jira/Atlassian-style portfolio tree painting for project management.
+        /// Jira/Atlassian-Style portfolio tree painting for project management.
         /// Features: Left accent bar (3px on selection), progress indicators, effort badges, epic/story icons, rounded backgrounds (4px).
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw checkbox (rounded Jira style)
+                // STEP 4: Draw checkbox (rounded Jira Style)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 5: Draw epic/story icon (Jira style)
+                // STEP 5: Draw epic/story icon (Jira Style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -310,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Atlassian-style arrow toggle
+            // Atlassian-Style arrow toggle
             Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
             using (var brush = new SolidBrush(arrowColor))
             {
@@ -364,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         private void PaintDefaultIcon(Graphics g, Rectangle iconRect)
         {
-            // Rounded square icon (Jira style)
+            // Rounded square icon (Jira Style)
             Color iconColor = Color.FromArgb(
                 (_theme.AccentColor.R + _theme.TreeForeColor.R) / 2,
                 (_theme.AccentColor.G + _theme.TreeForeColor.G) / 2,

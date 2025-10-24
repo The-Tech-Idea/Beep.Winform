@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
     /// Discord tree painter.
-    /// Features: Server/channel style, colored indicators, rounded selections, icons.
+    /// Features: Server/channel Style, colored indicators, rounded selections, icons.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
     public class DiscordTreePainter : BaseTreePainter
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int IndicatorWidth = 4;
 
         /// <summary>
-        /// Discord-specific node painting with server/channel style.
+        /// Discord-specific node painting with server/channel Style.
         /// Features: Left indicator pill (4px on selection, 2px on hover), rounded selections (4px), hashtag icons, bold text on selection.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Discord style: simple arrow
+            // Discord Style: simple arrow
             Color arrowColor = _theme.TreeForeColor;
 
             using (var pen = new Pen(arrowColor, 1.5f))
@@ -295,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: Discord-style rounded icon
+            // Default: Discord-Style rounded icon
             PaintDefaultDiscordIcon(g, iconRect);
         }
 

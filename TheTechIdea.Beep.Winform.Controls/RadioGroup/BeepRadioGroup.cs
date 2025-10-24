@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _renderers[style] = renderer;
                 
-                // If this is the current style, update the current renderer
+                // If this is the current Style, update the current renderer
                 if (_renderStyle == style)
                 {
                     _currentRenderer = renderer;

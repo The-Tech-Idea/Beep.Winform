@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         public bool UseThemeColors { get; set; } = false;
         public IBeepTheme beepTheme { get; set; }
-        // Helpers to ensure readable backgrounds per style even with dark themes
+        // Helpers to ensure readable backgrounds per Style even with dark themes
         private static Color Blend(Color a, Color b, double t)
         {
             // t in [0,1]; returns a*(1-t)+b*t
@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.ButtonWidth = 34;
                     m.IconSize = 22;
                     m.ButtonsPlacement = SystemButtonsSide.Right;
-                    m.BorderWidth = 0;
+                    m.BorderWidth = 1;
                     m.BorderRadius = 12;
                     m.AccentBarWidth = 0;
                     break;
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.ButtonWidth = 32;
                     m.IconSize = 22;
                     m.ButtonsPlacement = SystemButtonsSide.Right;
-                    m.BorderWidth = 0;
+                    m.BorderWidth = 1;
                     m.BorderRadius = 4;
                     m.AccentBarWidth = 0;
                     break;
@@ -399,7 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     break;
               
                 default:
-                    // Fallback to Modern style metrics
+                    // Fallback to Modern Style metrics
                     m.CaptionHeight = 32;
                     m.ButtonWidth = 32;
                     m.IconSize = 24;
@@ -564,7 +564,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
             }else
             {
-                // do another switch on style to set some default colors
+                // do another switch on Style to set some default colors
                 switch (style)
                 {
                     case FormStyle.Minimal:

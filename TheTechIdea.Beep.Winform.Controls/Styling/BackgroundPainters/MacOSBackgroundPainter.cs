@@ -7,12 +7,12 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for macOS Big Sur style
+    /// Background painter for macOS Big Sur Style
     /// </summary>
     public static class MacOSBackgroundPainter
     {
         /// <summary>
-        /// Paint macOS background with system-style appearance
+        /// Paint macOS background with system-Style appearance
         /// </summary>
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {

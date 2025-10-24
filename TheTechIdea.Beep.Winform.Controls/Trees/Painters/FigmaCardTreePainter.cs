@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Figma Layers panel card style tree painter.
+    /// Figma Layers panel card Style tree painter.
     /// Features: Design tool hierarchy, card-based layers, drag handles, visibility toggles.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int HandleWidth = 16;
 
         /// <summary>
-        /// Figma Layers panel card style painting.
+        /// Figma Layers panel card Style painting.
         /// Features: Card with accent border (2px on selection), drag handles on hover (3 lines), layer visibility toggle, component/frame icons.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         }
                         else
                         {
-                            // Frame/component outline icon (Figma style)
+                            // Frame/component outline icon (Figma Style)
                             Color iconColor = _theme.AccentColor;
                             using (var iconPath = CreateRoundedRectangle(iconRect, 2))
                             {
@@ -394,7 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Figma frame/component icon
             using (var path = CreateRoundedRectangle(iconRect, 2))
             {
-                // Outline only (Figma style)
+                // Outline only (Figma Style)
                 using (var pen = new Pen(iconColor, 1.5f))
                 {
                     g.DrawPath(pen, path);

@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Get font style for regular state - can be overridden per design system
+        /// Get font Style for regular state - can be overridden per design system
         /// </summary>
         protected virtual FontStyle GetFontStyle(BeepControlStyle style)
         {
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Get font style for focused/active state - can be overridden per design system
+        /// Get font Style for focused/active state - can be overridden per design system
         /// </summary>
         protected virtual FontStyle GetActiveFontStyle(BeepControlStyle style)
         {
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Determine if letter spacing should be applied for this style
+        /// Determine if letter spacing should be applied for this Style
         /// </summary>
         protected virtual bool ShouldUseLetterSpacing(BeepControlStyle style)
         {
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
         #region Static Factory Method
         /// <summary>
-        /// Create appropriate design system text painter for the given style
+        /// Create appropriate design system text painter for the given Style
         /// </summary>
         public static DesignSystemTextPainter CreatePainter(BeepControlStyle style)
         {

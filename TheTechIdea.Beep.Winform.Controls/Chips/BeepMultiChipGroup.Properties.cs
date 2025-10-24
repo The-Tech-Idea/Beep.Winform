@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
     {
         private void SwitchPainter(ChipStyle kind)
         {
-            _renderOptions.Style = kind; // still pass style for fine-tuning inside painters
+            _renderOptions.Style = kind; // still pass Style for fine-tuning inside painters
 
             switch (kind)
             {

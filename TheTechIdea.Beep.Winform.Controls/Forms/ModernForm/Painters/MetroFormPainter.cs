@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                Paint3DTileButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+                Paint3DTileButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
-                    case "style":
+                    case "Style":
                         // Metro tile icon (4 squares)
                         int tileSize = 3;
                         g.FillRectangle(Brushes.White, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, tileSize, tileSize);
@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             

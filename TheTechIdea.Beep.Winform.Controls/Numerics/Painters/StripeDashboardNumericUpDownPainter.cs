@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Numerics.Painters;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
 using System.Drawing.Text;
 /// <summary>
-/// Stripe Dashboard style painter for NumericUpDown
+/// Stripe Dashboard Style painter for NumericUpDown
 /// Features: Professional palette, subtle rounded corners, clean lines, payment-focused design
 /// </summary>
 public class StripeDashboardNumericUpDownPainter : BaseNumericUpDownPainter

@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         public override int GetPreferredButtonWidth()
         {
-            return 20; // Smaller button for borderless style
+            return 20; // Smaller button for borderless Style
         }
     }
 }

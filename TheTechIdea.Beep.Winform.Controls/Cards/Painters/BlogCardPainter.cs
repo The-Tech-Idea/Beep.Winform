@@ -6,7 +6,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
     /// <summary>
     /// BlogCardPainter - For blog posts, news articles, and editorial content
-    /// Article-style layout with featured image, title, excerpt, metadata
+    /// Article-Style layout with featured image, title, excerpt, metadata
     /// </summary>
     internal sealed class BlogCardPainter : CardPainterBase
     {

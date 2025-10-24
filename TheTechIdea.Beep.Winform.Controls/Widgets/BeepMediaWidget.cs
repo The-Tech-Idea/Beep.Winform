@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Media")]
-        [Description("Visual style of the media widget.")]
+        [Description("Visual Style of the media widget.")]
         public MediaWidgetStyle Style
         {
             get => _style;
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 });
             }
 
-            // Add hit areas for individual media items based on style
+            // Add hit areas for individual media items based on Style
             if (_style == MediaWidgetStyle.AvatarGroup || _style == MediaWidgetStyle.PhotoGrid)
             {
                 for (int i = 0; i < _mediaItems.Count && i < 6; i++) // Limit to 6 visible items

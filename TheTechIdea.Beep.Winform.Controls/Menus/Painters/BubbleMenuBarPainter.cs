@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
     /// <summary>
-    /// Bubble-style menu bar: rounded item backgrounds with active badge-like accent.
+    /// Bubble-Style menu bar: rounded item backgrounds with active badge-like accent.
     /// </summary>
     public sealed class BubbleMenuBarPainter : MenuBarPainterBase
     {

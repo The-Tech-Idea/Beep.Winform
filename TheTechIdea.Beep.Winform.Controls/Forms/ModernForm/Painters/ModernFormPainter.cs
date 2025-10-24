@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
             // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) here because we paint custom beveled buttons
-            // Only paint the icon (we handle theme/style/system buttons ourselves)
+            // Only paint the icon (we handle theme/Style/system buttons ourselves)
             owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
 
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintBeveledButton(g, styleRect, Color.FromArgb(180, 140, 200), padding, buttonSize, "style");
+                PaintBeveledButton(g, styleRect, Color.FromArgb(180, 140, 200), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
-                    case "style":
+                    case "Style":
                         // Palette icon
                         g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
                         g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY - 1, 2, 2);
@@ -336,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             

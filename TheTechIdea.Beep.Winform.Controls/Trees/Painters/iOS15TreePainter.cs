@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
     /// Apple iOS 15 tree painter.
-    /// Features: Rounded group headers, SF Symbols style icons, smooth shadows, fluid spacing.
+    /// Features: Rounded group headers, SF Symbols Style icons, smooth shadows, fluid spacing.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
     public class iOS15TreePainter : BaseTreePainter
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         /// <summary>
         /// iOS15-specific node painting with rounded groups and drop shadows.
-        /// Features: Large rounded corners (10px), drop shadows on selection, SF Symbols style, comfortable spacing.
+        /// Features: Large rounded corners (10px), drop shadows on selection, SF Symbols Style, comfortable spacing.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 3: Draw SF Symbols style chevron toggle
+                // STEP 3: Draw SF Symbols Style chevron toggle
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw iOS-style rounded checkbox
+                // STEP 4: Draw iOS-Style rounded checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         }
                     }
 
-                    // iOS-style checkmark (smooth)
+                    // iOS-Style checkmark (smooth)
                     if (node.Item.IsChecked)
                     {
                         using (var checkPen = new Pen(Color.White, 2.5f))
@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 5: Draw SF Symbols style icon
+                // STEP 5: Draw SF Symbols Style icon
                 if (node.IconRectContent != Rectangle.Empty && !string.IsNullOrEmpty(node.Item.ImagePath))
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // SF Pro style (Segoe UI is closest on Windows)
+                    // SF Pro Style (Segoe UI is closest on Windows)
                     using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
                     {
                         TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // SF Symbols style chevron
+            // SF Symbols Style chevron
             Color chevronColor = _theme.AccentColor;
 
             using (var pen = new Pen(chevronColor, 2f))
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default SF Symbols style icon
+            // Default SF Symbols Style icon
             PaintDefaultSFSymbol(g, iconRect);
         }
 
@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     iconRect.Width - padding * 2,
                     iconRect.Height - padding * 2);
 
-                // Folder.fill style
+                // Folder.fill Style
                 int tabWidth = innerRect.Width / 3;
                 int tabHeight = innerRect.Height / 4;
 
@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // SF Pro style (Segoe UI is closest on Windows)
+            // SF Pro Style (Segoe UI is closest on Windows)
             Font renderFont = new Font("Segoe UI", font.Size, isSelected ? FontStyle.Regular : FontStyle.Regular);
 
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
@@ -339,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             var path = new GraphicsPath();
             int diameter = radius * 2;
 
-            // Padding for iOS style
+            // Padding for iOS Style
             rect = new Rectangle(rect.X + GroupPadding, rect.Y + 2, rect.Width - GroupPadding * 2, rect.Height - 4);
 
             if (rect.Width < diameter || rect.Height < diameter)

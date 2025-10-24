@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         #region Core Fields
 
-        // Visual style
+        // Visual Style
         private FormStyle _contextMenuType = FormStyle.Modern;
         
         // Menu items
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // DPI scaling
         private float _scaleFactor = 1.0f;
         
-    // MenuStyle (visual style of the context menu painter)
+    // MenuStyle (visual Style of the context menu painter)
     private FormStyle menustyle =  FormStyle.Modern;
 
     // Theme management (aligns with BaseControl pattern)

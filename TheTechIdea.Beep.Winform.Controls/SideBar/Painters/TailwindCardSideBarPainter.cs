@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
         {
-            // Tailwind card-style selection with shadow
+            // Tailwind card-Style selection with shadow
             Color selectionColor = context.UseThemeColors && context.Theme != null 
                 ? Color.White
                 : Color.White;
@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 
                 int x = childRect.X + 10;
                 
-                // Draw connector line - Tailwind style
+                // Draw connector line - Tailwind Style
                 Color lineColor = context.UseThemeColors && context.Theme != null 
                     ? Color.FromArgb(40, context.Theme.SideMenuForeColor)
                     : Color.FromArgb(40, 203, 213, 225);

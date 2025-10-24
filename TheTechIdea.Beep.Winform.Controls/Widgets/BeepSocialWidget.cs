@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         UserList,         // Contact/user listing
         ChatWidget,       // Chat interface component
         CommentThread,    // Comment/reply thread
-        SocialFeed,       // Social media style feed
+        SocialFeed,       // Social media Style feed
         UserStats,        // User statistics display
         ContactCard       // Contact information card
     }
@@ -142,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Social")]
-        [Description("Visual style of the social widget.")]
+        [Description("Visual Style of the social widget.")]
         public SocialWidgetStyle Style
         {
             get => _style;
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 });
             }
 
-            // Add hit areas for individual social items based on style
+            // Add hit areas for individual social items based on Style
             if (_style == SocialWidgetStyle.TeamMembers || _style == SocialWidgetStyle.UserList)
             {
                 for (int i = 0; i < _socialItems.Count && i < 6; i++) // Limit to 6 visible items

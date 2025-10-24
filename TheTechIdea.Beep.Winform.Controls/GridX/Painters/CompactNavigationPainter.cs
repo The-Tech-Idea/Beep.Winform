@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Compact DevExpress-style navigation with minimal height and icon buttons
+    /// Compact DevExpress-Style navigation with minimal height and icon buttons
     /// </summary>
     public class CompactNavigationPainter : BaseNavigationPainter
     {

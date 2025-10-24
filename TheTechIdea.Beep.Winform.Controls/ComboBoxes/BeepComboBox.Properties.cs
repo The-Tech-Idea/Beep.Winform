@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(ComboBoxType.Standard)]
-        [Description("The visual style/variant of the combo box.")]
+        [Description("The visual Style/variant of the combo box.")]
         public ComboBoxType ComboBoxType
         {
             get => _comboBoxType;

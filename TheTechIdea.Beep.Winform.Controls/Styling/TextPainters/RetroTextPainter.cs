@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint retro tile text (Windows Phone style)
+        /// Paint retro tile text (Windows Phone Style)
         /// </summary>
         public static void PaintTile(Graphics g, Rectangle bounds, string text, string subtitle, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint retro ribbon tab text (Office style)
+        /// Paint retro ribbon tab text (Office Style)
         /// </summary>
         public static void PaintRibbonTab(Graphics g, Rectangle bounds, string text, bool isSelected,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             try
             {
-                // Office-style ribbon tab with underline when selected
+                // Office-Style ribbon tab with underline when selected
                 using (var brush = new SolidBrush(ribbonColor))
                 {
                     g.DrawString(text, ribbonFont, brush, bounds, GetCenteredRetroStringFormat());
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
                 if (isSelected)
                 {
-                    // Ribbon-style bottom border
+                    // Ribbon-Style bottom border
                     using (var pen = new Pen(ribbonColor, 2))
                     {
                         g.DrawLine(pen, bounds.X + 4, bounds.Bottom - 1, bounds.Right - 4, bounds.Bottom - 1);
@@ -259,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 g.DrawString(text, font, brush, bounds, GetRetroStringFormat());
             }
 
-            // Metro-style accent line for focus
+            // Metro-Style accent line for focus
             if (isFocused)
             {
                 var scheme = RetroSchemes[0]; // Metro
@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             // Office Ribbon: Professional with subtle gradients
             if (isFocused)
             {
-                // Office-style subtle highlight
+                // Office-Style subtle highlight
                 var scheme = RetroSchemes[1]; // Office
                 using (var highlightBrush = new LinearGradientBrush(bounds, 
                     Color.FromArgb(30, scheme.Primary), 
@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             // Legacy Material: Roboto with subtle shadows
             if (isFocused)
             {
-                // Material Design-style subtle shadow
+                // Material Design-Style subtle shadow
                 using (var shadowBrush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
                 {
                     var shadowBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width, bounds.Height);
@@ -322,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 g.DrawString(text, font, brush, bounds, GetRetroStringFormat());
             }
 
-            // Fluent-style subtle glow for focus
+            // Fluent-Style subtle glow for focus
             if (isFocused)
             {
                 var scheme = RetroSchemes[3]; // Fluent
@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static void PaintVintageSystem(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            // Vintage Windows: Pixelated, bitmap-style rendering
+            // Vintage Windows: Pixelated, bitmap-Style rendering
             var oldMode = g.SmoothingMode;
             var oldHint = g.TextRenderingHint;
 
@@ -351,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                     g.DrawString(text, font, brush, bounds, GetRetroStringFormat());
                 }
 
-                // Vintage-style raised effect for focus
+                // Vintage-Style raised effect for focus
                 if (isFocused)
                 {
                     using (var highlightBrush = new SolidBrush(Color.FromArgb(255, 255, 255)))
@@ -412,7 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                     break;
             }
 
-            // Get appropriate font family for retro style
+            // Get appropriate font family for retro Style
             string[] fontFamily = style switch
             {
                 BeepControlStyle.Metro => MetroFonts,
@@ -538,7 +538,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         #region Retro-Specific Typography Variants
 
         /// <summary>
-        /// Paint Windows Phone-style live tile text
+        /// Paint Windows Phone-Style live tile text
         /// </summary>
         public static void PaintLiveTile(Graphics g, Rectangle bounds, string primaryText, string secondaryText, 
             bool isFlipped, BeepControlStyle style, IBeepTheme theme, bool useThemeColors = false)

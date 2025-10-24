@@ -283,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: DevExpress-style icon with gloss
+            // Default: DevExpress-Style icon with gloss
             PaintDefaultDevExpressIcon(g, iconRect);
         }
 

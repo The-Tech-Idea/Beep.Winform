@@ -64,12 +64,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Rectangle chipRect = new Rectangle(x, y, chipWidth, chipHeight);
             
             // Draw chip background
-            Color chipBg = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+            Color chipBg = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
             using (var brush = new SolidBrush(Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B)))
             {
-                using (var path = GetRoundedRectPath(chipRect, chipHeight / 2))
+              
+                using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(chipRect, Style))
                 {
-                    g.FillPath(brush, path);
+                    Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
                 }
             }
             

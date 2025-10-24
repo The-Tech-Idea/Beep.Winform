@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Control")]
-        [Description("Visual style of the control widget.")]
+        [Description("Visual Style of the control widget.")]
         public ControlWidgetStyle Style
         {
             get => _style;

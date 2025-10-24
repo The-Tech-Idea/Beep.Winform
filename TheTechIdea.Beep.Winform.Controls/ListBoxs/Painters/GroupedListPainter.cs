@@ -49,23 +49,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         private void DrawGroupHeader(Graphics g, Rectangle rect, SimpleItem item)
         {
-            // Draw group header background using a subtle themed color
-            Color headerBg = Color.FromArgb(12, (_theme?.PrimaryTextColor ?? Color.Black));
-            using (var brush = new SolidBrush(headerBg))
+            // Use BeepStyling for group header background
+         
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(rect, Style))
             {
-                g.FillRectangle(brush, rect);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
             }
             
             // Draw group header text
             using (Font headerFont = new Font(_owner.TextFont, FontStyle.Bold))
             {
-                Color headerColor = _theme?.SecondaryTextColor ?? _helper.GetTextColor();
+                Color headerColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.SecondaryTextColor ?? _helper.GetTextColor();
                 Rectangle textRect = new Rectangle(rect.X + 12, rect.Y, rect.Width - 12, rect.Height);
                 DrawItemText(g, textRect, item.Text, headerColor, headerFont);
             }
             
             // Draw divider line
-            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
+            using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
             {
                 g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
             }

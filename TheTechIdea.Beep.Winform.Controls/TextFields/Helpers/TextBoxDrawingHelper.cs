@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
     /// <summary>
     /// Handles advanced drawing operations for BeepSimpleTextBox including
-    /// image/text alignment similar to BeepButton and DevExpress-style features
+    /// image/text alignment similar to BeepButton and DevExpress-Style features
     /// </summary>
     public class TextBoxDrawingHelper
     {

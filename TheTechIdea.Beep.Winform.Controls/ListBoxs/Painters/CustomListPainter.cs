@@ -44,18 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Default background - can be overridden by custom renderer
-            Color bgColor;
-            if (isSelected)
-                bgColor = _theme != null ? _theme.PrimaryColor : Color.FromArgb(0, 120, 215);
-            else if (isHovered)
-                bgColor = Color.FromArgb(240, 240, 240);
-            else
-                bgColor = Color.White;
-            
-            using (var brush = new SolidBrush(bgColor))
+            // Use BeepStyling for CustomList background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillRectangle(brush, itemRect);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         

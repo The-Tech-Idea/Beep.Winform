@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             var m = new ContextMenuMetrics();
             
-            // Apply style-specific defaults
+            // Apply Style-specific defaults
             switch (style)
             {
                 case FormStyle.Modern:

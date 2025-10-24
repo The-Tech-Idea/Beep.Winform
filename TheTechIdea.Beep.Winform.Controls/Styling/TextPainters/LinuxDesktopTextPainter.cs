@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
             }
 
-            // Subtle bottom border for focused state (GNOME style)
+            // Subtle bottom border for focused state (GNOME Style)
             if (isFocused)
             {
                 var scheme = LinuxSchemes[0]; // GNOME
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             // KDE Breeze: Subtle glow and gradients
             if (isFocused)
             {
-                // KDE-style subtle glow
+                // KDE-Style subtle glow
                 var scheme = LinuxSchemes[1]; // KDE
                 using (var glowBrush = new SolidBrush(Color.FromArgb(40, scheme.Primary)))
                 {
@@ -280,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
             }
 
-            // elementary-style accent line
+            // elementary-Style accent line
             if (isFocused)
             {
                 var scheme = LinuxSchemes[2]; // elementary

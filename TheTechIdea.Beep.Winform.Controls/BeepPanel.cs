@@ -334,7 +334,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Color textColor = _currentTheme?.TextBoxForeColor ?? ForeColor;
                 using (Brush brush = new SolidBrush(textColor))
                 {
-                    g.DrawString(_titleText, _textFont, brush, textLeft, textTop);
+                    //g.DrawString(_titleText, _textFont, brush, textLeft, textTop);
+                    TextRenderer.DrawText(g, _titleText, _textFont, new Point((int)textLeft, (int)textTop), textColor);
                 }
 
                 float textBottomY = textTop + titleSize.Height;

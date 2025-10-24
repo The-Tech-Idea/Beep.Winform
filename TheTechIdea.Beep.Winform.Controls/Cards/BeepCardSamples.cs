@@ -456,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         }
 
         /// <summary>
-        /// Creates a dashboard-style form with stat cards
+        /// Creates a dashboard-Style form with stat cards
         /// </summary>
         public static Form CreateDashboardDemo()
         {

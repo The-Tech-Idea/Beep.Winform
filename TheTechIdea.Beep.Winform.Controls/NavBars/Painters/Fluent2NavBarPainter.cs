@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 g.FillRectangle(bgBrush, bounds);
             }
             
-            // Draw all nav items - Fluent 2 style
+            // Draw all nav items - Fluent 2 Style
             if (context.Items == null || context.Items.Count == 0) return;
 
             bool isHorizontal = context.Orientation == NavBarOrientation.Horizontal;

@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Windows 11 Mica style painter for NumericUpDown
+    /// Windows 11 Mica Style painter for NumericUpDown
     /// Features: Translucent Mica material, acrylic blur effect, WinUI 3 styling
     /// </summary>
     public class Windows11MicaNumericUpDownPainter : BaseNumericUpDownPainter
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
                 ? winBlue
                 : Color.FromArgb(160, 160, 160);
 
-            // Draw Mica-style background with subtle radius
+            // Draw Mica-Style background with subtle radius
             int radius = context.IsRounded ? Math.Min(context.BorderRadius, 8) : 8;
             using (var bgBrush = new SolidBrush(backColor))
             using (var path = CreateRoundedPath(bounds, radius))

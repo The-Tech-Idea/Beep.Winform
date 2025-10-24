@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Get font style specific to web framework conventions
+        /// Get font Style specific to web framework conventions
         /// </summary>
         private FontStyle GetWebFrameworkFontStyle(BeepControlStyle style, bool isFocused)
         {
@@ -264,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint text for Bootstrap-style controls
+        /// Paint text for Bootstrap-Style controls
         /// </summary>
         public static void PaintBootstrap(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)
@@ -273,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint text for Tailwind-style controls
+        /// Paint text for Tailwind-Style controls
         /// </summary>
         public static void PaintTailwind(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)
@@ -282,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint text for Notion-style controls
+        /// Paint text for Notion-Style controls
         /// </summary>
         public static void PaintNotion(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)

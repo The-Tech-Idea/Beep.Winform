@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             g.FillPath(bgBrush, bgPath);
                         }
 
-                        // Subtle accent border on selection (Stripe style)
+                        // Subtle accent border on selection (Stripe Style)
                         if (isSelected)
                         {
                             using (var borderPen = new Pen(_theme.AccentColor, 1f))
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 3: Draw checkbox (clean Stripe style)
+                // STEP 3: Draw checkbox (clean Stripe Style)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw Stripe-style icon (clean rounded with lines)
+                // STEP 4: Draw Stripe-Style icon (clean rounded with lines)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -294,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Stripe-style chevron
+            // Stripe-Style chevron
             Color chevronColor = _theme.TreeForeColor;
 
             using (var pen = new Pen(chevronColor, 1.5f))
@@ -335,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: Stripe-style icon
+            // Default: Stripe-Style icon
             PaintDefaultStripeIcon(g, iconRect);
         }
 

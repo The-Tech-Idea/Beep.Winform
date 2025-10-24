@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Filled style list with colored backgrounds (from image 1 - bottom right)
+    /// Filled Style list with colored backgrounds (from image 1 - bottom right)
     /// Blue filled background for selected items with white text
     /// </summary>
     internal class FilledStylePainter : BaseListBoxPainter
@@ -65,18 +65,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            if (isSelected)
-                bgColor = Color.FromArgb(74, 144, 226); // Blue filled background
-            else if (isHovered)
-                bgColor = Color.FromArgb(240, 245, 250);
-            else
-                return; // Transparent background
-            
-            using (var brush = new SolidBrush(bgColor))
-            using (var path = GetRoundedRectPath(itemRect, 8))
+            // Use BeepStyling for FilledStyle background, border, and shadow
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillPath(brush, path);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         

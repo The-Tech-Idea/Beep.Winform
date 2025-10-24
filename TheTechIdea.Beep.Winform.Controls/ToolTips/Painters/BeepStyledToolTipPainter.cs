@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
 
-            // Get corner radius from style
+            // Get corner radius from Style
             int radius = StyleBorders.GetRadius(beepStyle);
 
             using (var path = CreateRoundedRectangle(bounds, radius))

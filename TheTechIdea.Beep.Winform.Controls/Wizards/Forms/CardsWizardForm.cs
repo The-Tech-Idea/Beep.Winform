@@ -5,7 +5,7 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
     /// <summary>
-    /// Card-based wizard form (Image 6 style)
+    /// Card-based wizard form (Image 6 Style)
     /// Shows selectable cards for each step
     /// </summary>
     public class CardsWizardForm : BaseWizardForm
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
 
         protected override void UpdateHeader()
         {
-            // Card style doesn't need header updates
+            // Card Style doesn't need header updates
         }
     }
 }

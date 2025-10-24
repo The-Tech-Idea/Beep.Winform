@@ -5,12 +5,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Typography
 {
     /// <summary>
     /// Typography and font definitions for all design systems
-    /// Each style has distinct font characteristics
+    /// Each Style has distinct font characteristics
     /// </summary>
     public static class StyleTypography
     {
         /// <summary>
-        /// Get primary font family for a specific style
+        /// Get primary font family for a specific Style
         /// </summary>
         public static string GetFontFamily(BeepControlStyle style)
         {
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Typography
                 BeepControlStyle.FigmaCard => 13f,
                 BeepControlStyle.PillRail => 13f,
                 BeepControlStyle.Metro => 14f,                  // Metro standard
-                BeepControlStyle.Office => 11f,                 // Office smaller (ribbon style)
+                BeepControlStyle.Office => 11f,                 // Office smaller (ribbon Style)
                 BeepControlStyle.Gnome => 14f,                  // Gnome standard
                 BeepControlStyle.Kde => 14f,                    // KDE standard
                 BeepControlStyle.Cinnamon => 14f,               // Cinnamon standard
@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Typography
         }
 
         /// <summary>
-        /// Check if style uses monospace fonts
+        /// Check if Style uses monospace fonts
         /// </summary>
         public static bool IsMonospace(BeepControlStyle style)
         {
@@ -270,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Typography
         }
 
         /// <summary>
-        /// Get font for a specific style with size
+        /// Get font for a specific Style with size
         /// </summary>
         public static Font GetFont(BeepControlStyle style, float? size = null, FontStyle? fontStyle = null)
         {

@@ -19,11 +19,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Tree Style and Visual Properties
         
         /// <summary>
-        /// Gets or sets the tree style which determines which painter is used for rendering.
+        /// Gets or sets the tree Style which determines which painter is used for rendering.
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style of the tree.")]
+        [Description("The visual Style of the tree.")]
         public TreeStyle TreeStyle
         {
             get => _treeStyle;

@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Card-style renderer with elevation and modern aesthetics
+    /// Card-Style renderer with elevation and modern aesthetics
     /// </summary>
     public class CardRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                                   state.IsHovered ? colors.HoverBackground : 
                                   colors.Background;
 
-            // Add gradient for card style to make it more distinct
+            // Add gradient for card Style to make it more distinct
             if (state.IsSelected)
             {
                 using (var brush = new LinearGradientBrush(cardRect, backgroundColor, 

@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             ControlState upState = ControlState.Normal,
             ControlState downState = ControlState.Normal)
         {
-            // iOS 15: Light outlined style with system blue accent
+            // iOS 15: Light outlined Style with system blue accent
             Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 122, 255);
             Color borderColor = Color.FromArgb(235, 235, 245);
             Color backgroundColor = Color.FromArgb(248, 248, 248);

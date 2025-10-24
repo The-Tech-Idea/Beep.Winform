@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     public interface IRadioGroupRenderer
     {
         /// <summary>
-        /// Gets the name of this renderer style
+        /// Gets the name of this renderer Style
         /// </summary>
         string StyleName { get; }
 
@@ -168,37 +168,37 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         Circular,
 
         /// <summary>
-        /// Checkbox-style square selection
+        /// Checkbox-Style square selection
         /// </summary>
         Checkbox,
 
         /// <summary>
-        /// Material Design style
+        /// Material Design Style
         /// </summary>
         Material,
 
         /// <summary>
-        /// Card-based selection (modern web style)
+        /// Card-based selection (modern web Style)
         /// </summary>
         Card,
 
         /// <summary>
-        /// Chip/pill style selection
+        /// Chip/pill Style selection
         /// </summary>
         Chip,
 
         /// <summary>
-        /// Modern flat design style
+        /// Modern flat design Style
         /// </summary>
         Flat,
 
         /// <summary>
-        /// Button-group style
+        /// Button-group Style
         /// </summary>
         Button,
 
         /// <summary>
-        /// Toggle switch style
+        /// Toggle switch Style
         /// </summary>
         Toggle,
 

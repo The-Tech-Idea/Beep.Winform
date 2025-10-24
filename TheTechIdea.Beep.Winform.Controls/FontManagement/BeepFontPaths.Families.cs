@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             #region "Web Fonts"
             
             /// <summary>
-            /// Cairo font family paths grouped by weight/style.
+            /// Cairo font family paths grouped by weight/Style.
             /// </summary>
             public static class Cairo
             {
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Roboto font family paths grouped by weight/style.
+            /// Roboto font family paths grouped by weight/Style.
             /// </summary>
             public static class Roboto
             {
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Roboto Condensed font family paths grouped by weight/style.
+            /// Roboto Condensed font family paths grouped by weight/Style.
             /// </summary>
             public static class RobotoCondensed
             {
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Open Sans font family paths grouped by weight/style.
+            /// Open Sans font family paths grouped by weight/Style.
             /// </summary>
             public static class OpenSans
             {
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Montserrat font family paths grouped by weight/style.
+            /// Montserrat font family paths grouped by weight/Style.
             /// </summary>
             public static class Montserrat
             {
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Inter font family paths grouped by weight/style (18pt variants).
+            /// Inter font family paths grouped by weight/Style (18pt variants).
             /// </summary>
             public static class Inter
             {
@@ -319,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Tajawal font family paths grouped by weight/style.
+            /// Tajawal font family paths grouped by weight/Style.
             /// </summary>
             public static class Tajawal
             {
@@ -347,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Oxygen font family paths grouped by weight/style.
+            /// Oxygen font family paths grouped by weight/Style.
             /// </summary>
             public static class Oxygen
             {
@@ -371,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             #region "Monospace Fonts"
 
             /// <summary>
-            /// Fira Code font family paths grouped by weight/style.
+            /// Fira Code font family paths grouped by weight/Style.
             /// </summary>
             public static class FiraCode
             {
@@ -395,7 +395,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// JetBrains Mono font family paths grouped by weight/style.
+            /// JetBrains Mono font family paths grouped by weight/Style.
             /// </summary>
             public static class JetBrainsMono
             {
@@ -441,7 +441,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Cascadia Code font family paths grouped by weight/style.
+            /// Cascadia Code font family paths grouped by weight/Style.
             /// </summary>
             public static class CascadiaCode
             {
@@ -479,7 +479,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Space Mono font family paths grouped by weight/style.
+            /// Space Mono font family paths grouped by weight/Style.
             /// </summary>
             public static class SpaceMono
             {
@@ -501,7 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// DejaVu Sans Mono font family paths grouped by weight/style.
+            /// DejaVu Sans Mono font family paths grouped by weight/Style.
             /// </summary>
             public static class DejaVuSansMono
             {
@@ -527,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             #region "Display Fonts"
 
             /// <summary>
-            /// Bebas Neue font family paths grouped by weight/style.
+            /// Bebas Neue font family paths grouped by weight/Style.
             /// </summary>
             public static class BebasNeue
             {
@@ -551,7 +551,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Orbitron font family paths grouped by weight/style.
+            /// Orbitron font family paths grouped by weight/Style.
             /// </summary>
             public static class Orbitron
             {
@@ -573,7 +573,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Exo 2 font family paths grouped by weight/style.
+            /// Exo 2 font family paths grouped by weight/Style.
             /// </summary>
             public static class Exo2
             {
@@ -623,7 +623,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Rajdhani font family paths grouped by weight/style.
+            /// Rajdhani font family paths grouped by weight/Style.
             /// </summary>
             public static class Rajdhani
             {
@@ -647,7 +647,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Whitney font family paths grouped by weight/style.
+            /// Whitney font family paths grouped by weight/Style.
             /// </summary>
             public static class Whitney
             {
@@ -719,7 +719,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             #region "Accessibility Fonts"
 
             /// <summary>
-            /// Atkinson Hyperlegible font family paths grouped by weight/style.
+            /// Atkinson Hyperlegible font family paths grouped by weight/Style.
             /// </summary>
             public static class AtkinsonHyperlegible
             {
@@ -741,7 +741,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// OpenDyslexic font family paths grouped by weight/style.
+            /// OpenDyslexic font family paths grouped by weight/Style.
             /// </summary>
             public static class OpenDyslexic
             {
@@ -763,7 +763,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Lexend font family paths grouped by weight/style.
+            /// Lexend font family paths grouped by weight/Style.
             /// </summary>
             public static class Lexend
             {
@@ -799,7 +799,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             #region "System Fonts"
 
             /// <summary>
-            /// Source Sans Pro font family paths grouped by weight/style.
+            /// Source Sans Pro font family paths grouped by weight/Style.
             /// </summary>
             public static class SourceSansPro
             {
@@ -837,7 +837,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             /// <summary>
-            /// Comic Neue font family paths grouped by weight/style.
+            /// Comic Neue font family paths grouped by weight/Style.
             /// </summary>
             public static class ComicNeue
             {

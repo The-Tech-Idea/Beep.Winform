@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// iOS 15 style painter for NumericUpDown
+    /// iOS 15 Style painter for NumericUpDown
     /// Features: Translucent backgrounds, pill-shaped buttons, SF Pro fonts, subtle shadows
     /// </summary>
     public class iOS15NumericUpDownPainter : BaseNumericUpDownPainter

@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int padding = ScaleValue(4);
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
 
-            // For classic style, we don't need separate title/actions areas
+            // For classic Style, we don't need separate title/actions areas
             ctx.MenuItemsRect = ctx.ContentRect;
             ctx.TitleRect = Rectangle.Empty;
             ctx.ActionsRect = Rectangle.Empty;

@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         }
 
         /// <summary>
-        /// Paint a ring effect (Tailwind-style)
+        /// Paint a ring effect (Tailwind-Style)
         /// </summary>
         public static void PaintRing(Graphics g, GraphicsPath path, Color ringColor, float ringWidth = 3f, float ringOffset = 2f)
         {
@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         }
 
         /// <summary>
-        /// Get color from style or theme
+        /// Get color from Style or theme
         /// </summary>
         public static Color GetColorFromStyleOrTheme(IBeepTheme theme, bool useThemeColors, string themeColorKey, Color fallbackColor)
         {

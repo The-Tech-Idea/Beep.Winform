@@ -95,12 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         /// <summary>Effect-based borders with custom animations and visual effects</summary>
         Effect = 25,
         
-        /// <summary>Terminal/Console style with monospace font and ASCII characters</summary>
+        /// <summary>Terminal/Console Style with monospace font and ASCII characters</summary>
         Terminal = 26,
         
         // NEW ADDITIONS - Form Style Mapping (11 values)
         
-        /// <summary>Metro style with sharp edges, flat design, and bold colors (Windows 8/10)</summary>
+        /// <summary>Metro Style with sharp edges, flat design, and bold colors (Windows 8/10)</summary>
         Metro = 27,
         
         /// <summary>Microsoft Office ribbon UI inspired with professional gradients</summary>
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         /// <summary>Neo-brutalist with thick borders, no shadows, and bold colors</summary>
         NeoBrutalist = 33,
         
-        /// <summary>Gaming style with angular edges, aggressive design, and RGB effects</summary>
+        /// <summary>Gaming Style with angular edges, aggressive design, and RGB effects</summary>
         Gaming = 34,
         
         /// <summary>High contrast accessibility mode with WCAG AAA compliance</summary>

@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepTaskCard()
         {
-            // Set default size and style
+            // Set default size and Style
             this.Size = new Size(180, 240);
             this.BorderRadius = 15;
             this.ShowShadow = true;

@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             ControlState upState = ControlState.Normal,
             ControlState downState = ControlState.Normal)
         {
-            // Pill Rail: Soft rounded pill-shaped style
+            // Pill Rail: Soft rounded pill-shaped Style
             Color backgroundColor = Color.FromArgb(243, 244, 246);
             Color upBgColor = SpinnerButtonPainterHelpers.ApplyState(backgroundColor, upState);
             Color downBgColor = SpinnerButtonPainterHelpers.ApplyState(backgroundColor, downState);

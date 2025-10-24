@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 {
     /// <summary>
     /// BalanceCard - Account balance showcase with enhanced visual presentation and interactive elements
-    /// Uses BaseControl DrawingRect and BeepAppBar-style hit area methodology
+    /// Uses BaseControl DrawingRect and BeepAppBar-Style hit area methodology
     /// </summary>
     internal sealed class BalanceCardPainter : WidgetPainterBase, IDisposable
     {

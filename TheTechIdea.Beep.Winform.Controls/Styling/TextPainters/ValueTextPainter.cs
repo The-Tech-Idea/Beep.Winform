@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
     /// <summary>
     /// Value text painter for numeric and date controls
-    /// Uses centered alignment and appropriate fonts per style
+    /// Uses centered alignment and appropriate fonts per Style
     /// </summary>
     public static class ValueTextPainter
     {

@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         /// <param name="familyName">Font family name (e.g., "Roboto", "Cairo", "SourceSansPro")</param>
         /// <param name="size">Font size in points</param>
-        /// <param name="style">Font style (Regular, Bold, Italic, etc.)</param>
+        /// <param name="style">Font Style (Regular, Bold, Italic, etc.)</param>
         /// <returns>Font object or null if not found</returns>
         public static Font GetEmbeddedFont(string familyName, float size, FontStyle style = FontStyle.Regular)
         {
@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
             try
             {
-                // Map FontStyle to BeepFontPaths style string
+                // Map FontStyle to BeepFontPaths Style string
                 string styleString = MapFontStyleToString(style);
 
                 // Get the font path from BeepFontPaths
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 
                 if (string.IsNullOrEmpty(fontPath))
                 {
-                    // Try with Regular style as fallback
+                    // Try with Regular Style as fallback
                     fontPath = BeepFontPaths.GetFontPath(familyName, "Regular");
                 }
 
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Maps System.Drawing.FontStyle to BeepFontPaths style string.
+        /// Maps System.Drawing.FontStyle to BeepFontPaths Style string.
         /// </summary>
         private static string MapFontStyleToString(FontStyle style)
         {

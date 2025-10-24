@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             if (!string.IsNullOrEmpty(_titleText))

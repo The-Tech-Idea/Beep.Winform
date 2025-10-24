@@ -161,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Map")]
-        [Description("Visual style of the map widget.")]
+        [Description("Visual Style of the map widget.")]
         public MapWidgetStyle Style
         {
             get => _style;

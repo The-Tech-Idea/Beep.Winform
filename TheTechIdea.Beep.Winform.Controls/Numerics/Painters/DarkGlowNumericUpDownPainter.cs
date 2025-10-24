@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Dark Glow style painter for NumericUpDown
+    /// Dark Glow Style painter for NumericUpDown
     /// Features: Dark backgrounds, cyan/neon glow effects, cyberpunk aesthetic
     /// </summary>
     public class DarkGlowNumericUpDownPainter : BaseNumericUpDownPainter

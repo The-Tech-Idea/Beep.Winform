@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
 {
     /// <summary>
-    /// Office button painter - Microsoft Office Ribbon UI style
+    /// Office button painter - Microsoft Office Ribbon UI Style
     /// 4px rounded corners, subtle gradients, professional appearance
     /// Compact 32px height buttons with clean styling
     /// </summary>
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             ControlState upState = ControlState.Normal,
             ControlState downState = ControlState.Normal)
         {
-            // Office: Professional, clean ribbon style
+            // Office: Professional, clean ribbon Style
             Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Office);
             Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
             Color arrowColor = useThemeColors ? theme.ForeColor : StyleColors.GetForeground(BeepControlStyle.Office);

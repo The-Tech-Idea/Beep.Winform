@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 }
             }
 
-            // Draw macOS-style nav items
+            // Draw macOS-Style nav items
             if (context.Items == null || context.Items.Count == 0) return;
 
             bool isHorizontal = context.Orientation == NavBarOrientation.Horizontal;

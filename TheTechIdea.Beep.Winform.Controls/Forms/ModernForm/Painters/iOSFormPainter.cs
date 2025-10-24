@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Apple iOS modern rounded style
+    /// Apple iOS modern rounded Style
     /// </summary>
     internal sealed class iOSFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillPath(hatchBrush, captionPath);
             }
             
-            // iOS-style separator line (1px hairline)
+            // iOS-Style separator line (1px hairline)
             using (var separatorPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1))
             {
                 g.DrawLine(separatorPen, 0, captionRect.Bottom - 1, captionRect.Width, captionRect.Bottom - 1);
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // iOS: Paint circular traffic light buttons (distinct!)
             PaintiOSButtons(g, owner, captionRect);
 
-            // Paint icon, theme/style buttons (iOS only paints traffic lights, not system buttons)
+            // Paint icon, theme/Style buttons (iOS only paints traffic lights, not system buttons)
             owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
             
             if (owner.ShowThemeButton)
@@ -294,15 +294,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 leftX += buttonSize + buttonSpacing;
             }
             
-            // RIGHT side: Theme/Style buttons (standard Windows-style placement)
-            int buttonWidth = 32; // Larger for theme/style buttons
+            // RIGHT side: Theme/Style buttons (standard Windows-Style placement)
+            int buttonWidth = 32; // Larger for theme/Style buttons
             int rightX = owner.ClientSize.Width - buttonWidth;
             
             // Style button (if shown)
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 rightX -= buttonWidth;
             }
             
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 rightX -= buttonWidth;
             }
             
-            // Custom action button (fallback if theme/style not shown)
+            // Custom action button (fallback if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
@@ -331,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
             }
             
-            // Title area: between icon and right-side buttons (centered for iOS style)
+            // Title area: between icon and right-side buttons (centered for iOS Style)
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
             int titleWidth = rightX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);

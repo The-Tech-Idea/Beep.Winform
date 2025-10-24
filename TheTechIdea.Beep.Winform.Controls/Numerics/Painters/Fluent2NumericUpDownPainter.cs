@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Microsoft Fluent 2 style painter for NumericUpDown
+    /// Microsoft Fluent 2 Style painter for NumericUpDown
     /// Features: Subtle borders, clean design, rounded corners, focus ring
     /// </summary>
     public class Fluent2NumericUpDownPainter : BaseNumericUpDownPainter

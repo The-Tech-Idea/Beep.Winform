@@ -109,11 +109,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         }
         
         /// <summary>
-        /// Paints the background based on the control style.
+        /// Paints the background based on the control Style.
         /// </summary>
         /// <param name="g">The graphics object to paint on.</param>
         /// <param name="path">The graphics path defining the shape to paint.</param>
-        /// <param name="style">The control style.</param>
+        /// <param name="style">The control Style.</param>
         /// <param name="theme">The theme information.</param>
         /// <param name="useThemeColors">Whether to use theme colors.</param>
         /// <param name="state">The control state.</param>
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     PaintFigma(g, path, style, theme, useThemeColors);
                     break;
                 case BeepControlStyle.WebFramework:
-                    // Default to Bootstrap for generic WebFramework style
+                    // Default to Bootstrap for generic WebFramework Style
                     PaintBootstrap(g, path, style, theme, useThemeColors);
                     break;
                 default:

@@ -20,10 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls
       
 
         /// <summary>
-        /// Selects the menu painter style (designer-visible property).
+        /// Selects the menu painter Style (designer-visible property).
         /// </summary>
         [Category("Menu Bar")]
-        [Description("Selects the menu painter style.")]
+        [Description("Selects the menu painter Style.")]
         [DefaultValue(MenuBarStyle.Classic)]
         public MenuBarStyle MenuBarStyle
         {
@@ -56,14 +56,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Painter Initialization
         /// <summary>
-        /// Initializes the appropriate painter based on the current style
+        /// Initializes the appropriate painter based on the current Style
         /// </summary>
         private void InitializePainter()
         {
             // Dispose existing painter
             _painter?.Dispose();
 
-            // Create new painter based on style
+            // Create new painter based on Style
             _painter = _menuBarStyle switch
             {
                 MenuBarStyle.Classic         => new ClassicMenuBarPainter(),

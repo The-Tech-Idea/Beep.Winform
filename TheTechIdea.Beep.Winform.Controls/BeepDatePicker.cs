@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Date Settings")]
-        [Description("Sets the predefined date format style.")]
+        [Description("Sets the predefined date format Style.")]
         [DefaultValue(DateFormatStyle.ShortDateTime)]
         public DateFormatStyle DateFormatStyle
         {
@@ -677,7 +677,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
-            // Dropdown divider and arrow (no extra background fill to mimic BeepComboBox/BeepButton style)
+            // Dropdown divider and arrow (no extra background fill to mimic BeepComboBox/BeepButton Style)
             if (_showDropDown)
             {
                 Rectangle buttonRect = GetButtonRectFromContent(contentRect);

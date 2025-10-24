@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
     public enum ListWidgetStyle
     {
-        ActivityFeed,     // Timeline-style activities
+        ActivityFeed,     // Timeline-Style activities
         DataTable,        // Structured data table
         RankingList,      // Ordered ranking list
         StatusList,       // Items with status indicators
         ProfileList,      // User/profile listings
-        TaskList          // Checklist/todo style
+        TaskList          // Checklist/todo Style
     }
 
     [ToolboxItem(true)]
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("List")]
-        [Description("Visual style of the list widget.")]
+        [Description("Visual Style of the list widget.")]
         public ListWidgetStyle Style
         {
             get => _style;
@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         }
 
         [Category("List")]
-        [Description("Column names for table-style lists.")]
+        [Description("Column names for table-Style lists.")]
         public List<string> Columns
         {
             get => _columns;

@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static void PaintCustomEffect(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            // Custom matrix-style digital rain effect
+            // Custom matrix-Style digital rain effect
             var scheme = EffectSchemes[2]; // Electric Blue
 
             // Digital glitch effect
@@ -367,7 +367,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         {
             var scheme = EffectSchemes[3]; // Gaming RGB
 
-            // Gaming-style RGB split effect
+            // Gaming-Style RGB split effect
             if (isFocused)
             {
                 // RGB chromatic aberration
@@ -543,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             try
             {
-                // Matrix-style trailing effect
+                // Matrix-Style trailing effect
                 for (int i = 5; i >= 0; i--)
                 {
                     int alpha = 255 - (i * 40);

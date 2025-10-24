@@ -217,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     UpdateRegionForBadge();
                     Invalidate();
                 }
-                // For BeepGridPro, ResizeRedraw style automatically triggers repaint
+                // For BeepGridPro, ResizeRedraw Style automatically triggers repaint
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {
@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
                 if (IsRounded && BorderRadius > 0)
                 {
-                    using (var path = ControlPaintHelper.GetRoundedRectPath(regionRect, BorderRadius))
+                    using (var path = GraphicsExtensions.GetRoundedRectPath(regionRect, BorderRadius))
                     {
                         controlRegion = new Region(path);
                     }

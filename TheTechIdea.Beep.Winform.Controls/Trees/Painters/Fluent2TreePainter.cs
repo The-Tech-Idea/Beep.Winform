@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         }
                     }
 
-                    // Draw Fluent-style chevron
+                    // Draw Fluent-Style chevron
                     using (var pen = new Pen(chevronColor, 1.5f))
                     {
                         pen.StartCap = LineCap.Round;
@@ -282,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default Fluent icon (segoe fluent icons style)
+            // Default Fluent icon (segoe fluent icons Style)
             PaintDefaultFluentIcon(g, iconRect);
         }
 
@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             Color iconColor = _theme.AccentColor;
 
-            // Fluent icon style: outlined with subtle fill
+            // Fluent icon Style: outlined with subtle fill
             using (var path = new GraphicsPath())
             {
                 int padding = iconRect.Width / 5;

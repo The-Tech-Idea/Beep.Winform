@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // Material typography (Roboto-style)
+            // Material typography (Roboto-Style)
             Font renderFont = new Font("Segoe UI", font.Size, isSelected ? FontStyle.Bold : FontStyle.Regular);
 
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,

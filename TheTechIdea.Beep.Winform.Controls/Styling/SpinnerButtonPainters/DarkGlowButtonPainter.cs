@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             ControlState upState = ControlState.Normal,
             ControlState downState = ControlState.Normal)
         {
-            // Dark Glow: Cyberpunk neon style
+            // Dark Glow: Cyberpunk neon Style
             Color glowColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 255, 255);
             Color buttonColor = Color.FromArgb(30, 30, 30);
             Color upButtonColor = SpinnerButtonPainterHelpers.ApplyState(buttonColor, upState);

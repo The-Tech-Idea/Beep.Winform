@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
     /// <summary>
-    /// Outlined chip painter (MD/Fluent style): thin stroke, transparent surface, accent on selected.
+    /// Outlined chip painter (MD/Fluent Style): thin stroke, transparent surface, accent on selected.
     /// </summary>
     internal class OutlinedChipGroupPainter : IChipGroupPainter
     {

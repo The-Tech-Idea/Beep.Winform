@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// Vercel clean shadow painter - no shadow (placeholder for consistency)
-    /// Vercel style uses stark, flat design without shadows
+    /// Vercel Style uses stark, flat design without shadows
     /// </summary>
     public static class VercelCleanShadowPainter
     {

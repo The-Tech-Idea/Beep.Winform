@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.DrawLine(pen, centerX - iconSize / 2 - 1, centerY, centerX + iconSize / 2 + 1, centerY);
                     break;
                     
-                case "style":
+                case "Style":
                     // Paint brush icon
                     // Brush handle
                     g.DrawLine(pen, centerX - 2, centerY - 2, centerX + 2, centerY + 2);
@@ -313,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -325,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
@@ -474,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             return path;
         }
 
-        // Painter-owned non-client border rendering for Fluent style
+        // Painter-owned non-client border rendering for Fluent Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);

@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Material You style painter for NumericUpDown
+    /// Material You Style painter for NumericUpDown
     /// Features: Dynamic theming, large touch targets, bold colors, prominent buttons
     /// </summary>
     public class MaterialYouNumericUpDownPainter : BaseNumericUpDownPainter
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             Color buttonPressedColor = Color.FromArgb(60, accentColor);
             Color iconColor = accentColor;
 
-            // Down button - Material You prominent style
+            // Down button - Material You prominent Style
             DrawMaterialYouButton(g, downButtonRect, "−", 
                 context.DownButtonPressed, context.DownButtonHovered,
                 accentColor, iconColor, buttonHoverColor, buttonPressedColor);

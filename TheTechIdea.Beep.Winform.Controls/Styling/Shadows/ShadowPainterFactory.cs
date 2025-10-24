@@ -13,11 +13,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     public static class ShadowPainterFactory
     {
         /// <summary>
-        /// Creates a shadow painter instance for the specified style
+        /// Creates a shadow painter instance for the specified Style
         /// </summary>
-        /// <param name="style">The control style to create a shadow painter for</param>
+        /// <param name="style">The control Style to create a shadow painter for</param>
         /// <param name="shadowType">Optional specific shadow type override</param>
-        /// <returns>An IShadowPainter implementation, or null for None style</returns>
+        /// <returns>An IShadowPainter implementation, or null for None Style</returns>
         public static IShadowPainter CreatePainter(BeepControlStyle style, ShadowType? shadowType = null)
         {
             // If specific shadow type is requested, use that
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 return CreateByType(shadowType.Value);
             }
 
-            // Otherwise, create based on style
+            // Otherwise, create based on Style
             return style switch
             {
                 BeepControlStyle.None => null,
@@ -498,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     }
 
     /// <summary>
-    /// Apple style shadow painter wrapper
+    /// Apple Style shadow painter wrapper
     /// </summary>
     public class AppleStyleShadowPainterWrapper : ShadowPainterWrapperBase
     {
@@ -509,7 +509,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     }
 
     /// <summary>
-    /// Fluent (legacy) style shadow painter wrapper
+    /// Fluent (legacy) Style shadow painter wrapper
     /// </summary>
     public class FluentStyleShadowPainterWrapper : ShadowPainterWrapperBase
     {
@@ -520,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     }
 
     /// <summary>
-    /// Material (legacy) style shadow painter wrapper
+    /// Material (legacy) Style shadow painter wrapper
     /// </summary>
     public class MaterialStyleShadowPainterWrapper : ShadowPainterWrapperBase
     {
@@ -531,7 +531,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     }
 
     /// <summary>
-    /// WebFramework style shadow painter wrapper
+    /// WebFramework Style shadow painter wrapper
     /// </summary>
     public class WebFrameworkStyleShadowPainterWrapper : ShadowPainterWrapperBase
     {
@@ -542,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     }
 
     /// <summary>
-    /// Effect style shadow painter wrapper
+    /// Effect Style shadow painter wrapper
     /// </summary>
     public class EffectStyleShadowPainterWrapper : ShadowPainterWrapperBase
     {

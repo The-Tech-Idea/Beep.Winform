@@ -90,10 +90,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets the best matching font path for a given font family and style.
+        /// Gets the best matching font path for a given font family and Style.
         /// </summary>
         /// <param name="familyName">Font family name (e.g., "Roboto", "Cairo")</param>
-        /// <param name="style">Font style (e.g., "Bold", "Italic", "Regular")</param>
+        /// <param name="style">Font Style (e.g., "Bold", "Italic", "Regular")</param>
         /// <returns>Font resource path if found, null otherwise</returns>
         public static string GetFontPath(string familyName, string style = "Regular")
         {
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     return fontPath;
                 }
 
-                // Fallback to Regular if requested style not found
+                // Fallback to Regular if requested Style not found
                 if (style != "Regular" && familyFonts.TryGetValue("Regular", out var regularPath))
                 {
                     return regularPath;

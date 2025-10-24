@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// WebFramework shadow painter - Modern Web CSS-like shadows
-    /// Web UX: Box-shadow style with spread, blur, and color
+    /// Web UX: Box-shadow Style with spread, blur, and color
     /// </summary>
     public static class WebFrameworkShadowPainter
     {
@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             ControlState state = ControlState.Normal)
         {
             GraphicsPath remainingPath;
-            // Web-style shadows: CSS box-shadow inspired
+            // Web-Style shadows: CSS box-shadow inspired
             switch (state)
             {
                 case ControlState.Hovered:

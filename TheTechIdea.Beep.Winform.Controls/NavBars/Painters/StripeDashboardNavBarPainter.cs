@@ -6,7 +6,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
 {
     /// <summary>
     /// Stripe Dashboard painter for NavBar
-    /// Features: Professional dashboard style with indigo and purple accents
+    /// Features: Professional dashboard Style with indigo and purple accents
     /// </summary>
     public sealed class StripeDashboardNavBarPainter : BaseNavBarPainter
     {
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 g.FillRectangle(bgBrush, bounds);
             }
             
-            // Stripe style border
+            // Stripe Style border
             using (var borderPen = new Pen(borderColor, 1f))
             {
                 if (context.Orientation == NavBarOrientation.Horizontal)

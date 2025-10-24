@@ -134,14 +134,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
            
 
             _iconRegion?.OnPaint?.Invoke(g, CurrentLayout.IconRect);
-            // Draw theme and style buttons if visible
+            // Draw theme and Style buttons if visible
             if (ShowThemeButton)
                 _themeButton?.OnPaint?.Invoke(g, CurrentLayout.ThemeButtonRect);
 
             if (ShowStyleButton)
                 _styleButton?.OnPaint?.Invoke(g, CurrentLayout.StyleButtonRect);
 
-            // Draw custom action button if theme/style not shown
+            // Draw custom action button if theme/Style not shown
             if (!ShowThemeButton && !ShowStyleButton)
                 _customActionButton?.OnPaint?.Invoke(g, CurrentLayout.CustomActionButtonRect);
 

@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Finance")]
-        [Description("Visual style of the finance widget.")]
+        [Description("Visual Style of the finance widget.")]
         public FinanceWidgetStyle Style
         {
             get => _style;

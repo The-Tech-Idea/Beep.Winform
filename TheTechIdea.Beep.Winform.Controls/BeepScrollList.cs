@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Scroll List")]
-    [Description("A carousel-style scrollable list control using BeepButtons for items, supporting vertical or horizontal orientation without a visible scrollbar.")]
+    [Description("A carousel-Style scrollable list control using BeepButtons for items, supporting vertical or horizontal orientation without a visible scrollbar.")]
     public class BeepScrollList : BeepPanel
     {
         #region Fields

@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
     /// A playful, cartoon-inspired painter with bold outlines, comic book effects, and vibrant styling.
-    /// Features thick borders, drop shadows, and comic book-style caption with speech bubble elements.
+    /// Features thick borders, drop shadows, and comic book-Style caption with speech bubble elements.
     /// </summary>
     internal sealed class CartoonFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var borderPen = new Pen(metrics.BorderColor, 3f);
             g.DrawRectangle(borderPen, captionRect);
 
-            // Comic book style gradient fill
+            // Comic book Style gradient fill
             using var gradBrush = new LinearGradientBrush(
                 captionRect,
                 Color.FromArgb(255, 255, 253, 208), // Light yellow
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Comic book speed lines effect
             DrawComicSpeedLines(g, captionRect);
 
-            // Title with bold, cartoon-style font effect
+            // Title with bold, cartoon-Style font effect
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect,
                 metrics.CaptionTextColor, // High contrast black
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
 
         /// <summary>
-        /// Draws comic book style speed lines for cartoon effect
+        /// Draws comic book Style speed lines for cartoon effect
         /// </summary>
         private void DrawComicSpeedLines(Graphics g, Rectangle rect)
         {
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Calculate caption height based on font and padding (Cartoon uses fun padding)
-            var captionHeight = owner.Font.Height + 20; // 10px padding top and bottom for cartoon style
+            var captionHeight = owner.Font.Height + 20; // 10px padding top and bottom for cartoon Style
             
             // Set caption rectangle
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Set content rectangle (below caption)
             layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
             
-            // Calculate button positions (right-aligned in caption, cartoon style)
+            // Calculate button positions (right-aligned in caption, cartoon Style)
             var buttonSize = new Size(32, captionHeight);
             var buttonY = 0;
             var buttonX = owner.ClientSize.Width - buttonSize.Width;
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -268,14 +268,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
             }
             
-            // Icon and title areas (left side of caption, cartoon style)
+            // Icon and title areas (left side of caption, cartoon Style)
             var iconSize = 16;
             var iconPadding = 10; // Fun padding for cartoon
             layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             owner.CurrentLayout = layout;
         }
 
-        // Painter-owned non-client border rendering for Cartoon style
+        // Painter-owned non-client border rendering for Cartoon Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);

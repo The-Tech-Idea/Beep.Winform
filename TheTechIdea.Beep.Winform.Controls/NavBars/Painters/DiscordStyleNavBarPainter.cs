@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                     g.DrawLine(separatorPen, bounds.Right - 1, bounds.Top, bounds.Right - 1, bounds.Bottom);
             }
 
-            // Draw Discord-style nav items
+            // Draw Discord-Style nav items
             if (context.Items == null || context.Items.Count == 0) return;
 
             bool isHorizontal = context.Orientation == NavBarOrientation.Horizontal;

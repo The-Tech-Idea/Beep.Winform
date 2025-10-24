@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 g.FillRectangle(bgBrush, bounds);
             }
             
-            // Chakra UI style border
+            // Chakra UI Style border
             using (var borderPen = new Pen(borderColor, 1f))
             {
                 if (context.Orientation == NavBarOrientation.Horizontal)

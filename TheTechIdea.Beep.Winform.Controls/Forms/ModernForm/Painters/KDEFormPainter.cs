@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// KDE Plasma Breeze theme style
+    /// KDE Plasma Breeze theme Style
     /// </summary>
     internal sealed class KDEFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintPlasmaButton(g, styleRect, Color.FromArgb(147, 115, 203), padding, buttonSize, "style", metrics);
+                PaintPlasmaButton(g, styleRect, Color.FromArgb(147, 115, 203), padding, buttonSize, "Style", metrics);
             }
 
             if (owner.ShowThemeButton)
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         // Horizontal line
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
-                    case "style":
+                    case "Style":
                         // Simplified palette icon with color dots
                         g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
                         // Three color indicator dots
@@ -272,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
         
         /// <summary>
-        /// Paint KDE Breeze-style minimal icon buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
+        /// Paint KDE Breeze-Style minimal icon buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
         /// </summary>
         private void PaintKDEButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
@@ -496,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
             }
             

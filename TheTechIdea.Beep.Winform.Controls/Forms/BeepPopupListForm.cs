@@ -99,6 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _beepListBox.UseThemeFont = false;
                     _beepListBox.TextFont = value;
+                    _beepListBox.ListBoxType= ListBoxs.ListBoxType.WithIcons; // Force refresh
                 }
 
                 Invalidate();
@@ -106,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
-        private bool _showtitle = true;
+        private bool _showtitle = false;
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -162,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.CanBeSelected = false;
             _beepListBox.CanBeHovered = false;
             _beepListBox.CanBePressed = false;
-            
+      
             // Event handlers
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;
@@ -342,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             SetSizeBasedonItems();
             base.ShowPopup(triggerControl, position);
-            Debug.WriteLine("3");
+            // Debug.WriteLine("3");
             // _beepListBox.DebugHeightCalculation(); // Enable debug mode for height calculation
             return SelectedItem;
         }

@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
 
         /// <summary>
-        /// Paints the caption bar with Material Design 3 style vertical accent bar and state layer.
+        /// Paints the caption bar with Material Design 3 Style vertical accent bar and state layer.
         /// Features a 6px primary color bar on the left edge with hover state indication.
         /// </summary>
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             var primary = metrics.BorderColor;
 
-            // Draw vertical accent bar on the left (Material 3 style)
+            // Draw vertical accent bar on the left (Material 3 Style)
             using var brush = new SolidBrush(primary);
             int accentBarWidth = Math.Max(0, metrics.AccentBarWidth);
             var bar = new Rectangle(captionRect.Left, captionRect.Top, accentBarWidth, captionRect.Height);
@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, "style", metrics);
+                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, "Style", metrics);
             }
 
             if (owner.ShowThemeButton)
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillEllipse(stateBrush, touchRect);
             }
             
-            // Draw icon with Material 3 style (2dp stroke, round caps)
+            // Draw icon with Material 3 Style (2dp stroke, round caps)
             int iconSize = 12; // 12px actual icon within 24px icon area
             int iconCenterX = iconRect.X + iconRect.Width / 2;
             int iconCenterY = iconRect.Y + iconRect.Height / 2;
@@ -168,8 +168,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
                         
-                    case "style":
-                        // Grid icon (Material style)
+                    case "Style":
+                        // Grid icon (Material Style)
                         int gridSize = 3;
                         int spacing = 5;
                         for (int i = 0; i < 2; i++)
@@ -408,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -420,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/style not shown)
+            // Custom action button (if theme/Style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
@@ -443,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             owner.CurrentLayout = layout;
         }
 
-        // Painter-owned non-client border rendering for Material style
+        // Painter-owned non-client border rendering for Material Style
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);

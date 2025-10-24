@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// jQuery DataTables inspired pagination style
+    /// jQuery DataTables inspired pagination Style
     /// </summary>
     public class DataTablesNavigationPainter : BaseNavigationPainter
     {

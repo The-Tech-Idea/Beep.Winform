@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Dashboard")]
-        [Description("Visual style of the dashboard widget.")]
+        [Description("Visual Style of the dashboard widget.")]
         public DashboardWidgetStyle Style
         {
             get => _style;

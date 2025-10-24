@@ -12,34 +12,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     {
         Modern,         // Borderless, custom caption with rounded corners
         Minimal,        // Thin border, minimal caption
-        MacOS,          // macOS-style traffic lights (red/yellow/green)
+        MacOS,          // macOS-Style traffic lights (red/yellow/green)
         Fluent,         // Microsoft Fluent Design System
         Material,       // Material Design 3
-        Cartoon,        // Playful cartoon-style with exaggerated shapes
-        ChatBubble,     // Chat bubble speech balloon style
+        Cartoon,        // Playful cartoon-Style with exaggerated shapes
+        ChatBubble,     // Chat bubble speech balloon Style
         Glass,          // Transparent glass/acrylic effect
-        Metro,          // Windows 8/10 Metro style
+        Metro,          // Windows 8/10 Metro Style
         Metro2,         // Updated Metro with accent colors
-        GNOME,          // GNOME/Adwaita style
+        GNOME,          // GNOME/Adwaita Style
         
         // New styles
         NeoMorphism,    // Soft UI with shadows and highlights
         Glassmorphism,  // Frosted glass with blur effects
         Brutalist,      // Bold, geometric, high-contrast design
         Retro,          // 80s/90s retro computing aesthetic
-        Cyberpunk,      // Neon-lit futuristic style
+        Cyberpunk,      // Neon-lit futuristic Style
         Nordic,         // Clean Scandinavian minimalist design
-        iOS,            // Apple iOS modern style
+        iOS,            // Apple iOS modern Style
         // Windows11,   // REMOVED - hides caption, use regular WinForms for native Windows look
-        Ubuntu,         // Ubuntu/Unity style
-        KDE,            // KDE Plasma style
-        ArcLinux,       // Arc Linux theme style
+        Ubuntu,         // Ubuntu/Unity Style
+        KDE,            // KDE Plasma Style
+        ArcLinux,       // Arc Linux theme Style
         Dracula,        // Popular dark theme with purple accents
-        Solarized,      // Solarized color scheme style
-        OneDark,        // Atom One Dark theme style
+        Solarized,      // Solarized color scheme Style
+        OneDark,        // Atom One Dark theme Style
         GruvBox,        // Warm retro groove color scheme
         Nord,           // Nordic-inspired color palette
-        Tokyo,          // Tokyo Night theme style
+        Tokyo,          // Tokyo Night theme Style
         Paper,          // Flat paper material design
         Neon,           // Vibrant neon glow effects
         Holographic,    // Iridescent holographic effects
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     // Advanced modern enums for the best modern form experience
 
     /// <summary>
-    /// Backdrop effects for modern appearance (Windows 11 style)
+    /// Backdrop effects for modern appearance (Windows 11 Style)
     /// </summary>
     public enum BackdropEffect
     {

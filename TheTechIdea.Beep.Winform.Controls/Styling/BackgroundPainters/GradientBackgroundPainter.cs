@@ -7,12 +7,12 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for GradientModern style
+    /// Background painter for GradientModern Style
     /// </summary>
     public static class GradientBackgroundPainter
     {
         /// <summary>
-        /// Paint gradient background for GradientModern style
+        /// Paint gradient background for GradientModern Style
         /// </summary>
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {

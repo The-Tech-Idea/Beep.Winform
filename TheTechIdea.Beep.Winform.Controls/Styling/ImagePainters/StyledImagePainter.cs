@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 {
     /// <summary>
     /// Image painter that uses cache and works with image paths
-    /// Paints images with rounded corners based on style
+    /// Paints images with rounded corners based on Style
     /// </summary>
     public static class StyledImagePainter
     {

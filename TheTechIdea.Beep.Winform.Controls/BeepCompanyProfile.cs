@@ -722,7 +722,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     linkFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyLinkFont);
                 }
-                // Fall back to general link style
+                // Fall back to general link Style
                 else if (UseThemeFont && _currentTheme.LinkStyle != null)
                 {
                     linkFont = BeepThemesManager.ToFont(_currentTheme.LinkStyle);

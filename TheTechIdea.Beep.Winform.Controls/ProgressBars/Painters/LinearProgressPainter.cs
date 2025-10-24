@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
-    // Painter now renders the linear style directly; owner no longer draws.
+    // Painter now renders the linear Style directly; owner no longer draws.
     internal sealed class LinearProgressPainter : IProgressPainter
     {
         public string Key => nameof(ProgressPainterKind.Linear);

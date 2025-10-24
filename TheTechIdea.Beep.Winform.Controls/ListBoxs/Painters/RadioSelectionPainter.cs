@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Single choice radio-style list (from image 5 - Tickets Setup)
+    /// Single choice radio-Style list (from image 5 - Tickets Setup)
     /// Radio buttons on right, one item has colored background for selection
     /// </summary>
     internal class RadioSelectionPainter : BaseListBoxPainter
@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            // Slight inset for this style
+            // Slight inset for this Style
             var rect = itemRect;
             rect.Inflate(-6, -3);
 
@@ -93,29 +93,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Use helper/theme-driven colors for consistency
-            Color bgColor = isSelected
-                ? _helper.GetSelectedBackColor()
-                : (isHovered ? _helper.GetHoverBackColor() : _helper.GetBackgroundColor());
-            
-            int radius = Math.Min(8, Math.Max(4, itemRect.Height / 6));
-            using (var brush = new SolidBrush(bgColor))
-            using (var path = GetRoundedRectPath(itemRect, radius))
+            // Use BeepStyling for RadioSelection background, border, and shadow
+           
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillPath(brush, path);
-            }
-            
-            // Draw border
-            if (!isSelected)
-            {
-                Color borderColor = isHovered
-                    ? (_theme?.AccentColor ?? Color.FromArgb(200, 200, 210))
-                    : (_theme?.BorderColor ?? Color.FromArgb(220, 220, 230));
-                using (var pen = new Pen(borderColor, 1f))
-                using (var path = GetRoundedRectPath(itemRect, radius))
-                {
-                    g.DrawPath(pen, path);
-                }
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         

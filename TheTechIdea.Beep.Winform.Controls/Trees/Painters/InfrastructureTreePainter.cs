@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// VMware vSphere-style infrastructure tree painter with colored tags and status indicators.
+    /// VMware vSphere-Style infrastructure tree painter with colored tags and status indicators.
     /// Dark theme optimized for hierarchical datacenter/host/VM/resource pool structure.
     /// Features: Colored status pills, resource icons, hierarchical lines, metric badges.
     /// </summary>
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int BadgeSize = 16;
 
         /// <summary>
-        /// Infrastructure-specific node painting with VMware vSphere style.
+        /// Infrastructure-specific node painting with VMware vSphere Style.
         /// Features: Colored status pills (Running/Stopped/Warning), resource icons, metric badges, hierarchical dotted lines.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 3: Draw chevron toggle (infrastructure style)
+                // STEP 3: Draw chevron toggle (infrastructure Style)
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Chevron style (modern infrastructure UI)
+            // Chevron Style (modern infrastructure UI)
             Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
             using (var pen = new Pen(chevronColor, 2))
             {

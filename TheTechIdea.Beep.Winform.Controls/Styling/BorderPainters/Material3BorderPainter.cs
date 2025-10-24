@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
-    /// Material3 border painter - Outlined style with border from StyleBorders
+    /// Material3 border painter - Outlined Style with border from StyleBorders
     /// Filled variants have no border
     /// Material3 UX: Bold, clear state changes with elevation-like border thickness
     /// </summary>

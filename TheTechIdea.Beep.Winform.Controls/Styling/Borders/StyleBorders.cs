@@ -5,12 +5,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
     
     /// <summary>
     /// Border radius and width definitions for all design systems
-    /// Each style has distinct border characteristics
+    /// Each Style has distinct border characteristics
     /// </summary>
     public static class StyleBorders
     {
         /// <summary>
-        /// Get border radius for a specific style
+        /// Get border radius for a specific Style
         /// </summary>
         public static int GetRadius(BeepControlStyle style)
         {
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         }
 
         /// <summary>
-        /// Get selection indicator radius for a specific style
+        /// Get selection indicator radius for a specific Style
         /// </summary>
         public static int GetSelectionRadius(BeepControlStyle style)
         {
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         }
 
         /// <summary>
-        /// Get border width for a specific style
+        /// Get border width for a specific Style
         /// </summary>
         public static float GetBorderWidth(BeepControlStyle style)
         {
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         }
 
         /// <summary>
-        /// Check if style uses filled/solid backgrounds (vs outlined)
+        /// Check if Style uses filled/solid backgrounds (vs outlined)
         /// </summary>
         public static bool IsFilled(BeepControlStyle style)
         {
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         }
 
         /// <summary>
-        /// Get accent bar width (for Fluent-style left indicators)
+        /// Get accent bar width (for Fluent-Style left indicators)
         /// </summary>
         public static int GetAccentBarWidth(BeepControlStyle style)
         {
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         }
 
         /// <summary>
-        /// Get ring effect width (for Tailwind-style focus rings)
+        /// Get ring effect width (for Tailwind-Style focus rings)
         /// </summary>
         public static float GetRingWidth(BeepControlStyle style)
         {
@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         }
 
         /// <summary>
-        /// Get ring effect offset (for Tailwind-style focus rings)
+        /// Get ring effect offset (for Tailwind-Style focus rings)
         /// </summary>
         public static float GetRingOffset(BeepControlStyle style)
         {

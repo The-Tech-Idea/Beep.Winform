@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Apple style: Clean, subtle backgrounds with premium feel
+            // Apple Style: Clean, subtle backgrounds with premium feel
             Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Apple);
 
             // Apple-specific state handling - subtle and elegant
@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            // Apple style: Subtle vertical gradient for premium feel
+            // Apple Style: Subtle vertical gradient for premium feel
             var bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(
                 new PointF(bounds.Left, bounds.Top),

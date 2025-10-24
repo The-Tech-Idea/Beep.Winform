@@ -44,28 +44,73 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepDisplayContainer():base()
         {
             // Container controls handle their own rendering - no BaseControl painting needed
+            // Painter off; this is a host for children
             PainterKind = BaseControlPainterKind.None;
-            
+
             InitializeComponent();
+
+            // 2) Reduce redundant buffering and erases
+            UseExternalBufferedGraphics = false; // don't layer buffered gfx for a container
+            SetStyle(ControlStyles.AllPaintingInWmPaint
+                   | ControlStyles.UserPaint
+                   | ControlStyles.OptimizedDoubleBuffer, true);
+
+            // Optional: make the control opaque to skip WM_ERASEBKGND
+            SetStyle(ControlStyles.Opaque, true);
+
             DoubleBuffered = true;
-            // Ensure the container can receive focus and events
-            TabStop = true;
-            Enabled = true;
-            //this.Click += (s, e) =>////MiscFunctions.SendLog("BeepDisplayContainer clicked!");
-            
-            
+
+            // 3) Make sure child surfaces are double-buffered too
+            if (ContainerPanel != null) typeof(Control)
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
+                .SetValue(ContainerPanel, true, null);
+
+            if (TabContainerPanel != null) typeof(Control)
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
+                .SetValue(TabContainerPanel, true, null);
+
             // Set initial layout based on ContainerType
             UpdateContainerLayout();
         }
 
-        //// Override to prevent BaseControl from clearing the background
-        //// This allows child controls (TabControl, Panel) to be visible
-        //protected override void OnPaintBackground(PaintEventArgs e)
-        //{
-        //    // Don't call base - container controls should not paint their own background
-        //    // Child controls (TabControl/Panel) handle their own painting
-        //}
-     
+        // 4) Don’t let the base control paint—children will paint themselves
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            // Intentionally empty: avoids background erase
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // Intentionally skip base to avoid BaseControl.DrawContent() clearing
+            // base.OnPaint(e);  // <-- do NOT call
+            // Nothing to paint here; the child controls render everything.
+        }
+
+        // 5) Composited painting for child controls (great for high DPI)
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                const int WS_EX_COMPOSITED = 0x02000000;
+                cp.ExStyle |= WS_EX_COMPOSITED;
+                return cp;
+            }
+        }
+
+        // 6) Smooth out Per-Monitor DPI changes
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            SuspendLayout();
+            base.OnDpiChangedAfterParent(e);
+            // Force a clean layout pass for hosted controls
+            ContainerPanel?.PerformLayout();
+            TabContainerPanel?.PerformLayout();
+            ResumeLayout(performLayout: true);
+            Invalidate(true);
+            Update();
+        }
+
 
         private void InitializeComponent()
         {

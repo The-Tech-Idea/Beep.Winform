@@ -42,51 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        #region "DPI Scaling Support"
-        protected float DpiScaleFactor { get; private set; } = 1.0f;
-
-        protected virtual void UpdateDpiScaling(Graphics g)
-        {
-            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(g);
-        }
-
-        protected int ScaleValue(int value)
-        {
-            return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
-        }
-
-        protected Size ScaleSize(Size size)
-        {
-            return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
-        }
-
-        protected Font ScaleFont(Font font)
-        {
-            return DpiScalingHelper.ScaleFont(font, DpiScaleFactor);
-        }
-
-        // Add DPI change handling
-        // ✅ Update the close icon size when DPI changes
-        // ✅ Update OnDpiChangedAfterParent to refresh layout
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
-
-            using (Graphics g = CreateGraphics())
-            {
-                UpdateDpiScaling(g);
-            }
-
-            if (closeIcon != null)
-            {
-                closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
-            }
-
-            // Force layout update with new DPI scaling
-            //UpdateLayoutWithDpi();
-            Invalidate();
-        }
-        #endregion
+     
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
         
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
@@ -172,13 +128,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Replace hardcoded constants with DPI-aware properties
-        private int GetScaledCloseButtonSize() => ScaleValue(24);
-        private int GetScaledCloseButtonPadding() => ScaleValue(8);
-        private int GetScaledTextPadding() => ScaleValue(12);
-        private int GetScaledMinTabWidth() => ScaleValue(60);
-        private int GetScaledMaxTabWidth() => ScaleValue(250);
-        private int GetScaledMinTabHeight() => ScaleValue(60);
-        private int GetScaledMaxTabHeight() => ScaleValue(250);
+        private int GetScaledCloseButtonSize() => 24;
+        private int GetScaledCloseButtonPadding() => 8;
+        private int GetScaledTextPadding() => 12;
+        private int GetScaledMinTabWidth() => 60;
+        private int GetScaledMaxTabWidth() => 250;
+        private int GetScaledMinTabHeight() => 60;
+        private int GetScaledMaxTabHeight() => 250;
 
         // Keep original constants for reference
         private const int CloseButtonSize = 16;
@@ -245,10 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // ✅ Initialize DPI scaling when handle is created
         private void BeepTabs_HandleCreated(object sender, EventArgs e)
         {
-            using (Graphics g = CreateGraphics())
-            {
-                UpdateDpiScaling(g);
-            }
+          
 
             // Now set DPI-scaled values
             closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
@@ -259,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                int scaledHeaderHeight = ScaleValue(_headerHeight);
+                int scaledHeaderHeight = _headerHeight;
                 switch (_headerPosition)
                 {
                     case TabHeaderPosition.Top:
@@ -327,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             // Let Windows/child controls paint backgrounds; only fill our header to prevent overdraw
-            int scaledHeaderHeight = ScaleValue(_headerHeight);
+            int scaledHeaderHeight = _headerHeight;
             Rectangle headerRegion;
             switch (_headerPosition)
             {
@@ -358,8 +311,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             // Update DPI scaling first
-            UpdateDpiScaling(e.Graphics);
-            
+            base.OnPaint(e);
+
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             Color backgroundColor = Parent?.BackColor ?? BackColor;
@@ -431,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             float[] tabSizes = CalculateTabSizes(g, _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
 
             // Use scaled header height consistently
-            int scaledHeaderHeight = ScaleValue(_headerHeight);
+            int scaledHeaderHeight = _headerHeight;
 
             switch (_headerPosition)
             {
@@ -518,7 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             g.SetClip(tabRect, CombineMode.Replace);
 
-            using (GraphicsPath path = GetRoundedRect(tabRect, ScaleValue(4)))
+            using (GraphicsPath path = GetRoundedRect(tabRect, 4))
             using (SolidBrush brush = new SolidBrush(backgroundColor))
             {
                 g.FillPath(brush, path);
@@ -840,7 +793,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Point clientPoint = e.Location;
             float[] tabSizes = CalculateTabSizes(CreateGraphics(), _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
-            int scaledHeaderHeight = ScaleValue(_headerHeight);
+            int scaledHeaderHeight = _headerHeight;
 
             switch (_headerPosition)
             {

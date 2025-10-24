@@ -209,22 +209,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         #region Step Style Properties
 
         /// <summary>
-        /// Current step number (for Step style)
+        /// Current step number (for Step Style)
         /// </summary>
         public int CurrentStep { get; set; } = 1;
 
         /// <summary>
-        /// Total number of steps (for Step style)
+        /// Total number of steps (for Step Style)
         /// </summary>
         public int TotalSteps { get; set; } = 1;
 
         /// <summary>
-        /// Step-specific title (for Step style)
+        /// Step-specific title (for Step Style)
         /// </summary>
         public string StepTitle { get; set; }
 
         /// <summary>
-        /// Show navigation buttons (for Step style)
+        /// Show navigation buttons (for Step Style)
         /// </summary>
         public bool ShowNavigationButtons { get; set; } = true;
 

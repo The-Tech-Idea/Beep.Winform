@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Shadow painter for Neumorphism style
+    /// Shadow painter for Neumorphism Style
     /// Draws dual shadows (light top-left, dark bottom-right)
     /// </summary>
     public static class NeumorphismShadowPainter

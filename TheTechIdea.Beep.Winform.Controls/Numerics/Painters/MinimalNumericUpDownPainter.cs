@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Minimal style painter for NumericUpDown
+    /// Minimal Style painter for NumericUpDown
     /// Features: Ultra-clean design, thin borders, no decorations, monochrome palette
     /// </summary>
     public class MinimalNumericUpDownPainter : BaseNumericUpDownPainter
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             {
                 g.FillRectangle(bgBrush, bounds);
 
-                // Thin border - no rounded corners in minimal style
+                // Thin border - no rounded corners in minimal Style
                 using (var borderPen = new Pen(borderColor, 1))
                 {
                     g.DrawRectangle(borderPen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
@@ -71,12 +71,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             Color iconColor = Color.FromArgb(80, 80, 80);
             Color borderColor = Color.FromArgb(220, 220, 220);
 
-            // Down button - minimal flat style
+            // Down button - minimal flat Style
             DrawMinimalButton(g, downButtonRect, "−", 
                 context.DownButtonPressed, context.DownButtonHovered,
                 buttonColor, iconColor, buttonHoverColor, buttonPressedColor, borderColor);
 
-            // Up button - minimal flat style
+            // Up button - minimal flat Style
             DrawMinimalButton(g, upButtonRect, "+", 
                 context.UpButtonPressed, context.UpButtonHovered,
                 buttonColor, iconColor, buttonHoverColor, buttonPressedColor, borderColor);

@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private IBeepTheme? Theme => _grid?._currentTheme;
 
         /// <summary>
-        /// Gets or sets the navigation style when using painter-based navigation
+        /// Gets or sets the navigation Style when using painter-based navigation
         /// </summary>
         public navigationStyle NavigationStyle
         {
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 Console.WriteLine($"DrawPainterNavigation called - Style: {_navigationStyle}, Painter null: {_currentPainter == null}, Rect: {navRect}");
                 
-                // Handle None style - paint blank background only
+                // Handle None Style - paint blank background only
                 if (_navigationStyle == navigationStyle.None)
                 {
                     using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // ALWAYS create painter to ensure it exists
                 if (_currentPainter == null || _currentPainter.Style != _navigationStyle)
                 {
-                    Console.WriteLine($"Creating painter for style: {_navigationStyle}");
+                    Console.WriteLine($"Creating painter for Style: {_navigationStyle}");
                     _currentPainter = NavigationPainterFactory.CreatePainter(_navigationStyle);
                     Console.WriteLine($"Painter created: {_currentPainter != null}, Type: {_currentPainter?.GetType().Name}");
                 }
@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         /// <summary>
-        /// Gets the recommended height for the current navigation style
+        /// Gets the recommended height for the current navigation Style
         /// </summary>
         public int GetRecommendedNavigatorHeight()
         {

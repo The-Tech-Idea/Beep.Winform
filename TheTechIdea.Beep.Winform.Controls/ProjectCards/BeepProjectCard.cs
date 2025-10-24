@@ -17,12 +17,12 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
 {
     /// <summary>
-    /// A comprehensive project task card designed for kanban-style project management.
+    /// A comprehensive project task card designed for kanban-Style project management.
     /// Features team avatars, project status, priority indicators, progress tracking, and action buttons.
     /// </summary>
     [ToolboxItem(true)]
     [DisplayName("Beep Project Task Card")]
-    [Description("A project card for kanban-style project management with avatars, status, priority, progress, and actions.")]
+    [Description("A project card for kanban-Style project management with avatars, status, priority, progress, and actions.")]
     public class BeepProjectTaskCard : BaseControl
     {
         #region Private Fields
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [Description("The visual Style/painter to use for rendering the sidebar.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {
@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
 
         private void InitializeCard()
         {
-            // Set default size and style based on compact mode
+            // Set default size and Style based on compact mode
             Size = _compactMode ? new Size(200, 180) : new Size(280, 320);
             BorderRadius = 12;
            
@@ -372,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
             }
             // Draw in sections

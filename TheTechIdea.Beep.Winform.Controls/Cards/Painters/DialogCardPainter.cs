@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
     /// <summary>
-    /// DialogCard - Simple modal-style (like confirmation dialogs)
+    /// DialogCard - Simple modal-Style (like confirmation dialogs)
     /// </summary>
     internal sealed class DialogCardPainter : CardPainterBase
     {

@@ -1,7 +1,7 @@
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
 {
     /// <summary>
-    /// Defines the visual style/variant of the combo box
+    /// Defines the visual Style/variant of the combo box
     /// Based on modern dropdown design patterns
     /// </summary>
     public enum ComboBoxType
@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         Minimal = 0,
         
         /// <summary>
-        /// Style #2: Outlined style with clear border and rounded corners
+        /// Style #2: Outlined Style with clear border and rounded corners
         /// </summary>
         Outlined = 1,
         
@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         Borderless = 5,
         
         /// <summary>
-        /// Standard dropdown (default Windows style)
+        /// Standard dropdown (default Windows Style)
         /// </summary>
         Standard = 6,
         
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         WithIcons = 13,
         
         /// <summary>
-        /// Menu-style dropdown with categories/sections
+        /// Menu-Style dropdown with categories/sections
         /// </summary>
         Menu = 14,
         

@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Component/widget tree painter (Figma/VS Code style).
+    /// Component/widget tree painter (Figma/VS Code Style).
     /// Features: Drag handles, grouped sections, layer hierarchy, visibility toggles.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int LayerIndent = 12;
 
         /// <summary>
-        /// Component tree-specific node painting with Figma/VS Code style.
+        /// Component tree-specific node painting with Figma/VS Code Style.
         /// Features: Drag handles (3 horizontal lines on hover), left accent stripe (2px on selection), filled triangle toggles, layered square icons.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw Figma-style filled triangle toggle
+                // STEP 4: Draw Figma-Style filled triangle toggle
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
@@ -165,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // Use monospace-style font for component names if selected
+                    // Use monospace-Style font for component names if selected
                     using (var renderFont = isSelected ? 
                         new Font("Consolas", _owner.TextFont.Size, FontStyle.Bold) : 
                         new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
 
-            // Figma-style triangle toggle
+            // Figma-Style triangle toggle
             Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
             using (var brush = new SolidBrush(toggleColor))
             {
@@ -325,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // Use monospace-style font for component names if selected
+            // Use monospace-Style font for component names if selected
             Font renderFont = isSelected ? new Font("Consolas", font.Size, FontStyle.Bold) : font;
 
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,

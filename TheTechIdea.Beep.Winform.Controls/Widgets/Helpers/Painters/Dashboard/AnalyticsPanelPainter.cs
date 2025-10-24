@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 {
     /// <summary>
     /// AnalyticsPanel - Complex analytics layout with enhanced image rendering
-    /// Updated: Uses BaseControl.DrawingRect, adds BeepAppBar-style hit areas and hover states
+    /// Updated: Uses BaseControl.DrawingRect, adds BeepAppBar-Style hit areas and hover states
     /// </summary>
     internal sealed class AnalyticsPanelPainter : WidgetPainterBase, IDisposable
     {

@@ -15,11 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region ListBoxType Property
         
         /// <summary>
-        /// Gets or sets the visual style type for the list box
+        /// Gets or sets the visual Style type for the list box
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual style type of the list box")]
+        [Description("The visual Style type of the list box")]
         [DefaultValue(ListBoxType.Standard)]
         public ListBoxType ListBoxType
         {
@@ -33,8 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Recreate painter for new type
                     _listBoxPainter = CreatePainter(_listBoxType);
                     _listBoxPainter?.Initialize(this, _currentTheme);
-                    
-                    _needsLayoutUpdate = true;
+                   
+                   
                     RequestDelayedInvalidate();
                 }
             }

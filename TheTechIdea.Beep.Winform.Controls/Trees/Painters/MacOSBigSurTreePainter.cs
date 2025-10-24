@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
     /// macOS Big Sur sidebar tree painter.
-    /// Features: Translucent backgrounds, vibrancy, sidebar style, icon badges.
+    /// Features: Translucent backgrounds, vibrancy, sidebar Style, icon badges.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
     public class MacOSBigSurTreePainter : BaseTreePainter
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         }
                     }
 
-                    // macOS-style checkmark
+                    // macOS-Style checkmark
                     if (node.Item.IsChecked)
                     {
                         using (var checkPen = new Pen(Color.White, 2f))
@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         private void PaintDefaultMacIcon(Graphics g, Rectangle iconRect)
         {
-            // macOS style icon with gradient and rounded corners
+            // macOS Style icon with gradient and rounded corners
             using (var path = CreateRoundedRectangle(iconRect, iconRect.Width / 5))
             {
                 // Gradient fill

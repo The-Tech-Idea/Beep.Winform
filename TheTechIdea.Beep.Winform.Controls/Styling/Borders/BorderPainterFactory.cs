@@ -11,10 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     public static class BorderPainterFactory
     {
         /// <summary>
-        /// Creates a border painter instance for the specified style
+        /// Creates a border painter instance for the specified Style
         /// </summary>
-        /// <param name="style">The control style to create a painter for</param>
-        /// <returns>An IBorderPainter implementation, or null for None style</returns>
+        /// <param name="style">The control Style to create a painter for</param>
+        /// <returns>An IBorderPainter implementation, or null for None Style</returns>
         public static IBorderPainter CreatePainter(BeepControlStyle style)
         {
             return style switch

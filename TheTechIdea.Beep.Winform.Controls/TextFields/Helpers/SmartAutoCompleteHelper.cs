@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
     /// <summary>
-    /// Advanced DevExpress-style autocomplete with fuzzy matching and popularity scoring
+    /// Advanced DevExpress-Style autocomplete with fuzzy matching and popularity scoring
     /// </summary>
     public class SmartAutoCompleteHelper
     {

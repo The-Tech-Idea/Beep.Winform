@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Chip/pill-style renderer for modern tag-like selection
+    /// Chip/pill-Style renderer for modern tag-like selection
     /// </summary>
     public class ChipRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private int CalculateChipWidth(int maxWidth)
         {
-            // For chip style, we want to auto-size to content
+            // For chip Style, we want to auto-size to content
             // This is a simplified calculation - in real use, measure the actual content
             return Math.Min(maxWidth, 200); // Default reasonable width
         }

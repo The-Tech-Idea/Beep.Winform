@@ -478,7 +478,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             // Use painter system if available, otherwise fall back to legacy drawing

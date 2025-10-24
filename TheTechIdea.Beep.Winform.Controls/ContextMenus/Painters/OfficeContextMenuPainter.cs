@@ -10,11 +10,11 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
 {
     /// <summary>
-    /// Microsoft Office style context menu painter
+    /// Microsoft Office Style context menu painter
     /// </summary>
     public class OfficeContextMenuPainter : IContextMenuPainter
     {
-        public FormStyle Style => FormStyle.Modern; // Office style maps to Modern
+        public FormStyle Style => FormStyle.Modern; // Office Style maps to Modern
 
         public ContextMenuMetrics GetMetrics(IBeepTheme theme = null, bool useThemeColors = false)
         {
@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         public void DrawBackground(Graphics g, BeepContextMenu owner, Rectangle bounds, 
             ContextMenuMetrics metrics, IBeepTheme theme)
         {
-            // Office-style background with icon column
+            // Office-Style background with icon column
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, bounds);
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         public void DrawBorder(Graphics g, BeepContextMenu owner, Rectangle bounds, 
             ContextMenuMetrics metrics, IBeepTheme theme)
         {
-            // Office-style border
+            // Office-Style border
             using (var pen = new Pen(metrics.BorderColor, metrics.BorderWidth))
             {
                 var borderRect = bounds;
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             
             if (isHovered && item.IsEnabled)
             {
-                // Office-style hover with gradient using Menu colors
+                // Office-Style hover with gradient using Menu colors
                 using (var brush = new LinearGradientBrush(textAreaRect, 
                     Color.FromArgb(60, theme.MenuItemHoverBackColor),
                     Color.FromArgb(30, theme.MenuItemHoverBackColor), 90f))

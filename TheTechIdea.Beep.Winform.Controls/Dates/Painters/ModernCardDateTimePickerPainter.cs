@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
     /// <summary>
     /// Modern Card Date Picker Painter
-    /// Card-style UI with quick date buttons (Today, Tomorrow, Next Week, etc.)
+    /// Card-Style UI with quick date buttons (Today, Tomorrow, Next Week, etc.)
     /// Visual styling follows BeepTheme
     /// </summary>
     public class ModernCardDateTimePickerPainter : IDateTimePickerPainter

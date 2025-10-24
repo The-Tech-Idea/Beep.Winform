@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Material Design 3 style painter for NumericUpDown
+    /// Material Design 3 Style painter for NumericUpDown
     /// Features: Filled container, rounded corners, Material You color system
     /// </summary>
     public class Material3NumericUpDownPainter : BaseNumericUpDownPainter

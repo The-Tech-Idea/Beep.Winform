@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
                 g.DrawEllipse(borderPen, ctx.ImageRect);
             }
 
-            // Draw quote marks for testimonial style (subtle decoration)
+            // Draw quote marks for testimonial Style (subtle decoration)
             if (ctx.ParagraphRect.Height > 40)
             {
                 using var quoteFont = new Font("Georgia", 32f, FontStyle.Bold);

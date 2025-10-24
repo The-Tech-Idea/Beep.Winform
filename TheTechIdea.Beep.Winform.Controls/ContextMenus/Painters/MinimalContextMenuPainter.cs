@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
 {
     /// <summary>
-    /// Minimal flat style context menu painter
+    /// Minimal flat Style context menu painter
     /// </summary>
     public class MinimalContextMenuPainter : IContextMenuPainter
     {

@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw checkbox (compact style)
+                // STEP 4: Draw checkbox (compact Style)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 5: Draw folder/file icon (Windows Explorer style)
+                // STEP 5: Draw folder/file icon (Windows Explorer Style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -394,7 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         private void PaintDefaultIcon(Graphics g, Rectangle iconRect)
         {
-            // Simple folder icon (Windows Explorer style)
+            // Simple folder icon (Windows Explorer Style)
             Color folderColor = Color.FromArgb(
                 (_theme.AccentColor.R + _theme.TreeForeColor.R) / 2,
                 (_theme.AccentColor.G + _theme.TreeForeColor.G) / 2,

@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         void PaintHeaderCell(Graphics g, Rectangle cellRect, BeepColumnConfig column, int columnIndex, BeepGridPro grid);
 
         /// <summary>
-        /// Get the name/identifier of this painter style
+        /// Get the name/identifier of this painter Style
         /// </summary>
         string StyleName { get; }
 

@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         }
 
         /// <summary>
-        /// Paints a glow effect (for DarkGlow style)
+        /// Paints a glow effect (for DarkGlow Style)
         /// </summary>
         public static GraphicsPath PaintGlow(Graphics g, GraphicsPath bounds, int radius, Color glowColor, float intensity)
         {
@@ -322,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         }
 
         /// <summary>
-        /// Paints long shadow (flat design style)
+        /// Paints long shadow (flat design Style)
         /// </summary>
         public static GraphicsPath PaintLongShadow(Graphics g, GraphicsPath bounds, int radius, float angle = 45f, int length = 20, Color? shadowColor = null)
         {

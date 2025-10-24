@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
 {
     /// <summary>
     /// Helper class to integrate ToolTips with BeepStyling system
-    /// Provides style-aware rendering using BeepControlStyle directly
+    /// Provides Style-aware rendering using BeepControlStyle directly
     /// </summary>
     public static class ToolTipStyleAdapter
     {
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             }
             else
             {
-                // Use style-specific colors
+                // Use Style-specific colors
                 background = config.BackColor ?? StyleColors.GetBackground(beepStyle);
                 foreground = config.ForeColor ?? StyleColors.GetForeground(beepStyle);
                 border = config.BorderColor ?? StyleColors.GetBorder(beepStyle);
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
-        /// Get corner radius for tooltip style
+        /// Get corner radius for tooltip Style
         /// </summary>
         public static int GetCornerRadius(BeepControlStyle style)
         {
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
-        /// Check if style uses shadows
+        /// Check if Style uses shadows
         /// </summary>
         public static bool HasShadow(BeepControlStyle style)
         {
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
-        /// Get padding for tooltip style
+        /// Get padding for tooltip Style
         /// </summary>
         public static int GetPadding(BeepControlStyle style)
         {

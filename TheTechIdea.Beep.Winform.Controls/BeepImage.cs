@@ -839,15 +839,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             string hexColor = ColorTranslator.ToHtml(fillColor);
 
-            // First attempt - direct style replacement for all elements (works for cancel.svg)
+            // First attempt - direct Style replacement for all elements (works for cancel.svg)
             foreach (var element in svgDocument.Descendants())
             {
                 // Fix inline styles with a direct regex replacement
-                if (element.CustomAttributes.ContainsKey("style"))
+                if (element.CustomAttributes.ContainsKey("Style"))
                 {
-                    string style = element.CustomAttributes["style"];
+                    string style = element.CustomAttributes["Style"];
                     style = Regex.Replace(style, @"fill:[^;]+", $"fill:{hexColor}");
-                    element.CustomAttributes["style"] = style;
+                    element.CustomAttributes["Style"] = style;
                 }
 
                 // Also set the Fill property as a backup approach
@@ -1560,7 +1560,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             using (var sanitizedStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgContent)))
                             {
                                 svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
-                                svgDocument.CustomAttributes.Remove("style");
+                                svgDocument.CustomAttributes.Remove("Style");
                                 svgDocument.FlushStyles();
                                 isSvg = true;
                             }
@@ -1621,7 +1621,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DisposeImages();
                 svgDocument = LoadSanitizedSvg(svgPath);
-                svgDocument.CustomAttributes.Remove("style");
+                svgDocument.CustomAttributes.Remove("Style");
                 svgDocument.FlushStyles();
                 //  svgDocument = SvgDocument.Open(svgPath);
                 isSvg = true;

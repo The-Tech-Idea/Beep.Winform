@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 
                 int x = childRect.X;
                 
-                // No connector lines in minimal style - clean
+                // No connector lines in minimal Style - clean
                 
                 // Draw icon using ImagePainter
                 if (!string.IsNullOrEmpty(child.ImagePath))

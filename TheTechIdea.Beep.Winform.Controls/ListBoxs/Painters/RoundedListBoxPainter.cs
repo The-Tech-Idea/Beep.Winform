@@ -43,18 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            if (isSelected)
-                bgColor = _helper.GetSelectedBackColor();
-            else if (isHovered)
-                bgColor = _helper.GetHoverBackColor();
-            else
-                return; // No background for non-selected, non-hovered
-            
-            using (var brush = new SolidBrush(bgColor))
-            using (var path = GetRoundedRectPath(itemRect, ItemRadius))
+            // Use BeepStyling for Rounded Style background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillPath(brush, path);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
         

@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         ValueOverMax      // shows "value/max"
     }
 
-    // Legacy fill style used only by the legacy linear painter
+    // Legacy fill Style used only by the legacy linear painter
     public enum ProgressBarStyle
     {
         Flat,

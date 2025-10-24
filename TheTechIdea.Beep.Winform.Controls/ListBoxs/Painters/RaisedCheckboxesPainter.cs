@@ -17,12 +17,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var rect = itemRect;
             rect.Inflate(-6, -3);
             
-            // Draw shadow for elevation
-            if (isSelected || isHovered)
-            {
-                DrawElevationShadow(g, rect);
-            }
-            
             DrawItemBackground(g, rect, isHovered, isSelected);
             
             int currentX = rect.Left + 12;
@@ -41,46 +35,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor = GetItemBackgroundColor(isSelected, isHovered);
-            
-            using (var brush = new SolidBrush(bgColor))
-            using (var path = GetRoundedRectPath(itemRect, 6))
+            // Use BeepStyling for RaisedCheckboxes background, border, and shadow
+          
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                g.FillPath(brush, path);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
-        }
-        
-        private Color GetItemBackgroundColor(bool isSelected, bool isHovered)
-        {
-            if (isSelected)
-                return Color.FromArgb(255, 235, 235); // Light red/pink
-            else if (isHovered)
-                return Color.FromArgb(252, 245, 245);
-            else
-                return Color.White;
         }
         
         private Color GetItemTextColor(SimpleItem item)
         {
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
             return isDisabled ? Color.FromArgb(180, 180, 180) : Color.FromArgb(60, 60, 60);
-        }
-        
-        private void DrawElevationShadow(Graphics g, Rectangle rect)
-        {
-            // Draw multiple shadow layers for depth
-            for (int i = 3; i >= 1; i--)
-            {
-                var shadowRect = rect;
-                shadowRect.Offset(0, i);
-                
-                int alpha = 10 + (i * 5);
-                using (var shadowBrush = new SolidBrush(Color.FromArgb(alpha, 0, 0, 0)))
-                using (var path = GetRoundedRectPath(shadowRect, 6))
-                {
-                    g.FillPath(shadowBrush, path);
-                }
-            }
         }
         
         private void DrawRaisedCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, SimpleItem item)

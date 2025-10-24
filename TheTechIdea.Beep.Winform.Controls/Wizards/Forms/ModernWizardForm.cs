@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
     /// <summary>
     /// Modern wizard form with top progress bar
-    /// Clean design with progress indicator (Image 5 style)
+    /// Clean design with progress indicator (Image 5 Style)
     /// </summary>
     public class ModernWizardForm : BaseWizardForm
     {

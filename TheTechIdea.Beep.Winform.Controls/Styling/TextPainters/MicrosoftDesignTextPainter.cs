@@ -161,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint text for Office-style controls
+        /// Paint text for Office-Style controls
         /// </summary>
         public static void PaintOfficeStyle(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)
@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         }
 
         /// <summary>
-        /// Paint text for Metro-style controls
+        /// Paint text for Metro-Style controls
         /// </summary>
         public static void PaintMetroStyle(Graphics g, Rectangle bounds, string text, bool isFocused,
             IBeepTheme theme, bool useThemeColors)

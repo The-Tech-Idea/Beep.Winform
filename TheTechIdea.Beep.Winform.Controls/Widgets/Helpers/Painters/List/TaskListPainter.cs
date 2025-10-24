@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// TaskList - Checklist/todo style with checkbox and item hit areas
+    /// TaskList - Checklist/todo Style with checkbox and item hit areas
     /// </summary>
     internal sealed class TaskListPainter : WidgetPainterBase
     {

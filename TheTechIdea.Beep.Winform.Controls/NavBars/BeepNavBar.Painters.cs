@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
 
         #region Painter Properties
         [Category("Appearance")]
-        [Description("The visual style painter for the navigation bar")]
+        [Description("The visual Style painter for the navigation bar")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {

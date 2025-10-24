@@ -713,7 +713,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
                 // -- AppBar
                 // For caption bar - use colors that work with BOTH the theme's AppBarBackColor
-                // AND the style-specific caption backgrounds (which may be light or dark)
+                // AND the Style-specific caption backgrounds (which may be light or dark)
                 AppBarBackColor = PrimaryColor;
                 AppBarForeColor = OnPrimaryColor;
                 AppBarButtonBackColor = Darken(PrimaryColor, 0.06);

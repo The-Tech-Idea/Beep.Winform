@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             }
             else
             {
-                // Paint background based on selected style
+                // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
             }
             if (_currentPainter != null)

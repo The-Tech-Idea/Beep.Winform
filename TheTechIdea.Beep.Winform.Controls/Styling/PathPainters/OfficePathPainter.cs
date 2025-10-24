@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
     /// <summary>
-    /// Office path painter - Microsoft Office Ribbon UI style
+    /// Office path painter - Microsoft Office Ribbon UI Style
     /// 4px rounded corners with subtle gradients, professional blue colors
     /// Clean, professional appearance matching Office ribbon aesthetic
     /// </summary>
@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             // Create Office rounded rectangle path
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, officeRadius))
             {
-                // Office: Subtle vertical gradient (ribbon style)
+                // Office: Subtle vertical gradient (ribbon Style)
                 Color topColor = primaryColor;
                 Color bottomColor = Color.FromArgb(
                     primaryColor.A,

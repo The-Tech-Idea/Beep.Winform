@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         #region Properties
         [Category("Calendar")]
-        [Description("Visual style of the calendar widget.")]
+        [Description("Visual Style of the calendar widget.")]
         public CalendarWidgetStyle Style
         {
             get => _style;

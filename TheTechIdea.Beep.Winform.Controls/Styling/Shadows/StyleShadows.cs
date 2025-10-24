@@ -5,12 +5,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
 {
     /// <summary>
     /// Shadow and elevation definitions for all design systems
-    /// Each style has distinct shadow characteristics
+    /// Each Style has distinct shadow characteristics
     /// </summary>
     public static class StyleShadows
     {
         /// <summary>
-        /// Check if style uses shadows/elevation
+        /// Check if Style uses shadows/elevation
         /// </summary>
         public static bool HasShadow(BeepControlStyle style)
         {
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Get shadow blur radius for a specific style
+        /// Get shadow blur radius for a specific Style
         /// </summary>
         public static int GetShadowBlur(BeepControlStyle style)
         {
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Get shadow spread radius for a specific style
+        /// Get shadow spread radius for a specific Style
         /// </summary>
         public static int GetShadowSpread(BeepControlStyle style)
         {
@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Get shadow offset Y for a specific style
+        /// Get shadow offset Y for a specific Style
         /// </summary>
         public static int GetShadowOffsetY(BeepControlStyle style)
         {
@@ -165,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Get shadow offset X for a specific style
+        /// Get shadow offset X for a specific Style
         /// </summary>
         public static int GetShadowOffsetX(BeepControlStyle style)
         {
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Get shadow color for a specific style
+        /// Get shadow color for a specific Style
         /// </summary>
         public static Color GetShadowColor(BeepControlStyle style)
         {
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Check if style uses dual shadows (neumorphism pattern)
+        /// Check if Style uses dual shadows (neumorphism pattern)
         /// </summary>
         public static bool UsesDualShadows(BeepControlStyle style)
         {
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
 
         /// <summary>
-        /// Check if style uses glow effect instead of shadow
+        /// Check if Style uses glow effect instead of shadow
         /// </summary>
         public static bool UsesGlow(BeepControlStyle style)
         {

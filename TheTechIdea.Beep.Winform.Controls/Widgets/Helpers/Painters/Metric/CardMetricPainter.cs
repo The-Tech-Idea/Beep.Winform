@@ -14,7 +14,7 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
 {
     /// <summary>
-    /// CardMetric - Card-style with icon and enhanced visual presentation
+    /// CardMetric - Card-Style with icon and enhanced visual presentation
     /// </summary>
     internal sealed class CardMetricPainter : WidgetPainterBase, IDisposable
     {

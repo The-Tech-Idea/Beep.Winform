@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
-    // Extension to enable Excel-style filter with zero changes to BeepGridPro internals
+    // Extension to enable Excel-Style filter with zero changes to BeepGridPro internals
     public static class BeepGridProFilterExtensions
     {
         public static void EnableExcelFilter(this BeepGridPro grid)

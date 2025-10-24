@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default: Chakra-style icon
+            // Default: Chakra-Style icon
             PaintDefaultChakraIcon(g, iconRect);
         }
 

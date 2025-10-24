@@ -6,7 +6,7 @@ using System.Drawing.Text;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
     /// <summary>
-    /// Chakra UI style painter for NumericUpDown
+    /// Chakra UI Style painter for NumericUpDown
     /// Features: Accessible colors, clear focus states, warm gray palette, rounded design
     /// </summary>
     public class ChakraUINumericUpDownPainter : BaseNumericUpDownPainter
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             {
                 g.FillPath(bgBrush, path);
 
-                // Chakra focus shadow (box-shadow style)
+                // Chakra focus shadow (box-shadow Style)
                 if (context.IsFocused)
                 {
                     // Outer glow

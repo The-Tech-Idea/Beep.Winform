@@ -14,43 +14,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     internal class ChakraUIListBoxPainter : BaseListBoxPainter
     {
         /// <summary>
-        /// Draws the item background (hover/selected) with Chakra-style rounded container.
+        /// Draws the item background (hover/selected) with Chakra-Style rounded container.
         /// </summary>
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.Width <= 0 || itemRect.Height <= 0)
                 return;
 
-            // Chakra UI content insets
-            var contentBounds = new Rectangle(
-                itemRect.X + 6,
-                itemRect.Y + 3,
-                itemRect.Width - 12,
-                itemRect.Height - 6
-            );
-
-            using (var path = CreateRoundedRectangle(contentBounds, 6))
+            // Use BeepStyling for ChakraUI background, border, and shadow
+           
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
-                Color bgColor = Color.Transparent;
-
-                if (isSelected)
-                {
-                    // Light tint of accent for selection
-                    bgColor = Color.FromArgb(240, _theme.AccentColor);
-                }
-                else if (isHovered)
-                {
-                    // Subtle gray hover
-                    bgColor = Color.FromArgb(248, 250, 252); // gray.50
-                }
-
-                if (bgColor != Color.Transparent)
-                {
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillPath(bgBrush, path);
-                    }
-                }
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
 

@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // GNOME-style gradient headerbar
+            // GNOME-Style gradient headerbar
             using (var brush = new LinearGradientBrush(
                 captionRect,
                 metrics.CaptionTextColorActive,
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Paint GNOME Adwaita pill buttons (ENHANCED UNIQUE SKIN)
             PaintAdwaitaPillButtons(g, owner, captionRect, metrics);
 
-            // Draw title text (centered for GNOME style)
+            // Draw title text (centered for GNOME Style)
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintPillButton(g, styleRect, Color.FromArgb(145, 65, 172), padding, buttonWidth, buttonHeight, "style");
+                PaintPillButton(g, styleRect, Color.FromArgb(145, 65, 172), padding, buttonWidth, buttonHeight, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -169,8 +169,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
-                    case "style":
-                        // Grid icon (GNOME style)
+                    case "Style":
+                        // Grid icon (GNOME Style)
                         for (int i = 0; i < 2; i++)
                         {
                             for (int j = 0; j < 2; j++)
@@ -347,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             

@@ -107,11 +107,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 
             foreach (var element in _svgDocument.Descendants())
             {
-                if (element.CustomAttributes.ContainsKey("style"))
+                if (element.CustomAttributes.ContainsKey("Style"))
                 {
-                    string style = element.CustomAttributes["style"];
+                    string style = element.CustomAttributes["Style"];
                     style = Regex.Replace(style, @"fill:[^;]+", $"fill:{hexColor}");
-                    element.CustomAttributes["style"] = style;
+                    element.CustomAttributes["Style"] = style;
                 }
 
                 element.Fill = new SvgColourServer(fillColor);

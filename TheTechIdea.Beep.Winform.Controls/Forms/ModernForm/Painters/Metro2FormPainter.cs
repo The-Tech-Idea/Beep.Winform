@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintTileFlipButton(g, styleRect, Color.FromArgb(135, 100, 184), metrics.BorderColor, padding, buttonSize, "style");
+                PaintTileFlipButton(g, styleRect, Color.FromArgb(135, 100, 184), metrics.BorderColor, padding, buttonSize, "Style");
             }
 
             if (owner.ShowThemeButton)
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     case "minimize":
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
-                    case "style":
+                    case "Style":
                         // Tile grid icon
                         g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize / 2, iconSize / 2);
                         g.DrawRectangle(iconPen, iconCenterX, iconCenterY - iconSize / 2, iconSize / 2, iconSize / 2);
@@ -302,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             

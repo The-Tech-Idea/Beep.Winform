@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Stepper Breadcrumb")]
-    [Description("A breadcrumb-style stepper control that draws chevron-shaped steps directly, with clickable steps and optional orientation.")]
+    [Description("A breadcrumb-Style stepper control that draws chevron-shaped steps directly, with clickable steps and optional orientation.")]
     public class BeepStepperBreadCrumb : BeepControl
     {
         private Orientation orientation = Orientation.Horizontal;

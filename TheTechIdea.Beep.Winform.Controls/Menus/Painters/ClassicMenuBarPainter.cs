@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -266,6 +267,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 ctx.IconSize, ctx.ShowIcons, ctx.ShowDropdownIndicators,
                 ctx.CornerRadius
             );
+
+            // Draw icon using StyledImagePainter
+            if (ctx.ShowIcons && !string.IsNullOrEmpty(item.ImagePath))
+            {
+                // Replaced CalculateIconRect with CalculateMenuItemLayout and used IconRect from the layout
+                var layout = MenuBarRenderingHelpers.CalculateMenuItemLayout(itemRect, item, ctx.TextFont, ctx.IconSize, ctx.ShowIcons, ctx.ShowDropdownIndicators);
+                var iconRect = layout.IconRect;
+
+                if (!iconRect.IsEmpty)
+                {
+                    try
+                    {
+                        StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+                    }
+                    catch
+                    {
+                        // Fallback for missing or invalid images
+                        using var fallbackBrush = new SolidBrush(foregroundColor);
+                        g.FillRectangle(fallbackBrush, iconRect);
+                    }
+                }
+            }
         }
         #endregion
 

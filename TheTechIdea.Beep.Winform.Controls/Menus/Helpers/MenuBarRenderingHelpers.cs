@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
             if (g == null || rect.IsEmpty || item == null) return;
 
             // Draw background
-            DrawMenuItemBackground(g, rect, backgroundColor, borderColor, cornerRadius);
+          //  DrawMenuItemBackground(g, rect, backgroundColor, borderColor, cornerRadius);
 
             // Calculate layout
             var layout = CalculateMenuItemLayout(rect, item, font, iconSize, showIcon, showDropdownIndicator);

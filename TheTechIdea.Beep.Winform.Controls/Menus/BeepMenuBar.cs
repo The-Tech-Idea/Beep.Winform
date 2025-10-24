@@ -78,8 +78,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = value;
                 UseThemeFont = false;
               //  SafeApplyFont(_textFont);
-                InitializeDrawingComponents();
-                Invalidate();
+              //  InitializeDrawingComponents();
+               // Invalidate();
             }
         }
 
@@ -471,16 +471,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.DrawContent(g);
 
             if (items == null || items.Count == 0) return;
-            if (UseThemeColors && _currentTheme != null)
-            {
-                BackColor = _currentTheme.SideMenuBackColor;
-                g.Clear(BackColor);
-            }
-            else
-            {
-                // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
-            }
+            //if (UseThemeColors && _currentTheme != null)
+            //{
+            //    BackColor = _currentTheme.SideMenuBackColor;
+            //    g.Clear(BackColor);
+            //}
+            //else
+            //{
+            //    // Paint background based on selected Style
+            //    BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
+            //}
             // Use painter system if available, otherwise fall back to legacy drawing
             if (_painter != null && _context != null)
             {
@@ -561,17 +561,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private void InvalidateRegion(Rectangle region)
+        {
+            if (!region.IsEmpty)
+            {
+                this.Invalidate(region);
+            }
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
             if (DesignMode) return;
 
-            // Remember previous hover state
             string previousHovered = _hoveredMenuItemName;
             _hoveredMenuItemName = null;
 
-            // Check which menu item is being hovered
             var menuRects = CalculateMenuItemRects();
             for (int i = 0; i < menuRects.Count; i++)
             {
@@ -579,6 +585,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _hoveredMenuItemName = $"MenuItem_{i}";
                     Cursor = Cursors.Hand;
+
+                    if (previousHovered != _hoveredMenuItemName)
+                    {
+                        InvalidateRegion(menuRects[i]);
+                    }
                     break;
                 }
             }
@@ -586,12 +597,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_hoveredMenuItemName == null)
             {
                 Cursor = Cursors.Default;
-            }
-
-            // Only redraw if hover state changed
-            if (previousHovered != _hoveredMenuItemName)
-            {
-                Invalidate();
+                if (!string.IsNullOrEmpty(previousHovered))
+                {
+                    int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
+                    InvalidateRegion(menuRects[previousIndex]);
+                }
             }
         }
 
@@ -601,9 +611,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_hoveredMenuItemName != null)
             {
+                string previousHovered = _hoveredMenuItemName;
                 _hoveredMenuItemName = null;
                 Cursor = Cursors.Default;
-                Invalidate();
+
+                if (!string.IsNullOrEmpty(previousHovered))
+                {
+                    int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
+                    var menuRects = CalculateMenuItemRects();
+                    InvalidateRegion(menuRects[previousIndex]);
+                }
             }
         }
         #endregion "Mouse Events"

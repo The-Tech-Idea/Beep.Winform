@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -179,8 +180,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                     rect.X + (rect.Width - iconSize) / 2,
                     rect.Y + cardPadding,
                     iconSize, iconSize);
-                var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
-                MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
+                try
+                {
+                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+                }
+                catch
+                {
+                    // Fallback for missing or invalid images
+                    using var fallbackBrush = new SolidBrush(GetDisabledForegroundColor());
+                    g.FillRectangle(fallbackBrush, iconRect);
+                }
             }
 
             // Draw title text

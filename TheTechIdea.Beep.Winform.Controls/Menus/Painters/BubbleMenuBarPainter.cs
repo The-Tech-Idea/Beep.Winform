@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -23,7 +24,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.DrawingRect = drawingRect;
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -ScaleValue(6), -ScaleValue(4));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.ItemHeight = Math.Max(ScaleValue(38), ctx.ItemHeight);
+
+            // Dynamically calculate item height
+            ctx.ItemHeight = CalculateDynamicItemHeight(ctx);
+
             ctx.ItemSpacing = ScaleValue(8);
             ctx.ItemPadding = ScaleValue(16);
             CalculateItemRects(ctx);
@@ -66,20 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
                 if (ctx.ShowIcons && !string.IsNullOrEmpty(item.ImagePath) && !layout.IconRect.IsEmpty)
                 {
-                    try
-                    {
-                        // Use ImagePainter for proper image rendering
-                        using var imagePainter = new TheTechIdea.Beep.Winform.Controls.BaseImage.ImagePainter(item.ImagePath);
-                        imagePainter.ApplyThemeOnImage = false; // Don't apply theme color by default
-                        imagePainter.DrawImage(g, layout.IconRect);
-                    }
-                    catch
-                    {
-                        // Fallback to Bubble placeholder
-                        using var b = new SolidBrush(Color.FromArgb(isSelected ? 255 : 160, fore));
-                        var inner = Rectangle.Inflate(layout.IconRect, -2, -2);
-                        g.FillEllipse(b, inner);
-                    }
+                    // Use StyledImagePainter for image rendering
+                    StyledImagePainter.Paint(g, layout.IconRect, item.ImagePath);
                 }
                 if (!string.IsNullOrEmpty(item.Text) && !layout.TextRect.IsEmpty)
                 {
@@ -203,6 +195,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.ItemRects.Clear();
             for (int i = 0; i < _itemRects.Count && i < ctx.MenuItems.Count; i++)
                 ctx.ItemRects.Add((_itemRects[i], i, ctx.MenuItems[i]));
+        }
+
+        private int CalculateDynamicItemHeight(MenuBarContext ctx)
+        {
+            if (ctx == null || ctx.TextFont == null)
+                return ScaleValue(38); // Default height
+
+            // Calculate height based on font size and padding
+            int textHeight = (int)ctx.TextFont.GetHeight() + ScaleValue(12);
+            return Math.Max(textHeight, ScaleValue(38));
         }
     }
 }

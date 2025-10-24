@@ -344,16 +344,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     BackColor = _currentTheme.BackColor;
                 }
 
-                if (ApplyThemeToChilds)
-                {
-                    foreach (Control c in Controls)
-                    {
-                        var themeProp = TypeDescriptor.GetProperties(c)["Theme"];
-                        themeProp?.SetValue(c, Theme);
-                    }
-                }
+                //if (ApplyThemeToChilds)
+                //{
+                //    foreach (Control c in Controls)
+                //    {
+                //        var themeProp = TypeDescriptor.GetProperties(c)["Theme"];
+                //        themeProp?.SetValue(c, Theme);
+                //    }
+                //}
 
-                Invalidate();
+              //  Invalidate();
             }
             catch (Exception ex)
             {

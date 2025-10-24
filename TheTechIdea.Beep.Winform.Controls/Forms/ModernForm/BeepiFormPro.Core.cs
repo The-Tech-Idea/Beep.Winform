@@ -804,18 +804,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     item.Click += (s, e) =>
                     {
                         // Defer theme change to avoid repaints during menu interaction
-                        BeginInvoke(new Action(() =>
+                        //BeginInvoke(new Action(() =>
+                        //{
+                        try
                         {
-                            try
-                            {
 
-                                FormStyle = style;
-                                BeepThemesManager.SetCurrentStyle(style);
-                            }
-                            catch { }
-                        }));
+                            FormStyle = style;
+                          BeepThemesManager.SetCurrentStyle(style);
+                        }
+                        catch { }
 
-                      
                     };
                     menu.Items.Add(item);
                 }
@@ -850,8 +848,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                           {
                             try
                           {
-                        BeepThemesManager.SetCurrentTheme(theme);
-                        Theme = theme; // This will handle invalidation smartly
+                                BeepThemesManager.SetCurrentTheme(theme);
+                               //  Theme = theme; // This will handle invalidation smartly
                           }
                              catch { }
                             }));

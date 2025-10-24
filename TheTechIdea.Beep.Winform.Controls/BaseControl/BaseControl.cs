@@ -107,15 +107,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     // Performance toggles
     [Category("Performance")]
     [Description("If true, uses an extra BufferedGraphics layer in OnPaint. When false, relies on built-in DoubleBuffered drawing.")]
-    public bool UseExternalBufferedGraphics { get; set; } = false;
+    public bool UseExternalBufferedGraphics { get; set; } = true;
 
     [Category("Performance")]
     [Description("If true, sets high-quality smoothing/text rendering. Turn off to favor speed.")]
-    public bool EnableHighQualityRendering { get; set; } = false;
+    public bool EnableHighQualityRendering { get; set; } = true;
 
     [Category("Performance")]
     [Description("Automatically draws components in HitList during OnPaint.")]
-    public bool AutoDrawHitListComponents { get; set; } = false;
+    public bool AutoDrawHitListComponents { get; set; } = true;
 
     [Category("Performance")]
     [Description("Optional cap for how many HitList components to draw per frame. 0 or negative disables capping.")]
@@ -495,8 +495,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 var newThemeName = BeepThemesManager.CurrentThemeName;
                 _themeName = newThemeName;
-                _currentTheme = BeepThemesManager.GetTheme(newThemeName) ?? BeepThemesManager.GetDefaultTheme();
-                ApplyTheme();
+                Theme = newThemeName;// BeepThemesManager.GetTheme(newThemeName) ?? BeepThemesManager.GetDefaultTheme();
+             //   ApplyTheme();
             }
             catch (Exception ex)
             {
@@ -510,7 +510,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 var newFormStyle = e.NewStyle;
                 ControlStyle= BeepStyling.GetControlStyle(newFormStyle);
-                Invalidate();
+              //  Invalidate();
             }
             catch (Exception ex)
             {

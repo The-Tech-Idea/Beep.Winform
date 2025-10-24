@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             
             beepService.vis.Container = beepDisplayContainer1;
             beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
-            beepDisplayContainer1.BackColor = Color.Black;
+
             beepAppTree1.init(beepService);
             beepAppTree1.CreateRootTree();
             //    beepAppBar1.ShowBadgeOnNotificationIcon("5");

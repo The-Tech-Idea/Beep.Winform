@@ -367,14 +367,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 DrawTitle(graphics, rectangle);
-                var children = Controls.Cast<Control>().ToArray();
-                foreach (Control ctrl in children)
-                {
-                    if (ctrl is IBeepUIComponent comp && !ctrl.IsDisposed)
-                    {
-                        try { comp.Draw(graphics, rectangle); } catch { }
-                    }
-                }
+                // var children = Controls.Cast<Control>().ToArray();
+                // foreach (Control ctrl in children)
+                // {
+                //     if (ctrl is IBeepUIComponent comp && !ctrl.IsDisposed)
+                //     {
+                //         try { comp.Draw(graphics, rectangle); } catch { }
+                //     }
+                // }
             }
             catch { }
         }

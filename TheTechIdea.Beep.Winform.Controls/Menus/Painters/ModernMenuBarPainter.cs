@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -46,6 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Adjust spacing for modern look
             ctx.ItemSpacing = 10; // Slightly more spacing for air
             ctx.ItemPadding = 14; // Slightly more padding inside items
+
+            // Ensure item height is calculated dynamically based on font size and padding
+            ctx.ItemHeight = Math.Max(ctx.TextFont.Height + 10, 32); // Minimum height of 32px for modern design
 
             // Calculate menu item rectangles
             CalculateMenuItemRects(ctx);
@@ -255,20 +259,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             try
             {
-                // Use ImagePainter for proper image rendering
-                using var imagePainter = new TheTechIdea.Beep.Winform.Controls.BaseImage.ImagePainter(iconPath);
-                imagePainter.ApplyThemeOnImage = false; // Don't apply theme color by default
-                imagePainter.DrawImage(g, iconRect);
+                // Use StyledImagePainter for proper image rendering
+                StyledImagePainter.PaintWithTint(g, iconRect, iconPath, color);
             }
             catch
             {
                 // Fallback to modern placeholder if image loading fails
                 using var brush = new SolidBrush(Color.FromArgb(120, color));
                 using var pen = new Pen(color, 1.5f);
-                
+
                 var padding = 2;
                 var innerRect = Rectangle.Inflate(iconRect, -padding, -padding);
-                
+
                 g.FillEllipse(brush, innerRect);
                 g.DrawEllipse(pen, innerRect);
             }
@@ -345,9 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawModernHoverEffect(Graphics g, Rectangle rect, Color hoverColor, int cornerRadius)
         {
-            // Modern hover effect - subtle background with rounded corners
-            using var brush = new SolidBrush(Color.FromArgb(25, hoverColor));
-            
+            using var brush = new SolidBrush(Color.FromArgb(40, hoverColor)); // Slightly more visible hover effect
             if (cornerRadius > 0)
             {
                 using var path = CreateRoundedPath(rect, cornerRadius);
@@ -361,13 +361,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawModernSelectionIndicator(Graphics g, Rectangle rect, Color selectionColor)
         {
-            // Modern selection - subtle bottom accent line
-            using var pen = new Pen(selectionColor, 2);
+            using var pen = new Pen(selectionColor, 3); // Slightly thicker accent line for better visibility
             pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
             pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
 
-            var lineY = rect.Bottom - 2;
-            var padding = 8;
+            var lineY = rect.Bottom - 3; // Adjusted position for better alignment
+            var padding = 10; // Increased padding for modern aesthetics
             g.DrawLine(pen, rect.Left + padding, lineY, rect.Right - padding, lineY);
         }
         #endregion

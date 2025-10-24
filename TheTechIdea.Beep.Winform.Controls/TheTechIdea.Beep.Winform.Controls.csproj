@@ -109,7 +109,6 @@
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
     <Folder Include="Examples\" />
-    <Folder Include="Forms\BeepMainForm\" />
     <Folder Include="Forms\Enums\" />
     <Folder Include="Forms\PopUpForm\" />
     <Folder Include="Forms\Properties\" />

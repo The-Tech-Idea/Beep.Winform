@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -26,6 +27,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+
+                if (isHovered)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
+
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
@@ -92,20 +102,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         iconSize
                     );
 
-                    // Rounded icon background with Chakra colors
-                    using (var iconPath = CreateRoundedRectangle(iconRect, 4))
-                    {
-                        Color iconBgColor = isSelected
-                            ? Color.FromArgb(60, _theme.AccentColor)
-                            : Color.FromArgb(237, 242, 247); // gray.100
+                    // Use StyledImagePainter for proper icon rendering
+                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
 
-                        using (var iconBgBrush = new SolidBrush(iconBgColor))
-                        {
-                            g.FillPath(iconBgBrush, iconPath);
-                        }
-                    }
-
-                    // TODO: Draw actual icon
                     leftOffset += iconSize + spacing;
                 }
 

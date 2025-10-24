@@ -1037,7 +1037,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region Painting and Layout
-        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        private BeepControlStyle _controlstyle = BeepControlStyle.None;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The visual style/painter to use for rendering the sidebar.")]

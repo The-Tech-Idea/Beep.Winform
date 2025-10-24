@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -164,6 +165,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int x = ctx.ContentRect.X;
             int y = ctx.ContentRect.Y;
 
+            // Ensure item height is calculated dynamically based on font size and padding
+            const int MIN_ICON_SIZE = 48; // Minimum icon size for modern design
+            ctx.ItemHeight = Math.Max(ctx.TextFont.Height + MIN_ICON_SIZE + 12, MIN_ICON_SIZE + 24);
+
             foreach (var category in _categorizedItems)
             {
                 // Account for category header
@@ -241,8 +246,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 // Draw icon
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
-                    var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
-                    MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
+                   // var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
+                    if (item.IsEnabled)
+                    {
+                        StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+
+                    }
+                    else
+                    {
+                        StyledImagePainter.PaintDisabled(g, iconRect, item.ImagePath, GetDisabledForegroundColor());
+                    }
+                    ;
                 }
                 else
                 {
@@ -287,8 +301,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawIconHoverEffect(Graphics g, Rectangle rect)
         {
-            var expandedRect = Rectangle.Inflate(rect, 4, 4);
-            using (var brush = new SolidBrush(Color.FromArgb(40, GetAccentColor())))
+            var expandedRect = Rectangle.Inflate(rect, 6, 6); // Slightly larger hover effect
+            using (var brush = new SolidBrush(Color.FromArgb(50, GetAccentColor()))) // More visible hover effect
             {
                 g.FillEllipse(brush, expandedRect);
             }
@@ -296,8 +310,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawIconSelectionEffect(Graphics g, Rectangle rect, MenuBarContext ctx)
         {
-            var expandedRect = Rectangle.Inflate(rect, 2, 2);
-            using (var pen = new Pen(GetAccentColor(), 3))
+            var expandedRect = Rectangle.Inflate(rect, 4, 4);
+            using (var pen = new Pen(GetAccentColor(), 4)) // Slightly thicker border for better visibility
             {
                 g.DrawRectangle(pen, expandedRect);
             }

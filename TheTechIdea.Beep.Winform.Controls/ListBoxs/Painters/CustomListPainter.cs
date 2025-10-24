@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -45,10 +46,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             // Use BeepStyling for CustomList background, border, and shadow
-          
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+
+                if (isHovered)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray)))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
+
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
             }
         }
@@ -83,8 +92,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw text
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX + rect.Left, rect.Height);
-            Color textColor = isSelected ? Color.White : Color.FromArgb(60, 60, 60);
-            DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
+            Color textColor = isSelected
+                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.OnPrimaryColor ?? Color.White
+                : Color.FromArgb(60, 60, 60);
+
+            using (var font = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))
+            {
+                System.Windows.Forms.TextRenderer.DrawText(g, item.Text, font, textRect, textColor,
+                    System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
+            }
         }
         
         public override int GetPreferredItemHeight()

@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepMenuAppBar1.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepMenuAppBar1.MaxHitListDrawPerFrame = 0;
-            beepMenuAppBar1.MenuBarStyle = Winform.Controls.Menus.MenuBarStyle.Fluent;
+      
             beepMenuAppBar1.MenuItemHeight = 20;
             beepMenuAppBar1.MenuItemWidth = 60;
             beepMenuAppBar1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
@@ -431,7 +431,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Category = Utilities.DbFieldCategory.String;
             beepDisplayContainer1.ComponentName = "BeepDisplayContainer";
             beepDisplayContainer1.ContainerType = ContainerTypeEnum.TabbedPanel;
-            beepDisplayContainer1.ControlStyle = Winform.Controls.Common.BeepControlStyle.DarkGlow;
+           
             beepDisplayContainer1.DataContext = null;
             beepDisplayContainer1.DataSourceProperty = null;
             beepDisplayContainer1.DisabledBackColor = Color.LightGray;

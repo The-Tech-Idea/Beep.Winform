@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -33,12 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
             ctx.MenuItemsRect = ctx.ContentRect;
 
+            // Dynamically calculate item height
+            ctx.ItemHeight = CalculateDynamicItemHeight(ctx);
+
             // Organize items into categories (top-level items are categories)
             OrganizeItemsByCategory(ctx);
 
             // Calculate category button rectangles
-            CalculateCategoryRects(ctx);
-
             return ctx;
         }
 
@@ -216,8 +218,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             {
                 var iconRect = new Rectangle(iconX, rect.Y + (rect.Height - ctx.IconSize.Height) / 2,
                     ctx.IconSize.Width, ctx.IconSize.Height);
-                var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
-                MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
+                if (item.IsEnabled)
+                {
+                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+
+                }
+                else
+                {
+                    StyledImagePainter.PaintDisabled(g, iconRect, item.ImagePath,  GetDisabledForegroundColor());
+                }
                 iconX += ctx.IconSize.Width + ScaleValue(8);
             }
 
@@ -325,8 +334,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 var iconRect = new Rectangle(iconX, rect.Y + (rect.Height - iconSize) / 2, iconSize, iconSize);
-                var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
-                MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
+                if (item.IsEnabled)
+                {
+                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+
+                }
+                else
+                {
+                    StyledImagePainter.PaintDisabled(g, iconRect, item.ImagePath, GetDisabledForegroundColor());
+                }
                 iconX += ScaleValue(24);
             }
 
@@ -338,6 +354,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(item.Text ?? "", ctx.TextFont, brush, textRect, sf);
             }
+        }
+
+        private int CalculateDynamicItemHeight(MenuBarContext ctx)
+        {
+            if (ctx == null || ctx.TextFont == null)
+                return ScaleValue(28); // Default dropdown item height
+
+            // Calculate height based on font size and padding
+            int textHeight = (int)ctx.TextFont.GetHeight() + ScaleValue(8);
+            return Math.Max(textHeight, ScaleValue(28));
         }
         #endregion
     }

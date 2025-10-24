@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -31,6 +32,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.CornerRadius = 6; // Rounded tab corners
             ctx.ItemSpacing = 2; // Small gap between tabs
             ctx.ItemPadding = 16;
+
+            // Ensure item height is calculated dynamically based on font size and padding
+            const int MIN_TAB_HEIGHT = 36; // Minimum tab height for modern design
+            ctx.ItemHeight = Math.Max(ctx.TextFont.Height + 12, MIN_TAB_HEIGHT);
 
             CalculateTabRects(ctx);
             return ctx;
@@ -151,14 +156,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             using var tabPath = MenuBarRenderingHelpers.CreateTabPath(tabRect, ctx.CornerRadius, isActive);
 
             // Tab background
-            Color backgroundColor = isActive ? GetItemBackgroundColor() : Color.FromArgb(240, GetBackgroundColor());
+            Color backgroundColor = isActive ? GetItemBackgroundColor() : Color.FromArgb(245, GetBackgroundColor()); // Slightly lighter inactive background
             using var bgBrush = new SolidBrush(backgroundColor);
             g.FillPath(bgBrush, tabPath);
 
             // Tab border
             if (!isActive)
             {
-                using var borderPen = new Pen(GetBorderColor());
+                using var borderPen = new Pen(GetBorderColor(), 1.5f); // Slightly thicker border for better visibility
                 g.DrawPath(borderPen, tabPath);
             }
 
@@ -170,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (isActive)
             {
                 using var activeBrush = new SolidBrush(backgroundColor);
-                g.FillRectangle(activeBrush, tabRect.X, tabRect.Bottom - 2, tabRect.Width, 2);
+                g.FillRectangle(activeBrush, tabRect.X, tabRect.Bottom - 3, tabRect.Width, 3); // Slightly thicker indicator
             }
         }
 
@@ -183,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Draw icon if available
             if (ctx.ShowIcons && !string.IsNullOrEmpty(item.ImagePath) && !layout.IconRect.IsEmpty)
             {
-                MenuBarRenderingHelpers.DrawMenuItemIcon(g, layout.IconRect, item.ImagePath, textColor);
+                StyledImagePainter.PaintWithTint(g, layout.IconRect, item.ImagePath, textColor);
             }
 
             // Draw text
@@ -196,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         private void DrawTabHoverEffect(Graphics g, Rectangle tabRect, Color hoverColor)
         {
             using var tabPath = MenuBarRenderingHelpers.CreateTabPath(tabRect, 6, false);
-            using var hoverBrush = new SolidBrush(Color.FromArgb(30, hoverColor));
+            using var hoverBrush = new SolidBrush(Color.FromArgb(50, hoverColor)); // Slightly more visible hover effect
             g.FillPath(hoverBrush, tabPath);
         }
         #endregion

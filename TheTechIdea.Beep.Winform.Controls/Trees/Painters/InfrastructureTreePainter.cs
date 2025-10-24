@@ -253,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 try
                 {
                     // Use StyledImagePainter for consistent rendering
-                    Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, imagePath, _owner?.ControlStyle ?? Common.BeepControlStyle.Material3);
+                    Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, imagePath, _owner?.ControlStyle ?? Common.BeepControlStyle.Minimal);
                 }
                 catch
                 {

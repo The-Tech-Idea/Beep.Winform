@@ -10,29 +10,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         public override bool SupportsSearch() => true;
         
+        // Enhanced hover effects for the search box
         protected override int DrawSearchArea(Graphics g, Rectangle drawingRect, int yOffset)
         {
             int searchHeight = 40;
             Rectangle searchRect = new Rectangle(drawingRect.X + 8, yOffset + 8, drawingRect.Width - 16, searchHeight);
-            
-            // Draw search box background with rounded corners
-            var style = BeepControlStyle.Material3;
-            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(searchRect, style))
+
+       
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(searchRect, Style))
             {
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
+
+                // Add hover effect with subtle shadow
+                if (_owner.IsSelected)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.LightGray)))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
             }
-            
+
             // Draw search icon
             int iconSize = 20;
             Rectangle iconRect = new Rectangle(searchRect.Left + 12, searchRect.Y + (searchRect.Height - iconSize) / 2, iconSize, iconSize);
             DrawSearchIcon(g, iconRect);
-            
+
             // Draw placeholder or search text
             string displayText = string.IsNullOrEmpty(_owner.SearchText) ? "Search..." : _owner.SearchText;
             Rectangle textRect = new Rectangle(searchRect.Left + 40, searchRect.Y, searchRect.Width - 50, searchRect.Height);
             Color textColor = string.IsNullOrEmpty(_owner.SearchText) ? Color.Gray : (_theme?.PrimaryTextColor ?? Color.Black);
-            
+
             System.Windows.Forms.TextRenderer.DrawText(g, displayText, _owner.TextFont, textRect, textColor,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
             

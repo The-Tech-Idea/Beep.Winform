@@ -10,11 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             // Use BeepStyling for Outlined Style background, border, and shadow
-          
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                if (isHovered)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
             }
             // Draw subtle divider using theme border color
             using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f))

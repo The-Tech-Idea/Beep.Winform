@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -122,12 +123,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         #endregion
 
         #region Private Methods
+        private int CalculateDynamicItemHeight(MenuBarContext ctx)
+        {
+            if (ctx == null || ctx.TextFont == null)
+                return ScaleValue(24); // Default height
+
+            // Calculate height based on font size and padding
+            int textHeight = (int)ctx.TextFont.GetHeight() + ScaleValue(8);
+            return Math.Max(textHeight, ScaleValue(24));
+        }
+
         private void CalculateBreadcrumbRects(MenuBarContext ctx)
         {
             _itemRects.Clear();
             _homeRect = Rectangle.Empty;
 
             if (ctx?.MenuItems == null || ctx.MenuItemsRect.IsEmpty) return;
+
+            // Dynamically calculate item height
+            ctx.ItemHeight = CalculateDynamicItemHeight(ctx);
 
             int currentX = ctx.MenuItemsRect.X;
             int itemY = ctx.MenuItemsRect.Y + (ctx.MenuItemsRect.Height - ctx.ItemHeight) / 2;
@@ -188,7 +202,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Highlight current/last item
             Color textColor = isLast || isSelected ? GetAccentColor() : ctx.ItemForeColor;
 
-            // Draw text only for breadcrumbs
+            // Draw image using StyledImagePainter
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                var iconRect = new Rectangle(rect.X + ScaleValue(4), rect.Y + (rect.Height - ScaleValue(16)) / 2, ScaleValue(16), ScaleValue(16));
+                StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+            }
+
+            // Draw text
             using var brush = new SolidBrush(textColor);
             var format = new StringFormat
             {
@@ -196,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 LineAlignment = StringAlignment.Center
             };
 
-            var textRect = new Rectangle(rect.X + ScaleValue(8), rect.Y, rect.Width - ScaleValue(28), rect.Height);
+            var textRect = new Rectangle(rect.X + ScaleValue(24), rect.Y, rect.Width - ScaleValue(28), rect.Height);
             g.DrawString(item.Text, ctx.TextFont, brush, textRect, format);
         }
 

@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _beepListBox.UseThemeFont = false;
                     _beepListBox.TextFont = value;
-                    _beepListBox.ListBoxType= ListBoxs.ListBoxType.WithIcons; // Force refresh
+                   // _beepListBox.ListBoxType= ListBoxs.ListBoxType.WithIcons; // Force refresh
                 }
 
                 Invalidate();
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             InitializePopupListBox();
-            
+            _beepListBox.MenuStyle = Forms.ModernForm.FormStyle.Minimal;
             if (items != null && items.Count > 0)
             {
                 InitializeMenu(items);
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.CanBeSelected = false;
             _beepListBox.CanBeHovered = false;
             _beepListBox.CanBePressed = false;
-      
+            _beepListBox.MenuStyle = Forms.ModernForm.FormStyle.Minimal;
             // Event handlers
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;

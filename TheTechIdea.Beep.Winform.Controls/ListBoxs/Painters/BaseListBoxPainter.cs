@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public virtual int GetPreferredItemHeight()
         {
-            return 32; // Default item height
+            return Math.Max(_owner.Font.Height + 12, 36); // Minimum height of 36px
         }
         
         public virtual Padding GetPreferredPadding()
@@ -83,15 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         #region Abstract Methods
         
         /// <summary>
-        /// Draw a single list item
-        /// </summary>
-        protected abstract void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected);
-        
-        /// <summary>
-        /// Draw the item background
-        /// </summary>
-        protected abstract void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected);
-        
+      
         #endregion
         
         #region Common Drawing Methods
@@ -207,6 +199,55 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     g.DrawLines(pen, checkPoints);
                 }
             }
+        }
+        
+        protected virtual void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
+        {
+            if (g == null || itemRect.IsEmpty) return;
+
+            Color backgroundColor = Color.White;
+
+            if (isSelected)
+            {
+                backgroundColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                using (var pen = new Pen(Color.FromArgb(150, backgroundColor), 2))
+                {
+                    g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
+                }
+            }
+            else if (isHovered)
+            {
+                backgroundColor = Color.FromArgb(230, 230, 230); // Subtle hover effect
+            }
+
+            using (var brush = new SolidBrush(backgroundColor))
+            {
+                g.FillRectangle(brush, itemRect);
+            }
+        }
+
+        protected virtual void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
+        {
+            if (g == null || itemRect.IsEmpty || item == null) return;
+
+            // Draw background
+            DrawItemBackground(g, itemRect, isHovered, isSelected);
+
+            // Calculate layout
+            var padding = GetPreferredPadding();
+            var contentRect = Rectangle.Inflate(itemRect, -padding.Left, -padding.Top);
+
+            // Draw image if available
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                var imageRect = new Rectangle(contentRect.X, contentRect.Y, 32, 32);
+                DrawItemImage(g, imageRect, item.ImagePath);
+                contentRect.X += 36; // Adjust content rect after image
+                contentRect.Width -= 36;
+            }
+
+            // Draw text
+            DrawItemText(g, contentRect, item.Text, Color.Black, _owner.Font);
         }
         
         #endregion

@@ -91,14 +91,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawRadioButton(g, radioRect, isSelected, isHovered, item);
         }
         
+        // Enhanced hover effects and selection indicators
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             // Use BeepStyling for RadioSelection background, border, and shadow
-           
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+
+                // Add hover effect with subtle shadow
+                if (isHovered && !isSelected)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.PrimaryColor ?? Color.LightGray)))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
             }
         }
         

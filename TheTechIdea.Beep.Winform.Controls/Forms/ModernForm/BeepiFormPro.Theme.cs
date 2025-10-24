@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 return;
             }
            
-            Invalidate();
+         //   Invalidate();
         }
         public virtual void ApplyTheme(string themeName)
         {
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (theme != null)
             {
                 CurrentTheme = theme;
-                Invalidate();
+               // Invalidate();
             }
             else
             {

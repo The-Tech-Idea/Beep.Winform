@@ -1,9 +1,10 @@
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -248,20 +249,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             try
             {
-                // Use ImagePainter for proper image rendering
-                using var imagePainter = new TheTechIdea.Beep.Winform.Controls.BaseImage.ImagePainter(iconPath);
-                imagePainter.ApplyThemeOnImage = false; // Don't apply theme color by default
-                imagePainter.DrawImage(g, iconRect);
+                // Use StyledImagePainter for proper image rendering
+                StyledImagePainter.Paint(g, iconRect, iconPath);
             }
             catch
             {
                 // Fallback to Material placeholder if image loading fails
                 var alpha = isEnabled ? 255 : 100;
                 using var brush = new SolidBrush(Color.FromArgb(alpha, color));
-                
+
                 var padding = 2;
                 var innerRect = Rectangle.Inflate(iconRect, -padding, -padding);
-                
+
                 g.FillRectangle(brush, innerRect);
             }
         }
@@ -282,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Use anti-aliasing for crisp Material typography
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            g.DrawString(text, font, brush, textRect, format);
+            TextRenderer.DrawText(g, text, font, textRect, color, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         private void DrawMaterialDropdownIndicator(Graphics g, Rectangle rect, Color color)

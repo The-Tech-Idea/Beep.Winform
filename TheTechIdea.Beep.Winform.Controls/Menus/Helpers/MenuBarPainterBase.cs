@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         public virtual void ApplyTheme(IBeepTheme theme)
         {
             Theme = theme;
-            OnThemeChanged();
+        //    OnThemeChanged();
         }
         #endregion
 

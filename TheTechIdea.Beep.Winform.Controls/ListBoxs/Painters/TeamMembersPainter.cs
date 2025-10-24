@@ -58,6 +58,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
         
+        protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
+        {
+            // Use BeepStyling for consistent background and border styling
+            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+            {
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+
+                // Add hover effect with subtle gradient
+                if (isHovered && !isSelected)
+                {
+                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Color.LightBlue), Color.Transparent, LinearGradientMode.Vertical))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
+
+                // Add shadow for selected items
+                if (isSelected)
+                {
+                    using (var shadowBrush = new SolidBrush(Color.FromArgb(50, Color.Black)))
+                    {
+                        g.FillPath(shadowBrush, path);
+                    }
+                }
+            }
+        }
+
         public override int GetPreferredItemHeight()
         {
             // Slightly taller for avatar display

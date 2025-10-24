@@ -60,34 +60,46 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var textSize = System.Windows.Forms.TextRenderer.MeasureText(text, _owner.TextFont);
             int chipWidth = textSize.Width + 32;
             int chipHeight = 24;
-            
+
             Rectangle chipRect = new Rectangle(x, y, chipWidth, chipHeight);
-            
-            // Draw chip background
-            Color chipBg = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
-            using (var brush = new SolidBrush(Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B)))
+
+            // Improved shadow with gradient
+            var shadowRect = Rectangle.Inflate(chipRect, 2, 2);
+            using (var shadowBrush = new LinearGradientBrush(shadowRect, Color.FromArgb(50, Color.Black), Color.Transparent, 90f))
             {
-              
-                using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(chipRect, Style))
-                {
-                    Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                }
+                g.FillRectangle(shadowBrush, shadowRect);
             }
-            
-            // Draw text
+
+            // Enhanced chip background with gradient
+            Color chipBg = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, 12))
+            using (var brush = new LinearGradientBrush(chipRect, Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B), Color.FromArgb(200, chipBg.R, chipBg.G, chipBg.B), LinearGradientMode.Vertical))
+            {
+                g.FillPath(brush, path);
+            }
+
+            // Draw text with better contrast
             var textRect = new Rectangle(x + 12, y, chipWidth - 24, chipHeight);
             Color chipText = _theme?.OnPrimaryColor ?? Color.White;
             System.Windows.Forms.TextRenderer.DrawText(g, text, _owner.TextFont, textRect, chipText,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
-            
-            // Draw X button
+
+            // Enhanced hover effect for X button
             Rectangle xRect = new Rectangle(chipRect.Right - 20, y + 6, 12, 12);
             using (var pen = new Pen(Color.White, 1.5f))
             {
                 g.DrawLine(pen, xRect.Left, xRect.Top, xRect.Right, xRect.Bottom);
                 g.DrawLine(pen, xRect.Right, xRect.Top, xRect.Left, xRect.Bottom);
             }
-            
+
+            if (xRect.Contains(_owner.PointToClient(Control.MousePosition)))
+            {
+                using (var hoverBrush = new SolidBrush(Color.FromArgb(100, Color.White)))
+                {
+                    g.FillEllipse(hoverBrush, xRect);
+                }
+            }
+
             return new Size(chipWidth, chipHeight);
         }
         

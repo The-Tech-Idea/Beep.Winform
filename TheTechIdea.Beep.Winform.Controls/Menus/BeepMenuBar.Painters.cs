@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepMenuBar
     {
         #region Painter Fields
-        private MenuBarStyle _menuBarStyle = MenuBarStyle.Classic;
+        private MenuBarStyle _menuBarStyle = MenuBarStyle.Material;
         private IMenuBarPainter _painter;
         private MenuBarContext _context;
         #endregion
@@ -194,12 +194,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 // Update layout before drawing
-                UpdateMenuBarLayout();
+               UpdateMenuBarLayout();
 
                 // Let painter handle the drawing
                 _painter.DrawBackground(g, _context);
-                _painter.DrawContent(g, _context);
-                _painter.DrawForegroundAccents(g, _context);
+                   _painter.DrawContent(g, _context);
+                    _painter.DrawForegroundAccents(g, _context);
             }
             catch (Exception ex)
             {

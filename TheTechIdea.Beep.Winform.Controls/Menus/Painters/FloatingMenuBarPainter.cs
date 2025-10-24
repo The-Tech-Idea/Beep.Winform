@@ -1,10 +1,11 @@
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -15,6 +16,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
     {
         private List<Rectangle> _itemRects = new List<Rectangle>();
         private Rectangle _containerRect;
+
+        private int CalculateDynamicItemHeight(MenuBarContext ctx)
+        {
+            if (ctx == null || ctx.TextFont == null)
+                return ScaleValue(34); // Default floating item height
+
+            // Calculate height based on font size and padding
+            int textHeight = (int)ctx.TextFont.GetHeight() + ScaleValue(10);
+            return Math.Max(textHeight, ScaleValue(34));
+        }
 
         public override MenuBarContext AdjustLayout(Rectangle drawingRect, MenuBarContext ctx)
         {
@@ -27,7 +38,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.ContentRect = Rectangle.Inflate(_containerRect, -ScaleValue(12), -ScaleValue(8));
             ctx.MenuItemsRect = ctx.ContentRect;
             ctx.CornerRadius = ScaleValue(14);
-            ctx.ItemHeight = Math.Max(ScaleValue(34), ctx.ItemHeight);
+
+            // Dynamically calculate item height
+            ctx.ItemHeight = CalculateDynamicItemHeight(ctx);
+
             ctx.ItemSpacing = ScaleValue(10);
             ctx.ItemPadding = ScaleValue(12);
 
@@ -66,10 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 {
                     try
                     {
-                        // Use ImagePainter for proper image rendering
-                        using var imagePainter = new TheTechIdea.Beep.Winform.Controls.BaseImage.ImagePainter(item.ImagePath);
-                        imagePainter.ApplyThemeOnImage = false; // Don't apply theme color by default
-                        imagePainter.DrawImage(g, layout.IconRect);
+                     
+                        StyledImagePainter.Paint(g, layout.IconRect, item.ImagePath);
+
                     }
                     catch
                     {
@@ -94,7 +107,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (ctx.SelectedIndex >= 0 && ctx.SelectedIndex < _itemRects.Count)
             {
                 var r = _itemRects[ctx.SelectedIndex];
-                using var pen = new Pen(GetAccentColor(), (float)ScaleValue(2)){ StartCap = System.Drawing.Drawing2D.LineCap.Round, EndCap = System.Drawing.Drawing2D.LineCap.Round };
+                using var pen = new Pen(GetAccentColor(), (float)ScaleValue(2))
+                {
+                    StartCap = System.Drawing.Drawing2D.LineCap.Round,
+                    EndCap = System.Drawing.Drawing2D.LineCap.Round
+                };
                 g.DrawLine(pen, r.Left + ScaleValue(8), r.Bottom - ScaleValue(3), r.Right - ScaleValue(8), r.Bottom - ScaleValue(3));
             }
         }

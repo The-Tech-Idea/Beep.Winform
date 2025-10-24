@@ -1,10 +1,11 @@
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -15,6 +16,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
     {
         private List<Rectangle> _itemRects = new List<Rectangle>();
 
+        private int CalculateDynamicItemHeight(MenuBarContext ctx)
+        {
+            if (ctx == null || ctx.TextFont == null)
+                return ScaleValue(34); // Default fluent item height
+
+            // Calculate height based on font size and padding
+            int textHeight = TextRenderer.MeasureText("Ag", ctx.TextFont).Height + ScaleValue(10); ;
+
+            return Math.Max(textHeight, ScaleValue(34));
+        }
+
         public override MenuBarContext AdjustLayout(Rectangle drawingRect, MenuBarContext ctx)
         {
             if (ctx == null) ctx = new MenuBarContext();
@@ -24,7 +36,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.DrawingRect = drawingRect;
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -ScaleValue(8), -ScaleValue(6));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.ItemHeight = Math.Max(ScaleValue(34), ctx.ItemHeight);
+
+            // Dynamically calculate item height
+            ctx.ItemHeight = CalculateDynamicItemHeight(ctx);
+
             ctx.ItemSpacing = ScaleValue(6);
             ctx.ItemPadding = ScaleValue(14);
 
@@ -76,9 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 {
                     try
                     {
-                        using var imagePainter = new TheTechIdea.Beep.Winform.Controls.BaseImage.ImagePainter(item.ImagePath);
-                        imagePainter.ApplyThemeOnImage = false;
-                        imagePainter.DrawImage(g, layout.IconRect);
+                      
+                        StyledImagePainter.Paint(g, layout.IconRect, item.ImagePath);
                     }
                     catch
                     {
@@ -94,7 +108,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 }
 
                 // Draw text safely
-                // Inside DrawContent where you were drawing text:
                 if (ctx.ShowText)
                 {
                     var text = !string.IsNullOrEmpty(item.Text) ? item.Text : ctx.GetItemText(item);
@@ -104,11 +117,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                         using var tb = new SolidBrush(fore);
                         using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
                         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-                        // Replace this problematic line:
-                        // g.DrawString(text, font, tb, textRect, sf);
-
-                        // With this ultra-safe version:
                         UltraSafeDrawString(g, text, ctx.TextFont ?? SystemFonts.MenuFont, tb, textRect, sf);
                     }
                 }

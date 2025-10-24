@@ -5,6 +5,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -32,7 +33,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             ctx.CornerRadius = ScaleValue(2); // Minimal rounding
             ctx.ItemSpacing = ScaleValue(2); // Minimal spacing
             ctx.ItemPadding = ScaleValue(6); // Reduced padding
-            ctx.ItemHeight = Math.Min(ctx.ItemHeight, ScaleValue(24)); // Compact height
+
+            // Dynamically calculate item height
+            ctx.ItemHeight = CalculateDynamicItemHeight(ctx);
 
             CalculateMenuItemRects(ctx);
             return ctx;
@@ -182,10 +185,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             bool isSelected = ctx.SelectedIndex == index;
             Color foreColor = isSelected ? GetSelectedForegroundColor() : ctx.ItemForeColor;
 
-            // Compact drawing - prefer icons over text in small spaces
-            MenuBarRenderingHelpers.DrawMenuItem(g, rect, item, ctx.TextFont,
-                foreColor, Color.Transparent, Color.Transparent,
-                ScaleSize(new Size(16, 16)), true, false, ScaleValue(0)); // Small icons, no dropdown indicators
+            // Draw background
+            using (var bgBrush = new SolidBrush(isSelected ? GetSelectedBackgroundColor() : ctx.ItemBackColor))
+            {
+                g.FillRectangle(bgBrush, rect);
+            }
+
+            // Draw icon using StyledImagePainter
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                var iconRect = new Rectangle(
+                    rect.X + ScaleValue(4),
+                    rect.Y + (rect.Height - ScaleValue(16)) / 2,
+                    ScaleValue(16),
+                    ScaleValue(16)
+                );
+                StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+            }
+
+            // Draw text
+            if (!string.IsNullOrEmpty(item.Text))
+            {
+                var textRect = new Rectangle(
+                    rect.X + ScaleValue(24),
+                    rect.Y,
+                    rect.Width - ScaleValue(24),
+                    rect.Height
+                );
+                TextRenderer.DrawText(g, item.Text, ctx.TextFont, textRect, foreColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+            }
+        }
+
+        private int CalculateDynamicItemHeight(MenuBarContext ctx)
+        {
+            if (ctx == null || ctx.TextFont == null)
+                return ScaleValue(24); // Default compact height
+
+            // Calculate height based on font size and padding
+            int textHeight = (int)ctx.TextFont.GetHeight() + ScaleValue(6);
+            return Math.Max(textHeight, ScaleValue(24));
         }
         #endregion
     }

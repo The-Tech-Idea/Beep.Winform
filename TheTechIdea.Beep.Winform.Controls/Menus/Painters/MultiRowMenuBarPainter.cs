@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 {
@@ -20,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         private const int ROW_HEIGHT = 36;
         private const int ROW_SPACING = 4;
         private const int ITEMS_PER_ROW = 6;
+        private const int MIN_ROW_HEIGHT = 36; // Minimum row height for modern design
         #endregion
 
         #region MenuBarPainterBase Implementation
@@ -34,6 +36,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int padding = 8;
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
             ctx.MenuItemsRect = ctx.ContentRect;
+
+            // Ensure item height is calculated dynamically based on font size and padding
+            ctx.ItemHeight = Math.Max(ctx.TextFont.Height + 12, MIN_ROW_HEIGHT);
 
             // Calculate multi-row layout
             CalculateMultiRowLayout(ctx);
@@ -167,14 +172,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
                 for (int i = 0; i < ITEMS_PER_ROW && itemIndex < _flatItems.Count; i++)
                 {
-                    var rect = new Rectangle(x, y, itemWidth, ROW_HEIGHT);
+                    var rect = new Rectangle(x, y, itemWidth, ctx.ItemHeight);
                     rowRects.Add(rect);
                     x += itemWidth + 4;
                     itemIndex++;
                 }
 
                 _rowItemRects.Add(rowRects);
-                y += ROW_HEIGHT + ROW_SPACING;
+                y += ctx.ItemHeight + ROW_SPACING;
             }
         }
 
@@ -219,8 +224,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             {
                 int iconSize = 20;
                 var iconRect = new Rectangle(contentX, rect.Y + (rect.Height - iconSize) / 2, iconSize, iconSize);
-                var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
-                MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
+                if (item.IsEnabled)
+                {
+                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+
+                }
+                else
+                {
+                    StyledImagePainter.PaintDisabled(g, iconRect, item.ImagePath, GetDisabledForegroundColor());
+                }
+
                 contentX += iconSize + 8;
             }
 
@@ -250,56 +263,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Different hover styles per row
             var hoverColor = GetHoverBackgroundColor();
 
-            switch (rowIndex % 3)
+            using (var brush = new SolidBrush(Color.FromArgb(50, hoverColor))) // Slightly more visible hover effect
             {
-                case 0: // Background fill
-                    using (var brush = new SolidBrush(Color.FromArgb(60, hoverColor)))
-                    {
-                        g.FillRectangle(brush, rect);
-                    }
-                    break;
-
-                case 1: // Top border
-                    using (var pen = new Pen(GetAccentColor(), 3))
-                    {
-                        g.DrawLine(pen, rect.X, rect.Y, rect.Right, rect.Y);
-                    }
-                    break;
-
-                case 2: // Left border
-                    using (var pen = new Pen(GetAccentColor(), 3))
-                    {
-                        g.DrawLine(pen, rect.X, rect.Y, rect.X, rect.Bottom);
-                    }
-                    break;
+                g.FillRectangle(brush, rect);
             }
         }
 
         private void DrawItemSelectionEffect(Graphics g, Rectangle rect, MenuBarContext ctx, int rowIndex)
         {
-            // Different selection styles per row
-            switch (rowIndex % 3)
+            using (var pen = new Pen(GetAccentColor(), 3)) // Slightly thicker border for better visibility
             {
-                case 0: // Full border
-                    using (var pen = new Pen(GetAccentColor(), 2))
-                    {
-                        g.DrawRectangle(pen, rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2);
-                    }
-                    break;
-
-                case 1: // Bottom underline
-                    using (var pen = new Pen(GetAccentColor(), 4))
-                    {
-                        g.DrawLine(pen, rect.X, rect.Bottom - 2, rect.Right, rect.Bottom - 2);
-                    }
-                    break;
-
-                case 2: // Side indicator
-                    using (var brush = new SolidBrush(GetAccentColor()))
-                    {
-                        g.FillRectangle(brush, rect.X, rect.Y, 4, rect.Height);
-                    }
-                    break;
+                g.DrawRectangle(pen, rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2);
             }
         }
         #endregion

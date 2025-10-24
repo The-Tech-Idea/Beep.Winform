@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             {
                 try
                 {
-                    Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, imagePath, _owner?.ControlStyle ?? Common.BeepControlStyle.Material3);
+                    Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, imagePath, _owner?.ControlStyle ?? Common.BeepControlStyle.Minimal);
                     return;
                 }
                 catch { }

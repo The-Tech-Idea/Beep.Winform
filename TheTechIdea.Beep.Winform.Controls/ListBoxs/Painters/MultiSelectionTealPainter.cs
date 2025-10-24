@@ -46,14 +46,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
         
+        // Enhanced hover effects and selection indicators
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             // Use BeepStyling for MultiSelectionTeal background, border, and shadow
-          
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+
+                // Add hover effect with gradient
+                if (isHovered && !isSelected)
+                {
+                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Color.Teal), Color.Transparent, LinearGradientMode.Vertical))
+                    {
+                        g.FillPath(hoverBrush, path);
+                    }
+                }
+
+                // Add subtle shadow for selected items
+                if (isSelected)
+                {
+                    using (var shadowBrush = new SolidBrush(Color.FromArgb(50, Color.Black)))
+                    {
+                        g.FillPath(shadowBrush, path);
+                    }
+                }
             }
         }
         

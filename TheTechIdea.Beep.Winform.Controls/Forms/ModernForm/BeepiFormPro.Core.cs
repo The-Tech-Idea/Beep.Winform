@@ -889,22 +889,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         private void RecalculateLayoutAndHitAreas()
         {
-            if(ActivePainter==null)
+            // Make layout recalculation safe in design-time and runtime.
+            // Ensure manager objects exist (they're lightweight) so painters can
+            // compute layout even when the form is being edited in the designer.
+            try
             {
-                ApplyFormStyle(); // Ensure painter is initialized
+                if (_layout == null)
+                    _layout = new BeepiFormProLayoutManager(this);
+
+                if (_hits == null)
+                    _hits = new BeepiFormProHitAreaManager(this);
+
+                if (_interact == null)
+                    _interact = new BeepiFormProInteractionManager(this, _hits);
+
+                // Ensure painter is available. ApplyFormStyle is idempotent and
+                // safe to call; painters are simple renderers and are designer-safe.
+                if (ActivePainter == null)
+                {
+                    try { ApplyFormStyle(); } catch { /* ignore in design-time */ }
+                }
+
+                if (ActivePainter == null)
+                {
+                    // Nothing to do if we still have no painter
+                    return;
+                }
+
+                // Let the painter compute the layout. Wrap in try/catch to avoid
+                // designer crashes if a painter implementation relies on runtime
+                // resources that are unavailable in the designer.
+                try
+                {
+                    ActivePainter.CalculateLayoutAndHitAreas(this);
+                }
+                catch
+                {
+                    // Swallow painter exceptions in design-time to keep the designer
+                    // usable. At worst the painter won't show preview, but the form
+                    // remains editable.
+                }
+
+                // Update hit areas for interaction (clear then register caption)
+                _hits.Clear();
+                if (ShowCaptionBar && CurrentLayout != null && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                {
+                    _hits.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                }
             }
-            if (ActivePainter != null)
+            catch
             {
-                ActivePainter.CalculateLayoutAndHitAreas(this);
-            }else
-                return;
-
-
-            // Update hit areas for interaction
-            _hits?.Clear();
-            if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-            {
-                _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                // Top-level safety: swallow any unexpected exceptions so the
+                // Visual Studio designer does not throw when loading the form.
             }
         }
 

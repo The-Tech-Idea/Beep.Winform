@@ -39,8 +39,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
 
             AutoScaleMode = AutoScaleMode.Font;
-
-            InitializeComponent();
             this.DoubleBuffered = true;
             // Enable double buffering and optimized painting
             SetStyle(
@@ -48,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                      ControlStyles.ResizeRedraw |
                       ControlStyles.SupportsTransparentBackColor, true);
             UpdateStyles();
-         
+
             _layout = new BeepiFormProLayoutManager(this);
             _hits = new BeepiFormProHitAreaManager(this);
             _interact = new BeepiFormProInteractionManager(this, _hits);
@@ -56,14 +54,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Don't hardcode painter - ApplyFormStyle() will set the correct one based on FormStyle property
             //BackColor = Color.White; // we paint everything
             InitializeBuiltInRegions();
+            InitializeComponent();
+
+            // Update window region when handle is created
+            this.HandleCreated += (s, e) => UpdateWindowRegion();
+            // Always hook events for design-time and runtime refresh
+            this.Resize += (s, e) => { UpdateWindowRegion(); Invalidate(); };
+            this.Scroll += (s, e) => { UpdateWindowRegion(); Invalidate(); };
+            this.HandleCreated += (s, e) => { UpdateWindowRegion(); Invalidate(); };
 
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
 
-            // Update window region when handle is created
-            this.HandleCreated += (s, e) => UpdateWindowRegion();
-            this.Resize += (s, e) => UpdateWindowRegion();
-
+              FormBorderStyle = FormBorderStyle.None;
             //// Design-time: hook child control events for auto-refresh
             //if (DesignMode || (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime))
             //{

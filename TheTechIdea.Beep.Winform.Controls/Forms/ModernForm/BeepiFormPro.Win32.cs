@@ -82,22 +82,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 // and do not redraw over child controls (prevents black boxes/flicker)
                 cp.Style |= WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
                 // Use composited painting for child controls to avoid tearing/black regions at runtime
-                cp.ExStyle |= WS_EX_COMPOSITED;
+             //   cp.ExStyle |= WS_EX_COMPOSITED;
                 return cp;
             }
         }
 
         protected override void WndProc(ref Message m)
         {
+            // DevExpress-like: no design-time guard, run all custom handling in designer and runtime
+
             if (_drawCustomWindowBorder)
             {
                 switch (m.Msg)
                 {
                     case WM_CTLCOLORDLG:
                     case WM_CTLCOLORSTATIC:
-                        // Provide transparent background only for controls that actually request it
-                        // (e.g., Label with BackColor = Transparent). Otherwise, let default processing
-                        // return a proper brush for opaque backgrounds.
                         try
                         {
                             var childHwnd = m.LParam;
@@ -118,19 +117,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                                 }
                             }
                         }
-                        catch { /* ignore and fall through to default */ }
+                        catch { }
                         break;
                     case WM_ERASEBKGND:
-                        // CRITICAL: When we handle all painting in OnPaintBackground, 
-                        // we must tell Windows NOT to erase the background.
-                        // Return 1 to indicate we handled the erase.
-                        // This prevents black boxes on child controls (Labels, etc.)
                         m.Result = (IntPtr)1;
                         return;
                     case WM_PRINTCLIENT:
-                        // Provide a simple solid background to the requester. Avoid painting full chrome
-                        // into the child DC, which can cause artifacts. This is sufficient for transparent
-                        // labels and similar controls.
                         if (m.WParam != IntPtr.Zero)
                         {
                             using var g = Graphics.FromHdc(m.WParam);
@@ -140,20 +132,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             return;
                         }
                         break;
-
                     case WM_NCCALCSIZE:
-                        // CRITICAL FOR SKINNING: Reserve space for custom chrome without breaking AutoScale
-                        // DevExpress approach: Extend client area to cover entire window
                         if (m.WParam != IntPtr.Zero)
                         {
                             var nccsp = Marshal.PtrToStructure<NCCALCSIZE_PARAMS>(m.LParam);
-
-                            // In maximized state, adjust for screen edges to prevent overlap
+                            int edgeMargin = Math.Max(1, GetEffectiveBorderThicknessDpi());
                             if (WindowState == FormWindowState.Maximized)
                             {
-                                // Small DPI-aware adjustment to prevent drawing over screen edges
-                                // DevExpress keeps this minimal (1-2 px) to avoid visual gaps
-                                int edgeMargin = Math.Max(1, GetEffectiveBorderThicknessDpi());
+                                // For maximized, adjust for taskbar as well
                                 nccsp.rgrc0.top += edgeMargin;
                                 nccsp.rgrc0.left += edgeMargin;
                                 nccsp.rgrc0.right -= edgeMargin;
@@ -161,81 +147,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             }
                             else
                             {
-                                // Normal state: Extend client area to entire window (0 border reservation)
-                                // This is KEY for skinning - we paint custom chrome IN the client area
-                                // DisplayRectangle override will adjust control layout to account for caption
-                                // This preserves AutoScale integrity because client rect stays consistent
+                                // For normal state, expand client area to cover standard non-client regions
+                                nccsp.rgrc0.top += edgeMargin;
+                                nccsp.rgrc0.left += edgeMargin;
+                                nccsp.rgrc0.right -= edgeMargin;
+                                nccsp.rgrc0.bottom -= edgeMargin;
                             }
-
                             Marshal.StructureToPtr(nccsp, m.LParam, false);
                             m.Result = IntPtr.Zero;
                             return;
                         }
                         break;
                     case WM_NCACTIVATE:
-                        // Prevent default title bar repaint to avoid flicker.
-                        // DevExpress pattern: set lParam to -1 and return 1 to indicate handled.
                         m.LParam = new IntPtr(-1);
                         m.Result = (IntPtr)1;
                         return;
                     case WM_NCPAINT:
-                        // CRITICAL: Always paint non-client border to cover rectangular corners
-                        // that Windows draws by default. Without this, rounded forms show
-                        // rectangular corners behind the rounded shape.
+                        m.Result = IntPtr.Zero;
                         PaintNonClientBorder();
+                       
+                        return;
+                    case WM_NCHITTEST:
+                        {
+                            // Extract the screen point from lParam
+                            long lparam = m.LParam.ToInt64();
+                            int x = (short)(lparam & 0xffff);
+                            int y = (short)((lparam >> 16) & 0xffff);
+                            Point pos = PointToClient(new Point(x, y));
+
+                            // Check if the click is within the custom caption bar
+                            if (ShowCaptionBar && CurrentLayout != null && CurrentLayout.CaptionRect.Contains(pos))
+                            {
+                                // Treat clicks in the custom caption bar as HTCAPTION
+                                if (!IsPointInCaptionButtons(pos))
+                                {
+                                    m.Result = (IntPtr)HTCAPTION;
+                                    return;
+                                }
+                            }
+
+                            // Handle resize borders
+                            int margin = GetEffectiveResizeMarginDpi();
+                            if (pos.X <= margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPLEFT; return; }
+                            if (pos.X >= ClientSize.Width - margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPRIGHT; return; }
+                            if (pos.X <= margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMLEFT; return; }
+                            if (pos.X >= ClientSize.Width - margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMRIGHT; return; }
+                            if (pos.X <= margin) { m.Result = (IntPtr)HTLEFT; return; }
+                            if (pos.X >= ClientSize.Width - margin) { m.Result = (IntPtr)HTRIGHT; return; }
+                            if (pos.Y <= margin) { m.Result = (IntPtr)HTTOP; return; }
+                            if (pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOM; return; }
+
+                            // Default to client area
+                            m.Result = (IntPtr)HTCLIENT;
+                            return;
+                        }
+                    case WM_NCLBUTTONDBLCLK:
+                        if (m.WParam != IntPtr.Zero && (int)m.WParam == HTCAPTION)
+                        {
+                            if (WindowState == FormWindowState.Maximized)
+                                WindowState = FormWindowState.Normal;
+                            else if (WindowState == FormWindowState.Normal)
+                                WindowState = FormWindowState.Maximized;
+                        }
                         m.Result = IntPtr.Zero;
                         return;
+                        
+                    default:
+                        base.WndProc(ref m);
+                        break;
                 }
             }
 
-            if (m.Msg == WM_NCHITTEST)
-            {
-                // Convert screen point to client coordinates
-                Point pos = PointToClient(new Point(m.LParam.ToInt32()));
+        
 
-                // 1) Edge/corner resize zones take precedence
-                int margin = GetEffectiveResizeMarginDpi();
-                if (pos.X <= margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPLEFT; return; }
-                if (pos.X >= ClientSize.Width - margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPRIGHT; return; }
-                if (pos.X <= margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMLEFT; return; }
-                if (pos.X >= ClientSize.Width - margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMRIGHT; return; }
-                if (pos.X <= margin) { m.Result = (IntPtr)HTLEFT; return; }
-                if (pos.X >= ClientSize.Width - margin) { m.Result = (IntPtr)HTRIGHT; return; }
-                if (pos.Y <= margin) { m.Result = (IntPtr)HTTOP; return; }
-                if (pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOM; return; }
 
-                // 2) If over a child control, don't treat as caption/content drag
-                if (IsOverChildControl(pos)) { m.Result = (IntPtr)HTCLIENT; return; }
-
-                // 3) Treat caption rect as native caption for drag if shown
-                if (ShowCaptionBar && CurrentLayout.CaptionRect.Contains(pos))
-                {
-                    // Exclude clicks over system/Style/theme/custom buttons
-                    if (!IsPointInCaptionButtons(pos)) { m.Result = (IntPtr)HTCAPTION; return; }
-                }
-
-                // 4) Default client area
-                m.Result = (IntPtr)HTCLIENT; return;
-            }
-
-            // Double-click on caption toggles maximize/restore
-            if (m.Msg == WM_NCLBUTTONDBLCLK)
-            {
-                // Only toggle when we actually double-clicked the caption region (per our HTCAPTION returns)
-                if (WindowState == FormWindowState.Maximized)
-                    WindowState = FormWindowState.Normal;
-                else if (WindowState == FormWindowState.Normal)
-                    WindowState = FormWindowState.Maximized;
-                m.Result = IntPtr.Zero;
-                return;
-            }
-
-            base.WndProc(ref m);
         }
 
         private void PaintNonClientBorder()
         {
             if (!IsHandleCreated || !_drawCustomWindowBorder) return;
+            if (ActivePainter == null)
+            {
+                ApplyFormStyle();
+            }
             int bt = GetEffectiveBorderThicknessDpi();
             if (bt == 0) return;
 
@@ -305,23 +299,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         private void UpdateWindowRegion()
         {
-            if (!IsHandleCreated || !_drawCustomWindowBorder)
+           
+            if (ActivePainter == null)
             {
-                // Clear region if custom drawing is disabled
-                if (IsHandleCreated)
-                {
-                    SetWindowRgn(this.Handle, IntPtr.Zero, true);
-                }
-                return;
+                ApplyFormStyle();
             }
-            
-            // When maximized, clear the region to avoid edge clipping issues
-            if (WindowState == FormWindowState.Maximized)
-            {
-                SetWindowRgn(this.Handle, IntPtr.Zero, true);
-                return;
-            }
-            
             var painter = ActivePainter;
             if (painter == null)
             {
@@ -411,6 +393,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [DllImport("gdi32.dll")] private static extern IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
         [DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr hObject);
 
+        [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
+        [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, uint dwAttribute, ref uint pvAttribute, uint cbAttribute);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MARGINS
+        {
+            public int cxLeftWidth;
+            public int cxRightWidth;
+            public int cxTopHeight;
+            public int cxBottomHeight;
+        }
+
         private const uint RDW_FRAME = 0x0400;
         private const uint RDW_INVALIDATE = 0x0001;
         private const uint RDW_UPDATENOW = 0x0100;
@@ -418,6 +412,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_NOZORDER = 0x0004;
         private const uint SWP_FRAMECHANGED = 0x0020;
+
+        private const uint DWMWA_NCRENDERING_POLICY = 2;
+        private const uint DWMNCRP_DISABLED = 1;
+
+        // Windows 10/11 backdrop effects (Acrylic, Mica)
+        [DllImport("user32.dll")] private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct WindowCompositionAttributeData
+        {
+            public WindowCompositionAttribute Attribute;
+            public IntPtr Data;
+            public int SizeOfData;
+        }
+
+        private enum WindowCompositionAttribute
+        {
+            WCA_ACCENT_POLICY = 19
+        }
+
+        private struct AccentPolicy
+        {
+            public AccentState AccentState;
+            public uint AccentFlags;
+            public uint GradientColor;
+            public uint AnimationId;
+        }
+
+        private enum AccentState
+        {
+            ACCENT_DISABLED = 0,
+            ACCENT_ENABLE_GRADIENT = 1,
+            ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+            ACCENT_ENABLE_BLURBEHIND = 3,
+            ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+            ACCENT_INVALID_STATE = 5
+        }
+
+        // For Mica (Windows 11)
+        private const uint DWMWA_SYSTEMBACKDROP_TYPE = 38;
+        private const uint DWMSBT_NONE = 0;
+        private const uint DWMSBT_MAINWINDOW = 1; // Mica
+        private const uint DWMSBT_TRANSIENTWINDOW = 2; // Acrylic
+        private const uint DWMSBT_TABBEDWINDOW = 3; // Tabbed
+
+       
+
+     
 
         private bool IsOverChildControl(Point clientPos)
         {
@@ -464,5 +506,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             raw = Math.Max(1, raw);
             return raw;
         }
+
+        private void DisableDwmNonClientRendering()
+        {
+            if (Environment.OSVersion.Version.Major >= 6) // Vista+
+            {
+                uint policy = DWMNCRP_DISABLED;
+                DwmSetWindowAttribute(this.Handle, DWMWA_NCRENDERING_POLICY, ref policy, sizeof(uint));
+            }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+                DisableDwmNonClientRendering();
+            
+            ApplyBackdrop();
+        }
+
+    
+
     }
 }

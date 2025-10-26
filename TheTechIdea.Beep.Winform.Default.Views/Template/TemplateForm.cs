@@ -30,11 +30,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public TemplateForm()
         {
+            this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
         }
 
         public TemplateForm(IServiceProvider services) : base()
         {
+            this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
             beepService = services.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;

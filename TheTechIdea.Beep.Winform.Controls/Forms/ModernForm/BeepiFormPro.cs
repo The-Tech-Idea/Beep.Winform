@@ -41,14 +41,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             AutoScaleMode = AutoScaleMode.Font;
 
             InitializeComponent();
-this.DoubleBuffered = true;
+            this.DoubleBuffered = true;
             // Enable double buffering and optimized painting
             SetStyle(
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw |
                       ControlStyles.SupportsTransparentBackColor, true);
             UpdateStyles();
-            BackColor = Color.Transparent; // we paint everything   
+         
             _layout = new BeepiFormProLayoutManager(this);
             _hits = new BeepiFormProHitAreaManager(this);
             _interact = new BeepiFormProInteractionManager(this, _hits);
@@ -63,8 +63,21 @@ this.DoubleBuffered = true;
             // Update window region when handle is created
             this.HandleCreated += (s, e) => UpdateWindowRegion();
             this.Resize += (s, e) => UpdateWindowRegion();
+
+            //// Design-time: hook child control events for auto-refresh
+            //if (DesignMode || (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime))
+            //{
+            //    this.ControlAdded += (s, e) => HookChildEvents(e.Control);
+            //    foreach (Control c in Controls) HookChildEvents(c);
+            //}
         }
 
+        private void HookChildEvents(Control ctrl)
+        {
+            ctrl.Move += (s, e) => { if (DesignMode) this.Invalidate(); };
+            ctrl.Resize += (s, e) => { if (DesignMode) this.Invalidate(); };
+            ctrl.VisibleChanged += (s, e) => { if (DesignMode) this.Invalidate(); };
+        }
 
         protected override void OnDpiChanged(DpiChangedEventArgs e)
         {

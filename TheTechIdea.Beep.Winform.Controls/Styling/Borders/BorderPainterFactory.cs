@@ -56,6 +56,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BeepControlStyle.Elementary => new ElementaryBorderPainterWrapper(),
                 BeepControlStyle.Gaming => new GamingBorderPainterWrapper(),
                 BeepControlStyle.Neon => new NeonBorderPainterWrapper(),
+                BeepControlStyle.ArcLinux => new ArcLinuxBorderPainterWrapper(),
+                BeepControlStyle.Brutalist => new BrutalistBorderPainterWrapper(),
+                BeepControlStyle.Cartoon => new CartoonBorderPainterWrapper(),
+                BeepControlStyle.ChatBubble => new ChatBubbleBorderPainterWrapper(),
+                BeepControlStyle.Cyberpunk => new CyberpunkBorderPainterWrapper(),
+                BeepControlStyle.Dracula => new DraculaBorderPainterWrapper(),
+                BeepControlStyle.Glassmorphism => new GlassmorphismBorderPainterWrapper(),
+                BeepControlStyle.Holographic => new HolographicBorderPainterWrapper(),
+                BeepControlStyle.GruvBox => new GruvBoxBorderPainterWrapper(),
+                BeepControlStyle.Metro2 => new Metro2BorderPainterWrapper(),
+                BeepControlStyle.Modern => new ModernBorderPainterWrapper(),
+                BeepControlStyle.Nord => new NordBorderPainterWrapper(),
+                BeepControlStyle.Nordic => new NordicBorderPainterWrapper(),
+                BeepControlStyle.OneDark => new OneDarkBorderPainterWrapper(),
+                BeepControlStyle.Paper => new PaperBorderPainterWrapper(),
+                BeepControlStyle.Retro => new RetroBorderPainterWrapper(),
+                BeepControlStyle.Solarized => new SolarizedBorderPainterWrapper(),
+                BeepControlStyle.Terminal => new TerminalBorderPainterWrapper(),
+                BeepControlStyle.Tokyo => new TokyoBorderPainterWrapper(),
+                BeepControlStyle.Ubuntu => new UbuntuBorderPainterWrapper(),
                 _ => null
             };
         }
@@ -459,6 +479,206 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             return NeonBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ArcLinuxBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public ArcLinuxBorderPainterWrapper() : base(BeepControlStyle.ArcLinux) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return ArcLinuxBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class BrutalistBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public BrutalistBorderPainterWrapper() : base(BeepControlStyle.Brutalist) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return BrutalistBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class CartoonBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public CartoonBorderPainterWrapper() : base(BeepControlStyle.Cartoon) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return CartoonBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ChatBubbleBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public ChatBubbleBorderPainterWrapper() : base(BeepControlStyle.ChatBubble) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return ChatBubbleBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class CyberpunkBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public CyberpunkBorderPainterWrapper() : base(BeepControlStyle.Cyberpunk) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return CyberpunkBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class DraculaBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public DraculaBorderPainterWrapper() : base(BeepControlStyle.Dracula) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return DraculaBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class GlassmorphismBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public GlassmorphismBorderPainterWrapper() : base(BeepControlStyle.Glassmorphism) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return GlassmorphismBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class HolographicBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public HolographicBorderPainterWrapper() : base(BeepControlStyle.Holographic) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return HolographicBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class GruvBoxBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public GruvBoxBorderPainterWrapper() : base(BeepControlStyle.GruvBox) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return GruvBoxBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class Metro2BorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public Metro2BorderPainterWrapper() : base(BeepControlStyle.Metro2) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return Metro2BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ModernBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public ModernBorderPainterWrapper() : base(BeepControlStyle.Modern) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return ModernBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NordBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public NordBorderPainterWrapper() : base(BeepControlStyle.Nord) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return NordBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NordicBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public NordicBorderPainterWrapper() : base(BeepControlStyle.Nordic) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return NordicBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class OneDarkBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public OneDarkBorderPainterWrapper() : base(BeepControlStyle.OneDark) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return OneDarkBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class PaperBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public PaperBorderPainterWrapper() : base(BeepControlStyle.Paper) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return PaperBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class RetroBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public RetroBorderPainterWrapper() : base(BeepControlStyle.Retro) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return RetroBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class SolarizedBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public SolarizedBorderPainterWrapper() : base(BeepControlStyle.Solarized) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return SolarizedBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class TerminalBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public TerminalBorderPainterWrapper() : base(BeepControlStyle.Terminal) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return TerminalBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class TokyoBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public TokyoBorderPainterWrapper() : base(BeepControlStyle.Tokyo) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return TokyoBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class UbuntuBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public UbuntuBorderPainterWrapper() : base(BeepControlStyle.Ubuntu) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return UbuntuBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
     #endregion

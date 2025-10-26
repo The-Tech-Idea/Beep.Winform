@@ -471,16 +471,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.DrawContent(g);
 
             if (items == null || items.Count == 0) return;
-            //if (UseThemeColors && _currentTheme != null)
-            //{
-            //    BackColor = _currentTheme.SideMenuBackColor;
-            //    g.Clear(BackColor);
-            //}
-            //else
-            //{
-            //    // Paint background based on selected Style
-            //    BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
-            //}
             // Use painter system if available, otherwise fall back to legacy drawing
             if (_painter != null && _context != null)
             {

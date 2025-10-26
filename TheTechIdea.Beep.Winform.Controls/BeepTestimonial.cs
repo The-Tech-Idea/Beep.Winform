@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
- 
+using TheTechIdea.Beep.Winform.Controls.Buttons;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

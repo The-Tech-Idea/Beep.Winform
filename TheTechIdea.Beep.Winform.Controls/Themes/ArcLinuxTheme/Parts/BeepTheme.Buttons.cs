@@ -10,24 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyButtons()
         {
-            this.ButtonHoverBackColor = Color.FromArgb(245,246,247);
-            this.ButtonHoverForeColor = Color.FromArgb(43,45,48);
-            this.ButtonHoverBorderColor = Color.FromArgb(220,223,230);
-            this.ButtonSelectedBorderColor = Color.FromArgb(220,223,230);
-            this.ButtonSelectedBackColor = Color.FromArgb(245,246,247);
-            this.ButtonSelectedForeColor = Color.FromArgb(43,45,48);
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(245,246,247);
-            this.ButtonSelectedHoverForeColor = Color.FromArgb(43,45,48);
-            this.ButtonSelectedHoverBorderColor = Color.FromArgb(220,223,230);
-            this.ButtonBackColor = Color.FromArgb(245,246,247);
-            this.ButtonForeColor = Color.FromArgb(43,45,48);
-            this.ButtonBorderColor = Color.FromArgb(220,223,230);
-            this.ButtonErrorBackColor = Color.FromArgb(244,67,54);
-            this.ButtonErrorForeColor = Color.FromArgb(43,45,48);
-            this.ButtonErrorBorderColor = Color.FromArgb(220,223,230);
-            this.ButtonPressedBackColor = Color.FromArgb(245,246,247);
-            this.ButtonPressedForeColor = Color.FromArgb(43,45,48);
-            this.ButtonPressedBorderColor = Color.FromArgb(220,223,230);
+            this.ButtonHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.08);
+            this.ButtonHoverForeColor = ForeColor;
+            this.ButtonHoverBorderColor = ActiveBorderColor;
+            this.ButtonSelectedBorderColor = ActiveBorderColor;
+            this.ButtonSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.05);
+            this.ButtonSelectedForeColor = ForeColor;
+            this.ButtonSelectedHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.08);
+            this.ButtonSelectedHoverForeColor = ForeColor;
+            this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
+            this.ButtonBackColor = SurfaceColor;
+            this.ButtonForeColor = ForeColor;
+            this.ButtonBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.2);
+            this.ButtonErrorBackColor = ErrorColor;
+            this.ButtonErrorForeColor = OnPrimaryColor;
+            this.ButtonErrorBorderColor = ErrorColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.06);
+            this.ButtonPressedForeColor = ForeColor;
+            this.ButtonPressedBorderColor = ActiveBorderColor;
         }
     }
 }

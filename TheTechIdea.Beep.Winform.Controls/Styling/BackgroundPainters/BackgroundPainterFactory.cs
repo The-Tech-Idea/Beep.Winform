@@ -56,6 +56,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Elementary => new ElementaryBackgroundPainterWrapper(),
                 BeepControlStyle.Gaming => new GamingBackgroundPainterWrapper(),
                 BeepControlStyle.Neon => new NeonBackgroundPainterWrapper(),
+                BeepControlStyle.Retro => new RetroBackgroundPainterWrapper(),
+                BeepControlStyle.Terminal => new TerminalBackgroundPainterWrapper(),
+                BeepControlStyle.ArcLinux => new ArcLinuxBackgroundPainterWrapper(),
+                BeepControlStyle.Brutalist => new BrutalistBackgroundPainterWrapper(),
+                BeepControlStyle.Cartoon => new CartoonBackgroundPainterWrapper(),
+                BeepControlStyle.ChatBubble => new ChatBubbleBackgroundPainterWrapper(),
+                BeepControlStyle.Cyberpunk => new CyberpunkBackgroundPainterWrapper(),
+                BeepControlStyle.Dracula => new DraculaBackgroundPainterWrapper(),
+                BeepControlStyle.Glassmorphism => new GlassmorphismBackgroundPainterWrapper(),
+                BeepControlStyle.Holographic => new HolographicBackgroundPainterWrapper(),
+                BeepControlStyle.GruvBox => new GruvBoxBackgroundPainterWrapper(),
+                BeepControlStyle.Metro2 => new Metro2BackgroundPainterWrapper(),
+                BeepControlStyle.Modern => new ModernBackgroundPainterWrapper(),
+                BeepControlStyle.Nord => new NordBackgroundPainterWrapper(),
+                BeepControlStyle.Nordic => new NordicBackgroundPainterWrapper(),
+                BeepControlStyle.OneDark => new OneDarkBackgroundPainterWrapper(),
+                BeepControlStyle.Paper => new PaperBackgroundPainterWrapper(),
+                BeepControlStyle.Solarized => new SolarizedBackgroundPainterWrapper(),
+                BeepControlStyle.Tokyo => new TokyoBackgroundPainterWrapper(),
+                BeepControlStyle.Ubuntu => new UbuntuBackgroundPainterWrapper(),
                 _ => null
             };
         }
@@ -434,6 +454,186 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             NeonBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class RetroBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public RetroBackgroundPainterWrapper() : base(BeepControlStyle.Retro) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            RetroBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class TerminalBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public TerminalBackgroundPainterWrapper() : base(BeepControlStyle.Terminal) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            TerminalBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ArcLinuxBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public ArcLinuxBackgroundPainterWrapper() : base(BeepControlStyle.ArcLinux) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            ArcLinuxBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class BrutalistBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public BrutalistBackgroundPainterWrapper() : base(BeepControlStyle.Brutalist) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            BrutalistBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class CartoonBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public CartoonBackgroundPainterWrapper() : base(BeepControlStyle.Cartoon) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            CartoonBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ChatBubbleBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public ChatBubbleBackgroundPainterWrapper() : base(BeepControlStyle.ChatBubble) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            ChatBubbleBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class CyberpunkBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public CyberpunkBackgroundPainterWrapper() : base(BeepControlStyle.Cyberpunk) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            CyberpunkBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class DraculaBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public DraculaBackgroundPainterWrapper() : base(BeepControlStyle.Dracula) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            DraculaBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class GlassmorphismBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public GlassmorphismBackgroundPainterWrapper() : base(BeepControlStyle.Glassmorphism) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            GlassmorphismBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class HolographicBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public HolographicBackgroundPainterWrapper() : base(BeepControlStyle.Holographic) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            HolographicBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class GruvBoxBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public GruvBoxBackgroundPainterWrapper() : base(BeepControlStyle.GruvBox) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            GruvBoxBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class Metro2BackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public Metro2BackgroundPainterWrapper() : base(BeepControlStyle.Metro2) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            Metro2BackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ModernBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public ModernBackgroundPainterWrapper() : base(BeepControlStyle.Modern) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            ModernBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NordBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public NordBackgroundPainterWrapper() : base(BeepControlStyle.Nord) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            NordBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NordicBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public NordicBackgroundPainterWrapper() : base(BeepControlStyle.Nordic) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            NordicBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class OneDarkBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public OneDarkBackgroundPainterWrapper() : base(BeepControlStyle.OneDark) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            OneDarkBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class PaperBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public PaperBackgroundPainterWrapper() : base(BeepControlStyle.Paper) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            PaperBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class SolarizedBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public SolarizedBackgroundPainterWrapper() : base(BeepControlStyle.Solarized) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            SolarizedBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class TokyoBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public TokyoBackgroundPainterWrapper() : base(BeepControlStyle.Tokyo) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            TokyoBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class UbuntuBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public UbuntuBackgroundPainterWrapper() : base(BeepControlStyle.Ubuntu) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            UbuntuBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
         }
     }
     #endregion

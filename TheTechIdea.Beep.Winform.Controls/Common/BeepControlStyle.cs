@@ -130,6 +130,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         /// <summary>Vibrant neon glow with bright saturated colors (distinct from DarkGlow)</summary>
         Neon = 36,
         Retro = 37,
-        NeonGlow = 38
+        NeonGlow = 38,
+
+        // Extended mappings aligned with ModernForm painters
+        ArcLinux = 39,
+        Brutalist = 40,
+        Cartoon = 41,
+        ChatBubble = 42,
+        Cyberpunk = 43,
+        Dracula = 44,
+        Glassmorphism = 45,
+        Holographic = 46,
+        GruvBox = 47,
+        Metro2 = 48,
+        Modern = 49,
+        Nord = 50,
+        Nordic = 51,
+        OneDark = 52,
+        Paper = 53,
+        Solarized = 54,
+        Tokyo = 55,
+        Ubuntu = 56
     }
 }

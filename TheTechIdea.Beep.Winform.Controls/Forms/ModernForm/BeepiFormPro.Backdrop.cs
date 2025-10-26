@@ -184,20 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
-        /// <summary>
-        /// Override OnHandleCreated to apply backdrop effects when window handle is created.
-        /// </summary>
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            // Update DPI scale AFTER handle is created and form is initialized
-            // This ensures we don't interfere with AutoScale initialization
-         
-            // Apply backdrop effects
-            //ApplyBackdrop();
-            //ApplyAcrylicEffectIfNeeded();
-            //ApplyMicaBackdropIfNeeded();
-        }
+    
 
         #endregion
 

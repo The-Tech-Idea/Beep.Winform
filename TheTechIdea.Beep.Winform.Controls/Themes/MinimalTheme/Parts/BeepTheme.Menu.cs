@@ -10,22 +10,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
-            this.MenuBackColor = Color.FromArgb(255,255,255);
-            this.MenuForeColor = Color.FromArgb(31,41,55);
-            this.MenuBorderColor = Color.FromArgb(209,213,219);
-            this.MenuMainItemForeColor = Color.FromArgb(31,41,55);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(31,41,55);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(255,255,255);
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(31,41,55);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(255,255,255);
-            this.MenuItemForeColor = Color.FromArgb(31,41,55);
-            this.MenuItemHoverForeColor = Color.FromArgb(31,41,55);
-            this.MenuItemHoverBackColor = Color.FromArgb(255,255,255);
-            this.MenuItemSelectedForeColor = Color.FromArgb(31,41,55);
-            this.MenuItemSelectedBackColor = Color.FromArgb(255,255,255);
-            this.MenuGradiantStartColor = Color.FromArgb(255,255,255);
-            this.MenuGradiantEndColor = Color.FromArgb(255,255,255);
-            this.MenuGradiantMiddleColor = Color.FromArgb(255,255,255);
+            this.MenuBackColor = BackgroundColor;
+            this.MenuForeColor = ForeColor;
+            this.MenuBorderColor = BorderColor;
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;
+            this.MenuMainItemHoverBackColor = SurfaceColor;
+            this.MenuMainItemSelectedForeColor = ForeColor;
+            this.MenuMainItemSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.05);
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = ForeColor;
+            this.MenuItemHoverBackColor = SurfaceColor;
+            this.MenuItemSelectedForeColor = ForeColor;
+            this.MenuItemSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.05);
+            this.MenuGradiantStartColor = BackgroundColor;
+            this.MenuGradiantEndColor = BackgroundColor;
+            this.MenuGradiantMiddleColor = BackgroundColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

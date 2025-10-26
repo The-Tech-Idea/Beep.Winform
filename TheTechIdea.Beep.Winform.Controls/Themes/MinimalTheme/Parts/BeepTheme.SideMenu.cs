@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplySideMenu()
         {
-            this.SideMenuBackColor = Color.FromArgb(255,255,255);
-            this.SideMenuHoverBackColor = Color.FromArgb(255,255,255);
-            this.SideMenuSelectedBackColor = Color.FromArgb(255,255,255);
-            this.SideMenuForeColor = Color.FromArgb(31,41,55);
-            this.SideMenuSelectedForeColor = Color.FromArgb(31,41,55);
-            this.SideMenuHoverForeColor = Color.FromArgb(31,41,55);
-            this.SideMenuBorderColor = Color.FromArgb(209,213,219);
-            this.SideMenuTitleTextColor = Color.FromArgb(31,41,55);
-            this.SideMenuTitleBackColor = Color.FromArgb(255,255,255);
-            this.SideMenuSubTitleTextColor = Color.FromArgb(31,41,55);
-            this.SideMenuSubTitleBackColor = Color.FromArgb(255,255,255);
-            this.SideMenuGradiantStartColor = Color.FromArgb(255,255,255);
-            this.SideMenuGradiantEndColor = Color.FromArgb(255,255,255);
-            this.SideMenuGradiantMiddleColor = Color.FromArgb(255,255,255);
+            this.SideMenuBackColor = BackgroundColor;
+            this.SideMenuHoverBackColor = SurfaceColor;
+            this.SideMenuSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.05);
+            this.SideMenuForeColor = ForeColor;
+            this.SideMenuSelectedForeColor = ForeColor;
+            this.SideMenuHoverForeColor = ForeColor;
+            this.SideMenuBorderColor = BorderColor;
+            this.SideMenuTitleTextColor = ForeColor;
+            this.SideMenuTitleBackColor = BackgroundColor;
+            this.SideMenuSubTitleTextColor = ForeColor;
+            this.SideMenuSubTitleBackColor = BackgroundColor;
+            this.SideMenuGradiantStartColor = BackgroundColor;
+            this.SideMenuGradiantEndColor = BackgroundColor;
+            this.SideMenuGradiantMiddleColor = BackgroundColor;
             this.SideMenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

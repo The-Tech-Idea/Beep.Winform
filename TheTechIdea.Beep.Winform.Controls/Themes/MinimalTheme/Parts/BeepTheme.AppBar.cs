@@ -11,27 +11,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             this.AppBarBackColor = BackgroundColor;
-            this.AppBarForeColor = Color.FromArgb(31,41,55);
-            this.AppBarButtonForeColor = Color.FromArgb(31,41,55);
+            this.AppBarForeColor = ForeColor;
+            this.AppBarButtonForeColor = ForeColor;
             this.AppBarButtonBackColor = BackgroundColor;
-            this.AppBarTextBoxBackColor = BackgroundColor;
-            this.AppBarTextBoxForeColor = Color.FromArgb(31,41,55);
-            this.AppBarLabelForeColor = Color.FromArgb(31,41,55);
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
             this.AppBarLabelBackColor = BackgroundColor;
-            this.AppBarTitleForeColor = Color.FromArgb(31,41,55);
+            this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(31,41,55);
+            this.AppBarSubTitleForeColor = SecondaryColor;
             this.AppBarSubTitleBackColor = BackgroundColor;
-            this.AppBarCloseButtonColor = Color.FromArgb(255,255,255);
-            this.AppBarMaxButtonColor = Color.FromArgb(255,255,255);
-            this.AppBarMinButtonColor = Color.FromArgb(255,255,255);
+            this.AppBarCloseButtonColor = MinimalCloseColor;
+            this.AppBarMaxButtonColor = MinimalMaximizeColor;
+            this.AppBarMinButtonColor = MinimalMinimizeColor;
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.15f };
             this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 12f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.4f };
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 12f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.4f };
-            this.AppBarGradiantStartColor = Color.FromArgb(255,255,255);
-            this.AppBarGradiantEndColor = Color.FromArgb(255,255,255);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(255,255,255);
+            this.AppBarGradiantStartColor = BackgroundColor;
+            this.AppBarGradiantEndColor = BackgroundColor;
+            this.AppBarGradiantMiddleColor = BackgroundColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
+
     }
 }
+

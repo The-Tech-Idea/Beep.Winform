@@ -12,6 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
     {
+        private bool InDesignModeSafe =>
+           LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
+           (Site?.DesignMode ?? false);
         // Theme properties
         private string _theme = "DefaultTheme";
         [Browsable(true)]
@@ -886,7 +889,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         private void RecalculateLayoutAndHitAreas()
         {
-                     ActivePainter.CalculateLayoutAndHitAreas(this);
+            if(ActivePainter==null)
+            {
+                ApplyFormStyle(); // Ensure painter is initialized
+            }
+            if (ActivePainter != null)
+            {
+                ActivePainter.CalculateLayoutAndHitAreas(this);
+            }else
+                return;
+
+
+            // Update hit areas for interaction
+            _hits?.Clear();
+            if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+            {
+                _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+            }
         }
 
         // P/Invoke for window dragging

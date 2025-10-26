@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyStepper()
         {
-            this.StepperBackColor = Color.FromArgb(245,246,247);
-            this.StepperForeColor = Color.FromArgb(43,45,48);
-            this.StepperBorderColor = Color.FromArgb(220,223,230);
-            this.StepperItemForeColor = Color.FromArgb(43,45,48);
-            this.StepperItemHoverForeColor = Color.FromArgb(43,45,48);
-            this.StepperItemHoverBackColor = Color.FromArgb(245,246,247);
-            this.StepperItemSelectedForeColor = Color.FromArgb(43,45,48);
-            this.StepperItemSelectedBackColor = Color.FromArgb(245,246,247);
-            this.StepperItemSelectedBorderColor = Color.FromArgb(220,223,230);
-            this.StepperItemBorderColor = Color.FromArgb(220,223,230);
-            this.StepperItemHoverBorderColor = Color.FromArgb(220,223,230);
-            this.StepperItemCheckedBoxForeColor = Color.FromArgb(43,45,48);
-            this.StepperItemCheckedBoxBackColor = Color.FromArgb(245,246,247);
-            this.StepperItemCheckedBoxBorderColor = Color.FromArgb(220,223,230);
+            this.StepperBackColor = SurfaceColor;
+            this.StepperForeColor = ForeColor;
+            this.StepperBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.StepperItemForeColor = ForeColor;
+            this.StepperItemHoverForeColor = ForeColor;
+            this.StepperItemHoverBackColor = SurfaceColor;
+            this.StepperItemSelectedForeColor = ForeColor;
+            this.StepperItemSelectedBackColor = SurfaceColor;
+            this.StepperItemSelectedBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.StepperItemBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.StepperItemHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.StepperItemCheckedBoxForeColor = ForeColor;
+            this.StepperItemCheckedBoxBackColor = SurfaceColor;
+            this.StepperItemCheckedBoxBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
         }
     }
 }

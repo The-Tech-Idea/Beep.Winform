@@ -10,24 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyTextBox()
         {
-            this.TextBoxBackColor = Color.FromArgb(245,246,247);
-            this.TextBoxForeColor = Color.FromArgb(43,45,48);
-            this.TextBoxBorderColor = Color.FromArgb(220,223,230);
-            this.TextBoxHoverBorderColor = Color.FromArgb(220,223,230);
-            this.TextBoxHoverBackColor = Color.FromArgb(245,246,247);
-            this.TextBoxHoverForeColor = Color.FromArgb(43,45,48);
-            this.TextBoxSelectedBorderColor = Color.FromArgb(220,223,230);
-            this.TextBoxSelectedBackColor = Color.FromArgb(245,246,247);
-            this.TextBoxSelectedForeColor = Color.FromArgb(43,45,48);
-            this.TextBoxPlaceholderColor = Color.FromArgb(245,246,247);
-            this.TextBoxErrorBorderColor = Color.FromArgb(220,223,230);
-            this.TextBoxErrorBackColor = Color.FromArgb(244,67,54);
-            this.TextBoxErrorForeColor = Color.FromArgb(43,45,48);
-            this.TextBoxErrorTextColor = Color.FromArgb(43,45,48);
-            this.TextBoxErrorPlaceholderColor = Color.FromArgb(244,67,54);
-            this.TextBoxErrorTextBoxColor = Color.FromArgb(244,67,54);
-            this.TextBoxErrorTextBoxBorderColor = Color.FromArgb(220,223,230);
-            this.TextBoxErrorTextBoxHoverColor = Color.FromArgb(244,67,54);
+            this.TextBoxBackColor = SurfaceColor;
+            this.TextBoxForeColor = ForeColor;
+            this.TextBoxBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.TextBoxHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.TextBoxHoverBackColor = SurfaceColor;
+            this.TextBoxHoverForeColor = ForeColor;
+            this.TextBoxSelectedBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.TextBoxSelectedBackColor = SurfaceColor;
+            this.TextBoxSelectedForeColor = ForeColor;
+            this.TextBoxPlaceholderColor = SurfaceColor;
+            this.TextBoxErrorBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.TextBoxErrorBackColor = ErrorColor;
+            this.TextBoxErrorForeColor = ForeColor;
+            this.TextBoxErrorTextColor = ForeColor;
+            this.TextBoxErrorPlaceholderColor = ErrorColor;
+            this.TextBoxErrorTextBoxColor = ErrorColor;
+            this.TextBoxErrorTextBoxBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
+            this.TextBoxErrorTextBoxHoverColor = ErrorColor;
         }
     }
 }

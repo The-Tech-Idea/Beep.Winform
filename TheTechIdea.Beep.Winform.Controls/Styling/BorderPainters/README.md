@@ -6,6 +6,32 @@ Comprehensive collection of **27 specialized border painter classes** that handl
 
 ## 📁 Structure
 
+### ModernForm Style Alignment (New)
+
+The ModernForm catalogue now includes dedicated border painters:
+
+- ArcLinuxBorderPainter
+- BrutalistBorderPainter
+- CartoonBorderPainter
+- ChatBubbleBorderPainter
+- CyberpunkBorderPainter
+- DraculaBorderPainter
+- GlassmorphismBorderPainter
+- HolographicBorderPainter
+- GruvBoxBorderPainter
+- Metro2BorderPainter
+- ModernBorderPainter
+- NordBorderPainter
+- NordicBorderPainter
+- OneDarkBorderPainter
+- PaperBorderPainter
+- RetroBorderPainter
+- SolarizedBorderPainter
+- TerminalBorderPainter
+- TokyoBorderPainter
+- UbuntuBorderPainter
+
+Each painter implements IBorderPainter and is registered via BorderPainterFactory for the corresponding BeepControlStyle values.
 ```
 BorderPainters/
 ├── Material3BorderPainter.cs           # Material Design 3
@@ -454,3 +480,4 @@ The BorderPainters folder provides a **complete, systematic solution** for all b
 ✅ **Performance optimized** with GraphicsPath  
 
 **Border rendering is 100% complete and production-ready!** 🎨
+

@@ -47,6 +47,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Gaming => 0,                   // Gaming angular (no radius)
                 BeepControlStyle.HighContrast => 0,             // High contrast sharp for clarity
                 BeepControlStyle.Neon => 12,                    // Neon rounded for glow
+                BeepControlStyle.ArcLinux => 4,
+                BeepControlStyle.Brutalist => 0,
+                BeepControlStyle.Cartoon => 12,
+                BeepControlStyle.ChatBubble => 16,
+                BeepControlStyle.Cyberpunk => 4,
+                BeepControlStyle.Dracula => 7,
+                BeepControlStyle.Glassmorphism => 14,
+                BeepControlStyle.Holographic => 12,
+                BeepControlStyle.GruvBox => 6,
+                BeepControlStyle.Metro2 => 0,
+                BeepControlStyle.Modern => 8,
+                BeepControlStyle.Nord => 6,
+                BeepControlStyle.Nordic => 8,
+                BeepControlStyle.OneDark => 6,
+                BeepControlStyle.Paper => 8,
+                BeepControlStyle.Retro => 0,
+                BeepControlStyle.Solarized => 4,
+                BeepControlStyle.Terminal => 0,
+                BeepControlStyle.Tokyo => 8,
+                BeepControlStyle.Ubuntu => 7,
                 _ => 4
             };
         }
@@ -131,6 +151,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Gaming => 2.0f,                // Gaming thick borders
                 BeepControlStyle.HighContrast => 2.0f,          // High contrast thick for visibility
                 BeepControlStyle.Neon => 2.0f,                  // Neon thick for glow effect
+                BeepControlStyle.ArcLinux => 1.0f,
+                BeepControlStyle.Brutalist => 5.0f,
+                BeepControlStyle.Cartoon => 3.0f,
+                BeepControlStyle.ChatBubble => 2.0f,
+                BeepControlStyle.Cyberpunk => 2.0f,
+                BeepControlStyle.Dracula => 1.0f,
+                BeepControlStyle.Glassmorphism => 1.0f,
+                BeepControlStyle.Holographic => 2.0f,
+                BeepControlStyle.GruvBox => 2.0f,
+                BeepControlStyle.Metro2 => 1.0f,
+                BeepControlStyle.Modern => 1.0f,
+                BeepControlStyle.Nord => 1.0f,
+                BeepControlStyle.Nordic => 1.0f,
+                BeepControlStyle.OneDark => 1.0f,
+                BeepControlStyle.Paper => 1.0f,
+                BeepControlStyle.Retro => 2.0f,
+                BeepControlStyle.Solarized => 1.0f,
+                BeepControlStyle.Terminal => 2.0f,
+                BeepControlStyle.Tokyo => 2.0f,
+                BeepControlStyle.Ubuntu => 1.0f,
                 _ => 1.0f
             };
         }
@@ -173,6 +213,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Gaming => true,                // Gaming filled
                 BeepControlStyle.HighContrast => false,         // High contrast outlined for clarity
                 BeepControlStyle.Neon => true,                  // Neon filled with glow
+                BeepControlStyle.ArcLinux => true,
+                BeepControlStyle.Brutalist => true,
+                BeepControlStyle.Cartoon => true,
+                BeepControlStyle.ChatBubble => true,
+                BeepControlStyle.Cyberpunk => true,
+                BeepControlStyle.Dracula => true,
+                BeepControlStyle.Glassmorphism => true,
+                BeepControlStyle.Holographic => true,
+                BeepControlStyle.GruvBox => true,
+                BeepControlStyle.Metro2 => true,
+                BeepControlStyle.Modern => true,
+                BeepControlStyle.Nord => true,
+                BeepControlStyle.Nordic => true,
+                BeepControlStyle.OneDark => true,
+                BeepControlStyle.Paper => true,
+                BeepControlStyle.Retro => true,
+                BeepControlStyle.Solarized => true,
+                BeepControlStyle.Terminal => true,
+                BeepControlStyle.Tokyo => true,
+                BeepControlStyle.Ubuntu => true,
                 _ => false
             };
         }
@@ -204,6 +264,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.GlassAcrylic => 1.5f,          // Subtle glass glow
                 BeepControlStyle.Kde => 1.0f,                   // KDE subtle glow (Breeze)
                 BeepControlStyle.Neon => 3.0f,                  // Neon strong glow
+                BeepControlStyle.Cyberpunk => 3.5f,
+                BeepControlStyle.Dracula => 2.0f,
+                BeepControlStyle.Glassmorphism => 1.5f,
+                BeepControlStyle.Holographic => 2.5f,
+                BeepControlStyle.Tokyo => 2.5f,
                 _ => 0.0f                                       // No glow
             };
         }

@@ -10,21 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCompany()
         {
-            this.CompanyPopoverBackgroundColor = Color.FromArgb(245,246,247);
-            this.CompanyTitleColor = Color.FromArgb(245,246,247);
-            this.CompanyTitleFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanySubtitleColor = Color.FromArgb(245,246,247);
-            this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyDescriptionColor = Color.FromArgb(245,246,247);
-            this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyLinkColor = Color.FromArgb(245,246,247);
-            this.CompanyLinkFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyButtonBackgroundColor = Color.FromArgb(245,246,247);
-            this.CompanyButtonTextColor = Color.FromArgb(43,45,48);
-            this.CompanyButtonFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyDropdownBackgroundColor = Color.FromArgb(245,246,247);
-            this.CompanyDropdownTextColor = Color.FromArgb(43,45,48);
-            this.CompanyLogoBackgroundColor = Color.FromArgb(245,246,247);
+            this.CompanyPopoverBackgroundColor = SurfaceColor;
+            this.CompanyTitleColor = ForeColor;
+            this.CompanyTitleFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
+            this.CompanySubtitleColor = ThemeUtil.Lighten(ForeColor, 0.12);
+            this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = CompanySubtitleColor, LineHeight = 1.5f };
+            this.CompanyDescriptionColor = ForeColor;
+            this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 11.5f, FontWeight = FontWeight.Light, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.6f };
+            this.CompanyLinkColor = AccentColor;
+            this.CompanyLinkFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = CompanyLinkColor, LineHeight = 1.55f };
+            this.CompanyButtonBackgroundColor = PrimaryColor;
+            this.CompanyButtonTextColor = OnPrimaryColor;
+            this.CompanyButtonFont = new TypographyStyle { FontFamily = "Noto Sans", FontSize = 12.5f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = CompanyButtonTextColor, LineHeight = 1.5f };
+            this.CompanyDropdownBackgroundColor = SurfaceColor;
+            this.CompanyDropdownTextColor = ForeColor;
+            this.CompanyLogoBackgroundColor = SurfaceColor;
         }
     }
 }

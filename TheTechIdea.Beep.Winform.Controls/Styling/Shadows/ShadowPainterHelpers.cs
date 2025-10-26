@@ -283,7 +283,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 int alpha = (int)(120 * intensity * progress * progress); // Quadratic falloff
 
                 if (alpha <= 0) continue;
-
+                if (bounds is null) return new GraphicsPath();
+                if (bounds.GetBounds().IsEmpty ) return new GraphicsPath();
                 using (var glowPath = bounds.CreateInsetPath(-i))
                 using (var pen = new Pen(Color.FromArgb(alpha, glowColor), 2f))
                 {
@@ -517,7 +518,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         public static GraphicsPath PaintBorderGlow(Graphics g, GraphicsPath bounds, int radius, Color glowColor, int glowWidth = 3, float intensity = 0.8f)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-
+            if (bounds == null || bounds.PointCount == 0)
+            {
+                throw new ArgumentException("Invalid GraphicsPath object.");
+            }
             for (int i = 0; i < glowWidth; i++)
             {
                 float progress = 1f - ((float)i / glowWidth);

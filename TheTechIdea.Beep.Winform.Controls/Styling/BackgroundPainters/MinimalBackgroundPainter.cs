@@ -65,6 +65,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 g.FillPath(brush, path);
             }
+
+            // Minimal Style: whisper-light vertical highlight for understated depth
+            var bounds = path.GetBounds();
+            using var clip = new BackgroundPainterHelpers.ClipScope(g, path);
+            using (var gradient = new LinearGradientBrush(
+                       bounds,
+                       Color.FromArgb(12, 255, 255, 255),
+                       Color.FromArgb(0, 255, 255, 255),
+                       LinearGradientMode.Vertical))
+            {
+                g.FillPath(gradient, path);
+            }
         }
     }
 }

@@ -132,37 +132,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
         public void Paint(Graphics g, Base.BaseControl owner)
         {
-            if (g == null || owner == null) return;
+            if (g == null || owner == null) return; 
 
             // Background (classic)
-            var backColor = GetEffectiveBackColor(owner);
-            using (var brush = new SolidBrush(backColor))
+            if (owner.UseFormStylePaint)
             {
+               
+                GraphicsPath path=DrawingRect.ToGraphicsPath();
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
-                    using var path = ControlPaintHelper.GetRoundedRectPath(_drawingRect, owner.BorderRadius);
-                    g.FillPath(brush, path);
+                    path = GraphicsExtensions.GetRoundedRectPath(_drawingRect, owner.BorderRadius);
+                   
                 }
-                else
+               
+                BeepStyling.PaintControl(g, path, owner.ControlStyle,owner._currentTheme,false,ControlState.Normal);
+            }
+            else
+            {
+                var backColor = GetEffectiveBackColor(owner);
+                using (var brush = new SolidBrush(backColor))
                 {
-                    g.FillRectangle(brush, _drawingRect);
+                    if (owner.IsRounded && owner.BorderRadius > 0)
+                    {
+                        using var path = GraphicsExtensions.GetRoundedRectPath(_drawingRect, owner.BorderRadius);
+                        g.FillPath(brush, path);
+                    }
+                    else
+                    {
+                        g.FillRectangle(brush, _drawingRect);
+                    }
+                }
+                // Borders (classic)
+                // Draw borders only when control is not frameless AND some border is requested
+                bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder)));
+                if (shouldDrawBorders)
+                {
+                    DrawBorders(g, owner);
+                    // Shadow
+                    if (owner.ShowShadow && owner.ShadowOpacity > 0)
+                    {
+                        DrawShadow(g, owner);
+                    }
                 }
             }
+        
 
            
 
-            // Borders (classic)
-            // Draw borders only when control is not frameless AND some border is requested
-            bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder)));
-            if (shouldDrawBorders)
-            {
-                DrawBorders(g, owner);
-                // Shadow
-                if (owner.ShowShadow && owner.ShadowOpacity > 0)
-                {
-                    DrawShadow(g, owner);
-                }
-            }
+           
 
             // Material-like label/helper positioning for classic too
             DrawLabelAndHelperNonMaterial(g, owner);

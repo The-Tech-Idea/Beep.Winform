@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
- 
+using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Controls

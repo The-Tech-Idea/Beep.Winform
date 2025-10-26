@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // Metro: Flat design with bold color changes (no gradients, no subtle transitions)
-            Color backgroundColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Metro);
+            Color backgroundColor = useThemeColors ? theme.BackColor : Color.White;
 
             // Metro-specific state handling - Bold, flat color changes
             Color stateColor;

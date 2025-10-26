@@ -6,6 +6,32 @@ Successfully refactored all background painting logic from a monolithic `BeepSty
 
 ## New Structure
 
+### ModernForm Style Alignment (New)
+
+The following background painters were added to mirror the refreshed ModernForm catalogue documented in FormstylePainters.md:
+
+- ArcLinuxBackgroundPainter
+- BrutalistBackgroundPainter
+- CartoonBackgroundPainter
+- ChatBubbleBackgroundPainter
+- CyberpunkBackgroundPainter
+- DraculaBackgroundPainter
+- GlassmorphismBackgroundPainter
+- GruvBoxBackgroundPainter
+- HolographicBackgroundPainter
+- Metro2BackgroundPainter
+- ModernBackgroundPainter
+- NordBackgroundPainter
+- NordicBackgroundPainter
+- OneDarkBackgroundPainter
+- PaperBackgroundPainter
+- RetroBackgroundPainter
+- SolarizedBackgroundPainter
+- TerminalBackgroundPainter
+- TokyoBackgroundPainter
+- UbuntuBackgroundPainter
+
+Each painter exposes a static Paint method taking the same parameters as the existing implementations and honours theme overrides when useThemeColors is enabled.
 ```
 Styling/
 ├── BackgroundPainters/
@@ -289,3 +315,4 @@ Styling/
 ✅ Enhanced testability and reusability  
 
 The refactoring is **complete and production-ready**! 🎨
+

@@ -69,6 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color bottomColor = stateColor;
 
             RectangleF bounds = path.GetBounds();
+            if (bounds.IsEmpty) return;
             using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, 90f))
             {
                 g.FillPath(brush, path);

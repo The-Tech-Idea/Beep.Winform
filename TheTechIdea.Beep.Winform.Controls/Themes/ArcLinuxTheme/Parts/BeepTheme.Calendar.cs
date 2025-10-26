@@ -10,17 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCalendar()
         {
-            this.CalendarTitleForColor = Color.FromArgb(245,246,247);
-            this.CalendarDaysHeaderForColor = Color.FromArgb(245,246,247);
-            this.CalendarSelectedDateBackColor = Color.FromArgb(245,246,247);
-            this.CalendarSelectedDateForColor = Color.FromArgb(245,246,247);
-            this.CalendarBackColor = Color.FromArgb(245,246,247);
-            this.CalendarForeColor = Color.FromArgb(43,45,48);
-            this.CalendarTodayForeColor = Color.FromArgb(43,45,48);
-            this.CalendarBorderColor = Color.FromArgb(220,223,230);
-            this.CalendarHoverBackColor = Color.FromArgb(245,246,247);
-            this.CalendarHoverForeColor = Color.FromArgb(43,45,48);
-            this.CalendarFooterColor = Color.FromArgb(245,246,247);
+            this.CalendarTitleForColor = ForeColor;
+            this.CalendarDaysHeaderForColor = ForeColor;
+            this.CalendarSelectedDateBackColor = PrimaryColor;
+            this.CalendarSelectedDateForColor = OnPrimaryColor;
+            this.CalendarBackColor = BackgroundColor;
+            this.CalendarForeColor = ForeColor;
+            this.CalendarTodayForeColor = AccentColor;
+            this.CalendarBorderColor = ActiveBorderColor;
+            this.CalendarHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.08);
+            this.CalendarHoverForeColor = ForeColor;
+            this.CalendarFooterColor = ForeColor;
         }
     }
 }

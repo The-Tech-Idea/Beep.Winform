@@ -66,6 +66,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Elementary => new CardShadowPainterWrapper(CardShadowStyle.Small), // Elementary: Subtle
                 BeepControlStyle.Gaming => new NeonGlowPainterWrapper(Color.FromArgb(0, 255, 127), 1.0f, 16), // Gaming: Green glow
                 BeepControlStyle.Neon => new NeonGlowPainterWrapper(Color.FromArgb(0, 255, 255), 1.0f, 24), // Neon: Cyan glow
+                BeepControlStyle.ArcLinux => new ArcLinuxShadowPainterWrapper(),
+                BeepControlStyle.Brutalist => new BrutalistShadowPainterWrapper(),
+                BeepControlStyle.Cartoon => new CartoonShadowPainterWrapper(),
+                BeepControlStyle.ChatBubble => new ChatBubbleShadowPainterWrapper(),
+                BeepControlStyle.Cyberpunk => new CyberpunkShadowPainterWrapper(),
+                BeepControlStyle.Dracula => new DraculaShadowPainterWrapper(),
+                BeepControlStyle.Glassmorphism => new GlassmorphismShadowPainterWrapper(),
+                BeepControlStyle.Holographic => new HolographicShadowPainterWrapper(),
+                BeepControlStyle.GruvBox => new GruvBoxShadowPainterWrapper(),
+                BeepControlStyle.Metro2 => new Metro2ShadowPainterWrapper(),
+                BeepControlStyle.Modern => new ModernShadowPainterWrapper(),
+                BeepControlStyle.Nord => new NordShadowPainterWrapper(),
+                BeepControlStyle.Nordic => new NordicShadowPainterWrapper(),
+                BeepControlStyle.OneDark => new OneDarkShadowPainterWrapper(),
+                BeepControlStyle.Paper => new PaperShadowPainterWrapper(),
+                BeepControlStyle.Retro => new RetroShadowPainterWrapper(),
+                BeepControlStyle.Solarized => new SolarizedShadowPainterWrapper(),
+                BeepControlStyle.Terminal => new TerminalShadowPainterWrapper(),
+                BeepControlStyle.Tokyo => new TokyoShadowPainterWrapper(),
+                BeepControlStyle.Ubuntu => new UbuntuShadowPainterWrapper(),
                 _ => null
             };
         }
@@ -551,6 +571,167 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
             return EffectShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Effect, theme, true, ControlState.Normal);
         }
     }
+
+    public class ArcLinuxShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ArcLinuxShadowPainter.Paint(g, bounds, radius, BeepControlStyle.ArcLinux, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class BrutalistShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return BrutalistShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Brutalist, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class CartoonShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return CartoonShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Cartoon, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class ChatBubbleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ChatBubbleShadowPainter.Paint(g, bounds, radius, BeepControlStyle.ChatBubble, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class CyberpunkShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return CyberpunkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Cyberpunk, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class DraculaShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return DraculaShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Dracula, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class GlassmorphismShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return GlassmorphismShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Glassmorphism, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class HolographicShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return HolographicShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Holographic, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class GruvBoxShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return GruvBoxShadowPainter.Paint(g, bounds, radius, BeepControlStyle.GruvBox, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class Metro2ShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return Metro2ShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Metro2, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class ModernShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ModernShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Modern, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class NordShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return NordShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Nord, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class NordicShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return NordicShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Nordic, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class OneDarkShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return OneDarkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.OneDark, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class PaperShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return PaperShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Paper, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class RetroShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return RetroShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Retro, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class SolarizedShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return SolarizedShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Solarized, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class TerminalShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return TerminalShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Terminal, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class TokyoShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return TokyoShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Tokyo, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class UbuntuShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return UbuntuShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Ubuntu, theme, true, ControlState.Normal);
+        }
+    }
+
 
     #endregion
 

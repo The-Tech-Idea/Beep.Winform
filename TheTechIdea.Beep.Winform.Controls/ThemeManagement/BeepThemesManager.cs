@@ -586,10 +586,51 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
                 System.Diagnostics.Debug.WriteLine($"Error loading predefined themes: {ex.Message}");
             }
         }
+        public static IBeepTheme GetThemeForFormStyle(FormStyle newFormStyle)
+        {
+            IBeepTheme theme = GetTheme(GetThemeNameForFormStyle(newFormStyle));
+            return theme;
+        }
+        public static string GetThemeNameForFormStyle(FormStyle newFormStyle)
+        {
+            return newFormStyle switch
+            {
+                FormStyle.Modern => "DefaultTheme",
+                FormStyle.Minimal => "LightTheme",
+                FormStyle.MacOS => "MidnightTheme",
+                FormStyle.Fluent => "MaterialDesignTheme",
+                FormStyle.Material => "MaterialDesignTheme",
+                FormStyle.Cartoon => "CandyTheme",
+                FormStyle.ChatBubble => "PastelTheme",
+                FormStyle.Glass => "GlassmorphismTheme",
+                FormStyle.Metro => "RetroTheme",
+                FormStyle.Metro2 => "RoyalTheme",
+                FormStyle.GNOME => "ForestTheme",
+                FormStyle.NeoMorphism => "NeumorphismTheme",
+                FormStyle.Glassmorphism => "GlassmorphismTheme",
+                FormStyle.Brutalist => "HighContrastTheme",
+                FormStyle.Retro => "RetroTheme",
+                FormStyle.Cyberpunk => "CyberpunkNeonTheme",
+                FormStyle.Nordic => "ZenTheme",
+                FormStyle.iOS => "LightTheme",
+                FormStyle.Ubuntu => "EarthyTheme",
+                FormStyle.KDE => "ModernDarkTheme",
+                FormStyle.ArcLinux => "DesertTheme",
+                FormStyle.Dracula => "MidnightTheme",
+                FormStyle.Solarized => "VintageTheme",
+                FormStyle.OneDark => "DarkTheme",
+                FormStyle.GruvBox => "RusticTheme",
+                FormStyle.Nord => "ZenTheme",
+                FormStyle.Tokyo => "GalaxyTheme",
+                FormStyle.Paper => "FlatDesignTheme",
+                FormStyle.Neon => "NeonTheme",
+                FormStyle.Holographic => "GradientBurstTheme",
+                FormStyle.Custom => "DefaultTheme",
+                FormStyle.Terminal => "TerminalTheme",
+                _ => "DefaultTheme",
+            };
 
-   
-
-       
+        }
     }
 
    

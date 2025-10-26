@@ -6,6 +6,32 @@ Comprehensive collection of **27 specialized shadow painter classes** that handl
 
 ## 📁 Structure
 
+### ModernForm Style Alignment (New)
+
+New shadow painter classes were added for the ModernForm catalogue:
+
+- ArcLinuxShadowPainter
+- BrutalistShadowPainter
+- CartoonShadowPainter
+- ChatBubbleShadowPainter
+- CyberpunkShadowPainter
+- DraculaShadowPainter
+- GlassmorphismShadowPainter
+- HolographicShadowPainter
+- GruvBoxShadowPainter
+- Metro2ShadowPainter
+- ModernShadowPainter
+- NordShadowPainter
+- NordicShadowPainter
+- OneDarkShadowPainter
+- PaperShadowPainter
+- RetroShadowPainter
+- SolarizedShadowPainter
+- TerminalShadowPainter
+- TokyoShadowPainter
+- UbuntuShadowPainter
+
+These are exposed through ShadowPainterFactory, aligning BeepControlStyle values with the updated form painter documentation.
 ```
 ShadowPainters/
 ├── Material3ShadowPainter.cs           # Material Design 3 elevation
@@ -534,3 +560,4 @@ The ShadowPainters folder provides a **complete, systematic solution** for all s
 ✅ **Performance optimized** (single-pass rendering)  
 
 **Shadow rendering is 100% complete and production-ready!** 🎨
+

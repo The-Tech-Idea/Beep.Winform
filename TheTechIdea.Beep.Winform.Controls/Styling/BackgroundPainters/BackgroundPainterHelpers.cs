@@ -1,8 +1,8 @@
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -116,6 +116,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 case ControlState.Normal:
                 default:
                     return Color.Transparent;
+            }
+        }
+
+        /// <summary>
+        /// Convenience scope for clipping drawing operations to a graphics path.
+        /// </summary>
+        public readonly struct ClipScope : IDisposable
+        {
+            private readonly Graphics _graphics;
+            private readonly GraphicsState _state;
+
+            public ClipScope(Graphics graphics, GraphicsPath clipPath)
+            {
+                _graphics = graphics;
+                _state = graphics.Save();
+                graphics.SetClip(clipPath, CombineMode.Intersect);
+            }
+
+            public void Dispose()
+            {
+                _graphics.Restore(_state);
             }
         }
     }

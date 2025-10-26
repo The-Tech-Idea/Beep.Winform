@@ -1,4 +1,5 @@
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Buttons;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
@@ -1623,12 +1624,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         #endregion
 
-        private Controls.MDI.BeepMdiManager beepMdiManager1;
+       
         private BeepComboBox beepComboBox1;
         private Controls.BeepCheckBoxBool beepCheckBoxBool1;
         private Controls.BeepLogin beepLogin1;
         private Controls.BeepListBox beepListBox1;
-        private Controls.BeepChevronButton beepChevronButton1;
+        private BeepChevronButton beepChevronButton1;
         private Controls.BeepButton beepButton1;
         private Controls.BeepCard beepCard1;
         private Controls.BeepTextBox beepTextBox1;

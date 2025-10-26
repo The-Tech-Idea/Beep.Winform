@@ -70,14 +70,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     else
                         BackColor = SystemColors.Control;
                 }
-
+                e.Graphics.Clear(Color.Transparent);
                 // Only clear the background when a painter is active. When PainterKind == None
                 // we let the control's own drawing (PaintInnerShape/DrawContent) handle the fill to
                 // avoid double-drawing or incorrect framed areas (designer previews, etc.).
                 // DON'T clear for complex controls that handle their own rendering (like grids)
                 if (PainterKind != BaseControlPainterKind.None && _painter != null && !(this is GridX.BeepGridPro))
                 {
-                    e.Graphics.Clear(BackColor);
+
                 }
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
@@ -265,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                                 badgePath.AddRectangle(badgeRect);
                                 break;
                             case BadgeShape.RoundedRectangle:
-                                badgePath.AddPath(ControlPaintHelper.GetRoundedRectPath(badgeRect, badgeRect.Height / 4), false);
+                                badgePath.AddPath(GraphicsExtensions.GetRoundedRectPath(badgeRect, badgeRect.Height / 4), false);
                                 break;
                         }
                         controlRegion.Union(badgePath);

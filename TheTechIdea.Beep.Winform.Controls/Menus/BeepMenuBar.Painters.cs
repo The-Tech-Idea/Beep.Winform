@@ -197,8 +197,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                UpdateMenuBarLayout();
 
                 // Let painter handle the drawing
-                _painter.DrawBackground(g, _context);
-                   _painter.DrawContent(g, _context);
+               // _painter.DrawBackground(g, _context);
+                _painter.DrawContent(g, _context);
                     _painter.DrawForegroundAccents(g, _context);
             }
             catch (Exception ex)

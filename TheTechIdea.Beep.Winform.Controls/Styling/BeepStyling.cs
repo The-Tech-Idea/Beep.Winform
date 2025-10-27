@@ -1059,7 +1059,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             BeepControlStyle style,
             IBeepTheme theme,
             bool useThemeColors,
-            ControlState state = ControlState.Normal)
+            ControlState state = ControlState.Normal,bool IsTransparentBackground=false)
         {
             if (controlPath == null)
                 return null;
@@ -1105,11 +1105,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
             // === STEP 4: Paint Background (fills the area between border and final content) ===
-            var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
-            if (backgroundPainter != null)
+            if(!IsTransparentBackground)
             {
-                backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
+                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+                if (backgroundPainter != null)
+                {
+                    backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
+                }
             }
+          
 
             // Cleanup intermediate paths if they're different
             if (contentPath != currentPath && contentPath != pathAfterBorder)

@@ -20,7 +20,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     public partial class BaseControl
     {
         #region Painter strategy
-      
+        private bool _istransparent = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsTransparentBackground
+        {
+            get => _istransparent;
+            set
+            {
+                if (_istransparent == value) return;
+                _istransparent = value;
+                Invalidate();
+            }
+        }
 
         private BeepControlStyle _borderPainterStyle = BeepControlStyle.None;
         [Browsable(true)]

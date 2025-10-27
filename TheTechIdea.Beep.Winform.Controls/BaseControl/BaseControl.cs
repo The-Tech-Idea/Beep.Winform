@@ -175,18 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // We inherit the parent's mode and let it handle our scaling
             AutoScaleMode = AutoScaleMode.Inherit;
             DoubleBuffered = true;
-            this.SetStyle(ControlStyles.ContainerControl, true);
-
-            this.SetStyle(ControlStyles.UserPaint, true);
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            //this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
-            // Don't force redraw on resize for better performance
-            SetStyle(ControlStyles.ResizeRedraw, false);
-
-            // Ensure _columns is only initialized once
-            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
-            this.UpdateStyles();
+            BackColor = Color.Transparent;
 
             // Initialize helpers in the correct order to avoid circular dependencies
             try
@@ -373,7 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
                 // Prevent painting over child windows and sibling overlap artifacts
                 cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-
+                cp.ExStyle |= 0x20; // WS_EX_TRANSPARENT (lets parent paint first; reduces flicker)
                 return cp;
             }
         }

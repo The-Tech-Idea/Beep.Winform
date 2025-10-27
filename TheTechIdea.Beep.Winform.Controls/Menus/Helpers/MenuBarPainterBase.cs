@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         public virtual void ApplyTheme(IBeepTheme theme)
         {
             Theme = theme;
-        //    OnThemeChanged();
+            OnThemeChanged();
         }
         #endregion
 
@@ -157,6 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// </summary>
         protected Color GetBackgroundColor()
         {
+            return Color.Transparent;
             return GetThemeColor(t => t.MenuBackColor, Color.FromArgb(250, 250, 250));
         }
 

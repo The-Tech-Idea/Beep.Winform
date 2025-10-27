@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepMenuBar : BaseControl
     {
         #region "Fields and Properties"
-      
+
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
 
@@ -77,9 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value;
                 UseThemeFont = false;
-              //  SafeApplyFont(_textFont);
-              //  InitializeDrawingComponents();
-               // Invalidate();
+                //  SafeApplyFont(_textFont);
+                //  InitializeDrawingComponents();
+                // Invalidate();
             }
         }
 
@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Ensure image size fits within menu item height with padding - framework handles DPI scaling
                     int maxSize = Math.Max(16, MenuItemHeight - 4);
                     _imagesize = Math.Min(value, maxSize);
-                    
+
                     InitializeDrawingComponents();
                     Invalidate();
                 }
@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Fields and Properties"
 
         #region "Constructor and Initialization"
-        public BeepMenuBar() 
+        public BeepMenuBar()
         {
             if (items == null)
             {
@@ -200,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = ScaledMenuItemHeight + 2; // Framework handles DPI scaling
             }
-          
+
             ApplyThemeToChilds = true;
             BoundProperty = "SelectedMenuItem";
             IsFrameless = true;
@@ -209,8 +209,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
-            EnableSplashEffect=false;
-            EnableRippleEffect=false;
+            EnableSplashEffect = false;
+            EnableRippleEffect = false;
             CanBeFocused = false;
             CanBeSelected = false;
             CanBePressed = false;
@@ -219,13 +219,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Initialize painter system
             InitializePainter();
-            
+
             InitializeDrawingComponents();
-            
+
             // Calculate proper height based on font size
             UpdateMenuItemHeightForFont();
-            
+
             RefreshHitAreas();
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            BackColor = Color.Transparent;
         }
 
         protected override Size DefaultSize => new Size(200, ScaledMenuItemHeight + 2); // Framework handles DPI scaling
@@ -280,6 +282,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
         }
         #endregion "Constructor and Initialization"
+
+        #region "Painting Overrides"
+       
+        #endregion "Painting Overrides"
 
         #region "Hit Area Management"
         private void RefreshHitAreas()
@@ -434,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CurrentMenuForm.StartPosition = FormStartPosition.Manual;
                 CurrentMenuForm.Location = screenLocation;
                 CurrentMenuForm.SetSizeBasedonItems();
-                
+
                 // Use the correct ShowPopup method signature - pass the trigger control and location
                 CurrentMenuForm.ShowPopup(this, screenLocation);
             }
@@ -466,21 +472,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Hit Area Management"
 
         #region "Drawing"
-        protected override void DrawContent(Graphics g)
-        {
-            base.DrawContent(g);
+       
 
+        protected override void OnPaint(PaintEventArgs e)
+        {
             if (items == null || items.Count == 0) return;
             // Use painter system if available, otherwise fall back to legacy drawing
             if (_painter != null && _context != null)
             {
-                DrawWithPainter(g);
+                DrawWithPainter(e.Graphics);
             }
-            else
-            {
-                // Legacy drawing method
-                DrawLegacyContent(g);
-            }
+         
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            //  base.DrawContent(g);
+
+            
         }
 
         private void DrawLegacyContent(Graphics g)
@@ -512,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _menuButton.ToolTipText = item.DisplayField ?? "";
             _menuButton.IsHovered = isHovered;
             _menuButton.Theme = this.Theme;
-            _menuButton.TextFont=TextFont;
+            _menuButton.TextFont = TextFont;
             // Draw the menu item using the drawing button
             _menuButton.Draw(g, rect);
         }
@@ -665,9 +673,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ParentForm_Resize(object sender, EventArgs e)
         {
-            
+
             // Refresh layout safely
-            SafeInvoke(() => {
+            SafeInvoke(() =>
+            {
                 InitializeDrawingComponents();
                 RefreshHitAreas();
             });
@@ -704,25 +713,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             // CRITICAL: Call base.ApplyTheme() first for safe font handling and DPI scaling
-            base.ApplyTheme();
-            
+           // base.ApplyTheme();
+
             if (_currentTheme == null)
                 return;
-
+            BackColor = Color.Transparent;
             // Apply theme to painter if available
             ApplyThemeToPainter();
 
             // Apply MenuBar-specific colors
-            if (IsChild && Parent != null)
-            {
-                BackColor = Parent.BackColor;
-                ParentBackColor = Parent.BackColor;
-            }
-            else
-            {
-                BackColor = _currentTheme.MenuBackColor;
-            }
-            
+            //if (BackColor != Color.Transparent)
+            //{
+            //    if (IsChild && Parent != null)
+            //    {
+            //        BackColor = Parent.BackColor;
+            //        ParentBackColor = Parent.BackColor;
+            //    }
+            //    else
+            //    {
+            //        BackColor = _currentTheme.MenuBackColor;
+            //    }
+            //}
+          
             ForeColor = _currentTheme.MenuForeColor;
             BorderColor = _currentTheme.MenuBorderColor;
 
@@ -746,7 +758,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                 }
-               // SafeApplyFont(_textFont);
+                // SafeApplyFont(_textFont);
             }
 
             // Apply theme to drawing components (for legacy fallback)
@@ -843,7 +855,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_menuItemHeight < minHeight)
             {
                 _menuItemHeight = minHeight;
-                
+
                 // Update control height - framework handles DPI scaling
                 int newHeight = ScaledMenuItemHeight + 4;
                 if (Height != newHeight)
@@ -853,7 +865,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-       
+
 
         /// <summary>
         /// Handle font changes to recalculate required height
@@ -861,7 +873,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
-            
+
             if (_textFont == null)
             {
                 _textFont = Font;
@@ -882,13 +894,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     parentForm.Resize -= ParentForm_Resize;
                 }
-                
+
                 // Close any open popups
                 CloseAllPopups();
-                
+
                 // Dispose painter resources
                 DisposePainter();
-                
+
                 // Dispose drawing components
                 _menuButton?.Dispose();
                 _menuImage?.Dispose();
@@ -897,8 +909,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.Dispose(disposing);
         }
         #endregion "Utility Methods"
+
+      
     }
-    
     public class MenuitemTracking
     {
         public SimpleItem ParentItem { get; set; }

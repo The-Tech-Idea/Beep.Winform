@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                    
                 }
                
-                BeepStyling.PaintControl(g, path, owner.ControlStyle,owner._currentTheme,false,ControlState.Normal);
+                BeepStyling.PaintControl(g, path, owner.ControlStyle,owner._currentTheme,false,ControlState.Normal,owner.IsTransparentBackground);
             }
             else
             {

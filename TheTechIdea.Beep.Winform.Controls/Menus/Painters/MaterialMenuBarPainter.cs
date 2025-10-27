@@ -49,10 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Material Design surface
             using var bgBrush = new SolidBrush(GetBackgroundColor());
-            g.FillRectangle(bgBrush, ctx.DrawingRect);
+          //  g.FillRectangle(bgBrush, ctx.DrawingRect);
 
             // Material elevation shadow (simplified)
-            DrawMaterialElevation(g, ctx.DrawingRect);
+          //  DrawMaterialElevation(g, ctx.DrawingRect);
         }
 
         public override void DrawContent(Graphics g, MenuBarContext ctx)

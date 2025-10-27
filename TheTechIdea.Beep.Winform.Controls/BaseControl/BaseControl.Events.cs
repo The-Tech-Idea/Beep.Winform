@@ -39,10 +39,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Respect IsChild same as base BeepControl
-           // base.OnPaintBackground(e);
-           
+            if (BackColor.A == 255 ||!_istransparent) // fully opaque: do normal background fill
+            {
+                //using var b = new SolidBrush(BackColor);
+                //e.Graphics.FillRectangle(b, ClientRectangle);
+                return;
+            }
+
+            // Transparent: ask the parent to paint "behind" us.
+            PaintParentBackground(e);
         }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest,
+     int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
+
+        private void PaintParentBackground(PaintEventArgs e)
+        {
+            if (Parent == null) return;
+
+            // Get device contexts
+            IntPtr parentDc = GetDC(Parent.Handle);
+            IntPtr destDc = e.Graphics.GetHdc();
+
+            try
+            {
+                // Copy directly from parent's DC to our DC
+                BitBlt(destDc, 0, 0, Width, Height, parentDc, Left, Top, 0x00CC0020); // SRCCOPY
+            }
+            finally
+            {
+                e.Graphics.ReleaseHdc(destDc);
+                ReleaseDC(Parent.Handle, parentDc);
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr GetDC(IntPtr hWnd);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
         protected override void OnPaint(PaintEventArgs e)
         {
             // Early out for safety during design-time removal/dispose

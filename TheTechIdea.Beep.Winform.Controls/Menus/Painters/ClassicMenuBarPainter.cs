@@ -49,19 +49,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             if (g == null || ctx.DrawingRect.IsEmpty) return;
 
-            // Draw main background
-            using var bgBrush = new SolidBrush(GetBackgroundColor());
-            g.FillRectangle(bgBrush, ctx.DrawingRect);
+            //// Draw main background
+            //using var bgBrush = new SolidBrush(GetBackgroundColor());
+            //g.FillRectangle(bgBrush, ctx.DrawingRect);
 
-            // Draw subtle border if needed
-            var borderColor = GetBorderColor();
-            if (borderColor != Color.Transparent)
-            {
-                using var borderPen = new Pen(borderColor);
-                g.DrawRectangle(borderPen, 
-                    ctx.DrawingRect.X, ctx.DrawingRect.Y, 
-                    ctx.DrawingRect.Width - 1, ctx.DrawingRect.Height - 1);
-            }
+            //// Draw subtle border if needed
+            //var borderColor = GetBorderColor();
+            //if (borderColor != Color.Transparent)
+            //{
+            //    using var borderPen = new Pen(borderColor);
+            //    g.DrawRectangle(borderPen, 
+            //        ctx.DrawingRect.X, ctx.DrawingRect.Y, 
+            //        ctx.DrawingRect.Width - 1, ctx.DrawingRect.Height - 1);
+            //}
         }
 
         public override void DrawContent(Graphics g, MenuBarContext ctx)

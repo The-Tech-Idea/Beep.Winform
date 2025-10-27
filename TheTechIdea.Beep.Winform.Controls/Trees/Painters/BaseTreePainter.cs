@@ -39,11 +39,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Get layout from helper
             var layoutHelper = owner.LayoutHelper;
-            System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] LayoutHelper: {layoutHelper != null}, VisibleNodes: {owner.VisibleNodes?.Count ?? 0}");
+          //  System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] LayoutHelper: {layoutHelper != null}, VisibleNodes: {owner.VisibleNodes?.Count ?? 0}");
             
             if (layoutHelper == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Using VisibleNodes directly");
+              //  System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Using VisibleNodes directly");
                 // Fallback: use _visibleNodes directly
                 var visibleNodes = owner.VisibleNodes;
                 if (visibleNodes == null || visibleNodes.Count == 0)
@@ -56,13 +56,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 foreach (var nodeInfo in visibleNodes)
                 {
                     var rowRect = nodeInfo.RowRectContent;
-                    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Node: {nodeInfo.Item?.Text}, RowRect: {rowRect}");
+              //      System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Node: {nodeInfo.Item?.Text}, RowRect: {rowRect}");
                     bool isSelected = nodeInfo.Item.IsSelected;
                     bool isHovered = (owner.LastHoveredItem == nodeInfo.Item);
 
                     PaintNode(g, nodeInfo, rowRect, isHovered, isSelected);
                 }
-                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Completed");
+            //    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Completed");
                 return;
             }
 
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 try
                 {
                     layout = layoutHelper.RecalculateLayout();
-                    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Recalculated layout count: {layout?.Count ?? 0}");
+               //     System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Recalculated layout count: {layout?.Count ?? 0}");
                 }
                 catch (Exception ex)
                 {
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 PaintNode(g, nodeInfo, rowRect, isHovered, isSelected);
                 drawnCount++;
             }
-            System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Drew {drawnCount} nodes, COMPLETE");
+          //  System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Drew {drawnCount} nodes, COMPLETE");
         }
 
         // Provide a default implementation so concrete painters are not forced to override

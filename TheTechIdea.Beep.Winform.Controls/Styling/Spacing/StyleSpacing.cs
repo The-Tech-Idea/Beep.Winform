@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
         /// </summary>
         public static int GetPadding(BeepControlStyle style)
         {
+            return 2;
             return style switch
             {
                 BeepControlStyle.Material3 => 16,               // Material Design 8dp grid

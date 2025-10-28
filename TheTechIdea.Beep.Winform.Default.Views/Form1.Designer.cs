@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // button1
             // 
             button1.BackColor = Color.Transparent;
-            button1.Location = new Point(268, 219);
+            button1.Location = new Point(372, 169);
             button1.Name = "button1";
             button1.Size = new Size(137, 59);
             button1.TabIndex = 0;
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             label1.BackColor = Color.Transparent;
             label1.ForeColor = Color.White;
-            label1.Location = new Point(285, 324);
+            label1.Location = new Point(119, 314);
             label1.Name = "label1";
             label1.Size = new Size(207, 35);
             label1.TabIndex = 1;
@@ -151,6 +151,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.IsSelected = false;
             beepMenuBar1.IsSelectedOptionOn = false;
             beepMenuBar1.IsShadowAffectedByTheme = false;
+            beepMenuBar1.IsTransparentBackground = false;
             beepMenuBar1.IsValid = true;
             beepMenuBar1.IsVisible = true;
             beepMenuBar1.Items = (List<object>)resources.GetObject("beepMenuBar1.Items");
@@ -160,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.LeadingImagePath = "";
             beepMenuBar1.LeftoffsetForDrawingRect = 0;
             beepMenuBar1.LinkedProperty = null;
-            beepMenuBar1.Location = new Point(132, 92);
+            beepMenuBar1.Location = new Point(67, 81);
             beepMenuBar1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepMenuBar1.MaterialCustomPadding = new Padding(0);
             beepMenuBar1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -227,7 +228,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(0, 0, 0);
-            ClientSize = new Size(1370, 1456);
+            BackdropEffect = Winform.Controls.Forms.ModernForm.BackdropEffect.Mica;
+            ClientSize = new Size(1682, 1456);
             Controls.Add(beepMenuBar1);
             Controls.Add(label1);
             Controls.Add(button1);
@@ -237,8 +239,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Margin = new Padding(6);
             Name = "Form1";
             Padding = new Padding(10);
-            PaintOverContentArea = true;
-            ShowModernRenderingInDesignMode = true;
             ShowProfileButton = true;
             ShowSearchBox = true;
             ShowStyleButton = true;

@@ -141,11 +141,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 GraphicsPath path=DrawingRect.ToGraphicsPath();
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
-                    path = GraphicsExtensions.GetRoundedRectPath(_drawingRect, owner.BorderRadius);
+                    path = owner.ClientRectangle.ToGraphicsPath();//GraphicsExtensions.GetRoundedRectPath(owner.ClientRectangle, owner.BorderRadius);
                    
                 }
-               
-                BeepStyling.PaintControl(g, path, owner.ControlStyle,owner._currentTheme,false,ControlState.Normal,owner.IsTransparentBackground);
+
+                BeepStyling.PaintControl(g, path, owner.ControlStyle, owner._currentTheme, false, ControlState.Normal, owner.IsTransparentBackground);
             }
             else
             {

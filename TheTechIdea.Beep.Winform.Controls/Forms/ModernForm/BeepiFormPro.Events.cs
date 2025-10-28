@@ -18,19 +18,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         protected override void OnPaintBackground(PaintEventArgs e)
         {// Always force repaint in design mode when properties change
            // Always fill the background first
-            using (var bgBrush = new SolidBrush(this.BackColor))
-            {
-                e.Graphics.FillRectangle(bgBrush, this.ClientRectangle);
-            }
+           // using (var bgBrush = new SolidBrush(this.BackColor))
+           //// {
+          //      e.Graphics.FillRectangle(bgBrush, this.ClientRectangle);
+          //  }
             // CRITICAL: When using custom skinning (DrawCustomWindowBorder = true), 
             // we handle WM_ERASEBKGND ourselves and do NOT call base.OnPaintBackground.
             // This prevents interference with child control rendering (black boxes on labels, etc.)
             // 
             // When NOT using custom skinning, call base to get standard form painting.
-            if (!DrawCustomWindowBorder)
-            {
+            //if (!DrawCustomWindowBorder)
+            //{
                 base.OnPaintBackground(e);
-            }
+            //}
 
             // Now lay our custom chrome on top while preserving the original graphics state so we don't leak
             // quality settings to child controls.

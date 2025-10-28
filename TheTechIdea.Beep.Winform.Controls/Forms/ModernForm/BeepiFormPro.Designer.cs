@@ -16,7 +16,10 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+
             }
+            _bgBrush?.Dispose(); // Clean up cached brush
+         
             base.Dispose(disposing);
         }
 

@@ -35,6 +35,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 Invalidate(); // Redraw with new metrics
             }
         }
+        private readonly SolidBrush _bgBrush; // Cache brush
+        private DateTime _lastInvalidate = DateTime.MinValue;
+        private void DebouncedInvalidate(Rectangle? rect = null, bool invalidateChildren = false)
+        {
+            if ((DateTime.Now - _lastInvalidate).TotalMilliseconds < 16) // 60 FPS max
+                return;
+            _lastInvalidate = DateTime.Now;
+            if (rect.HasValue)
+                Invalidate(rect.Value, invalidateChildren);
+            else
+                Invalidate(invalidateChildren);
+        }
         public BeepiFormPro()
         {
 
@@ -57,16 +69,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             InitializeComponent();
 
             // Update window region when handle is created
-            this.HandleCreated += (s, e) => UpdateWindowRegion();
+          
             // Always hook events for design-time and runtime refresh
-            this.Resize += (s, e) => { UpdateWindowRegion(); Invalidate(); };
-            this.Scroll += (s, e) => { UpdateWindowRegion(); Invalidate(); };
-            this.HandleCreated += (s, e) => { UpdateWindowRegion(); Invalidate(); };
+            this.Resize += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
+            this.Scroll += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
+            this.HandleCreated += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
 
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
-            BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
-
-              FormBorderStyle = FormBorderStyle.None;
+            BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
+            FormBorderStyle = FormBorderStyle.None;
             //// Design-time: hook child control events for auto-refresh
             //if (DesignMode || (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime))
             //{

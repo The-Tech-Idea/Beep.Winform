@@ -145,32 +145,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         private void ApplyBackdrop()
         {
-            if (!IsHandleCreated) return;
+            if (InDesignMode || !IsHandleCreated)
+                return;
+
+            // Check OS compatibility (Windows 10+ for Acrylic, Windows 11 for Mica)
+            bool isWin10OrLater = Environment.OSVersion.Version.Major >= 10;
+            bool isWin11 = Environment.OSVersion.Version.Build >= 22000;
 
             try
             {
                 switch (_backdrop)
                 {
                     case BackdropType.Mica:
-                        TryEnableMica();
+                        if (isWin11)
+                            TryEnableMica();
+                        else
+                            TryDisableMica();
                         break;
-
                     case BackdropType.Acrylic:
-                        TryEnableAcrylic();
+                        if (isWin10OrLater)
+                            TryEnableAcrylic();
+                        else
+                            TryDisableAcrylic();
                         break;
-
                     case BackdropType.Tabbed:
-                        TryEnableSystemBackdrop(2); // DWMSBT_TABBEDWINDOW
+                        if (isWin11)
+                            TryEnableSystemBackdrop(2);
                         break;
-
                     case BackdropType.Transient:
-                        TryEnableSystemBackdrop(3); // DWMSBT_TRANSIENTWINDOW
+                        if (isWin11)
+                            TryEnableSystemBackdrop(3);
                         break;
-
                     case BackdropType.Blur:
-                        TryEnableBlurBehind();
+                        if (isWin10OrLater)
+                            TryEnableBlurBehind();
                         break;
-
                     case BackdropType.None:
                     default:
                         TryDisableAcrylic();
@@ -180,11 +189,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to apply backdrop: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ApplyBackdrop error: {ex.Message}");
+                // Fallback to no backdrop
+                TryDisableAcrylic();
+                TryDisableMica();
+            }
+            finally
+            {
+                // Ensure form repaints after backdrop changes
+                DebouncedInvalidate();
             }
         }
 
-    
 
         #endregion
 

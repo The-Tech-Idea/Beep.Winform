@@ -57,6 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     _formstyle = value;
                     ApplyFormStyle();
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    DebouncedInvalidate();
                 }
             }
         }
@@ -353,33 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private bool _showModernRenderingInDesignMode = false;
 
-        /// <summary>
-        /// Gets or sets whether to show modern rendering in design mode
-        /// Warning: This may interfere with control selection in the designer
-        /// </summary>
-        [System.ComponentModel.Category("Beep Design")]
-        [System.ComponentModel.DefaultValue(false)]
-        [System.ComponentModel.Description("Show modern rendering in design mode (may interfere with control selection)")]
-        public bool ShowModernRenderingInDesignMode
-        {
-            get => _showModernRenderingInDesignMode;
-            set
-            {
-                if (_showModernRenderingInDesignMode != value)
-                {
-                    _showModernRenderingInDesignMode = value;
-                    // Reset design mode layout flag when property changes
-                    _designModeLayoutCalculated = false;
-                    // Force recalculation if in design mode
-                    if (InDesignMode && value)
-                    {
-                        RecalculateLayoutAndHitAreas();
-                        _designModeLayoutCalculated = true;
-                        Invalidate();
-                    }
-                }
-            }
-        }
+       
 
         /// <summary>
         /// Gets or sets the hover animation duration for micro-interactions

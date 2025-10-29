@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -19,23 +20,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             
             // Base background
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
             
             // macOS has a subtle gradient for depth
             RectangleF bounds = path.GetBounds();
             Color topTint = Color.FromArgb(12, 255, 255, 255);
             Color bottomTint = Color.FromArgb(5, 0, 0, 0);
-            using (var gradientBrush = new LinearGradientBrush(
-                bounds,
-                topTint,
-                bottomTint,
-                LinearGradientMode.Vertical))
-            {
-                g.FillPath(gradientBrush, path);
-            }
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, topTint, bottomTint, LinearGradientMode.Vertical);
+            g.FillPath(gradientBrush, path);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)

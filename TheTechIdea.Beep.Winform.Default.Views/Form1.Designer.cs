@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // button1
             // 
             button1.BackColor = Color.Transparent;
-            button1.Location = new Point(372, 169);
+            button1.Location = new Point(304, 163);
             button1.Name = "button1";
             button1.Size = new Size(137, 59);
             button1.TabIndex = 0;
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             label1.BackColor = Color.Transparent;
             label1.ForeColor = Color.White;
-            label1.Location = new Point(119, 314);
+            label1.Location = new Point(304, 270);
             label1.Name = "label1";
             label1.Size = new Size(207, 35);
             label1.TabIndex = 1;
@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(0, 0, 0);
             BackdropEffect = Winform.Controls.Forms.ModernForm.BackdropEffect.Mica;
-            ClientSize = new Size(1682, 1456);
+            ClientSize = new Size(1706, 1456);
             Controls.Add(beepMenuBar1);
             Controls.Add(label1);
             Controls.Add(button1);

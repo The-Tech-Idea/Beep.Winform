@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -12,13 +13,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color baseColor = useThemeColors ? theme.BackgroundColor : Color.FromArgb(0x00, 0x2B, 0x36);
+            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(0x00,0x2B,0x36);
             Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
 
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(fillColor);
+            g.FillPath(brush, path);
         }
     }
 }

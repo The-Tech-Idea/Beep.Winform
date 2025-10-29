@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -18,8 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // Office: Clean white background with subtle gradients (ribbon Style)
-            Color backgroundColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Office);
-            Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
+            Color backgroundColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Office);
+            Color primaryColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
 
             // Office-specific state handling - Professional, subtle
             Color topColor, bottomColor;
@@ -43,10 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     bottomColor = Color.FromArgb(alpha + 20, primaryColor.R, primaryColor.G, primaryColor.B);
                     
                     // Fill base white first
-                    using (var baseBrush = new SolidBrush(backgroundColor))
-                    {
-                        g.FillPath(baseBrush, path);
-                    }
+                    var baseBrush = PaintersFactory.GetSolidBrush(backgroundColor);
+                    g.FillPath(baseBrush, path);
                     break;
                 case ControlState.Focused:
                     // Office focused: Very subtle blue tint
@@ -67,13 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Paint with subtle vertical gradient (Office ribbon Style)
             var bounds = path.GetBounds();
-            using (var brush = new LinearGradientBrush(
-                new PointF(bounds.Left, bounds.Top),
-                new PointF(bounds.Left, bounds.Bottom),
-                topColor, bottomColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+            g.FillPath(brush, path);
         }
     }
 }

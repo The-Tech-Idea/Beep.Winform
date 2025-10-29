@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -17,12 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void PaintBootstrap(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
+
             // Simple solid background - Bootstrap is clean and simple
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
         }
         
         /// <summary>
@@ -31,19 +30,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void PaintTailwind(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
+
             // Base background
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
-            
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
+
             // Tailwind often has a subtle ring/outline effect
-            Color ringColor = Color.FromArgb(8, 0, 0, 0);
-            using (var ringPen = new Pen(ringColor, 1f))
-            {
-                g.DrawPath(ringPen, path);
-            }
+            Color ringColor = Color.FromArgb(8,0,0,0);
+            var ringPen = PaintersFactory.GetPen(ringColor,1f);
+            g.DrawPath(ringPen, path);
         }
         
         /// <summary>
@@ -52,12 +47,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void PaintDiscord(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
+
             // Solid dark background
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
         }
         
         /// <summary>
@@ -66,25 +59,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void PaintStripe(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
+
             // Base background
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
-            
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
+
             // Stripe has very subtle gradients for polish
             RectangleF bounds = path.GetBounds();
-            Color topTint = Color.FromArgb(3, 255, 255, 255);
-            Color bottomTint = Color.FromArgb(3, 0, 0, 0);
-            using (var gradientBrush = new LinearGradientBrush(
-                bounds,
-                topTint,
-                bottomTint,
-                LinearGradientMode.Vertical))
-            {
-                g.FillPath(gradientBrush, path);
-            }
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(3,255,255,255), Color.FromArgb(3,0,0,0), LinearGradientMode.Vertical);
+            g.FillPath(gradientBrush, path);
         }
         
         /// <summary>
@@ -93,19 +76,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void PaintFigma(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
+
             // Clean solid background
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
-            
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
+
             // Figma uses subtle border for definition
             Color borderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
-            using (var borderPen = new Pen(borderColor, 0.5f))
-            {
-                g.DrawPath(borderPen, path);
-            }
+            var borderPen = PaintersFactory.GetPen(borderColor,0.5f);
+            g.DrawPath(borderPen, path);
         }
         
         /// <summary>

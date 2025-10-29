@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling; // import factory
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -61,10 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            using (var brush = new SolidBrush(stateColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(stateColor);
+            g.FillPath(brush, path);
         }
     }
 }

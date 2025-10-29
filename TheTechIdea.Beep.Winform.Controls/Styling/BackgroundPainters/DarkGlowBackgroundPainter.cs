@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -18,8 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // Dark Glow: Dark background with neon glow rings
-            Color darkColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.DarkGlow);
-            
+            Color darkColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.DarkGlow);
+
             // INLINE STATE HANDLING - DarkGlow: Subtle background tinting (5% hover, 3% press, 7% selected, 4% focus, 130 alpha disabled)
             darkColor = state switch
             {
@@ -43,13 +44,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 _ => darkColor
             };
             
-            Color glowColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.DarkGlow);
+            Color glowColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.DarkGlow);
 
             // Fill dark background
-            using (var brush = new SolidBrush(darkColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(darkColor);
+            g.FillPath(bgBrush, path);
 
             // INLINE GLOW INTENSITY MODULATION - DarkGlow neon philosophy: Glow intensifies on hover (30%), dims on press (-30%), moderate on selected (20%), slight on focus (10%), fades on disabled (-60%)
             float glowMultiplier = state switch
@@ -67,10 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 int alpha1 = Math.Min(255, (int)(80 * glowMultiplier));
                 Color glowColor1 = Color.FromArgb(alpha1, glowColor);
-                using (var pen = new Pen(glowColor1, 1f))
-                {
-                    g.DrawPath(pen, glowPath1);
-                }
+                var pen1 = PaintersFactory.GetPen(glowColor1, 1f);
+                g.DrawPath(pen1, glowPath1);
             }
 
             // GLOW RING 2 (40% alpha base, 3px inset)
@@ -78,10 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 int alpha2 = Math.Min(255, (int)(40 * glowMultiplier));
                 Color glowColor2 = Color.FromArgb(alpha2, glowColor);
-                using (var pen = new Pen(glowColor2, 1f))
-                {
-                    g.DrawPath(pen, glowPath2);
-                }
+                var pen2 = PaintersFactory.GetPen(glowColor2, 1f);
+                g.DrawPath(pen2, glowPath2);
             }
 
             // GLOW RING 3 (20% alpha base, 6px inset)
@@ -89,10 +84,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 int alpha3 = Math.Min(255, (int)(20 * glowMultiplier));
                 Color glowColor3 = Color.FromArgb(alpha3, glowColor);
-                using (var pen = new Pen(glowColor3, 1f))
-                {
-                    g.DrawPath(pen, glowPath3);
-                }
+                var pen3 = PaintersFactory.GetPen(glowColor3, 1f);
+                g.DrawPath(pen3, glowPath3);
             }
         }
     }

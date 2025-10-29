@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -17,22 +18,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
-            
+
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
+
             // Subtle top highlight for material elevation
             RectangleF bounds = path.GetBounds();
-            Color highlight = Color.FromArgb(15, 255, 255, 255);
-            using (var highlightBrush = new SolidBrush(highlight))
+            Color highlight = Color.FromArgb(15,255,255,255);
+            var highlightBrush = PaintersFactory.GetSolidBrush(highlight);
             using (var highlightRegion = new Region(path))
             {
-                // Clip to top 2px
                 using (var clipRect = new GraphicsPath())
                 {
-                    clipRect.AddRectangle(new RectangleF(bounds.X, bounds.Y, bounds.Width, 2));
+                    clipRect.AddRectangle(new RectangleF(bounds.X, bounds.Y, bounds.Width,2));
                     highlightRegion.Intersect(clipRect);
                     g.SetClip(highlightRegion, CombineMode.Replace);
                     g.FillPath(highlightBrush, path);
@@ -40,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 }
             }
         }
-        
+
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)

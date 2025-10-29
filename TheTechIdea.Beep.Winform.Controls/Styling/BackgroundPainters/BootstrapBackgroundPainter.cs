@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -19,52 +20,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Bootstrap: Utilitarian clean with noticeable feedback
             Color backgroundColor = StyleColors.GetBackground(BeepControlStyle.Bootstrap);
 
-            // Bootstrap-specific state handling - NO HELPER FUNCTIONS
-            // Unique utilitarian 6% hover for Bootstrap's practical design
-            Color stateColor;
-            switch (state)
+            Color stateColor = state switch
             {
-                case ControlState.Hovered:
-                    // Bootstrap hover: Utilitarian 6% lighter (noticeable)
-                    int hR = Math.Min(255, backgroundColor.R + (int)(255 * 0.06f));
-                    int hG = Math.Min(255, backgroundColor.G + (int)(255 * 0.06f));
-                    int hB = Math.Min(255, backgroundColor.B + (int)(255 * 0.06f));
-                    stateColor = Color.FromArgb(backgroundColor.A, hR, hG, hB);
-                    break;
-                case ControlState.Pressed:
-                    // Bootstrap pressed: 7% darker (clear press)
-                    int pR = Math.Max(0, backgroundColor.R - (int)(backgroundColor.R * 0.07f));
-                    int pG = Math.Max(0, backgroundColor.G - (int)(backgroundColor.G * 0.07f));
-                    int pB = Math.Max(0, backgroundColor.B - (int)(backgroundColor.B * 0.07f));
-                    stateColor = Color.FromArgb(backgroundColor.A, pR, pG, pB);
-                    break;
-                case ControlState.Selected:
-                    // Bootstrap selected: 9% lighter (utilitarian selection)
-                    int sR = Math.Min(255, backgroundColor.R + (int)(255 * 0.09f));
-                    int sG = Math.Min(255, backgroundColor.G + (int)(255 * 0.09f));
-                    int sB = Math.Min(255, backgroundColor.B + (int)(255 * 0.09f));
-                    stateColor = Color.FromArgb(backgroundColor.A, sR, sG, sB);
-                    break;
-                case ControlState.Focused:
-                    // Bootstrap focused: 4% lighter (utilitarian focus)
-                    int fR = Math.Min(255, backgroundColor.R + (int)(255 * 0.04f));
-                    int fG = Math.Min(255, backgroundColor.G + (int)(255 * 0.04f));
-                    int fB = Math.Min(255, backgroundColor.B + (int)(255 * 0.04f));
-                    stateColor = Color.FromArgb(backgroundColor.A, fR, fG, fB);
-                    break;
-                case ControlState.Disabled:
-                    // Bootstrap disabled: 95 alpha (practical translucency)
-                    stateColor = Color.FromArgb(95, backgroundColor);
-                    break;
-                default: // Normal
-                    stateColor = backgroundColor;
-                    break;
-            }
+                ControlState.Hovered => Color.FromArgb(backgroundColor.A, Math.Min(255, backgroundColor.R + (int)(255 *0.06f)), Math.Min(255, backgroundColor.G + (int)(255 *0.06f)), Math.Min(255, backgroundColor.B + (int)(255 *0.06f))),
+                ControlState.Pressed => Color.FromArgb(backgroundColor.A, Math.Max(0, backgroundColor.R - (int)(backgroundColor.R *0.07f)), Math.Max(0, backgroundColor.G - (int)(backgroundColor.G *0.07f)), Math.Max(0, backgroundColor.B - (int)(backgroundColor.B *0.07f))),
+                ControlState.Selected => Color.FromArgb(backgroundColor.A, Math.Min(255, backgroundColor.R + (int)(255 *0.09f)), Math.Min(255, backgroundColor.G + (int)(255 *0.09f)), Math.Min(255, backgroundColor.B + (int)(255 *0.09f))),
+                ControlState.Focused => Color.FromArgb(backgroundColor.A, Math.Min(255, backgroundColor.R + (int)(255 *0.04f)), Math.Min(255, backgroundColor.G + (int)(255 *0.04f)), Math.Min(255, backgroundColor.B + (int)(255 *0.04f))),
+                ControlState.Disabled => Color.FromArgb(95, backgroundColor),
+                _ => backgroundColor,
+            };
 
-            using (var brush = new SolidBrush(stateColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(stateColor);
+            g.FillPath(brush, path);
         }
     }
 }

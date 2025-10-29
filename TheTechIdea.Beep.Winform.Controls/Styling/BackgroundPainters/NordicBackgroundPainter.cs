@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -12,20 +13,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color baseColor = useThemeColors ? theme.BackgroundColor : Color.FromArgb(0xF2, 0xF5, 0xF8);
-            Color accent = Color.FromArgb(0xA3, 0xB8, 0xC9);
+            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(0xF2,0xF5,0xF8);
+            Color accent = Color.FromArgb(0xA3,0xB8,0xC9);
             Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
 
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(fillColor);
+            g.FillPath(brush, path);
 
             var bounds = path.GetBounds();
-            using (var gradient = new LinearGradientBrush(bounds, Color.FromArgb(0, accent), Color.FromArgb(40, accent), LinearGradientMode.Vertical))
-            {
-                g.FillPath(gradient, path);
-            }
+            var gradient = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(0, accent), Color.FromArgb(40, accent), LinearGradientMode.Vertical);
+            g.FillPath(gradient, path);
         }
     }
 }

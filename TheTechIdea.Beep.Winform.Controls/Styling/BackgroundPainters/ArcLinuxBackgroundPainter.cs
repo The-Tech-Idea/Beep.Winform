@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -12,19 +13,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color baseColor = useThemeColors ? theme.BackgroundColor : Color.FromArgb(0x18, 0x1A, 0x1F);
-            Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(0x2F,0x2E,0x2E);
+            Color accent = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0x8A,0xCB,0x49);
 
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            var brush = PaintersFactory.GetSolidBrush(fillColor);
+            g.FillPath(brush, path);
 
             var bounds = path.GetBounds();
-            using (var pen = new Pen(Color.FromArgb(60, Color.White), 1f))
-            {
-                g.DrawLine(pen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
-            }
+            var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height /5f);
+            var grad = PaintersFactory.GetLinearGradientBrush(topRect, Color.FromArgb(30, accent), Color.Transparent, LinearGradientMode.Vertical);
+            g.FillRectangle(grad, topRect);
         }
     }
 }

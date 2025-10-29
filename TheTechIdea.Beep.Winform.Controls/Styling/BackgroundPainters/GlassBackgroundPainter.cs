@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -17,32 +18,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             // Base frosted glass color (semi-transparent white)
-            Color glassColor = Color.FromArgb(180, 255, 255, 255);
-            using (var glassBrush = new SolidBrush(glassColor))
-            {
-                g.FillPath(glassBrush, path);
-            }
-            
+            Color glassColor = Color.FromArgb(180,255,255,255);
+            var glassBrush = PaintersFactory.GetSolidBrush(glassColor);
+            g.FillPath(glassBrush, path);
+
             // Subtle gradient overlay for depth
             RectangleF bounds = path.GetBounds();
-            Color topGlass = Color.FromArgb(60, 255, 255, 255);
-            Color bottomGlass = Color.FromArgb(20, 255, 255, 255);
-            using (var gradientBrush = new LinearGradientBrush(
-                bounds,
-                topGlass,
-                bottomGlass,
-                LinearGradientMode.Vertical))
-            {
-                g.FillPath(gradientBrush, path);
-            }
-            
+            Color topGlass = Color.FromArgb(60,255,255,255);
+            Color bottomGlass = Color.FromArgb(20,255,255,255);
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, topGlass, bottomGlass, LinearGradientMode.Vertical);
+            g.FillPath(gradientBrush, path);
+
             // Subtle border highlight
-            float borderWidth = 1f;
-            Color borderHighlight = Color.FromArgb(100, 255, 255, 255);
-            using (var borderPen = new Pen(borderHighlight, borderWidth))
-            {
-                g.DrawPath(borderPen, path);
-            }
+            float borderWidth =1f;
+            Color borderHighlight = Color.FromArgb(100,255,255,255);
+            var borderPen = PaintersFactory.GetPen(borderHighlight, borderWidth);
+            g.DrawPath(borderPen, path);
         }
     }
 }

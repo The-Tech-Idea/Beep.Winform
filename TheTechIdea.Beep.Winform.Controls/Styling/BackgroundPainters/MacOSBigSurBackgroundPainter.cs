@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // macOS Big Sur: Refined, subtle vibrancy with vertical gradient
-            Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.MacOSBigSur);
+            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.MacOSBigSur);
 
             // MacOSBigSur-specific state handling - NO HELPER FUNCTIONS
             // Unique refined, subtle vibrancy for macOS (Apple's refined aesthetics)
@@ -70,28 +71,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             RectangleF bounds = path.GetBounds();
             if (bounds.IsEmpty) return;
-            using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, 90f))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+            g.FillPath(brush, path);
 
             // Add very subtle white overlay on hover (macOS vibrancy)
             if (state == ControlState.Hovered)
             {
-                Color vibrancyOverlay = Color.FromArgb(10, Color.White);
-                using (var brush = new SolidBrush(vibrancyOverlay))
-                {
-                    g.FillPath(brush, path);
-                }
+                var vibrancyBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, Color.White));
+                g.FillPath(vibrancyBrush, path);
             }
             else if (state == ControlState.Pressed)
             {
-                // Add gentle black overlay on press
-                Color pressOverlay = Color.FromArgb(15, Color.Black);
-                using (var brush = new SolidBrush(pressOverlay))
-                {
-                    g.FillPath(brush, path);
-                }
+                var pressBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, Color.Black));
+                g.FillPath(pressBrush, path);
             }
         }
     }

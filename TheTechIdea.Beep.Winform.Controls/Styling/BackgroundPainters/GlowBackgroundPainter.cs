@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -19,28 +20,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             Color glowColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
-            
-            // Dark background
-            using (var bgBrush = new SolidBrush(bgColor))
+
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
+
+            int glowSize =3;
+            for (int i = glowSize; i >0; i--)
             {
-                g.FillPath(bgBrush, path);
-            }
-            
-            // Inner glow effect
-            int glowSize = 3;
-            for (int i = glowSize; i > 0; i--)
-            {
-                int alpha = (int)(30 * (1 - (float)i / glowSize));
+                int alpha = (int)(30 * ((float)(glowSize - i +1) / glowSize));
                 Color glowStep = Color.FromArgb(alpha, glowColor);
-                
-                using (var innerPath = GraphicsExtensions.CreateInsetPath(path, i))
-                using (var glowPen = new Pen(glowStep, 2f))
-                {
-                    g.DrawPath(glowPen, innerPath);
-                }
+
+                var innerPath = GraphicsExtensions.CreateInsetPath(path, i);
+                var glowPen = PaintersFactory.GetPen(glowStep,2f);
+                g.DrawPath(glowPen, innerPath);
+                innerPath.Dispose();
             }
         }
-        
+
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)

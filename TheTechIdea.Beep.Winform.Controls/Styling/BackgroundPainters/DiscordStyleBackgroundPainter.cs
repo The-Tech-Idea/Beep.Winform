@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -17,8 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // Discord: Dark theme with gaming-Style glow/brightness feedback
-            Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.DiscordStyle);
-            Color primaryColor = useThemeColors ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.DiscordStyle);
+            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.DiscordStyle);
+            Color primaryColor = useThemeColors && theme != null ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.DiscordStyle);
 
             // DiscordStyle-specific state handling - NO HELPER FUNCTIONS
             // Unique gaming-Style glow and brightness for Discord dark theme
@@ -62,19 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            using (var brush = new SolidBrush(stateColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(stateColor);
+            g.FillPath(brush, path);
 
             // Add subtle gaming glow overlay on hover (Discord-specific)
             if (state == ControlState.Hovered)
             {
                 Color glowOverlay = Color.FromArgb(20, primaryColor);
-                using (var brush = new SolidBrush(glowOverlay))
-                {
-                    g.FillPath(brush, path);
-                }
+                var glowBrush = PaintersFactory.GetSolidBrush(glowOverlay);
+                g.FillPath(glowBrush, path);
             }
         }
     }

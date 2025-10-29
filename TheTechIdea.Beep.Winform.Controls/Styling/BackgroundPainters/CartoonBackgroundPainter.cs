@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -12,26 +13,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color baseColor = useThemeColors ? theme.BackgroundColor : Color.FromArgb(255, 223, 127);
-            Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            Color bg = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(0xFF,0xF5,0xE6);
+            Color accent = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0xFF,0x99,0x33);
 
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var fill = BackgroundPainterHelpers.ApplyState(bg, state);
+            var brush = PaintersFactory.GetSolidBrush(fill);
+            g.FillPath(brush, path);
 
-            var bounds = Rectangle.Round(path.GetBounds());
-            using var clip = new BackgroundPainterHelpers.ClipScope(g, path);
-            using (var dotBrush = new SolidBrush(Color.FromArgb(25, 0, 0, 0)))
-            {
-                for (int y = bounds.Top; y < bounds.Bottom; y += 8)
-                {
-                    for (int x = bounds.Left; x < bounds.Right; x += 8)
-                    {
-                        g.FillRectangle(dotBrush, x, y, 1, 1);
-                    }
-                }
-            }
+            var bounds = path.GetBounds();
+            var topGrad = PaintersFactory.GetLinearGradientBrush(new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height /4f), Color.FromArgb(40, Color.White), Color.Transparent, LinearGradientMode.Vertical);
+            g.FillRectangle(topGrad, new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height /4f));
+
+            var pen = PaintersFactory.GetPen(Color.FromArgb(30, accent),1f);
+            g.DrawPath(pen, path);
         }
     }
 }

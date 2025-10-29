@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -68,10 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color bottomColor = Color.FromArgb(stateColor.A, bottomR, bottomG, bottomB);
 
             RectangleF bounds = path.GetBounds();
-            using (var brush = new LinearGradientBrush(bounds, stateColor, bottomColor, 90f))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetLinearGradientBrush(bounds, stateColor, bottomColor, LinearGradientMode.Vertical);
+            g.FillPath(brush, path);
         }
     }
 }

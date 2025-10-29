@@ -11,7 +11,7 @@ using Svg;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
- 
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 ImagePath = value;
-           
+
             }
         }
         private bool _preserveSvgBackgrounds = false;
@@ -86,6 +86,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         public SvgDocument svgDocument { get; private set; }
+        // Cache to avoid re-applying the same theme repeatedly
+        private string _lastSvgThemeSignature;
+        // Placeholder for future rasterized bitmap cache keyed by signature+size
+        private readonly System.Collections.Generic.Dictionary<string, Bitmap> _rasterizedSvgCache = new System.Collections.Generic.Dictionary<string, Bitmap>();
 
         [Category("Appearance")]
         [Description("Determines the shape used to clip the image")]
@@ -323,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
-        public  string ImagePath
+        public string ImagePath
         {
             get => _imagepath;
             set
@@ -370,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Normal path: value actually changed
                 _imagepath = value;
                 _stateChanged = true;
-                
+
                 // Clear any cached rendered image immediately
                 _cachedRenderedImage?.Dispose();
                 _cachedRenderedImage = null;
@@ -385,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             ApplyTheme();
                         }
-                        
+
                         // Force immediate invalidation and refresh
                         Invalidate();
                         if (Parent != null)
@@ -614,14 +618,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set default size for designer
             this.Size = new Size(100, 100);
             this.MinimumSize = new Size(16, 16);
-            
+
             BoundProperty = "ImagePath";
             fillColor = Color.Black;
             strokeColor = Color.Black;
             this.Visible = true;
             // Enable tab stop for proper focus behavior
             TabStop = true;
-            
+
             // ImageSelector.SetSelector();
         }
 
@@ -631,7 +635,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #region "Theme Handling"
-       
+
 
         public override void ApplyTheme()
         {
@@ -646,7 +650,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = _currentTheme.ButtonBackColor;
             }
-            ForeColor=_currentTheme.ButtonForeColor;
+            ForeColor = _currentTheme.ButtonForeColor;
             BorderColor = _currentTheme.ButtonBorderColor;
             if (_applyThemeOnImage)
             {
@@ -676,7 +680,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Decide what colors to apply based on your theme settings.
             Color actualFillColor, actualStrokeColor, actualbackcolor;
-            //   _imageEmbededin = ImageEmbededin.Button;
+            // _imageEmbededin = ImageEmbededin.Button;
             if (_currentTheme != null)
             {
                 switch (_imageEmbededin)
@@ -749,9 +753,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 actualbackcolor = BackColor;
             }
 
-
-
-        //    ////MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={actualFillColor}, strokeColor={actualStrokeColor}");
+            // Compute a simple signature for the theme/colors to avoid reprocessing
+            string themeSignature = $"{actualFillColor.ToArgb()}_{actualStrokeColor.ToArgb()}_{actualbackcolor.ToArgb()}_{_imageEmbededin}";
+            if (!string.IsNullOrEmpty(_lastSvgThemeSignature) && _lastSvgThemeSignature == themeSignature)
+            {
+                // Theme already applied; skip expensive processing
+                return;
+            }
 
             // Create SvgColourServer instances for fill and stroke
             var fillServer = new SvgColourServer(actualFillColor);
@@ -762,13 +770,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set the default stroke width
             // check if background color is not transparent in svgdocument by checking property in file
 
-
-
             //if (svgDocument.Fill != null  )
             //{
             //    svgDocument.Fill = backgroundServer;
 
-            //}
+            //})
             svgDocument.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
                                                       // Recursively process all SVG nodes to update their color properties
                                                       // ProcessNodes(svgDocument.Descendants(), fillServer, strokeServer);
@@ -790,13 +796,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             svgDocument.FlushStyles();
             // Optional: Log out the updated SVG XML for debugging.
-            string modifiedXml = svgDocument.GetXML();
-           // ////MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
+            // string modifiedXml = svgDocument.GetXML();
+            // ////MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
+            // Record theme signature and clear raster cache
+            _lastSvgThemeSignature = themeSignature;
+            try
+            {
+                foreach (var kv in _rasterizedSvgCache)
+                {
+                    kv.Value.Dispose();
+                }
+                _rasterizedSvgCache.Clear();
+            }
+            catch { }
 
             // Trigger a redraw and invalidate cache since colors changed
             try
             {
                 _stateChanged = true;
+                // _cachedRenderedImage?.Dispose();
+                // _cachedRenderedImage = null;
+                // Invalidate the current rendered cache so it will be regenerated with new theme
                 _cachedRenderedImage?.Dispose();
                 _cachedRenderedImage = null;
                 Invalidate();
@@ -920,7 +940,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     path.AddPolygon(hexagonPoints);
                     break;
 
-              
+
                 // Fallthrough to default if no custom path
 
                 case ImageClipShape.None:
@@ -1324,31 +1344,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         case ImageClipShape.Diamond:
                             Point[] diamondPoints = new Point[4];
-                                diamondPoints[0] = new Point(bounds.Width / 2, 0);                    // Top
-                                diamondPoints[1] = new Point(bounds.Width, bounds.Height / 2);        // Right
-                                diamondPoints[2] = new Point(bounds.Width / 2, bounds.Height);        // Bottom
-                                diamondPoints[3] = new Point(0, bounds.Height / 2);                   // Left
-                                path.AddPolygon(diamondPoints);
+                            diamondPoints[0] = new Point(bounds.Width / 2, 0);                    // Top
+                            diamondPoints[1] = new Point(bounds.Width, bounds.Height / 2);        // Right
+                            diamondPoints[2] = new Point(bounds.Width / 2, bounds.Height);        // Bottom
+                            diamondPoints[3] = new Point(0, bounds.Height / 2);                   // Left
+                            path.AddPolygon(diamondPoints);
                             break;
 
                         case ImageClipShape.Triangle:
                             Point[] trianglePoints = new Point[3];
-                                trianglePoints[0] = new Point(bounds.Width / 2, 0);                   // Top
-                                trianglePoints[1] = new Point(0, bounds.Height);                      // Bottom left
-                                trianglePoints[2] = new Point(bounds.Width, bounds.Height);           // Bottom right
-                                path.AddPolygon(trianglePoints);
+                            trianglePoints[0] = new Point(bounds.Width / 2, 0);                   // Top
+                            trianglePoints[1] = new Point(0, bounds.Height);                      // Bottom left
+                            trianglePoints[2] = new Point(bounds.Width, bounds.Height);           // Bottom right
+                            path.AddPolygon(trianglePoints);
                             break;
 
                         case ImageClipShape.Hexagon:
                             Point[] hexagonPoints = new Point[6];
-                                int quarterHeight = bounds.Height / 4;
-                                hexagonPoints[0] = new Point(bounds.Width / 2, 0);                     // Top
-                                hexagonPoints[1] = new Point(bounds.Width, quarterHeight);              // Top right
-                                hexagonPoints[2] = new Point(bounds.Width, 3 * quarterHeight);          // Bottom right
-                                hexagonPoints[3] = new Point(bounds.Width / 2, bounds.Height);          // Bottom
-                                hexagonPoints[4] = new Point(0, 3 * quarterHeight);                     // Bottom left
-                                hexagonPoints[5] = new Point(0, quarterHeight);                         // Top left
-                                path.AddPolygon(hexagonPoints);
+                            int quarterHeight = bounds.Height / 4;
+                            hexagonPoints[0] = new Point(bounds.Width / 2, 0);                     // Top
+                            hexagonPoints[1] = new Point(bounds.Width, quarterHeight);              // Top right
+                            hexagonPoints[2] = new Point(bounds.Width, 3 * quarterHeight);          // Bottom right
+                            hexagonPoints[3] = new Point(bounds.Width / 2, bounds.Height);          // Bottom
+                            hexagonPoints[4] = new Point(0, 3 * quarterHeight);                     // Bottom left
+                            hexagonPoints[5] = new Point(0, quarterHeight);                         // Top left
+                            path.AddPolygon(hexagonPoints);
                             break;
 
                         default:
@@ -1414,7 +1434,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool retval = false;
             try
             {
-                
+
                 // Console.WriteLine($"Loading image: {path}");
                 if (IsEmbeddedResource(path))
                 {
@@ -1423,7 +1443,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
                     if (isJustFileName)
                     {
-                       string newpath=ImageListHelper.GetImagePathFromName(path);
+                        string newpath = ImageListHelper.GetImagePathFromName(path);
                         if (newpath != null)
                         {
                             path = newpath;
@@ -1496,7 +1516,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // if it's just a file name no path,its an embedded resource 
             // Check if the path is just a filename (no path separators)
             // Check if the path is just a filename (no path separators)
-            bool isJustFileName = !path.Contains("\\") && !path.Contains("/")  && path.Count(c => c == '.') == 1;
+            bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
             if (isJustFileName)
             {
                 return true; // It's likely an embedded resource
@@ -1781,8 +1801,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Designer Support"
         #region Event Handlers for Hover and Pressed State
-      
-       
+
+
         protected override void OnMouseEnter(EventArgs e)
         {
             if (IsStillImage)
@@ -1943,7 +1963,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Use the provided rectangle in DrawingRect for our drawing area
             DrawingRect = rectangle;
 
-        
+
             // Draw the image at the specified rectangle coordinates
             DrawImage(graphics, rectangle);
         }
@@ -2050,12 +2070,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "Rotate"
-     
+
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                try
+                {
+                    foreach (var kv in _rasterizedSvgCache)
+                        kv.Value.Dispose();
+                    _rasterizedSvgCache.Clear();
+                }
+                catch { }
                 _cachedRenderedImage?.Dispose();
                 DisposeImages();
                 _spinTimer?.Dispose();
@@ -2068,7 +2095,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             regularImage = null;
             svgDocument = null;
         }
-
-
     }
+
 }

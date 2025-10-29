@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -13,42 +14,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color baseColor = useThemeColors ? theme.BackgroundColor : Color.FromArgb(0x08, 0x0B, 0x14);
-            Color accent = useThemeColors ? theme.AccentColor : Color.FromArgb(0x00, 0xFF, 0xFF);
-            Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(10,10,12);
+            Color neon = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0,255,200);
 
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var fill = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            var brush = PaintersFactory.GetSolidBrush(fill);
+            g.FillPath(brush, path);
 
-            var bounds = Rectangle.Round(path.GetBounds());
-            using var clip = new BackgroundPainterHelpers.ClipScope(g, path);
-            using (var scanPen = new Pen(Color.FromArgb(20, accent), 1))
-            {
-                for (int y = bounds.Top; y < bounds.Bottom; y += 4)
-                {
-                    g.DrawLine(scanPen, bounds.Left, y, bounds.Right, y);
-                }
-            }
+            var bounds = path.GetBounds();
+            var leftGrad = PaintersFactory.GetLinearGradientBrush(new RectangleF(bounds.Left, bounds.Top, Math.Min(120,bounds.Width), bounds.Height), Color.FromArgb(60,255,0,150), Color.Transparent, LinearGradientMode.Horizontal);
+            g.FillRectangle(leftGrad, new RectangleF(bounds.Left, bounds.Top, Math.Min(120,bounds.Width), bounds.Height));
 
-            int seed = unchecked(bounds.GetHashCode() * 17);
-            var rand = new Random(seed);
-            using (var glitchBrush = new SolidBrush(Color.FromArgb(80, accent)))
-            {
-                int glitchCount = Math.Max(1, (bounds.Width * bounds.Height) / 4000);
-                for (int i = 0; i < glitchCount; i++)
-                {
-                    if (rand.NextDouble() < 0.25)
-                    {
-                        int width = rand.Next(40, 120);
-                        int height = rand.Next(1, 4);
-                        int x = rand.Next(bounds.Left, Math.Max(bounds.Left, bounds.Right - width));
-                        int y = rand.Next(bounds.Top, bounds.Bottom);
-                        g.FillRectangle(glitchBrush, x, y, width, height);
-                    }
-                }
-            }
+            var pen = PaintersFactory.GetPen(Color.FromArgb(120, neon),2f);
+            g.DrawPath(pen, path);
         }
     }
 }

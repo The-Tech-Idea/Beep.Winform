@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -20,8 +21,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             if (path == null) return;
 
             // Gnome Adwaita colors: Warm gray with subtle warmth
-            Color warmGray = useThemeColors ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Gnome);
-            Color blueAccent = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Gnome);
+            Color warmGray = useThemeColors && theme != null ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Gnome);
+            Color blueAccent = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Gnome);
 
             RectangleF bounds = path.GetBounds();
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -32,35 +33,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Gnome: Subtle vertical gradient for depth (Adwaita signature)
             if (state == ControlState.Normal || state == ControlState.Hovered)
             {
-                // Very subtle gradient (lighter top to slightly darker bottom)
-                Color topColor = ColorUtils.Lighten(fillColor, 0.02f);
-                Color bottomColor = ColorUtils.Darken(fillColor, 0.02f);
-
-                using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical))
-                {
-                    g.FillPath(brush, path);
-                }
+                Color topColor = ColorUtils.Lighten(fillColor,0.02f);
+                Color bottomColor = ColorUtils.Darken(fillColor,0.02f);
+                var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+                g.FillPath(brush, path);
             }
             else
             {
-                // Selected/pressed/disabled: Flat fill
-                using (var brush = new SolidBrush(fillColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                var brush = PaintersFactory.GetSolidBrush(fillColor);
+                g.FillPath(brush, path);
             }
         }
 
         private static Color GetGnomeStateFill(ControlState state, Color warmGray, Color blueAccent)
         {
-            // Gnome Adwaita state handling
             return state switch
             {
-                ControlState.Hovered => ColorUtils.Lighten(warmGray, 0.05f), // Subtle lighten
-                ControlState.Pressed => ColorUtils.Darken(warmGray, 0.08f), // Noticeable press
-                ControlState.Selected => Color.FromArgb(30, blueAccent), // Translucent blue overlay
-                ControlState.Disabled => ColorUtils.Desaturate(warmGray, 0.5f), // Grayed out
-                _ => warmGray // Normal: Warm gray
+                ControlState.Hovered => ColorUtils.Lighten(warmGray,0.05f),
+                ControlState.Pressed => ColorUtils.Darken(warmGray,0.08f),
+                ControlState.Selected => Color.FromArgb(30, blueAccent),
+                ControlState.Disabled => ColorUtils.Desaturate(warmGray,0.5f),
+                _ => warmGray
             };
         }
     }

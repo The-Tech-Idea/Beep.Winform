@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -19,21 +20,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             
             // Base background
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                g.FillPath(bgBrush, path);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillPath(bgBrush, path);
             
             // iOS has a subtle translucent overlay effect
             Color overlay = Color.FromArgb(10, 255, 255, 255);
-            using (var overlayBrush = new SolidBrush(overlay))
-            {
-                g.FillPath(overlayBrush, path);
-            }
+            var overlayBrush = PaintersFactory.GetSolidBrush(overlay);
+            g.FillPath(overlayBrush, path);
             
             // Very subtle bottom shadow for depth using clipped region
             RectangleF bounds = path.GetBounds();
-            using (var shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0)))
+            var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, 0, 0, 0));
             using (var bottomRegion = new Region(path))
             {
                 // Clip to bottom 1px line

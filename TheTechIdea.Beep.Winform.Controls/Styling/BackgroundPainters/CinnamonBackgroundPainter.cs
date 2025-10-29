@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -18,8 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color lightGray = useThemeColors ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Cinnamon);
-            Color mintGreen = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Cinnamon);
+            Color lightGray = useThemeColors && theme != null ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Cinnamon);
+            Color mintGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Cinnamon);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -32,10 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 _ => lightGray
             };
 
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(fillColor);
+            g.FillPath(brush, path);
         }
     }
 }

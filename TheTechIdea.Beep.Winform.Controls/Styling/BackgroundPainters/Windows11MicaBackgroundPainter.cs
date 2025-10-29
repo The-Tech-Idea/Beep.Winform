@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -17,8 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // Windows 11 Mica: Subtle mica material with state-aware tinting
-            Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Windows11Mica);
-            Color primaryColor = useThemeColors ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.Windows11Mica);
+            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Windows11Mica);
+            Color primaryColor = useThemeColors && theme != null ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.Windows11Mica);
 
             // Windows11Mica-specific state handling - NO HELPER FUNCTIONS
             // Unique Mica tint intensity changes for Windows 11 design
@@ -89,10 +90,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color bottomColor = Color.FromArgb(stateColor.A, bottomR, bottomG, bottomB);
 
             RectangleF bounds = path.GetBounds();
-            using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, 90f))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+            g.FillPath(brush, path);
         }
     }
 }

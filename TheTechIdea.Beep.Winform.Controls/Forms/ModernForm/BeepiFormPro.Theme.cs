@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -33,6 +34,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 _currentTheme = value;
                 ThemeName = value.ThemeName; // Keep ThemeName in sync
+
+                // Clear painter caches when theme changes so cached brushes/rasters are regenerated
+                try { PaintersFactory.ClearCache(); } catch { }
+
                 Invalidate(); // Redraw with new theme
             }
         }

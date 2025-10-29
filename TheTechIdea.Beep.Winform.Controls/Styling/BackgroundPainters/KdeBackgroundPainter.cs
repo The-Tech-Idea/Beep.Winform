@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -20,28 +21,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             if (path == null) return;
 
             // KDE Breeze colors
-            Color lightBackground = useThemeColors ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Kde);
-            Color breezeBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Kde);
+            Color lightBackground = useThemeColors && theme != null ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Kde);
+            Color breezeBlue = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Kde);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // State-based fill
             Color fillColor = GetKdeStateFill(state, lightBackground, breezeBlue);
 
-            // KDE: Clean flat fill (no gradients - modern minimalism)
-            using (var brush = new SolidBrush(fillColor))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetSolidBrush(fillColor);
+            g.FillPath(brush, path);
 
             // KDE signature: Blue glow on hover/focused (Breeze effect)
             if (state == ControlState.Hovered || state == ControlState.Focused)
             {
-                RectangleF bounds = path.GetBounds();
-                using (var glowBrush = new SolidBrush(Color.FromArgb(20, breezeBlue)))
-                {
-                    g.FillPath(glowBrush, path);
-                }
+                var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, breezeBlue));
+                g.FillPath(glowBrush, path);
             }
         }
 

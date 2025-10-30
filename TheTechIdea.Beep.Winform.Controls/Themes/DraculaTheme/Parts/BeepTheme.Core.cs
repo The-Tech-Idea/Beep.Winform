@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 8;
+            // Dracula theme - smooth dark aesthetic
+            this.BorderRadius = 6;  // Matching FormStyle.Dracula
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.18f;
-            this.IsDarkTheme = true;
+            this.ShadowOpacity = 0.18f;  // Subtle shadows
+            this.IsDarkTheme = true;  // Dark theme
         }
     }
 }

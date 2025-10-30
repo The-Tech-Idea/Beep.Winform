@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
@@ -163,12 +164,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         private void RecalculateSize()
         {
-            // Calculate minimum height as one item + padding
-            int calculatedMinHeight = PreferredItemHeight + 8; // One item + top/bottom padding
+            // Get effective control style for BeepStyling calculations
+            var effectiveStyle = GetEffectiveControlStyle();
+            
+            // Account for BeepStyling padding, border, and shadow
+            int beepPadding = BeepStyling.GetPadding(effectiveStyle);
+            float beepBorderWidth = BeepStyling.GetBorderThickness(effectiveStyle);
+            int beepShadow = StyleShadows.HasShadow(effectiveStyle) ? Math.Max(2, StyleShadows.GetShadowBlur(effectiveStyle) / 2) : 0;
+            
+            // Calculate total BeepStyling insets (padding + border + shadow on all sides)
+            int beepInsets = beepPadding + (int)Math.Ceiling(beepBorderWidth) + beepShadow;
+            
+            // Calculate minimum height as one item + padding + BeepStyling insets
+            int calculatedMinHeight = PreferredItemHeight + 8 + (beepInsets * 2); // One item + top/bottom padding + BeepStyling
             
             if (_menuItems == null || _menuItems.Count == 0)
             {
-                Width = _menuWidth;
+                Width = _menuWidth + (beepInsets * 2);
                 Height = calculatedMinHeight;
                 _needsScrolling = false;
                 _scrollBar.Visible = false;
@@ -177,8 +189,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 return;
             }
             
-            // Calculate required height
-            int totalHeight = 4; // Top padding
+            // Calculate required height - add BeepStyling padding
+            int totalHeight = 4 + beepInsets; // Top padding + BeepStyling top inset
             
             foreach (var item in _menuItems)
             {
@@ -192,13 +204,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
             
-            totalHeight += 4; // Bottom padding
+            totalHeight += 4 + beepInsets; // Bottom padding + BeepStyling bottom inset
             
             // Store total content height for scrolling
             _totalContentHeight = totalHeight;
             
-            // Calculate required width
-            int maxWidth = _menuWidth;
+            // Calculate required width - add BeepStyling left/right insets
+            int maxWidth = _menuWidth + (beepInsets * 2);
             
             using (var g = CreateGraphics())
             {
@@ -255,12 +267,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 Height = Math.Min(_totalContentHeight, _maxHeight);
                 Height = Math.Max(Height, calculatedMinHeight);
                 
-                // Add space for scrollbar
+                // Add space for scrollbar - already includes beepInsets
                 Width = maxWidth + SCROLL_BAR_WIDTH;
                 
                 // Configure scrollbar
                 _scrollBar.Visible = true;
-                _scrollBar.Left = maxWidth;
+                _scrollBar.Left = maxWidth - (beepInsets * 2); // Adjust for BeepStyling insets
                 _scrollBar.Top = 0;
                 _scrollBar.Height = Height;
                 _scrollBar.Minimum = 0;
@@ -277,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
             else
             {
-                // No scrolling needed
+                // No scrolling needed - width already includes beepInsets
                 Width = maxWidth + 10;
                 Height = _totalContentHeight;
                 _scrollBar.Visible = false;

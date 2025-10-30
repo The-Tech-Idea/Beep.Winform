@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             ThemeName = "ArcLinuxTheme";
             ThemeGuid = Guid.NewGuid().ToString();
-            IsDarkTheme = false;
+            // IsDarkTheme is set in ApplyCore()
             FontName = "Noto Sans";
             FontSize = 12f;
             ApplyColorPalette();

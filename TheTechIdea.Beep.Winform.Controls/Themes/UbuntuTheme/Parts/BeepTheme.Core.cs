@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 8;
+            // Ubuntu theme - Ubuntu Linux desktop aesthetic
+            this.BorderRadius = 8;  // Matching FormStyle.Ubuntu
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.10f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.10f;  // Subtle shadows
+            this.IsDarkTheme = false;  // Light theme
         }
     }
 }

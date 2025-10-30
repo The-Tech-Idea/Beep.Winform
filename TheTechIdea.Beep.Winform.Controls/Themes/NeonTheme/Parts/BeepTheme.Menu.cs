@@ -10,22 +10,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
-            this.MenuBackColor = Color.FromArgb(10,12,20);
-            this.MenuForeColor = Color.FromArgb(235,245,255);
-            this.MenuBorderColor = Color.FromArgb(60,70,100);
-            this.MenuMainItemForeColor = Color.FromArgb(235,245,255);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(235,245,255);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(10,12,20);
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(235,245,255);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(10,12,20);
-            this.MenuItemForeColor = Color.FromArgb(235,245,255);
-            this.MenuItemHoverForeColor = Color.FromArgb(235,245,255);
-            this.MenuItemHoverBackColor = Color.FromArgb(10,12,20);
-            this.MenuItemSelectedForeColor = Color.FromArgb(235,245,255);
-            this.MenuItemSelectedBackColor = Color.FromArgb(10,12,20);
-            this.MenuGradiantStartColor = Color.FromArgb(10,12,20);
-            this.MenuGradiantEndColor = Color.FromArgb(10,12,20);
-            this.MenuGradiantMiddleColor = Color.FromArgb(10,12,20);
+            // Neon menu - vibrant neon theme
+            this.MenuBackColor = Color.FromArgb(15, 15, 25);  // Deep navy
+            this.MenuForeColor = Color.FromArgb(0, 255, 255);  // Cyan text
+            this.MenuBorderColor = Color.FromArgb(0, 255, 255);  // Cyan glow
+            
+            // Main menu items
+            this.MenuMainItemForeColor = Color.FromArgb(0, 255, 255);
+            this.MenuMainItemHoverForeColor = Color.FromArgb(100, 255, 255);  // Brighter cyan on hover
+            this.MenuMainItemHoverBackColor = Color.FromArgb(25, 25, 40);  // Lighter navy
+            this.MenuMainItemSelectedForeColor = Color.FromArgb(15, 15, 25);  // Dark text
+            this.MenuMainItemSelectedBackColor = Color.FromArgb(0, 255, 255);  // Cyan background
+            
+            // Sub menu items
+            this.MenuItemForeColor = Color.FromArgb(0, 255, 255);
+            this.MenuItemHoverForeColor = Color.FromArgb(100, 255, 255);  // Brighter cyan on hover
+            this.MenuItemHoverBackColor = Color.FromArgb(25, 25, 40);  // Lighter navy
+            this.MenuItemSelectedForeColor = Color.FromArgb(15, 15, 25);  // Dark text
+            this.MenuItemSelectedBackColor = Color.FromArgb(0, 255, 255);  // Cyan background
+            
+            // Dark gradient
+            this.MenuGradiantStartColor = Color.FromArgb(20, 24, 38);
+            this.MenuGradiantEndColor = Color.FromArgb(15, 18, 30);
+            this.MenuGradiantMiddleColor = Color.FromArgb(10, 12, 20);
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

@@ -10,22 +10,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
-            this.MenuBackColor = Color.FromArgb(250,250,251);
-            this.MenuForeColor = Color.FromArgb(31,41,55);
-            this.MenuBorderColor = Color.FromArgb(229,231,235);
-            this.MenuMainItemForeColor = Color.FromArgb(31,41,55);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(31,41,55);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(250,250,251);
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(31,41,55);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(250,250,251);
-            this.MenuItemForeColor = Color.FromArgb(31,41,55);
-            this.MenuItemHoverForeColor = Color.FromArgb(31,41,55);
-            this.MenuItemHoverBackColor = Color.FromArgb(250,250,251);
-            this.MenuItemSelectedForeColor = Color.FromArgb(31,41,55);
-            this.MenuItemSelectedBackColor = Color.FromArgb(250,250,251);
-            this.MenuGradiantStartColor = Color.FromArgb(250,250,251);
-            this.MenuGradiantEndColor = Color.FromArgb(250,250,251);
-            this.MenuGradiantMiddleColor = Color.FromArgb(250,250,251);
+            // Nordic menu - Scandinavian minimalist theme
+            this.MenuBackColor = Color.FromArgb(242, 245, 248);  // Light gray-blue
+            this.MenuForeColor = Color.FromArgb(60, 60, 60);  // Dark gray text
+            this.MenuBorderColor = Color.FromArgb(220, 220, 220);  // Light gray
+            
+            // Main menu items
+            this.MenuMainItemForeColor = Color.FromArgb(60, 60, 60);
+            this.MenuMainItemHoverForeColor = Color.FromArgb(60, 60, 60);
+            this.MenuMainItemHoverBackColor = Color.FromArgb(228, 232, 238);  // Darker hover
+            this.MenuMainItemSelectedForeColor = Color.FromArgb(255, 255, 255);  // White text
+            this.MenuMainItemSelectedBackColor = Color.FromArgb(136, 192, 208);  // Icy blue
+            
+            // Sub menu items
+            this.MenuItemForeColor = Color.FromArgb(60, 60, 60);
+            this.MenuItemHoverForeColor = Color.FromArgb(60, 60, 60);
+            this.MenuItemHoverBackColor = Color.FromArgb(228, 232, 238);  // Darker hover
+            this.MenuItemSelectedForeColor = Color.FromArgb(255, 255, 255);  // White text
+            this.MenuItemSelectedBackColor = Color.FromArgb(136, 192, 208);  // Icy blue
+            
+            // Minimal gradient
+            this.MenuGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.03);
+            this.MenuGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.04);
+            this.MenuGradiantMiddleColor = ThemeUtil.Lighten(BackgroundColor, 0.01);
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 16;
+            // NeoMorphism theme - soft shadows aesthetic
+            this.BorderRadius = 12;  // Matching FormStyle.NeoMorphism
             this.BorderSize = 0;
-            this.ShadowOpacity = 0.14f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.14f;  // Soft neomorphic shadows
+            this.IsDarkTheme = false;  // Light theme
         }
     }
 }

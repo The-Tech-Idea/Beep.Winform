@@ -13,15 +13,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (path == null) return;
 
-            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(0xF5,0xF5,0xF7);
-            Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
-
-            var fillBrush = PaintersFactory.GetSolidBrush(fillColor);
-            g.FillPath(fillBrush, path);
+            // Modern style - clean, sophisticated look with subtle gradient
+            // Use panel gradient colors from theme for modern feel
+            Color startColor = useThemeColors && theme != null ? (theme.PanelGradiantStartColor != Color.Empty ? theme.PanelGradiantStartColor : theme.BackgroundColor) : Color.FromArgb(255, 255, 255);
+            Color endColor = useThemeColors && theme != null ? (theme.PanelGradiantEndColor != Color.Empty ? theme.PanelGradiantEndColor : startColor) : Color.FromArgb(250, 250, 252);
+            
+            // Apply state variations if needed
+            if (state != ControlState.Normal)
+            {
+                startColor = BackgroundPainterHelpers.ApplyState(startColor, state);
+                endColor = BackgroundPainterHelpers.ApplyState(endColor, state);
+            }
 
             var bounds = path.GetBounds();
-            var overlay = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(20, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical);
-            g.FillPath(overlay, path);
+            
+            // Modern look: subtle vertical gradient with very faint white highlight
+            var gradient = PaintersFactory.GetLinearGradientBrush(bounds, startColor, endColor, LinearGradientMode.Vertical);
+            g.FillPath(gradient, path);
+            
+            // Add a subtle modern highlight at the top for depth
+            var highlight = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(20, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical);
+            g.FillPath(highlight, path);
         }
     }
 }

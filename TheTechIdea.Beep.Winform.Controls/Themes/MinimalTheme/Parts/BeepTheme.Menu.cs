@@ -10,19 +10,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
-            this.MenuBackColor = BackgroundColor;
-            this.MenuForeColor = ForeColor;
-            this.MenuBorderColor = BorderColor;
+            // Minimal menu - clean, minimal aesthetic
+            this.MenuBackColor = BackgroundColor;  // White
+            this.MenuForeColor = ForeColor;  // Dark grey text
+            this.MenuBorderColor = BorderColor;  // Light grey
+            
+            // Main menu items
             this.MenuMainItemForeColor = ForeColor;
             this.MenuMainItemHoverForeColor = ForeColor;
-            this.MenuMainItemHoverBackColor = SurfaceColor;
+            this.MenuMainItemHoverBackColor = Color.FromArgb(245, 245, 245);  // SurfaceColor (light grey)
             this.MenuMainItemSelectedForeColor = ForeColor;
-            this.MenuMainItemSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.05);
+            this.MenuMainItemSelectedBackColor = Color.FromArgb(230, 230, 230);  // Medium grey
+            
+            // Sub menu items
             this.MenuItemForeColor = ForeColor;
             this.MenuItemHoverForeColor = ForeColor;
-            this.MenuItemHoverBackColor = SurfaceColor;
+            this.MenuItemHoverBackColor = Color.FromArgb(245, 245, 245);  // SurfaceColor (light grey)
             this.MenuItemSelectedForeColor = ForeColor;
-            this.MenuItemSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.05);
+            this.MenuItemSelectedBackColor = Color.FromArgb(230, 230, 230);  // Medium grey
+            
+            // Clean gradient
             this.MenuGradiantStartColor = BackgroundColor;
             this.MenuGradiantEndColor = BackgroundColor;
             this.MenuGradiantMiddleColor = BackgroundColor;

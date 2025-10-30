@@ -18,13 +18,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (!StyleShadows.HasShadow(style))
                 return path;
 
+            // Modern style - subtle shadows matching theme shadow opacity (0.14f)
+            float shadowOpacity = useThemeColors && theme != null && theme.ShadowOpacity > 0 ? theme.ShadowOpacity : 0.14f;
+
             return ShadowPainterHelpers.PaintDropShadow(
                 g, path, radius,
                 StyleShadows.GetShadowOffsetX(style),
                 StyleShadows.GetShadowOffsetY(style),
                 StyleShadows.GetShadowBlur(style),
                 StyleShadows.GetShadowColor(style),
-                0.28f);
+                shadowOpacity);
         }
     }
 }

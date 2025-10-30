@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 8;
+            // Nordic theme - Scandinavian minimalist aesthetic
+            this.BorderRadius = 6;  // Matching FormStyle.Nordic
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.08f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.08f;  // Minimal shadows
+            this.IsDarkTheme = false;  // Light theme
         }
     }
 }

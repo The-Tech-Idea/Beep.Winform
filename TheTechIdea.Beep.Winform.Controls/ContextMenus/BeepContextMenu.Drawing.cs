@@ -3,6 +3,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 {
@@ -25,7 +27,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             // Use current theme (kept in sync with BeepThemesManager)
             var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
-            var rect = new Rectangle(1, 1, _contentAreaRect.Width - 5, Height - 5);
+            
+            // Validate content area rect - may be empty on first paint
+            int contentWidth = _contentAreaRect.Width > 0 ? _contentAreaRect.Width : Width;
+            int contentHeight = Height;
+            
+            // Ensure valid dimensions
+            if (contentWidth <= 0 || contentHeight <= 0)
+            {
+                return; // Skip painting if invalid dimensions
+            }
+            
+            var rect = new Rectangle(1, 1, Math.Max(1, contentWidth - 5), Math.Max(1, contentHeight - 5));
             
             // Get effective control style
             var effectiveStyle = GetEffectiveControlStyle();
@@ -223,7 +236,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     Trimming = StringTrimming.EllipsisCharacter
                 };
 
-                g.DrawString(item.DisplayField, _textFont, brush, textRect, format);
+                // Validate font before drawing
+                Font useFont = _textFont;
+                if (!IsValidFont(useFont))
+                {
+                    useFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+                }
+
+                g.DrawString(item.DisplayField, useFont, brush, textRect, format);
                 brush.Dispose();
 
                 itemContentPath.Dispose();

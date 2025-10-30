@@ -175,9 +175,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         {
             switch (formStyle)
             {
-                // Modern styles → Material Design family
+                // Modern styles → Modern Style
                 case FormStyle.Modern:
-                    return BeepControlStyle.Material3;
+                    return BeepControlStyle.Modern;
                 
                 case FormStyle.Material:
                     return BeepControlStyle.MaterialYou;

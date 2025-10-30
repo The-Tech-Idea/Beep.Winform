@@ -16,12 +16,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
+            // Modern style - clean, sophisticated borders with indigo accent
             float width = StyleBorders.GetBorderWidth(style);
-            Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(210, 210, 220));
+            Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(200, 200, 200));  // #C8C8C8
 
             if (isFocused)
             {
-                borderColor = BorderPainterHelpers.Lighten(borderColor, 0.2f);
+                // Modern focus: use indigo accent color from theme
+                Color activeBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "ActiveBorder", Color.FromArgb(99, 102, 241));  // Indigo
+                borderColor = activeBorderColor;
+                
+                // Optional: add a subtle focus ring
+                Color focusRingColor = BorderPainterHelpers.WithAlpha(activeBorderColor, 100);
+                BorderPainterHelpers.PaintRing(g, path, focusRingColor, 2.0f, 1.0f);
             }
 
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, width, state);

@@ -832,6 +832,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             AppBarMaxButtonColor = softGreen;     // green
             AppBarMinButtonColor = WarningColor;  // yellow
 
+            // Typography for AppBar (monospace)
+            AppBarTitleStyle = TS(13, FontStyle.Bold, 600, softGreen, mono: true);
+            AppBarSubTitleStyle = TS(12, FontStyle.Regular, 400, dimGreen, mono: true);
+            AppBarTextStyle = TS(12, FontStyle.Regular, 400, softGreen, mono: true);
+
             AppBarGradiantStartColor = AppBarBackColor;
             AppBarGradiantMiddleColor = AppBarBackColor;
             AppBarGradiantEndColor = AppBarBackColor;
@@ -900,23 +905,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             IsDarkTheme = true;
 
             // --- Buttons
+            // Default buttons: bright green background with black text
             ButtonBackColor = softGreen;
             ButtonForeColor = C(0, 0, 0);
             ButtonBorderColor = lineGreen;
+            
+            // Hover: slightly darker green
             ButtonHoverBackColor = Darken(softGreen, 0.08);
             ButtonHoverForeColor = C(0, 0, 0);
             ButtonHoverBorderColor = lineGreen;
+            
+            // Pressed: darker green
             ButtonPressedBackColor = Darken(softGreen, 0.16);
             ButtonPressedForeColor = C(0, 0, 0);
             ButtonPressedBorderColor = lineGreen;
 
-            ButtonSelectedBackColor = Blend(softGreen, BackgroundColor, 0.82);
-            ButtonSelectedForeColor = softGreen;
+            // Selected: darker background with neon green text for clear contrast
+            ButtonSelectedBackColor = C(10, 30, 15);  // Dark green
+            ButtonSelectedForeColor = neonGreen;  // Bright neon green text
             ButtonSelectedBorderColor = lineGreen;
-            ButtonSelectedHoverBackColor = Blend(softGreen, BackgroundColor, 0.76);
-            ButtonSelectedHoverForeColor = neonGreen;
+            
+            // Selected hover: slightly lighter with brighter text
+            ButtonSelectedHoverBackColor = C(12, 38, 18);
+            ButtonSelectedHoverForeColor = C(0, 255, 204);  // Even brighter cyan-green
             ButtonSelectedHoverBorderColor = lineGreen;
 
+            // Error button: red background with black text
             ButtonErrorBackColor = ErrorColor;
             ButtonErrorForeColor = C(0, 0, 0);
             ButtonErrorBorderColor = Darken(ErrorColor, 0.18);
@@ -1134,19 +1148,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             NavigationSelectedBackColor = C(16, 32, 20);
             NavigationSelectedForeColor = neonGreen;
 
-            MenuBackColor = CardBackColor;
+            // Terminal menu - high contrast with neon green
+            MenuBackColor = CardBackColor;  // Dark panel
             MenuForeColor = softGreen;
             MenuBorderColor = lineGreen;
+            
+            // Main menu items
             MenuMainItemForeColor = softGreen;
-            MenuMainItemHoverForeColor = neonGreen;
-            MenuMainItemHoverBackColor = C(16, 32, 20);
-            MenuMainItemSelectedForeColor = neonGreen;
-            MenuMainItemSelectedBackColor = C(16, 32, 20);
+            MenuMainItemHoverForeColor = neonGreen;  // Bright green on hover
+            MenuMainItemHoverBackColor = C(16, 32, 20);  // Dark green hover
+            MenuMainItemSelectedForeColor = C(0, 255, 204);  // Very bright cyan-green when selected
+            MenuMainItemSelectedBackColor = C(20, 45, 25);  // Slightly lighter green
+            
+            // Sub menu items
             MenuItemForeColor = softGreen;
-            MenuItemHoverForeColor = neonGreen;
+            MenuItemHoverForeColor = neonGreen;  // Bright green on hover
             MenuItemHoverBackColor = C(14, 28, 18);
-            MenuItemSelectedForeColor = neonGreen;
-            MenuItemSelectedBackColor = C(14, 28, 18);
+            MenuItemSelectedForeColor = C(0, 255, 204);  // Very bright cyan-green when selected
+            MenuItemSelectedBackColor = C(18, 40, 22);  // Slightly lighter green
+            
             MenuGradiantStartColor = MenuBackColor;
             MenuGradiantMiddleColor = MenuBackColor;
             MenuGradiantEndColor = MenuBackColor;

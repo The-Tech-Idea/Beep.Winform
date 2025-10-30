@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 18;
-            this.BorderSize = 2;
-            this.ShadowOpacity = 0.18f;
-            this.IsDarkTheme = false;
+            // Cartoon theme - playful rounded corners, thicker borders
+            this.BorderRadius = 16;  // Matching FormStyle.Cartoon
+            this.BorderSize = 3;  // Thick borders for cartoon look
+            this.ShadowOpacity = 0.18f;  // Playful shadows
+            this.IsDarkTheme = false;  // Light theme with purple accents
         }
     }
 }

@@ -285,6 +285,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         }
 
         /// <summary>
+        /// Validates if a font is safe to use for drawing operations
+        /// </summary>
+        private bool IsValidFont(Font font)
+        {
+            if (font == null) return false;
+            
+            try
+            {
+                // Test if font properties are accessible
+                var height = font.Height;
+                var name = font.Name;
+                var size = font.Size;
+                
+                // Basic validation checks
+                return height > 0 && 
+                       !string.IsNullOrEmpty(name) && 
+                       size > 0 && 
+                       size <= 72; // Reasonable font size limit
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Apply theme fonts to TextFont and ShortcutFont when enabled. Safe fallbacks retained.
         /// </summary>
         private void ApplyThemeFontsSafely()
@@ -297,13 +323,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 {
                     // Use LabelFont as a reasonable default for menu items
                     var text = TheTechIdea.Beep.Winform.Controls.ThemeManagement.BeepThemesManager.ToFont(theme.LabelFont);
-                    if (text != null)
+                    if (text != null && IsValidFont(text))
                     {
                         _textFont = text;
                     }
 
                     // Shortcut font: slightly smaller than text font
-                    if (_textFont != null)
+                    if (_textFont != null && IsValidFont(_textFont))
                     {
                         float size = Math.Max(6f, _textFont.Size - 1f);
                         _shortcutFont = new System.Drawing.Font(_textFont.FontFamily, size, _textFont.Style);

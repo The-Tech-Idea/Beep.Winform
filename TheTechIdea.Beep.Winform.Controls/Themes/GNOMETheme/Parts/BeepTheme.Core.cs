@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 6;
+            // GNOME theme - clean modern aesthetic
+            this.BorderRadius = 8;  // Matching FormStyle.GNOME
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.10f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.10f;  // Subtle shadows
+            this.IsDarkTheme = false;  // Light theme
         }
     }
 }

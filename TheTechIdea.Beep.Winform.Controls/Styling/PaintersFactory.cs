@@ -51,12 +51,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
  return _linearGradientCache.GetOrAdd(key, _ =>
  {
- // Create brush using bounds passed in; callers should reuse brush only for identical sizes
- var brush = new LinearGradientBrush(bounds, color1, color2, mode);
- // Important: set WrapMode to Clamp to prevent tiling artifacts
- brush.WrapMode = WrapMode.Clamp;
- return brush;
- });
+ // Always use safe bounds to prevent any exception
+ float safeWidth = bounds.Width;
+ float safeHeight = bounds.Height;
+ 
+ // Validate and fix bounds
+ if (float.IsNaN(safeWidth) || float.IsInfinity(safeWidth) || safeWidth <= 0)
+     safeWidth = 1.0f;
+ else
+     safeWidth = Math.Max(1.0f, safeWidth);
+     
+ if (float.IsNaN(safeHeight) || float.IsInfinity(safeHeight) || safeHeight <= 0)
+     safeHeight = 1.0f;
+ else
+     safeHeight = Math.Max(1.0f, safeHeight);
+
+ var validBounds = new RectangleF(0, 0, safeWidth, safeHeight);
+ 
+ try
+ {
+     var gradientBrush = new LinearGradientBrush(validBounds, color1, color2, mode);
+     gradientBrush.WrapMode = WrapMode.Clamp;
+     return gradientBrush;
+ }
+ catch (ArgumentException)
+ {
+     // If still failing, create with reasonable minimum size
+     var minimalBounds = new RectangleF(0, 0, 2.0f, 2.0f);
+     try
+     {
+         var brush = new LinearGradientBrush(minimalBounds, color1, color2, mode);
+        // brush.WrapMode = WrapMode.Clamp;
+         return brush;
+     }
+     catch
+     {
+         // Last resort: use small rectangle
+         var fallbackBounds = new RectangleF(0, 0, 10.0f, 10.0f);
+         var fallbackBrush = new LinearGradientBrush(fallbackBounds, color1, color2, mode);
+     //    fallbackBrush.WrapMode = WrapMode.Clamp;
+         return fallbackBrush;
+     }
+ }
+});
  }
 
  // New overload to support angle-based gradients
@@ -71,10 +108,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
  return _linearGradientCache.GetOrAdd(key, _ =>
  {
- var brush = new LinearGradientBrush(bounds, color1, color2, angle);
- brush.WrapMode = WrapMode.Clamp;
- return brush;
- });
+ // Always use safe bounds to prevent any exception
+ float safeWidth = bounds.Width;
+ float safeHeight = bounds.Height;
+ 
+ // Validate and fix bounds
+ if (float.IsNaN(safeWidth) || float.IsInfinity(safeWidth) || safeWidth <= 0)
+     safeWidth = 1.0f;
+ else
+     safeWidth = Math.Max(1.0f, safeWidth);
+     
+ if (float.IsNaN(safeHeight) || float.IsInfinity(safeHeight) || safeHeight <= 0)
+     safeHeight = 1.0f;
+ else
+     safeHeight = Math.Max(1.0f, safeHeight);
+
+ var validBounds = new RectangleF(0, 0, safeWidth, safeHeight);
+ 
+ try
+ {
+     var gradientBrush = new LinearGradientBrush(validBounds, color1, color2, angle);
+     gradientBrush.WrapMode = WrapMode.Clamp;
+     return gradientBrush;
+ }
+ catch (ArgumentException)
+ {
+     // If still failing, create with reasonable minimum size (2x2 minimum for angle gradients)
+     var minimalBounds = new RectangleF(0, 0, 2.0f, 2.0f);
+     try
+     {
+         var brush = new LinearGradientBrush(minimalBounds, color1, color2, angle);
+         brush.WrapMode = WrapMode.Clamp;
+         return brush;
+     }
+     catch
+     {
+         // Last resort: use very small rectangle but with diagonal gradient
+         var fallbackBounds = new RectangleF(0, 0, 10.0f, 10.0f);
+         var fallbackBrush = new LinearGradientBrush(fallbackBounds, color1, color2, angle);
+         fallbackBrush.WrapMode = WrapMode.Clamp;
+         return fallbackBrush;
+     }
+ }
+});
  }
 
  /// <summary>

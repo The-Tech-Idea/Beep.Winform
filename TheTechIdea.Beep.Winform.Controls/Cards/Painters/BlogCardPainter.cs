@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class BlogCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _statsFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _statsFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            _statsFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -70,23 +83,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw category badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw engagement stats (likes, comments, views)
             if (ctx.ShowRating && !string.IsNullOrEmpty(ctx.StatusText))
             {
-                using var statsFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var statsBrush = new SolidBrush(Color.FromArgb(128, ctx.AccentColor));
+                var statsBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(128, ctx.AccentColor));
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, statsFont, statsBrush, ctx.RatingRect, format);
+                g.DrawString(ctx.StatusText, _statsFont, statsBrush, ctx.RatingRect, format);
             }
 
             // Draw subtle divider line between image and content
             if (ctx.ShowImage)
             {
-                using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 1);
+                var dividerPen = PaintersFactory.GetPen(Color.FromArgb(30, ctx.AccentColor), 1);
                 g.DrawLine(dividerPen, ctx.DrawingRect.Left, ctx.ImageRect.Bottom, 
                     ctx.DrawingRect.Right, ctx.ImageRect.Bottom);
             }

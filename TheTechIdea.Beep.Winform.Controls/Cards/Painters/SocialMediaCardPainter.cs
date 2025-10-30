@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class SocialMediaCardPainter : CardPainterBase
     {
+        private Font _timeFont;
+        private Font _iconFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _timeFont?.Dispose(); } catch { }
+            try { _iconFont?.Dispose(); } catch { }
+            _timeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
+            _iconFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -46,10 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
-                using var timeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
-                using var timeBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+                var timeBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, timeFont, timeBrush, ctx.StatusRect, format);
+                g.DrawString(ctx.StatusText, _timeFont, timeBrush, ctx.StatusRect, format);
             }
             
             // Draw hashtags/mentions
@@ -58,15 +70,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw engagement icons (like, share, etc.)
             if (ctx.ShowButton)
             {
-                // Draw like icon
-                using var iconBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
-                using var iconFont = new Font(Owner.Font.FontFamily, 8f);
+                var iconBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString("? Like", iconFont, iconBrush, ctx.ButtonRect, format);
+                g.DrawString("? Like", _iconFont, iconBrush, ctx.ButtonRect, format);
                 
                 if (ctx.ShowSecondaryButton)
                 {
-                    g.DrawString("? Share", iconFont, iconBrush, ctx.SecondaryButtonRect, format);
+                    g.DrawString("? Share", _iconFont, iconBrush, ctx.SecondaryButtonRect, format);
                 }
             }
         }

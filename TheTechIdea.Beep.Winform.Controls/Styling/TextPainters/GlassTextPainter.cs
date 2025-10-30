@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -146,9 +147,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         /// Paint glass text with frosted glass background
         /// </summary>
         public static void PaintFrostedGlass(Graphics g, Rectangle bounds, string text, bool isFocused,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float opacity = 0.8f)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float opacity =0.8f)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureGlassGraphics(g);
@@ -159,25 +160,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             try
             {
                 // Frosted glass background
-                using (var frostBrush = new SolidBrush(Color.FromArgb((int)(opacity * 255), scheme.Background)))
-                {
-                    var frostRect = new Rectangle(bounds.X - 4, bounds.Y - 2, bounds.Width + 8, bounds.Height + 4);
-                    g.FillRectangle(frostBrush, frostRect);
-                }
+                var frostBrush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(opacity *255), scheme.Background));
+                var frostRect = new Rectangle(bounds.X -4, bounds.Y -2, bounds.Width +8, bounds.Height +4);
+                g.FillRectangle(frostBrush, frostRect);
 
                 // Subtle border for glass effect
-                using (var borderPen = new Pen(Color.FromArgb(60, scheme.Highlight), 1))
-                {
-                    var borderRect = new Rectangle(bounds.X - 4, bounds.Y - 2, bounds.Width + 8, bounds.Height + 4);
-                    g.DrawRectangle(borderPen, borderRect);
-                }
+                var borderPen = PaintersFactory.GetPen(Color.FromArgb(60, scheme.Highlight),1);
+                var borderRect = new Rectangle(bounds.X -4, bounds.Y -2, bounds.Width +8, bounds.Height +4);
+                g.DrawRectangle(borderPen, borderRect);
 
                 // Text with enhanced readability on glass
                 Color enhancedTextColor = Color.FromArgb(255, scheme.Text);
-                using (var brush = new SolidBrush(enhancedTextColor))
-                {
-                    g.DrawString(text, font, brush, bounds, GetGlassStringFormat());
-                }
+                var textBrush = PaintersFactory.GetSolidBrush(enhancedTextColor);
+                g.DrawString(text, font, textBrush, bounds, GetGlassStringFormat());
             }
             finally
             {
@@ -189,9 +184,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         /// Paint text with animated glass shimmer effect
         /// </summary>
         public static void PaintGlassShimmer(Graphics g, Rectangle bounds, string text, bool isFocused,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float shimmerPhase = 0f)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float shimmerPhase =0f)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureGlassGraphics(g);
@@ -207,35 +202,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                     path.AddString(text, font.FontFamily, (int)font.Style, font.Size, bounds, StringFormat.GenericTypographic);
 
                     // Moving shimmer highlight
-                    var shimmerX = bounds.X + (int)((Math.Sin(shimmerPhase) * 0.5 + 0.5) * bounds.Width);
-                    var shimmerRect = new Rectangle(shimmerX - 20, bounds.Y, 40, bounds.Height);
+                    var shimmerX = bounds.X + (int)((Math.Sin(shimmerPhase) *0.5 +0.5) * bounds.Width);
+                    var shimmerRect = new Rectangle(shimmerX -20, bounds.Y,40, bounds.Height);
 
-                    using (var shimmerBrush = new LinearGradientBrush(shimmerRect,
-                        Color.FromArgb(0, 255, 255, 255),   // Transparent
-                        Color.FromArgb(120, 255, 255, 255), // Semi-transparent white
-                        LinearGradientMode.Horizontal))
-                    {
-                        ColorBlend colorBlend = new ColorBlend();
-                        colorBlend.Colors = new Color[] {
-                            Color.FromArgb(0, 255, 255, 255),
-                            Color.FromArgb(120, 255, 255, 255),
-                            Color.FromArgb(0, 255, 255, 255)
-                        };
-                        colorBlend.Positions = new float[] { 0.0f, 0.5f, 1.0f };
-                        shimmerBrush.InterpolationColors = colorBlend;
+                    var shimmerBrush = PaintersFactory.GetLinearGradientBrush(shimmerRect, Color.FromArgb(0,255,255,255), Color.FromArgb(120,255,255,255), LinearGradientMode.Horizontal);
+                    ColorBlend colorBlend = new ColorBlend();
+                    colorBlend.Colors = new Color[] {
+ Color.FromArgb(0,255,255,255),
+ Color.FromArgb(120,255,255,255),
+ Color.FromArgb(0,255,255,255)
+ };
+                    colorBlend.Positions = new float[] {0.0f,0.5f,1.0f };
+                    shimmerBrush.InterpolationColors = colorBlend;
 
-                        // Apply shimmer to text path
-                        g.SetClip(path);
-                        g.FillRectangle(shimmerBrush, shimmerRect);
-                        g.ResetClip();
-                    }
-
+                    // Apply shimmer to text path
+                    g.SetClip(path);
+                    g.FillRectangle(shimmerBrush, shimmerRect);
+                    g.ResetClip();
                     // Base text
-                    using (var brush = new SolidBrush(textColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var baseBrush = PaintersFactory.GetSolidBrush(textColor);
+                    g.FillPath(baseBrush, path);
                 }
+
+            
             }
             finally
             {

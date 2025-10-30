@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -114,25 +115,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         /// <summary>
         /// Paint Apple Design large title (iOS navigation bars, macOS window titles)
         /// </summary>
-        public static void PaintLargeTitle(Graphics g, Rectangle bounds, string text,
+        public static void PaintLargeTitle(Graphics g, Rectangle bounds, string text, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new AppleDesignTextPainter();
-            
+
             using (Font titleFont = painter.GetLargeTitleFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetTextColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Near,
                     LineAlignment = StringAlignment.Center,
                     Trimming = StringTrimming.EllipsisCharacter
                 };
-                
+
                 // Apply negative letter spacing for large titles
-                painter.DrawTextWithLetterSpacing(g, text, titleFont, brush, bounds, -0.4f);
+                painter.DrawTextWithLetterSpacing(g, text, titleFont, PaintersFactory.GetSolidBrush(painter.GetTextColor(style, theme, useThemeColors)), bounds, -0.4f);
             }
         }
 
@@ -153,19 +153,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new AppleDesignTextPainter();
-            
+
             using (Font footnoteFont = painter.GetFootnoteFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetSecondaryColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
+                var brush = PaintersFactory.GetSolidBrush(painter.GetSecondaryColor(style, theme, useThemeColors));
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Near,
                     LineAlignment = StringAlignment.Center,
                     Trimming = StringTrimming.EllipsisCharacter
                 };
-                
+
                 g.DrawString(text, footnoteFont, brush, bounds, format);
             }
         }

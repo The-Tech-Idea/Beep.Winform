@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
  
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -15,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (path == null) return path;
 
-            Color cyanGlow = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Neon);
+            Color cyanGlow = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Neon);
             float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Neon);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BorderPainterHelpers.PaintSimpleBorder(g, path, cyanGlow, borderWidth);
 
             // Neon: Always show intense glow
-            BorderPainterHelpers.PaintGlowBorder(g, path, cyanGlow, 6.0f, 1.0f);
+            BorderPainterHelpers.PaintGlowBorder(g, path, cyanGlow,6.0f,1.0f);
 
             return path;
         }

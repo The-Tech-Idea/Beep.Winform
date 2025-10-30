@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -22,9 +23,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         {
             return style switch
             {
-                BeepControlStyle.Material3 => 14f,
-                BeepControlStyle.MaterialYou => 14f,
-                _ => 14f
+                BeepControlStyle.Material3 =>14f,
+                BeepControlStyle.MaterialYou =>14f,
+                _ =>14f
             };
         }
 
@@ -32,9 +33,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         {
             return style switch
             {
-                BeepControlStyle.Material3 => 0.1f,      // Subtle tracking
-                BeepControlStyle.MaterialYou => 0.15f,   // Slightly wider for Material You
-                _ => 0.1f
+                BeepControlStyle.Material3 =>0.1f, // Subtle tracking
+                BeepControlStyle.MaterialYou =>0.15f, // Slightly wider for Material You
+                _ =>0.1f
             };
         }
 
@@ -87,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             }
             else
             {
-                // Material 3 uses Regular/Bold
+                // Material3 uses Regular/Bold
                 return isFocused ? "Bold" : "Regular";
             }
         }
@@ -101,9 +102,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             {
                 "Light" => FontStyle.Regular,
                 "Regular" => FontStyle.Regular,
-                "Medium" => FontStyle.Regular,  // System doesn't have Medium, use Regular
+                "Medium" => FontStyle.Regular, // System doesn't have Medium, use Regular
                 "Bold" => FontStyle.Bold,
-                "Black" => FontStyle.Bold,      // System doesn't have Black, use Bold
+                "Black" => FontStyle.Bold, // System doesn't have Black, use Bold
                 _ => FontStyle.Regular
             };
         }
@@ -120,8 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             
             // Use larger font for headlines
             using (Font headlineFont = painter.GetHeadlineFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetTextColor(style, theme, useThemeColors)))
             {
+                var brush = PaintersFactory.GetSolidBrush(painter.GetTextColor(style, theme, useThemeColors));
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                 
                 StringFormat format = new StringFormat
@@ -154,8 +155,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             var painter = new MaterialDesignTextPainter();
             
             using (Font captionFont = painter.GetCaptionFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetCaptionColor(style, theme, useThemeColors)))
             {
+                var brush = PaintersFactory.GetSolidBrush(painter.GetCaptionColor(style, theme, useThemeColors));
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                 g.DrawString(text, captionFont, brush, bounds, painter.GetStringFormat());
             }
@@ -163,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
         private Font GetHeadlineFont(BeepControlStyle style)
         {
-            float headlineSize = GetFontSize(style) + 6f;  // 20pt for headlines
+            float headlineSize = GetFontSize(style) +6f; //20pt for headlines
             string embeddedPath = BeepFontPaths.GetFontPath("Roboto", "Bold");
             
             if (!string.IsNullOrEmpty(embeddedPath))
@@ -179,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
         private Font GetCaptionFont(BeepControlStyle style)
         {
-            float captionSize = GetFontSize(style) - 2f;  // 12pt for captions
+            float captionSize = GetFontSize(style) -2f; //12pt for captions
             string embeddedPath = BeepFontPaths.GetFontPath("Roboto", "Regular");
             
             if (!string.IsNullOrEmpty(embeddedPath))

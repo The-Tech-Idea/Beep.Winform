@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -151,9 +152,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         /// Paint text with animated rainbow effect
         /// </summary>
         public static void PaintRainbowEffect(Graphics g, Rectangle bounds, string text, bool isFocused,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float animationPhase = 0f)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float animationPhase =0f)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureEffectGraphics(g);
@@ -169,24 +170,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
                     // Animated rainbow gradient
                     Color[] rainbowColors = GetRainbowColors(animationPhase);
-                    
-                    using (var brush = new LinearGradientBrush(bounds, rainbowColors[0], rainbowColors[1], LinearGradientMode.Horizontal))
-                    {
-                        ColorBlend colorBlend = new ColorBlend();
-                        colorBlend.Colors = rainbowColors;
-                        colorBlend.Positions = new float[] { 0.0f, 0.16f, 0.33f, 0.5f, 0.66f, 0.83f, 1.0f };
-                        brush.InterpolationColors = colorBlend;
 
-                        g.FillPath(brush, path);
-                    }
+                    var brush = PaintersFactory.GetLinearGradientBrush(bounds, rainbowColors[0], rainbowColors[1], LinearGradientMode.Horizontal);
+                    ColorBlend colorBlend = new ColorBlend();
+                    colorBlend.Colors = rainbowColors;
+                    colorBlend.Positions = new float[] {0.0f,0.16f,0.33f,0.5f,0.66f,0.83f,1.0f };
+                    brush.InterpolationColors = colorBlend;
+
+                    g.FillPath(brush, path);
 
                     // Add glow effect
                     if (isFocused)
                     {
-                        using (var glowPen = new Pen(Color.FromArgb(100, Color.White), 3))
-                        {
-                            g.DrawPath(glowPen, path);
-                        }
+                        var glowPen = PaintersFactory.GetPen(Color.FromArgb(100, Color.White),3);
+                        g.DrawPath(glowPen, path);
                     }
                 }
             }
@@ -200,9 +197,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         /// Paint text with pulsing glow effect
         /// </summary>
         public static void PaintPulsingGlow(Graphics g, Rectangle bounds, string text, bool isFocused,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float pulsePhase = 0f)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, float pulsePhase =0f)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureEffectGraphics(g);
@@ -213,26 +210,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             try
             {
                 // Calculate pulse intensity
-                float pulseIntensity = (float)(Math.Sin(pulsePhase) * 0.5 + 0.5); // 0.0 to 1.0
-                int glowAlpha = (int)(pulseIntensity * 150 + 50); // 50 to 200
-                int glowRadius = (int)(pulseIntensity * 8 + 2);   // 2 to 10
+                float pulseIntensity = (float)(Math.Sin(pulsePhase) *0.5 +0.5); //0.0 to1.0
+                int glowAlpha = (int)(pulseIntensity *150 +50); //50 to200
+                int glowRadius = (int)(pulseIntensity *8 +2); //2 to10
 
                 // Multi-layer pulsing glow
-                for (int i = glowRadius; i >= 1; i--)
+                for (int i = glowRadius; i >=1; i--)
                 {
-                    int layerAlpha = glowAlpha / (i + 1);
-                    using (var glowBrush = new SolidBrush(Color.FromArgb(layerAlpha, baseColor)))
-                    {
-                        var glowBounds = new Rectangle(bounds.X - i, bounds.Y - i, bounds.Width + (i * 2), bounds.Height + (i * 2));
-                        g.DrawString(text, font, glowBrush, glowBounds, GetEffectStringFormat());
-                    }
+                    int layerAlpha = glowAlpha / (i +1);
+                    var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(layerAlpha, baseColor));
+                    var glowBounds = new Rectangle(bounds.X - i, bounds.Y - i, bounds.Width + (i *2), bounds.Height + (i *2));
+                    g.DrawString(text, font, glowBrush, glowBounds, GetEffectStringFormat());
                 }
 
                 // Main text
-                using (var brush = new SolidBrush(baseColor))
-                {
-                    g.DrawString(text, font, brush, bounds, GetEffectStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(baseColor);
+                g.DrawString(text, font, brush, bounds, GetEffectStringFormat());
             }
             finally
             {
@@ -256,29 +249,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
                 // Outer glow layers (neon tube effect)
                 Color[] neonColors = { scheme.Primary, scheme.Secondary, scheme.Accent };
-                for (int layer = 0; layer < neonColors.Length; layer++)
+                for (int layer =0; layer < neonColors.Length; layer++)
                 {
-                    for (int i = 8 - layer * 2; i >= 1; i--)
+                    for (int i =8 - layer *2; i >=1; i--)
                     {
-                        int alpha = Math.Max(10, 80 - (i * 8) - (layer * 20));
-                        using (var pen = new Pen(Color.FromArgb(alpha, neonColors[layer]), i))
-                        {
-                            g.DrawPath(pen, path);
-                        }
+                        int alpha = Math.Max(10,80 - (i *8) - (layer *20));
+                        var pen = PaintersFactory.GetPen(Color.FromArgb(alpha, neonColors[layer]), i);
+                        g.DrawPath(pen, path);
                     }
                 }
 
                 // Bright neon core
-                using (var brush = new SolidBrush(Color.FromArgb(255, 255, 255)))
+                var coreBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(255,255,255));
+                using (var corePath = new GraphicsPath())
                 {
-                    using (var corePath = new GraphicsPath())
-                    {
-                        var coreSize = font.Size * 0.9f;
-                        var coreFont = new Font(font.FontFamily, coreSize, font.Style);
-                        corePath.AddString(text, coreFont.FontFamily, (int)coreFont.Style, coreFont.Size, bounds, StringFormat.GenericTypographic);
-                        g.FillPath(brush, corePath);
-                        coreFont.Dispose();
-                    }
+                    var coreSize = font.Size *0.9f;
+                    var coreFont = new Font(font.FontFamily, coreSize, font.Style);
+                    corePath.AddString(text, coreFont.FontFamily, (int)coreFont.Style, coreFont.Size, bounds, StringFormat.GenericTypographic);
+                    g.FillPath(coreBrush, corePath);
+                    coreFont.Dispose();
                 }
             }
         }
@@ -291,32 +280,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             // Neo-brutalist: Thick black outlines, bold colors, no anti-aliasing
             var oldSmoothing = g.SmoothingMode;
             var oldHint = g.TextRenderingHint;
-            
+
             g.SmoothingMode = SmoothingMode.None;
             g.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
 
             try
             {
                 // Thick black outline (brutalist shadow)
-                using (var outlineBrush = new SolidBrush(scheme.Primary))
+                var outlineBrush = PaintersFactory.GetSolidBrush(scheme.Primary);
+                for (int x = -3; x <=3; x++)
                 {
-                    for (int x = -3; x <= 3; x++)
+                    for (int y = -3; y <=3; y++)
                     {
-                        for (int y = -3; y <= 3; y++)
-                        {
-                            if (x == 0 && y == 0) continue;
-                            var outlineBounds = new Rectangle(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height);
-                            g.DrawString(text, font, outlineBrush, outlineBounds, GetEffectStringFormat());
-                        }
+                        if (x ==0 && y ==0) continue;
+                        var outlineBounds = new Rectangle(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height);
+                        g.DrawString(text, font, outlineBrush, outlineBounds, GetEffectStringFormat());
                     }
                 }
 
                 // Main text in contrasting color
                 Color mainColor = isFocused ? scheme.Accent : scheme.Secondary;
-                using (var brush = new SolidBrush(mainColor))
-                {
-                    g.DrawString(text, font, brush, bounds, GetEffectStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(mainColor);
+                g.DrawString(text, font, brush, bounds, GetEffectStringFormat());
             }
             finally
             {
@@ -333,13 +318,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             // Digital glitch effect
             Random random = new Random(text.GetHashCode());
-            
+
             for (int i = 0; i < 3; i++)
             {
                 int offsetX = random.Next(-2, 3);
                 int offsetY = random.Next(-1, 2);
                 int alpha = 60 - (i * 20);
-                
+
                 Color glitchColor = i switch
                 {
                     0 => Color.FromArgb(alpha, 255, 0, 0),   // Red channel
@@ -575,7 +560,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             {
                 // Electric arc effect with jagged lines
                 Random random = new Random(text.GetHashCode());
-                
+
                 using (var arcPen = new Pen(Color.FromArgb(150, electricBlue), 2))
                 {
                     // Draw random electric arcs around text
@@ -589,7 +574,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                             bounds.X + random.Next(bounds.Width),
                             bounds.Y + random.Next(bounds.Height)
                         );
-                        
+
                         g.DrawLine(arcPen, start, end);
                     }
                 }

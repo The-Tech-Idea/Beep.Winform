@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -171,17 +172,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             try
             {
-                using (var brush = new SolidBrush(titleColor))
+                var brush = PaintersFactory.GetSolidBrush(titleColor);
+                var format = new StringFormat
                 {
-                    var format = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    };
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    FormatFlags = StringFormatFlags.NoWrap
+                };
 
-                    g.DrawString(title, titleFont, brush, bounds, format);
-                }
+                g.DrawString(title, titleFont, brush, bounds, format);
             }
             finally
             {
@@ -208,16 +207,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 if (isFocused)
                 {
                     // Subtle highlight for focused state
-                    using (var highlightBrush = new SolidBrush(Color.FromArgb(30, Color.White)))
-                    {
-                        g.FillRectangle(highlightBrush, bounds);
-                    }
+                    var highlightBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, Color.White));
+                    g.FillRectangle(highlightBrush, bounds);
                 }
 
-                using (var brush = new SolidBrush(buttonColor))
-                {
-                    g.DrawString(text, buttonFont, brush, bounds, GetLinuxStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(buttonColor);
+                g.DrawString(text, buttonFont, brush, bounds, GetLinuxStringFormat());
             }
             finally
             {
@@ -232,21 +227,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static void PaintGnomeAdwaita(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            // GNOME Adwaita: Clean, minimal, rounded corners
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
 
             // Subtle bottom border for focused state (GNOME Style)
             if (isFocused)
             {
                 var scheme = LinuxSchemes[0]; // GNOME
-                using (var borderPen = new Pen(scheme.Primary, 2))
-                {
-                    var borderY = bounds.Bottom - 1;
-                    g.DrawLine(borderPen, bounds.X + 4, borderY, bounds.Right - 4, borderY);
-                }
+                var borderPen = PaintersFactory.GetPen(scheme.Primary,2);
+                var borderY = bounds.Bottom -1;
+                g.DrawLine(borderPen, bounds.X +4, borderY, bounds.Right -4, borderY);
             }
         }
 
@@ -258,67 +248,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             {
                 // KDE-Style subtle glow
                 var scheme = LinuxSchemes[1]; // KDE
-                using (var glowBrush = new SolidBrush(Color.FromArgb(40, scheme.Primary)))
-                {
-                    var glowBounds = new Rectangle(bounds.X - 2, bounds.Y - 1, bounds.Width + 4, bounds.Height + 2);
-                    g.FillRectangle(glowBrush, glowBounds);
-                }
+                var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(40, scheme.Primary));
+                var glowBounds = new Rectangle(bounds.X -2, bounds.Y -1, bounds.Width +4, bounds.Height +2);
+                g.FillRectangle(glowBrush, glowBounds);
             }
 
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
         }
 
         private static void PaintElementaryOS(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            // elementary OS: Clean, Apple-inspired with purple accents
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
 
             // elementary-Style accent line
             if (isFocused)
             {
                 var scheme = LinuxSchemes[2]; // elementary
-                using (var accentPen = new Pen(scheme.Primary, 1))
-                {
-                    g.DrawLine(accentPen, bounds.X, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
-                }
+                var accentPen = PaintersFactory.GetPen(scheme.Primary,1);
+                g.DrawLine(accentPen, bounds.X, bounds.Bottom -1, bounds.Right, bounds.Bottom -1);
             }
         }
 
         private static void PaintCinnamon(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            // Cinnamon: Traditional with green mint accents
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
 
             // Mint green highlight for focus
             if (isFocused)
             {
                 var scheme = LinuxSchemes[3]; // Cinnamon
-                using (var highlightBrush = new SolidBrush(Color.FromArgb(25, scheme.Primary)))
-                {
-                    g.FillRectangle(highlightBrush, bounds);
-                }
+                var highlightBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(25, scheme.Primary));
+                g.FillRectangle(highlightBrush, bounds);
             }
         }
 
         private static void PaintGenericLinux(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            // Generic Linux styling
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetLinuxStringFormat());
         }
 
         #endregion

@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -11,21 +12,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class BorderPainterHelpers
     {
-       
         /// <summary>
         /// Paint a simple border with the given color and width
         /// </summary>
         public static void PaintSimpleBorder(Graphics g, GraphicsPath path, Color borderColor, float borderWidth, ControlState state = ControlState.Normal)
         {
             Color stateAdjustedColor = ApplyState(borderColor, state);
-            
+
             if (borderWidth > 0 && stateAdjustedColor.A > 0)
             {
-                using (var pen = new Pen(stateAdjustedColor, borderWidth))
-                {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.DrawPath(pen, path);
-                }
+                var pen = PaintersFactory.GetPen(stateAdjustedColor, borderWidth);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawPath(pen, path);
             }
         }
 
@@ -39,11 +37,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             int glowAlpha = (int)(glowColor.A * glowIntensity);
             Color adjustedGlow = Color.FromArgb(Math.Max(0, Math.Min(255, glowAlpha)), glowColor);
 
-            using (var glowPen = new Pen(adjustedGlow, glowWidth))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.DrawPath(glowPen, path);
-            }
+            var glowPen = PaintersFactory.GetPen(adjustedGlow, glowWidth);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawPath(glowPen, path);
         }
 
         /// <summary>
@@ -54,10 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             if (barWidth <= 0 || accentColor.A == 0) return;
 
             var barRect = new Rectangle(bounds.X, bounds.Y, barWidth, bounds.Height);
-            using (var brush = new SolidBrush(accentColor))
-            {
-                g.FillRectangle(brush, barRect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(accentColor);
+            g.FillRectangle(brush, barRect);
         }
 
         /// <summary>
@@ -76,11 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     ringPath.Transform(wideMatrix);
                 }
 
-                using (var ringPen = new Pen(ringColor, ringWidth))
-                {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.DrawPath(ringPen, ringPath);
-                }
+                var ringPen = PaintersFactory.GetPen(ringColor, ringWidth);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawPath(ringPen, ringPath);
             }
         }
 

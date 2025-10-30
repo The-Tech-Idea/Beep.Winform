@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class StatCardPainter : CardPainterBase
     {
+        private Font _valueFont;
+        private Font _trendFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _valueFont?.Dispose(); } catch { }
+            try { _trendFont?.Dispose(); } catch { }
+            _valueFont = new Font(Owner.Font.FontFamily, 24f, FontStyle.Bold);
+            _trendFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -23,7 +36,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             int headerTop = ctx.DrawingRect.Top + pad + (ctx.ShowImage ? 40 : 0);
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, headerTop, ctx.DrawingRect.Width - pad * 2, 36);
             ctx.ParagraphRect = new Rectangle(ctx.HeaderRect.Left, ctx.HeaderRect.Bottom + 4, ctx.HeaderRect.Width, 20);
-
             ctx.SubtitleRect = new Rectangle(Math.Max(ctx.DrawingRect.Right - pad - 80, ctx.HeaderRect.Left), Math.Max(ctx.DrawingRect.Bottom - pad - 16, ctx.ParagraphRect.Bottom + 4), 75, 16);
 
             if (ctx.ShowStatus)
@@ -41,13 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
-            // Draw main value with large, bold font
             if (!string.IsNullOrEmpty(ctx.SubtitleText)) // Main stat value in SubtitleText
             {
-                using var valueFont = new Font(Owner.Font.FontFamily, 24f, FontStyle.Bold);
-                using var valueBrush = new SolidBrush(ctx.AccentColor);
+                var valueBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, valueFont, valueBrush, ctx.HeaderRect, format);
+                g.DrawString(ctx.SubtitleText, _valueFont, valueBrush, ctx.HeaderRect, format);
             }
             
             // Draw trend indicator with color coding
@@ -55,16 +65,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             {
                 Color trendColor = ctx.StatusText.StartsWith("+") ? Color.Green : 
                                    ctx.StatusText.StartsWith("-") ? Color.Red : Color.Gray;
-                using var trendFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var trendBrush = new SolidBrush(trendColor);
+                var trendBrush = PaintersFactory.GetSolidBrush(trendColor);
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, trendFont, trendBrush, ctx.SubtitleRect, format);
+                g.DrawString(ctx.StatusText, _trendFont, trendBrush, ctx.SubtitleRect, format);
             }
             
             // Draw status accent line at bottom
             if (ctx.ShowStatus)
             {
-                using var statusBrush = new SolidBrush(ctx.StatusColor);
+                var statusBrush = PaintersFactory.GetSolidBrush(ctx.StatusColor);
                 g.FillRectangle(statusBrush, ctx.StatusRect);
             }
         }

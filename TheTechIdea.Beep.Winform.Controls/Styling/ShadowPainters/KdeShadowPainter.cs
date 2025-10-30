@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -26,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 return path; // No glow in normal/pressed/disabled states
             }
 
-            Color breezeBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Kde);
+            Color breezeBlue = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Kde);
             int glowRadius = StyleShadows.GetShadowBlur(BeepControlStyle.Kde); // 12px
             float intensity = 0.6f;
 
@@ -61,10 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                         glowPath.CloseFigure();
                     }
 
-                    using (var pen = new Pen(Color.FromArgb((int)(alpha * 255), breezeBlue), 2f))
-                    {
-                        g.DrawPath(pen, glowPath);
-                    }
+                    var pen = PaintersFactory.GetPen(Color.FromArgb((int)(alpha * 255), breezeBlue), 2f);
+                    g.DrawPath(pen, glowPath);
                 }
             }
 

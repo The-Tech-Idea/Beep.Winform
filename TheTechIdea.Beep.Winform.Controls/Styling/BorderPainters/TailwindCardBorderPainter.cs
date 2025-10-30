@@ -4,11 +4,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
-    /// TailwindCard border painter - 1px border + ring effect on focus
+    /// TailwindCard border painter -1px border + ring effect on focus
     /// Tailwind UX: Prominent rings with utility-first state behaviors
     /// </summary>
     public static class TailwindCardBorderPainter
@@ -17,31 +18,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            Color baseBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(229, 231, 235));
-            Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(59, 130, 246));
+            Color baseBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(229,231,235));
+            Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(59,130,246));
             Color borderColor = baseBorderColor;
             bool showRing = false;
-            int ringAlpha = 100;
+            int ringAlpha =100;
 
             switch (state)
             {
                 case ControlState.Hovered:
-                    borderColor = BorderPainterHelpers.Darken(baseBorderColor, 0.1f);
+                    borderColor = BorderPainterHelpers.Darken(baseBorderColor,0.1f);
                     showRing = true;
-                    ringAlpha = 60;
+                    ringAlpha =60;
                     break;
                 case ControlState.Pressed:
-                    borderColor = BorderPainterHelpers.Darken(baseBorderColor, 0.2f);
+                    borderColor = BorderPainterHelpers.Darken(baseBorderColor,0.2f);
                     showRing = true;
-                    ringAlpha = 140;
+                    ringAlpha =140;
                     break;
                 case ControlState.Selected:
                     borderColor = primaryColor;
                     showRing = true;
-                    ringAlpha = 100;
+                    ringAlpha =100;
                     break;
                 case ControlState.Disabled:
-                    borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 70);
+                    borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor,70);
                     showRing = false;
                     break;
             }
@@ -49,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             if (isFocused)
             {
                 showRing = true;
-                ringAlpha = 100;
+                ringAlpha =100;
             }
 
             float borderWidth = StyleBorders.GetBorderWidth(style);
@@ -64,8 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Return the area inside the border
-                // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+            return path.CreateInsetPath(borderWidth);
         }
     }
 }

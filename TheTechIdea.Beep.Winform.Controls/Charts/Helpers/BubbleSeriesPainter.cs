@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -40,8 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     float bubbleSize = maxValue > 0 ? p.Value / maxValue * maxBubbleSize : minBubbleSize;
                     bubbleSize = Math.Max(bubbleSize * anim, minBubbleSize);
 
-                    using var brush = new SolidBrush(Color.FromArgb(150, color));
-                    using var pen = new Pen(axisColor, 1);
+                    var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, color));
+                    var pen = PaintersFactory.GetPen(axisColor, 1);
                     g.FillEllipse(brush, sx - bubbleSize / 2, sy - bubbleSize / 2, bubbleSize, bubbleSize);
                     g.DrawEllipse(pen, sx - bubbleSize / 2, sy - bubbleSize / 2, bubbleSize, bubbleSize);
                 }

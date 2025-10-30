@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -14,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public override void DrawBackground(Graphics g, ChartLayout ctx)
         {
             SoftShadow(g, ctx.DrawingRect, ctx.Radius + 2, layers: 5, offset: 3);
-            using var bg = new SolidBrush(Theme?.CardBackColor ?? Color.White);
+            var bg = PaintersFactory.GetSolidBrush(Theme?.CardBackColor ?? Color.White);
             using var path = Round(ctx.DrawingRect, ctx.Radius + 2);
             g.FillPath(bg, path);
         }
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         {
             // accent underline below title area
             var line = new Rectangle(ctx.DrawingRect.Left + 12, ctx.DrawingRect.Top + 36, ctx.DrawingRect.Width - 24, 2);
-            using var accent = new SolidBrush(Color.FromArgb(64, ctx.AccentColor));
+            var accent = PaintersFactory.GetSolidBrush(Color.FromArgb(64, ctx.AccentColor));
             g.FillRectangle(accent, line);
         }
     }

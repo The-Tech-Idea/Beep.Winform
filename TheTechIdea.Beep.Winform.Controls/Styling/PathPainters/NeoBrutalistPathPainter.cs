@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -19,8 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             ControlState state = ControlState.Normal)
         {
             // NeoBrutalist: BOLD flat colors (yellow/magenta), sharp edges
-            Color fillColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.NeoBrutalist);
-            Color secondaryColor = useThemeColors ? theme.SecondaryColor : StyleColors.GetSecondary(BeepControlStyle.NeoBrutalist);
+            Color fillColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.NeoBrutalist);
+            Color secondaryColor = useThemeColors && theme != null ? theme.SecondaryColor : StyleColors.GetSecondary(BeepControlStyle.NeoBrutalist);
             int brutalistRadius = StyleBorders.GetRadius(BeepControlStyle.NeoBrutalist); // 0px - SHARP!
 
             // NeoBrutalist: Use secondary (magenta) for paths (bold!)
@@ -29,11 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             // Create sharp-edged rectangle path (NeoBrutalist signature)
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, brutalistRadius))
             {
-                // Paint with FLAT color (NO gradients - brutalist!)
-                using (var brush = new SolidBrush(pathColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                var brush = PaintersFactory.GetSolidBrush(pathColor);
+                g.FillPath(brush, path);
             }
         }
     }

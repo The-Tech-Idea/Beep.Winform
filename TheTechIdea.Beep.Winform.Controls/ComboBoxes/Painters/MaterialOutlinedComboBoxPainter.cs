@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -15,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBackground(Graphics g, Rectangle rect)
         {
             Color bgColor = _helper.GetBackgroundColor();
-            using (var brush = new SolidBrush(bgColor))
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
                 g.FillPath(brush, path);
@@ -30,10 +31,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             float borderWidth = _owner.Focused ? 2f : 1f;
             
-            using (var pen = new Pen(borderColor, borderWidth))
+            var pen = PaintersFactory.GetPen(borderColor, borderWidth);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
-                pen.Alignment = PenAlignment.Inset;
+                // Pen alignment requires a clone if modification needed; here we don't modify
                 g.DrawPath(pen, path);
             }
             
@@ -59,8 +60,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         private void DrawFloatingLabel(Graphics g, Rectangle rect, Color labelColor)
         {
             // Position label at top-left with gap in border
-            var labelFont = new Font(_theme?.LabelFont?.FontFamily , 
-                                     8f, FontStyle.Regular);
+            Font labelFont;
+            // _theme.LabelFont is a TypographyStyle in this project
+            if (_theme?.LabelFont != null)
+            {
+                var tf = _theme.LabelFont; // TypographyStyle
+                var family = string.IsNullOrEmpty(tf.FontFamily) ? "Segoe UI" : tf.FontFamily;
+                var size = tf.FontSize > 0 ? tf.FontSize : 8f;
+                var style = tf.FontStyle;
+                labelFont = PaintersFactory.GetFont(family, size, style);
+            }
+            else
+            {
+                labelFont = PaintersFactory.GetFont("Segoe UI", 8f, FontStyle.Regular);
+            }
             
             string labelText = _owner.LabelText;
             var labelSize = TextRenderer.MeasureText(labelText, labelFont);
@@ -71,11 +84,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             // Clear background behind label
             var bgColor = _helper.GetBackgroundColor();
-            using (var bgBrush = new SolidBrush(bgColor))
-            {
-                var clearRect = new Rectangle(labelX - 4, labelY, labelSize.Width + 8, labelSize.Height);
-                g.FillRectangle(bgBrush, clearRect);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+            var clearRect = new Rectangle(labelX - 4, labelY, labelSize.Width + 8, labelSize.Height);
+            g.FillRectangle(bgBrush, clearRect);
             
             // Draw label text
             TextRenderer.DrawText(g, labelText, labelFont, 

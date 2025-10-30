@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -73,19 +74,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         public virtual void Paint(Graphics g, Rectangle bounds, string text, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             Color textColor = GetTextColor(style, theme, useThemeColors);
-            
+
             using (Font font = GetFont(style, isFocused))
-            using (SolidBrush brush = new SolidBrush(textColor))
             {
+                var brush = PaintersFactory.GetSolidBrush(textColor);
                 g.TextRenderingHint = GetRenderingHint();
                 
                 // Apply letter spacing if supported
                 float letterSpacing = GetLetterSpacing(style);
-                if (letterSpacing != 0 && ShouldUseLetterSpacing(style))
+                if (letterSpacing !=0 && ShouldUseLetterSpacing(style))
                 {
                     DrawTextWithLetterSpacing(g, text, font, brush, bounds, letterSpacing);
                 }

@@ -4,12 +4,12 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Microsoft Fluent Design 2 tree painter.
+    /// Microsoft Fluent Design2 tree painter.
     /// Features: Acrylic blur effects, subtle reveals, smooth animations, modern spacing.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
@@ -19,9 +19,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int RevealBorderWidth = 1;
         private const float AcrylicTintOpacity = 0.15f;
 
+        private Font _regularFont;
+        private Font _boldFont;
+        private static readonly Random _rand = new();
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
+            if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
+            {
+                try { _boldFont?.Dispose(); } catch { }
+                _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
+            }
+        }
+
         /// <summary>
         /// Fluent2-specific node painting with acrylic backgrounds and reveal borders.
-        /// Features: Acrylic tint overlays, reveal borders on selection/hover, subtle mica texture.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
@@ -45,29 +59,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                     if (isSelected || isHovered)
                     {
-                        using (var surfaceBrush = new SolidBrush(surfaceColor))
-                        {
-                            g.FillPath(surfaceBrush, acrylicPath);
-                        }
+                        var surfaceBrush = PaintersFactory.GetSolidBrush(surfaceColor);
+                        g.FillPath(surfaceBrush, acrylicPath);
 
                         // STEP 2: Acrylic tint overlay (only on selection)
                         if (isSelected)
                         {
-                            using (var tintBrush = new SolidBrush(
-                                Color.FromArgb((int)(255 * AcrylicTintOpacity), _theme.AccentColor)))
-                            {
-                                g.FillPath(tintBrush, acrylicPath);
-                            }
+                            var tintBrush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(255 * AcrylicTintOpacity), _theme.AccentColor));
+                            g.FillPath(tintBrush, acrylicPath);
                         }
 
                         // STEP 3: Reveal border
-                        Color borderColor = isSelected ? _theme.AccentColor :
-                                          Color.FromArgb(60, _theme.TreeForeColor);
-                        
-                        using (var revealPen = new Pen(borderColor, RevealBorderWidth))
-                        {
-                            g.DrawPath(revealPen, acrylicPath);
-                        }
+                        Color borderColor = isSelected ? _theme.AccentColor : Color.FromArgb(60, _theme.TreeForeColor);
+                        var revealPen = PaintersFactory.GetPen(borderColor, RevealBorderWidth);
+                        g.DrawPath(revealPen, acrylicPath);
                     }
                 }
 
@@ -81,14 +86,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Subtle circular hover background
                     if (isHovered)
                     {
-                        using (var hoverBrush = new SolidBrush(Color.FromArgb(20, chevronColor)))
-                        {
-                            g.FillEllipse(hoverBrush, toggleRect);
-                        }
+                        var hoverBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, chevronColor));
+                        g.FillEllipse(hoverBrush, toggleRect);
                     }
 
                     // Draw Fluent-Style chevron
-                    using (var pen = new Pen(chevronColor, 1.5f))
+                    using (var pen = PaintersFactory.GetPen(chevronColor, 1.5f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
@@ -119,36 +122,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
-                    // Fluent rounded checkbox
                     using (var checkPath = CreateRoundedRectangle(checkRect, 2))
                     {
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, checkPath);
-                        }
+                        var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                        g.FillPath(bgBrush, checkPath);
 
-                        using (var borderPen = new Pen(borderColor, 1.5f))
-                        {
-                            g.DrawPath(borderPen, checkPath);
-                        }
+                        var borderPen = PaintersFactory.GetPen(borderColor, 1.5f);
+                        g.DrawPath(borderPen, checkPath);
                     }
 
                     // Fluent checkmark
                     if (node.Item.IsChecked)
                     {
-                        using (var checkPen = new Pen(Color.White, 1.5f))
-                        {
-                            checkPen.StartCap = LineCap.Round;
-                            checkPen.EndCap = LineCap.Round;
+                        var checkPen = PaintersFactory.GetPen(Color.White, 1.5f);
+                        checkPen.StartCap = LineCap.Round;
+                        checkPen.EndCap = LineCap.Round;
 
-                            var points = new Point[]
-                            {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                            };
-                            g.DrawLines(checkPen, points);
-                        }
+                        var points = new Point[]
+                        {
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                        };
+                        g.DrawLines(checkPen, points);
                     }
                 }
 
@@ -165,12 +161,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // Fluent uses Segoe UI Variable
-                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    var renderFont = _regularFont ?? SystemFonts.DefaultFont;
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -190,22 +183,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
                     // Acrylic base
-                    using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                    g.FillPath(brush, path);
 
                     // Tint overlay
-                    using (var tintBrush = new SolidBrush(Color.FromArgb((int)(255 * AcrylicTintOpacity), _theme.AccentColor)))
-                    {
-                        g.FillPath(tintBrush, path);
-                    }
+                    var tintBrush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(255 * AcrylicTintOpacity), _theme.AccentColor));
+                    g.FillPath(tintBrush, path);
 
                     // Reveal border (accent)
-                    using (var pen = new Pen(_theme.AccentColor, RevealBorderWidth))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    var pen = PaintersFactory.GetPen(_theme.AccentColor, RevealBorderWidth);
+                    g.DrawPath(pen, path);
                 }
             }
             else if (isHovered)
@@ -213,16 +200,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle reveal effect
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                    g.FillPath(hoverBrush, path);
 
                     // Reveal border (subtle)
-                    using (var pen = new Pen(Color.FromArgb(60, _theme.TreeForeColor), RevealBorderWidth))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    var pen = PaintersFactory.GetPen(Color.FromArgb(60, _theme.TreeForeColor), RevealBorderWidth);
+                    g.DrawPath(pen, path);
                 }
             }
         }
@@ -237,14 +220,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isHovered)
             {
                 // Subtle hover background
-                using (var hoverBrush = new SolidBrush(Color.FromArgb(20, chevronColor)))
-                {
-                    g.FillEllipse(hoverBrush, toggleRect);
-                }
+                var hoverBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, chevronColor));
+                g.FillEllipse(hoverBrush, toggleRect);
             }
 
             // Chevron icon
-            using (var pen = new Pen(chevronColor, 1.5f))
+            using (var pen = PaintersFactory.GetPen(chevronColor, 1.5f))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
@@ -301,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     iconRect.Height - padding * 2);
 
                 // Folder shape
-                path.AddLine(innerRect.Left, innerRect.Top + innerRect.Height / 4, 
+                path.AddLine(innerRect.Left, innerRect.Top + innerRect.Height / 4,
                              innerRect.Left + innerRect.Width / 3, innerRect.Top + innerRect.Height / 4);
                 path.AddLine(innerRect.Left + innerRect.Width / 3, innerRect.Top + innerRect.Height / 4,
                              innerRect.Left + innerRect.Width / 3 + 3, innerRect.Top);
@@ -312,13 +293,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 path.CloseFigure();
 
                 // Subtle fill
-                using (var fillBrush = new SolidBrush(Color.FromArgb(30, iconColor)))
-                {
-                    g.FillPath(fillBrush, path);
-                }
+                var fillBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, iconColor));
+                g.FillPath(fillBrush, path);
 
                 // Outline
-                using (var pen = new Pen(iconColor, 1.5f))
+                using (var pen = PaintersFactory.GetPen(iconColor, 1.5f))
                 {
                     pen.LineJoin = LineJoin.Round;
                     g.DrawPath(pen, path);
@@ -332,24 +311,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // Fluent typography (Segoe UI Variable)
-            Font renderFont = new Font("Segoe UI", font.Size, isSelected ? FontStyle.Regular : FontStyle.Regular);
-
+            var renderFont = _regularFont ?? SystemFonts.DefaultFont;
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
-            renderFont.Dispose();
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
         {
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Background with subtle mica effect
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var brush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+            g.FillRectangle(brush, bounds);
 
             // Subtle noise texture (mica simulation)
             PaintMicaTexture(g, bounds);
@@ -362,16 +334,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         private void PaintMicaTexture(Graphics g, Rectangle bounds)
         {
-            // Very subtle noise for mica effect
-            Random rand = new Random(bounds.GetHashCode());
-            using (var pen = new Pen(Color.FromArgb(3, _theme.TreeForeColor)))
+            var dotPen = PaintersFactory.GetPen(Color.FromArgb(3, _theme.TreeForeColor), 1);
+            int count = Math.Max(1, bounds.Width * bounds.Height / 2000);
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < bounds.Width * bounds.Height / 2000; i++)
-                {
-                    int x = rand.Next(bounds.Left, bounds.Right);
-                    int y = rand.Next(bounds.Top, bounds.Bottom);
-                    g.DrawRectangle(pen, x, y, 1, 1);
-                }
+                int x = _rand.Next(bounds.Left, bounds.Right);
+                int y = _rand.Next(bounds.Top, bounds.Bottom);
+                g.DrawRectangle(dotPen, x, y, 1, 1);
             }
         }
 

@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBackground(Graphics g, Rectangle rect)
         {
             Color bgColor = _helper.GetBackgroundColor();
-            using (var brush = new SolidBrush(bgColor))
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
                 g.FillPath(brush, path);
@@ -23,13 +24,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(200, _theme?.BorderColor ?? Color.LightGray);
-            using (var pen = new Pen(borderColor, 1.5f))
+            var basePen = PaintersFactory.GetPen(borderColor, 1.5f);
+            // need to modify LineJoin, clone the cached pen
+            var pen = (System.Drawing.Pen)basePen.Clone();
+            try
             {
                 pen.LineJoin = LineJoin.Round;
                 using (var path = GetRoundedRectPath(rect, BorderRadius))
                 {
                     g.DrawPath(pen, path);
                 }
+            }
+            finally
+            {
+                pen.Dispose();
             }
         }
         
@@ -61,19 +69,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBackground(Graphics g, Rectangle rect)
         {
             Color bgColor = Color.FromArgb(30, 30, 30);
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillRectangle(brush, rect);
         }
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(80, 80, 80);
-            using (var pen = new Pen(borderColor, 2f))
-            {
-                g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-            }
+            var pen = PaintersFactory.GetPen(borderColor, 2f);
+            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
         
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
@@ -107,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             Color bgColor = _helper.GetBackgroundColor();
             int radius = rect.Height / 2; // Full pill shape
             
-            using (var brush = new SolidBrush(bgColor))
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
             using (var path = GetPillPath(rect))
             {
                 g.FillPath(brush, path);
@@ -120,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 ? _theme?.PrimaryColor ?? Color.Blue
                 : (_theme?.BorderColor ?? Color.Gray);
             
-            using (var pen = new Pen(borderColor, _owner.Focused ? 2f : 1f))
+            var pen = PaintersFactory.GetPen(borderColor, _owner.Focused ? 2f : 1f);
             using (var path = GetPillPath(rect))
             {
                 g.DrawPath(pen, path);

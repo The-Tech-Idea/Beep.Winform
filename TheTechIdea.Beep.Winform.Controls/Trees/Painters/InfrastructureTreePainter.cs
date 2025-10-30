@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -18,6 +19,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int PillHeight = 18;
         private const int PillPadding = 6;
         private const int BadgeSize = 16;
+
+        private Font _regularFont;
+        private Font _badgeFont;
 
         /// <summary>
         /// Infrastructure-specific node painting with VMware vSphere Style.
@@ -38,24 +42,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw infrastructure background
                 if (isSelected || isHovered)
                 {
-                    Color backColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-                    using (var bgBrush = new SolidBrush(backColor))
-                    {
-                        g.FillRectangle(bgBrush, nodeBounds);
-                    }
+                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                    g.FillRectangle(bgBrush, nodeBounds);
 
                     // STEP 2: Infrastructure border (accent on selection)
                     if (isSelected)
                     {
-                        using (var borderPen = new Pen(_theme.AccentColor, 1f))
-                        {
-                            Rectangle borderRect = new Rectangle(
-                                nodeBounds.X,
-                                nodeBounds.Y,
-                                nodeBounds.Width - 1,
-                                nodeBounds.Height - 1);
-                            g.DrawRectangle(borderPen, borderRect);
-                        }
+                        var borderPen = PaintersFactory.GetPen(_theme.AccentColor, 1f);
+                        var borderRect = new Rectangle(nodeBounds.X, nodeBounds.Y, nodeBounds.Width - 1, nodeBounds.Height - 1);
+                        g.DrawRectangle(borderPen, borderRect);
                     }
                 }
 
@@ -64,29 +59,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
                     var toggleRect = node.ToggleRectContent;
-                    Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
+                    var pen = PaintersFactory.GetPen(isHovered ? _theme.AccentColor : _theme.TreeForeColor, 2f);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
 
-                    using (var pen = new Pen(chevronColor, 2f))
+                    int centerX = toggleRect.Left + toggleRect.Width / 2;
+                    int centerY = toggleRect.Top + toggleRect.Height / 2;
+                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                    if (node.Item.IsExpanded)
                     {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                        if (node.Item.IsExpanded)
-                        {
-                            // Chevron down (v)
-                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                        }
-                        else
-                        {
-                            // Chevron right (>)
-                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                        }
+                        // Chevron down (v)
+                        g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                        g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                    }
+                    else
+                    {
+                        // Chevron right (>)
+                        g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                        g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
                     }
                 }
 
@@ -94,31 +85,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
-                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
-                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+                    var bgBrush = PaintersFactory.GetSolidBrush(node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor);
+                    g.FillRectangle(bgBrush, checkRect);
 
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, checkRect);
-                    }
-
-                    using (var borderPen = new Pen(borderColor, 1f))
-                    {
-                        g.DrawRectangle(borderPen, checkRect);
-                    }
+                    var borderPen = PaintersFactory.GetPen(node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor, 1f);
+                    g.DrawRectangle(borderPen, checkRect);
 
                     if (node.Item.IsChecked)
                     {
-                        using (var checkPen = new Pen(Color.White, 2f))
+                        var checkPen = PaintersFactory.GetPen(Color.White, 2f);
+                        var points = new Point[]
                         {
-                            var points = new Point[]
-                            {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                            };
-                            g.DrawLines(checkPen, points);
-                        }
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                        };
+                        g.DrawLines(checkPen, points);
                     }
                 }
 
@@ -126,20 +108,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.IconRectContent != Rectangle.Empty && !string.IsNullOrEmpty(node.Item.ImagePath))
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
-                    PaintIcon(g, iconRect, node.Item.ImagePath);
+                    try { StyledImagePainter.Paint(g, iconRect, node.Item.ImagePath, _owner?.ControlStyle ?? Common.BeepControlStyle.Minimal); } catch { PaintDefaultIcon(g, iconRect); }
                 }
 
                 // STEP 6: Draw text
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = node.TextRectContent;
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
-
-                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
 
                 // STEP 7: Draw infrastructure-specific status pill (right side of node)
@@ -158,23 +135,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Draw status pill
                     using (var pillPath = CreateRoundedRectangle(pillRect, 3))
                     {
-                        using (var pillBrush = new SolidBrush(Color.FromArgb(120, statusColor)))
-                        {
-                            g.FillPath(pillBrush, pillPath);
-                        }
+                        var pillBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, statusColor));
+                        g.FillPath(pillBrush, pillPath);
 
-                        using (var pillPen = new Pen(statusColor, 1f))
-                        {
-                            g.DrawPath(pillPen, pillPath);
-                        }
+                        var pillPen = PaintersFactory.GetPen(statusColor, 1f);
+                        g.DrawPath(pillPen, pillPath);
                     }
 
-                    // Draw status text
-                    using (var pillFont = new Font("Segoe UI", 7f, FontStyle.Bold))
-                    {
-                        TextRenderer.DrawText(g, statusText, pillFont, pillRect, Color.White,
-                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    TextRenderer.DrawText(g, statusText, _badgeFont, pillRect, Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -269,116 +237,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
         private void PaintDefaultIcon(Graphics g, Rectangle iconRect)
         {
-            // Simple folder/resource icon for infrastructure
-            Color iconColor = _theme.AccentColor;
-            using (var brush = new SolidBrush(iconColor))
-            {
-                int padding = 2;
-                var rect = new Rectangle(
-                    iconRect.X + padding,
-                    iconRect.Y + padding,
-                    iconRect.Width - padding * 2,
-                    iconRect.Height - padding * 2);
-                g.FillRectangle(brush, rect);
-            }
-        }
-
-        public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
-        {
-            if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
-
-            // Use tree-specific text colors
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
-
-            TextRenderer.DrawText(g, text, font, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-        }
-
-        public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
-        {
-            if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
-
-            // Background fill using tree-specific theme color
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
-
-            // Paint connection lines for hierarchy
-            PaintHierarchyLines(g, owner);
-
-            // Let base painter handle individual nodes
-            base.Paint(g, owner, bounds);
-        }
-
-        private void PaintHierarchyLines(Graphics g, BeepTree owner)
-        {
-            // Draw subtle vertical connection lines showing parent-child relationships
-            Color lineColor = Color.FromArgb(50, _theme.BorderColor);
-            using (var pen = new Pen(lineColor, 1))
-            {
-                pen.DashStyle = DashStyle.Dot;
-                // This would need access to layout helper to draw actual lines
-                // For now, lines are drawn as part of node rendering
-            }
-        }
-
-        /// <summary>
-        /// Paint status tags/pills next to node (e.g., "Running", "Stopped", "Warning").
-        /// This is called by the tree when rendering custom metadata.
-        /// </summary>
-        public void PaintStatusPill(Graphics g, Rectangle pillRect, string status, Color pillColor)
-        {
-            if (pillRect.Width <= 0 || pillRect.Height <= 0) return;
-
-            // Rounded rectangle pill
-            using (var path = CreateRoundedRectangle(pillRect, 3))
-            {
-                // Semi-transparent background
-                using (var brush = new SolidBrush(Color.FromArgb(120, pillColor)))
-                {
-                    g.FillPath(brush, path);
-                }
-
-                // Brighter border
-                using (var pen = new Pen(pillColor, 1))
-                {
-                    g.DrawPath(pen, path);
-                }
-            }
-
-            // Draw status text
-            if (!string.IsNullOrEmpty(status))
-            {
-                using (var font = new Font("Segoe UI", 7f, FontStyle.Bold))
-                {
-                    TextRenderer.DrawText(g, status, font, pillRect, Color.White,
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Paint metric badge (e.g., CPU usage, memory usage).
-        /// </summary>
-        public void PaintMetricBadge(Graphics g, Rectangle badgeRect, string metric, Color metricColor)
-        {
-            if (badgeRect.Width <= 0 || badgeRect.Height <= 0) return;
-
-            // Circular badge with metric value
-            using (var brush = new SolidBrush(Color.FromArgb(180, metricColor)))
-            {
-                g.FillEllipse(brush, badgeRect);
-            }
-
-            if (!string.IsNullOrEmpty(metric))
-            {
-                using (var font = new Font("Segoe UI", 6.5f, FontStyle.Bold))
-                {
-                    TextRenderer.DrawText(g, metric, font, badgeRect, Color.White,
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                }
-            }
+            var brush = PaintersFactory.GetSolidBrush(_theme.AccentColor);
+            int padding = 2;
+            var rect = new Rectangle(iconRect.X + padding, iconRect.Y + padding, iconRect.Width - padding * 2, iconRect.Height - padding * 2);
+            g.FillRectangle(brush, rect);
         }
 
         private GraphicsPath CreateRoundedRectangle(Rectangle rect, int radius)
@@ -386,13 +248,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             var path = new GraphicsPath();
             int diameter = radius * 2;
 
+            if (rect.Width < diameter || rect.Height < diameter || rect.Width <= 0 || rect.Height <= 0)
+            {
+                if (rect.Width > 0 && rect.Height > 0)
+                    path.AddRectangle(rect);
+                return path;
+            }
+
             path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
             path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
             path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
             path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
             path.CloseFigure();
-
             return path;
+        }
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
+            _badgeFont = new Font(_regularFont.FontFamily, 7f, FontStyle.Bold);
         }
 
         public override int GetPreferredRowHeight(SimpleItem item, Font font)

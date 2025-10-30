@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -34,8 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
-            // Optional accent circle behind icon
-            using var accentBrush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
+            using var accentBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, ctx.AccentColor));
             var accentCircle = new Rectangle(
                 ctx.ImageRect.X - 10,
                 ctx.ImageRect.Y - 10,

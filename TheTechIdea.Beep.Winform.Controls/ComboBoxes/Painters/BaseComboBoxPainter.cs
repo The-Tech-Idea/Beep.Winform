@@ -98,10 +98,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // For editable mode, we might want to show a different background
             if (_owner.IsEditable && _owner.Focused)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(10, _theme?.PrimaryColor ?? Color.Blue)))
-                {
-                    g.FillRectangle(brush, textAreaRect);
-                }
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, _theme?.PrimaryColor ?? Color.Blue));
+                g.FillRectangle(brush, textAreaRect);
             }
         }
         
@@ -113,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (string.IsNullOrEmpty(displayText)) return;
             
             Color textColor = _helper.GetTextColor();
-            Font textFont = _owner.TextFont ?? BeepThemesManager.ToFont(_theme?.LabelFont) ?? new Font("Segoe UI", 9f);
+            Font textFont = _owner.TextFont ?? BeepThemesManager.ToFont(_theme?.LabelFont) ?? PaintersFactory.GetFont("Segoe UI", 9f, FontStyle.Regular);
             
             // Calculate text bounds with padding
             var textBounds = textAreaRect;
@@ -161,12 +159,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected void DrawPlaceholderIcon(Graphics g, Rectangle iconRect)
         {
-            using (var brush = new SolidBrush(Color.FromArgb(150, _theme?.SecondaryColor ?? Color.Gray)))
-            {
-                var smallRect = iconRect;
-                smallRect.Inflate(-4, -4);
-                g.FillEllipse(brush, smallRect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, _theme?.SecondaryColor ?? Color.Gray));
+            var smallRect = iconRect;
+            smallRect.Inflate(-4, -4);
+            g.FillEllipse(brush, smallRect);
         }
         
         protected void DrawDropdownArrow(Graphics g, Rectangle buttonRect, Color arrowColor)
@@ -183,10 +179,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 new Point(centerX, centerY + arrowSize / 2)
             };
             
-            using (var brush = new SolidBrush(arrowColor))
-            {
-                g.FillPolygon(brush, arrowPoints);
-            }
+            var brush = PaintersFactory.GetSolidBrush(arrowColor);
+            g.FillPolygon(brush, arrowPoints);
         }
         
         #endregion

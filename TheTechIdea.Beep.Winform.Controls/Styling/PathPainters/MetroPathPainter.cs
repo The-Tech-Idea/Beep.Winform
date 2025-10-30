@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             ControlState state = ControlState.Normal)
         {
             // Metro: Sharp edges (0px radius), flat primary color
-            Color fillColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Metro);
+            Color fillColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Metro);
             int metroRadius = StyleBorders.GetRadius(BeepControlStyle.Metro); // 0px - sharp edges!
 
             // Create sharp-edged rectangle path (Metro signature)

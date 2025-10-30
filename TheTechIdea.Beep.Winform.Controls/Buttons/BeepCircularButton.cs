@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Configuration;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons
@@ -31,76 +33,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         private bool _showBorder = true;
         private bool _isForColorSet = false;
         private bool _hidetext = false;
-        private const int TextPadding = 5; // Padding to prevent overlap
+        private const int TextPadding =5; // Padding to prevent overlap
         private Size circlesize = Size.Empty;
         private Timer clickAnimationTimer;
-        private float clickAnimationProgress = 1f;
-        private const int clickAnimationDuration = 200;
+        private float clickAnimationProgress =1f;
+        private const int clickAnimationDuration =200;
         private DateTime clickAnimationStartTime;
         private bool isAnimatingClick = false;
 
-
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Size of the Circle  Default is empty")]
-        public Size CircleSize
-        {
-            get => circlesize;
-            set
-            {
-                circlesize = value;
-               
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Gets the X-offset of the circle's center relative to the control's left border.")]
-        public int CircleMidXOffset
-        {
-            get
-            {
-                Rectangle textRect = GetTextRectangle();
-                Rectangle circleBounds = GetCircleBounds(textRect);
-                int circleCenterX = circleBounds.X + circleBounds.Width / 2;
-                return circleCenterX - DrawingRect.Left;
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Gets the Y-offset of the circle's center relative to its default centered position.")]
-        public int CircleMidYOffset
-        {
-            get
-            {
-                Rectangle textRect = GetTextRectangle();
-                Rectangle circleBounds = GetCircleBounds(textRect);
-                int circleCenterY = circleBounds.Y + circleBounds.Height / 2;
-                int borderSpace = _showBorder ? _borderThickness : 0;
-                int margin = 2;
-                int defaultCenterY = DrawingRect.Y + Padding.Top + borderSpace + margin +
-                                    (DrawingRect.Height - Padding.Vertical - 2 * borderSpace - 2 * margin) / 2;
-                return circleCenterY - defaultCenterY;
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Gets the offset of the circle's center from the control's top-left corner.")]
-        public Point CircleCenterOffset
-        {
-            get
-            {
-                Rectangle textRect = GetTextRectangle();
-                Rectangle circleBounds = GetCircleBounds(textRect);
-                int circleCenterX = circleBounds.X + circleBounds.Width / 2;
-                int circleCenterY = circleBounds.Y + circleBounds.Height / 2;
-                return new Point(circleCenterX - DrawingRect.X, circleCenterY - DrawingRect.Y);
-            }
-        }
-
-        private Font _textFont = new Font("Arial", 10);
+        private Font _textFont = new Font("Arial",10);
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -111,14 +52,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             get => _textFont;
             set
             {
-
                 _textFont = value;
 
                 Font = _textFont;
                 UseThemeFont = false;
                 Invalidate();
-
-
             }
         }
         bool _applyThemeOnImage = false;
@@ -236,10 +174,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         public BeepCircularButton():base()
         {
 
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            if (Width <=0 || Height <=0) // Ensure size is only set if not already defined
             {
-                Width = 100;
-                Height = 100;
+                Width =100;
+                Height =100;
             }
             beepImage = new BeepImage
             {
@@ -277,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         }
         protected override void DrawContent(Graphics g)
         {
-          
+
             base.DrawContent(g);
             UpdateDrawingRect();
             Draw(g, DrawingRect);
@@ -292,26 +230,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
 
             // 🔁 Animation: scale the circle while animating
-            float scale = isAnimatingClick ? 1f + 0.2f * (1 - clickAnimationProgress) : 1f;
+            float scale = isAnimatingClick ?1f +0.2f * (1 - clickAnimationProgress) :1f;
             Rectangle animatedCircleBounds = Rectangle.Inflate(
                 circleBounds,
-                (int)(circleBounds.Width * (scale - 1f) / 2),
-                (int)(circleBounds.Height * (scale - 1f) / 2)
+                (int)(circleBounds.Width * (scale -1f) /2),
+                (int)(circleBounds.Height * (scale -1f) /2)
             );
 
             // 🎨 Fill circle background
-            using (Brush brush = new SolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor))
-            {
-                graphics.FillEllipse(brush, animatedCircleBounds);
-            }
+            var fillBrush = PaintersFactory.GetSolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor);
+            graphics.FillEllipse(fillBrush, animatedCircleBounds);
 
             // 🟠 Border
             if (_showBorder)
             {
-                using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
-                {
-                    graphics.DrawEllipse(pen, animatedCircleBounds);
-                }
+                var pen = PaintersFactory.GetPen(_currentTheme.ShadowColor, _borderThickness);
+                graphics.DrawEllipse(pen, animatedCircleBounds);
             }
 
             // 🖼 Draw image inside circle
@@ -321,8 +255,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 beepImage.Size = beepImage.MaximumSize;
 
                 beepImage.Location = new Point(
-                    animatedCircleBounds.X + (animatedCircleBounds.Width - beepImage.Width) / 2,
-                    animatedCircleBounds.Y + (animatedCircleBounds.Height - beepImage.Height) / 2
+                    animatedCircleBounds.X + (animatedCircleBounds.Width - beepImage.Width) /2,
+                    animatedCircleBounds.Y + (animatedCircleBounds.Height - beepImage.Height) /2
                 );
 
                 beepImage.DrawImage(graphics, new Rectangle(beepImage.Location, beepImage.Size));
@@ -369,7 +303,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                         break;
                 }
 
-                TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor, flags);
+                var textColor = _currentTheme.PrimaryTextColor;
+                TextRenderer.DrawText(graphics, Text, Font, textRect, textColor, flags);
             }
 
         }
@@ -383,8 +318,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         }
         private Rectangle GetCircleBounds(Rectangle textRect)
         {
-            int borderSpace = _showBorder ? _borderThickness : 0;
-            int margin = 2;
+            int borderSpace = _showBorder ? _borderThickness :0;
+            int margin =2;
 
             int diameter;
             if (!circlesize.IsEmpty)
@@ -396,8 +331,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             {
                 // Dynamic sizing based on control dimensions
                 int maxDiameter = Math.Min(
-                    DrawingRect.Width - Padding.Horizontal - 2 * borderSpace - 2 * margin,
-                    DrawingRect.Height - Padding.Vertical - 2 * borderSpace - 2 * margin
+                    DrawingRect.Width - Padding.Horizontal -2 * borderSpace -2 * margin,
+                    DrawingRect.Height - Padding.Vertical -2 * borderSpace -2 * margin
                 );
 
                 if (HideText || string.IsNullOrEmpty(Text))
@@ -416,16 +351,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             diameter = Math.Max(0, diameter);
 
             // Center the circle within the available space
-            int x = DrawingRect.X + Padding.Left + borderSpace + margin + (DrawingRect.Width - Padding.Horizontal - 2 * borderSpace - 2 * margin - diameter) / 2;
-            int y = DrawingRect.Y + Padding.Top + borderSpace + margin + (DrawingRect.Height - Padding.Vertical - 2 * borderSpace - 2 * margin - diameter) / 2;
+            int x = DrawingRect.X + Padding.Left + borderSpace + margin + (DrawingRect.Width - Padding.Horizontal -2 * borderSpace -2 * margin - diameter) /2;
+            int y = DrawingRect.Y + Padding.Top + borderSpace + margin + (DrawingRect.Height - Padding.Vertical -2 * borderSpace -2 * margin - diameter) /2;
 
             if (!HideText && !string.IsNullOrEmpty(Text))
             {
                 y += _textLocation switch
                 {
-                    TextLocation.Above => textRect.Height / 2 + TextPadding / 2,
-                    TextLocation.Below => -textRect.Height / 2 - TextPadding / 2,
-                    _ => 0
+                    TextLocation.Above => textRect.Height /2 + TextPadding /2,
+                    TextLocation.Below => -textRect.Height /2 - TextPadding /2,
+                    _ =>0
                 };
             }
 
@@ -440,23 +375,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         {
             if (HideText || string.IsNullOrEmpty(Text)) return;
 
-            // Calculate the required height based on text and circle
-            int borderSpace = _showBorder ? _borderThickness : 0;
-            int margin = 2;
+            int borderSpace = _showBorder ? _borderThickness :0;
+            int margin =2;
 
-            // Measure wrapped text size
-            int maxTextWidth = Width - Padding.Horizontal - 2 * TextPadding;
+            int maxTextWidth = Width - Padding.Horizontal -2 * TextPadding;
             maxTextWidth = Math.Max(10, maxTextWidth);
             TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
             Size textSize = TextRenderer.MeasureText(Text, Font, new Size(maxTextWidth, int.MaxValue), flags);
 
-            // Calculate the minimum height needed
             int circleHeight = Math.Min(
-                Width - Padding.Horizontal - 2 * borderSpace - 2 * margin,
-                Height - Padding.Vertical - 2 * borderSpace - 2 * margin
+                Width - Padding.Horizontal -2 * borderSpace -2 * margin,
+                Height - Padding.Vertical -2 * borderSpace -2 * margin
             );
 
-            int requiredHeight = circleHeight + Padding.Vertical + 2 * borderSpace + 2 * margin;
+            int requiredHeight = circleHeight + Padding.Vertical +2 * borderSpace +2 * margin;
             if (_textLocation == TextLocation.Above || _textLocation == TextLocation.Below)
             {
                 requiredHeight += textSize.Height + TextPadding;
@@ -472,25 +404,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
 
         private Rectangle GetImageRectangle(Rectangle circleBounds)
         {
-            // Define the maximum size as the circle's diameter
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
             beepImage.MaximumSize = new Size(diameter, diameter);
 
-            // Get the original image size
             Size originalSize = beepImage.GetImageSize();
             if (originalSize.IsEmpty) return Rectangle.Empty;
 
-            // Calculate the scale factor to fit within MaximumSize, keeping aspect ratio
             float scale = Math.Min((float)beepImage.MaximumSize.Width / originalSize.Width,
                                    (float)beepImage.MaximumSize.Height / originalSize.Height);
 
-            // Apply the scale factor to the image dimensions
             int scaledWidth = (int)(originalSize.Width * scale);
             int scaledHeight = (int)(originalSize.Height * scale);
 
-            // Center the image within the circle bounds
-            int x = circleBounds.X + (circleBounds.Width - scaledWidth) / 2;
-            int y = circleBounds.Y + (circleBounds.Height - scaledHeight) / 2;
+            int x = circleBounds.X + (circleBounds.Width - scaledWidth) /2;
+            int y = circleBounds.Y + (circleBounds.Height - scaledHeight) /2;
 
             return new Rectangle(x, y, scaledWidth, scaledHeight);
         }
@@ -499,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (HideText || string.IsNullOrEmpty(Text)) return Rectangle.Empty;
 
             // Define the maximum width for text wrapping and rendering
-            int maxTextWidth = DrawingRect.Width - Padding.Horizontal - 2 * TextPadding;
+            int maxTextWidth = DrawingRect.Width - Padding.Horizontal -2 * TextPadding;
             maxTextWidth = Math.Max(10, maxTextWidth);
 
             // Use TextRenderer to measure text with word wrap
@@ -548,7 +475,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 case TextLocation.Left:
                     textRect = new Rectangle(
                         DrawingRect.Left + Padding.Left + TextPadding,
-                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
+                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) /2,
                         textSize.Width,
                         textSize.Height
                     );
@@ -556,7 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 case TextLocation.Right:
                     textRect = new Rectangle(
                         DrawingRect.Right - Padding.Right - textSize.Width - TextPadding,
-                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
+                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) /2,
                         textSize.Width,
                         textSize.Height
                     );
@@ -564,7 +491,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 case TextLocation.Inside:
                     textRect = new Rectangle(
                         DrawingRect.Left + Padding.Left + TextPadding,
-                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
+                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) /2,
                         maxTextWidth, // Use full width for rendering
                         textSize.Height
                     );
@@ -660,10 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 }
             }
 
-            // Apply animation colors
-           // SplashColor = Color.FromArgb(100, _currentTheme.ButtonPressedBackColor);
-
-            // Force redraw with new theme
+            //Force redraw with new theme
             Invalidate();
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)
@@ -687,18 +611,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         }
         private void StartClickAnimation()
         {
-            clickAnimationProgress = 0f;
+            clickAnimationProgress =0f;
             clickAnimationStartTime = DateTime.Now;
             isAnimatingClick = true;
 
             if (clickAnimationTimer == null)
             {
-                clickAnimationTimer = new Timer { Interval = 16 };
+                clickAnimationTimer = new Timer { Interval =16 };
                 clickAnimationTimer.Tick += (s, e) =>
                 {
                     double elapsed = (DateTime.Now - clickAnimationStartTime).TotalMilliseconds;
                     clickAnimationProgress = (float)Math.Min(1, elapsed / clickAnimationDuration);
-                    if (clickAnimationProgress >= 1f)
+                    if (clickAnimationProgress >=1f)
                     {
                         clickAnimationTimer.Stop();
                         isAnimatingClick = false;
@@ -746,10 +670,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (string.IsNullOrEmpty(BadgeText))
                 return;
 
-            const int badgeSize = 22;
+            const int badgeSize =22;
             // place it top-right, slightly overlapping
-            int x = childBounds.Right - badgeSize / 2;
-            int y = childBounds.Y - badgeSize / 2;
+            int x = childBounds.Right - badgeSize /2;
+            int y = childBounds.Y - badgeSize /2;
             var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
 
             // now call your existing routine

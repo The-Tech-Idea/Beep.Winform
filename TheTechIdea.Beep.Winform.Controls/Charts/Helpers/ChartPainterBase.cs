@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -23,24 +24,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 
         protected GraphicsPath Round(Rectangle r, int radius)
         {
-            int d = radius * 2;
+            int d = radius *2;
             var p = new GraphicsPath();
-            if (radius <= 0) { p.AddRectangle(r); return p; }
-            p.AddArc(r.Left, r.Top, d, d, 180, 90);
-            p.AddArc(r.Right - d, r.Top, d, d, 270, 90);
-            p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
-            p.AddArc(r.Left, r.Bottom - d, d, d, 90, 90);
+            if (radius <=0) { p.AddRectangle(r); return p; }
+            p.AddArc(r.Left, r.Top, d, d,180,90);
+            p.AddArc(r.Right - d, r.Top, d, d,270,90);
+            p.AddArc(r.Right - d, r.Bottom - d, d, d,0,90);
+            p.AddArc(r.Left, r.Bottom - d, d, d,90,90);
             p.CloseFigure();
             return p;
         }
 
-        protected void SoftShadow(Graphics g, Rectangle rect, int radius, int layers = 6, int offset = 3)
+        protected void SoftShadow(Graphics g, Rectangle rect, int radius, int layers =6, int offset =3)
         {
-            for (int i = layers; i > 0; i--)
+            for (int i = layers; i >0; i--)
             {
-                int spread = i * 2;
+                int spread = i *2;
                 int alpha = (int)(18 * (i / (float)layers));
-                using var b = new SolidBrush(Color.FromArgb(alpha, Color.Black));
+                var b = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, Color.Black));
                 var r = new Rectangle(rect.X + offset - spread/2, rect.Y + offset - spread/2,
                     rect.Width + spread, rect.Height + spread);
                 using var path = Round(r, radius + i);

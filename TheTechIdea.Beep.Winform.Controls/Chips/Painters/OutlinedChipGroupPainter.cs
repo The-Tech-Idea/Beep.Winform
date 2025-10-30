@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -37,14 +38,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             // hover/selected subtle background
             if (state.IsHovered || state.IsSelected)
             {
-                using var bg = new SolidBrush(hoverFill);
+                var bg = PaintersFactory.GetSolidBrush(hoverFill);
                 g.FillPath(bg, path);
             }
 
             if (opt.ShowBorders)
             {
-                using var pen = new Pen(stroke, Math.Max(1, opt.BorderWidth));
-                g.DrawPath(pen, path);
+                var pen = (Pen)PaintersFactory.GetPen(stroke, Math.Max(1, opt.BorderWidth)).Clone();
+                try
+                {
+                    g.DrawPath(pen, path);
+                }
+                finally
+                {
+                    pen.Dispose();
+                }
             }
 
             var contentRect = Rectangle.Inflate(bounds, -8, -2);
@@ -53,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             {
                 int dot = Math.Min(contentRect.Height - 6, 10);
                 var dotRect = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - dot) / 2, dot, dot);
-                using var dotBr = new SolidBrush(stroke);
+                var dotBr = PaintersFactory.GetSolidBrush(stroke);
                 g.FillEllipse(dotBr, dotRect);
                 leftPad = dot + 6;
             }
@@ -63,14 +71,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             {
                 int s = Math.Min(contentRect.Height - 6, 12);
                 closeRect = new Rectangle(contentRect.Right - s, contentRect.Top + (contentRect.Height - s) / 2, s, s);
-                using var xpen = new Pen(stroke, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
-                g.DrawLine(xpen, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
-                g.DrawLine(xpen, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
+                var xpen = (Pen)PaintersFactory.GetPen(stroke, 1.5f).Clone();
+                try
+                {
+                    xpen.StartCap = LineCap.Round;
+                    xpen.EndCap = LineCap.Round;
+                    g.DrawLine(xpen, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
+                    g.DrawLine(xpen, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
+                }
+                finally
+                {
+                    xpen.Dispose();
+                }
                 rightPad = s + 4;
             }
 
             var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
-            using var tbr = new SolidBrush(text);
+            var tbr = PaintersFactory.GetSolidBrush(text);
             g.DrawString(item?.Text ?? string.Empty, font, tbr, textRect, _centerFmt);
         }
 
@@ -88,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         }
         private static int GetChipHeight(ChipSize size) => size switch { ChipSize.Small => 24, ChipSize.Medium => 32, ChipSize.Large => 40, _ => 32 };
         private static int GetHorizontalPadding(ChipSize size) => size switch { ChipSize.Small => 16, ChipSize.Medium => 20, ChipSize.Large => 24, _ => 20 };
-        private static Font ResolveFont(ChipRenderOptions opt) => (opt.Size == ChipSize.Small) ? new Font(opt.Font.FontFamily, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : opt.Font;
+        private static Font ResolveFont(ChipRenderOptions opt) => (opt.Size == ChipSize.Small) ? PaintersFactory.GetFont(opt.Font.FontFamily.Name, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : PaintersFactory.GetFont(opt.Font);
 
         private (Color stroke, Color text, Color hover) GetPalette(ChipVisualState s)
         {

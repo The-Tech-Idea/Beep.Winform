@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -39,8 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 if (sliceValue <= 0) continue;
                 float sweepAngle = sliceValue / totalValue * 360f * Math.Clamp(options?.AnimationProgress ?? 1f, 0f, 1f);
                 Color color = p.Color != Color.Empty ? p.Color : palette[colorIndex % palette.Count];
-                using var brush = new SolidBrush(color);
-                using var pen = new Pen(axisColor, 1);
+                var brush = PaintersFactory.GetSolidBrush(color);
+                var pen = PaintersFactory.GetPen(axisColor, 1);
                 g.FillPie(brush, pieRect, startAngle, sweepAngle);
                 g.DrawPie(pen, pieRect, startAngle, sweepAngle);
                 startAngle += sweepAngle;

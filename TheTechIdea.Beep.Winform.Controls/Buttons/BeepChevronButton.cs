@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
             IsCustomeBorder = true;
-            IsFrameless=true;
+            IsFrameless = true;
             Padding = new Padding(5);
             ApplyTheme();
 
@@ -179,11 +180,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                         ? _currentTheme.ButtonHoverBackColor
                         : _currentTheme.ButtonBackColor;
 
-                using (SolidBrush brush = new SolidBrush(fillColor))
-                    graphics.FillPath(brush, path);
-
-                using (Pen pen = new Pen(_currentTheme.ShadowColor, BorderThickness))
-                    graphics.DrawPath(pen, path);
+                var fillBrush = PaintersFactory.GetSolidBrush(fillColor);
+                var borderPen = PaintersFactory.GetPen(_currentTheme.ShadowColor, BorderThickness);
+                graphics.FillPath(fillBrush, path);
+                graphics.DrawPath(borderPen, path);
 
                 // Ripple
                 if (isAnimatingClick)
@@ -192,13 +192,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                     using (GraphicsPath ripplePath = new GraphicsPath())
                     {
                         ripplePath.AddEllipse(rippleCenter.X - radius, rippleCenter.Y - radius, radius * 2, radius * 2);
-                        using (Brush rippleBrush = new SolidBrush(Color.FromArgb((int)(60 * (1 - clickAnimationProgress)), Color.White)))
-                        {
-                            Region clip = new Region(path);
-                            graphics.Clip = clip;
-                            graphics.FillPath(rippleBrush, ripplePath);
-                            graphics.ResetClip();
-                        }
+                        var rippleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(60 * (1 - clickAnimationProgress)), Color.White));
+                        Region clip = new Region(path);
+                        graphics.Clip = clip;
+                        graphics.FillPath(rippleBrush, ripplePath);
+                        graphics.ResetClip();
                     }
                 }
             }
@@ -208,7 +206,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             {
                 TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak;
                 Rectangle textRect = scaledRect;
-                TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor, flags);
+                var textColor = _currentTheme.PrimaryTextColor;
+                TextRenderer.DrawText(graphics, Text, Font, textRect, textColor, flags);
             }
 
             // Draw image if needed

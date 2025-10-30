@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -239,18 +240,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, bool isFocused)
         {
             // Clean, minimal styling like Stripe dashboard
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
 
             // Subtle left border for focused elements
             if (isFocused)
             {
-                using (var borderPen = new Pen(Color.FromArgb(99, 102, 241), 3))
-                {
-                    g.DrawLine(borderPen, bounds.X, bounds.Y, bounds.X, bounds.Bottom);
-                }
+                var borderPen = PaintersFactory.GetPen(Color.FromArgb(99,102,241),3);
+                g.DrawLine(borderPen, bounds.X, bounds.Y, bounds.X, bounds.Bottom);
             }
         }
 
@@ -258,19 +255,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, bool isFocused)
         {
             // Ant Design corporate styling
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
 
             // Blue accent for focused state
             if (isFocused)
             {
-                Color antBlue = Color.FromArgb(24, 144, 255);
-                using (var accentBrush = new SolidBrush(Color.FromArgb(40, antBlue)))
-                {
-                    g.FillRectangle(accentBrush, bounds);
-                }
+                Color antBlue = Color.FromArgb(24,144,255);
+                var accentBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(40, antBlue));
+                g.FillRectangle(accentBrush, bounds);
             }
         }
 
@@ -278,10 +271,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, bool isFocused)
         {
             // Ultra-minimal corporate styling
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
         }
 
         private static void PaintChakraCorporate(Graphics g, Rectangle bounds, string text, Font font,
@@ -291,27 +282,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             if (isFocused)
             {
                 // Subtle text shadow for depth
-                using (var shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0)))
-                {
-                    var shadowBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width, bounds.Height);
-                    g.DrawString(text, font, shadowBrush, shadowBounds, GetCorporateStringFormat());
-                }
+                var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20,0,0,0));
+                var shadowBounds = new Rectangle(bounds.X +1, bounds.Y +1, bounds.Width, bounds.Height);
+                g.DrawString(text, font, shadowBrush, shadowBounds, GetCorporateStringFormat());
             }
 
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
         }
 
         private static void PaintStandardCorporate(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
             // Standard professional text rendering
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetCorporateStringFormat());
         }
 
         #endregion
@@ -475,25 +460,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             try
             {
-                using (var brush = new SolidBrush(titleColor))
+                var brush = PaintersFactory.GetSolidBrush(titleColor);
+                var format = new StringFormat
                 {
-                    var format = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    };
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    FormatFlags = StringFormatFlags.NoWrap
+                };
 
-                    g.DrawString(title, titleFont, brush, bounds, format);
-                }
+                g.DrawString(title, titleFont, brush, bounds, format);
 
                 // Add subtle underline for corporate titles
                 var scheme = GetCorporateScheme(style);
-                using (var underlinePen = new Pen(scheme.Secondary, 1))
-                {
-                    var underlineY = bounds.Bottom - 3;
-                    g.DrawLine(underlinePen, bounds.X + 20, underlineY, bounds.Right - 20, underlineY);
-                }
+                var underlinePen = PaintersFactory.GetPen(scheme.Secondary,1);
+                var underlineY = bounds.Bottom -3;
+                g.DrawLine(underlinePen, bounds.X +20, underlineY, bounds.Right -20, underlineY);
             }
             finally
             {
@@ -514,22 +495,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             try
             {
-                using (var brush = new SolidBrush(labelColor))
-                {
-                    g.DrawString(label, labelFont, brush, bounds, GetCorporateStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(labelColor);
+                g.DrawString(label, labelFont, brush, bounds, GetCorporateStringFormat());
 
                 // Add red asterisk for required fields
                 if (isRequired)
                 {
                     var labelSize = g.MeasureString(label, labelFont);
-                    var asteriskX = bounds.X + labelSize.Width + 2;
-                    var asteriskBounds = new Rectangle((int)asteriskX, bounds.Y, 10, bounds.Height);
+                    var asteriskX = bounds.X + labelSize.Width +2;
+                    var asteriskBounds = new Rectangle((int)asteriskX, bounds.Y,10, bounds.Height);
 
-                    using (var asteriskBrush = new SolidBrush(Color.FromArgb(220, 53, 69)))
-                    {
-                        g.DrawString("*", labelFont, asteriskBrush, asteriskBounds, GetCorporateStringFormat());
-                    }
+                    var asteriskBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(220,53,69));
+                    g.DrawString("*", labelFont, asteriskBrush, asteriskBounds, GetCorporateStringFormat());
                 }
             }
             finally
@@ -549,7 +526,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             ConfigureCorporateGraphics(g);
 
             Font valueFont = GetCorporateFont(bounds.Height, style, CorporateFontType.Financial);
-            Font unitFont = GetCorporateFont((int)(bounds.Height * 0.7f), style, CorporateFontType.Label);
+            Font unitFont = GetCorporateFont((int)(bounds.Height *0.7f), style, CorporateFontType.Label);
             
             Color valueColor = isImportant ? 
                 GetCorporateHeadingColor(style, theme, true, useThemeColors) :
@@ -564,24 +541,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 var valueBounds = new Rectangle(bounds.X, bounds.Y, (int)valueSize.Width, bounds.Height);
 
                 // Paint value
-                using (var brush = new SolidBrush(valueColor))
-                {
-                    g.DrawString(value, valueFont, brush, valueBounds, GetCorporateStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(valueColor);
+                g.DrawString(value, valueFont, brush, valueBounds, GetCorporateStringFormat());
 
                 // Paint unit if provided
                 if (!string.IsNullOrEmpty(unit))
                 {
                     var unitBounds = new Rectangle(
-                        bounds.X + (int)valueSize.Width + 4, 
+                        bounds.X + (int)valueSize.Width +4,
                         bounds.Y,
-                        bounds.Width - (int)valueSize.Width - 4, 
+                        bounds.Width - (int)valueSize.Width -4,
                         bounds.Height);
 
-                    using (var brush = new SolidBrush(unitColor))
-                    {
-                        g.DrawString(unit, unitFont, brush, unitBounds, GetCorporateStringFormat());
-                    }
+                    var unitBrush = PaintersFactory.GetSolidBrush(unitColor);
+                    g.DrawString(unit, unitFont, unitBrush, unitBounds, GetCorporateStringFormat());
                 }
             }
             finally

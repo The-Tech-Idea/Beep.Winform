@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -15,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     /// </summary>
     public class ActivityLogTreePainter : BaseTreePainter
     {
+        private Font _regularFont;
         private const int TimelineWidth = 3;
         private const int DotSize = 10;
         private const int TimelinePadding = 20;
@@ -27,22 +29,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
-            // Enable high-quality rendering for timeline appearance
             var oldSmoothing = g.SmoothingMode;
-            var oldTextRendering = g.TextRenderingHint;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             try
             {
                 // STEP 1: Draw timeline background
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, nodeBounds);
-                    }
+                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                    g.FillRectangle(bgBrush, nodeBounds);
                 }
 
                 // STEP 2: Draw timeline dot or image (transform to viewport)
@@ -53,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     if (!string.IsNullOrEmpty(node.Item.ImagePath))
                     {
                         // Use configured image if provided
-                        PaintIcon(g, iconRect, node.Item.ImagePath);
+                        try { StyledImagePainter.Paint(g, iconRect, node.Item.ImagePath); } catch { }
                     }
                     else
                     {
@@ -185,7 +181,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             finally
             {
                 g.SmoothingMode = oldSmoothing;
-                g.TextRenderingHint = oldTextRendering;
             }
         }
 
@@ -379,6 +374,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             // Activity log needs comfortable spacing for timestamps
             return Math.Max(32, base.GetPreferredRowHeight(item, font));
+        }
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
         }
     }
 }

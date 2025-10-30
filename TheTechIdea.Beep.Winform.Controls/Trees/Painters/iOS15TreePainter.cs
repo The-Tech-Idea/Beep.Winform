@@ -4,12 +4,12 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Apple iOS 15 tree painter.
+    /// Apple iOS15 tree painter.
     /// Features: Rounded group headers, SF Symbols Style icons, smooth shadows, fluid spacing.
     /// Uses theme colors for consistent appearance across light/dark themes.
     /// </summary>
@@ -19,15 +19,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int GroupPadding = 8;
         private const float ShadowOpacity = 0.1f;
 
+        private Font _regularFont;
+        private Font _boldFont;
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
+            if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
+            {
+                try { _boldFont?.Dispose(); } catch { }
+                _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
+            }
+        }
+
         /// <summary>
         /// iOS15-specific node painting with rounded groups and drop shadows.
-        /// Features: Large rounded corners (10px), drop shadows on selection, SF Symbols Style, comfortable spacing.
         /// </summary>
         public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (g == null || node.Item == null) return;
 
-            // Enable high-quality rendering for iOS smooth appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -46,10 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                     using (var shadowPath = CreateRoundedRectangle(shadowRect, CornerRadius))
                     {
-                        using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), 0, 0, 0)))
-                        {
-                            g.FillPath(shadowBrush, shadowPath);
-                        }
+                        var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), 0, 0, 0));
+                        g.FillPath(shadowBrush, shadowPath);
                     }
                 }
 
@@ -59,11 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     using (var bgPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
                     {
                         Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, bgPath);
-                        }
+                        var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                        g.FillPath(bgBrush, bgPath);
                     }
                 }
 
@@ -74,27 +81,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = node.ToggleRectContent;
                     Color chevronColor = _theme.AccentColor;  // iOS uses accent color for chevrons
 
-                    using (var pen = new Pen(chevronColor, 2f))
+                    var pen = PaintersFactory.GetPen(chevronColor, 2f);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    int centerX = toggleRect.Left + toggleRect.Width / 2;
+                    int centerY = toggleRect.Top + toggleRect.Height / 2;
+                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                    if (node.Item.IsExpanded)
                     {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                        if (node.Item.IsExpanded)
-                        {
-                            // iOS chevron down
-                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                        }
-                        else
-                        {
-                            // iOS chevron right
-                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                        }
+                        // iOS chevron down
+                        g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                        g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                    }
+                    else
+                    {
+                        // iOS chevron right
+                        g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                        g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
                     }
                 }
 
@@ -105,37 +110,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var borderColor = isHovered ? _theme.AccentColor : Color.FromArgb(200, 200, 200);
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : Color.White;
 
-                    // iOS checkbox with round corners (almost circular)
                     using (var checkPath = CreateRoundedRectangle(checkRect, 5))
                     {
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, checkPath);
-                        }
+                        var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                        g.FillPath(bgBrush, checkPath);
 
-                        using (var borderPen = new Pen(borderColor, 2f))
-                        {
-                            g.DrawPath(borderPen, checkPath);
-                        }
+                        var borderPen = PaintersFactory.GetPen(borderColor, 2f);
+                        g.DrawPath(borderPen, checkPath);
                     }
 
                     // iOS-Style checkmark (smooth)
                     if (node.Item.IsChecked)
                     {
-                        using (var checkPen = new Pen(Color.White, 2.5f))
-                        {
-                            checkPen.StartCap = LineCap.Round;
-                            checkPen.EndCap = LineCap.Round;
-                            checkPen.LineJoin = LineJoin.Round;
+                        var checkPen = PaintersFactory.GetPen(Color.White, 2.5f);
+                        checkPen.StartCap = LineCap.Round;
+                        checkPen.EndCap = LineCap.Round;
+                        checkPen.LineJoin = LineJoin.Round;
 
-                            var points = new Point[]
-                            {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 2 / 3 + 1),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 3)
-                            };
-                            g.DrawLines(checkPen, points);
-                        }
+                        var points = new Point[]
+                        {
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 2 / 3 + 1),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 3)
+                        };
+                        g.DrawLines(checkPen, points);
                     }
                 }
 
@@ -152,12 +150,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // SF Pro Style (Segoe UI is closest on Windows)
-                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    var renderFont = _regularFont ?? SystemFonts.DefaultFont;
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -192,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
 
                     // Fill
-                    using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
+                    using (var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor))
                     {
                         g.FillPath(brush, path);
                     }
@@ -218,27 +213,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // SF Symbols Style chevron
             Color chevronColor = _theme.AccentColor;
 
-            using (var pen = new Pen(chevronColor, 2f))
+            var pen = PaintersFactory.GetPen(chevronColor, 2f);
+            pen.StartCap = LineCap.Round;
+            pen.EndCap = LineCap.Round;
+
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+            if (isExpanded)
             {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                if (isExpanded)
-                {
-                    // Chevron down
-                    g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                    g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                }
-                else
-                {
-                    // Chevron right
-                    g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                    g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                }
+                // Chevron down
+                g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+            }
+            else
+            {
+                // Chevron right
+                g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
             }
         }
 
@@ -256,7 +249,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 catch { }
             }
 
-            // Default SF Symbols Style icon
             PaintDefaultSFSymbol(g, iconRect);
         }
 
@@ -264,7 +256,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             Color iconColor = _theme.AccentColor;
 
-            // SF Symbols are typically monochrome with rounded shapes
             using (var path = new GraphicsPath())
             {
                 int padding = iconRect.Width / 5;
@@ -280,9 +271,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                 // Tab
                 path.AddArc(innerRect.Left, innerRect.Top, tabWidth / 2, tabHeight * 2, 90, 90);
-                path.AddLine(innerRect.Left + tabWidth / 4, innerRect.Top, 
+                path.AddLine(innerRect.Left + tabWidth / 4, innerRect.Top,
                              innerRect.Left + tabWidth - 2, innerRect.Top);
-                
+
                 // Main body
                 path.AddArc(innerRect.Left + tabWidth - 2, innerRect.Top, 4, tabHeight, 270, 90);
                 path.AddLine(innerRect.Left + tabWidth, innerRect.Top + tabHeight,
@@ -296,10 +287,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 path.AddArc(innerRect.Left, innerRect.Bottom - 8, 8, 8, 90, 90);
                 path.CloseFigure();
 
-                using (var brush = new SolidBrush(iconColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                var brush = PaintersFactory.GetSolidBrush(iconColor);
+                g.FillPath(brush, path);
             }
         }
 
@@ -309,24 +298,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // SF Pro Style (Segoe UI is closest on Windows)
-            Font renderFont = new Font("Segoe UI", font.Size, isSelected ? FontStyle.Regular : FontStyle.Regular);
-
+            var renderFont = _regularFont ?? SystemFonts.DefaultFont;
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
-            renderFont.Dispose();
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
         {
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var brush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+            g.FillRectangle(brush, bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -340,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             int diameter = radius * 2;
 
             // Padding for iOS Style
-            rect = new Rectangle(rect.X + GroupPadding, rect.Y + 2, rect.Width - GroupPadding * 2, rect.Height - 4);
+            rect = new Rectangle(rect.X + GroupPadding, rect.Y + 2, Math.Max(0, rect.Width - GroupPadding * 2), Math.Max(0, rect.Height - 4));
 
             if (rect.Width < diameter || rect.Height < diameter)
             {

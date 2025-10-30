@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -18,8 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            Color baseBorderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Office);
-            Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
+            Color baseBorderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Office);
+            Color primaryColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
             Color borderColor = baseBorderColor;
             bool showAccentBar = false;
 
@@ -62,18 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             {
                 int accentBarWidth = StyleBorders.GetAccentBarWidth(BeepControlStyle.Office); // 3px
                 var bounds = path.GetBounds();
-                
-                using (var accentBrush = new SolidBrush(primaryColor))
-                {
-                    // Draw vertical accent bar on left edge
-                    RectangleF accentRect = new RectangleF(
-                        bounds.Left, 
-                        bounds.Top, 
-                        accentBarWidth, 
-                        bounds.Height
-                    );
-                    g.FillRectangle(accentBrush, accentRect);
-                }
+
+                var accentBrush = PaintersFactory.GetSolidBrush(primaryColor);
+                RectangleF accentRect = new RectangleF(
+                    bounds.Left,
+                    bounds.Top,
+                    accentBarWidth,
+                    bounds.Height
+                );
+                g.FillRectangle(accentBrush, accentRect);
             }
 
             // Return the area inside the border

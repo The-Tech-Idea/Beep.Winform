@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +11,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class ReviewCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _helpfulFont;
+        private Font _quoteFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _helpfulFont?.Dispose(); } catch { }
+            try { _quoteFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
+            _helpfulFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            _quoteFont = new Font("Georgia", 32f, FontStyle.Bold);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -83,32 +99,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw verification badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw helpful count
             if (!string.IsNullOrEmpty(ctx.StatusText) && ctx.StatusRect != Rectangle.Empty)
             {
-                using var helpfulFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var helpfulBrush = new SolidBrush(Color.FromArgb(120, ctx.AccentColor));
+                var helpfulBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, ctx.AccentColor));
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, helpfulFont, helpfulBrush, ctx.StatusRect, format);
+                g.DrawString(ctx.StatusText, _helpfulFont, helpfulBrush, ctx.StatusRect, format);
             }
 
             // Draw avatar border
             if (ctx.ShowImage)
             {
-                using var borderPen = new Pen(Color.FromArgb(50, ctx.AccentColor), 2);
+                var borderPen = PaintersFactory.GetPen(Color.FromArgb(50, ctx.AccentColor), 2);
                 g.DrawEllipse(borderPen, ctx.ImageRect);
             }
 
             // Draw quote marks for testimonial Style (subtle decoration)
             if (ctx.ParagraphRect.Height > 40)
             {
-                using var quoteFont = new Font("Georgia", 32f, FontStyle.Bold);
-                using var quoteBrush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
-                g.DrawString("\"", quoteFont, quoteBrush, ctx.ParagraphRect.Left - 4, ctx.ParagraphRect.Top - 12);
+                var quoteBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, ctx.AccentColor));
+                g.DrawString("\"", _quoteFont, quoteBrush, ctx.ParagraphRect.Left - 4, ctx.ParagraphRect.Top - 12);
             }
         }
     }

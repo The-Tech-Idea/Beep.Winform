@@ -17,9 +17,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         /// </summary>
         public static ITreePainter CreatePainter(TreeStyle style, BeepTree owner, IBeepTheme theme)
         {
+            if (owner == null) throw new ArgumentNullException(nameof(owner));
+
             if (_painterCache.TryGetValue(style, out var cached))
             {
-                cached.Initialize(owner, theme);
+                // Re-initialize with the new owner and theme
+                try { cached.Initialize(owner, theme); } catch { }
                 return cached;
             }
 
@@ -61,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 _ => new StandardTreePainter()
             };
 
-            painter.Initialize(owner, theme);
+            try { painter.Initialize(owner, theme); } catch { }
             _painterCache[style] = painter;
             return painter;
         }

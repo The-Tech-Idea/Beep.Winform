@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class ProductCompactCardPainter : CardPainterBase
     {
+        private Font _priceFont;
+        private Font _badgeFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _priceFont?.Dispose(); } catch { }
+            try { _badgeFont?.Dispose(); } catch { }
+            _priceFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
+            _badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -23,7 +36,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, 18);
             ctx.SubtitleRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 2, contentWidth, 14);
             ctx.RatingRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 4, 80, 14);
-
             ctx.ParagraphRect = new Rectangle(Math.Max(ctx.DrawingRect.Right - pad - 75, contentLeft), ctx.DrawingRect.Top + pad, 70, 20);
 
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
@@ -44,10 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw price
             if (!string.IsNullOrEmpty(ctx.SubtitleText)) // Price in SubtitleText
             {
-                using var priceFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-                using var priceBrush = new SolidBrush(ctx.AccentColor);
+                var priceBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, priceFont, priceBrush, ctx.ParagraphRect, format);
+                g.DrawString(ctx.SubtitleText, _priceFont, priceBrush, ctx.ParagraphRect, format);
             }
             
             // Draw rating stars (compact)
@@ -59,8 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
         }
     }

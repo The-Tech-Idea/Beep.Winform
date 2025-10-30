@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             }
 
             _closeRects.Clear();
-            for (int i = 0; i < _chips.Count; i++)
+            for (int i =0; i < _chips.Count; i++)
             {
                 var chip = _chips[i];
                 var state = new ChipVisualState { IsSelected = chip.IsSelected, IsHovered = chip.IsHovered, Variant = chip.Variant, Size = chip.Size, Color = chip.Color, IsFocused = (_focusedIndex == i && Focused) };
@@ -51,9 +51,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 // Focus ring
                 if (state.IsFocused)
                 {
-                    using var pen = new Pen(_currentTheme.FocusIndicatorColor, 2f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dot };
-                    var r = Rectangle.Inflate(chip.Bounds, 3, 3);
-                    g.DrawRectangle(pen, r);
+                    var pen = (System.Drawing.Pen)PaintersFactory.GetPen(_currentTheme.FocusIndicatorColor,2f).Clone();
+                    try
+                    {
+                        pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+                        var r = Rectangle.Inflate(chip.Bounds,3,3);
+                        g.DrawRectangle(pen, r);
+                    }
+                    finally
+                    {
+                        pen.Dispose();
+                    }
                 }
 
                 // Badge/counter (right small pill)
@@ -63,12 +71,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                     if (cnt.HasValue)
                     {
                         string s = cnt.Value.ToString();
-                        var sz = TextRenderer.MeasureText(g, s, Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
-                        var br = new Rectangle(chip.Bounds.Right - (sz.Width + 12), chip.Bounds.Top - 8, sz.Width + 10, 16);
-                        using var bg = new SolidBrush(_currentTheme.NavigationSelectedBackColor);
-                        using var fg = new SolidBrush(_currentTheme.NavigationSelectedForeColor);
+                        var sz = TextRenderer.MeasureText(g, s, PaintersFactory.GetFont(Font), new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
+                        var br = new Rectangle(chip.Bounds.Right - (sz.Width +12), chip.Bounds.Top -8, sz.Width +10,16);
+                        var bg = PaintersFactory.GetSolidBrush(_currentTheme.NavigationSelectedBackColor);
+                        var fg = PaintersFactory.GetSolidBrush(_currentTheme.NavigationSelectedForeColor);
                         g.FillRectangle(bg, br);
-                        TextRenderer.DrawText(g, s, Font, br, _currentTheme.NavigationSelectedForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                        TextRenderer.DrawText(g, s, PaintersFactory.GetFont(Font), br, _currentTheme.NavigationSelectedForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                     }
                 }
             }

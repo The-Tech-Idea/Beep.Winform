@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  private static readonly ConcurrentDictionary<int, SolidBrush> _solidBrushCache = new ConcurrentDictionary<int, SolidBrush>();
  private static readonly ConcurrentDictionary<int, Pen> _penCache = new ConcurrentDictionary<int, Pen>();
 
- // Gradient brush cache keyed by a hash of bounds + colors + mode
+ // Gradient brush cache keyed by a hash of bounds + colors + mode/angle
  private static readonly ConcurrentDictionary<long, LinearGradientBrush> _linearGradientCache = new ConcurrentDictionary<long, LinearGradientBrush>();
 
  // Rounded rectangle GraphicsPath cache keyed by width,height,radius
@@ -23,6 +23,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
  // Rasterized background cache keyed by a signature (theme+bounds)
  private static readonly ConcurrentDictionary<string, Bitmap> _rasterCache = new ConcurrentDictionary<string, Bitmap>(StringComparer.Ordinal);
+
+ // Shared font cache
+ private static readonly ConcurrentDictionary<string, Font> _fontCache = new ConcurrentDictionary<string, Font>(StringComparer.Ordinal);
 
  public static SolidBrush GetSolidBrush(Color color)
  {
@@ -51,6 +54,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  // Create brush using bounds passed in; callers should reuse brush only for identical sizes
  var brush = new LinearGradientBrush(bounds, color1, color2, mode);
  // Important: set WrapMode to Clamp to prevent tiling artifacts
+ brush.WrapMode = WrapMode.Clamp;
+ return brush;
+ });
+ }
+
+ // New overload to support angle-based gradients
+ public static LinearGradientBrush GetLinearGradientBrush(RectangleF bounds, Color color1, Color color2, float angle)
+ {
+ int k1 = color1.ToArgb();
+ int k2 = color2.ToArgb();
+ int w = (int)bounds.Width;
+ int h = (int)bounds.Height;
+ int ang = (int)(angle *1000f);
+ long key = ((long)k1 <<32) ^ (long)k2 ^ ((long)w <<16) ^ h ^ ang;
+
+ return _linearGradientCache.GetOrAdd(key, _ =>
+ {
+ var brush = new LinearGradientBrush(bounds, color1, color2, angle);
  brush.WrapMode = WrapMode.Clamp;
  return brush;
  });
@@ -98,6 +119,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  return _rasterCache.GetOrAdd(signature, _ => generator());
  }
 
+ /// <summary>
+ /// Get or create a cached Font. Keyed by family name, size and style.
+ /// Cached fonts are reused across paints to avoid allocations.
+ /// </summary>
+ public static Font GetFont(string familyName, float size, FontStyle style)
+ {
+ if (string.IsNullOrEmpty(familyName)) familyName = SystemFonts.DefaultFont.FontFamily.Name;
+ var key = $"{familyName}:{size}:{(int)style}";
+ return _fontCache.GetOrAdd(key, k =>
+ {
+ try
+ {
+ return new Font(familyName, size, style);
+ }
+ catch
+ {
+ return SystemFonts.DefaultFont;
+ }
+ });
+ }
+
+ public static Font GetFont(Font prototype)
+ {
+ if (prototype == null) return SystemFonts.DefaultFont;
+ return GetFont(prototype.FontFamily.Name, prototype.Size, prototype.Style);
+ }
+
  public static void ClearCache()
  {
  foreach (var kv in _solidBrushCache)
@@ -129,6 +177,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  try { kv.Value.Dispose(); } catch { }
  }
  _rasterCache.Clear();
+
+ foreach (var kv in _fontCache)
+ {
+ try { kv.Value.Dispose(); } catch { }
+ }
+ _fontCache.Clear();
  }
  }
 }

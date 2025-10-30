@@ -71,30 +71,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
             if (!string.IsNullOrEmpty(ChartTitle))
             {
-                using (Brush titleBrush = new SolidBrush(ChartTitleForeColor))
+                var titleFont = PaintersFactory.GetFont(ChartTitleFont);
+                using (Brush titleBrush = PaintersFactory.GetSolidBrush(ChartTitleForeColor))
                 {
-                    SizeF titleSize = TextUtils.MeasureText(g,ChartTitle, ChartTitleFont);
-                    g.DrawString(ChartTitle, ChartTitleFont, titleBrush, textAreaLeft, currentY);
+                    SizeF titleSize = TextUtils.MeasureText(g,ChartTitle, titleFont);
+                    g.DrawString(ChartTitle, titleFont, titleBrush, textAreaLeft, currentY);
                     currentY += (int)titleSize.Height + 5;
                 }
             }
 
             if (!string.IsNullOrEmpty(ChartValue))
             {
-                using (Brush valueBrush = new SolidBrush(ChartTextColor))
+                var valueFont = PaintersFactory.GetFont(ChartValueFont);
+                using (Brush valueBrush = PaintersFactory.GetSolidBrush(ChartTextColor))
                 {
-                    SizeF valueSize = TextUtils.MeasureText(g,ChartValue, ChartValueFont);
-                    g.DrawString(ChartValue, ChartValueFont, valueBrush, textAreaLeft, currentY);
+                    SizeF valueSize = TextUtils.MeasureText(g,ChartValue, valueFont);
+                    g.DrawString(ChartValue, valueFont, valueBrush, textAreaLeft, currentY);
                     currentY += (int)valueSize.Height + 5;
                 }
             }
 
             if (!string.IsNullOrEmpty(ChartSubtitle))
             {
-                using (Brush subBrush = new SolidBrush(ChartLineColor))
+                var subFont = PaintersFactory.GetFont(ChartSubtitleFont);
+                using (Brush subBrush = PaintersFactory.GetSolidBrush(ChartLineColor))
                 {
-                    SizeF subSize = TextUtils.MeasureText(g,ChartSubtitle, ChartSubtitleFont);
-                    g.DrawString(ChartSubtitle, ChartSubtitleFont, subBrush, textAreaLeft, currentY);
+                    SizeF subSize = TextUtils.MeasureText(g,ChartSubtitle, subFont);
+                    g.DrawString(ChartSubtitle, subFont, subBrush, textAreaLeft, currentY);
                     currentY += (int)subSize.Height + 10;
                 }
             }
@@ -115,8 +118,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 YMax = ViewportYMax,
                 XTitle = XAxisTitle,
                 YTitle = YAxisTitle,
-                TitleFont = new Font("Arial", 10, FontStyle.Bold),
-                LabelFont = new Font("Arial", 8),
+                TitleFont = PaintersFactory.GetFont(ChartTitleFont),
+                LabelFont = PaintersFactory.GetFont(ChartValueFont),
                 TextColor = ChartTextColor,
                 AxisColor = ChartAxisColor,
                 GridColor = ChartGridLineColor,
@@ -149,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             if (ShowLegend)
             {
                 _legendPainter.DrawLegend(g, axisCtx.PlotRect, _dataSeries, ChartDefaultSeriesColors, 
-                    new Font("Arial", 8), ChartLegendTextColor, ChartLegendBackColor, 
+                    PaintersFactory.GetFont(ChartValueFont), ChartLegendTextColor, ChartLegendBackColor, 
                     ChartLegendShapeColor, this, ToggleSeriesByIndex, LegendPlacement);
             }
         }

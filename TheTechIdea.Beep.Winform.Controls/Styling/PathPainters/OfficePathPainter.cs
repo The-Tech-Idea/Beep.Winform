@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             ControlState state = ControlState.Normal)
         {
             // Office: Professional blue with subtle gradient
-            Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
+            Color primaryColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
             int officeRadius = StyleBorders.GetRadius(BeepControlStyle.Office); // 4px subtle rounded
 
             // Create Office rounded rectangle path
@@ -34,13 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
                     Math.Max(0, primaryColor.B - 20)
                 );
 
-                using (var brush = new LinearGradientBrush(
-                    new Point(bounds.Left, bounds.Top),
-                    new Point(bounds.Left, bounds.Bottom),
-                    topColor, bottomColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                var brush = PaintersFactory.GetLinearGradientBrush(new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height), topColor, bottomColor, LinearGradientMode.Vertical);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.FillPath(brush, path);
             }
         }
     }

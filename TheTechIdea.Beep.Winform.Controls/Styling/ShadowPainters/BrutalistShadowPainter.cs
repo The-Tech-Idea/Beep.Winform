@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -21,10 +22,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             Rectangle shadowRect = Rectangle.Round(path.GetBounds());
             shadowRect.Offset(6, 6);
 
-            using (var brush = new SolidBrush(Color.FromArgb(80, 0, 0, 0)))
-            {
-                g.FillRectangle(brush, shadowRect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(80, 0, 0, 0));
+            g.FillRectangle(brush, shadowRect);
 
             return path.CreateInsetPath(0f);
         }

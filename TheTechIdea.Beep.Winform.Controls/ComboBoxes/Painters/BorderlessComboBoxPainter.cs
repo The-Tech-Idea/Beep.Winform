@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -16,10 +17,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (_owner.Focused || _owner.IsHovered)
             {
                 Color hoverBg = Color.FromArgb(245, bgColor.R, bgColor.G, bgColor.B);
-                using (var brush = new SolidBrush(hoverBg))
-                {
-                    g.FillRectangle(brush, rect);
-                }
+                var brush = PaintersFactory.GetSolidBrush(hoverBg);
+                g.FillRectangle(brush, rect);
             }
         }
         
@@ -32,18 +31,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     ? Color.Red 
                     : (_theme?.PrimaryColor ?? Color.Blue);
                 
-                using (var pen = new Pen(borderColor, 2f))
-                {
-                    g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
-                }
+                var pen = PaintersFactory.GetPen(borderColor,2f);
+                g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
             }
             else if (_owner.HasError)
             {
-                // Show error state even when not focused
-                using (var pen = new Pen(Color.Red, 1f))
-                {
-                    g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
-                }
+                var pen = PaintersFactory.GetPen(Color.Red,1f);
+                g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
             }
         }
         

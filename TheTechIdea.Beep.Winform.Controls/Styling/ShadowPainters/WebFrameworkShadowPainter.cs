@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
                 case ControlState.Selected:
                     // Web selected: Colored box-shadow
-                    Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(59, 130, 246);
+                    Color accentColor = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(59, 130, 246);
                     remainingPath = ShadowPainterHelpers.PaintColoredShadow(
                         g, path, radius,
                         baseColor: Color.FromArgb(80, accentColor),

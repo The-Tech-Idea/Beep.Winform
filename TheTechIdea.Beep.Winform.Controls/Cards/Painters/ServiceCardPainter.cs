@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +11,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class ServiceCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -69,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             if (ctx.ShowImage)
             {
                 // Draw circular background for icon with accent color
-                using var circleBrush = new SolidBrush(Color.FromArgb(25, ctx.AccentColor));
+                var circleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(25, ctx.AccentColor));
                 int circleSize = ctx.ImageRect.Width + 16;
                 var circleRect = new Rectangle(
                     ctx.ImageRect.Left - 8,
@@ -78,15 +88,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
                 g.FillEllipse(circleBrush, circleRect);
                 
                 // Draw subtle border
-                using var circlePen = new Pen(Color.FromArgb(50, ctx.AccentColor), 2);
+                var circlePen = PaintersFactory.GetPen(Color.FromArgb(50, ctx.AccentColor), 2);
                 g.DrawEllipse(circlePen, circleRect);
             }
 
             // Draw category/status badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw decorative accent line above button
@@ -94,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             {
                 int lineWidth = 40;
                 int lineY = ctx.ButtonRect.Top - 12;
-                using var accentPen = new Pen(ctx.AccentColor, 3);
+                var accentPen = PaintersFactory.GetPen(ctx.AccentColor, 3);
                 g.DrawLine(accentPen,
                     ctx.DrawingRect.Left + (ctx.DrawingRect.Width - lineWidth) / 2, lineY,
                     ctx.DrawingRect.Left + (ctx.DrawingRect.Width + lineWidth) / 2, lineY);

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class CompactProfileCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _statusFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _statusFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
+            _statusFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -41,15 +54,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
-            
+
             // Draw status
             if (ctx.ShowStatus && !string.IsNullOrEmpty(ctx.StatusText))
             {
-                using var statusFont = new Font(Owner.Font.FontFamily, 7.5f);
-                CardRenderingHelpers.DrawStatus(g, ctx.StatusRect, ctx.StatusText, ctx.StatusColor, statusFont);
+                CardRenderingHelpers.DrawStatus(g, ctx.StatusRect, ctx.StatusText, ctx.StatusColor, _statusFont);
             }
         }
     }

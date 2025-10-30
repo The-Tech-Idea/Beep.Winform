@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -17,6 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         private const int RoundRadius = 6;
         private const int IconPadding = 4;
+
+        private Font _regularFont;
+        private Font _boldFont;
 
         /// <summary>
         /// Modern file manager tree painting (Google Drive/OneDrive Style).
@@ -56,27 +60,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                             using (var shadowPath = CreateRoundedRectangle(shadowRect, RoundRadius))
                             {
-                                using (var shadowBrush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
-                                {
-                                    g.FillPath(shadowBrush, shadowPath);
-                                }
+                                var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, 0, 0, 0));
+                                g.FillPath(shadowBrush, shadowPath);
                             }
                         }
 
                         // Fill background
-                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, selectionPath);
-                        }
+                        var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                        g.FillPath(bgBrush, selectionPath);
 
                         // Border (accent on selection)
                         if (isSelected)
                         {
-                            using (var borderPen = new Pen(_theme.AccentColor, 1f))
-                            {
-                                g.DrawPath(borderPen, selectionPath);
-                            }
+                            var borderPen = PaintersFactory.GetPen(_theme.AccentColor, 1f);
+                            g.DrawPath(borderPen, selectionPath);
                         }
                     }
                 }
@@ -88,27 +85,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = node.ToggleRectContent;
                     Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-                    using (var pen = new Pen(chevronColor, 1.5f))
+                    var pen = PaintersFactory.GetPen(chevronColor, 1.5f);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    int centerX = toggleRect.Left + toggleRect.Width / 2;
+                    int centerY = toggleRect.Top + toggleRect.Height / 2;
+                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                    if (node.Item.IsExpanded)
                     {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                        if (node.Item.IsExpanded)
-                        {
-                            // Chevron down
-                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                        }
-                        else
-                        {
-                            // Chevron right
-                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                        }
+                        // Chevron down
+                        g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                        g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                    }
+                    else
+                    {
+                        // Chevron right
+                        g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                        g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
                     }
                 }
 
@@ -116,37 +111,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
                     var checkRect = node.CheckRectContent;
-                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
-                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+                    var bgBrush = PaintersFactory.GetSolidBrush(node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor);
+                    g.FillPath(bgBrush, CreateRoundedRectangle(checkRect, 3));
 
-                    using (var checkPath = CreateRoundedRectangle(checkRect, 3))
-                    {
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, checkPath);
-                        }
-
-                        using (var borderPen = new Pen(borderColor, 1.5f))
-                        {
-                            g.DrawPath(borderPen, checkPath);
-                        }
-                    }
+                    var borderPen = PaintersFactory.GetPen(node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor, 1.5f);
+                    g.DrawPath(borderPen, CreateRoundedRectangle(checkRect, 3));
 
                     if (node.Item.IsChecked)
                     {
-                        using (var checkPen = new Pen(Color.White, 1.5f))
-                        {
-                            checkPen.StartCap = LineCap.Round;
-                            checkPen.EndCap = LineCap.Round;
+                        var checkPen = PaintersFactory.GetPen(Color.White, 1.5f);
+                        checkPen.StartCap = LineCap.Round;
+                        checkPen.EndCap = LineCap.Round;
 
-                            var points = new Point[]
-                            {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                            };
-                            g.DrawLines(checkPen, points);
-                        }
+                        var points = new Point[]
+                        {
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                        };
+                        g.DrawLines(checkPen, points);
                     }
                 }
 
@@ -214,13 +197,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // Bold font on selection
-                    FontStyle style = isSelected ? FontStyle.Bold : _owner.TextFont.Style;
-                    using (var renderFont = new Font(_owner.TextFont, style))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
-                    }
+                    var fontToUse = isSelected ? _boldFont ?? _regularFont : _regularFont;
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, fontToUse, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 }
             }
             finally
@@ -261,13 +240,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 Color selectedColor = _theme.TreeNodeSelectedBackColor;
                 using (var path = CreateRoundedRectangle(nodeBounds, RoundRadius))
                 {
-                    using (var brush = new SolidBrush(selectedColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var brush = PaintersFactory.GetSolidBrush(selectedColor);
+                    g.FillPath(brush, path);
 
                     // Subtle border using accent color
-                    using (var pen = new Pen(_theme.AccentColor, 1))
+                    using (var pen = PaintersFactory.GetPen(_theme.AccentColor, 1))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -279,10 +256,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 Color hoverColor = _theme.TreeNodeHoverBackColor;
                 using (var path = CreateRoundedRectangle(nodeBounds, RoundRadius))
                 {
-                    using (var brush = new SolidBrush(hoverColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var hoverBrush = PaintersFactory.GetSolidBrush(hoverColor);
+                    g.FillPath(hoverBrush, path);
                 }
             }
         }
@@ -293,27 +268,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Modern minimal chevron using tree-specific colors
             Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
-            using (var pen = new Pen(chevronColor, 1.5f))
+            var pen = PaintersFactory.GetPen(chevronColor, 1.5f);
+            pen.StartCap = LineCap.Round;
+            pen.EndCap = LineCap.Round;
+
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+            if (isExpanded)
             {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                if (isExpanded)
-                {
-                    // Chevron down
-                    g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                    g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                }
-                else
-                {
-                    // Chevron right
-                    g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                    g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                }
+                // Chevron down
+                g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+            }
+            else
+            {
+                // Chevron right
+                g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
             }
         }
 
@@ -399,33 +372,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Use tree-specific text colors
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // Use slightly bold font for selected items
-            Font renderFont = isSelected ? new Font(font, FontStyle.Bold) : font;
-
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
+            var fontToUse = isSelected ? _boldFont ?? _regularFont : _regularFont;
+            TextRenderer.DrawText(g, text, fontToUse, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
-
-            if (isSelected && renderFont != font)
-            {
-                renderFont.Dispose();
-            }
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
         {
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Background using tree-specific theme color
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var brush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+            g.FillRectangle(brush, bounds);
 
             // Enable high-quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             base.Paint(g, owner, bounds);
+        }
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
+            if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
+            {
+                try { _boldFont?.Dispose(); } catch { }
+                _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
+            }
         }
 
         public override int GetPreferredRowHeight(SimpleItem item, Font font)

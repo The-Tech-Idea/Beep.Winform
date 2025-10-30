@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -17,6 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         private const int GroupSpacing = 8;
         private const int LayerIndent = 12;
+
+        private Font _regularFont;
 
         /// <summary>
         /// Component tree-specific node painting with Figma/VS Code Style.
@@ -37,23 +40,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw component tree background
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                    g.FillRectangle(bgBrush, nodeBounds);
+                }
 
-                    using (var nodePath = CreateRoundedRectangle(nodeBounds, 3))
+                // STEP 2: Left accent stripe (distinctive Figma/VS Code feature)
+                if (isSelected)
+                {
+                    using (var accentPen = new Pen(_theme.AccentColor, 2f))
                     {
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, nodePath);
-                        }
-                    }
-
-                    // STEP 2: Left accent stripe (distinctive Figma/VS Code feature)
-                    if (isSelected)
-                    {
-                        using (var accentPen = new Pen(_theme.AccentColor, 2f))
-                        {
-                            g.DrawLine(accentPen, nodeBounds.X, nodeBounds.Y, nodeBounds.X, nodeBounds.Bottom);
-                        }
+                        g.DrawLine(accentPen, nodeBounds.X, nodeBounds.Y, nodeBounds.X, nodeBounds.Bottom);
                     }
                 }
 
@@ -156,23 +152,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.IconRectContent != Rectangle.Empty && !string.IsNullOrEmpty(node.Item.ImagePath))
                 {
                     var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
-                    PaintIcon(g, iconRect, node.Item.ImagePath);
+                    try { StyledImagePainter.Paint(g, iconRect, node.Item.ImagePath); } catch { }
                 }
 
                 // STEP 7: Draw text with component tree typography (monospace bold on selection)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = node.TextRectContent;
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
-
-                    // Use monospace-Style font for component names if selected
-                    using (var renderFont = isSelected ? 
-                        new Font("Consolas", _owner.TextFont.Size, FontStyle.Bold) : 
-                        new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -472,6 +461,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             // Component trees need compact but readable spacing
             return Math.Max(26, base.GetPreferredRowHeight(item, font));
+        }
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
         }
     }
 }

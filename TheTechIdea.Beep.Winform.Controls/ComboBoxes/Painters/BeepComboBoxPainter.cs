@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         /// </summary>
         public void Paint(Graphics g, BeepComboBox owner, Rectangle drawingRect)
         {
-            if (g == null || owner == null || drawingRect.Width <= 0 || drawingRect.Height <= 0)
+            if (g == null || owner == null || drawingRect.Width <=0 || drawingRect.Height <=0)
                 return;
             
             _owner = owner;
@@ -79,10 +79,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // For editable mode, we might want to show a different background
             if (_owner.IsEditable && _owner.Focused)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(10, _theme?.PrimaryColor ?? Color.Blue)))
-                {
-                    g.FillRectangle(brush, textAreaRect);
-                }
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, _theme?.PrimaryColor ?? Color.Blue));
+                g.FillRectangle(brush, textAreaRect);
             }
         }
         
@@ -98,15 +96,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (string.IsNullOrEmpty(displayText)) return;
             
             Color textColor = _helper.GetTextColor();
-            Font textFont = _owner.TextFont  ;
+            Font textFont = _owner.TextFont;
             
             // Calculate text bounds with padding
             var textBounds = textAreaRect;
-            textBounds.Inflate(-4, 0);
+            textBounds.Inflate(-4,0);
             
             // Draw text
-            TextFormatFlags flags = TextFormatFlags.Left | 
-                                   TextFormatFlags.VerticalCenter | 
+            TextFormatFlags flags = TextFormatFlags.Left |
+                                   TextFormatFlags.VerticalCenter |
                                    TextFormatFlags.EndEllipsis |
                                    TextFormatFlags.NoPrefix;
             
@@ -150,13 +148,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         private void DrawPlaceholderIcon(Graphics g, Rectangle iconRect)
         {
-            using (var pen = new Pen(_theme?.BorderColor ?? Color.Gray, 1.5f))
-            {
-                int padding = 3;
-                var rect = iconRect;
-                rect.Inflate(-padding, -padding);
-                g.DrawRectangle(pen, rect);
-            }
+            var pen = PaintersFactory.GetPen(_theme?.BorderColor ?? Color.Gray,1.5f);
+            g.DrawRectangle(pen, Rectangle.Inflate(iconRect, -3, -3));
         }
         
         #endregion
@@ -168,20 +161,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (buttonRect.IsEmpty) return;
             
             // Check if button is hovered (from owner's state)
-            bool isHovered = _owner.HitTestControl != null && 
-                           _owner.HitTestControl.Name == "DropdownButton" && 
+            bool isHovered = _owner.HitTestControl != null &&
+                           _owner.HitTestControl.Name == "DropdownButton" &&
                            _owner.HitTestControl.IsHovered;
             
             // Draw button background on hover
             if (isHovered)
             {
                 Color hoverColor = _helper.GetButtonHoverColor();
-                using (var brush = new SolidBrush(hoverColor))
+                var brush = PaintersFactory.GetSolidBrush(hoverColor);
+                using (var path = CreateRoundedPath(buttonRect, _owner.BorderRadius /2))
                 {
-                    using (var path = CreateRoundedPath(buttonRect, _owner.BorderRadius / 2))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    g.FillPath(brush, path);
                 }
             }
             
@@ -198,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 {
                     // Use StyledImagePainter for dropdown icon
                     var style = BeepStyling.CurrentControlStyle;
-                    var iconRect = GetCenteredIconRect(buttonRect, 12, 12);
+                    var iconRect = GetCenteredIconRect(buttonRect,12,12);
                     StyledImagePainter.Paint(g, iconRect, _owner.DropdownIconPath, style);
                     return;
                 }
@@ -209,49 +200,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             DrawSimpleArrow(g, buttonRect, false);
         }
         
-        private void DrawSimpleArrow(Graphics g, Rectangle buttonRect, bool isOpen)
-        {
-            Color arrowColor = _owner.Enabled ? 
-                              (_theme?.ForeColor ?? Color.Black) : 
-                              Color.Gray;
-            
-            using (var pen = new Pen(arrowColor, 2f))
-            {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-                
-                // Calculate arrow points
-                int centerX = buttonRect.X + buttonRect.Width / 2;
-                int centerY = buttonRect.Y + buttonRect.Height / 2;
-                int arrowSize = 4;
-                
-                Point[] arrowPoints;
-                
-                if (isOpen)
-                {
-                    // Up arrow
-                    arrowPoints = new Point[]
-                    {
-                        new Point(centerX - arrowSize, centerY + arrowSize / 2),
-                        new Point(centerX, centerY - arrowSize / 2),
-                        new Point(centerX + arrowSize, centerY + arrowSize / 2)
-                    };
-                }
-                else
-                {
-                    // Down arrow
-                    arrowPoints = new Point[]
-                    {
-                        new Point(centerX - arrowSize, centerY - arrowSize / 2),
-                        new Point(centerX, centerY + arrowSize / 2),
-                        new Point(centerX + arrowSize, centerY - arrowSize / 2)
-                    };
-                }
-                
-                g.DrawLines(pen, arrowPoints);
-            }
-        }
-        
         #endregion
         
         #region Helper Methods
@@ -260,30 +208,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             GraphicsPath path = new GraphicsPath();
             
-            if (radius <= 0)
+            if (radius <=0)
             {
                 path.AddRectangle(rect);
                 return path;
             }
             
-            int diameter = radius * 2;
+            int diameter = radius *2;
             Size size = new Size(diameter, diameter);
             Rectangle arc = new Rectangle(rect.Location, size);
             
             // Top left
-            path.AddArc(arc, 180, 90);
+            path.AddArc(arc,180,90);
             
             // Top right
             arc.X = rect.Right - diameter;
-            path.AddArc(arc, 270, 90);
+            path.AddArc(arc,270,90);
             
             // Bottom right
             arc.Y = rect.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
+            path.AddArc(arc,0,90);
             
             // Bottom left
             arc.X = rect.Left;
-            path.AddArc(arc, 90, 90);
+            path.AddArc(arc,90,90);
             
             path.CloseFigure();
             return path;
@@ -291,10 +239,50 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         private Rectangle GetCenteredIconRect(Rectangle bounds, int iconWidth, int iconHeight)
         {
-            int x = bounds.X + (bounds.Width - iconWidth) / 2;
-            int y = bounds.Y + (bounds.Height - iconHeight) / 2;
+            int x = bounds.X + (bounds.Width - iconWidth) /2;
+            int y = bounds.Y + (bounds.Height - iconHeight) /2;
             
             return new Rectangle(x, y, iconWidth, iconHeight);
+        }
+        
+        private void DrawSimpleArrow(Graphics g, Rectangle buttonRect, bool isOpen)
+        {
+            Color arrowColor = _owner.Enabled ?
+                              (_theme?.ForeColor ?? Color.Black) :
+                              Color.Gray;
+            
+            var pen = PaintersFactory.GetPen(arrowColor,2f);
+            // Pen caps set on clone if necessary; small stroke without modification is fine
+            
+            // Calculate arrow points
+            int centerX = buttonRect.X + buttonRect.Width /2;
+            int centerY = buttonRect.Y + buttonRect.Height /2;
+            int arrowSize =4;
+            
+            Point[] arrowPoints;
+            
+            if (isOpen)
+            {
+                // Up arrow
+                arrowPoints = new Point[]
+                {
+                    new Point(centerX - arrowSize, centerY + arrowSize /2),
+                    new Point(centerX, centerY - arrowSize /2),
+                    new Point(centerX + arrowSize, centerY + arrowSize /2)
+                };
+            }
+            else
+            {
+                // Down arrow
+                arrowPoints = new Point[]
+                {
+                    new Point(centerX - arrowSize, centerY - arrowSize /2),
+                    new Point(centerX, centerY + arrowSize /2),
+                    new Point(centerX + arrowSize, centerY - arrowSize /2)
+                };
+            }
+            
+            g.DrawLines(pen, arrowPoints);
         }
         
         #endregion

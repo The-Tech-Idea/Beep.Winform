@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -16,6 +17,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     public class VercelCleanTreePainter : BaseTreePainter
     {
         private const int BorderWidth = 1;
+
+        private Font _monoFont;
+
+        /// <summary>
+        /// Initialize the painter, creating a cached monospace font.
+        /// </summary>
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _monoFont?.Dispose(); } catch { }
+            _monoFont = new Font("Consolas", owner?.TextFont?.Size ?? SystemFonts.DefaultFont.Size, FontStyle.Regular);
+        }
 
         /// <summary>
         /// Vercel-specific node painting with ultra-minimal clean design.
@@ -37,29 +50,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (isSelected || isHovered)
                 {
                     Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, nodeBounds);
-                    }
+                    var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                    g.FillRectangle(bgBrush, nodeBounds);
 
                     // STEP 2: Vercel top accent border (distinctive feature)
                     if (isSelected)
                     {
                         // Top accent line (2px thick)
-                        using (var accentPen = new Pen(_theme.AccentColor, 2f))
-                        {
-                            g.DrawLine(accentPen, 
-                                nodeBounds.Left, nodeBounds.Top, 
-                                nodeBounds.Right, nodeBounds.Top);
-                        }
+                        var accentPen = PaintersFactory.GetPen(_theme.AccentColor, 2f);
+                        g.DrawLine(accentPen, 
+                            nodeBounds.Left, nodeBounds.Top, 
+                            nodeBounds.Right, nodeBounds.Top);
                     }
                     else if (isHovered)
                     {
                         // Subtle border on hover
-                        using (var hoverPen = new Pen(Color.FromArgb(40, _theme.BorderColor), 1f))
-                        {
-                            g.DrawRectangle(hoverPen, nodeBounds);
-                        }
+                        var hoverPen = PaintersFactory.GetPen(Color.FromArgb(40, _theme.BorderColor), 1f);
+                        g.DrawRectangle(hoverPen, nodeBounds);
                     }
                 }
 
@@ -70,26 +77,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = node.ToggleRectContent;
                     Color iconColor = _theme.TreeForeColor;
 
-                    using (var pen = new Pen(iconColor, 1.5f))
+                    var pen = PaintersFactory.GetPen(iconColor, 1.5f);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    int centerX = toggleRect.Left + toggleRect.Width / 2;
+                    int centerY = toggleRect.Top + toggleRect.Height / 2;
+                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 4;
+
+                    if (node.Item.IsExpanded)
                     {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 4;
-
-                        if (node.Item.IsExpanded)
-                        {
-                            // Minus (horizontal line only)
-                            g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                        }
-                        else
-                        {
-                            // Plus (horizontal + vertical)
-                            g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                            g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
-                        }
+                        // Minus (horizontal line only)
+                        g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
+                    }
+                    else
+                    {
+                        // Plus (horizontal + vertical)
+                        g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
+                        g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
                     }
                 }
 
@@ -100,33 +105,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
-                    // Vercel square checkbox (no rounding)
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, checkRect);
-                    }
+                    var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                    g.FillRectangle(bgBrush, checkRect);
 
-                    using (var borderPen = new Pen(borderColor, 1f))
-                    {
-                        g.DrawRectangle(borderPen, checkRect);
-                    }
+                    var borderPen = PaintersFactory.GetPen(borderColor, 1f);
+                    g.DrawRectangle(borderPen, checkRect);
 
                     // Minimalist checkmark
                     if (node.Item.IsChecked)
                     {
-                        using (var checkPen = new Pen(Color.White, 1.5f))
-                        {
-                            checkPen.StartCap = LineCap.Round;
-                            checkPen.EndCap = LineCap.Round;
+                        var checkPen = PaintersFactory.GetPen(Color.White, 1.5f);
+                        checkPen.StartCap = LineCap.Round;
+                        checkPen.EndCap = LineCap.Round;
 
-                            var points = new Point[]
-                            {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                            };
-                            g.DrawLines(checkPen, points);
-                        }
+                        var points = new Point[]
+                        {
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                        };
+                        g.DrawLines(checkPen, points);
                     }
                 }
 
@@ -143,12 +141,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // Vercel uses monospace fonts (Consolas/Courier New)
-                    using (var renderFont = new Font("Consolas", _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _monoFont ?? _owner.TextFont, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -165,10 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: flat with left accent border
-                using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
-                {
-                    g.FillRectangle(brush, nodeBounds);
-                }
+                var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                g.FillRectangle(brush, nodeBounds);
 
                 // Left accent border
                 using (var pen = new Pen(_theme.AccentColor, 2f))
@@ -179,10 +171,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             else if (isHovered)
             {
                 // Hover: very subtle border
-                using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
-                {
-                    g.FillRectangle(hoverBrush, nodeBounds);
-                }
+                var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                g.FillRectangle(hoverBrush, nodeBounds);
 
                 using (var pen = new Pen(Color.FromArgb(30, _theme.BorderColor), BorderWidth))
                 {
@@ -198,26 +188,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Vercel Style: minimalist plus/minus
             Color iconColor = _theme.TreeForeColor;
 
-            using (var pen = new Pen(iconColor, 1.5f))
+            var pen = PaintersFactory.GetPen(iconColor, 1.5f);
+            pen.StartCap = LineCap.Round;
+            pen.EndCap = LineCap.Round;
+
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 4;
+
+            if (isExpanded)
             {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 4;
-
-                if (isExpanded)
-                {
-                    // Minus (horizontal line)
-                    g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                }
-                else
-                {
-                    // Plus (horizontal + vertical)
-                    g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                    g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
-                }
+                // Minus (horizontal line)
+                g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
+            }
+            else
+            {
+                // Plus (horizontal + vertical)
+                g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
+                g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
             }
         }
 
@@ -251,13 +239,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 iconRect.Width - padding * 2,
                 iconRect.Height - padding * 2);
 
-            using (var pen = new Pen(iconColor, 1f))
-            {
-                g.DrawRectangle(pen, innerRect);
+            var pen = PaintersFactory.GetPen(iconColor, 1f);
+            g.DrawRectangle(pen, innerRect);
 
-                // Diagonal line for "folder"
-                g.DrawLine(pen, innerRect.Left, innerRect.Top, innerRect.Right, innerRect.Bottom);
-            }
+            // Diagonal line for "folder"
+            g.DrawLine(pen, innerRect.Left, innerRect.Top, innerRect.Right, innerRect.Bottom);
         }
 
         public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
@@ -265,25 +251,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
-
-            // Vercel uses monospace fonts
-            Font renderFont = new Font("Consolas", font.Size, FontStyle.Regular);
-
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
+            var fontToUse = _monoFont ?? font;
+            TextRenderer.DrawText(g, text, fontToUse, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
-            renderFont.Dispose();
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
         {
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Ultra-clean background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var brush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+            g.FillRectangle(brush, bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

@@ -11,18 +11,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
     /// <summary>
     /// Helper class for tree layout calculation and caching.
     /// Handles text measurement, node positioning, and virtualization.
+    /// Optimized to reduce allocations in hot paths.
     /// </summary>
     public class BeepTreeLayoutHelper
     {
         private readonly BeepTree _owner;
         private readonly BeepTreeHelper _treeHelper;
-        private List<NodeInfo> _layoutCache;
+        private readonly List<NodeInfo> _layoutCache;
 
         public BeepTreeLayoutHelper(BeepTree owner, BeepTreeHelper treeHelper)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _treeHelper = treeHelper ?? throw new ArgumentNullException(nameof(treeHelper));
-            _layoutCache = new List<NodeInfo>();
+            _layoutCache = new List<NodeInfo>(512); // reserve capacity to avoid frequent resizes
         }
 
         #region Layout Calculation
@@ -34,45 +35,73 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         {
             _layoutCache.Clear();
 
-            // Build list of visible nodes
-            var visibleItems = _treeHelper.TraverseVisible(_owner.Nodes).ToList();
-            if (visibleItems.Count == 0)
+            // Build list of visible nodes using yield-based traversal to avoid creating intermediate lists
+            var visibleEnumerator = _treeHelper.TraverseVisible(_owner.Nodes).GetEnumerator();
+            if (!visibleEnumerator.MoveNext())
+                return _layoutCache;
+
+            // Collect visible items into a local list only when needed for virtualization indexing
+            List<SimpleItem> visibleItems = null;
+            if (_owner.VirtualizeLayout)
+            {
+                visibleItems = new List<SimpleItem>();
+                do
+                {
+                    visibleItems.Add(visibleEnumerator.Current);
+                } while (visibleEnumerator.MoveNext());
+            }
+
+            // If not virtualizing, enumerate and calculate layout on the fly
+            if (!_owner.VirtualizeLayout)
+            {
+                int y = 0;
+                // process first element then continue enumerator
+                var first = visibleEnumerator.Current;
+                int levelFirst = _treeHelper.GetNodeLevel(first);
+                var nodeInfoFirst = new NodeInfo { Item = first, Level = levelFirst, Y = y };
+                CalculateNodeLayout(ref nodeInfoFirst);
+                _layoutCache.Add(nodeInfoFirst);
+                y += nodeInfoFirst.RowHeight;
+
+                while (visibleEnumerator.MoveNext())
+                {
+                    var item = visibleEnumerator.Current;
+                    int level = _treeHelper.GetNodeLevel(item);
+                    var nodeInfo = new NodeInfo { Item = item, Level = level, Y = y };
+                    CalculateNodeLayout(ref nodeInfo);
+                    _layoutCache.Add(nodeInfo);
+                    y += nodeInfo.RowHeight;
+                }
+
+                return _layoutCache;
+            }
+
+            // Virtualization path: use visibleItems list
+            if (visibleItems == null || visibleItems.Count == 0)
                 return _layoutCache;
 
             // Determine virtualization range
-            int start = 0, end = visibleItems.Count - 1;
-            if (_owner.VirtualizeLayout && _owner.DrawingRect.Height > 0)
-            {
-                (start, end) = GetVirtualizationRange(visibleItems);
-            }
+            var (start, end) = GetVirtualizationRange(visibleItems);
 
-            int y = 0;
+            int yPos = 0;
             for (int i = 0; i < visibleItems.Count; i++)
             {
                 var item = visibleItems[i];
                 int level = _treeHelper.GetNodeLevel(item);
 
-                // Create node info
-                var nodeInfo = new NodeInfo
-                {
-                    Item = item,
-                    Level = level,
-                    Y = y
-                };
+                var nodeInfo = new NodeInfo { Item = item, Level = level, Y = yPos };
 
-                // Calculate layout for visible nodes in viewport
                 if (i >= start && i <= end)
                 {
                     CalculateNodeLayout(ref nodeInfo);
                 }
                 else
                 {
-                    // Use estimated height for nodes outside viewport
                     nodeInfo.RowHeight = _owner.GetScaledMinRowHeight();
                 }
 
                 _layoutCache.Add(nodeInfo);
-                y += nodeInfo.RowHeight;
+                yPos += nodeInfo.RowHeight;
             }
 
             return _layoutCache;
@@ -93,8 +122,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             int rowHeight = CalculateRowHeight(textSize);
             int baseIndent = CalculateIndent(nodeInfo.Level);
 
-            // Calculate rectangles in content space (no scroll offset)
-            
             // Toggle button
             int toggleX = baseIndent;
             int toggleY = nodeInfo.Y + (rowHeight - _owner.GetScaledBoxSize()) / 2;
@@ -105,11 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             Rectangle checkRect = Rectangle.Empty;
             if (_owner.ShowCheckBox)
             {
-                checkRect = new Rectangle(
-                    xAfterToggle,
-                    nodeInfo.Y + (rowHeight - _owner.GetScaledBoxSize()) / 2,
-                    _owner.GetScaledBoxSize(),
-                    _owner.GetScaledBoxSize());
+                checkRect = new Rectangle(xAfterToggle, nodeInfo.Y + (rowHeight - _owner.GetScaledBoxSize()) / 2, _owner.GetScaledBoxSize(), _owner.GetScaledBoxSize());
                 xAfterToggle = checkRect.Right + 4;
             }
 
@@ -118,20 +141,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             int iconY = nodeInfo.Y + (rowHeight - _owner.GetScaledImageSize()) / 2;
             Rectangle iconRect = new Rectangle(iconX, iconY, _owner.GetScaledImageSize(), _owner.GetScaledImageSize());
 
-            // Text (add padding to text width for better spacing)
+            // Text
             int textX = iconRect.Right + 8;
-            Rectangle textRect = new Rectangle(
-                textX,
-                nodeInfo.Y + _owner.GetScaledVerticalPadding(),
-                textSize.Width + 10,  // Add 10px padding after text
-                textSize.Height);
+            Rectangle textRect = new Rectangle(textX, nodeInfo.Y + _owner.GetScaledVerticalPadding(), textSize.Width + 10, textSize.Height);
 
-            // Row bounds - use DrawingRect width as default (nodes span full width)
-            int minRowWidth = textX + textSize.Width + 10;  // Minimum needed for content
-            int rowWidth = Math.Max(minRowWidth, _owner.DrawingRect.Width);  // At least DrawingRect width
+            int minRowWidth = textX + textSize.Width + 10;
+            int rowWidth = Math.Max(minRowWidth, _owner.DrawingRect.Width);
             Rectangle rowRect = new Rectangle(0, nodeInfo.Y, rowWidth, rowHeight);
 
-            // Update node info
             nodeInfo.TextSize = textSize;
             nodeInfo.RowHeight = rowHeight;
             nodeInfo.RowWidth = rowWidth;
@@ -154,9 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             if (string.IsNullOrEmpty(text))
                 return Size.Empty;
 
-            return TextRenderer.MeasureText(text, font,
-                new Size(int.MaxValue, int.MaxValue),
-                TextFormatFlags.NoPadding);
+            return TextRenderer.MeasureText(text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
         }
 
         /// <summary>
@@ -185,9 +200,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
         #region Virtualization
 
-        /// <summary>
-        /// Determines which nodes are in the viewport for virtualization.
-        /// </summary>
         private (int start, int end) GetVirtualizationRange(List<SimpleItem> visibleItems)
         {
             int start = 0;
@@ -209,20 +221,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
                 yAccum += estH;
             }
 
-            // Calculate end index
             int rowsInViewport = viewportHeight / Math.Max(1, _owner.GetScaledMinRowHeight());
             end = Math.Min(visibleItems.Count - 1, start + rowsInViewport + 2 * bufferRows);
 
             return (start, end);
         }
 
-        /// <summary>
-        /// Checks if a node is currently in the viewport.
-        /// </summary>
         public bool IsNodeInViewport(NodeInfo node)
         {
-            // If viewport height isn't established yet, don't filter anything out
-            // This prevents an empty render when DrawingRect is zero-sized early in the paint pipeline
             int drawingHeight = _owner.DrawingRect.Height;
             if (drawingHeight <= 0)
             {
@@ -240,25 +246,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
         #region Coordinate Transformation
 
-        /// <summary>
-        /// Transforms a rectangle from content space to viewport space.
-        /// </summary>
         public Rectangle TransformToViewport(Rectangle contentRect)
         {
-            return new Rectangle(
-                _owner.DrawingRect.Left + contentRect.X - _owner.XOffset,
+            return new Rectangle(_owner.DrawingRect.Left + contentRect.X - _owner.XOffset,
                 _owner.DrawingRect.Top + contentRect.Y - _owner.YOffset,
-                contentRect.Width,
-                contentRect.Height);
+                contentRect.Width, contentRect.Height);
         }
 
-        /// <summary>
-        /// Transforms a point from viewport space to content space.
-        /// </summary>
         public Point TransformToContent(Point viewportPoint)
         {
-            return new Point(
-                viewportPoint.X - _owner.DrawingRect.Left + _owner.XOffset,
+            return new Point(viewportPoint.X - _owner.DrawingRect.Left + _owner.XOffset,
                 viewportPoint.Y - _owner.DrawingRect.Top + _owner.YOffset);
         }
 
@@ -266,36 +263,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
         #region Cache Management
 
-        /// <summary>
-        /// Gets the cached layout for all visible nodes.
-        /// </summary>
         public List<NodeInfo> GetCachedLayout()
         {
             return _layoutCache;
         }
 
-        /// <summary>
-        /// Finds cached layout for a specific item.
-        /// </summary>
         public NodeInfo? GetCachedLayoutForItem(SimpleItem item)
         {
-            if (item == null)
-                return null;
-
+            if (item == null) return null;
             return _layoutCache.FirstOrDefault(n => n.Item == item);
         }
 
-        /// <summary>
-        /// Invalidates the entire layout cache (forces recalculation).
-        /// </summary>
         public void InvalidateCache()
         {
             _layoutCache.Clear();
         }
 
-        /// <summary>
-        /// Calculates total content height from cached layouts.
-        /// </summary>
         public int CalculateTotalContentHeight()
         {
             int totalHeight = 0;
@@ -306,9 +289,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             return totalHeight;
         }
 
-        /// <summary>
-        /// Calculates maximum content width from cached layouts.
-        /// </summary>
         public int CalculateTotalContentWidth()
         {
             int maxWidth = 0;

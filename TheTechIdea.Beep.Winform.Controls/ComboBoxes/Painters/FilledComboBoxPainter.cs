@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -22,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 ? Color.FromArgb(Math.Max(0, bgColor.R - 10), Math.Max(0, bgColor.G - 10), Math.Max(0, bgColor.B - 10))
                 : Color.FromArgb(Math.Max(0, bgColor.R - 20), Math.Max(0, bgColor.G - 20), Math.Max(0, bgColor.B - 20));
             
-            using (var brush = new SolidBrush(filledBg))
+            var brush = PaintersFactory.GetSolidBrush(filledBg);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
                 g.FillPath(brush, path);
@@ -38,11 +39,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             float borderWidth = _owner.Focused ? 2f : 1f;
             
-            using (var pen = new Pen(borderColor, borderWidth))
-            {
-                // Draw bottom border only
-                g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
-            }
+            var pen = PaintersFactory.GetPen(borderColor, borderWidth);
+            // Draw bottom border only
+            g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
         }
         
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
@@ -63,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             var shadowRect = rect;
             shadowRect.Offset(0, 2);
             
-            using (var shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0)))
+            var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, 0, 0, 0));
             using (var path = GetRoundedRectPath(shadowRect, BorderRadius))
             {
                 g.FillPath(shadowBrush, path);

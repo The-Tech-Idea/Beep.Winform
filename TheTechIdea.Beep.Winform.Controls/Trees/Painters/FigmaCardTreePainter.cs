@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -18,6 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int CornerRadius = 4;
         private const int CardPadding = 4;
         private const int HandleWidth = 16;
+
+        private Font _regularFont;
 
         /// <summary>
         /// Figma Layers panel card Style painting.
@@ -47,26 +50,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     using (var cardPath = CreateRoundedRectangle(cardBounds, CornerRadius))
                     {
                         // Fill background
-                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, cardPath);
+                        var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                        g.FillPath(bgBrush, cardPath);
 
-                            // Border (2px accent on selection, 1px on hover)
-                            if (isSelected)
-                            {
-                                using (var accentPen = new Pen(_theme.AccentColor, 2f))
-                                {
-                                    g.DrawPath(accentPen, cardPath);
-                                }
-                            }
-                            else
-                            {
-                                using (var borderPen = new Pen(_theme.BorderColor, 1f))
-                                {
-                                    g.DrawPath(borderPen, cardPath);
-                                }
-                            }
+                        // Border (2px accent on selection, 1px on hover)
+                        if (isSelected)
+                        {
+                            var accentPen = PaintersFactory.GetPen(_theme.AccentColor, 2f);
+                            g.DrawPath(accentPen, cardPath);
+                        }
+                        else
+                        {
+                            var borderPen = PaintersFactory.GetPen(_theme.BorderColor, 1f);
+                            g.DrawPath(borderPen, cardPath);
                         }
                     }
 
@@ -80,21 +76,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             12);
 
                         Color handleColor = Color.FromArgb(isSelected ? 120 : 80, _theme.TreeForeColor);
+                        var pen = PaintersFactory.GetPen(handleColor, 1.5f);
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
 
-                        using (var pen = new Pen(handleColor, 1.5f))
-                        {
-                            pen.StartCap = LineCap.Round;
-                            pen.EndCap = LineCap.Round;
+                        // Three horizontal lines (drag handle)
+                        int y1 = handleRect.Top;
+                        int y2 = handleRect.Top + 4;
+                        int y3 = handleRect.Top + 8;
 
-                            // Three horizontal lines (drag handle)
-                            int y1 = handleRect.Top;
-                            int y2 = handleRect.Top + 4;
-                            int y3 = handleRect.Top + 8;
-
-                            g.DrawLine(pen, handleRect.Left, y1, handleRect.Right, y1);
-                            g.DrawLine(pen, handleRect.Left, y2, handleRect.Right, y2);
-                            g.DrawLine(pen, handleRect.Left, y3, handleRect.Right, y3);
-                        }
+                        g.DrawLine(pen, handleRect.Left, y1, handleRect.Right, y1);
+                        g.DrawLine(pen, handleRect.Left, y2, handleRect.Right, y2);
+                        g.DrawLine(pen, handleRect.Left, y3, handleRect.Right, y3);
                     }
 
                     // STEP 3: Draw Figma triangle toggle
@@ -104,71 +97,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                         Color triangleColor = _theme.TreeForeColor;
 
-                        using (var triangleBrush = new SolidBrush(triangleColor))
+                        var triBrush = PaintersFactory.GetSolidBrush(triangleColor);
+
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        Point[] triangle;
+
+                        if (node.Item.IsExpanded)
                         {
-                            int centerX = toggleRect.Left + toggleRect.Width / 2;
-                            int centerY = toggleRect.Top + toggleRect.Height / 2;
-                            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                            Point[] triangle;
-
-                            if (node.Item.IsExpanded)
+                            // Triangle down
+                            triangle = new Point[]
                             {
-                                // Triangle down
-                                triangle = new Point[]
-                                {
-                                new Point(centerX - size, centerY - size / 2),
-                                new Point(centerX + size, centerY - size / 2),
-                                new Point(centerX, centerY + size / 2)
-                                };
-                            }
-                            else
-                            {
-                                // Triangle right
-                                triangle = new Point[]
-                                {
-                                new Point(centerX - size / 2, centerY - size),
-                                new Point(centerX + size / 2, centerY),
-                                new Point(centerX - size / 2, centerY + size)
-                                };
-                            }
-
-                            g.FillPolygon(triangleBrush, triangle);
+                            new Point(centerX - size, centerY - size / 2),
+                            new Point(centerX + size, centerY - size / 2),
+                            new Point(centerX, centerY + size / 2)
+                            };
                         }
+                        else
+                        {
+                            // Triangle right
+                            triangle = new Point[]
+                            {
+                            new Point(centerX - size / 2, centerY - size),
+                            new Point(centerX + size / 2, centerY),
+                            new Point(centerX - size / 2, centerY + size)
+                            };
+                        }
+
+                        g.FillPolygon(triBrush, triangle);
                     }
 
                     // STEP 4: Draw Figma checkbox (if enabled)
                     if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                     {
                         var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
-                        var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
-                        var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+                        var bgBrush = PaintersFactory.GetSolidBrush(node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor);
+                        g.FillPath(bgBrush, CreateRoundedRectangle(checkRect, 2));
 
-                        using (var checkPath = CreateRoundedRectangle(checkRect, 2))
-                        {
-                            using (var bgBrush = new SolidBrush(bgColor))
-                            {
-                                g.FillPath(bgBrush, checkPath);
-                            }
-
-                            using (var borderPen = new Pen(borderColor, 1.5f))
-                            {
-                                g.DrawPath(borderPen, checkPath);
-                            }
-                        }
+                        var borderPen = PaintersFactory.GetPen(node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor, 1.5f);
+                        g.DrawPath(borderPen, CreateRoundedRectangle(checkRect, 2));
 
                         if (node.Item.IsChecked)
                         {
-                            using (var checkPen = new Pen(Color.White, 1.5f))
+                            var checkPen = PaintersFactory.GetPen(Color.White, 1.5f);
+                            var points = new Point[]
                             {
-                                var points = new Point[]
-                                {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                                };
-                                g.DrawLines(checkPen, points);
-                            }
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
                         }
                     }
 
@@ -179,21 +159,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         if (!string.IsNullOrEmpty(node.Item.ImagePath))
                         {
                             // Draw provided image
-                            PaintIcon(g, iconRect, node.Item.ImagePath);
+                            try { Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, node.Item.ImagePath, Common.BeepControlStyle.FigmaCard); } catch { }
                         }
                         else
                         {
-                            // Frame/component outline icon (Figma Style)
-                            Color iconColor = _theme.AccentColor;
-                            using (var iconPath = CreateRoundedRectangle(iconRect, 2))
+                            var iconPath = CreateRoundedRectangle(iconRect, 2);
+                            var pen = PaintersFactory.GetPen(_theme.AccentColor, 1.5f);
+                            g.DrawPath(pen, iconPath);
+                            using (var innerPen = PaintersFactory.GetPen(Color.FromArgb(100, _theme.AccentColor), 1f))
                             {
-                                // Outline only
-                                using (var pen = new Pen(iconColor, 1.5f))
-                                {
-                                    g.DrawPath(pen, iconPath);
-                                }
-
-                                // Inner detail rectangle
                                 int padding = iconRect.Width / 4;
                                 Rectangle innerRect = new Rectangle(
                                     iconRect.X + padding,
@@ -203,10 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                                 if (innerRect.Width > 0 && innerRect.Height > 0)
                                 {
-                                    using (var innerPen = new Pen(Color.FromArgb(100, iconColor), 1f))
-                                    {
-                                        g.DrawRectangle(innerPen, innerRect);
-                                    }
+                                    g.DrawRectangle(innerPen, innerRect);
                                 }
                             }
                         }
@@ -225,21 +196,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         if (eyeRect.Width > 0 && eyeRect.Height > 0)
                         {
                             Color eyeColor = Color.FromArgb(120, _theme.TreeForeColor);
-
+                            var eyePen = PaintersFactory.GetPen(eyeColor, 1f);
                             int centerX = eyeRect.Left + eyeRect.Width / 2;
                             int centerY = eyeRect.Top + eyeRect.Height / 2;
-
-                            using (var pen = new Pen(eyeColor, 1f))
-                            {
-                                // Eye outline
-                                g.DrawEllipse(pen, centerX - 3, centerY - 2, 6, 4);
-
-                                // Pupil
-                                using (var brush = new SolidBrush(eyeColor))
-                                {
-                                    g.FillEllipse(brush, centerX - 1, centerY - 1, 2, 2);
-                                }
-                            }
+                            g.DrawEllipse(eyePen, centerX - 3, centerY - 2, 6, 4);
+                            var eyeBrush = PaintersFactory.GetSolidBrush(eyeColor);
+                            g.FillEllipse(eyeBrush, centerX - 1, centerY - 1, 2, 2);
                         }
                     }
 
@@ -248,13 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     {
                         var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                         Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
-
-                        // Figma uses Inter font (Segoe UI fallback), regular weight
-                        using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
-                        {
-                            TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                        }
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                     }
                 }
             }
@@ -501,6 +458,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             // Figma comfortable spacing
             return Math.Max(28, base.GetPreferredRowHeight(item, font));
+        }
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
         }
     }
 }

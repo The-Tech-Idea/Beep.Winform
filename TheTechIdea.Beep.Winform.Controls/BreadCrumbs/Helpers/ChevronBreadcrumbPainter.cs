@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 {
@@ -13,9 +14,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         {
             string displayText = item?.Text ?? item?.Name ?? string.Empty;
             var textSize = MeasureText(g, displayText);
-            int iconWidth = (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath)) ? 20 : 0;
-            int padding = 10;
-            int width = textSize.Width + padding * 2 + iconWidth + (iconWidth > 0 ? 4 : 0);
+            int iconWidth = (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath)) ?20 :0;
+            int padding =10;
+            int width = textSize.Width + padding *2 + iconWidth + (iconWidth >0 ?4 :0);
             return new Rectangle(x, y, width, height);
         }
 
@@ -31,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             if (isHovered || isSelected)
             {
                 using var path = CreateChevronPath(rect);
-                using var brush = new SolidBrush(Color.FromArgb(isSelected ? 90 : 50, Theme.ButtonHoverBackColor));
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(isSelected ?90 :50, Theme.ButtonHoverBackColor));
                 g.FillPath(brush, path);
             }
 
@@ -42,12 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 
         private static GraphicsPath CreateChevronPath(Rectangle rect)
         {
-            int arrow = rect.Height / 3;
+            int arrow = rect.Height /3;
             var path = new GraphicsPath();
             path.StartFigure();
             path.AddLine(rect.Left, rect.Top, rect.Right - arrow, rect.Top);
-            path.AddLine(rect.Right - arrow, rect.Top, rect.Right, rect.Top + rect.Height / 2);
-            path.AddLine(rect.Right, rect.Top + rect.Height / 2, rect.Right - arrow, rect.Bottom);
+            path.AddLine(rect.Right - arrow, rect.Top, rect.Right, rect.Top + rect.Height /2);
+            path.AddLine(rect.Right, rect.Top + rect.Height /2, rect.Right - arrow, rect.Bottom);
             path.AddLine(rect.Right - arrow, rect.Bottom, rect.Left, rect.Bottom);
             path.CloseFigure();
             return path;
@@ -56,18 +57,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         public override int DrawSeparator(Graphics g, BeepLabel label, int x, int y, int height, string separatorText, Font textFont, Color separatorColor, int itemSpacing)
         {
             // Draw a simple right chevron instead of text-based separator
-            int arrow = height / 3;
-            using var pen = new Pen(Color.FromArgb(160, separatorColor), 2);
+            int arrow = height /3;
+            var pen = PaintersFactory.GetPen(Color.FromArgb(160, separatorColor),2);
             int cx = x + itemSpacing + arrow;
-            int cy = y + height / 2;
+            int cy = y + height /2;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawLines(pen, new[]
-            {
-                new Point(cx - arrow, cy - arrow),
-                new Point(cx, cy),
-                new Point(cx - arrow, cy + arrow)
-            });
-            return arrow * 2 + itemSpacing * 2; // width consumed
+ {
+ new Point(cx - arrow, cy - arrow),
+ new Point(cx, cy),
+ new Point(cx - arrow, cy + arrow)
+ });
+            return arrow *2 + itemSpacing *2; // width consumed
         }
     }
 }

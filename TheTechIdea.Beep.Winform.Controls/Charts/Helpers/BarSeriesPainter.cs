@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -78,8 +79,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                         }
                     }
 
-                    using var b = new SolidBrush(color);
-                    using var pen = new Pen(axisColor, 1);
+                    var b = PaintersFactory.GetSolidBrush(color);
+                    var pen = PaintersFactory.GetPen(axisColor, 1);
                     g.FillRectangle(b, sx, sy, barWidth - 2, height);
                     g.DrawRectangle(pen, sx, sy, barWidth - 2, height);
                 }

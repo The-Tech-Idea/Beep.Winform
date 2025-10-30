@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -36,24 +37,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (state.IsHovered || state.IsSelected)
             {
-                using var br = new SolidBrush(Color.FromArgb(state.IsSelected ? 32 : 16, accent));
+                var br = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsSelected ? 32 : 16, accent));
                 g.FillRectangle(br, bounds);
             }
 
-            using var tbr = new SolidBrush(text);
+            var tbr = PaintersFactory.GetSolidBrush(text);
             g.DrawString(item?.Text ?? string.Empty, font, tbr, bounds, _centerFmt);
 
             if (opt.ShowCloseOnSelected && state.IsSelected)
             {
                 int s = Math.Min(bounds.Height - 6, 12);
                 closeRect = new Rectangle(bounds.Right - s - 4, bounds.Top + (bounds.Height - s) / 2, s, s);
-                using var xpen = new Pen(text, 1.5f) { StartCap = System.Drawing.Drawing2D.LineCap.Round, EndCap = System.Drawing.Drawing2D.LineCap.Round };
-                g.DrawLine(xpen, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
-                g.DrawLine(xpen, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
+                var xpen = (Pen)PaintersFactory.GetPen(text, 1.5f).Clone();
+                try
+                {
+                    xpen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                    xpen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                    g.DrawLine(xpen, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
+                    g.DrawLine(xpen, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
+                }
+                finally
+                {
+                    xpen.Dispose();
+                }
             }
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options) { }
-        private static Font ResolveFont(ChipRenderOptions opt) => (opt.Size == ChipSize.Small) ? new Font(opt.Font.FontFamily, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : opt.Font;
+        private static Font ResolveFont(ChipRenderOptions opt) => (opt.Size == ChipSize.Small) ? PaintersFactory.GetFont(opt.Font.FontFamily.Name, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : PaintersFactory.GetFont(opt.Font);
     }
 }

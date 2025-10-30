@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +12,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class MediaCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _statsFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _statsFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            _statsFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -73,27 +87,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw media type badge (semi-transparent overlay)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
                 // Use semi-transparent background for overlay effect
                 var overlayBackColor = Color.FromArgb(200, ctx.Badge1BackColor);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, overlayBackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, overlayBackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw play button overlay for video
             if (ctx.ShowButton && ctx.ButtonRect != Rectangle.Empty)
             {
-                // Semi-transparent circle with play icon
-                using var playBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0));
-                using var iconBrush = new SolidBrush(Color.White);
-                
+                // Semi-transparent circle with play icon using cached brushes
+                var playBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, 0, 0, 0));
+                var iconBrush = PaintersFactory.GetSolidBrush(Color.White);
+
                 // Draw circle background
                 g.FillEllipse(playBrush, ctx.ButtonRect);
-                
+
                 // Draw play triangle
                 int iconSize = ctx.ButtonRect.Width / 3;
                 int iconLeft = ctx.ButtonRect.Left + ctx.ButtonRect.Width / 2 - iconSize / 3;
                 int iconTop = ctx.ButtonRect.Top + ctx.ButtonRect.Height / 2 - iconSize / 2;
-                
+
                 Point[] playTriangle = new Point[]
                 {
                     new Point(iconLeft, iconTop),
@@ -106,10 +119,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw media stats (views, likes)
             if (ctx.ShowRating && !string.IsNullOrEmpty(ctx.StatusText))
             {
-                using var statsFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var statsBrush = new SolidBrush(Color.FromArgb(140, ctx.AccentColor));
+                var statsBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(140, ctx.AccentColor));
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, statsFont, statsBrush, ctx.RatingRect, format);
+                g.DrawString(ctx.StatusText, _statsFont, statsBrush, ctx.RatingRect, format);
             }
 
             // Draw subtle gradient overlay at bottom of image for better caption contrast
@@ -117,12 +129,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             {
                 var gradientRect = new Rectangle(ctx.ImageRect.Left, ctx.ImageRect.Bottom - 40, 
                     ctx.ImageRect.Width, 40);
-                using var gradientBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
+
+                using (var gradientBrush = new LinearGradientBrush(
                     new Point(gradientRect.Left, gradientRect.Top),
                     new Point(gradientRect.Left, gradientRect.Bottom),
                     Color.FromArgb(0, 0, 0, 0),
-                    Color.FromArgb(100, 0, 0, 0));
-                g.FillRectangle(gradientBrush, gradientRect);
+                    Color.FromArgb(100, 0, 0, 0)))
+                {
+                    g.FillRectangle(gradientBrush, gradientRect);
+                }
             }
         }
     }

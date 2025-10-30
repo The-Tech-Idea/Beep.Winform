@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -20,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             // NeoBrutalist: THICK black borders (signature!)
-            Color blackBorder = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.NeoBrutalist);
+            Color blackBorder = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.NeoBrutalist);
             Color borderColor = blackBorder;
 
             // NeoBrutalist: BOLD state changes (no subtlety!)
@@ -49,14 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             // Paint NeoBrutalist SIGNATURE 4px THICK black border (0px radius - sharp!)
             float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.NeoBrutalist); // 4.0f THICK!
-            
-            // NeoBrutalist: Use custom thick border painting for maximum impact
-            using (var pen = new Pen(borderColor, borderWidth))
-            {
-                pen.LineJoin = LineJoin.Miter; // Sharp corners (brutalist!)
-                pen.Alignment = PenAlignment.Inset; // Keep border inside path
-                g.DrawPath(pen, path);
-            }
+
+            var pen = PaintersFactory.GetPen(borderColor, borderWidth);
+            pen.LineJoin = LineJoin.Miter; // Sharp corners (brutalist!)
+            pen.Alignment = PenAlignment.Inset; // Keep border inside path
+            g.DrawPath(pen, path);
 
             // Return the area inside the THICK border
             return path.CreateInsetPath(borderWidth);

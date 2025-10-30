@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -23,21 +24,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color light = Color.FromArgb(255, 255, 255);
             Color dark = Color.FromArgb(128, 128, 128);
 
-            using (var penLight = new Pen(light, 2))
-            using (var penDark = new Pen(dark, 2))
-            {
-                g.DrawLine(penLight, rect.Left, rect.Top, rect.Right - 1, rect.Top);
-                g.DrawLine(penLight, rect.Left, rect.Top, rect.Left, rect.Bottom - 1);
+            var penLight = PaintersFactory.GetPen(light, 2f);
+            var penDark = PaintersFactory.GetPen(dark, 2f);
 
-                g.DrawLine(penDark, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
-                g.DrawLine(penDark, rect.Right - 1, rect.Top, rect.Right - 1, rect.Bottom);
-            }
+            g.DrawLine(penLight, rect.Left, rect.Top, rect.Right - 1, rect.Top);
+            g.DrawLine(penLight, rect.Left, rect.Top, rect.Left, rect.Bottom - 1);
+
+            g.DrawLine(penDark, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
+            g.DrawLine(penDark, rect.Right - 1, rect.Top, rect.Right - 1, rect.Bottom);
 
             var inner = Rectangle.Inflate(rect, -3, -3);
-            using (var penInner = new Pen(Color.FromArgb(180, 160, 160, 160), 1))
-            {
-                g.DrawRectangle(penInner, inner);
-            }
+            var penInner = PaintersFactory.GetPen(Color.FromArgb(180, 160, 160, 160), 1f);
+            g.DrawRectangle(penInner, inner);
 
             g.SmoothingMode = oldMode;
             return path.CreateInsetPath(4f);

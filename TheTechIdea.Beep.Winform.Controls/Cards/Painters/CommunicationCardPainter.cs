@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class CommunicationCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _statusFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _statusFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            _statusFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -75,24 +88,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw status indicator bar with color coding
             if (ctx.ShowStatus)
             {
-                using var statusBrush = new SolidBrush(ctx.StatusColor);
+                var statusBrush = PaintersFactory.GetSolidBrush(ctx.StatusColor);
                 g.FillRectangle(statusBrush, ctx.StatusRect);
             }
 
             // Draw notification badge (count, priority, or status)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw timestamp or additional status text
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
-                using var statusFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
-                using var statusBrush = new SolidBrush(Color.FromArgb(128, ctx.StatusColor));
+                var statusBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(128, ctx.StatusColor));
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, statusFont, statusBrush, ctx.SubtitleRect, format);
+                g.DrawString(ctx.StatusText, _statusFont, statusBrush, ctx.SubtitleRect, format);
             }
         }
     }

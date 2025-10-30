@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -19,8 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (path == null) return path;
 
-            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Cinnamon);
-            Color mintGreen = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Cinnamon);
+            Color borderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Cinnamon);
+            Color mintGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Cinnamon);
             float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Cinnamon);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;

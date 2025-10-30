@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -103,12 +104,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new WebFrameworkTextPainter();
-            
+
             using (Font headingFont = painter.GetHeadingFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetTextColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Near,
@@ -117,14 +117,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 };
                 
                 // Apply letter spacing for headings
-                float headingSpacing = painter.GetLetterSpacing(style) + 0.1f; // Slightly more for headings
-                if (headingSpacing > 0)
+                float headingSpacing = painter.GetLetterSpacing(style) +0.1f; // Slightly more for headings
+                if (headingSpacing >0)
                 {
-                    painter.DrawTextWithLetterSpacing(g, text, headingFont, brush, bounds, headingSpacing);
+                    painter.DrawTextWithLetterSpacing(g, text, headingFont, PaintersFactory.GetSolidBrush(painter.GetTextColor(style, theme, useThemeColors)), bounds, headingSpacing);
                 }
                 else
                 {
-                    g.DrawString(text, headingFont, brush, bounds, format);
+                    g.DrawString(text, headingFont, PaintersFactory.GetSolidBrush(painter.GetTextColor(style, theme, useThemeColors)), bounds, format);
                 }
             }
         }
@@ -146,20 +146,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new WebFrameworkTextPainter();
-            
+
             using (Font smallFont = painter.GetSmallFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetMutedColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Near,
                     LineAlignment = StringAlignment.Center,
                     Trimming = StringTrimming.EllipsisCharacter
                 };
-                
-                g.DrawString(text, smallFont, brush, bounds, format);
+
+                g.DrawString(text, smallFont, PaintersFactory.GetSolidBrush(painter.GetMutedColor(style, theme, useThemeColors)), bounds, format);
             }
         }
 
@@ -170,20 +169,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new WebFrameworkTextPainter();
-            
+
             using (Font codeFont = painter.GetCodeFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetCodeColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Near,
                     LineAlignment = StringAlignment.Center,
                     Trimming = StringTrimming.EllipsisCharacter
                 };
-                
-                g.DrawString(text, codeFont, brush, bounds, format);
+
+                g.DrawString(text, codeFont, PaintersFactory.GetSolidBrush(painter.GetCodeColor(style, theme, useThemeColors)), bounds, format);
             }
         }
 

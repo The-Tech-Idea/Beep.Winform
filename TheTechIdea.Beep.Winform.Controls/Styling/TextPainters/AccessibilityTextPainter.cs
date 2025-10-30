@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -234,44 +235,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, Color backgroundColor, bool isFocused)
         {
             // Fill background for maximum contrast
-            using (var backgroundBrush = new SolidBrush(backgroundColor))
-            {
-                g.FillRectangle(backgroundBrush, bounds);
-            }
+            var backgroundBrush = PaintersFactory.GetSolidBrush(backgroundColor);
+            g.FillRectangle(backgroundBrush, bounds);
 
             // Paint text with maximum contrast
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetAccessibilityStringFormat());
-            }
+            var textBrush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, textBrush, bounds, GetAccessibilityStringFormat());
 
             // High contrast focus indicator
             if (isFocused)
             {
                 var scheme = AccessibilitySchemes[0]; // High contrast
-                using (var focusPen = new Pen(scheme.Accent, 2))
-                {
-                    g.DrawRectangle(focusPen, bounds.X - 1, bounds.Y - 1, bounds.Width + 1, bounds.Height + 1);
-                }
+                var focusPen = PaintersFactory.GetPen(scheme.Accent,2);
+                g.DrawRectangle(focusPen, bounds.X -1, bounds.Y -1, bounds.Width +1, bounds.Height +1);
             }
         }
 
         private static void PaintAccessibleStandard(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetAccessibilityStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetAccessibilityStringFormat());
 
             // Clear focus indicator
             if (isFocused)
             {
-                using (var focusPen = new Pen(textColor, 1))
-                {
-                    focusPen.DashStyle = DashStyle.Dot;
-                    g.DrawRectangle(focusPen, bounds.X - 1, bounds.Y - 1, bounds.Width + 1, bounds.Height + 1);
-                }
+                var focusPen = PaintersFactory.GetPen(textColor,1);
+                focusPen.DashStyle = DashStyle.Dot;
+                g.DrawRectangle(focusPen, bounds.X -1, bounds.Y -1, bounds.Width +1, bounds.Height +1);
             }
         }
 
@@ -524,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            Font buttonFont = GetAccessibilityFont(bounds.Height, style, 
+            Font buttonFont = GetAccessibilityFont(bounds.Height, style,
                 isDefault ? AccessibilityFontType.Large : AccessibilityFontType.Standard);
             Color buttonColor = GetAccessibilityTextColor(style, theme, isFocused, useThemeColors);
 
@@ -533,31 +524,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 // Enhanced focus indicator for buttons
                 if (isFocused)
                 {
-                    using (var focusPen = new Pen(buttonColor, 3))
-                    {
-                        focusPen.DashStyle = DashStyle.Solid;
-                        g.DrawRectangle(focusPen, bounds.X - 2, bounds.Y - 2, bounds.Width + 3, bounds.Height + 3);
-                    }
+                    var focusPen = PaintersFactory.GetPen(buttonColor,3);
+                    focusPen.DashStyle = DashStyle.Solid;
+                    g.DrawRectangle(focusPen, bounds.X -2, bounds.Y -2, bounds.Width +3, bounds.Height +3);
                 }
 
                 // Default button indicator
                 if (isDefault)
                 {
-                    using (var defaultPen = new Pen(buttonColor, 2))
-                    {
-                        g.DrawRectangle(defaultPen, bounds.X - 1, bounds.Y - 1, bounds.Width + 1, bounds.Height + 1);
-                    }
+                    var defaultPen = PaintersFactory.GetPen(buttonColor,2);
+                    g.DrawRectangle(defaultPen, bounds.X -1, bounds.Y -1, bounds.Width +1, bounds.Height +1);
                 }
 
-                using (var brush = new SolidBrush(buttonColor))
+                var brush = PaintersFactory.GetSolidBrush(buttonColor);
+                var format = new StringFormat
                 {
-                    var format = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-                    g.DrawString(text, buttonFont, brush, bounds, format);
-                }
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString(text, buttonFont, brush, bounds, format);
             }
             finally
             {
@@ -574,29 +559,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             if (string.IsNullOrEmpty(errorText)) return;
 
             Font errorFont = GetAccessibilityFont(bounds.Height, style, AccessibilityFontType.Large);
-            Color errorColor = Color.FromArgb(220, 53, 69); // High contrast red
-            Color backgroundColor = Color.FromArgb(255, 243, 205); // Light yellow background
+            Color errorColor = Color.FromArgb(220,53,69); // High contrast red
+            Color backgroundColor = Color.FromArgb(255,243,205); // Light yellow background
 
             try
             {
                 // High contrast error background
-                using (var backgroundBrush = new SolidBrush(backgroundColor))
-                {
-                    g.FillRectangle(backgroundBrush, bounds);
-                }
+                var backgroundBrush = PaintersFactory.GetSolidBrush(backgroundColor);
+                g.FillRectangle(backgroundBrush, bounds);
 
                 // Error border
-                using (var borderPen = new Pen(errorColor, 2))
-                {
-                    g.DrawRectangle(borderPen, bounds);
-                }
+                var borderPen = PaintersFactory.GetPen(errorColor,2);
+                g.DrawRectangle(borderPen, bounds);
 
                 // Error text
-                using (var brush = new SolidBrush(errorColor))
-                {
-                    var textBounds = new Rectangle(bounds.X + 8, bounds.Y + 4, bounds.Width - 16, bounds.Height - 8);
-                    g.DrawString(errorText, errorFont, brush, textBounds, GetAccessibilityStringFormat());
-                }
+                var textBrush = PaintersFactory.GetSolidBrush(errorColor);
+                var textBounds = new Rectangle(bounds.X +8, bounds.Y +4, bounds.Width -16, bounds.Height -8);
+                g.DrawString(errorText, errorFont, textBrush, textBounds, GetAccessibilityStringFormat());
             }
             finally
             {

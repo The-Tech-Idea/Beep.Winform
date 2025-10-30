@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -296,11 +297,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         public static void PaintSolidPath(Graphics g, GraphicsPath path, Color fillColor, ControlState state = ControlState.Normal)
         {
             Color adjustedColor = ApplyState(fillColor, state);
-            using (var fillBrush = new SolidBrush(adjustedColor))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.FillPath(fillBrush, path);
-            }
+            var fillBrush = PaintersFactory.GetSolidBrush(adjustedColor);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.FillPath(fillBrush, path);
         }
 
         /// <summary>
@@ -312,13 +311,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             Color adjustedColor2 = ApplyState(color2, state);
 
             RectangleF bounds = path.GetBounds();
-            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+            if (bounds.Width <=0 || bounds.Height <=0) return;
 
-            using (var gradientBrush = new LinearGradientBrush(bounds, adjustedColor1, adjustedColor2, 90f))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.FillPath(gradientBrush, path);
-            }
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, adjustedColor1, adjustedColor2, LinearGradientMode.Vertical);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.FillPath(gradientBrush, path);
         }
 
         /// <summary>
@@ -330,13 +327,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             Color adjustedColor2 = ApplyState(color2, state);
 
             RectangleF bounds = path.GetBounds();
-            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+            if (bounds.Width <=0 || bounds.Height <=0) return;
 
-            using (var gradientBrush = new LinearGradientBrush(bounds, adjustedColor1, adjustedColor2, angle))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.FillPath(gradientBrush, path);
-            }
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, adjustedColor1, adjustedColor2, angle);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.FillPath(gradientBrush, path);
         }
 
         /// <summary>
@@ -348,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             Color adjustedEdge = ApplyState(edgeColor, state);
 
             RectangleF bounds = path.GetBounds();
-            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+            if (bounds.Width <=0 || bounds.Height <=0) return;
 
             using (var gradientBrush = new PathGradientBrush(path))
             {

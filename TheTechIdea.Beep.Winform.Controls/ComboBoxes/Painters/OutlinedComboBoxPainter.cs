@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -14,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBackground(Graphics g, Rectangle rect)
         {
             Color bgColor = _helper.GetBackgroundColor();
-            using (var brush = new SolidBrush(bgColor))
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
                 g.FillPath(brush, path);
@@ -29,11 +30,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             float borderWidth = _owner.Focused ? 2f : 1f;
             
-            using (var pen = new Pen(borderColor, borderWidth))
+            var basePen = PaintersFactory.GetPen(borderColor, borderWidth);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
-                pen.Alignment = PenAlignment.Inset;
-                g.DrawPath(pen, path);
+                // Clone when modifying pen properties (Alignment)
+                var pen = (System.Drawing.Pen)basePen.Clone();
+                try
+                {
+                    pen.Alignment = PenAlignment.Inset;
+                    g.DrawPath(pen, path);
+                }
+                finally
+                {
+                    pen.Dispose();
+                }
             }
         }
         
@@ -44,12 +54,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // Draw subtle separator line (not full height for modern look)
             Color separatorColor = Color.FromArgb(230, _theme?.BorderColor ?? Color.Gray);
             int margin = 8;
-            using (var pen = new Pen(separatorColor, 1f))
-            {
-                g.DrawLine(pen, 
-                    buttonRect.Left, buttonRect.Top + margin, 
-                    buttonRect.Left, buttonRect.Bottom - margin);
-            }
+            var pen = PaintersFactory.GetPen(separatorColor, 1f);
+            g.DrawLine(pen, 
+                buttonRect.Left, buttonRect.Top + margin, 
+                buttonRect.Left, buttonRect.Bottom - margin);
             
             // Draw arrow
             Color arrowColor = _theme?.SecondaryColor ?? Color.Gray;

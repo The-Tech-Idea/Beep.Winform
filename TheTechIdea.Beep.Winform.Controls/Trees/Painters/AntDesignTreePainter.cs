@@ -4,361 +4,305 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
-    /// <summary>
-    /// Ant Design tree painter.
-    /// Features: Clean lines, checkbox support, folder icons, proper spacing.
-    /// Uses theme colors for consistent appearance across light/dark themes.
-    /// </summary>
-    public class AntDesignTreePainter : BaseTreePainter
-    {
-        private const int ItemPadding = 4;
+ /// <summary>
+ /// Ant Design tree painter.
+ /// Features: Clean lines, checkbox support, folder icons, proper spacing.
+ /// Uses theme colors for consistent appearance across light/dark themes.
+ /// </summary>
+ public class AntDesignTreePainter : BaseTreePainter
+ {
+ private const int ItemPadding =4;
 
-        /// <summary>
-        /// Ant Design-specific node painting with clean, flat design.
-        /// Features: Flat rectangular backgrounds, caret toggles, clean checkboxes with 1px borders, minimal styling.
-        /// </summary>
-        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
-        {
-            if (g == null || node.Item == null) return;
+ private Font _regularFont;
 
-            // Enable anti-aliasing for clean Ant Design appearance
-            var oldSmoothing = g.SmoothingMode;
-            var oldTextRendering = g.TextRenderingHint;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+ public override void Initialize(BeepTree owner, IBeepTheme theme)
+ {
+ base.Initialize(owner, theme);
+ _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
+ }
 
-            try
-            {
-                // STEP 1: Draw flat rectangular background (no rounded corners)
-                if (isSelected)
-                {
-                    // Ant Design selected: subtle flat background
-                    using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
-                    {
-                        g.FillRectangle(brush, nodeBounds);
-                    }
+ /// <summary>
+ /// Ant Design-specific node painting with clean, flat design.
+ /// Features: Flat rectangular backgrounds, caret toggles, clean checkboxes with1px borders, minimal styling.
+ /// </summary>
+ public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+ {
+ if (g == null || node.Item == null) return;
 
-                    // Subtle left border accent (1px)
-                    using (var pen = new Pen(_theme.AccentColor, 2f))
-                    {
-                        g.DrawLine(pen, nodeBounds.Left, nodeBounds.Top, nodeBounds.Left, nodeBounds.Bottom);
-                    }
-                }
-                else if (isHovered)
-                {
-                    // Ant Design hover: very subtle background
-                    using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
-                    {
-                        g.FillRectangle(hoverBrush, nodeBounds);
-                    }
-                }
+ // Enable anti-aliasing for clean Ant Design appearance
+ var oldSmoothing = g.SmoothingMode;
+ var oldTextRendering = g.TextRenderingHint;
+ g.SmoothingMode = SmoothingMode.AntiAlias;
+ g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-                // STEP 2: Draw Ant Design caret toggle
-                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
-                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
-                {
-                    var toggleRect = node.ToggleRectContent;
-                    Color caretColor = _theme.TreeForeColor;
+ try
+ {
+ // STEP1: Draw flat rectangular background (no rounded corners)
+ if (isSelected)
+ {
+ var bgBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+ g.FillRectangle(bgBrush, nodeBounds);
 
-                    using (var pen = new Pen(caretColor, 1.5f))
-                    {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
+ var accentPen = PaintersFactory.GetPen(_theme.AccentColor,2f);
+ g.DrawLine(accentPen, nodeBounds.Left, nodeBounds.Top, nodeBounds.Left, nodeBounds.Bottom);
+ }
+ else if (isHovered)
+ {
+ var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+ g.FillRectangle(hoverBrush, nodeBounds);
+ }
 
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+ // STEP2: Draw Ant Design caret toggle
+ bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
+ if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+ {
+ var toggleRect = node.ToggleRectContent;
+ Color caretColor = _theme.TreeForeColor;
 
-                        if (node.Item.IsExpanded)
-                        {
-                            // Caret down (simple V shape)
-                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                        }
-                        else
-                        {
-                            // Caret right (simple > shape)
-                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                        }
-                    }
-                }
+ var pen = PaintersFactory.GetPen(caretColor,1.5f);
+ pen.StartCap = LineCap.Round;
+ pen.EndCap = LineCap.Round;
 
-                // STEP 3: Draw Ant Design checkbox (clean rectangular with thin border)
-                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
-                {
-                    var checkboxRect = node.CheckRectContent;
-                    Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
-                    Color fillColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+ int centerX = toggleRect.Left + toggleRect.Width /2;
+ int centerY = toggleRect.Top + toggleRect.Height /2;
+ int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
 
-                    // Clean 1px border rectangle
-                    Rectangle checkRect = new Rectangle(
-                        checkboxRect.X + 2,
-                        checkboxRect.Y + 2,
-                        checkboxRect.Width - 4,
-                        checkboxRect.Height - 4);
+ if (node.Item.IsExpanded)
+ {
+ g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
+ g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
+ }
+ else
+ {
+ g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
+ g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
+ }
+ }
 
-                    using (var pen = new Pen(borderColor, 1f))
-                    {
-                        g.DrawRectangle(pen, checkRect);
-                    }
+ // STEP3: Draw Ant Design checkbox (clean rectangular with thin border)
+ if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+ {
+ var checkboxRect = node.CheckRectContent;
+ Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
+ Color fillColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
-                    // Fill if checked
-                    if (node.Item.IsChecked)
-                    {
-                        using (var brush = new SolidBrush(fillColor))
-                        {
-                            Rectangle fillRect = new Rectangle(
-                                checkboxRect.X + 3,
-                                checkboxRect.Y + 3,
-                                checkboxRect.Width - 5,
-                                checkboxRect.Height - 5);
+ Rectangle checkRect = new Rectangle(
+ checkboxRect.X +2,
+ checkboxRect.Y +2,
+ Math.Max(0, checkboxRect.Width -4),
+ Math.Max(0, checkboxRect.Height -4));
 
-                            g.FillRectangle(brush, fillRect);
-                        }
+ var borderPen = PaintersFactory.GetPen(borderColor,1f);
+ g.DrawRectangle(borderPen, checkRect);
 
-                        // Clean checkmark
-                        using (var pen = new Pen(Color.White, 2f))
-                        {
-                            pen.StartCap = LineCap.Round;
-                            pen.EndCap = LineCap.Round;
+ if (node.Item.IsChecked)
+ {
+ var fillBrush = PaintersFactory.GetSolidBrush(fillColor);
+ Rectangle fillRect = new Rectangle(
+ checkboxRect.X +3,
+ checkboxRect.Y +3,
+ Math.Max(0, checkboxRect.Width -5),
+ Math.Max(0, checkboxRect.Height -5));
 
-                            int centerX = checkboxRect.Left + checkboxRect.Width / 2;
-                            int centerY = checkboxRect.Top + checkboxRect.Height / 2;
+ g.FillRectangle(fillBrush, fillRect);
 
-                            // Ant Design checkmark shape
-                            g.DrawLine(pen, centerX - 4, centerY, centerX - 1, centerY + 3);
-                            g.DrawLine(pen, centerX - 1, centerY + 3, centerX + 4, centerY - 3);
-                        }
-                    }
-                }
+ var checkPen = PaintersFactory.GetPen(Color.White,2f);
+ checkPen.StartCap = LineCap.Round;
+ checkPen.EndCap = LineCap.Round;
 
-                // STEP 4: Draw Ant Design folder icon
-                if (node.IconRectContent != Rectangle.Empty)
-                {
-                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
-                    if (!string.IsNullOrEmpty(node.Item.ImagePath))
-                        PaintIcon(g, iconRect, node.Item.ImagePath);
-                }
+ int centerX = checkboxRect.Left + checkboxRect.Width /2;
+ int centerY = checkboxRect.Top + checkboxRect.Height /2;
 
-                // STEP 5: Draw text with Ant Design typography
-                if (node.TextRectContent != Rectangle.Empty)
-                {
-                    var textRect = node.TextRectContent;
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ g.DrawLine(checkPen, centerX -4, centerY, centerX -1, centerY +3);
+ g.DrawLine(checkPen, centerX -1, centerY +3, centerX +4, centerY -3);
+ }
+ }
 
-                    // Ant Design typography (clean sans-serif)
-                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
-                }
-            }
-            finally
-            {
-                g.SmoothingMode = oldSmoothing;
-                g.TextRenderingHint = oldTextRendering;
-            }
-        }
+ // STEP4: Draw Ant Design folder icon
+ if (node.IconRectContent != Rectangle.Empty)
+ {
+ var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+ if (!string.IsNullOrEmpty(node.Item.ImagePath))
+ PaintIcon(g, iconRect, node.Item.ImagePath);
+ }
 
-        public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
-        {
-            if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;
+ // STEP5: Draw text with Ant Design typography
+ if (node.TextRectContent != Rectangle.Empty)
+ {
+ var textRect = node.TextRectContent;
+ Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            if (isSelected)
-            {
-                // Selected: subtle background
-                using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
-                {
-                    g.FillRectangle(brush, nodeBounds);
-                }
-            }
-            else if (isHovered)
-            {
-                // Hover: very subtle
-                using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
-                {
-                    g.FillRectangle(hoverBrush, nodeBounds);
-                }
-            }
-        }
+ TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
+ TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+ }
+ }
+ finally
+ {
+ g.SmoothingMode = oldSmoothing;
+ g.TextRenderingHint = oldTextRendering;
+ }
+ }
 
-        public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
-        {
-            if (!hasChildren || toggleRect.Width <= 0 || toggleRect.Height <= 0) return;
+ public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
+ {
+ if (nodeBounds.Width <=0 || nodeBounds.Height <=0) return;
 
-            // Ant Design uses caret icon
-            Color caretColor = _theme.TreeForeColor;
+ if (isSelected)
+ {
+ var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+ g.FillRectangle(brush, nodeBounds);
+ }
+ else if (isHovered)
+ {
+ var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+ g.FillRectangle(hoverBrush, nodeBounds);
+ }
+ }
 
-            using (var pen = new Pen(caretColor, 1.5f))
-            {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
+ public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
+ {
+ if (!hasChildren || toggleRect.Width <=0 || toggleRect.Height <=0) return;
 
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+ Color caretColor = _theme.TreeForeColor;
 
-                if (isExpanded)
-                {
-                    // Caret down
-                    g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                    g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                }
-                else
-                {
-                    // Caret right
-                    g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                    g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                }
-            }
-        }
+ var pen = PaintersFactory.GetPen(caretColor,1.5f);
+ pen.StartCap = LineCap.Round;
+ pen.EndCap = LineCap.Round;
 
-        public override void PaintCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered)
-        {
-            if (checkboxRect.Width <= 0 || checkboxRect.Height <= 0) return;
+ int centerX = toggleRect.Left + toggleRect.Width /2;
+ int centerY = toggleRect.Top + toggleRect.Height /2;
+ int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
 
-            // Ant Design checkbox Style
-            Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
-            Color fillColor = isChecked ? _theme.AccentColor : _theme.TreeBackColor;
+ if (isExpanded)
+ {
+ g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
+ g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
+ }
+ else
+ {
+ g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
+ g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
+ }
+ }
 
-            // Border
-            using (var pen = new Pen(borderColor, 1f))
-            {
-                Rectangle checkRect = new Rectangle(
-                    checkboxRect.X + 2,
-                    checkboxRect.Y + 2,
-                    checkboxRect.Width - 4,
-                    checkboxRect.Height - 4);
+ public override void PaintCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered)
+ {
+ if (checkboxRect.Width <=0 || checkboxRect.Height <=0) return;
 
-                g.DrawRectangle(pen, checkRect);
-            }
+ Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
+ Color fillColor = isChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
-            // Fill if checked
-            if (isChecked)
-            {
-                using (var brush = new SolidBrush(fillColor))
-                {
-                    Rectangle fillRect = new Rectangle(
-                        checkboxRect.X + 3,
-                        checkboxRect.Y + 3,
-                        checkboxRect.Width - 5,
-                        checkboxRect.Height - 5);
+ var pen = PaintersFactory.GetPen(borderColor,1f);
+ Rectangle checkRect = new Rectangle(
+ checkboxRect.X +2,
+ checkboxRect.Y +2,
+ Math.Max(0, checkboxRect.Width -4),
+ Math.Max(0, checkboxRect.Height -4));
 
-                    g.FillRectangle(brush, fillRect);
-                }
+ g.DrawRectangle(pen, checkRect);
 
-                // Checkmark
-                using (var pen = new Pen(Color.White, 2f))
-                {
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
+ if (isChecked)
+ {
+ var brush = PaintersFactory.GetSolidBrush(fillColor);
+ Rectangle fillRect = new Rectangle(
+ checkboxRect.X +3,
+ checkboxRect.Y +3,
+ Math.Max(0, checkboxRect.Width -5),
+ Math.Max(0, checkboxRect.Height -5));
 
-                    int centerX = checkboxRect.Left + checkboxRect.Width / 2;
-                    int centerY = checkboxRect.Top + checkboxRect.Height / 2;
+ g.FillRectangle(brush, fillRect);
 
-                    // Checkmark
-                    g.DrawLine(pen, centerX - 4, centerY, centerX - 1, centerY + 3);
-                    g.DrawLine(pen, centerX - 1, centerY + 3, centerX + 4, centerY - 3);
-                }
-            }
-        }
+ var checkPen = PaintersFactory.GetPen(Color.White,2f);
+ checkPen.StartCap = LineCap.Round;
+ checkPen.EndCap = LineCap.Round;
 
-        public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
-        {
-            if (iconRect.Width <= 0 || iconRect.Height <= 0) return;
+ int centerX = checkboxRect.Left + checkboxRect.Width /2;
+ int centerY = checkboxRect.Top + checkboxRect.Height /2;
 
-            if (!string.IsNullOrEmpty(imagePath))
-            {
-                try
-                {
-                    Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, imagePath, Common.BeepControlStyle.AntDesign);
-                    return;
-                }
-                catch { }
-            }
+ g.DrawLine(checkPen, centerX -4, centerY, centerX -1, centerY +3);
+ g.DrawLine(checkPen, centerX -1, centerY +3, centerX +4, centerY -3);
+ }
+ }
 
-            // Default: Ant Design folder icon
-            PaintDefaultAntIcon(g, iconRect);
-        }
+ public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
+ {
+ if (iconRect.Width <=0 || iconRect.Height <=0) return;
 
-        private void PaintDefaultAntIcon(Graphics g, Rectangle iconRect)
-        {
-            Color iconColor = _theme.AccentColor;
+ if (!string.IsNullOrEmpty(imagePath))
+ {
+ try
+ {
+ Styling.ImagePainters.StyledImagePainter.Paint(g, iconRect, imagePath, Common.BeepControlStyle.AntDesign);
+ return;
+ }
+ catch { }
+ }
 
-            // Ant Design folder Style
-            int padding = iconRect.Width / 5;
-            Rectangle innerRect = new Rectangle(
-                iconRect.X + padding,
-                iconRect.Y + padding,
-                iconRect.Width - padding * 2,
-                iconRect.Height - padding * 2);
+ PaintDefaultAntIcon(g, iconRect);
+ }
 
-            using (var path = new GraphicsPath())
-            {
-                // Folder shape
-                int tabWidth = innerRect.Width / 3;
-                int tabHeight = innerRect.Height / 4;
+ private void PaintDefaultAntIcon(Graphics g, Rectangle iconRect)
+ {
+ Color iconColor = _theme.AccentColor;
 
-                path.AddLine(innerRect.Left, innerRect.Top + tabHeight, innerRect.Left + tabWidth, innerRect.Top + tabHeight);
-                path.AddLine(innerRect.Left + tabWidth, innerRect.Top + tabHeight, innerRect.Left + tabWidth + 2, innerRect.Top);
-                path.AddLine(innerRect.Left + tabWidth + 2, innerRect.Top, innerRect.Right, innerRect.Top);
-                path.AddLine(innerRect.Right, innerRect.Top, innerRect.Right, innerRect.Bottom);
-                path.AddLine(innerRect.Right, innerRect.Bottom, innerRect.Left, innerRect.Bottom);
-                path.CloseFigure();
+ int padding = iconRect.Width /5;
+ Rectangle innerRect = new Rectangle(
+ iconRect.X + padding,
+ iconRect.Y + padding,
+ Math.Max(0, iconRect.Width - padding *2),
+ Math.Max(0, iconRect.Height - padding *2));
 
-                using (var brush = new SolidBrush(Color.FromArgb(100, iconColor)))
-                {
-                    g.FillPath(brush, path);
-                }
+ using (var path = new GraphicsPath())
+ {
+ int tabWidth = innerRect.Width /3;
+ int tabHeight = innerRect.Height /4;
 
-                using (var pen = new Pen(iconColor, 1f))
-                {
-                    g.DrawPath(pen, path);
-                }
-            }
-        }
+ path.AddLine(innerRect.Left, innerRect.Top + tabHeight, innerRect.Left + tabWidth, innerRect.Top + tabHeight);
+ path.AddLine(innerRect.Left + tabWidth, innerRect.Top + tabHeight, innerRect.Left + tabWidth +2, innerRect.Top);
+ path.AddLine(innerRect.Left + tabWidth +2, innerRect.Top, innerRect.Right, innerRect.Top);
+ path.AddLine(innerRect.Right, innerRect.Top, innerRect.Right, innerRect.Bottom);
+ path.AddLine(innerRect.Right, innerRect.Bottom, innerRect.Left, innerRect.Bottom);
+ path.CloseFigure();
 
-        public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
-        {
-            if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
+ var fillBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, iconColor));
+ g.FillPath(fillBrush, path);
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ var pen = PaintersFactory.GetPen(iconColor,1f);
+ g.DrawPath(pen, path);
+ }
+ }
 
-            // Ant Design typography (Chinese Simplified font stack, Segoe UI fallback)
-            Font renderFont = new Font("Segoe UI", font.Size, FontStyle.Regular);
+ public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
+ {
+ if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
-            TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+ Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            renderFont.Dispose();
-        }
+ TextRenderer.DrawText(g, text, _regularFont, textRect, textColor,
+ TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+ }
 
-        public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
-        {
-            if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
+ public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
+ {
+ if (g == null || owner == null || bounds.Width <=0 || bounds.Height <=0) return;
 
-            // Clean background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+ var brush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+ g.FillRectangle(brush, bounds);
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+ g.SmoothingMode = SmoothingMode.AntiAlias;
+ g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            base.Paint(g, owner, bounds);
-        }
+ base.Paint(g, owner, bounds);
+ }
 
-        public override int GetPreferredRowHeight(SimpleItem item, Font font)
-        {
-            // Ant Design comfortable spacing
-            return Math.Max(28, base.GetPreferredRowHeight(item, font));
-        }
-    }
+ public override int GetPreferredRowHeight(SimpleItem item, Font font)
+ {
+ return Math.Max(28, base.GetPreferredRowHeight(item, font));
+ }
+ }
 }

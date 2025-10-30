@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -24,9 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 _ => new Rectangle(chartRect.Right + padding, chartRect.Top, width, (itemHeight + padding) * data.Count)
             };
 
-            using var textBrush = new SolidBrush(textColor);
-            using var backBrush = new SolidBrush(Color.FromArgb(180, backColor));
-            using var pen = new Pen(shapeColor, 1);
+            var textBrush = PaintersFactory.GetSolidBrush(textColor);
+            var backBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, backColor));
+            var pen = PaintersFactory.GetPen(shapeColor, 1);
+            var useFont = font ?? PaintersFactory.GetFont(SystemFonts.DefaultFont);
 
             g.FillRectangle(backBrush, legendRect);
 
@@ -39,14 +41,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 var itemRect = new Rectangle(legendRect.Left + padding, currentY, legendRect.Width - (padding * 2), itemHeight - 2);
                 var swatchRect = new Rectangle(itemRect.Left, itemRect.Top + 2, swatch, swatch);
 
-                using (var swatchBrush = new SolidBrush(seriesColor))
-                {
-                    g.FillRectangle(swatchBrush, swatchRect);
-                }
+                var swatchBrush = PaintersFactory.GetSolidBrush(seriesColor);
+                g.FillRectangle(swatchBrush, swatchRect);
                 g.DrawRectangle(pen, swatchRect);
 
                 string name = string.IsNullOrEmpty(series.Name) ? $"Series {i + 1}" : series.Name;
-                g.DrawString(name, font, textBrush, swatchRect.Right + 6, itemRect.Top + 2);
+                g.DrawString(name, useFont, textBrush, swatchRect.Right + 6, itemRect.Top + 2);
 
                 owner.AddHitArea($"LegendItem_{i}", itemRect, null, () => onToggleSeries?.Invoke(i));
                 currentY += itemHeight;

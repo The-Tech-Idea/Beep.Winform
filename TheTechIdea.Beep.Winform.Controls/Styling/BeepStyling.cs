@@ -23,6 +23,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Spacing;
 using TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.TextPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling
 {
@@ -1194,18 +1195,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     ? theme.ForeColor 
                     : StyleColors.GetForeground(style);
 
-                // Draw text centered in content area
-                using (SolidBrush brush = new SolidBrush(textColor))
+                // Draw text centered in content area using cached brush
+                var brush = PaintersFactory.GetSolidBrush(textColor);
+                StringFormat format = new StringFormat
                 {
-                    StringFormat format = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
 
-                    g.DrawString(text, textFont, brush, contentBounds, format);
-                }
+                g.DrawString(text, textFont, brush, contentBounds, format);
             }
 
             return contentPath; // Caller is responsible for disposing

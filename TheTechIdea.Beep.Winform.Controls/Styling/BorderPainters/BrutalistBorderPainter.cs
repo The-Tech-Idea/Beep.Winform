@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -27,11 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             // Brutalist: no anti aliasing for crisp slab edges.
             var oldMode = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.None;
-            using (var pen = new Pen(outerColor, outerWidth))
-            {
-                pen.Alignment = PenAlignment.Inset;
-                g.DrawPath(pen, path);
-            }
+            var pen = PaintersFactory.GetPen(outerColor, outerWidth);
+            pen.Alignment = PenAlignment.Inset;
+            g.DrawPath(pen, path);
             g.SmoothingMode = oldMode;
 
             using (var innerPath = path.CreateInsetPath(outerWidth + 3f))

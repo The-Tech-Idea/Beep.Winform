@@ -1,5 +1,7 @@
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
@@ -14,10 +16,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
         public override void DrawBackground(Graphics g, ChartLayout ctx)
         {
-            using var bg = new SolidBrush(Theme?.CardBackColor ?? Color.White);
+            var bg = PaintersFactory.GetSolidBrush(Theme?.CardBackColor ?? Color.White);
             using var path = Round(ctx.DrawingRect, ctx.Radius);
             g.FillPath(bg, path);
-            using var pen = new Pen(Theme?.StatsCardBorderColor ?? Color.Silver, 1);
+            var pen = PaintersFactory.GetPen(Theme?.StatsCardBorderColor ?? Color.Silver, 1);
             g.DrawPath(pen, path);
         }
 
@@ -34,17 +36,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
         public override void DrawBackground(Graphics g, ChartLayout ctx)
         {
-            using var glass = new SolidBrush(Color.FromArgb(28, Color.White));
+            var glass = PaintersFactory.GetSolidBrush(Color.FromArgb(28, Color.White));
             using var path = Round(ctx.DrawingRect, ctx.Radius);
             g.FillPath(glass, path);
-            using var pen = new Pen(Color.FromArgb(64, Color.White), 1);
+            var pen = PaintersFactory.GetPen(Color.FromArgb(64, Color.White), 1);
             g.DrawPath(pen, path);
         }
 
         public override void DrawForeground(Graphics g, ChartLayout ctx)
         {
             var top = new Rectangle(ctx.DrawingRect.Left, ctx.DrawingRect.Top, ctx.DrawingRect.Width, ctx.DrawingRect.Height / 3);
-            using var lg = new LinearGradientBrush(top, Color.FromArgb(64, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical);
+            var lg = PaintersFactory.GetLinearGradientBrush(top, Color.FromArgb(64, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical);
             g.FillRectangle(lg, top);
         }
     }

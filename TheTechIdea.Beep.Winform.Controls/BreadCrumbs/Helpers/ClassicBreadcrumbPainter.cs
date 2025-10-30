@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 {
@@ -29,9 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 
             if (isHovered)
             {
-                using var brush = new SolidBrush(Color.FromArgb(50, Theme.ButtonHoverBackColor));
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(50, Theme.ButtonHoverBackColor));
                 g.FillRectangle(brush, rect);
-                using var pen = new Pen(Theme.ButtonHoverBorderColor, 1);
+                var pen = PaintersFactory.GetPen(Theme.ButtonHoverBorderColor, 1);
                 g.DrawRectangle(pen, rect);
             }
 

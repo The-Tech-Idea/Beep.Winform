@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -110,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         public static void PaintWithTypewriter(Graphics g, Rectangle bounds, string text, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, int visibleChars = -1)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureTerminalGraphics(g);
@@ -121,16 +122,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             try
             {
                 // Show only specified number of characters (for typewriter effect)
-                string displayText = visibleChars >= 0 && visibleChars < text.Length ? 
+                string displayText = visibleChars >=0 && visibleChars < text.Length ?
                     text.Substring(0, visibleChars) : text;
 
-                using (var brush = new SolidBrush(textColor))
-                {
-                    g.DrawString(displayText, font, brush, bounds, GetTerminalStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(textColor);
+                g.DrawString(displayText, font, brush, bounds, GetTerminalStringFormat());
 
                 // Add blinking cursor after last visible character
-                if (visibleChars >= 0 && visibleChars <= text.Length && isFocused)
+                if (visibleChars >=0 && visibleChars <= text.Length && isFocused)
                 {
                     PaintTerminalCursor(g, bounds, displayText, font, textColor);
                 }
@@ -144,10 +143,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         /// <summary>
         /// Paint terminal prompt with command styling
         /// </summary>
-        public static void PaintPrompt(Graphics g, Rectangle bounds, string prompt, string command, 
+        public static void PaintPrompt(Graphics g, Rectangle bounds, string prompt, string command,
             bool isFocused, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
-            if (bounds.Width <= 0 || bounds.Height <= 0)
+            if (bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureTerminalGraphics(g);
@@ -158,39 +157,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
             try
             {
-                using (var promptBrush = new SolidBrush(promptColor))
-                using (var commandBrush = new SolidBrush(commandColor))
+                var promptBrush = PaintersFactory.GetSolidBrush(promptColor);
+                var commandBrush = PaintersFactory.GetSolidBrush(commandColor);
+                var format = GetTerminalStringFormat();
+
+                // Measure prompt width
+                var promptSize = g.MeasureString(prompt, font, bounds.Width, format);
+
+                // Draw prompt
+                var promptBounds = new Rectangle(bounds.X, bounds.Y, (int)promptSize.Width, bounds.Height);
+                g.DrawString(prompt, font, promptBrush, promptBounds, format);
+
+                // Draw command after prompt
+                if (!string.IsNullOrEmpty(command))
                 {
-                    var format = GetTerminalStringFormat();
-                    
-                    // Measure prompt width
-                    var promptSize = g.MeasureString(prompt, font, bounds.Width, format);
-                    
-                    // Draw prompt
-                    var promptBounds = new Rectangle(bounds.X, bounds.Y, (int)promptSize.Width, bounds.Height);
-                    g.DrawString(prompt, font, promptBrush, promptBounds, format);
-                    
-                    // Draw command after prompt
-                    if (!string.IsNullOrEmpty(command))
+                    var commandBounds = new Rectangle(
+                        bounds.X + (int)promptSize.Width,
+                        bounds.Y,
+                        bounds.Width - (int)promptSize.Width,
+                        bounds.Height);
+                    g.DrawString(command, font, commandBrush, commandBounds, format);
+
+                    // Add cursor at end of command if focused
+                    if (isFocused)
                     {
-                        var commandBounds = new Rectangle(
-                            bounds.X + (int)promptSize.Width, 
-                            bounds.Y, 
-                            bounds.Width - (int)promptSize.Width, 
-                            bounds.Height);
-                        g.DrawString(command, font, commandBrush, commandBounds, format);
-                        
-                        // Add cursor at end of command if focused
-                        if (isFocused)
-                        {
-                            PaintTerminalCursor(g, commandBounds, command, font, commandColor);
-                        }
+                        PaintTerminalCursor(g, commandBounds, command, font, commandColor);
                     }
-                    else if (isFocused)
-                    {
-                        // Show cursor after prompt if no command
-                        PaintTerminalCursor(g, promptBounds, prompt, font, promptColor);
-                    }
+                }
+                else if (isFocused)
+                {
+                    // Show cursor after prompt if no command
+                    PaintTerminalCursor(g, promptBounds, prompt, font, promptColor);
                 }
             }
             finally
@@ -207,16 +204,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, Color backgroundColor, bool isFocused)
         {
             // Fill background for classic terminal look
-            using (var backBrush = new SolidBrush(backgroundColor))
-            {
-                g.FillRectangle(backBrush, bounds);
-            }
+            var backBrush = PaintersFactory.GetSolidBrush(backgroundColor);
+            g.FillRectangle(backBrush, bounds);
 
             // Draw text
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
 
             // Add scanlines effect for authenticity
             if (isFocused)
@@ -232,53 +225,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             if (isFocused)
             {
                 // Subtle glow effect
-                using (var glowBrush = new SolidBrush(Color.FromArgb(30, textColor)))
+                var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, textColor));
+                for (int i =1; i <3; i++)
                 {
-                    for (int i = 1; i < 3; i++)
-                    {
-                        var glowBounds = new Rectangle(bounds.X - i, bounds.Y - i, bounds.Width + (i * 2), bounds.Height + (i * 2));
-                        g.DrawString(text, font, glowBrush, glowBounds, GetTerminalStringFormat());
-                    }
+                    var glowBounds = new Rectangle(bounds.X - i, bounds.Y - i, bounds.Width + (i *2), bounds.Height + (i *2));
+                    g.DrawString(text, font, glowBrush, glowBounds, GetTerminalStringFormat());
                 }
             }
 
             // Main text
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
         }
 
         private static void PaintRetroTerminal(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, Color backgroundColor, bool isFocused)
         {
             // Retro terminal with pixelated effect
-            using (var backBrush = new SolidBrush(backgroundColor))
-            {
-                g.FillRectangle(backBrush, bounds);
-            }
+            var backBrush = PaintersFactory.GetSolidBrush(backgroundColor);
+            g.FillRectangle(backBrush, bounds);
 
             // Use pixelated rendering for retro feel
             var oldMode = g.SmoothingMode;
             var oldHint = g.TextRenderingHint;
-            
+
             g.SmoothingMode = SmoothingMode.None;
             g.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
 
             try
             {
-                using (var brush = new SolidBrush(textColor))
-                {
-                    g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(textColor);
+                g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
 
                 // Add CRT flicker effect
                 if (isFocused)
                 {
-                    using (var flickerBrush = new SolidBrush(Color.FromArgb(20, Color.White)))
-                    {
-                        g.FillRectangle(flickerBrush, bounds);
-                    }
+                    var flickerBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, Color.White));
+                    g.FillRectangle(flickerBrush, bounds);
                 }
             }
             finally
@@ -291,39 +274,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static void PaintStandardTerminal(Graphics g, Rectangle bounds, string text, Font font,
             Color textColor, bool isFocused)
         {
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
-            }
+            var brush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, brush, bounds, GetTerminalStringFormat());
         }
-
-        #endregion
-
-        #region Terminal Effects
 
         private static void PaintTerminalCursor(Graphics g, Rectangle bounds, string text, Font font, Color textColor)
         {
             // Calculate cursor position at end of text
             var textSize = g.MeasureString(text, font, bounds.Width, GetTerminalStringFormat());
             var cursorX = bounds.X + textSize.Width;
-            var cursorY = bounds.Y + 2;
-            var cursorHeight = bounds.Height - 4;
+            var cursorY = bounds.Y +2;
+            var cursorHeight = bounds.Height -4;
 
             // Draw blinking cursor (solid block Style)
-            using (var cursorBrush = new SolidBrush(Color.FromArgb(180, textColor)))
-            {
-                g.FillRectangle(cursorBrush, cursorX, cursorY, font.Height / 2, cursorHeight);
-            }
+            var cursorBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, textColor));
+            g.FillRectangle(cursorBrush, cursorX, cursorY, font.Height /2, cursorHeight);
         }
 
         private static void PaintScanlines(Graphics g, Rectangle bounds, Color baseColor)
         {
-            using (var scanPen = new Pen(Color.FromArgb(20, baseColor), 1))
+            var scanPen = PaintersFactory.GetPen(Color.FromArgb(20, baseColor),1);
+            for (int y = bounds.Top +1; y < bounds.Bottom; y +=2)
             {
-                for (int y = bounds.Top + 1; y < bounds.Bottom; y += 2)
-                {
-                    g.DrawLine(scanPen, bounds.Left, y, bounds.Right, y);
-                }
+                g.DrawLine(scanPen, bounds.Left, y, bounds.Right, y);
             }
         }
 
@@ -334,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static Font GetTerminalFont(int height, BeepControlStyle style)
         {
             float fontSize = Math.Max(8, height * 0.55f);
-            
+
             string[] fontFamily = style switch
             {
                 BeepControlStyle.Retro => ClassicTerminalFonts,
@@ -452,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             if (string.IsNullOrEmpty(command)) return;
 
             Font font = GetTerminalFont(bounds.Height, style);
-            
+
             try
             {
                 // Simple syntax highlighting for common commands
@@ -461,7 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                     // Command keywords in different color
                     Color commandColor = Color.FromArgb(100, 150, 255);
                     Color argColor = GetTerminalTextColor(style, theme, isFocused, useThemeColors);
-                    
+
                     PaintCommandWithArgs(g, bounds, command, font, commandColor, argColor);
                 }
                 else
@@ -484,18 +457,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         {
             if (string.IsNullOrEmpty(output)) return;
 
-            Color outputColor = isError ? 
-                Color.FromArgb(255, 100, 100) :  // Red for errors
-                Color.FromArgb(150, 150, 150);   // Gray for normal output
+            Color outputColor = isError ?
+                Color.FromArgb(255,100,100) : // Red for errors
+                Color.FromArgb(150,150,150); // Gray for normal output
 
             Font font = GetTerminalFont(bounds.Height, style);
 
             try
             {
-                using (var brush = new SolidBrush(outputColor))
-                {
-                    g.DrawString(output, font, brush, bounds, GetTerminalStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(outputColor);
+                g.DrawString(output, font, brush, bounds, GetTerminalStringFormat());
             }
             finally
             {
@@ -506,24 +477,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static void PaintCommandWithArgs(Graphics g, Rectangle bounds, string command, Font font,
             Color commandColor, Color argColor)
         {
-            var parts = command.Split(' ', 2);
-            if (parts.Length == 1)
+            var parts = command.Split(' ',2);
+            if (parts.Length ==1)
             {
-                using (var brush = new SolidBrush(commandColor))
-                {
-                    g.DrawString(command, font, brush, bounds, GetTerminalStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(commandColor);
+                g.DrawString(command, font, brush, bounds, GetTerminalStringFormat());
                 return;
             }
 
             // Paint command part
             var commandSize = g.MeasureString(parts[0] + " ", font);
             var commandBounds = new Rectangle(bounds.X, bounds.Y, (int)commandSize.Width, bounds.Height);
-            
-            using (var brush = new SolidBrush(commandColor))
-            {
-                g.DrawString(parts[0] + " ", font, brush, commandBounds, GetTerminalStringFormat());
-            }
+
+            var commandBrush = PaintersFactory.GetSolidBrush(commandColor);
+            g.DrawString(parts[0] + " ", font, commandBrush, commandBounds, GetTerminalStringFormat());
 
             // Paint arguments part
             var argBounds = new Rectangle(
@@ -532,10 +499,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 bounds.Width - (int)commandSize.Width,
                 bounds.Height);
 
-            using (var brush = new SolidBrush(argColor))
-            {
-                g.DrawString(parts[1], font, brush, argBounds, GetTerminalStringFormat());
-            }
+            var argBrush = PaintersFactory.GetSolidBrush(argColor);
+            g.DrawString(parts[1], font, argBrush, argBounds, GetTerminalStringFormat());
         }
 
         #endregion

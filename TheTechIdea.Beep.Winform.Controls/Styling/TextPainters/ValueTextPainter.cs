@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -20,7 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor = GetColor(style, StyleColors.GetForeground, "Foreground", theme, useThemeColors);
             
             using (var font = StyleTypography.GetFont(style))
-            using (var textBrush = new SolidBrush(textColor))
             {
                 StringFormat sf = new StringFormat
                 {
@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 };
                 
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                var textBrush = PaintersFactory.GetSolidBrush(textColor);
                 g.DrawString(text, font, textBrush, bounds, sf);
             }
         }

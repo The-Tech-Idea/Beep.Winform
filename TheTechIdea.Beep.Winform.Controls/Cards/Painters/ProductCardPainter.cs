@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class ProductCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _priceFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _priceFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            _priceFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -42,8 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw sale/new badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
             
             // Draw rating stars
@@ -55,10 +67,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw price with currency formatting
             if (!string.IsNullOrEmpty(ctx.SubtitleText)) // Use SubtitleText for price
             {
-                using var priceFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-                using var priceBrush = new SolidBrush(ctx.AccentColor);
+                var priceBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, priceFont, priceBrush, ctx.ParagraphRect, format);
+                g.DrawString(ctx.SubtitleText, _priceFont, priceBrush, ctx.ParagraphRect, format);
             }
         }
     }

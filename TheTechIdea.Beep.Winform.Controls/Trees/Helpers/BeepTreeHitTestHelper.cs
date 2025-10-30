@@ -3,12 +3,14 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
+using System.Collections.Generic;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 {
     /// <summary>
     /// Helper class for tree-specific hit testing logic.
     /// Uses BaseControl hit-test infrastructure.
+    /// Optimized to reduce allocations during hit testing.
     /// </summary>
     public class BeepTreeHitTestHelper
     {
@@ -67,34 +69,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
                 if (node.Item.Children != null && node.Item.Children.Count > 0 && !node.ToggleRectContent.IsEmpty)
                 {
                     var toggleVp = ToViewport(node.ToggleRectContent);
-                    _owner.AddHitArea($"toggle_{node.Item.GuidId}", toggleVp);
+                    _owner.AddHitArea(GetHitKey("toggle", node.Item.GuidId), toggleVp);
                 }
 
                 // Checkbox
                 if (_owner.ShowCheckBox && !node.CheckRectContent.IsEmpty)
                 {
                     var checkVp = ToViewport(node.CheckRectContent);
-                    _owner.AddHitArea($"check_{node.Item.GuidId}", checkVp);
+                    _owner.AddHitArea(GetHitKey("check", node.Item.GuidId), checkVp);
                 }
 
                 // Icon
                 if (!node.IconRectContent.IsEmpty)
                 {
                     var iconVp = ToViewport(node.IconRectContent);
-                    _owner.AddHitArea($"icon_{node.Item.GuidId}", iconVp);
+                    _owner.AddHitArea(GetHitKey("icon", node.Item.GuidId), iconVp);
                 }
 
                 // Text
                 if (!node.TextRectContent.IsEmpty)
                 {
                     var textVp = ToViewport(node.TextRectContent);
-                    _owner.AddHitArea($"text_{node.Item.GuidId}", textVp);
+                    _owner.AddHitArea(GetHitKey("text", node.Item.GuidId), textVp);
                 }
 
                 // Row catch-all last
-                _owner.AddHitArea($"row_{node.Item.GuidId}", rowVp);
+                _owner.AddHitArea(GetHitKey("row", node.Item.GuidId), rowVp);
             }
         }
+
+        private static string GetHitKey(string part, string guid) => part + "_" + guid;
 
         /// <summary>
         /// Performs hit testing using BaseControl API.
@@ -111,14 +115,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             hitName = hitTest.Name;
             rect = hitTest.TargetRect;
 
-            // Extract GUID from hit name (format: "type_guid")
-            var parts = hitName.Split('_');
-            if (parts.Length == 2)
+            // Extract GUID from hit name without allocations from Split
+            int idx = hitName.IndexOf('_');
+            if (idx > 0 && idx + 1 < hitName.Length)
             {
-                string guid = parts[1];
+                string guid = hitName.Substring(idx + 1);
                 var layoutCache = _layoutHelper.GetCachedLayout();
-                var nodeInfo = layoutCache.FirstOrDefault(n => n.Item.GuidId == guid);
-                item = nodeInfo.Item;
+                if (layoutCache != null && layoutCache.Count > 0)
+                {
+                    foreach (var n in layoutCache)
+                    {
+                        if (n.Item != null && n.Item.GuidId == guid)
+                        {
+                            item = n.Item;
+                            break;
+                        }
+                    }
+                }
             }
 
             return item != null;
@@ -141,8 +154,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         {
             if (HitTest(point, out var hitName, out _, out _))
             {
-                var parts = hitName.Split('_');
-                return parts.Length > 0 ? parts[0] : string.Empty;
+                int idx = hitName.IndexOf('_');
+                return idx > 0 ? hitName.Substring(0, idx) : string.Empty;
             }
             return string.Empty;
         }

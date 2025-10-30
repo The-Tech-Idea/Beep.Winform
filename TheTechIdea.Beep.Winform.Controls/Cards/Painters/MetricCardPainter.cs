@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +12,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class MetricCardPainter : CardPainterBase
     {
+        private Font _valueFont;
+        private Font _trendFont;
+        private Font _badgeFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _valueFont?.Dispose(); } catch { }
+            try { _trendFont?.Dispose(); } catch { }
+            try { _badgeFont?.Dispose(); } catch { }
+            _valueFont = new Font(Owner.Font.FontFamily, 22f, FontStyle.Bold);
+            _trendFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
+            _badgeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Bold);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -63,10 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw large metric value with emphasis
             if (!string.IsNullOrEmpty(ctx.SubtitleText))
             {
-                using var valueFont = new Font(Owner.Font.FontFamily, 22f, FontStyle.Bold);
-                using var valueBrush = new SolidBrush(ctx.AccentColor);
+                var valueBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, valueFont, valueBrush, ctx.SubtitleRect, format);
+                g.DrawString(ctx.SubtitleText, _valueFont, valueBrush, ctx.SubtitleRect, format);
             }
 
             // Draw trend indicator with color coding (up/down arrows, percentages)
@@ -85,36 +101,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
                     trendColor = Color.FromArgb(244, 67, 54); // Material Red
                 }
 
-                using var trendFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-                using var trendBrush = new SolidBrush(trendColor);
+                var trendBrush = PaintersFactory.GetSolidBrush(trendColor);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 
                 // Draw trend with background pill
                 var trendBounds = new Rectangle(ctx.RatingRect.X, ctx.RatingRect.Y, Math.Min(100, ctx.RatingRect.Width), ctx.RatingRect.Height);
-                using var pillBrush = new SolidBrush(Color.FromArgb(30, trendColor));
+                var pillBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, trendColor));
                 using var path = CreateRoundedPath(trendBounds, 8);
                 g.FillPath(pillBrush, path);
-                g.DrawString(displayText, trendFont, trendBrush, trendBounds, format);
+                g.DrawString(displayText, _trendFont, trendBrush, trendBounds, format);
             }
 
             // Draw category badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw progress/threshold status bar
             if (ctx.ShowStatus)
             {
-                using var statusBrush = new SolidBrush(ctx.StatusColor);
+                var statusBrush = PaintersFactory.GetSolidBrush(ctx.StatusColor);
                 g.FillRectangle(statusBrush, ctx.StatusRect);
             }
         }
 
         private GraphicsPath CreateRoundedPath(Rectangle bounds, int radius)
         {
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            var path = new GraphicsPath();
             if (radius == 0)
             {
                 path.AddRectangle(bounds);

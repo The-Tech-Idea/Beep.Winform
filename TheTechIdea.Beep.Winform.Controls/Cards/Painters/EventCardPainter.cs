@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class EventCardPainter : CardPainterBase
     {
+        private Font _dateFont;
+        private Font _badgeFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _dateFont?.Dispose(); } catch { }
+            try { _badgeFont?.Dispose(); } catch { }
+            _dateFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -43,25 +56,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
             // Draw accent bar
-            using var accentBrush = new SolidBrush(ctx.AccentColor);
-            var accentPath = CreateRoundedPath(ctx.StatusRect, 2);
-            g.FillPath(accentBrush, accentPath);
-            
+            var accentBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
+            using (var accentPath = CreateRoundedPath(ctx.StatusRect, 2))
+            {
+                g.FillPath(accentBrush, accentPath);
+            }
+
             // Draw date/time block
             if (!string.IsNullOrEmpty(ctx.StatusText)) // Date in StatusText
             {
-                using var dateBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
-                var dateRect = new Rectangle(ctx.ImageRect.X, ctx.ImageRect.Y, ctx.ImageRect.Width, ctx.ImageRect.Height);
-                using var datePath = CreateRoundedPath(dateRect, 6);
-                g.FillPath(dateBrush, datePath);
-                
+                // Background for date block
+                var dateBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, Color.Black));
+                using (var datePath = CreateRoundedPath(ctx.ImageRect, 6))
+                {
+                    g.FillPath(dateBrush, datePath);
+                }
+
                 // Draw date text
-                using var dateFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                using var textBrush = new SolidBrush(Color.White);
+                var textBrush = PaintersFactory.GetSolidBrush(Color.White);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, dateFont, textBrush, dateRect, format);
+                g.DrawString(ctx.StatusText, _dateFont, textBrush, ctx.ImageRect, format);
             }
-            
+
             // Draw event category tags
             CardRenderingHelpers.DrawChips(g, Owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
         }

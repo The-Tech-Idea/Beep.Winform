@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -105,11 +106,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             IBeepTheme theme, bool useThemeColors)
         {
             var painter = new StandardDesignTextPainter();
-            
+
             using (Font discordFont = painter.GetFont(BeepControlStyle.DiscordStyle, isFocused))
-            using (SolidBrush brush = new SolidBrush(painter.GetDiscordColor(theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+                var brush = PaintersFactory.GetSolidBrush(painter.GetDiscordColor(theme, useThemeColors));
                 g.DrawString(text, discordFont, brush, bounds, painter.GetStringFormat());
             }
         }
@@ -131,26 +132,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             IBeepTheme theme, bool useThemeColors)
         {
             var painter = new StandardDesignTextPainter();
-            
+
             using (Font neuFont = painter.GetFont(BeepControlStyle.Neumorphism, isFocused))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                 Color textColor = painter.GetTextColor(BeepControlStyle.Neumorphism, theme, useThemeColors);
                 
                 // Soft shadow effect for neumorphism
-                using (SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
-                {
-                    Rectangle shadowBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width, bounds.Height);
-                    painter.DrawTextWithLetterSpacing(g, text, neuFont, shadowBrush, shadowBounds, 
-                        painter.GetLetterSpacing(BeepControlStyle.Neumorphism));
-                }
+                var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30,0,0,0));
+                Rectangle shadowBounds = new Rectangle(bounds.X +1, bounds.Y +1, bounds.Width, bounds.Height);
+                painter.DrawTextWithLetterSpacing(g, text, neuFont, shadowBrush, shadowBounds, painter.GetLetterSpacing(BeepControlStyle.Neumorphism));
                 
                 // Main text
-                using (SolidBrush mainBrush = new SolidBrush(textColor))
-                {
-                    painter.DrawTextWithLetterSpacing(g, text, neuFont, mainBrush, bounds, 
-                        painter.GetLetterSpacing(BeepControlStyle.Neumorphism));
-                }
+                var mainBrush = PaintersFactory.GetSolidBrush(textColor);
+                painter.DrawTextWithLetterSpacing(g, text, neuFont, mainBrush, bounds, painter.GetLetterSpacing(BeepControlStyle.Neumorphism));
             }
         }
 
@@ -161,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             IBeepTheme theme, bool useThemeColors)
         {
             var painter = new StandardDesignTextPainter();
-            
+
             using (Font glassFont = painter.GetFont(BeepControlStyle.GlassAcrylic, isFocused))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
@@ -169,11 +164,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 
                 // Slightly transparent for glass effect
                 Color glassColor = Color.FromArgb(220, baseColor.R, baseColor.G, baseColor.B);
-                
-                using (SolidBrush glassBrush = new SolidBrush(glassColor))
-                {
-                    g.DrawString(text, glassFont, glassBrush, bounds, painter.GetStringFormat());
-                }
+                var glassBrush = PaintersFactory.GetSolidBrush(glassColor);
+                g.DrawString(text, glassFont, glassBrush, bounds, painter.GetStringFormat());
             }
         }
 
@@ -184,15 +176,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             IBeepTheme theme, bool useThemeColors)
         {
             var painter = new StandardDesignTextPainter();
-            
+
             using (Font modernFont = painter.GetFont(BeepControlStyle.GradientModern, isFocused))
-            using (SolidBrush modernBrush = new SolidBrush(painter.GetModernColor(theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
                 // Use enhanced letter spacing for modern look
-                painter.DrawTextWithLetterSpacing(g, text, modernFont, modernBrush, bounds, 
-                    painter.GetLetterSpacing(BeepControlStyle.GradientModern));
+                var modernBrush = PaintersFactory.GetSolidBrush(painter.GetModernColor(theme, useThemeColors));
+                painter.DrawTextWithLetterSpacing(g, text, modernFont, modernBrush, bounds, painter.GetLetterSpacing(BeepControlStyle.GradientModern));
             }
         }
 

@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -76,20 +77,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new MicrosoftDesignTextPainter();
-            
+
             using (Font titleFont = painter.GetTitleFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetTextColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                
+
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Near,
                     LineAlignment = StringAlignment.Center,
                     Trimming = StringTrimming.EllipsisCharacter
                 };
-                
-                g.DrawString(text, titleFont, brush, bounds, format);
+
+                g.DrawString(text, titleFont, PaintersFactory.GetSolidBrush(painter.GetTextColor(style, theme, useThemeColors)), bounds, format);
             }
         }
 
@@ -110,12 +110,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             var painter = new MicrosoftDesignTextPainter();
-            
+
             using (Font subtitleFont = painter.GetSubtitleFont(style))
-            using (SolidBrush brush = new SolidBrush(painter.GetSubtleColor(style, theme, useThemeColors)))
             {
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                g.DrawString(text, subtitleFont, brush, bounds, painter.GetStringFormat());
+                g.DrawString(text, subtitleFont, PaintersFactory.GetSolidBrush(painter.GetSubtleColor(style, theme, useThemeColors)), bounds, painter.GetStringFormat());
             }
         }
 

@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -50,11 +51,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     shadowPath.CloseFigure();
                 }
 
-                // Paint soft ambient shadow
-                using (var brush = new SolidBrush(Color.FromArgb((int)(opacity * 255), shadowColor)))
-                {
-                    g.FillPath(brush, shadowPath);
-                }
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(opacity * 255), shadowColor));
+                g.FillPath(brush, shadowPath);
             }
 
             return path;

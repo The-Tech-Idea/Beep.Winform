@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -35,10 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             Color topColor = ColorUtils.Lighten(fillColor, 0.02f);
             Color bottomColor = ColorUtils.Darken(fillColor, 0.02f);
 
-            using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical))
-            {
-                g.FillPath(brush, path);
-            }
+            var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+            g.FillPath(brush, path);
         }
     }
 }

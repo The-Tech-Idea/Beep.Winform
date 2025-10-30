@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -10,6 +11,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class InteractiveCardPainter : CardPainterBase
     {
+        private Font _badgeFont;
+        private Font _metaFont;
+        private Font _statsFont;
+        private int pad = DefaultPad;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _badgeFont?.Dispose(); } catch { }
+            try { _metaFont?.Dispose(); } catch { }
+            try { _statsFont?.Dispose(); } catch { }
+            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            _metaFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            _statsFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
@@ -79,35 +96,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             // Draw status/category badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                using var badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
 
             // Draw hover state overlay (subtle highlight)
             // Note: This would be controlled by hover state in actual implementation
             if (ctx.ShowStatus && ctx.StatusColor != Color.Empty)
             {
-                using var hoverBrush = new SolidBrush(Color.FromArgb(8, ctx.AccentColor));
+                var hoverBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(8, ctx.AccentColor));
                 g.FillRectangle(hoverBrush, ctx.StatusRect);
             }
 
             // Draw file type icon background (for download cards)
             if (ctx.ShowImage)
             {
-                using var iconBg = new SolidBrush(Color.FromArgb(30, ctx.AccentColor));
+                var iconBg = PaintersFactory.GetSolidBrush(Color.FromArgb(30, ctx.AccentColor));
                 g.FillRectangle(iconBg, ctx.ImageRect);
-                
-                using var iconBorder = new Pen(Color.FromArgb(60, ctx.AccentColor), 2);
+
+                var iconBorder = PaintersFactory.GetPen(Color.FromArgb(60, ctx.AccentColor), 2);
                 g.DrawRectangle(iconBorder, ctx.ImageRect);
             }
 
             // Draw metadata with icon (for contact cards: phone, email, etc.)
             if (!string.IsNullOrEmpty(ctx.SubtitleText))
             {
-                using var metaFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var metaBrush = new SolidBrush(Color.FromArgb(140, ctx.AccentColor));
+                var metaBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(140, ctx.AccentColor));
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, metaFont, metaBrush, ctx.SubtitleRect, format);
+                g.DrawString(ctx.SubtitleText, _metaFont, metaBrush, ctx.SubtitleRect, format);
             }
 
             // Draw download/interaction count or status text
@@ -115,11 +130,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             {
                 int statsRight = ctx.DrawingRect.Right - pad;
                 int statsY = ctx.SubtitleRect.Y;
-                using var statsFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var statsBrush = new SolidBrush(Color.FromArgb(110, ctx.AccentColor));
+                var statsBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(110, ctx.AccentColor));
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
                 var statsRect = new Rectangle(ctx.SubtitleRect.Right, statsY, statsRight - ctx.SubtitleRect.Right, 16);
-                g.DrawString(ctx.StatusText, statsFont, statsBrush, statsRect, format);
+                g.DrawString(ctx.StatusText, _statsFont, statsBrush, statsRect, format);
             }
 
             // Draw interactive arrow or chevron indicator
@@ -129,13 +143,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
                 int chevronX = ctx.DrawingRect.Right - pad - chevronSize - 4;
                 int chevronY = ctx.DrawingRect.Top + (ctx.DrawingRect.Height - chevronSize) / 2;
                 
-                using var chevronPen = new Pen(Color.FromArgb(80, ctx.AccentColor), 2);
+                var chevronPen = PaintersFactory.GetPen(Color.FromArgb(80, ctx.AccentColor), 2);
                 // Draw right-pointing chevron
                 g.DrawLine(chevronPen, chevronX, chevronY + 4, chevronX + 6, chevronY + chevronSize / 2);
                 g.DrawLine(chevronPen, chevronX + 6, chevronY + chevronSize / 2, chevronX, chevronY + chevronSize - 4);
             }
         }
-
-        private int pad = DefaultPad;
     }
 }

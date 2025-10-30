@@ -2,6 +2,7 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 {
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             if (isHovered)
             {
                 var underlineRect = new Rectangle(rect.X, rect.Bottom - 2, rect.Width, 2);
-                using var brush = new SolidBrush(Theme.LinkColor);
+                var brush = PaintersFactory.GetSolidBrush(Theme.LinkColor);
                 g.FillRectangle(brush, underlineRect);
             }
             button.BackColor = Color.Transparent;

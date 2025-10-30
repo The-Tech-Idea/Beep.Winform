@@ -4,7 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -17,6 +18,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         private const int CornerRadius = 3;
         private const int AccentBarWidth = 4;
+
+        private Font _regularFont;
+        private Font _boldFont;
+
+        public override void Initialize(BeepTree owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            _regularFont = owner?.TextFont ?? SystemFonts.DefaultFont;
+            if (_boldFont == null || _boldFont.Size != _regularFont.Size || !_boldFont.FontFamily.Equals(_regularFont.FontFamily))
+            {
+                try { _boldFont?.Dispose(); } catch { }
+                _boldFont = new Font(_regularFont.FontFamily, _regularFont.Size, FontStyle.Bold);
+            }
+        }
 
         /// <summary>
         /// Syncfusion-specific node painting with modern flat enterprise design.
@@ -38,10 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (isSelected || isHovered)
                 {
                     Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
-                    using (var bgBrush = new SolidBrush(bgColor))
-                    {
-                        g.FillRectangle(bgBrush, nodeBounds);
-                    }
+                    var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                    g.FillRectangle(bgBrush, nodeBounds);
 
                     // STEP 2: Syncfusion left accent bar (distinctive feature - 4px wide)
                     if (isSelected)
@@ -52,10 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             AccentBarWidth,
                             nodeBounds.Height);
 
-                        using (var accentBrush = new SolidBrush(_theme.AccentColor))
-                        {
-                            g.FillRectangle(accentBrush, accentBar);
-                        }
+                        var accentBrush = PaintersFactory.GetSolidBrush(_theme.AccentColor);
+                        g.FillRectangle(accentBrush, accentBar);
                     }
                 }
 
@@ -66,27 +77,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = node.ToggleRectContent;
                     Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-                    using (var pen = new Pen(arrowColor, 2f))
+                    var pen = PaintersFactory.GetPen(arrowColor, 2f);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    int centerX = toggleRect.Left + toggleRect.Width / 2;
+                    int centerY = toggleRect.Top + toggleRect.Height / 2;
+                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                    if (node.Item.IsExpanded)
                     {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                        if (node.Item.IsExpanded)
-                        {
-                            // Arrow down
-                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                        }
-                        else
-                        {
-                            // Arrow right
-                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                        }
+                        // Arrow down
+                        g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                        g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                    }
+                    else
+                    {
+                        // Arrow right
+                        g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                        g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
                     }
                 }
 
@@ -97,37 +106,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
-                    // Syncfusion flat checkbox with slight rounding
                     var checkPath = CreateRoundedRectangle(checkRect, 2);
                     using (checkPath)
                     {
-                        using (var bgBrush = new SolidBrush(bgColor))
-                        {
-                            g.FillPath(bgBrush, checkPath);
-                        }
+                        var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
+                        g.FillPath(bgBrush, checkPath);
 
-                        using (var borderPen = new Pen(borderColor, 1.5f))
-                        {
-                            g.DrawPath(borderPen, checkPath);
-                        }
+                        var borderPen = PaintersFactory.GetPen(borderColor, 1.5f);
+                        g.DrawPath(borderPen, checkPath);
                     }
 
                     // Clean checkmark
                     if (node.Item.IsChecked)
                     {
-                        using (var checkPen = new Pen(Color.White, 2f))
-                        {
-                            checkPen.StartCap = LineCap.Round;
-                            checkPen.EndCap = LineCap.Round;
+                        var checkPen = PaintersFactory.GetPen(Color.White, 2f);
+                        checkPen.StartCap = LineCap.Round;
+                        checkPen.EndCap = LineCap.Round;
 
-                            var points = new Point[]
-                            {
-                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                            };
-                            g.DrawLines(checkPen, points);
-                        }
+                        var points = new Point[]
+                        {
+                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                        };
+                        g.DrawLines(checkPen, points);
                     }
                 }
 
@@ -144,12 +146,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = node.TextRectContent;
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    // Syncfusion uses Roboto/Segoe UI, bold on selection
-                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, isSelected ? FontStyle.Bold : FontStyle.Regular))
-                    {
-                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
-                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-                    }
+                    var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
+                    TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
             finally
@@ -166,10 +165,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: flat with accent bar
-                using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
-                {
-                    g.FillRectangle(brush, nodeBounds);
-                }
+                var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                g.FillRectangle(brush, nodeBounds);
 
                 // Accent bar on left
                 Rectangle accentBar = new Rectangle(
@@ -178,18 +175,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     AccentBarWidth,
                     nodeBounds.Height);
 
-                using (var accentBrush = new SolidBrush(_theme.AccentColor))
-                {
-                    g.FillRectangle(accentBrush, accentBar);
-                }
+                var accentBrush = PaintersFactory.GetSolidBrush(_theme.AccentColor);
+                g.FillRectangle(accentBrush, accentBar);
             }
             else if (isHovered)
             {
                 // Hover: subtle background
-                using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
-                {
-                    g.FillRectangle(hoverBrush, nodeBounds);
-                }
+                var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                g.FillRectangle(hoverBrush, nodeBounds);
             }
         }
 
@@ -200,27 +193,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Syncfusion arrow Style
             Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-            using (var pen = new Pen(arrowColor, 2f))
+            var pen = PaintersFactory.GetPen(arrowColor, 2f);
+            pen.StartCap = LineCap.Round;
+            pen.EndCap = LineCap.Round;
+
+            int centerX = toggleRect.Left + toggleRect.Width / 2;
+            int centerY = toggleRect.Top + toggleRect.Height / 2;
+            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+            if (isExpanded)
             {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                if (isExpanded)
-                {
-                    // Arrow down
-                    g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                    g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                }
-                else
-                {
-                    // Arrow right
-                    g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                    g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                }
+                // Arrow down
+                g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+            }
+            else
+            {
+                // Arrow right
+                g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
             }
         }
 
@@ -249,27 +240,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Flat rounded icon
             using (var path = CreateRoundedRectangle(iconRect, iconRect.Width / 5))
             {
-                using (var brush = new SolidBrush(Color.FromArgb(100, iconColor)))
-                {
-                    g.FillPath(brush, path);
-                }
+                var fillBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, iconColor));
+                g.FillPath(fillBrush, path);
 
-                using (var pen = new Pen(iconColor, 1.5f))
-                {
-                    g.DrawPath(pen, path);
-                }
+                var pen = PaintersFactory.GetPen(iconColor, 1.5f);
+                g.DrawPath(pen, path);
 
                 // Simple folder lines
                 int padding = iconRect.Width / 4;
-                using (var linePen = new Pen(iconColor, 1.5f))
-                {
-                    int midY = iconRect.Top + iconRect.Height / 2;
-                    g.DrawLine(linePen,
-                        iconRect.Left + padding,
-                        midY,
-                        iconRect.Right - padding,
-                        midY);
-                }
+                var linePen = PaintersFactory.GetPen(iconColor, 1.5f);
+                int midY = iconRect.Top + iconRect.Height / 2;
+                g.DrawLine(linePen,
+                    iconRect.Left + padding,
+                    midY,
+                    iconRect.Right - padding,
+                    midY);
             }
         }
 
@@ -279,13 +264,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-            // Syncfusion uses Roboto/Segoe UI
-            Font renderFont = new Font("Segoe UI", font.Size, isSelected ? FontStyle.Bold : FontStyle.Regular);
+            var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
 
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
-            renderFont.Dispose();
         }
 
         public override void Paint(Graphics g, BeepTree owner, Rectangle bounds)
@@ -293,10 +275,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Clean background
-            using (var brush = new SolidBrush(_theme.TreeBackColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            var bgBrush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+            g.FillRectangle(bgBrush, bounds);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

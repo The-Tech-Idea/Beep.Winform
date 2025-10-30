@@ -2,18 +2,19 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
     /// <summary>
-    /// Material Design 3 path painter with tonal surfaces
+    /// Material Design3 path painter with tonal surfaces
     /// Uses solid primary color with subtle state changes
     /// </summary>
     public static class Material3PathPainter
     {
         public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState .Normal)
         {
-            Color fillColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(103, 80, 164));
+            Color fillColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(103,80,164));
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -91,9 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     new PointF(pts.First().X, plotRect.Bottom)
                 };
 
-                using var brush = new SolidBrush(Color.FromArgb(100, color));
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, color));
                 g.FillPolygon(brush, area.ToArray());
-                using var pen = new Pen(color, 2);
+                var pen = PaintersFactory.GetPen(color, 2);
                 g.DrawLines(pen, pts.ToArray());
             }
         }

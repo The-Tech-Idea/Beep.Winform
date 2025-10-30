@@ -9,8 +9,8 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Styling;
  
-
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public enum TabHeaderPosition { Top, Bottom, Left, Right }
@@ -285,16 +285,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
-                    headerRegion = new Rectangle(0, 0, ClientSize.Width, scaledHeaderHeight);
+                    headerRegion = new Rectangle(0,0, ClientSize.Width, scaledHeaderHeight);
                     break;
                 case TabHeaderPosition.Bottom:
                     headerRegion = new Rectangle(0, ClientSize.Height - scaledHeaderHeight, ClientSize.Width, scaledHeaderHeight);
                     break;
                 case TabHeaderPosition.Left:
-                    headerRegion = new Rectangle(0, 0, scaledHeaderHeight, ClientSize.Height);
+                    headerRegion = new Rectangle(0,0, scaledHeaderHeight, ClientSize.Height);
                     break;
                 case TabHeaderPosition.Right:
-                    headerRegion = new Rectangle(ClientSize.Width - scaledHeaderHeight, 0, scaledHeaderHeight, ClientSize.Height);
+                    headerRegion = new Rectangle(ClientSize.Width - scaledHeaderHeight,0, scaledHeaderHeight, ClientSize.Height);
                     break;
                 default:
                     headerRegion = Rectangle.Empty;
@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (!headerRegion.IsEmpty)
             {
-                using var brush = new SolidBrush(Parent?.BackColor ?? BackColor);
+                var brush = PaintersFactory.GetSolidBrush(Parent?.BackColor ?? BackColor);
                 e.Graphics.FillRectangle(brush, headerRegion);
             }
         }
@@ -326,23 +326,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw drop marker if dragging
             if (_headerPosition == TabHeaderPosition.Top || _headerPosition == TabHeaderPosition.Bottom)
             {
-                if (_dropMarkerX >= 0)
+                if (_dropMarkerX >=0)
                 {
-                    using (Pen pen = new Pen(Color.Black, 2) { DashStyle = DashStyle.Solid })
-                    {
-                        e.Graphics.DrawLine(pen, _dropMarkerX, 0, _dropMarkerX, HeaderHeight);
-                    }
+                    var pen = PaintersFactory.GetPen(Color.Black,2);
+                    e.Graphics.DrawLine(pen, _dropMarkerX,0, _dropMarkerX, HeaderHeight);
                 }
             }
             else if (_headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right)
             {
-                if (_dropMarkerX >= 0)
+                if (_dropMarkerX >=0)
                 {
-                    using (Pen pen = new Pen(Color.Black, 2) { DashStyle = DashStyle.Solid })
-                    {
-                        float xPos = _headerPosition == TabHeaderPosition.Left ? 0 : ClientSize.Width - HeaderHeight;
-                        e.Graphics.DrawLine(pen, xPos, _dropMarkerX, xPos + HeaderHeight, _dropMarkerX);
-                    }
+                    var pen = PaintersFactory.GetPen(Color.Black,2);
+                    float xPos = _headerPosition == TabHeaderPosition.Left ?0 : ClientSize.Width - HeaderHeight;
+                    e.Graphics.DrawLine(pen, xPos, _dropMarkerX, xPos + HeaderHeight, _dropMarkerX);
                 }
             }
         }
@@ -377,7 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawTabHeaders(Graphics g)
         {
-            if (TabCount == 0)
+            if (TabCount ==0)
                 return;
 
             Color panelColor = Parent?.BackColor ?? BackColor;
@@ -390,16 +386,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case TabHeaderPosition.Top:
                     {
-                        Rectangle headerRegion = new Rectangle(0, 0, Width, scaledHeaderHeight);
-                        using (SolidBrush brush = new SolidBrush(panelColor))
-                        {
-                            g.FillRectangle(brush, headerRegion);
-                        }
+                        Rectangle headerRegion = new Rectangle(0,0, Width, scaledHeaderHeight);
+                        var brush = PaintersFactory.GetSolidBrush(panelColor);
+                        g.FillRectangle(brush, headerRegion);
 
-                        float currentX = 0;
-                        for (int i = 0; i < TabCount; i++)
+                        float currentX =0;
+                        for (int i =0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(currentX, 0, tabSizes[i], scaledHeaderHeight);
+                            RectangleF tabRect = new RectangleF(currentX,0, tabSizes[i], scaledHeaderHeight);
                             DrawHeaderForTab(g, tabRect, i, false);
                             currentX += tabSizes[i];
                         }
@@ -408,13 +402,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Bottom:
                     {
                         Rectangle headerRegion = new Rectangle(0, ClientSize.Height - scaledHeaderHeight, Width, scaledHeaderHeight);
-                        using (SolidBrush brush = new SolidBrush(panelColor))
-                        {
-                            g.FillRectangle(brush, headerRegion);
-                        }
+                        var brush = PaintersFactory.GetSolidBrush(panelColor);
+                        g.FillRectangle(brush, headerRegion);
 
-                        float currentX = 0;
-                        for (int i = 0; i < TabCount; i++)
+                        float currentX =0;
+                        for (int i =0; i < TabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(currentX, ClientSize.Height - scaledHeaderHeight, tabSizes[i], scaledHeaderHeight);
                             DrawHeaderForTab(g, tabRect, i, false);
@@ -424,38 +416,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 case TabHeaderPosition.Left:
                     {
-                        Rectangle headerRegion = new Rectangle(0, 0, HeaderHeight, Height);
-                        using (SolidBrush brush = new SolidBrush(panelColor))
-                        {
-                            g.FillRectangle(brush, headerRegion);
-                        }
+                        Rectangle headerRegion = new Rectangle(0,0, HeaderHeight, Height);
+                        var brush = PaintersFactory.GetSolidBrush(panelColor);
+                        g.FillRectangle(brush, headerRegion);
 
-                        float currentY = 0;
-                        for (int i = 0; i < TabCount; i++)
+                        float currentY =0;
+                        for (int i =0; i < TabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(0, currentY, HeaderHeight, tabSizes[i]);
                             DrawHeaderForTab(g, tabRect, i, true);
                            ////MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
-                            g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect));
+                            var cyanPen = PaintersFactory.GetPen(Color.Cyan,1);
+                            g.DrawRectangle(cyanPen, Rectangle.Truncate(tabRect));
                             currentY += tabSizes[i];
                         }
                         break;
                     }
                 case TabHeaderPosition.Right:
                     {
-                        Rectangle headerRegion = new Rectangle(ClientSize.Width - HeaderHeight, 0, HeaderHeight, Height);
-                        using (SolidBrush brush = new SolidBrush(panelColor))
-                        {
-                            g.FillRectangle(brush, headerRegion);
-                        }
+                        Rectangle headerRegion = new Rectangle(ClientSize.Width - HeaderHeight,0, HeaderHeight, Height);
+                        var brush = PaintersFactory.GetSolidBrush(panelColor);
+                        g.FillRectangle(brush, headerRegion);
 
-                        float currentY = 0;
-                        for (int i = 0; i < TabCount; i++)
+                        float currentY =0;
+                        for (int i =0; i < TabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(ClientSize.Width - HeaderHeight, currentY, HeaderHeight, tabSizes[i]);
                             DrawHeaderForTab(g, tabRect, i, true);
                            ////MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
-                            g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect));
+                            var cyanPen = PaintersFactory.GetPen(Color.Cyan,1);
+                            g.DrawRectangle(cyanPen, Rectangle.Truncate(tabRect));
                             currentY += tabSizes[i];
                         }
                         break;
@@ -471,29 +461,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             g.SetClip(tabRect, CombineMode.Replace);
 
-            using (GraphicsPath path = GetRoundedRect(tabRect, 4))
-            using (SolidBrush brush = new SolidBrush(backgroundColor))
+            using (GraphicsPath path = GetRoundedRect(tabRect,4))
             {
+                var brush = PaintersFactory.GetSolidBrush(backgroundColor);
                 g.FillPath(brush, path);
             }
 
             string text = TabPages[index].Text;
-            using (SolidBrush textBrush = new SolidBrush(textColor))
             using (Font font = new Font(this.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
             {
+                var textBrush = PaintersFactory.GetSolidBrush(textColor);
                 if (!vertical)
                 {
                     SizeF textSize = TextUtils.MeasureText(g,text, font);
-                    PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) / 2);
+                    PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) /2);
                     g.DrawString(text, font, textBrush, textPoint);
                 }
                 else
                 {
                     GraphicsState state = g.Save();
-                    g.TranslateTransform(tabRect.X + tabRect.Width / 2, tabRect.Y + tabRect.Height / 2);
+                    g.TranslateTransform(tabRect.X + tabRect.Width /2, tabRect.Y + tabRect.Height /2);
                     g.RotateTransform(90);
                     SizeF textSize = TextUtils.MeasureText(g,text, font);
-                    PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
+                    PointF textPoint = new PointF(-textSize.Width /2, -textSize.Height /2);
                     g.DrawString(text, font, textBrush, textPoint);
                     g.Restore(state);
                 }
@@ -746,7 +736,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 page.BackColor = _currentTheme.TabBackColor;
                 page.ForeColor = _currentTheme.TabForeColor;
-                if (page.Controls.Count > 0)
+                if (page.Controls.Count >0)
                 {
                     foreach (Control ctrl in page.Controls)
                     {
@@ -1063,8 +1053,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        }
         //    }
         //}
-
-      
 
     }
 

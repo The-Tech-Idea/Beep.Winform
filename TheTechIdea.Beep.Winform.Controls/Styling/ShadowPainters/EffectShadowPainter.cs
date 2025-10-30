@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             {
                 case ControlState.Hovered:
                     // Effect hover: Neon glow with vibrant color
-                    Color hoverGlow = useThemeColors ? theme.AccentColor : Color.FromArgb(100, 150, 255);
+                    Color hoverGlow = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(100, 150, 255);
                     remainingPath = ShadowPainterHelpers.PaintNeonGlow(
                         g, path, radius,
                         glowColor: Color.FromArgb(120, hoverGlow),
@@ -34,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
                 case ControlState.Pressed:
                     // Effect pressed: Long shadow
-                    Color pressColor = useThemeColors ? theme.BackColor : Color.FromArgb(60, 80, 120);
+                    Color pressColor = useThemeColors && theme != null ? theme.BackColor : Color.FromArgb(60, 80, 120);
                     remainingPath = ShadowPainterHelpers.PaintLongShadow(
                         g, path, radius,
                         angle: 135, // Bottom-right
@@ -45,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
                 case ControlState.Selected:
                     // Effect selected: Double colored glow
-                    Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(120, 100, 255);
+                    Color accentColor = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(120, 100, 255);
                     remainingPath = ShadowPainterHelpers.PaintDoubleShadow(
                         g, path, radius,
                         color1: Color.FromArgb(80, accentColor),
@@ -61,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
                 case ControlState.Focused:
                     // Effect focused: Perspective shadow with glow
-                    Color focusColor = useThemeColors ? theme.AccentColor : Color.FromArgb(80, 150, 255);
+                    Color focusColor = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(80, 150, 255);
                     remainingPath = ShadowPainterHelpers.PaintPerspectiveShadow(
                         g, path, radius,
                         direction: ShadowPainterHelpers.PerspectiveDirection.BottomRight,

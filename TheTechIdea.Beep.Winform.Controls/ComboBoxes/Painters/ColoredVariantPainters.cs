@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -11,19 +12,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             // Light blue tinted background
             Color bgColor = Color.FromArgb(240, 245, 255);
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillRectangle(brush, rect);
         }
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(66, 133, 244); // Blue
-            using (var pen = new Pen(borderColor, _owner.Focused ? 2f : 1f))
-            {
-                g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-            }
+            var pen = PaintersFactory.GetPen(borderColor, _owner.Focused ? 2f : 1f);
+            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
     }
     
@@ -36,19 +33,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             // Light green tinted background
             Color bgColor = Color.FromArgb(240, 255, 245);
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillRectangle(brush, rect);
         }
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(52, 168, 83); // Green
-            using (var pen = new Pen(borderColor, _owner.Focused ? 2f : 1f))
-            {
-                g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-            }
+            var pen = PaintersFactory.GetPen(borderColor, _owner.Focused ? 2f : 1f);
+            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
     }
     
@@ -61,19 +54,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             // Dark background
             Color bgColor = Color.FromArgb(45, 45, 48);
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillRectangle(brush, rect);
         }
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(100, 100, 100);
-            using (var pen = new Pen(borderColor, 1f))
-            {
-                g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-            }
+            var pen = PaintersFactory.GetPen(borderColor, 1f);
+            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
         
         protected override void DrawText(Graphics g, Rectangle textAreaRect)
@@ -100,19 +89,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             // Light red tinted background
             Color bgColor = Color.FromArgb(255, 245, 245);
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, rect);
-            }
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillRectangle(brush, rect);
         }
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(220, 53, 69); // Error red
-            using (var pen = new Pen(borderColor, 2f))
-            {
-                g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-            }
+            var pen = PaintersFactory.GetPen(borderColor, 2f);
+            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
     }
 }

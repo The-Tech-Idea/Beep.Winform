@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 {
@@ -91,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         public static void PaintRGBGlow(Graphics g, Rectangle bounds, string text, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureGraphicsQuality(g);
@@ -108,20 +109,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
 
                     // Multiple glow layers with RGB colors
                     Color[] rgbColors = { Color.Red, Color.Lime, Color.Blue, Color.Magenta, Color.Cyan, Color.Yellow };
-                    
-                    for (int i = 0; i < rgbColors.Length; i++)
+
+                    for (int i =0; i < rgbColors.Length; i++)
                     {
-                        using (var pen = new Pen(Color.FromArgb(30, rgbColors[i]), 8 - i))
-                        {
-                            g.DrawPath(pen, path);
-                        }
+                        var pen = PaintersFactory.GetPen(Color.FromArgb(30, rgbColors[i]),8 - i);
+                        g.DrawPath(pen, path);
                     }
 
                     // Main text
-                    using (var brush = new SolidBrush(baseColor))
-                    {
-                        g.FillPath(brush, path);
-                    }
+                    var brush = PaintersFactory.GetSolidBrush(baseColor);
+                    g.FillPath(brush, path);
                 }
             }
             finally
@@ -136,31 +133,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         public static void PaintHUDStyle(Graphics g, Rectangle bounds, string text, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
-            if (string.IsNullOrEmpty(text) || bounds.Width <= 0 || bounds.Height <= 0)
+            if (string.IsNullOrEmpty(text) || bounds.Width <=0 || bounds.Height <=0)
                 return;
 
             ConfigureGraphicsQuality(g);
 
             Font font = GetCodeFont(bounds.Height);
-            Color hudColor = isFocused ? Color.FromArgb(0, 255, 150) : Color.FromArgb(0, 200, 100);
+            Color hudColor = isFocused ? Color.FromArgb(0,255,150) : Color.FromArgb(0,200,100);
 
             try
             {
                 // Paint text with HUD green
-                using (var brush = new SolidBrush(hudColor))
-                {
-                    g.DrawString(text, font, brush, bounds, GetCenteredStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(hudColor);
+                g.DrawString(text, font, brush, bounds, GetCenteredStringFormat());
 
                 // Add scanlines effect
                 if (isFocused)
                 {
-                    using (var scanPen = new Pen(Color.FromArgb(30, hudColor), 1))
+                    var scanPen = PaintersFactory.GetPen(Color.FromArgb(30, hudColor),1);
+                    for (int y = bounds.Top; y < bounds.Bottom; y +=3)
                     {
-                        for (int y = bounds.Top; y < bounds.Bottom; y += 3)
-                        {
-                            g.DrawLine(scanPen, bounds.Left, y, bounds.Right, y);
-                        }
+                        g.DrawLine(scanPen, bounds.Left, y, bounds.Right, y);
                     }
                 }
             }
@@ -178,31 +171,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, Color glowColor, bool isFocused)
         {
             // Outer glow
-            for (int i = 4; i >= 1; i--)
+            for (int i =4; i >=1; i--)
             {
                 Color glowLayer = Color.FromArgb(20 * i, glowColor);
-                using (var brush = new SolidBrush(glowLayer))
-                {
-                    var glowBounds = new Rectangle(bounds.X - i, bounds.Y - i, bounds.Width + (i * 2), bounds.Height + (i * 2));
-                    g.DrawString(text, font, brush, glowBounds, GetCenteredStringFormat());
-                }
+                var brush = PaintersFactory.GetSolidBrush(glowLayer);
+                var glowBounds = new Rectangle(bounds.X - i, bounds.Y - i, bounds.Width + (i *2), bounds.Height + (i *2));
+                g.DrawString(text, font, brush, glowBounds, GetCenteredStringFormat());
             }
 
             // Main text
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString(text, font, brush, bounds, GetCenteredStringFormat());
-            }
+            var mainBrush = PaintersFactory.GetSolidBrush(textColor);
+            g.DrawString(text, font, mainBrush, bounds, GetCenteredStringFormat());
 
             // Inner highlight if focused
             if (isFocused)
             {
                 Color highlight = Color.FromArgb(100, Color.White);
-                using (var brush = new SolidBrush(highlight))
-                {
-                    var innerBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height - 2);
-                    g.DrawString(text, font, brush, innerBounds, GetCenteredStringFormat());
-                }
+                var highlightBrush = PaintersFactory.GetSolidBrush(highlight);
+                var innerBounds = new Rectangle(bounds.X +1, bounds.Y +1, bounds.Width -2, bounds.Height -2);
+                g.DrawString(text, font, highlightBrush, innerBounds, GetCenteredStringFormat());
             }
         }
 
@@ -215,33 +202,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 path.AddString(text, font.FontFamily, (int)font.Style, font.Size, bounds, StringFormat.GenericTypographic);
 
                 // Outer neon glow
-                for (int i = 6; i >= 1; i--)
+                for (int i =6; i >=1; i--)
                 {
-                    int alpha = Math.Max(10, 60 - (i * 8));
-                    using (var pen = new Pen(Color.FromArgb(alpha, glowColor), i * 2))
-                    {
-                        g.DrawPath(pen, path);
-                    }
+                    int alpha = Math.Max(10,60 - (i *8));
+                    var pen = PaintersFactory.GetPen(Color.FromArgb(alpha, glowColor), i *2);
+                    g.DrawPath(pen, path);
                 }
 
                 // Main neon color
-                using (var brush = new SolidBrush(textColor))
-                {
-                    g.FillPath(brush, path);
-                }
+                var brush = PaintersFactory.GetSolidBrush(textColor);
+                g.FillPath(brush, path);
 
                 // Inner bright core
                 Color coreColor = Color.FromArgb(200, Color.White);
-                using (var brush = new SolidBrush(coreColor))
+                var coreBrush = PaintersFactory.GetSolidBrush(coreColor);
+                using (var corePath = new GraphicsPath())
                 {
-                    using (var corePath = new GraphicsPath())
-                    {
-                        var coreSize = font.Size * 0.8f;
-                        var coreFont = new Font(font.FontFamily, coreSize, font.Style);
-                        corePath.AddString(text, coreFont.FontFamily, (int)coreFont.Style, coreFont.Size, bounds, StringFormat.GenericTypographic);
-                        g.FillPath(brush, corePath);
-                        coreFont.Dispose();
-                    }
+                    var coreSize = font.Size *0.8f;
+                    var coreFont = new Font(font.FontFamily, coreSize, font.Style);
+                    corePath.AddString(text, coreFont.FontFamily, (int)coreFont.Style, coreFont.Size, bounds, StringFormat.GenericTypographic);
+                    g.FillPath(coreBrush, corePath);
+                    coreFont.Dispose();
                 }
             }
         }
@@ -250,25 +231,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             Color textColor, bool isFocused)
         {
             // Terminal green with slight flicker effect
-            Color terminalGreen = isFocused ? Color.FromArgb(0, 255, 100) : Color.FromArgb(0, 200, 80);
-            
-            using (var brush = new SolidBrush(terminalGreen))
-            {
-                g.DrawString(text, font, brush, bounds, GetMonospaceStringFormat());
-            }
+            Color terminalGreen = isFocused ? Color.FromArgb(0,255,100) : Color.FromArgb(0,200,80);
+
+            var brush = PaintersFactory.GetSolidBrush(terminalGreen);
+            g.DrawString(text, font, brush, bounds, GetMonospaceStringFormat());
 
             // Add cursor if focused
             if (isFocused)
             {
                 var textSize = g.MeasureString(text, font);
-                var cursorX = bounds.X + textSize.Width + 2;
+                var cursorX = bounds.X + textSize.Width +2;
                 var cursorY = bounds.Y;
-                var cursorHeight = bounds.Height - 4;
+                var cursorHeight = bounds.Height -4;
 
-                using (var cursorBrush = new SolidBrush(terminalGreen))
-                {
-                    g.FillRectangle(cursorBrush, cursorX, cursorY + 2, 2, cursorHeight);
-                }
+                var cursorBrush = PaintersFactory.GetSolidBrush(terminalGreen);
+                g.FillRectangle(cursorBrush, cursorX, cursorY +2,2, cursorHeight);
             }
         }
 
@@ -278,15 +255,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             // Subtle tech glow
             if (isFocused)
             {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(50, glowColor)))
-                {
-                    var glowBounds = new Rectangle(bounds.X - 1, bounds.Y - 1, bounds.Width + 2, bounds.Height + 2);
-                    g.DrawString(text, font, glowBrush, glowBounds, GetCenteredStringFormat());
-                }
+                var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(50, glowColor));
+                var glowBounds = new Rectangle(bounds.X -1, bounds.Y -1, bounds.Width +2, bounds.Height +2);
+                g.DrawString(text, font, glowBrush, glowBounds, GetCenteredStringFormat());
             }
 
             // Main text with letter spacing
-            DrawTextWithLetterSpacing(g, text, font, textColor, bounds, 0.8f);
+            DrawTextWithLetterSpacing(g, text, font, textColor, bounds,0.8f);
         }
 
         #endregion
@@ -296,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
         private static Font GetGamingFont(int height, BeepControlStyle style)
         {
             float fontSize = Math.Max(8, height * 0.6f);
-            
+
             // Style-specific font selection
             string[] fontFamily = style switch
             {
@@ -443,7 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 {
                     string character = text[i].ToString();
                     g.DrawString(character, font, brush, currentX, y);
-                    
+
                     var charSize = g.MeasureString(character, font);
                     currentX += charSize.Width + letterSpacing;
                 }

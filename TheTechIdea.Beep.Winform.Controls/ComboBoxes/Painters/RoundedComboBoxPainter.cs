@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -14,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBackground(Graphics g, Rectangle rect)
         {
             Color bgColor = _helper.GetBackgroundColor();
-            using (var brush = new SolidBrush(bgColor))
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
             using (var path = GetRoundedRectPath(rect, BorderRadius))
             {
                 g.FillPath(brush, path);
@@ -28,12 +29,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Gray));
             
             float borderWidth = 1.5f;
-            
-            using (var pen = new Pen(borderColor, borderWidth))
-            using (var path = GetRoundedRectPath(rect, BorderRadius))
+            var basePen = PaintersFactory.GetPen(borderColor, borderWidth);
+            var pen = (System.Drawing.Pen)basePen.Clone();
+            try
             {
                 pen.Alignment = PenAlignment.Inset;
-                g.DrawPath(pen, path);
+                using (var path = GetRoundedRectPath(rect, BorderRadius))
+                {
+                    g.DrawPath(pen, path);
+                }
+            }
+            finally
+            {
+                pen.Dispose();
             }
         }
         

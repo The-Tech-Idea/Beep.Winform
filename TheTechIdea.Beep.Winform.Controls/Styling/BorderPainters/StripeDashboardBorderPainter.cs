@@ -3,11 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
-    /// StripeDashboard border painter - Subtle 1px border
+    /// StripeDashboard border painter - Subtle1px border
     /// Stripe UX: Prominent state changes with rings + accent bars
     /// </summary>
     public static class StripeDashboardBorderPainter

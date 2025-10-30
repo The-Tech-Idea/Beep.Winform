@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 
                 if (series.ShowLine && pts.Count > 1)
                 {
-                    using var pen = new Pen(color, 2);
+                    var pen = PaintersFactory.GetPen(color, 2);
                     if (options?.SmoothLines == true)
                     {
                         var spline = CatmullRomSpline(pts, 12);
@@ -87,7 +88,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     {
                         var p = series.Points[i];
                         DrawMarker(g, pt, series.DataPointStyle, color, 5);
-                        // register simple hit area for tooltip
                         var hitRect = new Rectangle((int)pt.X - 6, (int)pt.Y - 6, 12, 12);
                         _owner.AddHitArea($"Point_{sIndex}_{i}", hitRect, null, null);
                     }
@@ -120,12 +120,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 
         private static void DrawMarker(Graphics g, PointF pt, ChartDataPointStyle style, Color color, float s)
         {
-            using var b = new SolidBrush(color);
-            using var pen = new Pen(Color.White, 1);
+            var brush = PaintersFactory.GetSolidBrush(color);
+            var pen = PaintersFactory.GetPen(Color.White, 1);
             switch (style)
             {
                 case ChartDataPointStyle.Square:
-                    g.FillRectangle(b, pt.X - s, pt.Y - s, s * 2, s * 2);
+                    g.FillRectangle(brush, pt.X - s, pt.Y - s, s * 2, s * 2);
                     g.DrawRectangle(pen, pt.X - s, pt.Y - s, s * 2, s * 2);
                     break;
                 case ChartDataPointStyle.Diamond:
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                         new PointF(pt.X, pt.Y + s),
                         new PointF(pt.X - s, pt.Y)
                     };
-                    g.FillPolygon(b, diamond);
+                    g.FillPolygon(brush, diamond);
                     g.DrawPolygon(pen, diamond);
                     break;
                 case ChartDataPointStyle.Triangle:
@@ -146,12 +146,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                         new PointF(pt.X + s, pt.Y + s),
                         new PointF(pt.X - s, pt.Y + s)
                     };
-                    g.FillPolygon(b, tri);
+                    g.FillPolygon(brush, tri);
                     g.DrawPolygon(pen, tri);
                     break;
                 case ChartDataPointStyle.Circle:
                 default:
-                    g.FillEllipse(b, pt.X - s, pt.Y - s, s * 2, s * 2);
+                    g.FillEllipse(brush, pt.X - s, pt.Y - s, s * 2, s * 2);
                     g.DrawEllipse(pen, pt.X - s, pt.Y - s, s * 2, s * 2);
                     break;
             }

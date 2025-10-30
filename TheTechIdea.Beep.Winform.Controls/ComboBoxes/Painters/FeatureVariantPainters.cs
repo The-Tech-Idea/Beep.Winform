@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -29,14 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             var centerY = buttonRect.Top + buttonRect.Height / 2;
             var radius = Math.Min(buttonRect.Width, buttonRect.Height) / 4;
             
-            using (var pen = new Pen(iconColor, 1.5f))
-            {
-                // Circle
-                g.DrawEllipse(pen, centerX - radius, centerY - radius - 2, radius * 2, radius * 2);
-                // Handle
-                g.DrawLine(pen, centerX + radius - 2, centerY + radius - 2, 
-                          centerX + radius + 2, centerY + radius + 2);
-            }
+            var pen = PaintersFactory.GetPen(iconColor, 1.5f);
+            g.DrawEllipse(pen, centerX - radius, centerY - radius - 2, radius * 2, radius * 2);
+            g.DrawLine(pen, centerX + radius - 2, centerY + radius - 2, 
+                      centerX + radius + 2, centerY + radius + 2);
         }
     }
     

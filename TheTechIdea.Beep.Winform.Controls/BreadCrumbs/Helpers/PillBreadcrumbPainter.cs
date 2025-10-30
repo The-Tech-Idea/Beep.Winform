@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 {
@@ -30,12 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             using var path = Base.Helpers.ControlPaintHelper.GetRoundedRectPath(pillRect, pillRect.Height / 2);
             if (isHovered)
             {
-                using var brush = new SolidBrush(Color.FromArgb(60, Theme.ButtonHoverBackColor));
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(60, Theme.ButtonHoverBackColor));
                 g.FillPath(brush, path);
             }
             if (isLast)
             {
-                using var brush = new SolidBrush(Color.FromArgb(80, Theme.ButtonBackColor));
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(80, Theme.ButtonBackColor));
                 g.FillPath(brush, path);
             }
             button.BackColor = Color.Transparent;

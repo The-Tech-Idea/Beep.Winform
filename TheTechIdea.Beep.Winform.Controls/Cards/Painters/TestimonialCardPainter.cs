@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -9,6 +10,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal sealed class TestimonialCardPainter : CardPainterBase
     {
+        private Font _quoteFont;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            try { _quoteFont?.Dispose(); } catch { }
+            _quoteFont = new Font("Serif", 36f, FontStyle.Bold);
+        }
+
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad + 4;
@@ -35,12 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
-            // Draw quote marks as a subtle background accent inside the content area
-            using (var quoteBrush = new SolidBrush(Color.FromArgb(30, ctx.AccentColor)))
-            using (var quoteFont = new Font("Serif", 36, FontStyle.Bold))
-            {
-                g.DrawString("''", quoteFont, quoteBrush, ctx.DrawingRect.Left + 20, ctx.DrawingRect.Top + 5);
-            }
+            var quoteBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, ctx.AccentColor));
+            g.DrawString("''", _quoteFont, quoteBrush, ctx.DrawingRect.Left + 20, ctx.DrawingRect.Top + 5);
 
             // Draw rating stars
             if (ctx.ShowRating && ctx.Rating > 0)

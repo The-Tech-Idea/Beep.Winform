@@ -75,11 +75,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-                _textFont = value;
-                UseThemeFont = false;
-                //  SafeApplyFont(_textFont);
-                //  InitializeDrawingComponents();
-                // Invalidate();
+                // Validate font before setting
+                if (IsValidFont(value))
+                {
+                    _textFont = value;
+                    UseThemeFont = false;
+                    Invalidate();
+                }
+                else
+                {
+                    // Use safe fallback font
+                    _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+                    UseThemeFont = false;
+                    System.Diagnostics.Debug.WriteLine($"Invalid font provided to BeepMenuBar, using fallback: Segoe UI");
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Validates if a font is safe to use for drawing operations
+        /// </summary>
+        private bool IsValidFont(Font font)
+        {
+            if (font == null) return false;
+            
+            try
+            {
+                // Test if font properties are accessible
+                var height = font.Height;
+                var name = font.Name;
+                var size = font.Size;
+                
+                // Basic validation checks
+                return height > 0 && 
+                       !string.IsNullOrEmpty(name) && 
+                       size > 0 && 
+                       size <= 72; // Reasonable font size limit
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -184,6 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public BeepPopupListForm CurrentMenuForm { get; private set; }
+
         #endregion "Properties"
         #endregion "Fields and Properties"
 
@@ -217,8 +254,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeHovered = false;
             ListForms = new LinkedList<MenuitemTracking>();
 
-            // Initialize painter system
-            InitializePainter();
+            // Initialize BeepStyling system
+            // No initialization needed - BeepStyling is static
 
             InitializeDrawingComponents();
 
@@ -296,16 +333,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            // Use painter system if available, otherwise fall back to legacy method
-            if (_painter != null && _context != null)
-            {
-                RefreshPainterHitAreas();
-            }
-            else
-            {
-                // Legacy hit area method
-                RefreshLegacyHitAreas();
-            }
+            // Use legacy hit area method (simplified)
+            RefreshLegacyHitAreas();
         }
 
         private void RefreshLegacyHitAreas()
@@ -332,7 +361,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // Removed duplicate RefreshPainterHitAreas() here; painter-based version lives in BeepMenuBar.Painters.cs
 
         private List<Rectangle> CalculateMenuItemRects()
         {
@@ -477,18 +505,231 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             if (items == null || items.Count == 0) return;
-            // Use painter system if available, otherwise fall back to legacy drawing
-            if (_painter != null && _context != null)
-            {
-                DrawWithPainter(e.Graphics);
-            }
-         
+            
+            // Use BeepStyling system
+            DrawWithBeepStyling(e.Graphics);
         }
         protected override void DrawContent(Graphics g)
         {
             //  base.DrawContent(g);
 
             
+        }
+
+        /// <summary>
+        /// Draws the menu bar using BeepStyling system
+        /// </summary>
+        private void DrawWithBeepStyling(Graphics g)
+        {
+            if (items == null || items.Count == 0) return;
+
+            UpdateDrawingRect();
+
+            // Calculate layout positions
+            var menuRects = CalculateMenuItemRects();
+
+            // Draw each menu item using BeepStyling
+            for (int i = 0; i < items.Count && i < menuRects.Count; i++)
+            {
+                var item = items[i];
+                var rect = menuRects[i];
+                string itemName = $"MenuItem_{i}";
+                bool isHovered = _hoveredMenuItemName == itemName;
+                bool isSelected = _selectedIndex == i;
+
+                DrawMenuItemWithBeepStyling(g, item, rect, isHovered, isSelected);
+            }
+        }
+
+        /// <summary>
+        /// Draws a single menu item using BeepStyling with proper button-like appearance
+        /// </summary>
+        private void DrawMenuItemWithBeepStyling(Graphics g, SimpleItem item, Rectangle rect, bool isHovered, bool isSelected)
+        {
+            if (item == null) return;
+
+            try
+            {
+                // Get effective control style
+                var effectiveStyle = GetEffectiveControlStyle();
+                var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
+
+                // Create GraphicsPath for the menu item
+                var itemPath = BeepStyling.CreateControlStylePath(rect, effectiveStyle);
+
+                // Determine item state
+                var itemState = ControlState.Normal;
+                if (isSelected) itemState = ControlState.Selected;
+                else if (isHovered) itemState = ControlState.Hovered;
+
+                // Paint menu item background using BeepStyling - this gives it proper button-like appearance
+                var contentPath = BeepStyling.PaintControl(
+                    g, 
+                    itemPath, 
+                    effectiveStyle, 
+                    theme, 
+                    UseThemeColors, 
+                    itemState,
+                    false // Not transparent background - this fixes the transparency issue
+                );
+
+                // Draw menu item content
+                if (contentPath != null)
+                {
+                    DrawMenuItemContent(g, item, rect, effectiveStyle, theme, contentPath);
+                    contentPath.Dispose();
+                }
+
+                itemPath.Dispose();
+            }
+            catch (ArgumentException ex)
+            {
+                // Fallback to basic drawing if style causes parameter validation errors
+                System.Diagnostics.Debug.WriteLine($"MenuBar style error: {ex.Message}, falling back to basic drawing");
+                DrawMenuItemFallback(g, item, rect, isHovered, isSelected);
+            }
+            catch (Exception ex)
+            {
+                // Handle any other drawing errors gracefully
+                System.Diagnostics.Debug.WriteLine($"MenuBar drawing error: {ex.Message}");
+                DrawMenuItemFallback(g, item, rect, isHovered, isSelected);
+            }
+        }
+
+        /// <summary>
+        /// Fallback drawing method when BeepStyling fails
+        /// </summary>
+        private void DrawMenuItemFallback(Graphics g, SimpleItem item, Rectangle rect, bool isHovered, bool isSelected)
+        {
+            // Simple fallback drawing
+            var brush = new SolidBrush(isHovered ? Color.LightBlue : Color.White);
+            g.FillRectangle(brush, rect);
+            brush.Dispose();
+
+            var pen = new Pen(Color.Gray, 1);
+            g.DrawRectangle(pen, rect);
+            pen.Dispose();
+
+            // Draw text with safe font
+            var textBrush = new SolidBrush(Color.Black);
+            var format = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center,
+                Trimming = StringTrimming.EllipsisCharacter
+            };
+            
+            // Use safe font for fallback drawing too
+            var safeFont = GetSafeFont(_textFont);
+            g.DrawString(item.Text ?? "", safeFont, textBrush, rect, format);
+            textBrush.Dispose();
+        }
+
+        /// <summary>
+        /// Gets the effective control style for BeepStyling
+        /// </summary>
+        private BeepControlStyle GetEffectiveControlStyle()
+        {
+            if (ControlStyle != BeepControlStyle.None)
+            {
+                // Validate that the style is appropriate for menu items
+                if (IsValidMenuBarStyle(ControlStyle))
+                    return ControlStyle;
+            }
+            
+            // Default to Material3 for menu bars
+            return BeepControlStyle.Material3;
+        }
+
+        /// <summary>
+        /// Validates if a control style is appropriate for menu bar items
+        /// </summary>
+        private bool IsValidMenuBarStyle(BeepControlStyle style)
+        {
+            // Some styles might not work well with menu items due to their specific requirements
+            switch (style)
+            {
+                case BeepControlStyle.None:
+                case BeepControlStyle.Terminal: // Terminal style might not work well
+                case BeepControlStyle.Metro: // Metro might have issues
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
+        /// <summary>
+        /// Draws the content of a menu item (text, image, etc.)
+        /// </summary>
+        private void DrawMenuItemContent(Graphics g, SimpleItem item, Rectangle rect, BeepControlStyle style, IBeepTheme theme, GraphicsPath contentPath)
+        {
+            // Calculate layout areas
+            int imageAreaWidth = !string.IsNullOrEmpty(item.ImagePath) ? _imagesize + 8 : 0;
+            int textStartX = rect.X + 8 + imageAreaWidth;
+            int textWidth = rect.Width - 16 - imageAreaWidth;
+
+            // Draw image if available
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                var imageRect = new Rectangle(
+                    rect.X + 8,
+                    rect.Y + (rect.Height - _imagesize) / 2,
+                    _imagesize,
+                    _imagesize
+                );
+
+                // Create path for image area
+                var imagePath = BeepStyling.CreateControlStylePath(imageRect, style);
+                
+                // Paint image using StyledImagePainter
+                BeepStyling.PaintStyleImage(g, imagePath, item.ImagePath, style);
+                
+                imagePath.Dispose();
+            }
+
+            // Draw text with font validation
+            var textRect = new Rectangle(
+                textStartX,
+                rect.Y,
+                textWidth,
+                rect.Height
+            );
+
+            var textColor = UseThemeColors && theme != null ? theme.ForeColor : BeepStyling.GetForegroundColor(style);
+            var brush = new SolidBrush(textColor);
+            var format = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center,
+                Trimming = StringTrimming.EllipsisCharacter
+            };
+
+            // Use safe font for text drawing
+            var safeFont = GetSafeFont(_textFont);
+            g.DrawString(item.Text ?? "", safeFont, brush, textRect, format);
+            brush.Dispose();
+        }
+
+        /// <summary>
+        /// Gets a safe font for drawing operations, with fallback if the current font is invalid
+        /// </summary>
+        private Font GetSafeFont(Font originalFont)
+        {
+            try
+            {
+                // Check if the font is valid by trying to get its height
+                if (originalFont != null && originalFont.Height > 0)
+                {
+                    return originalFont;
+                }
+            }
+            catch
+            {
+                // Font is invalid, use fallback
+            }
+
+            // Fallback to a safe system font
+            return new Font("Segoe UI", 9f, FontStyle.Regular);
         }
 
         private void DrawLegacyContent(Graphics g)
@@ -553,7 +794,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (rect.Contains(mousePoint))
                 {
                     Debug.WriteLine($"Menu item {i} clicked: {item.Text}");
+                    // Update selected index for proper visual feedback
+                    _selectedIndex = i;
                     HandleMenuItemClick(item, i);
+                    Invalidate(); // Refresh to show selected state
                     return;
                 }
             }
@@ -586,6 +830,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (previousHovered != _hoveredMenuItemName)
                     {
+                        // Invalidate both previous and current regions for smooth hover transition
+                        if (!string.IsNullOrEmpty(previousHovered))
+                        {
+                            int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
+                            if (previousIndex < menuRects.Count)
+                                InvalidateRegion(menuRects[previousIndex]);
+                        }
                         InvalidateRegion(menuRects[i]);
                     }
                     break;
@@ -598,7 +849,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!string.IsNullOrEmpty(previousHovered))
                 {
                     int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
-                    InvalidateRegion(menuRects[previousIndex]);
+                    if (previousIndex < menuRects.Count)
+                        InvalidateRegion(menuRects[previousIndex]);
                 }
             }
         }
@@ -617,7 +869,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
                     var menuRects = CalculateMenuItemRects();
-                    InvalidateRegion(menuRects[previousIndex]);
+                    if (previousIndex < menuRects.Count)
+                        InvalidateRegion(menuRects[previousIndex]);
                 }
             }
         }
@@ -627,12 +880,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            // Update painter layout if available
-            if (_painter != null)
-            {
-                UpdateMenuBarLayout();
-            }
 
             // Reinitialize components with new DPI scaling
             InitializeDrawingComponents();
@@ -718,8 +965,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
             BackColor = Color.Transparent;
-            // Apply theme to painter if available
-            ApplyThemeToPainter();
 
             // Apply MenuBar-specific colors
             //if (BackColor != Color.Transparent)
@@ -750,15 +995,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply font from theme
             if (UseThemeFont)
             {
+                Font themeFont = null;
                 if (_currentTheme.MenuTitleFont != null)
                 {
-                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
+                    themeFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                 }
                 else
                 {
-                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
+                    themeFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                 }
-                // SafeApplyFont(_textFont);
+                
+                // Validate theme font before applying
+                if (IsValidFont(themeFont))
+                {
+                    _textFont = themeFont;
+                }
+                else
+                {
+                    // Use safe fallback if theme font is invalid
+                    _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+                    System.Diagnostics.Debug.WriteLine($"Invalid theme font, using fallback: Segoe UI");
+                }
             }
 
             // Apply theme to drawing components (for legacy fallback)
@@ -897,9 +1154,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Close any open popups
                 CloseAllPopups();
-
-                // Dispose painter resources
-                DisposePainter();
 
                 // Dispose drawing components
                 _menuButton?.Dispose();

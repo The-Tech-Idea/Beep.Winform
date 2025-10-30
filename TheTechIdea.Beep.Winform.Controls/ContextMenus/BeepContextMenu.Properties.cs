@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 {
@@ -30,6 +31,46 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     _contextMenuType = value;
                     SetPainter(value);
                     RecalculateSize();
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the control style for BeepStyling integration
+        /// </summary>
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the context menu using BeepStyling system")]
+        [Browsable(true)]
+        [DefaultValue(BeepControlStyle.None)]
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set
+            {
+                if (_controlStyle != value)
+                {
+                    _controlStyle = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use theme colors instead of custom colors
+        /// </summary>
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color")]
+        [Browsable(true)]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                if (_useThemeColors != value)
+                {
+                    _useThemeColors = value;
                     Invalidate();
                 }
             }

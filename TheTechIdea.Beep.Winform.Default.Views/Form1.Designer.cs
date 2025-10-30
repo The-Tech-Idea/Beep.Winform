@@ -170,8 +170,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepMenuBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepMenuBar1.MaxHitListDrawPerFrame = 0;
-            beepMenuBar1.MenuBarStyle = Winform.Controls.Menus.MenuBarStyle.Material;
-            beepMenuBar1.MenuItemHeight = 32;
+           beepMenuBar1.MenuItemHeight = 32;
             beepMenuBar1.MenuItemWidth = 60;
             beepMenuBar1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
             beepMenuBar1.ModernGradientType = ModernGradientType.None;

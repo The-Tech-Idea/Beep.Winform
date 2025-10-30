@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
@@ -154,18 +153,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             _menuItems.Add(separator);
         }
         
-        /// <summary>
-        /// Sets a custom painter
-        /// </summary>
-        public void SetCustomPainter(IContextMenuPainter painter)
-        {
-            if (painter != null)
-            {
-                _contextMenuPainter = painter;
-                RecalculateSize();
-                Invalidate();
-            }
-        }
         
         #endregion
         

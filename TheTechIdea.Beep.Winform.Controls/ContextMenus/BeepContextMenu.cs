@@ -8,20 +8,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers;
-using TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 {
     /// <summary>
-    /// Modern BeepContextMenu implementation using painter methodology
+    /// Modern BeepContextMenu implementation using BeepStyling system
     /// A context menu form with advanced styling and integrated helper architecture
     /// </summary>
     [ToolboxItem(true)]
     [DisplayName("Beep Context Menu")]
     [Category("Beep Controls")]
-    [Description("A modern context menu with advanced styling, painter methodology, and integrated features.")]
+    [Description("A modern context menu with advanced styling using BeepStyling system and integrated features.")]
     public partial class BeepContextMenu : Form
     {
         // All implementation is in partial classes:

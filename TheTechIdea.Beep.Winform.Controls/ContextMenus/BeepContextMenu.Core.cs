@@ -5,9 +5,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers;
-using TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
@@ -42,24 +42,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         internal BeepContextMenuLayoutHelper LayoutHelper => _layoutHelper;
         
-        /// <summary>
-        /// The painter instance (will be recreated when ContextMenuType changes)
-        /// </summary>
-        private IContextMenuPainter _contextMenuPainter;
         
         /// <summary>
-        /// Returns the preferred item height from the active painter, or fallback to default
+        /// Returns the preferred item height
         /// </summary>
         public int PreferredItemHeight
         {
-            get
-            {
-                if (_contextMenuPainter != null)
-                {
-                    try { return _contextMenuPainter.GetPreferredItemHeight(); } catch { }
-                }
-                return _menuItemHeight;
-            }
+            get => _menuItemHeight;
+        }
+
+        /// <summary>
+        /// Gets the effective control style for BeepStyling
+        /// </summary>
+        private BeepControlStyle GetEffectiveControlStyle()
+        {
+            if (_controlStyle != BeepControlStyle.None)
+                return _controlStyle;
+            
+            // Fallback to mapping from FormStyle
+            return BeepStyling.GetControlStyle(_contextMenuType);
         }
 
         #endregion
@@ -68,6 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         // Visual Style
         private FormStyle _contextMenuType = FormStyle.Modern;
+        private BeepControlStyle _controlStyle = BeepControlStyle.None;
+        private bool _useThemeColors = true;
         
         // Menu items
         private BindingList<SimpleItem> _menuItems = new BindingList<SimpleItem>();
@@ -227,18 +230,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         public void SetPainter(FormStyle type)
         {
-            switch (type)
-            {
-                case FormStyle.Modern:
-                    _contextMenuPainter = new ModernContextMenuPainter();
-                    break;
-                case FormStyle.ArcLinux:
-                default:
-                    _contextMenuPainter = new StandardContextMenuPainter();
-                    break;
-
-                    
-            }
+            // Map FormStyle to BeepControlStyle using BeepStyling
+            _controlStyle = BeepStyling.GetControlStyle(type);
             Invalidate();
         }
 

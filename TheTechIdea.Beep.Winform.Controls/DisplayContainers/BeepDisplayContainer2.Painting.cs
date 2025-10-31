@@ -29,42 +29,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// Override OnPaintBackground to handle transparent backgrounds correctly
         /// Uses BitBlt to copy parent's background directly, preventing flicker
         /// </summary>
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            // When transparent, copy parent's background using BitBlt (prevents flicker)
-            if (IsTransparentBackground && Parent != null)
-            {
-                try
-                {
-                    // Get device contexts
-                    IntPtr parentDc = GetDC(Parent.Handle);
-                    IntPtr destDc = e.Graphics.GetHdc();
+        //protected override void OnPaintBackground(PaintEventArgs e)
+        //{
+        //    // When transparent, copy parent's background using BitBlt (prevents flicker)
+        //    if (IsTransparentBackground && Parent != null)
+        //    {
+        //        try
+        //        {
+        //            // Get device contexts
+        //            IntPtr parentDc = GetDC(Parent.Handle);
+        //            IntPtr destDc = e.Graphics.GetHdc();
                     
-                    try
-                    {
-                        // Copy directly from parent's DC to our DC using BitBlt
-                        // This is more efficient than invalidating/updating parent
-                        BitBlt(destDc, 0, 0, Width, Height, parentDc, Left, Top, 0x00CC0020); // SRCCOPY
-                    }
-                    finally
-                    {
-                        e.Graphics.ReleaseHdc(destDc);
-                        ReleaseDC(Parent.Handle, parentDc);
-                    }
-                }
-                catch
-                {
-                    // If BitBlt fails, fall back to skipping background paint
-                }
-                // Don't call base.OnPaintBackground - we've already painted parent's background
-                return;
-            }
+        //            try
+        //            {
+        //                // Copy directly from parent's DC to our DC using BitBlt
+        //                // This is more efficient than invalidating/updating parent
+        //                BitBlt(destDc, 0, 0, Width, Height, parentDc, Left, Top, 0x00CC0020); // SRCCOPY
+        //            }
+        //            finally
+        //            {
+        //                e.Graphics.ReleaseHdc(destDc);
+        //                ReleaseDC(Parent.Handle, parentDc);
+        //            }
+        //        }
+        //        catch
+        //        {
+        //            // If BitBlt fails, fall back to skipping background paint
+        //        }
+        //        // Don't call base.OnPaintBackground - we've already painted parent's background
+        //        return;
+        //    }
             
-            // For non-transparent mode, use normal background painting
-            base.OnPaintBackground(e);
-        }
+        //    // For non-transparent mode, use normal background painting
+        //    base.OnPaintBackground(e);
+        //}
         
-        //private const int WM_PAINT = 0x000F;
+        ////private const int WM_PAINT = 0x000F;
         //private const int WM_NCPAINT = 0x0085;
         
         //protected override void WndProc(ref Message m)
@@ -90,8 +90,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // This prevents g.Clear(BackColor) from filling the background
             if (IsTransparentBackground)
             {
-                e.Graphics.Clear(Color.Transparent);
-                base.OnPaintBackground(e);
+               // e.Graphics.Clear(Color.Transparent);
+               // base.OnPaintBackground(e);
                 // In Tabbed mode, draw tabs only (tab area background is transparent, tabs have opaque backgrounds)
                 if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
                 {

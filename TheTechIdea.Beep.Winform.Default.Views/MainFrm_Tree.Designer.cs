@@ -469,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepMenuAppBar1
             // 
-            beepMenuAppBar1.ActiveMenuButton = null;
+           
             beepMenuAppBar1.AnimationDuration = 500;
             beepMenuAppBar1.AnimationType = Vis.Modules.DisplayAnimationType.None;
             beepMenuAppBar1.ApplyThemeToChilds = true;

@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
             CancelbeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
             SavebeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
-            MainTemplatePanel.SuspendLayout();
+            //MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).BeginInit();
             beepPanel1.SuspendLayout();
             beepTabs1.SuspendLayout();
@@ -60,8 +60,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             // 
             // MainTemplatePanel
             // 
-            MainTemplatePanel.Controls.Add(beepPanel1);
-            MainTemplatePanel.Size = new Size(636, 723);
+            //MainTemplatePanel.Controls.Add(beepPanel1);
+            //MainTemplatePanel.Size = new Size(636, 723);
             // 
             // dataConnectionViewModelBindingSource
             // 
@@ -218,8 +218,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepPanel1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 0;
-            beepPanel1.Tag = MainTemplatePanel;
-            
+          
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Arial", 16F);
             beepPanel1.Theme = "DefaultType";
@@ -1376,7 +1375,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_DataConnectionBase";
             Size = new Size(636, 723);
-            MainTemplatePanel.ResumeLayout(false);
+            //MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).EndInit();
             beepPanel1.ResumeLayout(false);
             beepTabs1.ResumeLayout(false);

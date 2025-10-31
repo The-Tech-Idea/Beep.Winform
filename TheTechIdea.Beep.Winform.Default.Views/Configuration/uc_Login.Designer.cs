@@ -36,15 +36,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1 = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             beepLogin1 = new TheTechIdea.Beep.Winform.Controls.BeepLogin();
             CancelbeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
-            MainTemplatePanel.SuspendLayout();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_Login
             // 
-            MainTemplatePanel.Controls.Add(CancelbeepButton);
-            MainTemplatePanel.Controls.Add(beepLogin1);
-            MainTemplatePanel.Controls.Add(beepLabel1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
+            Controls.Add(CancelbeepButton);
+            Controls.Add(beepLogin1);
+            Controls.Add(beepLabel1);
             // 
             // beepLabel1
             // 
@@ -207,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             beepLabel1.SubHeaderText = "Sub";
             beepLabel1.TabIndex = 0;
-            beepLabel1.Tag = MainTemplatePanel;
+         
             beepLabel1.TempBackColor = Color.Empty;
             beepLabel1.Text = "Company Name";
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
@@ -351,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLogin1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepLogin1.StaticNotMoving = false;
             beepLogin1.TabIndex = 1;
-            beepLogin1.Tag = MainTemplatePanel;
+         
             beepLogin1.TempBackColor = Color.Empty;
             beepLogin1.Theme = "DefaultType";
             beepLogin1.ToolTipText = "";
@@ -543,7 +541,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.StaticNotMoving = false;
 
             CancelbeepButton.TabIndex = 2;
-            CancelbeepButton.Tag = MainTemplatePanel;
+          
             CancelbeepButton.TempBackColor = Color.Empty;
             CancelbeepButton.Text = "Cancel";
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -566,7 +564,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_Login";
-            MainTemplatePanel.ResumeLayout(false);
             ResumeLayout(false);
         }
 

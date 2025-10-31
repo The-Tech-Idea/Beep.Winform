@@ -269,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                Font = _textFont;
+                
             }
 
             beepImage.Theme = Theme;

@@ -22,9 +22,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
             g.FillPath(bgBrush, path);
 
-            // Subtle top highlight for material elevation
+            // Subtle elevation tint from top (Material surface depth)
             RectangleF bounds = path.GetBounds();
-            Color highlight = Color.FromArgb(15,255,255,255);
+            Color highlight = Color.FromArgb(14,0,0,0);
             var highlightBrush = PaintersFactory.GetSolidBrush(highlight);
             using (var highlightRegion = new Region(path))
             {

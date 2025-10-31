@@ -53,9 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
 
-            // Return the area inside the border
-                // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+            // Return the area inside the border using shape-aware inset by half width
+            return path.CreateInsetPath(borderWidth / 2f);
         }
     }
 }

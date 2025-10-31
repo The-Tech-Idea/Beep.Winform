@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             "Atkinson Hyperlegible", // Braille Institute font
             "Comic Sans MS",      // Surprisingly dyslexia-friendly
             "Verdana",            // High readability fallback
-            "Arial"               // Universal fallback
+            "Segoe UI"               // Universal fallback
         };
 
         #endregion
@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                 }
             }
 
-            return new Font("Arial", fontSize, fontStyle, GraphicsUnit.Point);
+            return new Font("Segoe UI", fontSize, fontStyle, GraphicsUnit.Point);
         }
 
         private static Font GetDyslexiaFriendlyFont(int height)

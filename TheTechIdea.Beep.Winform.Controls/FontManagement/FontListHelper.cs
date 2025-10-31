@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -23,6 +24,23 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         // A simple incremental index
         private static int index = -1;
+
+        // Tracks whether fonts were initialized to allow safe app-start calls
+        private static bool _fontsLoaded = false;
+        private static readonly object _initLock = new object();
+
+        /// <summary>
+        /// Ensures scanning is performed once even if callers forget to call EnsureFontsLoaded.
+        /// </summary>
+        private static void EnsureInitialized()
+        {
+            if (_fontsLoaded) return;
+            lock (_initLock)
+            {
+                if (_fontsLoaded) return;
+                try { EnsureFontsLoaded(null, false); } catch { }
+            }
+        }
 
         // Cache created fonts to reduce allocations - but track if they're still valid
         private static readonly Dictionary<string, WeakReference<Font>> fontCache = new(StringComparer.OrdinalIgnoreCase);
@@ -381,10 +399,93 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 MaxReferenceDepth = options.MaxReferenceDepth
             };
             GetFontResourcesFromEmbedded(emb);
+
+            // BeepFontPaths-driven embedded fonts (explicit, reliable enumeration)
+            try { LoadFontsFromBeepFontPaths(); } catch { /* ignore */ }
+        }
+
+        /// <summary>
+        /// Ensures fonts are loaded once. Call this at app startup.
+        /// Pass forceReload=true to rescan sources.
+        /// </summary>
+        public static void EnsureFontsLoaded(FontScanOptions options = null, bool forceReload = false)
+        {
+            if (!forceReload && _fontsLoaded)
+                return;
+
+            LoadAllFonts(options);
+            _fontsLoaded = true;
         }
         #endregion
 
         #region "Font Access Methods"
+        /// <summary>
+        /// Loads embedded fonts declared in BeepFontPaths into the private collection and FontConfigurations.
+        /// Ensures all Beep-provided fonts are available for GetFont lookups.
+        /// </summary>
+        private static void LoadFontsFromBeepFontPaths()
+        {
+            try
+            {
+                var resources = BeepFontPaths.GetAvailableFontResources();
+                if (resources == null || resources.Length == 0)
+                    return;
+
+                foreach (var res in resources)
+                {
+                    // Skip if already added (by path+assembly match)
+                    bool alreadyInList = FontConfigurations.Any(
+                        cfg => string.Equals(cfg.Path, res, StringComparison.OrdinalIgnoreCase)
+                               && string.Equals(cfg.AssemblyFullName, BeepFontPaths.ResourceAssembly.FullName, StringComparison.OrdinalIgnoreCase));
+                    if (alreadyInList)
+                        continue;
+
+                    using (var s = BeepFontPaths.ResourceAssembly.GetManifestResourceStream(res))
+                    {
+                        if (s == null)
+                            continue;
+                        var fontData = new byte[s.Length];
+                        s.Read(fontData, 0, fontData.Length);
+                        var ptr = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
+                        try
+                        {
+                            System.Runtime.InteropServices.Marshal.Copy(fontData, 0, ptr, fontData.Length);
+                            privateFontCollection.AddMemoryFont(ptr, fontData.Length);
+                        }
+                        finally
+                        {
+                            System.Runtime.InteropServices.Marshal.FreeCoTaskMem(ptr);
+                        }
+
+                        // Use the last-added family for metadata
+                        int lastIndex = privateFontCollection.Families.Length - 1;
+                        var family = lastIndex >= 0 ? privateFontCollection.Families[lastIndex] : null;
+                        string fontName = family?.Name ?? BeepFontPaths.ExtractFontNameFromPath(res);
+
+                        var config = new FontConfiguration
+                        {
+                            Index = ++index,
+                            Name = fontName,
+                            Path = res,
+                            FileName = System.IO.Path.GetFileName(res),
+                            IsSystemFont = false,
+                            IsPrivateFont = true,
+                            IsEmbeddedResource = true,
+                            AssemblyFullName = BeepFontPaths.ResourceAssembly.FullName,
+                            AssemblyLocation = SafeGetAssemblyLocation(BeepFontPaths.ResourceAssembly),
+                            PrivateFontIndex = lastIndex,
+                            StylesAvailable = family != null ? GetAvailableStyles(family) : new List<FontStyle>()
+                        };
+
+                        FontConfigurations.Add(config);
+                    }
+                }
+            }
+            catch
+            {
+                // ignore and continue; other loaders cover most cases
+            }
+        }
         /// <summary>
         /// Creates a Font from a TypographyStyle object with null handling
         /// </summary>
@@ -392,6 +493,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// <returns>A Font object created from the Style, or a default font if Style is null</returns>
         public static Font CreateFontFromTypography(TypographyStyle style)
         {
+            EnsureInitialized();
             if (style == null)
             {
                 // Return default font if Style is null
@@ -416,7 +518,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             // Get the font with fallback
             return GetFontWithFallback(
                 style.FontFamily,
-                "Arial",
+                "Segoe UI",
                 style.FontSize,
                 fontStyle
             );
@@ -427,24 +529,30 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
+            EnsureInitialized();
             if (string.IsNullOrWhiteSpace(fontName))
             {
                 return GetOrCreateFont("Arial|" + size + "|" + (int)style, 
-                    () => new Font("Arial", size, style));
+                    () => CreateValidFont("Arial", size, style));
             }
 
             string cacheKey = $"{fontName}|{size}|{(int)style}";
             
             return GetOrCreateFont(cacheKey, () =>
             {
+                // Normalize known aliases (e.g., "segoeui" -> "Segoe UI")
+                var normalized = NormalizeFontName(fontName);
+                if (normalized == "segoeui" || normalized == "segoe")
+                    fontName = "Segoe UI";
+
                 // Try exact configuration match
                 var fontConfig = FontConfigurations.FirstOrDefault(
                     f => f.Name.Equals(fontName, StringComparison.OrdinalIgnoreCase));
 
-                // For system fonts, create from name
+                // For system fonts, create from name directly (most reliable)
                 if (fontConfig != null && fontConfig.IsSystemFont)
                 {
-                    return new Font(fontName, size, style);
+                    return CreateValidFont(fontName, size, style);
                 }
                 
                 // For private fonts, try by stored index, else by name lookup in private collection
@@ -455,7 +563,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                         var fam = privateFontCollection.Families[fontConfig.PrivateFontIndex];
                         if (fam != null)
                         {
-                            return new Font(fam, size, style);
+                            return CreateValidFont(fam, size, style);
                         }
                     }
 
@@ -463,7 +571,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     var pfam = FindPrivateFamilyByName(fontName);
                     if (pfam != null)
                     {
-                        return new Font(pfam, size, style);
+                        return CreateValidFont(pfam, size, style);
                     }
                 }
 
@@ -474,24 +582,26 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     // system or private
                     if (alt.IsSystemFont)
                     {
-                        return new Font(alt.Name, size, style);
+                        return CreateValidFont(alt.Name, size, style);
                     }
                     var pfam2 = FindPrivateFamilyByName(alt.Name);
                     if (pfam2 != null)
                     {
-                        return new Font(pfam2, size, style);
+                        return CreateValidFont(pfam2, size, style);
                     }
                 }
 
+                // Try resolving directly from the system font families on-demand
+                var systemFamily = TryResolveSystemFamily(fontName);
+                if (systemFamily != null)
+                {
+                    return CreateValidFont(systemFamily, size, style);
+                }
+
                 // Fallback: Try Arial, then GenericSansSerif
-                try
-                {
-                    return new Font("Arial", size, style);
-                }
-                catch
-                {
-                    return new Font(FontFamily.GenericSansSerif, size, style);
-                }
+                return CreateValidFont("Arial", size, style) ?? 
+                       CreateValidFont(FontFamily.GenericSansSerif, size, style) ??
+                       CreateValidFont("Segoe UI", size, style);
             });
         }
 
@@ -514,6 +624,104 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     return fam;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Tries to find a system-installed font family by name without relying on prior scans.
+        /// </summary>
+        private static FontFamily TryResolveSystemFamily(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+            try
+            {
+                using (var installed = new InstalledFontCollection())
+                {
+                    var target = NormalizeFontName(name);
+                    foreach (var fam in installed.Families)
+                    {
+                        if (NormalizeFontName(fam.Name) == target)
+                            return fam;
+                    }
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        /// <summary>
+        /// Creates a font with validation and fallback handling
+        /// </summary>
+        private static Font CreateValidFont(string fontName, float size, FontStyle style)
+        {
+            try
+            {
+                var font = new Font(fontName, size, style);
+                // Test that the font is fully accessible by accessing all key properties
+                var _ = font.Size;
+                var __ = font.Name;
+                var ___ = font.Height; // This is what was failing - test it here
+                var ____ = font.FontFamily.Name;
+                return font;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Creates a font with validation and fallback handling using FontFamily
+        /// </summary>
+        private static Font CreateValidFont(FontFamily family, float size, FontStyle style)
+        {
+            try
+            {
+                var font = new Font(family, size, style);
+                // Test that the font is fully accessible by accessing all key properties
+                var _ = font.Size;
+                var __ = font.Name;
+                var ___ = font.Height; // This is what was failing - test it here
+                var ____ = font.FontFamily.Name;
+                return font;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Determines if a font is usable for drawing by measuring text height.
+        /// Avoids accessing Font.Height which can throw for some private fonts.
+        /// </summary>
+        private static bool IsFontUsable(Font font)
+        {
+            try
+            {
+                if (font == null) return false;
+                var size = TextRenderer.MeasureText("Ag", font, new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                return size.Height > 0 && size.Width > 0;
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Public helper to get a safe font height without throwing.
+        /// </summary>
+        public static int GetFontHeightSafe(Font font, Control context = null)
+        {
+            try
+            {
+                if (font != null)
+                {
+                    var sz = TextRenderer.MeasureText("Ag", font, new Size(int.MaxValue, int.MaxValue),
+                        TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                    if (sz.Height > 0) return sz.Height;
+                }
+            }
+            catch { }
+            try { return context?.Font?.Height ?? SystemFonts.DefaultFont.Height; } catch { return 12; }
         }
 
         /// <summary>
@@ -571,34 +779,46 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static Font GetFontWithFallback(string primaryFontName, string fallbackFontName, float size, FontStyle style = FontStyle.Regular)
         {
+            EnsureInitialized();
             // Try to get the primary font
             Font primaryFont = GetFont(primaryFontName, size, style);
             if (primaryFont != null)
-                return primaryFont;
-
-            // If primary font not found, try the fallback font
-            Font fallbackFont = GetFont(fallbackFontName, size, style);
-            if (fallbackFont != null)
-                return fallbackFont;
-
-            // If fallback also fails, use generic sans serif
-            try
             {
-                return new Font(FontFamily.GenericSansSerif, size, style);
-            }
-            catch
-            {
-                // Last resort: try with Arial which is commonly available
                 try
                 {
-                    return new Font("Arial", size, style);
+                    // Validate the font by accessing properties
+                    var _ = primaryFont.Size;
+                    var __ = primaryFont.Name;
+                    return primaryFont;
                 }
                 catch
                 {
-                    // If all else fails, return null
-                    return null;
+                    primaryFont?.Dispose();
                 }
             }
+
+            // If primary font not found or invalid, try the fallback font
+            Font fallbackFont = GetFont(fallbackFontName, size, style);
+            if (fallbackFont != null)
+            {
+                try
+                {
+                    // Validate the font by accessing properties
+                    var _ = fallbackFont.Size;
+                    var __ = fallbackFont.Name;
+                    return fallbackFont;
+                }
+                catch
+                {
+                    fallbackFont?.Dispose();
+                }
+            }
+
+            // If fallback also fails, try multiple fallback options
+            return CreateValidFont("Segoe UI", size, style) ??
+                   CreateValidFont("Arial", size, style) ??
+                   CreateValidFont(FontFamily.GenericSansSerif, size, style) ??
+                   CreateValidFont("Microsoft Sans Serif", size, style);
         }
 
         /// <summary>
@@ -616,8 +836,9 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                         // Validate the font is still usable
                         try
                         {
-                            // Test if font is valid by accessing a property
+                            // Test if font is valid by accessing properties
                             var _ = cachedFont.Size;
+                            var __ = cachedFont.Name;
                             return cachedFont;
                         }
                         catch
@@ -643,6 +864,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                         try
                         {
                             var _ = newFont.Size; // Test if valid
+                            var __ = newFont.Name; // Test if valid
                             fontCache[cacheKey] = new WeakReference<Font>(newFont);
                             return newFont;
                         }
@@ -668,22 +890,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         private static Font GetUltimateFallbackFont()
         {
-            try
-            {
-                return new Font(FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
-            }
-            catch
-            {
-                try
-                {
-                    return SystemFonts.DefaultFont;
-                }
-                catch
-                {
-                    // Absolute last resort - this should never fail
-                    return new Font("Arial", 9f);
-                }
-            }
+            return CreateValidFont("Segoe UI", 9f, FontStyle.Regular) ??
+                   CreateValidFont(FontFamily.GenericSansSerif, 9f, FontStyle.Regular) ??
+                   CreateValidFont("Arial", 9f, FontStyle.Regular) ??
+                   CreateValidFont("Microsoft Sans Serif", 9f, FontStyle.Regular) ??
+                   SystemFonts.DefaultFont;
         }
         #endregion
     }

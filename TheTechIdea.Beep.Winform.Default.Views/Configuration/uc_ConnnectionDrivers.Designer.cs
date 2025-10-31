@@ -64,15 +64,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig27 = new BeepColumnConfig();
             driversConfigViewModelBindingSource = new BindingSource(components);
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
-            MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_ConnnectionDrivers
             // 
-            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.Size = new Size(1154, 724);
+            Controls.Add(beepSimpleGrid1);
             // 
             // driversConfigViewModelBindingSource
             // 
@@ -1498,7 +1495,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
-            beepSimpleGrid1.Tag = MainTemplatePanel;
+           
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
@@ -1522,7 +1519,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_ConnnectionDrivers";
             Size = new Size(1154, 724);
-            MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }

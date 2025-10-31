@@ -7,13 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
 {
-    public partial class Form2 : Form
+    [AddinAttribute(Caption = "Home", Name = "Form2", misc = "Form2", menu = "Form2", addinType = AddinType.Page, displayType = DisplayType.Popup, ObjectType = "Beep")]
+    public partial class Form2 : TemplateForm
     {
         public Form2()
         {
+            this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
         }
     }

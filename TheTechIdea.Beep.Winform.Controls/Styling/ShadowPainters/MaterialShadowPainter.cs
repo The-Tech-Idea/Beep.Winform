@@ -59,8 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     break;
 
                 default: // Normal
-                    // Material default: 2dp elevation
-                    remainingPath = ShadowPainterHelpers.PaintMaterialShadow(g, path, radius, elevation);
+                    // Material default: 2dp elevation (matches MaterialFormPainter)
+                    remainingPath = ShadowPainterHelpers.PaintMaterialShadow(g, path, radius, MaterialElevation.Level2);
                     break;
             }
 

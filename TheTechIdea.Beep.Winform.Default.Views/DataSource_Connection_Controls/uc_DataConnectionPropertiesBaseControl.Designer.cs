@@ -30,15 +30,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         {
             beepTabs1 = new TheTechIdea.Beep.Winform.Controls.BeepTabs();
             ConnectionPropertytabPage = new TabPage();
-            MainTemplatePanel.SuspendLayout();
+            //MainTemplatePanel.SuspendLayout();
             beepTabs1.SuspendLayout();
             SuspendLayout();
             // 
             // MainTemplatePanel
             // 
-            MainTemplatePanel.Controls.Add(beepTabs1);
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 547, 669);
-            MainTemplatePanel.Size = new Size(547, 669);
+            //MainTemplatePanel.Controls.Add(beepTabs1);
+            //MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 547, 669);
+            //MainTemplatePanel.Size = new Size(547, 669);
             // 
             // beepTabs1
             // 
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_DataConnectionPropertiesBaseControl";
             Size = new Size(547, 669);
-            MainTemplatePanel.ResumeLayout(false);
+            //MainTemplatePanel.ResumeLayout(false);
             beepTabs1.ResumeLayout(false);
             ResumeLayout(false);
         }

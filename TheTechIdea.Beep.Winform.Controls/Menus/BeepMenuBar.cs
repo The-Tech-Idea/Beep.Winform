@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
  
 using TheTechIdea.Beep.Vis.Modules;
@@ -24,12 +25,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
 
-        // Drawing components instead of actual controls
-        private BeepButton _menuButton;  // Single reusable button for drawing
-        private BeepImage _menuImage;    // Single reusable image for drawing
-        private BeepLabel _menuLabel;    // Single reusable label for drawing
-
-        public BeepButton CurrenItemButton { get; private set; }
+        // Remove these as they are unused or no longer needed:
+        // private BeepButton _menuButton;
+        // private BeepImage _menuImage;
+        // private BeepLabel _menuLabel;
+        // public BeepButton CurrenItemButton { get; private set; }
         private string _hoveredMenuItemName; // Track currently hovered menu item
 
         // Constants - framework handles DPI scaling
@@ -46,25 +46,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _menuItemHeight = 32; // Increased from 20 to 32 to accommodate text at higher DPI
         private Size ButtonSize = new Size(60, 32); // Match MenuItemHeight
 
-        private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
-        private bool childmenusisopen = false;
-
-        public BeepPopupForm ActivePopupForm { get; private set; }
-        private BeepButton _activeMenuButton;
-        public BeepButton ActiveMenuButton
-        {
-            get => _activeMenuButton;
-            set
-            {
-                if (_activeMenuButton != value)
-                {
-                    _activeMenuButton = value;
-                }
-            }
-        }
-
+    
         #region "Properties"
-        private Font _textFont = new Font("Arial", 10);
+        private Font _textFont = new Font("Segoe UI", 8.5f); // Smaller font size suitable for menu items
+        private bool _explicitTextFont = false; // track developer-assigned font to avoid theme/style font resizing
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -75,49 +60,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-                // Validate font before setting
-                if (IsValidFont(value))
-                {
+  
                     _textFont = value;
                     UseThemeFont = false;
+                    _explicitTextFont = true;
                     Invalidate();
-                }
-                else
-                {
-                    // Use safe fallback font
-                    _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-                    UseThemeFont = false;
-                    System.Diagnostics.Debug.WriteLine($"Invalid font provided to BeepMenuBar, using fallback: Segoe UI");
-                    Invalidate();
-                }
+                
+               
             }
         }
 
-        /// <summary>
-        /// Validates if a font is safe to use for drawing operations
-        /// </summary>
-        private bool IsValidFont(Font font)
-        {
-            if (font == null) return false;
-            
-            try
-            {
-                // Test if font properties are accessible
-                var height = font.Height;
-                var name = font.Name;
-                var size = font.Size;
-                
-                // Basic validation checks
-                return height > 0 && 
-                       !string.IsNullOrEmpty(name) && 
-                       size > 0 && 
-                       size <= 72; // Reasonable font size limit
-            }
-            catch
-            {
-                return false;
-            }
-        }
+      
 
         [Browsable(true)]
         [Localizable(true)]
@@ -235,7 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
-                Height = ScaledMenuItemHeight + 2; // Framework handles DPI scaling
+                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
+                Height = ScaledMenuItemHeight + verticalBuffer; // Framework handles DPI scaling
             }
 
             ApplyThemeToChilds = true;
@@ -243,6 +197,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = true;
             IsRounded = false;
             IsChild = false;
+            // Ensure the bar itself does NOT use style chrome (border/shadow) sizing
+            UseFormStylePaint = false;
+            // Do not let theme/style override our font unless developer explicitly sets TextFont
+            UseThemeFont = false;
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
@@ -252,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeSelected = false;
             CanBePressed = false;
             CanBeHovered = false;
-            ListForms = new LinkedList<MenuitemTracking>();
+          
 
             // Initialize BeepStyling system
             // No initialization needed - BeepStyling is static
@@ -263,60 +221,67 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateMenuItemHeightForFont();
 
             RefreshHitAreas();
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+           SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             BackColor = Color.Transparent;
         }
 
-        protected override Size DefaultSize => new Size(200, ScaledMenuItemHeight + 2); // Framework handles DPI scaling
+        protected override Size DefaultSize
+        {
+            get
+            {
+                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
+                return new Size(200, ScaledMenuItemHeight + verticalBuffer); // Framework handles DPI scaling
+            }
+        }
 
         private void InitializeDrawingComponents()
         {
             // Initialize single reusable drawing components
-            _menuButton = new BeepButton
-            {
-                IsFrameless = true,
-                ApplyThemeOnImage = false,
-                ApplyThemeToChilds = false,
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                IsRoundedAffectedByTheme = false,
-                UseGradientBackground = false,
-                IsChild = true,
-                ShowAllBorders = false,
-                IsRounded = false,
-                TextFont = _textFont,
-                UseThemeFont = false,
-                ImageAlign = ContentAlignment.MiddleLeft,
-                TextAlign = ContentAlignment.MiddleCenter,
-                MaxImageSize = new Size(ScaledImageSize, ScaledImageSize)
-            };
+            // _menuButton = new BeepButton
+            // {
+            //     IsFrameless = true,
+            //     ApplyThemeOnImage = false,
+            //     ApplyThemeToChilds = false,
+            //     IsShadowAffectedByTheme = false,
+            //     IsBorderAffectedByTheme = false,
+            //     IsRoundedAffectedByTheme = false,
+            //     UseGradientBackground = false,
+            //     IsChild = true,
+            //     ShowAllBorders = false,
+            //     IsRounded = false,
+            //     TextFont = _textFont,
+            //     UseThemeFont = false,
+            //     ImageAlign = ContentAlignment.MiddleLeft,
+            //     TextAlign = ContentAlignment.MiddleCenter,
+            //     MaxImageSize = new Size(ScaledImageSize, ScaledImageSize)
+            // };
 
-            _menuImage = new BeepImage
-            {
-                IsChild = true,
-                ApplyThemeOnImage = false,
-                IsFrameless = true,
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                ImageEmbededin = ImageEmbededin.MenuBar,
-                Size = new Size(ScaledImageSize, ScaledImageSize)
-            };
+            // _menuImage = new BeepImage
+            // {
+            //     IsChild = true,
+            //     ApplyThemeOnImage = false,
+            //     IsFrameless = true,
+            //     IsShadowAffectedByTheme = false,
+            //     IsBorderAffectedByTheme = false,
+            //     ShowAllBorders = false,
+            //     ShowShadow = false,
+            //     ImageEmbededin = ImageEmbededin.MenuBar,
+            //     Size = new Size(ScaledImageSize, ScaledImageSize)
+            // };
 
-            _menuLabel = new BeepLabel
-            {
-                TextAlign = ContentAlignment.MiddleLeft,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                IsFrameless = true,
-                ShowAllBorders = false,
-                IsChild = true,
-                ApplyThemeOnImage = false,
-                UseScaledFont = true,
-                TextFont = _textFont
-            };
+            // _menuLabel = new BeepLabel
+            // {
+            //     TextAlign = ContentAlignment.MiddleLeft,
+            //     TextImageRelation = TextImageRelation.ImageBeforeText,
+            //     IsBorderAffectedByTheme = false,
+            //     IsShadowAffectedByTheme = false,
+            //     IsFrameless = true,
+            //     ShowAllBorders = false,
+            //     IsChild = true,
+            //     ApplyThemeOnImage = false,
+            //     UseScaledFont = true,
+            //     TextFont = _textFont
+            // };
         }
         #endregion "Constructor and Initialization"
 
@@ -370,8 +335,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Framework handles DPI scaling
             int gapBetweenButtons = 5;
             int startX = 5;
-            int buttonTop = (Height - ScaledMenuItemHeight) / 2;
-            if (buttonTop < 0) buttonTop = 1;
+            
+            // Only update font if UseThemeFont is true AND developer hasn't explicitly set it
+            // This prevents font changes when FormStyle changes
+            if (UseThemeFont && !_explicitTextFont)
+            {
+                if (_currentTheme?.MenuItemUnSelectedFont != null)
+                {
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
+                }
+                else if (_currentTheme?.LabelFont != null)
+                {
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
+                }
+            }
+
+            // Compute content height from font to ensure text fits (avoid Font.Height exceptions)
+            int fontHeight = GetFontHeightSafe(_textFont, this);
+            int contentPadding = 8; // 4 top + 4 bottom
+            // DO NOT include style-specific padding - menu bar itself doesn't use style chrome
+            // Style padding is only for the individual menu items, not the bar height
+            int contentHeight = Math.Max(ScaledMenuItemHeight, fontHeight + contentPadding);
+
+            // The menu bar itself should not grow with style; use fixed content height
+            int outerItemHeight = contentHeight;
+
+            // Add vertical buffer (padding) above and below menu items for better visual spacing
+            int verticalBuffer = 6; // 6 pixels top + 6 pixels bottom = 12 total vertical buffer for more breathing room
+            int buttonTop = (Height - outerItemHeight) / 2;
+            if (buttonTop < 0) buttonTop = verticalBuffer;
+            else buttonTop = Math.Max(buttonTop, verticalBuffer); // Ensure minimum top buffer
 
             int currentX = startX;
 
@@ -380,20 +373,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (item == null) continue;
 
                 // Calculate preferred width for this menu item
-                int preferredWidth = CalculateMenuItemWidth(item);
+                int preferredWidth = CalculateMenuItemWidth(item); // content width (text+image+padding inside)
+                int outerItemWidth = preferredWidth; // do not add style chrome to overall width
 
                 var rect = new Rectangle(
                     currentX,
                     buttonTop,
-                    preferredWidth,
-                    ScaledMenuItemHeight
+                    outerItemWidth,
+                    outerItemHeight
                 );
 
                 rects.Add(rect);
-                currentX += preferredWidth + gapBetweenButtons;
+                currentX += outerItemWidth + gapBetweenButtons;
             }
 
             return rects;
+        }
+
+        private static int GetFontHeightSafe(Font font, Control context)
+        {
+            try
+            {
+                if (font == null)
+                    return context?.Font?.Height ?? SystemFonts.DefaultFont.Height;
+                // Use TextRenderer which is resilient and device-aware
+                var sz = TextRenderer.MeasureText("Ag", font, new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                return Math.Max(1, sz.Height);
+            }
+            catch
+            {
+                try { return context?.Font?.Height ?? SystemFonts.DefaultFont.Height; } catch { return 12; }
+            }
         }
 
         private int CalculateMenuItemWidth(SimpleItem item)
@@ -404,17 +415,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             int textWidth = 0;
             if (!string.IsNullOrEmpty(item.Text))
             {
-                // Use TextRenderer.MeasureText overload that doesn't require Graphics
-                // This is safer as it works during initialization and doesn't require a Windows handle
-                var textSize = TextRenderer.MeasureText(item.Text, _textFont);
+                // Measure single-line text tightly without extra padding
+                var flags = TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding;
+                // Provide a very large constraint to get ideal width
+                var textSize = TextRenderer.MeasureText(item.Text, _textFont, new Size(int.MaxValue, int.MaxValue), flags);
                 textWidth = textSize.Width;
             }
 
             // Add space for image if present - framework handles DPI scaling
             int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + 4 : 0;
 
-            // Add padding - framework handles DPI scaling
-            int totalWidth = textWidth + imageWidth + 10; // 10 pixels padding
+            // Add internal content padding: fixed + style spacing padding
+            int stylePad = Styling.Spacing.StyleSpacing.GetPadding(ControlStyle);
+            int internalPad = 10 + (stylePad * 2);
+            int totalWidth = textWidth + imageWidth + internalPad;
 
             return Math.Max(totalWidth, 60); // Minimum width
         }
@@ -440,11 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            if (ActiveMenuButton != null)
-            {
-                ActiveMenuButton.IsSelected = false;
-                ActiveMenuButton.ClosePopup();
-            }
+           
         }
 
         private void ShowMenuItemPopup(SimpleItem item, int index)
@@ -550,52 +560,47 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             try
             {
-                // Get effective control style
-                var effectiveStyle = GetEffectiveControlStyle();
+                // Get effective control style and theme
+             
                 var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
 
                 // Create GraphicsPath for the menu item
-                var itemPath = BeepStyling.CreateControlStylePath(rect, effectiveStyle);
+                var itemPath = BeepStyling.CreateControlStylePath(rect, ControlStyle);
+                if (itemPath == null) return;
 
                 // Determine item state
                 var itemState = ControlState.Normal;
                 if (isSelected) itemState = ControlState.Selected;
                 else if (isHovered) itemState = ControlState.Hovered;
 
-                // Paint menu item background using BeepStyling - this gives it proper button-like appearance
+                // Paint control using BeepStyling (shadow → border → background). Returns content path
                 var contentPath = BeepStyling.PaintControl(
-                    g, 
-                    itemPath, 
-                    effectiveStyle, 
-                    theme, 
-                    UseThemeColors, 
+                    g,
+                    itemPath,
+                    ControlStyle,
+                    theme,
+                    UseThemeColors,
                     itemState,
-                    false // Not transparent background - this fixes the transparency issue
+                    false
                 );
 
-                // Draw menu item content
+                // Draw image and text within returned content area
                 if (contentPath != null)
                 {
-                    DrawMenuItemContent(g, item, rect, effectiveStyle, theme, contentPath);
+                    DrawMenuItemContent(g, item, rect, ControlStyle, theme, contentPath);
                     contentPath.Dispose();
                 }
 
                 itemPath.Dispose();
             }
-            catch (ArgumentException ex)
-            {
-                // Fallback to basic drawing if style causes parameter validation errors
-                System.Diagnostics.Debug.WriteLine($"MenuBar style error: {ex.Message}, falling back to basic drawing");
-                DrawMenuItemFallback(g, item, rect, isHovered, isSelected);
-            }
             catch (Exception ex)
             {
-                // Handle any other drawing errors gracefully
                 System.Diagnostics.Debug.WriteLine($"MenuBar drawing error: {ex.Message}");
                 DrawMenuItemFallback(g, item, rect, isHovered, isSelected);
             }
         }
 
+       
         /// <summary>
         /// Fallback drawing method when BeepStyling fails
         /// </summary>
@@ -610,70 +615,58 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.DrawRectangle(pen, rect);
             pen.Dispose();
 
-            // Draw text with safe font
-            var textBrush = new SolidBrush(Color.Black);
-            var format = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center,
-                Trimming = StringTrimming.EllipsisCharacter
-            };
-            
-            // Use safe font for fallback drawing too
-            var safeFont = GetSafeFont(_textFont);
-            g.DrawString(item.Text ?? "", safeFont, textBrush, rect, format);
-            textBrush.Dispose();
+            // Add vertical buffer (padding) inside menu item for better spacing
+            int verticalPadding = 6; // 6 pixels top and bottom for more breathing room
+            Rectangle paddedRect = new Rectangle(
+                rect.X,
+                rect.Y + verticalPadding,
+                rect.Width,
+                rect.Height - (verticalPadding * 2)
+            );
+
+            // Draw text with safe font using TextRenderer (avoids Font.Height exceptions)
+            var safeFont = _textFont;
+            TextRenderer.DrawText(g, item.Text ?? "", safeFont, paddedRect,_currentTheme.MenuItemForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
         }
 
-        /// <summary>
-        /// Gets the effective control style for BeepStyling
-        /// </summary>
-        private BeepControlStyle GetEffectiveControlStyle()
-        {
-            if (ControlStyle != BeepControlStyle.None)
-            {
-                // Validate that the style is appropriate for menu items
-                if (IsValidMenuBarStyle(ControlStyle))
-                    return ControlStyle;
-            }
-            
-            // Default to Material3 for menu bars
-            return BeepControlStyle.Material3;
-        }
+       
 
-        /// <summary>
-        /// Validates if a control style is appropriate for menu bar items
-        /// </summary>
-        private bool IsValidMenuBarStyle(BeepControlStyle style)
-        {
-            // Some styles might not work well with menu items due to their specific requirements
-            switch (style)
-            {
-                case BeepControlStyle.None:
-                case BeepControlStyle.Terminal: // Terminal style might not work well
-                case BeepControlStyle.Metro: // Metro might have issues
-                    return false;
-                default:
-                    return true;
-            }
-        }
+        
 
         /// <summary>
         /// Draws the content of a menu item (text, image, etc.)
         /// </summary>
         private void DrawMenuItemContent(Graphics g, SimpleItem item, Rectangle rect, BeepControlStyle style, IBeepTheme theme, GraphicsPath contentPath)
         {
-            // Calculate layout areas
-            int imageAreaWidth = !string.IsNullOrEmpty(item.ImagePath) ? _imagesize + 8 : 0;
-            int textStartX = rect.X + 8 + imageAreaWidth;
-            int textWidth = rect.Width - 16 - imageAreaWidth;
+            // Use content path bounds for layout to avoid drawing into chrome (border/shadow)
+            Rectangle contentRect = rect;
+            if (contentPath != null && contentPath.PointCount > 0)
+            {
+                var boundsF = contentPath.GetBounds();
+                contentRect = Rectangle.Round(boundsF);
+            }
 
-            // Draw image if available
+            // Add vertical buffer (padding) inside each menu item for better spacing
+            int verticalPadding = 6; // 6 pixels top and bottom for more breathing room
+            Rectangle paddedContentRect = new Rectangle(
+                contentRect.X,
+                contentRect.Y + verticalPadding,
+                contentRect.Width,
+                contentRect.Height - (verticalPadding * 2)
+            );
+
+            // Calculate layout areas inside padded content
+            int imageAreaWidth = !string.IsNullOrEmpty(item.ImagePath) ? _imagesize + 8 : 0;
+            int textStartX = paddedContentRect.X + 8 + imageAreaWidth;
+            int textWidth = paddedContentRect.Width - 16 - imageAreaWidth;
+
+            // Draw image if available (centered vertically within padded area)
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 var imageRect = new Rectangle(
-                    rect.X + 8,
-                    rect.Y + (rect.Height - _imagesize) / 2,
+                    paddedContentRect.X + 8,
+                    paddedContentRect.Y + (paddedContentRect.Height - _imagesize) / 2,
                     _imagesize,
                     _imagesize
                 );
@@ -687,50 +680,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 imagePath.Dispose();
             }
 
-            // Draw text with font validation
-            var textRect = new Rectangle(
-                textStartX,
-                rect.Y,
-                textWidth,
-                rect.Height
-            );
+            // Draw text with font validation using TextRenderer (avoids Font.Height exceptions)
+            var textRect = new Rectangle(textStartX, paddedContentRect.Y, textWidth, paddedContentRect.Height);
 
-            var textColor = UseThemeColors && theme != null ? theme.ForeColor : BeepStyling.GetForegroundColor(style);
-            var brush = new SolidBrush(textColor);
-            var format = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center,
-                Trimming = StringTrimming.EllipsisCharacter
-            };
+            var textColor = UseThemeColors && theme != null ? theme.MenuItemForeColor : BeepStyling.GetForegroundColor(style);
 
             // Use safe font for text drawing
-            var safeFont = GetSafeFont(_textFont);
-            g.DrawString(item.Text ?? "", safeFont, brush, textRect, format);
-            brush.Dispose();
+            var safeFont = _textFont;
+            TextRenderer.DrawText(g, item.Text ?? string.Empty, safeFont, textRect, textColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.WordEllipsis | TextFormatFlags.NoPadding);
         }
 
-        /// <summary>
-        /// Gets a safe font for drawing operations, with fallback if the current font is invalid
-        /// </summary>
-        private Font GetSafeFont(Font originalFont)
-        {
-            try
-            {
-                // Check if the font is valid by trying to get its height
-                if (originalFont != null && originalFont.Height > 0)
-                {
-                    return originalFont;
-                }
-            }
-            catch
-            {
-                // Font is invalid, use fallback
-            }
-
-            // Fallback to a safe system font
-            return new Font("Segoe UI", 9f, FontStyle.Regular);
-        }
+       
 
         private void DrawLegacyContent(Graphics g)
         {
@@ -756,14 +717,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (item == null) return;
 
             // Configure the drawing button for this item
-            _menuButton.Text = item.Text ?? "";
-            _menuButton.ImagePath = item.ImagePath ?? "";
-            _menuButton.ToolTipText = item.DisplayField ?? "";
-            _menuButton.IsHovered = isHovered;
-            _menuButton.Theme = this.Theme;
-            _menuButton.TextFont = TextFont;
+            // _menuButton.Text = item.Text ?? "";
+            // _menuButton.ImagePath = item.ImagePath ?? "";
+            // _menuButton.ToolTipText = item.DisplayField ?? "";
+            // _menuButton.IsHovered = isHovered;
+            // _menuButton.Theme = this.Theme;
+            // _menuButton.TextFont = TextFont;
             // Draw the menu item using the drawing button
-            _menuButton.Draw(g, rect);
+            // _menuButton.Draw(g, rect);
         }
         #endregion "Drawing"
 
@@ -877,6 +838,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Mouse Events"
 
         #region "DPI and Resize Handling"
+        public override Size GetPreferredSize(Size proposedSize)
+        {
+            // Return fixed height based on MenuItemHeight - do not recalculate based on style changes
+            // This prevents the menu bar from growing when FormStyle changes
+            // Include vertical buffer (6 top + 6 bottom = 12 pixels total) for proper spacing
+            int preferredWidth = proposedSize.Width <= 0 ? Width : Math.Max(Width, proposedSize.Width);
+            int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
+            int preferredHeight = ScaledMenuItemHeight + verticalBuffer; // Fixed height based on MenuItemHeight + buffer
+            
+            return new Size(preferredWidth, preferredHeight);
+        }
+
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            // Lock height to MenuItemHeight + vertical buffer to prevent unwanted growth when FormStyle changes
+            // Only allow height changes if explicitly set by the developer (not from style changes)
+            if ((specified & BoundsSpecified.Height) != 0)
+            {
+                // Developer is explicitly setting height - allow it
+                base.SetBoundsCore(x, y, width, height, specified);
+            }
+            else
+            {
+                // Prevent automatic height increases - use fixed height based on MenuItemHeight + vertical buffer
+                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
+                int fixedHeight = ScaledMenuItemHeight + verticalBuffer;
+                base.SetBoundsCore(x, y, width, fixedHeight, specified);
+            }
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -992,70 +983,59 @@ namespace TheTechIdea.Beep.Winform.Controls
                 GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
             }
 
-            // Apply font from theme
-            if (UseThemeFont)
+            // Apply font from theme ONLY if UseThemeFont is true AND developer hasn't explicitly set it
+            // This prevents font changes when FormStyle changes, which would cause height changes
+            if (UseThemeFont && !_explicitTextFont)
             {
-                Font themeFont = null;
-                if (_currentTheme.MenuTitleFont != null)
+                if (_currentTheme.MenuItemUnSelectedFont != null)
                 {
-                    themeFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                 }
-                else
+                else if (_currentTheme.LabelFont != null)
                 {
-                    themeFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
-                }
-                
-                // Validate theme font before applying
-                if (IsValidFont(themeFont))
-                {
-                    _textFont = themeFont;
-                }
-                else
-                {
-                    // Use safe fallback if theme font is invalid
-                    _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-                    System.Diagnostics.Debug.WriteLine($"Invalid theme font, using fallback: Segoe UI");
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
                 }
             }
+            // If UseThemeFont is false OR _explicitTextFont is true, keep the current font unchanged
 
             // Apply theme to drawing components (for legacy fallback)
-            if (_menuButton != null)
-            {
-                _menuButton.Theme = Theme;
-                _menuButton.IsChild = true;
-                _menuButton.ParentBackColor = BackColor;
-                _menuButton.BackColor = _currentTheme.MenuBackColor;
-                _menuButton.ForeColor = _currentTheme.MenuItemForeColor;
-                _menuButton.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
-                _menuButton.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
-                _menuButton.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
-                _menuButton.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
-                _menuButton.PressedBackColor = _currentTheme.ButtonPressedBackColor;
-                _menuButton.PressedForeColor = _currentTheme.ButtonPressedForeColor;
-                _menuButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                _menuButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                _menuButton.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
-                _menuButton.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
-                _menuButton.IsColorFromTheme = false;
-                _menuButton.TextFont = _textFont;
-                _menuButton.UseScaledFont = true;
-            }
+            // if (_menuButton != null)
+            // {
+            //     _menuButton.Theme = Theme;
+            //     _menuButton.IsChild = true;
+            //     _menuButton.ParentBackColor = BackColor;
+            //     _menuButton.BackColor = _currentTheme.MenuBackColor;
+            //     _menuButton.ForeColor = _currentTheme.MenuItemForeColor;
+            //     _menuButton.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
+            //     _menuButton.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
+            //     _menuButton.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
+            //     _menuButton.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
+            //     _menuButton.PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            //     _menuButton.PressedForeColor = _currentTheme.ButtonPressedForeColor;
+            //     _menuButton.DisabledBackColor = _currentTheme.DisabledBackColor;
+            //     _menuButton.DisabledForeColor = _currentTheme.DisabledForeColor;
+            //     _menuButton.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
+            //     _menuButton.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
+            //     _menuButton.IsColorFromTheme = false;
+            //     _menuButton.TextFont = _textFont;
+            //     _menuButton.UseScaledFont = true;
+            // }
 
-            if (_menuImage != null)
-            {
-                _menuImage.Theme = Theme;
-                _menuImage.BackColor = BackColor;
-                _menuImage.ParentBackColor = BackColor;
-            }
+            // if (_menuImage != null)
+            // {
+            //     _menuImage.Theme = Theme;
+            //     _menuImage.BackColor = BackColor;
+            //     _menuImage.ParentBackColor = BackColor;
+            // }
 
-            if (_menuLabel != null)
-            {
-                _menuLabel.Theme = Theme;
-                _menuLabel.BackColor = BackColor;
-                _menuLabel.ForeColor = ForeColor;
-                _menuLabel.ParentBackColor = BackColor;
-                _menuLabel.TextFont = _textFont;
-            }
+            // if (_menuLabel != null)
+            // {
+            //     _menuLabel.Theme = Theme;
+            //     _menuLabel.BackColor = BackColor;
+            //     _menuLabel.ForeColor = ForeColor;
+            //     _menuLabel.ParentBackColor = BackColor;
+            //     _menuLabel.TextFont = _textFont;
+            // }
 
             Invalidate();
         }
@@ -1102,8 +1082,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_textFont == null) return;
 
-            // Measure font height
-            int fontHeight = _textFont.Height;
+            // Measure font height using safe method (avoids Font.Height exceptions)
+            int fontHeight = GetFontHeightSafe(_textFont, this);
 
             // Calculate minimum height needed: font height + padding - framework handles DPI scaling
             int minHeight = fontHeight + 8; // 8 pixels padding (4 top + 4 bottom)
@@ -1115,10 +1095,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Update control height - framework handles DPI scaling
                 int newHeight = ScaledMenuItemHeight + 4;
-                if (Height != newHeight)
-                {
-                    Height = newHeight;
-                }
+                //if (Height != newHeight)
+                //{
+                //    Height = newHeight;
+                //}
             }
         }
 
@@ -1127,20 +1107,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Handle font changes to recalculate required height
         /// </summary>
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-
-            if (_textFont == null)
-            {
-                _textFont = Font;
-            }
-
-            UpdateMenuItemHeightForFont();
-            InitializeDrawingComponents();
-            RefreshHitAreas();
-            Invalidate();
-        }
+        
 
         protected override void Dispose(bool disposing)
         {
@@ -1156,9 +1123,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CloseAllPopups();
 
                 // Dispose drawing components
-                _menuButton?.Dispose();
-                _menuImage?.Dispose();
-                _menuLabel?.Dispose();
+                // _menuButton?.Dispose();
+                // _menuImage?.Dispose();
+                // _menuLabel?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -1166,9 +1133,5 @@ namespace TheTechIdea.Beep.Winform.Controls
 
       
     }
-    public class MenuitemTracking
-    {
-        public SimpleItem ParentItem { get; set; }
-        public BeepPopupListForm Menu { get; set; }
-    }    
+ 
 }

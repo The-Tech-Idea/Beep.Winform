@@ -18,13 +18,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (!StyleShadows.HasShadow(style))
                 return path;
 
+            // Match GlassFormPainter: subtle shadow for glass effect
             return ShadowPainterHelpers.PaintDropShadow(
                 g, path, radius,
-                StyleShadows.GetShadowOffsetX(style),
-                StyleShadows.GetShadowOffsetY(style),
-                StyleShadows.GetShadowBlur(style),
-                StyleShadows.GetShadowColor(style),
-                0.22f);
+                0, 2, 8, // offsetX, offsetY, blur
+                Color.FromArgb(30, 0, 0, 0), // subtle dark shadow
+                0.15f);
         }
     }
 }

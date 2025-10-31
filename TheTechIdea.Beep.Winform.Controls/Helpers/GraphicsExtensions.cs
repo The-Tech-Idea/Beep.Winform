@@ -174,9 +174,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     int newRadius = Math.Max(0, radius - (int)inset);
                     Rectangle innerRect = Rectangle.Round(RectangleF.Inflate(bounds, -inset, -inset));
-
                     if (innerRect.Width > 0 && innerRect.Height > 0)
                     {
+                        newRadius = Math.Min(newRadius, Math.Min(innerRect.Width, innerRect.Height) / 2);
                         return CreateRoundedRectanglePath(innerRect, newRadius);
                     }
                 }

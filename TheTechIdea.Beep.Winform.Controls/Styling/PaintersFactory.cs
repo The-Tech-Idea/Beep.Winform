@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  // Create brush using bounds passed in; callers should reuse brush only for identical sizes
  var brush = new LinearGradientBrush(bounds, color1, color2, mode);
  // Important: set WrapMode to Clamp to prevent tiling artifacts
- brush.WrapMode = WrapMode.Clamp;
+ //brush.WrapMode = WrapMode.Clamp;
  return brush;
  });
  }
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
  return _linearGradientCache.GetOrAdd(key, _ =>
  {
  var brush = new LinearGradientBrush(bounds, color1, color2, angle);
- brush.WrapMode = WrapMode.Clamp;
+ //brush.WrapMode = WrapMode.Clamp;
  return brush;
  });
  }

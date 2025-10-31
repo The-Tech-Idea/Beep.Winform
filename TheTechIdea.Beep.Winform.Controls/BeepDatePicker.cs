@@ -947,7 +947,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Calculate minimum dimensions based on content
-                int textPrefH = Math.Max(_textFont.Height + 6, 16);
+                int textPrefH = Math.Max(TextUtils.GetFontHeightSafe(_textFont,this) + 6, 16);
                 int buttonWidth = _showDropDown ? Math.Max(_buttonWidth, Math.Max(16, textPrefH)) : 0;
                 
                 // Add padding for comfortable text display

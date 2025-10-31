@@ -37,7 +37,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     break;
             }
 
-            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
+            using (var pen = PaintersFactory.GetPen(borderColor, borderWidth))
+            {
+                pen.Alignment = PenAlignment.Inset; // match form non-client painting alignment
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawPath(pen, path);
+            }
 
             if (isFocused)
             {
@@ -45,9 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, focusRing, 2.0f, 1.0f);
             }
 
-            // Return the area inside the border
-                // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+            // Return the area inside the border using shape-aware inset by half width
+            return path.CreateInsetPath(borderWidth / 2f);
         }
     }
 }

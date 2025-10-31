@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Editor.UOW;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
@@ -34,9 +35,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             InitializeComponent();
             Details = new AddinDetails { ObjectType = "UserControl" };
             Dependencies = new Dependencies();
-        
+            
+            // Enable double buffering to prevent flickering and ensure proper rendering
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
+            DoubleBuffered = true;
         }
 
+     
+
+
+      
         public TemplateUserControl(IServiceProvider services) : this()
         {
             beepService = services.GetService<IBeepService>();
@@ -48,23 +56,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
                 appManager = beepService.vis;
 
                 BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+                BeepThemesManager.FormStyleChanged+= BeepThemesManager_FormStyleChanged;
                 Theme = BeepThemesManager.CurrentThemeName;
-              //  MainTemplatePanel.EnableMaterialStyle = false;
-                MainTemplatePanel.CanBeFocused = false;
-                MainTemplatePanel.CanBeSelected = false;
-                MainTemplatePanel.CanBeHovered = false;
-                MainTemplatePanel.CanBePressed = false;
+            
             }
+        }
+
+        private void BeepThemesManager_FormStyleChanged(object? sender, StyleChangeEventArgs e)
+        {
+            ControlFormStyle = e.NewStyle;
         }
 
         private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventArgs e)
         {
             Theme = e.NewThemeName;
-            if (Theme != BeepThemesManager.CurrentThemeName)
-            {
-                BeepThemesManager.SetCurrentTheme(Theme);
-            }
-            ApplyTheme();
+           
         }
 
         private string _themeName = BeepThemesManager.CurrentThemeName;
@@ -88,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public bool IsRunning { get ; set ; }=false;
         public bool IsSuspended { get ; set ; }=false;
         public bool IsStarted { get ; set ; }=false;
+        public FormStyle ControlFormStyle { get; private set; }
 
         public event EventHandler? OnStart;
     public event EventHandler? OnStop;
@@ -99,13 +106,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         {
             if (Theme != BeepThemesManager.CurrentThemeName)
             {
-                BeepThemesManager.SetCurrentTheme(Theme);
+                Theme =BeepThemesManager.CurrentThemeName;
             }
-            ApplyTheme();
+          
         }
 
         public virtual void Initialize() { }
-    public virtual void OnNavigatedTo(Dictionary<string, object> parameters) { }
+        public virtual void OnNavigatedTo(Dictionary<string, object> parameters) { }
         public virtual void Resume() { }
         public virtual void Run(IPassedArgs pPassedarg) { }
         public virtual void Run(params object[] args) { }

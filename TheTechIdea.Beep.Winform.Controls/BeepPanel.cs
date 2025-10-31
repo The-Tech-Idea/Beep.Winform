@@ -161,6 +161,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = false;
             CanBeHovered = false;
 
+            // Enable double buffering for smooth rendering
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+            DoubleBuffered = true;
+
             this.Size = new Size(400, 300);
 
             try { ApplyTheme(); }
@@ -188,8 +192,66 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     BackColor = Parent.BackColor;
                 }
+                
+                // Force refresh when parent changes (e.g., added to BeepiFormPro)
+                if (Visible && !IsDisposed)
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        if (!IsDisposed && Visible)
+                        {
+                            Invalidate(true);
+                            Refresh();
+                            // Ensure all child controls are properly refreshed
+                            foreach (Control control in Controls)
+                            {
+                                if (!control.IsDisposed && control.Visible)
+                                {
+                                    control.Invalidate(true);
+                                    control.Refresh();
+                                }
+                            }
+                        }
+                    }));
+                }
             }
             catch { /* design-time safe */ }
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            if (Visible && !IsDisposed)
+            {
+                // Force invalidation of all child controls when panel becomes visible
+                Invalidate(true);
+                Refresh();
+                foreach (Control control in Controls)
+                {
+                    if (!control.IsDisposed && control.Visible)
+                    {
+                        control.Invalidate(true);
+                        control.Refresh();
+                    }
+                }
+            }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            // Ensure proper rendering when handle is created
+            if (!IsDisposed && Visible)
+            {
+                BeginInvoke(new Action(() =>
+                {
+                    if (!IsDisposed && Visible)
+                    {
+                        Invalidate(true);
+                        Refresh();
+                    }
+                }));
+            }
         }
 
         // Override Dispose to properly clean up

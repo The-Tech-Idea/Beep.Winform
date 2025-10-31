@@ -13,6 +13,8 @@ using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 
 
@@ -353,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 //    }
                 //}
 
-              //  Invalidate();
+                Invalidate();
             }
             catch (Exception ex)
             {
@@ -538,6 +540,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         return painterSize;
                 }
                 catch { /* fallback to existing logic */ }
+            }
+
+            // When not using form style paint, do not inflate size; keep current or proposed
+            if (!UseFormStylePaint)
+            {
+                int width = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
+                int height = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
+                return new Size(width, height);
+            }
+
+            // When using form style painting, compute based on style chrome + padding
+            if (UseFormStylePaint)
+            {
+                // Treat current size (or proposed) as content size baseline
+                int baseW = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
+                int baseH = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
+
+                // style border/shadow
+                float styleBorder = StyleBorders.GetBorderWidth(ControlStyle);
+                 int border1 = (int)Math.Ceiling(styleBorder) * 2; // both sides
+                int shadow = 0;
+                if (StyleShadows.HasShadow(ControlStyle))
+                {
+                    shadow = Math.Max(0, StyleShadows.GetShadowBlur(ControlStyle)); // approx both sides
+                }
+
+                var pad1 = Padding;
+                int padW = pad1.Horizontal;
+                int padH = pad1 .Vertical;
+
+                // add optional label/helper space like classic painter does
+                int extraTop = 0;
+                int extraBottom = 0;
+                try
+                {
+                    using var g = CreateGraphics();
+                    if (!string.IsNullOrEmpty(LabelText))
+                    {
+                        int lblH = TextRenderer.MeasureText(g, "Ag", Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                        extraTop = lblH + 2;
+                    }
+                    string supporting = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
+                    if (!string.IsNullOrEmpty(supporting))
+                    {
+                        using var supportFont = new Font(Font.FontFamily, Math.Max(8f, Font.Size - 1f));
+                        int supH = TextRenderer.MeasureText(g, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                        extraBottom = supH + 4;
+                    }
+                }
+                catch { }
+
+                int width = baseW + padW + border1   + shadow;
+                int height = baseH + padH + border1 + shadow + extraTop + extraBottom;
+                return new Size(width, height);
             }
 
             if (PainterKind== BaseControlPainterKind.Material)

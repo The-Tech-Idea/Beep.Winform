@@ -30,10 +30,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             SuspendLayout();
             // 
-            // MainTemplatePanel
-            // 
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            // 
             // uc_PickConfiguration
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);

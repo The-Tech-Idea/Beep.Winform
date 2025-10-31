@@ -43,17 +43,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1 = new BeepLabel();
             beepTextBox1 = new BeepTextBox();
             beepSimpleGrid1 = new BeepSimpleGrid();
-            MainTemplatePanel.SuspendLayout();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_FilterForm
             // 
-            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.Controls.Add(beepTextBox1);
-            MainTemplatePanel.Controls.Add(beepLabel1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 1044, 738);
-            MainTemplatePanel.Size = new Size(1044, 738);
+            Controls.Add(beepSimpleGrid1);
+            Controls.Add(beepTextBox1);
+            Controls.Add(beepLabel1);
             // 
             // beepLabel1
             // 
@@ -216,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             beepLabel1.SubHeaderText = "I.T. Info. Specilaist";
             beepLabel1.TabIndex = 12;
-            beepLabel1.Tag = MainTemplatePanel;
+           
             beepLabel1.TempBackColor = Color.Empty;
             beepLabel1.Text = "Fahad Aldhubaib";
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
@@ -409,8 +405,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.SlideFrom = SlideDirection.Left;
             beepTextBox1.StaticNotMoving = false;
             beepTextBox1.TabIndex = 15;
-            beepTextBox1.Tag = MainTemplatePanel;
-           
+         
             beepTextBox1.TextAlignment = HorizontalAlignment.Left;
             beepTextBox1.TextFont = new Font("Arial", 10F);
             beepTextBox1.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -756,7 +751,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 16;
-            beepSimpleGrid1.Tag = MainTemplatePanel;
+          
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
@@ -780,7 +775,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_FilterForm";
             Size = new Size(1044, 738);
-            MainTemplatePanel.ResumeLayout(false);
             ResumeLayout(false);
         }
 

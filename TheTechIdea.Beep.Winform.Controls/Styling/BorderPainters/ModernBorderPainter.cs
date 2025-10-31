@@ -16,7 +16,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            float width = StyleBorders.GetBorderWidth(style);
+            if (path == null || path.PointCount == 0)
+            {
+                throw new ArgumentException("GraphicsPath is invalid or empty.");
+            }
+
+            if (g == null)
+            {
+                throw new ArgumentException("Graphics object is null.");
+            }
+
+            // Ensure border width is at least 2
+            float width = Math.Max(2f, StyleBorders.GetBorderWidth(style));
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(210, 210, 220));
 
             if (isFocused)
@@ -24,8 +35,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 borderColor = BorderPainterHelpers.Lighten(borderColor, 0.2f);
             }
 
-            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, width, state);
-            return path.CreateInsetPath(width);
+            var pen = PaintersFactory.GetPen(borderColor, width);
+
+            pen.LineJoin = LineJoin.Round; // smooth corners for wider borders
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawPath(pen, path);
+
+            // Return inner content area inset by half the border width
+            return path.CreateInsetPath(width / 2f);
         }
     }
 }

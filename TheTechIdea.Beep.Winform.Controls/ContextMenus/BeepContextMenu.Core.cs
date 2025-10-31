@@ -109,8 +109,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private int _hoveredIndex = -1;
         
         // Font
-        private Font _textFont = new Font("Segoe UI", 9f);
-        private Font _shortcutFont = new Font("Segoe UI", 8f);
+        private Font _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+        private Font _shortcutFont = new Font("Segoe UI", 8f, FontStyle.Regular);
         
         // DPI scaling
         private float _scaleFactor = 1.0f;
@@ -185,7 +185,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             _layoutHelper = new BeepContextMenuLayoutHelper(this);
             
             // Set default painter
-            SetPainter( FormStyle.Modern);
+            
+            SetPainter(BeepThemesManager.CurrentStyle);
             
             // Initialize submenu timer
             _submenuTimer = new Timer();
@@ -293,20 +294,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             try
             {
                 var theme = _currentTheme;
-                if (theme != null)
+                if (theme != null && theme.LabelFont != null && theme.LabelFont.FontFamily != null)
                 {
-                    // Use LabelFont as a reasonable default for menu items
-                    var text = TheTechIdea.Beep.Winform.Controls.ThemeManagement.BeepThemesManager.ToFont(theme.LabelFont);
-                    if (text != null)
-                    {
-                        _textFont = text;
+                    try {
+                        _textFont?.Dispose();
+                        _textFont = new Font(theme.LabelFont.FontFamily, theme.LabelFont.FontSize, theme.LabelFont.FontStyle);
+                    } catch {
+                        _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
                     }
-
-                    // Shortcut font: slightly smaller than text font
-                    if (_textFont != null)
-                    {
-                        float size = Math.Max(6f, _textFont.Size - 1f);
-                        _shortcutFont = new System.Drawing.Font(_textFont.FontFamily, size, _textFont.Style);
+                } else {
+                    _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+                }
+                // Shortcut font: slightly smaller than text font
+                if (_textFont != null && _textFont.FontFamily != null)
+                {
+                    float size = Math.Max(6f, _textFont.Size - 1f);
+                    try {
+                        _shortcutFont?.Dispose();
+                        _shortcutFont = new Font(_textFont.FontFamily, size, _textFont.Style);
+                    } catch {
+                        _shortcutFont = new Font("Segoe UI", 8f, FontStyle.Regular);
                     }
                 }
             }

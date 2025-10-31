@@ -82,13 +82,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
  ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
  BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
  FormBorderStyle = FormBorderStyle.None;
- //// Design-time: hook child control events for auto-refresh
- //if (DesignMode || (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime))
- //{
- // this.ControlAdded += (s, e) => HookChildEvents(e.Control);
- // foreach (Control c in Controls) HookChildEvents(c);
- //}
- }
+            //// Design-time: hook child control events for auto-refresh
+            //if (DesignMode || (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime))
+            //{
+            // this.ControlAdded += (s, e) => HookChildEvents(e.Control);
+            // foreach (Control c in Controls) HookChildEvents(c);
+            //}
+            if (BeepThemesManager.CurrentStyle != FormStyle)
+            {
+                FormStyle = BeepThemesManager.CurrentStyle;
+            }
+        }
 
  private void HookChildEvents(Control ctrl)
  {

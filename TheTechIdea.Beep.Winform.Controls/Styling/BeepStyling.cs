@@ -171,101 +171,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// </summary>
         /// <param name="formStyle">The FormStyle to map</param>
         /// <returns>The corresponding BeepControlStyle</returns>
-        public static BeepControlStyle GetControlStyle(FormStyle formStyle)
-        {
-            switch (formStyle)
-            {
-                // Modern styles → Material Design family
-                case FormStyle.Modern:
-                    return BeepControlStyle.Material3;
-                
-                case FormStyle.Material:
-                    return BeepControlStyle.MaterialYou;
-                
-                case FormStyle.Minimal:
-                    return BeepControlStyle.Minimal;
-                
-                // Metro/Microsoft → Fluent family
-                case FormStyle.Metro:
-                case FormStyle.Metro2:
-                    return BeepControlStyle.Metro;
-                
-                case FormStyle.Fluent:
-                    return BeepControlStyle.Fluent2;
-                
-                // Glass/Acrylic effects
-                case FormStyle.Glass:
-                case FormStyle.Glassmorphism:
-                    return BeepControlStyle.GlassAcrylic;
-                
-                // Apple Design
-                case FormStyle.MacOS:
-                case FormStyle.iOS:
-                    return BeepControlStyle.MacOSBigSur;
-                
-                // Linux Desktop Environments
-                case FormStyle.GNOME:
-                    return BeepControlStyle.Gnome;
-                
-                case FormStyle.KDE:
-                    return BeepControlStyle.Kde;
-                
-                case FormStyle.Ubuntu:
-                    return BeepControlStyle.NotionMinimal;
-                
-                case FormStyle.ArcLinux:
-                    return BeepControlStyle.MacOSBigSur;
-                
-                // Special Effects
-                case FormStyle.NeoMorphism:
-                    return BeepControlStyle.Neumorphism;
-                
-                case FormStyle.Brutalist:
-                    return BeepControlStyle.NeoBrutalist;  // Bold, structured
-                
-                case FormStyle.Neon:
-                    return BeepControlStyle.Neon;
-                
-                case FormStyle.Retro:
-                    return BeepControlStyle.Retro;
-                
-                // Design Themes
-                case FormStyle.Dracula:
-                case FormStyle.OneDark:
-                case FormStyle.Tokyo:
-                    return BeepControlStyle.DarkGlow;
-                
-                case FormStyle.Solarized:
-                case FormStyle.GruvBox:
-                case FormStyle.Nord:
-                case FormStyle.Nordic:
-                    return BeepControlStyle.NotionMinimal;
-                
-                // Modern Effects
-                case FormStyle.Paper:
-                    return BeepControlStyle.Material3;
-                
-                case FormStyle.Holographic:
-                    return BeepControlStyle.GradientModern;
-                
-                // Cartoon/Playful
-                case FormStyle.Cartoon:
-                case FormStyle.ChatBubble:
-                    return BeepControlStyle.FigmaCard;
-                
-                // Terminal/Console
-                case FormStyle.Terminal:
-                    return BeepControlStyle.Terminal;
-                
-                // Custom → Use current Style
-                case FormStyle.Custom:
-                    return CurrentControlStyle;
-                
-                // Default fallback
-                default:
-                    return BeepControlStyle.Material3;
-            }
-        }
+      public static BeepControlStyle GetControlStyle(FormStyle formStyle)
+{
+    // Try to parse based on name, falling back if not found
+    if (Enum.TryParse(formStyle.ToString(), out BeepControlStyle matched))
+        return matched;
+    return BeepControlStyle.Minimal; // or your desired default
+}
         
         /// <summary>
         /// Maps FormStyle to BeepControlStyle and sets it as the current control Style
@@ -677,46 +589,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             int borderWidth = metrics.BorderWidth;
             GraphicsPath path = null;
 
+            int safeRadius = Math.Min(radius, Math.Min(bounds.Width, bounds.Height) / 2);
+
             switch (formStyle)
             {
                 // Modern styles - clean, contemporary
                 case FormStyle.Modern:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 8));
                     break;
 
                 case FormStyle.Material:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 12));
                     break;
 
                 case FormStyle.Minimal:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(safeRadius, 4));
                     break;
 
                 // Apple Design - smooth, continuous curves
                 case FormStyle.MacOS:
                 case FormStyle.iOS:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 10));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 10));
                     break;
 
                 // Microsoft styles - subtle, professional
                 case FormStyle.Fluent:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(safeRadius, 4));
                     break;
 
                 // Playful/Cartoon styles - exaggerated shapes
                 case FormStyle.Cartoon:
                     // Create a more rounded, playful shape
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 20));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 16));
                     break;
 
                 case FormStyle.ChatBubble:
-                    path = PathPainterHelpers.CreateChatBubblePath(bounds, radius);
+                    path = PathPainterHelpers.CreateChatBubblePath(bounds, safeRadius);
                     break;
 
                 // Glass/Acrylic - smooth, modern
                 case FormStyle.Glass:
                 case FormStyle.Glassmorphism:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 12));
                     break;
 
                 // Metro/Windows 8-10 - sharp edges
@@ -727,27 +641,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
                 // GNOME/Adwaita - clean, subtle
                 case FormStyle.GNOME:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 6));
                     break;
 
                 // KDE Plasma - smooth, modern
                 case FormStyle.KDE:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 5));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 5));
                     break;
 
                 // Ubuntu/Unity - distinctive, modern
                 case FormStyle.Ubuntu:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 8));
                     break;
 
                 // Linux distributions - varied but clean
                 case FormStyle.ArcLinux:
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 7));
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 7));
                     break;
 
                 // Special effects styles
                 case FormStyle.NeoMorphism:
-                    path = PathPainterHelpers.CreateNeumorphismPath(bounds, radius);
+                    path = PathPainterHelpers.CreateNeumorphismPath(bounds, safeRadius);
                     break;
 
                 case FormStyle.Brutalist:
@@ -1106,14 +1020,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
             // === STEP 4: Paint Background (fills the area between border and final content) ===
-            if(!IsTransparentBackground)
-            {
-                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
-                if (backgroundPainter != null)
-                {
-                    backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
-                }
-            }
+            //if(!IsTransparentBackground)
+            //{
+            //    var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+            //    if (backgroundPainter != null)
+            //    {
+            //        backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
+            //    }
+            //}
           
 
             // Cleanup intermediate paths if they're different

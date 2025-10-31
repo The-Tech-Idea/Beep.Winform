@@ -32,8 +32,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 case ControlState.Disabled:
                     return path;
             }
-            // Use modern card shadow preset for Fluent
-            return ShadowPainterHelpers.PaintCardShadow(g, path, radius, ShadowPainterHelpers.CardShadowStyle.Medium);
+            // Match FluentFormPainter: subtle shadow for acrylic effect
+            return ShadowPainterHelpers.PaintDropShadow(
+                g, path, radius,
+                0, 2, 6, // offsetX, offsetY, blur
+                Color.FromArgb(40, 0, 0, 0), // subtle shadow
+                0.3f);
         }
     }
 }

@@ -108,15 +108,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig72 = new BeepColumnConfig();
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
             dataConnectionViewModelBindingSource = new BindingSource(components);
-            MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_RDBMSConnections
             // 
-            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.Size = new Size(1156, 663);
+            Controls.Add(beepSimpleGrid1);
             // 
             // beepSimpleGrid1
             // 
@@ -3536,7 +3533,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
-            beepSimpleGrid1.Tag = MainTemplatePanel;
+       
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
@@ -3565,7 +3562,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_RDBMSConnections";
             Size = new Size(1156, 663);
-            MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }

@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     border = owner.BorderThickness * 2;
             }
 
-               var pad = owner.Padding;
+            var pad = owner.Padding;
             int padW = pad.Horizontal;
             int padH = pad.Vertical;
 
@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
             catch { }
 
-            // measure text
+            // measure text (fallback content sizing)
             int textW = 0;
             int textH = owner.Font.Height;
             try
@@ -273,6 +273,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 iconW += owner.IconSize + (owner.IconPadding * 2) + 8;
             if (!string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton)
                 iconW += owner.IconSize + (owner.IconPadding * 2) + 8;
+
+            // If using styled painting, treat developer-set size as CONTENT size and add chrome (border+shadow) around it
+            if (owner.UseFormStylePaint)
+            {
+                int contentW = Math.Max(owner.Width, textW + iconW + padW);
+                int contentH = Math.Max(owner.Height, textH + padH);
+                int totalW = contentW + border + shadow;
+                int totalH = contentH + border + shadow + extraTop + extraBottom;
+                // Ensure minimums when extremely small
+                totalW = Math.Max(30, totalW);
+                totalH = Math.Max(18 + extraTop + extraBottom, totalH);
+                return new Size(totalW, totalH);
+            }
 
             int minWidth = 60;
             int width = Math.Max(minWidth, textW + iconW + padW + border + shadow);

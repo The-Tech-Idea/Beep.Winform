@@ -73,20 +73,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton = new BeepButton();
             CalendarnamebeepLabel = new BeepLabel();
             beepGridPro1 = new TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro();
-            MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_diagraming
             // 
-            MainTemplatePanel.BackColor = Color.White;
-            MainTemplatePanel.Controls.Add(beepGridPro1);
-            MainTemplatePanel.Controls.Add(CalendarnamebeepLabel);
-            MainTemplatePanel.Controls.Add(CycleBeepDataTimePickerModebeepButton);
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 1326, 718);
-            MainTemplatePanel.Margin = new Padding(6);
-            MainTemplatePanel.PainterKind = BaseControlPainterKind.None;
-            MainTemplatePanel.Size = new Size(1326, 718);
+            Controls.Add(beepGridPro1);
+            Controls.Add(CalendarnamebeepLabel);
+            Controls.Add(CycleBeepDataTimePickerModebeepButton);
             // 
             // driversConfigViewModelBindingSource
             // 
@@ -267,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("CycleBeepDataTimePickerModebeepButton.StandardImages");
             CycleBeepDataTimePickerModebeepButton.StaticNotMoving = false;
             CycleBeepDataTimePickerModebeepButton.TabIndex = 2;
-            CycleBeepDataTimePickerModebeepButton.Tag = MainTemplatePanel;
+          
             CycleBeepDataTimePickerModebeepButton.TempBackColor = Color.LightGray;
             CycleBeepDataTimePickerModebeepButton.Text = "Cycle";
             CycleBeepDataTimePickerModebeepButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -445,7 +439,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             CalendarnamebeepLabel.SubHeaderText = "";
             CalendarnamebeepLabel.TabIndex = 3;
-            CalendarnamebeepLabel.Tag = MainTemplatePanel;
+        
             CalendarnamebeepLabel.TempBackColor = Color.LightGray;
             CalendarnamebeepLabel.TextAlign = ContentAlignment.MiddleCenter;
             CalendarnamebeepLabel.TextFont = new Font("Arial", 10F);
@@ -1961,7 +1955,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.SlideFrom = SlideDirection.Left;
             beepGridPro1.StaticNotMoving = false;
             beepGridPro1.TabIndex = 4;
-            beepGridPro1.Tag = MainTemplatePanel;
+          
             beepGridPro1.TempBackColor = Color.LightGray;
             beepGridPro1.Text = "beepGridPro1";
             beepGridPro1.Theme = "DefaultType";
@@ -1983,7 +1977,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             Margin = new Padding(6);
             Name = "uc_diagraming";
             Size = new Size(1326, 718);
-            MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }

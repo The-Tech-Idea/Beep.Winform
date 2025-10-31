@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 
 
@@ -701,7 +702,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         [Browsable(true)] public Color BadgeBackColor { get; set; } = Color.Red;
         [Browsable(true)] public Color BadgeForeColor { get; set; } = Color.White;
-        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Arial", 8, FontStyle.Bold);
+        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Segoe UI", 8, FontStyle.Bold);
         [Browsable(true)] public BadgeShape BadgeShape { get; set; } = BadgeShape.Circle;
 
         // State colors
@@ -1079,7 +1080,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_controlstyle != value)
                 {
                     _controlstyle = value;
-
+                    // Auto-resize to compensate chrome when style-based painting is used
+                    try
+                    {
+                        if (UseFormStylePaint && !IsDisposed)
+                        {
+                            AdjustSizeForControlStyle();
+                        }
+                    }
+                    catch { /* design-time safe */ }
                     Invalidate();
                 }
             }
@@ -1099,5 +1108,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
         #endregion
+    }
+}
+
+namespace TheTechIdea.Beep.Winform.Controls.Base
+{
+    public partial class BaseControl
+    {
+        /// <summary>
+        /// Adjust overall Size so that current content area stays the same while
+        /// borders and shadows for the current ControlStyle fit around it.
+        /// Ex: developer sets 40x20; final height becomes 20 + (borderWidth + shadowWidth) * 2.
+        /// </summary>
+        private void AdjustSizeForControlStyle()
+        {
+            // Do nothing if style-based painting is not used
+            if (!UseFormStylePaint)
+                return;
+
+            // Treat current Width/Height as content size when using style painters
+            int contentW = Math.Max(0, this.Width);
+            int contentH = Math.Max(0, this.Height);
+
+            // Use style-defined border/shadow where available; fall back to control props
+            float styleBorder = StyleBorders.GetBorderWidth(_controlstyle);
+            int border = (int)Math.Ceiling(styleBorder);
+
+            int shadow = 0;
+            if (StyleShadows.HasShadow(_controlstyle))
+            {
+                // Use blur as an upper-bound thickness contribution
+                shadow = Math.Max(0, StyleShadows.GetShadowBlur(_controlstyle) / 2);
+            }
+
+            // Total chrome on each side (border+shadow)
+            int chrome = border + shadow;
+
+            // Include Padding as well to keep content area intact
+            var pad = this.Padding;
+            int padW = pad.Horizontal;
+            int padH = pad.Vertical;
+
+            int totalW = contentW + (chrome * 2) + padW;
+            int totalH = contentH + (chrome * 2) + padH;
+
+            // Apply minimums to avoid collapsing
+            totalW = Math.Max(16 + padW, totalW);
+            totalH = Math.Max(16 + padH, totalH);
+
+            // Only set when different to avoid layout churn
+            if (this.Size.Width != totalW || this.Size.Height != totalH)
+            {
+                this.Size = new Size(totalW, totalH);
+            }
+        }
     }
 }

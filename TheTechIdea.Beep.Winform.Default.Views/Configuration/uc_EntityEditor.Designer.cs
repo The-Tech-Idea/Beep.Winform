@@ -46,17 +46,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
             beepLabel1 = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             DatasourcebeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
-            MainTemplatePanel.SuspendLayout();
             beepPanel1.SuspendLayout();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_EntityEditor
             // 
-            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.Controls.Add(beepPanel1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.Location = new Point(5, 5);
-            MainTemplatePanel.Size = new Size(969, 576);
+            Controls.Add(beepSimpleGrid1);
+            Controls.Add(beepPanel1);
             // 
             // beepSimpleGrid1
             // 
@@ -431,7 +427,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 1;
-            beepSimpleGrid1.Tag = MainTemplatePanel;
+           
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
@@ -600,8 +596,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.SlideFrom = SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 2;
-            beepPanel1.Tag = MainTemplatePanel;
-          
+         
             beepPanel1.Text = "Entity";
             beepPanel1.TextFont = new Font("Arial", 14F);
             beepPanel1.Theme = "DefaultType";
@@ -1498,7 +1493,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             Name = "uc_EntityEditor";
             Padding = new Padding(5);
             Size = new Size(979, 586);
-            MainTemplatePanel.ResumeLayout(false);
             beepPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }

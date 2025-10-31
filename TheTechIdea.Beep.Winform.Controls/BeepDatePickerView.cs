@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
  
 using TheTechIdea.Beep.Vis.Modules;
  
@@ -50,27 +51,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the month/year header")]
-        public Font HeaderFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font HeaderFont { get; set; } = FontListHelper.GetFont("Segoe UI", 14, FontStyle.Bold);
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the days of week header")]
-        public Font DaysHeaderFont { get; set; } = new Font("Segoe UI", 11, FontStyle.Regular);
+        public Font DaysHeaderFont { get; set; } = FontListHelper.GetFontWithFallback("Segoe UI", "Arial",11, FontStyle.Regular);
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the date numbers")]
-        public Font DateFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public Font DateFont { get; set; } = FontListHelper.GetFont("Segoe UI", 12, FontStyle.Regular);
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the selected date display")]
-        public Font SelectedDateFont { get; set; } = new Font("Segoe UI", 11, FontStyle.Bold);
+        public Font SelectedDateFont { get; set; } = FontListHelper.GetFont("Segoe UI", 11, FontStyle.Bold);
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for footer link buttons")]
-        public Font ButtonFont { get; set; } = new Font("Segoe UI", 11, FontStyle.Bold);
+        public Font ButtonFont { get; set; } = FontListHelper.GetFont("Segoe UI", 11, FontStyle.Bold);
         #endregion
 
         [Browsable(true)]
@@ -374,14 +375,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Month/year centered
             string monthYear = _currentMonth.ToString("MMMM yyyy");
-            var textSize = System.Windows.Forms.TextRenderer.MeasureText(monthYear, HeaderFont);
+            var textSize = TextRenderer.MeasureText(monthYear, HeaderFont);
             var textPos = new Point(
                 _headerRect.Left + (_headerRect.Width - textSize.Width) / 2,
                 _headerRect.Top + (_headerRect.Height - textSize.Height) / 2
             );
 
             var textColor = _currentTheme?.CalendarTitleForColor ?? ForeColor;
-            System.Windows.Forms.TextRenderer.DrawText(g, monthYear, HeaderFont, textPos, textColor);
+            TextRenderer.DrawText(g, monthYear, HeaderFont, textPos, textColor);
 
             var navColor = _currentTheme?.CalendarForeColor ?? ForeColor;
             // Hover/press backgrounds for chevrons
@@ -426,19 +427,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             string[] days = { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
             int cellWidth = _daysHeaderRect.Width / 7;
-            using (Brush brush = new SolidBrush(_currentTheme?.CalendarDaysHeaderForColor ?? Color.Gray))
+            Color daysColor = _currentTheme?.CalendarDaysHeaderForColor ?? Color.Gray;
+            for (int i = 0; i < 7; i++)
             {
-                for (int i = 0; i < 7; i++)
-                {
-                    Rectangle dayRect = new Rectangle(
-                        _daysHeaderRect.X + i * cellWidth,
-                        _daysHeaderRect.Y,
-                        cellWidth,
-                        _daysHeaderRect.Height
-                    );
-                    g.DrawString(days[i], DaysHeaderFont, brush, dayRect,
-                                 new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                }
+                Rectangle dayRect = new Rectangle(
+                    _daysHeaderRect.X + i * cellWidth,
+                    _daysHeaderRect.Y,
+                    cellWidth,
+                    _daysHeaderRect.Height
+                );
+                TextRenderer.DrawText(g, days[i], DaysHeaderFont, dayRect, daysColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
             }
         }
 
@@ -456,20 +455,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DateTime prevMonth = _currentMonth.AddMonths(-1);
                 int prevMonthDays = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-                using (SolidBrush dimBrush = new SolidBrush(Color.FromArgb(100, _currentTheme?.CalendarForeColor ?? ForeColor)))
+                Color dim = Color.FromArgb(100, _currentTheme?.CalendarForeColor ?? ForeColor);
+                for (int i = dayOfWeek - 1; i >= 0; i--)
                 {
-                    for (int i = dayOfWeek - 1; i >= 0; i--)
-                    {
-                        int day = prevMonthDays - i;
-                        Rectangle cellRect = new Rectangle(
-                            _datesGridRect.X + (dayOfWeek - 1 - i) * cellWidth,
-                            _datesGridRect.Y,
-                            cellWidth,
-                            cellHeight
-                        );
-                        g.DrawString(day.ToString(), DateFont, dimBrush, cellRect,
-                                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                    }
+                    int day = prevMonthDays - i;
+                    Rectangle cellRect = new Rectangle(
+                        _datesGridRect.X + (dayOfWeek - 1 - i) * cellWidth,
+                        _datesGridRect.Y,
+                        cellWidth,
+                        cellHeight
+                    );
+                    TextRenderer.DrawText(g, day.ToString(), DateFont, cellRect, dim,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                 }
             }
 
@@ -508,11 +505,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 Color textColor = isSelected ? (_currentTheme?.CalendarSelectedDateForColor ?? Color.White) : (_currentTheme?.CalendarForeColor ?? ForeColor);
-                using (SolidBrush textBrush = new SolidBrush(textColor))
-                {
-                    g.DrawString(day.ToString(), DateFont, textBrush, cellRect,
-                                 new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                }
+                TextRenderer.DrawText(g, day.ToString(), DateFont, cellRect, textColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
                 col++;
                 if (col > 6) { col = 0; row++; }
@@ -523,25 +517,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             int remainingCells = 42 - usedCells;
             if (remainingCells > 0)
             {
-                using (SolidBrush dimBrush = new SolidBrush(Color.FromArgb(100, _currentTheme?.CalendarForeColor ?? ForeColor)))
+                Color dim2 = Color.FromArgb(100, _currentTheme?.CalendarForeColor ?? ForeColor);
+                int nextMonthDay = 1;
+                while (row < 6)
                 {
-                    int nextMonthDay = 1;
-                    while (row < 6)
+                    while (col <= 6)
                     {
-                        while (col <= 6)
-                        {
-                            Rectangle cellRect = new Rectangle(
-                                _datesGridRect.X + col * cellWidth,
-                                _datesGridRect.Y + row * cellHeight,
-                                cellWidth,
-                                cellHeight
-                            );
-                            g.DrawString(nextMonthDay.ToString(), DateFont, dimBrush, cellRect,
-                                         new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                            nextMonthDay++; col++;
-                        }
-                        col = 0; row++;
+                        Rectangle cellRect = new Rectangle(
+                            _datesGridRect.X + col * cellWidth,
+                            _datesGridRect.Y + row * cellHeight,
+                            cellWidth,
+                            cellHeight
+                        );
+                        TextRenderer.DrawText(g, nextMonthDay.ToString(), DateFont, cellRect, dim2,
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+                        nextMonthDay++; col++;
                     }
+                    col = 0; row++;
                 }
             }
         }
@@ -582,13 +574,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Draw texts
                     string dateText = _selectedDateTime.Value.ToString("dd.MM.yyyy");
                     string timeText = _selectedDateTime.Value.ToString("HH:mm");
-                    using (SolidBrush textBrush = new SolidBrush(Color.White))
-                    {
-                        g.DrawString(dateText, SelectedDateFont, textBrush, dateRect,
-                                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                        g.DrawString(timeText, SelectedDateFont, textBrush, timeRect,
-                                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                    }
+                    Color sel = Color.White;
+                    TextRenderer.DrawText(g, dateText, SelectedDateFont, dateRect, sel,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+                    TextRenderer.DrawText(g, timeText, SelectedDateFont, timeRect, sel,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
                     // Draw spinner chevrons
                     DrawUpDownGlyphs(g, _timeUpRect, _timeDownRect, Color.White);
@@ -596,20 +586,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     string selectedText = _selectedDateTime.Value.ToString("dd.MM.yyyy");
-                    using (SolidBrush textBrush = new SolidBrush(Color.White))
-                    {
-                        g.DrawString(selectedText, SelectedDateFont, textBrush, _selectedDateDisplayRect,
-                                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                    }
+                    TextRenderer.DrawText(g, selectedText, SelectedDateFont, _selectedDateDisplayRect, Color.White,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                 }
             }
             else
             {
-                using (SolidBrush textBrush = new SolidBrush(Color.Gray))
-                {
-                    g.DrawString("Select a date", SelectedDateFont, textBrush, _selectedDateDisplayRect,
-                                 new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                }
+                TextRenderer.DrawText(g, "Select a date", SelectedDateFont, _selectedDateDisplayRect, Color.Gray,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
             }
         }
 

@@ -37,15 +37,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig2 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig3 = new BeepColumnConfig();
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
-            MainTemplatePanel.SuspendLayout();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_DataEdit
             // 
-            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 918, 707);
-            MainTemplatePanel.Size = new Size(918, 707);
+            Controls.Add(beepSimpleGrid1);
             // 
             // beepSimpleGrid1
             // 
@@ -375,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
-            beepSimpleGrid1.Tag = MainTemplatePanel;
+         
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
@@ -398,7 +394,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_DataEdit";
             Size = new Size(918, 707);
-            MainTemplatePanel.ResumeLayout(false);
             ResumeLayout(false);
         }
 

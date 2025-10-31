@@ -27,10 +27,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 shadowOpacity = 0.12f; // Reduced on press
 
-            // Paint shadows
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 3);
+            // Match MacOSFormPainter: gentle shadows with proper offset
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintDropShadow(
+                g, path, radius,
+                0, 2, 8, // offsetX, offsetY, blur
+                Color.FromArgb((int)(shadowOpacity * 255), 0, 0, 0),
+                1.0f);
 
-            // Return the area inside the shadow using shape-aware inset
             return remainingPath;
         }
     }

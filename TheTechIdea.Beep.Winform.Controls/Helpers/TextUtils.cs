@@ -11,8 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class TextUtils
     {
-        #region "Caching Infrastructure"
-        
+       #region "Caching Infrastructure"
+
         // Thread-safe cache for text measurements
         private static readonly ConcurrentDictionary<TextMeasurementKey, SizeF> _measurementCache = new();
         private static readonly int MaxCacheSize = 1000;
@@ -486,7 +486,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         #endregion
 
         #region "Text Rendering Utilities and Measurement using TextRenderer"
-        
+        public static int GetFontHeightSafe(Font font, Control context)
+        {
+            try
+            {
+                if (font == null)
+                    return context?.Font?.Height ?? SystemFonts.DefaultFont.Height;
+                // Use TextRenderer which is resilient and device-aware
+                var sz = TextRenderer.MeasureText("Ag", font, new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+                return Math.Max(1, sz.Height);
+            }
+            catch
+            {
+                try { return context?.Font?.Height ?? SystemFonts.DefaultFont.Height; } catch { return 12; }
+            }
+        }
+
         /// <summary>
         /// Measures text with caching for improved performance
         /// </summary>
@@ -566,6 +582,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 return;
             
             TextRenderer.DrawText(g, text, font, layoutRect, foreColor, flags);
+        }
+        public static void DrawText(Graphics g, string text, Font font, Point location, Color foreColor, TextFormatFlags flags)
+        {
+            if (g == null || string.IsNullOrEmpty(text) || font == null)
+                return;
+            
+            TextRenderer.DrawText(g, text, font, location, foreColor, flags);
+        }
+        public static void DrawText(Graphics g, string text, Font font, Rectangle layoutRect, Color foreColor)
+        {
+            DrawText(g, text, font, layoutRect, foreColor, TextFormatFlags.WordBreak);
+        }
+        public static void DrawText(Graphics g, string text, Font font, Point location, Color foreColor)
+        {
+            DrawText(g, text, font, location, foreColor, TextFormatFlags.WordBreak);
+        }
+        public static void DrawText(Graphics g, string text, Font font, Rectangle layoutRect)
+        {
+            DrawText(g, text, font, layoutRect, SystemColors.ControlText, TextFormatFlags.WordBreak);
+        }
+        public static void DrawText(Graphics g, string text, Font font, Point location)
+        {
+            DrawText(g, text, font, location, SystemColors.ControlText, TextFormatFlags.WordBreak);
         }
 
         /// <summary>

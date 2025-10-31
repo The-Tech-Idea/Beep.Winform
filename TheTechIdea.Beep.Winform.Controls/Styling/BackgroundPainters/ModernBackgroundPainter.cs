@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             g.FillPath(fillBrush, path);
 
             var bounds = path.GetBounds();
-            var overlay = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(20, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical);
+            var overlay = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(8, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical);
             g.FillPath(overlay, path);
         }
     }

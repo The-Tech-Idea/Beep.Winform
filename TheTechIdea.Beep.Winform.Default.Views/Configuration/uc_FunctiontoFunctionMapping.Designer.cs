@@ -57,16 +57,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig21 = new BeepColumnConfig();
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
             functionToFunctionMappingViewModelBindingSource = new BindingSource(components);
-            MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)functionToFunctionMappingViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_FunctiontoFunctionMapping
             // 
-            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 1248, 753);
-            MainTemplatePanel.Size = new Size(1248, 753);
+            Controls.Add(beepSimpleGrid1);
             // 
             // beepSimpleGrid1
             // 
@@ -1194,7 +1190,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 1;
-            beepSimpleGrid1.Tag = MainTemplatePanel;
+          
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
@@ -1223,7 +1219,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_FunctiontoFunctionMapping";
             Size = new Size(1248, 753);
-            MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)functionToFunctionMappingViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }

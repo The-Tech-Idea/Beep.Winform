@@ -53,25 +53,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox = new BeepTextBox();
             LocalDbTypebeepComboBox = new BeepComboBox();
             beepButton1 = new BeepButton();
-            MainTemplatePanel.SuspendLayout();
             SuspendLayout();
             // 
-            // MainTemplatePanel
+            // uc_CreateLocalDB
             // 
-            MainTemplatePanel.BackColor = Color.White;
-            MainTemplatePanel.Controls.Add(SavebeepButton);
-            MainTemplatePanel.Controls.Add(beepButton1);
-            MainTemplatePanel.Controls.Add(CancelbeepButton);
-            MainTemplatePanel.Controls.Add(SystemFolderbeepComboBox);
-            MainTemplatePanel.Controls.Add(databaseTextBox);
-            MainTemplatePanel.Controls.Add(PasswordbeepTextBox);
-            MainTemplatePanel.Controls.Add(OtherFolderbeepTextBox);
-            MainTemplatePanel.Controls.Add(LocalDbTypebeepComboBox);
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 396, 481);
             graphicsPath9.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            MainTemplatePanel.InnerShape = graphicsPath9;
-            MainTemplatePanel.Margin = new Padding(6);
-            MainTemplatePanel.Size = new Size(396, 481);
+            Controls.Add(SavebeepButton);
+            Controls.Add(beepButton1);
+            Controls.Add(CancelbeepButton);
+            Controls.Add(SystemFolderbeepComboBox);
+            Controls.Add(databaseTextBox);
+            Controls.Add(PasswordbeepTextBox);
+            Controls.Add(OtherFolderbeepTextBox);
+            Controls.Add(LocalDbTypebeepComboBox);
             // 
             // CancelbeepButton
             // 
@@ -247,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.StaticNotMoving = false;
          
             CancelbeepButton.TabIndex = 23;
-            CancelbeepButton.Tag = MainTemplatePanel;
+          
             CancelbeepButton.TempBackColor = Color.LightGray;
             CancelbeepButton.Text = "Cancel";
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -439,7 +433,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.StaticNotMoving = false;
          
             SavebeepButton.TabIndex = 22;
-            SavebeepButton.Tag = MainTemplatePanel;
+            
             SavebeepButton.TempBackColor = Color.LightGray;
             SavebeepButton.Text = "Save";
             SavebeepButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -608,7 +602,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.SlideFrom = SlideDirection.Left;
             SystemFolderbeepComboBox.StaticNotMoving = false;
             SystemFolderbeepComboBox.TabIndex = 14;
-            SystemFolderbeepComboBox.Tag = MainTemplatePanel;
+           
             SystemFolderbeepComboBox.TempBackColor = Color.LightGray;
             SystemFolderbeepComboBox.Text = "beepComboBox1";
             SystemFolderbeepComboBox.TextFont = new Font("Arial", 10F);
@@ -799,7 +793,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.StaticNotMoving = false;
           
             databaseTextBox.TabIndex = 20;
-            databaseTextBox.Tag = MainTemplatePanel;
+           
             databaseTextBox.TempBackColor = Color.LightGray;
             databaseTextBox.TextAlignment = HorizontalAlignment.Left;
             databaseTextBox.TextFont = new Font("Arial", 10F);
@@ -994,7 +988,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.StaticNotMoving = false;
            
             PasswordbeepTextBox.TabIndex = 21;
-            PasswordbeepTextBox.Tag = MainTemplatePanel;
+          
             PasswordbeepTextBox.TempBackColor = Color.LightGray;
             PasswordbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             PasswordbeepTextBox.TextFont = new Font("Arial", 10F);
@@ -1189,7 +1183,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.StaticNotMoving = false;
           
             OtherFolderbeepTextBox.TabIndex = 19;
-            OtherFolderbeepTextBox.Tag = MainTemplatePanel;
+          
             OtherFolderbeepTextBox.TempBackColor = Color.LightGray;
             OtherFolderbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             OtherFolderbeepTextBox.TextFont = new Font("Arial", 10F);
@@ -1359,7 +1353,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.SlideFrom = SlideDirection.Left;
             LocalDbTypebeepComboBox.StaticNotMoving = false;
             LocalDbTypebeepComboBox.TabIndex = 12;
-            LocalDbTypebeepComboBox.Tag = MainTemplatePanel;
+           
             LocalDbTypebeepComboBox.TempBackColor = Color.White;
             LocalDbTypebeepComboBox.Text = "beepComboBox1";
             LocalDbTypebeepComboBox.TextFont = new Font("Arial", 10F);
@@ -1550,7 +1544,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.StaticNotMoving = false;
       
             beepButton1.TabIndex = 24;
-            beepButton1.Tag = MainTemplatePanel;
+           
             beepButton1.TempBackColor = Color.Empty;
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Arial", 15F);
@@ -1574,7 +1568,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             Margin = new Padding(6);
             Name = "uc_CreateLocalDB";
             Size = new Size(396, 481);
-            MainTemplatePanel.ResumeLayout(false);
             ResumeLayout(false);
         }
 

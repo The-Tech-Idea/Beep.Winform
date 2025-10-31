@@ -396,24 +396,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             set
             {
                 // Validate font before setting
-                if (IsValidFont(value))
-                {
+             
                     if (_textFont != value)
                     {
                         _textFont = value;
                         RecalculateSize();
                         Invalidate();
                     }
-                }
-                else
-                {
-                    // Use safe fallback font
-                    if (_textFont == null)
-                    {
-                        _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-                    }
-                    System.Diagnostics.Debug.WriteLine($"Invalid font provided to BeepContextMenu, keeping existing font");
-                }
+               
             }
         }
         
@@ -428,24 +418,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _shortcutFont;
             set
             {
-                // Validate font before setting
-                if (IsValidFont(value))
-                {
-                    if (_shortcutFont != value)
+                 if (_shortcutFont != value)
                     {
                         _shortcutFont = value;
                         Invalidate();
                     }
-                }
-                else
-                {
-                    // Use safe fallback font
-                    if (_shortcutFont == null)
-                    {
-                        _shortcutFont = new Font("Segoe UI", 8f, FontStyle.Regular);
-                    }
-                    System.Diagnostics.Debug.WriteLine($"Invalid shortcut font provided to BeepContextMenu, keeping existing font");
-                }
+                
+               
             }
         }
         

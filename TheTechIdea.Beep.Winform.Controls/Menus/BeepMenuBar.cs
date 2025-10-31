@@ -44,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _menuItemWidth = 60;
         private int _imagesize = 20;
         private int _menuItemHeight = 32; // Increased from 20 to 32 to accommodate text at higher DPI
+        private bool _menuItemHeightLocked = false; // Lock height after initial setup to prevent FormStyle changes from modifying it
         private Size ButtonSize = new Size(60, 32); // Match MenuItemHeight
 
     
@@ -130,9 +131,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _menuItemHeight;
             set
             {
-                _menuItemHeight = value;
-                RefreshHitAreas();
-                Invalidate();
+                // Always allow explicit setting by developer (unlock if locked)
+                if (_menuItemHeightLocked && _menuItemHeight != value)
+                {
+                    _menuItemHeightLocked = false; // Unlock to allow developer override
+                }
+                if (_menuItemHeight != value)
+                {
+                    _menuItemHeight = value;
+                    // Temporarily allow height change when developer explicitly changes MenuItemHeight
+                    _allowHeightChange = true;
+                    // Force recalculation of height by triggering resize
+                    int verticalBuffer = 12;
+                    int newHeight = ScaledMenuItemHeight + verticalBuffer;
+                    if (Height != newHeight)
+                    {
+                        Height = newHeight;
+                    }
+                    _allowHeightChange = false;
+                    RefreshHitAreas();
+                    Invalidate();
+                }
             }
         }
 
@@ -217,11 +236,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             InitializeDrawingComponents();
 
-            // Calculate proper height based on font size
+            // Calculate proper height based on font size ONCE during initialization
             UpdateMenuItemHeightForFont();
+            // Lock the height after initial calculation to prevent FormStyle changes from modifying it
+            _menuItemHeightLocked = true;
+            
+            // Mark as initialized - this enables strict height locking in SetBoundsCore
+            _isInitialized = true;
 
             RefreshHitAreas();
-           SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             BackColor = Color.Transparent;
         }
 
@@ -338,6 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Only update font if UseThemeFont is true AND developer hasn't explicitly set it
             // This prevents font changes when FormStyle changes
+            // BUT: Even if font changes, do NOT update MenuItemHeight (it's locked after initialization)
             if (UseThemeFont && !_explicitTextFont)
             {
                 if (_currentTheme?.MenuItemUnSelectedFont != null)
@@ -348,6 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
                 }
+                // DO NOT call UpdateMenuItemHeightForFont() here - height is locked to prevent FormStyle changes from modifying it
             }
 
             // Compute content height from font to ensure text fits (avoid Font.Height exceptions)
@@ -569,9 +595,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (itemPath == null) return;
 
                 // Determine item state
+                // Hover takes visual priority over selected (when hovering, show hover state even if item is selected)
+                // This provides better visual feedback during mouse interaction
                 var itemState = ControlState.Normal;
-                if (isSelected) itemState = ControlState.Selected;
-                else if (isHovered) itemState = ControlState.Hovered;
+                if (isHovered) 
+                    itemState = ControlState.Hovered;
+                else if (isSelected) 
+                    itemState = ControlState.Selected;
 
                 // Paint control using BeepStyling (shadow → border → background). Returns content path
                 var contentPath = BeepStyling.PaintControl(
@@ -755,10 +785,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (rect.Contains(mousePoint))
                 {
                     Debug.WriteLine($"Menu item {i} clicked: {item.Text}");
-                    // Update selected index for proper visual feedback
+                    
+                    // Clear previous selection if different item
+                    int previousSelected = _selectedIndex;
                     _selectedIndex = i;
+                    
+                    // Invalidate both previous and current item for smooth transition
+                    if (previousSelected >= 0 && previousSelected < menuRects.Count && previousSelected != i)
+                    {
+                        InvalidateRegion(menuRects[previousSelected]);
+                    }
+                    InvalidateRegion(menuRects[i]);
+                    
                     HandleMenuItemClick(item, i);
-                    Invalidate(); // Refresh to show selected state
                     return;
                 }
             }
@@ -811,7 +850,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
                     if (previousIndex < menuRects.Count)
+                    {
+                        // When hover is removed, invalidate the previously hovered item
+                        // If that item is also selected, it will now show selected state instead of hover
                         InvalidateRegion(menuRects[previousIndex]);
+                    }
                 }
             }
         }
@@ -831,7 +874,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int previousIndex = int.Parse(previousHovered.Replace("MenuItem_", ""));
                     var menuRects = CalculateMenuItemRects();
                     if (previousIndex < menuRects.Count)
+                    {
+                        // When mouse leaves, invalidate the previously hovered item
+                        // If that item is also selected, it will now show selected state instead of hover
                         InvalidateRegion(menuRects[previousIndex]);
+                    }
                 }
             }
         }
@@ -850,26 +897,59 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Size(preferredWidth, preferredHeight);
         }
 
+        private bool _allowHeightChange = false; // Flag to temporarily allow height changes (e.g., during explicit developer setting)
+        private bool _isInitialized = false; // Track if control has been initialized
+        
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
-            // Lock height to MenuItemHeight + vertical buffer to prevent unwanted growth when FormStyle changes
-            // Only allow height changes if explicitly set by the developer (not from style changes)
-            if ((specified & BoundsSpecified.Height) != 0)
+            // After initialization, ALWAYS lock height to MenuItemHeight + vertical buffer
+            // This prevents FormStyle changes, theme changes, or layout systems from modifying height
+            if (_isInitialized)
             {
-                // Developer is explicitly setting height - allow it
-                base.SetBoundsCore(x, y, width, height, specified);
+                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
+                int fixedHeight = ScaledMenuItemHeight + verticalBuffer;
+                
+                // Only allow different height if explicitly requested by developer AND flag is set
+                if (_allowHeightChange && (specified & BoundsSpecified.Height) != 0)
+                {
+                    _allowHeightChange = false; // Reset flag after use
+                    base.SetBoundsCore(x, y, width, height, specified);
+                }
+                else
+                {
+                    // IGNORE any height change request - always use fixed height
+                    // This prevents FormStyle changes or any other automatic resizing
+                    base.SetBoundsCore(x, y, width, fixedHeight, specified);
+                }
             }
             else
             {
-                // Prevent automatic height increases - use fixed height based on MenuItemHeight + vertical buffer
-                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
-                int fixedHeight = ScaledMenuItemHeight + verticalBuffer;
-                base.SetBoundsCore(x, y, width, fixedHeight, specified);
+                // During initialization, allow normal bounds setting
+                base.SetBoundsCore(x, y, width, height, specified);
             }
         }
 
         protected override void OnResize(EventArgs e)
         {
+            // Prevent resize events from changing our locked height
+            // Only allow resize if it's within our fixed height tolerance
+            int verticalBuffer = 12;
+            int fixedHeight = ScaledMenuItemHeight + verticalBuffer;
+            
+            if (Height != fixedHeight && !_allowHeightChange)
+            {
+                // Height changed unexpectedly - restore to fixed height
+                BeginInvoke(new Action(() =>
+                {
+                    if (!IsDisposed && Height != fixedHeight)
+                    {
+                        _allowHeightChange = true;
+                        Height = fixedHeight;
+                        _allowHeightChange = false;
+                    }
+                }));
+            }
+            
             base.OnResize(e);
 
             // Reinitialize components with new DPI scaling
@@ -950,6 +1030,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme Application"
         public override void ApplyTheme()
         {
+            // Store current height before applying theme to restore it if needed
+            int savedHeight = Height;
+            
             // CRITICAL: Call base.ApplyTheme() first for safe font handling and DPI scaling
            // base.ApplyTheme();
 
@@ -997,6 +1080,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             // If UseThemeFont is false OR _explicitTextFont is true, keep the current font unchanged
+
+            // CRITICAL: Ensure height remains fixed after theme application
+            // This prevents FormStyle changes from modifying the height
+            int verticalBuffer = 12;
+            int fixedHeight = ScaledMenuItemHeight + verticalBuffer;
+            if (Height != fixedHeight)
+            {
+                _allowHeightChange = true;
+                Height = fixedHeight;
+                _allowHeightChange = false;
+            }
 
             // Apply theme to drawing components (for legacy fallback)
             // if (_menuButton != null)
@@ -1077,10 +1171,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         /// <summary>
         /// Calculate optimal menu item height based on current font size and DPI
+        /// Only called during initialization - height is locked after initial setup
         /// </summary>
         private void UpdateMenuItemHeightForFont()
         {
             if (_textFont == null) return;
+
+            // Don't update if height is already locked (prevents FormStyle changes from modifying height)
+            if (_menuItemHeightLocked) return;
 
             // Measure font height using safe method (avoids Font.Height exceptions)
             int fontHeight = GetFontHeightSafe(_textFont, this);
@@ -1092,13 +1190,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_menuItemHeight < minHeight)
             {
                 _menuItemHeight = minHeight;
-
-                // Update control height - framework handles DPI scaling
-                int newHeight = ScaledMenuItemHeight + 4;
-                //if (Height != newHeight)
-                //{
-                //    Height = newHeight;
-                //}
             }
         }
 

@@ -42,7 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (BackColor.A == 255 ||!_istransparent) // fully opaque: do normal background fill
             {
                 //using var b = new SolidBrush(BackColor);
-                //e.Graphics.FillRectangle(b, ClientRectangle);
+                e.Graphics.Clear(BackColor);
+                base.OnPaintBackground(e);
                 return;
             }
 
@@ -85,42 +86,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (IsDisposed || !IsHandleCreated)
                 return;
             base.OnPaint(e);
-            
-            // Don't call UpdateDrawingRect for BeepGridPro - it handles its own layout
-            if (!(this is GridX.BeepGridPro))
+            if (AllowBaseControlClear)
             {
-                UpdateDrawingRect();
-            }
-            
-            try
-            {
-                if (IsChild)
+                if (!(this is GridX.BeepGridPro))
                 {
-                    ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
-                    BackColor = ParentBackColor;
+                    UpdateDrawingRect();
                 }
-                else
+
+                try
                 {
-                    if (_currentTheme != null)
-                        BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                    if (IsChild)
+                    {
+                        ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
+                        BackColor = ParentBackColor;
+                    }
                     else
-                        BackColor = SystemColors.Control;
-                }
-                e.Graphics.Clear(Color.Transparent);
-                // Only clear the background when a painter is active. When PainterKind == None
-                // we let the control's own drawing (PaintInnerShape/DrawContent) handle the fill to
-                // avoid double-drawing or incorrect framed areas (designer previews, etc.).
-                // DON'T clear for complex controls that handle their own rendering (like grids)
-                if (PainterKind != BaseControlPainterKind.None && _painter != null && !(this is GridX.BeepGridPro))
-                {
+                    {
+                        if (_currentTheme != null)
+                            BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                        else
+                            BackColor = SystemColors.Control;
+                    }
+                    e.Graphics.Clear(BackColor);
 
                 }
+                catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+                {
+                    // Silently fail on color operations
+                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
+                }
             }
-            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
-            {
-                // Silently fail on color operations
-                System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
-            }
+            // Don't call UpdateDrawingRect for BeepGridPro - it handles its own layout
+           
 
           
           

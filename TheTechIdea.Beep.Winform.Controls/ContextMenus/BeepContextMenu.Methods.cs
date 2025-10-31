@@ -165,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private void RecalculateSize()
         {
             // Get effective control style for BeepStyling calculations
-            var effectiveStyle = GetEffectiveControlStyle();
+            var effectiveStyle = ControlStyle;
             
             // Account for BeepStyling padding, border, and shadow
             int beepPadding = BeepStyling.GetPadding(effectiveStyle);

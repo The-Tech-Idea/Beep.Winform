@@ -51,17 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _menuItemHeight;
         }
 
-        /// <summary>
-        /// Gets the effective control style for BeepStyling
-        /// </summary>
-        private BeepControlStyle GetEffectiveControlStyle()
-        {
-            if (_controlStyle != BeepControlStyle.None)
-                return _controlStyle;
-            
-            // Fallback to mapping from FormStyle
-            return BeepStyling.GetControlStyle(_contextMenuType);
-        }
+   
 
         #endregion
 

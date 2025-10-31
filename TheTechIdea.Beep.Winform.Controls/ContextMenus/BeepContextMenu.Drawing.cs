@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var rect = new Rectangle(1, 1, _contentAreaRect.Width - 5, Height - 5);
             
             // Get effective control style
-            var effectiveStyle = GetEffectiveControlStyle();
+            var effectiveStyle = ControlStyle;
             
             // Apply clipping if scrolling is enabled
             if (_needsScrolling)
@@ -120,33 +120,48 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     g.FillRectangle(fillBrush, itemRect);
             }
 
+            // Get effective control style for image painting
+            var effectiveStyle = ControlStyle;
+            
             int iconPadding = 8;
             int textPadding = 8;
             int imageX = itemRect.X + iconPadding;
 
-            // Draw image if enabled and available
+            // Calculate layout areas for image and text
+            int imageAreaWidth = (_showImage && !string.IsNullOrEmpty(item.ImagePath)) ? _imageSize + 8 : 0;
+            int textStartX = itemRect.X + iconPadding + imageAreaWidth;
+            int textWidth = itemRect.Width - iconPadding - imageAreaWidth - textPadding;
+
+            // Draw image if enabled and available using BeepStyling (same as BeepMenuBar)
             if (_showImage && !string.IsNullOrEmpty(item.ImagePath))
             {
                 try
                 {
-                    using (var img = Image.FromFile(item.ImagePath))
-                    {
-                        g.DrawImage(img, imageX, itemRect.Y + (itemRect.Height - img.Height) / 2, _imageSize, _imageSize);
-                    }
+                    var imageRect = new Rectangle(
+                        imageX,
+                        itemRect.Y + (itemRect.Height - _imageSize) / 2,
+                        _imageSize,
+                        _imageSize
+                    );
+
+                    // Create path for image area (rounded rectangle matching style)
+                    var imagePath = BeepStyling.CreateControlStylePath(imageRect, effectiveStyle);
+                    
+                    // Paint image using StyledImagePainter (same as BeepMenuBar)
+                    BeepStyling.PaintStyleImage(g, imagePath, item.ImagePath, effectiveStyle);
+                    
+                    imagePath.Dispose();
                 }
                 catch { }
             }
 
-            int textX = imageX + (_showImage && !string.IsNullOrEmpty(item.ImagePath) ? _imageSize + textPadding : 0);
-            int textWidth = itemRect.Right - textX - textPadding;
-
-            // Draw text
-            using (var brush = new SolidBrush(Color.Black))
-            using (var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter })
-            {
-                var safeFont = _textFont;
-                g.DrawString(item.DisplayField ?? "", safeFont, brush, new Rectangle(textX, itemRect.Y, textWidth, itemRect.Height), format);
-            }
+            // Draw text (same approach as BeepMenuBar - use TextRenderer for safety)
+            var textColor = UseThemeColors && _currentTheme != null ? _currentTheme.MenuItemForeColor : Color.Black;
+            var textRect = new Rectangle(textStartX, itemRect.Y, textWidth, itemRect.Height);
+            var safeFont = _textFont;
+            
+            TextRenderer.DrawText(g, item.DisplayField ?? "", safeFont, textRect, textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
         }
 
         private void DrawSeparatorSimple(Graphics g, Rectangle itemRect)

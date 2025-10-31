@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            System.Diagnostics.Debug.WriteLine("[BeepTree] DrawContent() start");
+         //   System.Diagnostics.Debug.WriteLine("[BeepTree] DrawContent() start");
             base.DrawContent(g);
             
             // Ensure DrawingRect is up-to-date for viewport transforms
@@ -38,11 +38,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Debug.WriteLine("BeepTree.DrawContent: No painter available!");
                 return;
             }
-            System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Using painter {painter.GetType().Name}");
+         //   System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Using painter {painter.GetType().Name}");
 
             // Use DrawingRect from BaseControl (already accounts for borders, padding, etc.)
             Rectangle drawingArea = DrawingRect;
-            System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Drawing area = {drawingArea}");
+         //   System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Drawing area = {drawingArea}");
             if (drawingArea.Width <= 0 || drawingArea.Height <= 0)
             {
                 System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Invalid drawing area: {drawingArea}");
@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Let the painter draw the ENTIRE TREE (all nodes)
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[BeepTree] Calling painter.Paint() to draw entire tree");
+           //     System.Diagnostics.Debug.WriteLine($"[BeepTree] Calling painter.Paint() to draw entire tree");
                 painter.Paint(g, this, drawingArea);
                 // After painting, refresh hit areas for BaseControl hit-test infra
                 try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
           
-            System.Diagnostics.Debug.WriteLine("[BeepTree] DrawContent() end");
+         //   System.Diagnostics.Debug.WriteLine("[BeepTree] DrawContent() end");
         }
 
         #endregion

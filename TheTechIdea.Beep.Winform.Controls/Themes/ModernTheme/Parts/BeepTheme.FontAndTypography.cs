@@ -1,3 +1,4 @@
+
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -7,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyFontTypography()
         {
-            this.AppBarTitleStyle = new TypographyStyle { FontFamily="Segoe UI Variable", FontSize=14.5f, FontWeight=FontWeight.SemiBold, FontStyle=System.Drawing.FontStyle.Regular, TextColor= ForeColor, LineHeight=1.20f };
+            this.AppBarTitleStyle = new TypographyStyle { FontFamily="Segoe UI Variable", FontSize=14.5f, FontWeight=FontWeight.SemiBold, FontStyle=System.Drawing.FontStyle.Regular, TextColor=AppBarTitleForeColor, LineHeight=1.20f };
             this.AppBarSubTitleStyle = new TypographyStyle { FontFamily="Segoe UI Variable", FontSize=13.5f, FontWeight=FontWeight.Normal, FontStyle=System.Drawing.FontStyle.Regular, TextColor=ForeColor, LineHeight=1.52f };
             this.AppBarTextStyle = new TypographyStyle { FontFamily="Segoe UI Variable", FontSize=13.5f, FontWeight=FontWeight.Normal, FontStyle=System.Drawing.FontStyle.Regular, TextColor=ForeColor, LineHeight=1.52f };
             this.BadgeFont = new TypographyStyle { FontFamily="Segoe UI Variable", FontSize=13.5f, FontWeight=FontWeight.Normal, FontStyle=System.Drawing.FontStyle.Regular, TextColor=ForeColor, LineHeight=1.52f };

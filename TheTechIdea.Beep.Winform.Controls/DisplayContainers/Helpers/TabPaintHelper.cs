@@ -3,19 +3,50 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 {
     /// <summary>
-    /// Helper class for professional tab rendering similar to BeepTabs
+    /// Helper class for professional tab rendering with modern styling using BeepStyling
     /// </summary>
     internal class TabPaintHelper
     {
         private readonly IBeepTheme _theme;
+        private BeepControlStyle _controlStyle = BeepControlStyle.Modern;
+        private bool _isTransparent = false;
 
         public TabPaintHelper(IBeepTheme theme)
         {
             _theme = theme;
+            // Default to Modern style for tabs - will be updated by container if needed
+            _controlStyle = BeepControlStyle.Modern;
+        }
+        
+        public TabPaintHelper(IBeepTheme theme, BeepControlStyle controlStyle)
+        {
+            _theme = theme;
+            _controlStyle = controlStyle;
+        }
+        
+        public TabPaintHelper(IBeepTheme theme, BeepControlStyle controlStyle, bool isTransparent)
+        {
+            _theme = theme;
+            _controlStyle = controlStyle;
+            _isTransparent = isTransparent;
+        }
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set => _controlStyle = value;
+        }
+
+        public bool IsTransparent
+        {
+            get => _isTransparent;
+            set => _isTransparent = value;
         }
 
         /// <summary>
@@ -55,14 +86,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Draw tab text only if there's space
                 if (textBounds.Width > 10 && textBounds.Height > 10)
                 {
+                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Drawing text '{title}' at {textBounds} with color {colors.TextColor}");
                     DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Skipping text - bounds too small: {textBounds}");
                 }
                 
                 // Draw close button if needed and there's space
                 if (showCloseButton && bounds.Width > 30 && bounds.Height > 16)
                 {
                     var closeRect = new Rectangle(bounds.Right - 20, bounds.Y + (bounds.Height - 12) / 2, 12, 12);
+                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Drawing close button at {closeRect}");
                     DrawCloseButton(g, closeRect, isCloseHovered, colors.TextColor);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Skipping close button - bounds too small or disabled: width={bounds.Width}, height={bounds.Height}, showClose={showCloseButton}");
                 }
             }
             catch (Exception ex)
@@ -123,6 +164,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 textColor = _theme?.TabForeColor ?? Color.FromArgb(64, 64, 64);
                 borderColor = _theme?.TabBorderColor ?? Color.FromArgb(180, 180, 180);
             }
+            
+            // In transparent mode, background is not painted, but we keep colors for borders/text
+            // Border and text colors can optionally be adjusted for better visibility on transparent backgrounds
+            if (_isTransparent)
+            {
+                // Make borders more visible on transparent backgrounds
+                borderColor = Color.FromArgb(Math.Min(255, borderColor.A + 50), borderColor);
+                // Text stays fully opaque for readability
+            }
 
             return new TabColors
             {
@@ -134,8 +184,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         private void DrawTabBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered)
         {
-            using (var path = CreateRoundedPath(bounds, 4))
+            // In transparent mode, skip background painting entirely - let parent show through
+            if (_isTransparent)
             {
+                // Don't paint background - just return, borders and text will be drawn separately
+                return;
+            }
+            
+            // Use simple solid/gradient backgrounds for tabs (more reliable than BeepStyling for small tabs)
+            var tabPath = CreateRoundedPath(bounds, Math.Min(4, bounds.Height / 4)); // Small radius for tabs
+            
+            try
+            {
+                // Draw subtle shadow for active tab to create elevation effect
+                if (isActive)
+                {
+                    var shadowRect = new Rectangle(bounds.X + 1, bounds.Y + 2, bounds.Width, bounds.Height);
+                    var shadowPath = CreateRoundedPath(shadowRect, Math.Min(4, bounds.Height / 4));
+                    using (var shadowBrush = new SolidBrush(Color.FromArgb(15, Color.Black)))
+                    {
+                        g.FillPath(shadowBrush, shadowPath);
+                    }
+                    shadowPath.Dispose();
+                }
+                
+                // Use simple gradient/solid fill for reliable rendering
                 if (isActive || isHovered)
                 {
                     // Draw subtle gradient for active/hovered tabs
@@ -144,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                         ControlPaint.Dark(colors.BackgroundColor, 0.05f),
                         LinearGradientMode.Vertical))
                     {
-                        g.FillPath(brush, path);
+                        g.FillPath(brush, tabPath);
                     }
                 }
                 else
@@ -152,30 +225,71 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     // Solid color for normal tabs
                     using (var brush = new SolidBrush(colors.BackgroundColor))
                     {
-                        g.FillPath(brush, path);
+                        g.FillPath(brush, tabPath);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DrawTabBackground error: {ex.Message}");
+                // Ultimate fallback - simple rectangle fill
+                using (var brush = new SolidBrush(colors.BackgroundColor))
+                {
+                    g.FillRectangle(brush, bounds);
+                }
+            }
+            finally
+            {
+                tabPath?.Dispose();
             }
         }
 
         private void DrawTabBorder(Graphics g, Rectangle bounds, Color borderColor, bool isActive)
         {
-            using (var path = CreateRoundedPath(bounds, 4))
-            using (var pen = new Pen(borderColor, isActive ? 1.5f : 1f))
+            var tabPath = CreateRoundedPath(bounds, Math.Min(4, bounds.Height / 4)); // Small radius for tabs
+            
+            try
             {
-                g.DrawPath(pen, path);
+                // Use simple border for tabs (more reliable)
+                using (var pen = new Pen(borderColor, 1f))
+                {
+                    pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
+                    g.DrawPath(pen, tabPath);
+                }
                 
-                // Add inner highlight for active tab
+                // Add subtle inner highlight for active tab for extra depth
                 if (isActive)
                 {
                     var innerBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height - 2);
-                    using (var innerPath = CreateRoundedPath(innerBounds, 3))
+                    var innerRadius = Math.Max(0, Math.Min(4, bounds.Height / 4) - 1);
+                    using (var innerPath = CreateRoundedPath(innerBounds, innerRadius))
                     using (var innerPen = new Pen(ControlPaint.Light(borderColor, 0.3f), 0.5f))
                     {
                         g.DrawPath(innerPen, innerPath);
                     }
                 }
             }
+            catch
+            {
+                // Fallback to simple border
+                using (var pen = new Pen(borderColor, isActive ? 1.5f : 1f))
+                {
+                    g.DrawPath(pen, tabPath);
+                    
+                    // Add inner highlight for active tab
+                    if (isActive)
+                    {
+                        var innerBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height - 2);
+                        using (var innerPath = CreateRoundedPath(innerBounds, 3))
+                        using (var innerPen = new Pen(ControlPaint.Light(borderColor, 0.3f), 0.5f))
+                        {
+                            g.DrawPath(innerPen, innerPath);
+                        }
+                    }
+                }
+            }
+            
+            tabPath.Dispose();
         }
 
         private void DrawTabText(Graphics g, Rectangle textBounds, string title, Font font, Color textColor, bool isActive)
@@ -184,96 +298,92 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             if (g == null || string.IsNullOrEmpty(title) || font == null || textBounds.Width <= 0 || textBounds.Height <= 0)
                 return;
 
-            using (var brush = new SolidBrush(textColor))
+            // Use TextRenderer for more reliable text rendering (avoids Font.Height exceptions)
+            try
             {
-                Font actualFont = null;
-                try
+                // Determine font style for active tabs
+                Font textFont = font;
+                if (isActive)
                 {
-                    // Create font safely - don't dispose the original font
-                    actualFont = isActive ? new Font(font, FontStyle.Bold) : font;
-                    
-                    using (var stringFormat = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    })
-                    {
-                        // Add subtle text shadow for better readability
-                        if (isActive)
-                        {
-                            using (var shadowBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
-                            {
-                                var shadowBounds = new Rectangle(textBounds.X + 1, textBounds.Y + 1, 
-                                                               textBounds.Width, textBounds.Height);
-                                
-                                // Validate shadow bounds
-                                if (shadowBounds.Width > 0 && shadowBounds.Height > 0)
-                                {
-                                    g.DrawString(title, actualFont, shadowBrush, shadowBounds, stringFormat);
-                                }
-                            }
-                        }
-                        
-                        // Draw main text
-                        g.DrawString(title, actualFont, brush, textBounds, stringFormat);
-                    }
-                }
-                catch (ArgumentException ex)
-                {
-                    // Log the error details for debugging
-                    System.Diagnostics.Debug.WriteLine($"DrawTabText error: {ex.Message}");
-                    System.Diagnostics.Debug.WriteLine($"TextBounds: {textBounds}");
-                    System.Diagnostics.Debug.WriteLine($"Title: '{title}'");
-                    System.Diagnostics.Debug.WriteLine($"Font: {font?.Name}, Size: {font?.Size}");
-                    
-                    // Fallback to simple text drawing without formatting
                     try
                     {
-                        TextRenderer.DrawText(g, title, font, textBounds, textColor, 
-                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | 
-                            TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                        textFont = new Font(font.FontFamily, font.Size, FontStyle.Bold, font.Unit);
                     }
                     catch
                     {
-                        // If all else fails, skip drawing this text
+                        textFont = font; // Fallback to regular font
                     }
                 }
-                finally
+                
+                // Use TextRenderer for safe, high-quality text rendering
+                var flags = TextFormatFlags.Left | 
+                           TextFormatFlags.VerticalCenter | 
+                           TextFormatFlags.EndEllipsis | 
+                           TextFormatFlags.SingleLine |
+                           TextFormatFlags.NoPadding;
+                
+                TextRenderer.DrawText(g, title, textFont, textBounds, textColor, flags);
+                
+                // Dispose font if we created it
+                if (textFont != font && textFont != null)
                 {
-                    // Only dispose the font if we created it (i.e., for bold active tabs)
-                    if (actualFont != null && actualFont != font)
-                    {
-                        actualFont.Dispose();
-                    }
+                    textFont.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error details for debugging
+                System.Diagnostics.Debug.WriteLine($"DrawTabText error: {ex.Message}");
+                
+                // Final fallback to simple text rendering
+                try
+                {
+                    TextRenderer.DrawText(g, title, font, textBounds, textColor, 
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | 
+                        TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                }
+                catch
+                {
+                    // If all else fails, skip drawing this text
                 }
             }
         }
 
         private void DrawCloseButton(Graphics g, Rectangle closeRect, bool isHovered, Color baseColor)
         {
-            // Draw close button background on hover
+            // Draw close button background on hover with modern rounded appearance
             if (isHovered)
             {
-                using (var bgBrush = new SolidBrush(Color.FromArgb(120, Color.Red)))
-                using (var path = CreateRoundedPath(closeRect, 2))
+                // Use more modern hover color with better visibility
+                using (var bgBrush = new SolidBrush(Color.FromArgb(200, Color.Red)))
+                using (var path = CreateRoundedPath(closeRect, Math.Min(3, closeRect.Width / 4)))
+                {
+                    g.FillPath(bgBrush, path);
+                }
+            }
+            else
+            {
+                // Subtle background on non-hover for better visibility
+                using (var bgBrush = new SolidBrush(Color.FromArgb(30, baseColor)))
+                using (var path = CreateRoundedPath(closeRect, Math.Min(3, closeRect.Width / 4)))
                 {
                     g.FillPath(bgBrush, path);
                 }
             }
 
-            // Draw the X
-            var color = isHovered ? Color.White : baseColor;
-            using (var pen = new Pen(color, 1.5f))
+            // Draw the X with modern styling
+            var color = isHovered ? Color.White : Color.FromArgb(180, baseColor);
+            using (var pen = new Pen(color, 2f))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
+                pen.LineJoin = LineJoin.Round;
 
                 var centerX = closeRect.X + closeRect.Width / 2f;
                 var centerY = closeRect.Y + closeRect.Height / 2f;
-                var size = Math.Min(closeRect.Width, closeRect.Height) / 3f;
+                var size = Math.Min(closeRect.Width, closeRect.Height) / 3.5f;
 
+                // Draw X with smooth lines
                 g.DrawLine(pen, centerX - size, centerY - size, centerX + size, centerY + size);
                 g.DrawLine(pen, centerX + size, centerY - size, centerX - size, centerY + size);
             }

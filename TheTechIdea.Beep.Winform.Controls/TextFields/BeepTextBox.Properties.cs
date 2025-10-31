@@ -48,8 +48,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         // Use delayed update only during initialization
                         _needsTextUpdate = true;
-                        _delayedUpdateTimer?.Stop();
-                        _delayedUpdateTimer?.Start();
+                        // Only start timer if control has a valid handle and is not being disposed
+                        if (IsHandleCreated && !IsDisposed && !Disposing)
+                        {
+                            _delayedUpdateTimer?.Stop();
+                            _delayedUpdateTimer?.Start();
+                        }
                     }
                 }
             }

@@ -65,8 +65,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InvalidateLayout()
         {
             _needsLayoutUpdate = true;
-            _delayedUpdateTimer?.Stop();
-            _delayedUpdateTimer?.Start();
+            // Only start timer if control has a valid handle and is not being disposed
+            if (IsHandleCreated && !IsDisposed && !Disposing)
+            {
+                _delayedUpdateTimer?.Stop();
+                _delayedUpdateTimer?.Start();
+            }
         }
         
         public string GetDisplayText()

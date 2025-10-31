@@ -145,7 +145,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
            
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | 
+            ControlStyles.SupportsTransparentBackColor, true);
 
             // Consider adding for large datasets:
             SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
@@ -172,10 +173,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Let WinForms handle scaling via parent container's AutoScaleMode
             // Per Microsoft docs: "Each container control is responsible for scaling its children 
             // using its own scaling factors and not the one from its parent container"
-            // We inherit the parent's mode and let it handle our scaling
-            AutoScaleMode = AutoScaleMode.Inherit;
-            DoubleBuffered = true;
-            BackColor = Color.Transparent;
+            //// We inherit the parent's mode and let it handle our scaling
+            //AutoScaleMode = AutoScaleMode.Inherit;
+            //DoubleBuffered = true;
+            //BackColor = Color.Transparent;
 
             // Initialize helpers in the correct order to avoid circular dependencies
             try

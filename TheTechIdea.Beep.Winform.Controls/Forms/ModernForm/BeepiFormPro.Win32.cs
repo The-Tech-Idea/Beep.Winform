@@ -61,8 +61,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private const int WM_NCACTIVATE = 0x86;
     private const int WM_ERASEBKGND = 0x0014;
         private const int WM_PRINTCLIENT = 0x0318;
-    private const int WM_CTLCOLORDLG = 0x0136;
+        private const int WM_CTLCOLORDLG = 0x0136;
     private const int WM_CTLCOLORSTATIC = 0x0138;
+        private const int WM_MOVE = 0x0003;
+        private const int WM_NCMOVE = 0x00A0;
+        private const int WM_EXITSIZEMOVE = 0x0232;
 
     // Window Style constants
     private const int WS_SIZEBOX = 0x00040000;
@@ -210,6 +213,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                                 WindowState = FormWindowState.Maximized;
                         }
                         m.Result = IntPtr.Zero;
+                        return;
+                    case WM_MOVE:
+                    case WM_NCMOVE:
+                        // Let base handle the move - don't repaint during dragging to avoid flicker
+                        base.WndProc(ref m);
+                        // Just mark that we need to repaint when movement stops
+                        return;
+                    case WM_EXITSIZEMOVE:
+                        // Repaint only when movement/resizing is complete to avoid flicker
+                        base.WndProc(ref m);
+                        if (_drawCustomWindowBorder && IsHandleCreated)
+                        {
+                            // Invalidate the entire form (client + non-client) to repaint everything including child controls
+                            Invalidate(true);
+                            // Also repaint non-client area (title bar/borders)
+                            RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                            // Force immediate update to ensure child controls are repainted
+                            Update();
+                        }
                         return;
                         
                     default:

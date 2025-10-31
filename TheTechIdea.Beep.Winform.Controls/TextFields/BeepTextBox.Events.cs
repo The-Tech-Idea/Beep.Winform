@@ -126,6 +126,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            
+            // Only start timer if control has a valid handle and is not being disposed
+            // This prevents "Error creating window handle" when control is added before handle is created
+            if (!IsHandleCreated || IsDisposed || Disposing)
+                return;
+                
             _needsLayoutUpdate = true;
             _delayedUpdateTimer?.Stop();
             _delayedUpdateTimer?.Start();

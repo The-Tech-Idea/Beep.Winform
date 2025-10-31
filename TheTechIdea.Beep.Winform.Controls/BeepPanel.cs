@@ -141,6 +141,79 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _titleLineFullWidth = value; Invalidate(); }
         }
 
+        /// <summary>
+        /// Override to prevent BaseControl from clearing the graphics surface over child controls.
+        /// As a container control, we let Windows Forms handle child control painting naturally.
+        /// </summary>
+        protected override bool AllowBaseControlClear => false;
+
+        /// <summary>
+        /// Override OnPaintBackground to ensure proper background painting for container controls.
+        /// This ensures child controls are painted on top of the background, like a regular Panel.
+        /// </summary>
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            // Paint the background normally for container controls
+            // Windows Forms will automatically paint child controls on top
+         e.Graphics.Clear(BackColor);
+        }
+
+        /// <summary>
+        /// Override OnPaint to paint the title. Since UserPaint is false, Windows Forms
+        /// will automatically paint child controls, so we don't need to paint them explicitly.
+        /// </summary>
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (IsDisposed || !IsHandleCreated) return;
+            
+            try
+            {
+                // Call base Control.OnPaint to ensure standard painting pipeline
+                // Since UserPaint is false, Windows Forms will handle child controls automatically
+                base.OnPaint(e);
+                
+                // Now paint our title on top (but only in the title area)
+                // Only paint title if it's shown
+                if (_showTitle && !string.IsNullOrEmpty(_titleText))
+                {
+                    var g = e.Graphics;
+                    
+                    // Calculate title area
+                    Rectangle titleArea = GetTitleArea();
+                    
+                    if (!titleArea.IsEmpty)
+                    {
+                        // Save current clip
+                        Region oldClip = g.Clip;
+                        
+                        // Clip to title area only - don't paint over child control area
+                        using (var region = new Region(titleArea))
+                        {
+                            g.Clip = region;
+                            
+                            // Paint background for title area only (erase any child control content in title area)
+                            using (var brush = new SolidBrush(BackColor))
+                            {
+                                g.FillRectangle(brush, titleArea);
+                            }
+                            
+                            // Draw title and title line
+                            _titleBottomY = startyoffset;
+                            UpdateDrawingRect();
+                            DrawTitle(g, DrawingRect);
+                        }
+                        
+                        // Restore original clip
+                        g.Clip = oldClip;
+                    }
+                }
+                
+                // Note: With UserPaint = false, Windows Forms automatically paints child controls
+                // No need to manually paint them here!
+            }
+            catch { }
+        }
+
         #endregion
 
         #region "Constructor"
@@ -161,10 +234,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = false;
             CanBeHovered = false;
 
-            // Enable double buffering for smooth rendering
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+            // For container controls, we need to disable UserPaint to allow Windows Forms
+            // to automatically paint child controls. We can still paint the title in OnPaint.
+            
+            // Disable UserPaint (BaseControl sets it to true, we override it here)
+            SetStyle(ControlStyles.UserPaint, false);
+            
+            // Keep other useful styles
+            SetStyle(ControlStyles.OptimizedDoubleBuffer | 
+                     ControlStyles.ResizeRedraw | 
+                     ControlStyles.ContainerControl, true);
+            
+            // Disable external buffered graphics for container controls - it can interfere with child control painting
+            UseExternalBufferedGraphics = false;
+            
             DoubleBuffered = true;
-
+            UpdateStyles();
             this.Size = new Size(400, 300);
 
             try { ApplyTheme(); }
@@ -176,83 +261,83 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
 
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            _isDisposing = true;
-            base.OnHandleDestroyed(e);
-        }
+        //protected override void OnHandleDestroyed(EventArgs e)
+        //{
+        //    _isDisposing = true;
+        //    base.OnHandleDestroyed(e);
+        //}
 
-        // IMPORTANT: Avoid BaseControl's parent-change badge registration for this container
-        protected override void OnParentChanged(EventArgs e)
-        {
-            // Intentionally do NOT call base.OnParentChanged to skip RegisterBadgeDrawer logic for BeepPanel
-            try
-            {
-                if (IsChild && Parent != null)
-                {
-                    BackColor = Parent.BackColor;
-                }
+        //// IMPORTANT: Avoid BaseControl's parent-change badge registration for this container
+        //protected override void OnParentChanged(EventArgs e)
+        //{
+        //    // Intentionally do NOT call base.OnParentChanged to skip RegisterBadgeDrawer logic for BeepPanel
+        //    try
+        //    {
+        //        if (IsChild && Parent != null)
+        //        {
+        //            BackColor = Parent.BackColor;
+        //        }
                 
-                // Force refresh when parent changes (e.g., added to BeepiFormPro)
-                if (Visible && !IsDisposed)
-                {
-                    BeginInvoke(new Action(() =>
-                    {
-                        if (!IsDisposed && Visible)
-                        {
-                            Invalidate(true);
-                            Refresh();
-                            // Ensure all child controls are properly refreshed
-                            foreach (Control control in Controls)
-                            {
-                                if (!control.IsDisposed && control.Visible)
-                                {
-                                    control.Invalidate(true);
-                                    control.Refresh();
-                                }
-                            }
-                        }
-                    }));
-                }
-            }
-            catch { /* design-time safe */ }
-        }
+        //        // Force refresh when parent changes (e.g., added to BeepiFormPro)
+        //        if (Visible && !IsDisposed)
+        //        {
+        //            BeginInvoke(new Action(() =>
+        //            {
+        //                if (!IsDisposed && Visible)
+        //                {
+        //                    Invalidate(true);
+        //                    Refresh();
+        //                    // Ensure all child controls are properly refreshed
+        //                    foreach (Control control in Controls)
+        //                    {
+        //                        if (!control.IsDisposed && control.Visible)
+        //                        {
+        //                            control.Invalidate(true);
+        //                            control.Refresh();
+        //                        }
+        //                    }
+        //                }
+        //            }));
+        //        }
+        //    }
+        //    catch { /* design-time safe */ }
+        //}
 
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-            if (Visible && !IsDisposed)
-            {
-                // Force invalidation of all child controls when panel becomes visible
-                Invalidate(true);
-                Refresh();
-                foreach (Control control in Controls)
-                {
-                    if (!control.IsDisposed && control.Visible)
-                    {
-                        control.Invalidate(true);
-                        control.Refresh();
-                    }
-                }
-            }
-        }
+        //protected override void OnVisibleChanged(EventArgs e)
+        //{
+        //    base.OnVisibleChanged(e);
+        //    if (Visible && !IsDisposed)
+        //    {
+        //        // Force invalidation of all child controls when panel becomes visible
+        //        Invalidate(true);
+        //        Refresh();
+        //        foreach (Control control in Controls)
+        //        {
+        //            if (!control.IsDisposed && control.Visible)
+        //            {
+        //                control.Invalidate(true);
+        //                control.Refresh();
+        //            }
+        //        }
+        //    }
+        //}
 
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            // Ensure proper rendering when handle is created
-            if (!IsDisposed && Visible)
-            {
-                BeginInvoke(new Action(() =>
-                {
-                    if (!IsDisposed && Visible)
-                    {
-                        Invalidate(true);
-                        Refresh();
-                    }
-                }));
-            }
-        }
+        //protected override void OnHandleCreated(EventArgs e)
+        //{
+        //    base.OnHandleCreated(e);
+        //    // Ensure proper rendering when handle is created
+        //    if (!IsDisposed && Visible)
+        //    {
+        //        BeginInvoke(new Action(() =>
+        //        {
+        //            if (!IsDisposed && Visible)
+        //            {
+        //                Invalidate(true);
+        //                Refresh();
+        //            }
+        //        }));
+        //    }
+        //}
 
         // Override Dispose to properly clean up
         protected override void Dispose(bool disposing)
@@ -282,20 +367,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-
-            try
-            {
-                _textFont = Font;
-                if (AutoSize)
-                {
-                    Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                }
-            }
-            catch { }
-        }
+     
 
         public override void ApplyTheme()
         {
@@ -353,20 +425,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
+        /// <summary>
+        /// Calculates the title area rectangle that needs to be painted.
+        /// This excludes the area where child controls will be rendered.
+        /// </summary>
+        private Rectangle GetTitleArea()
+        {
+            if (!_showTitle || string.IsNullOrEmpty(_titleText) || _textFont == null)
+                return Rectangle.Empty;
+
+            UpdateDrawingRect();
+            var titleSize = TextRenderer.MeasureText(_titleText, _textFont);
+            int titleHeight = titleSize.Height + padding;
+            
+            if (_showTitleLine)
+            {
+                titleHeight += _titleLineThickness + padding;
+            }
+            
+            // Return the title area at the top of the control
+            return new Rectangle(
+                DrawingRect.Left,
+                DrawingRect.Top,
+                DrawingRect.Width,
+                titleHeight + padding * 2
+            );
+        }
+
         protected override void DrawContent(Graphics g)
         {
-            if (_isDisposing || IsDisposed ) return;
-            try
-            {
-                base.DrawContent(g);
-                _titleBottomY = startyoffset;
-                UpdateDrawingRect();
-                if (_showTitle && !string.IsNullOrEmpty(_titleText))
-                {
-                    DrawTitle(g, DrawingRect);
-                }
-            }
-            catch { }
+       
         }
 
         private void DrawTitle(Graphics g, Rectangle rectangle)

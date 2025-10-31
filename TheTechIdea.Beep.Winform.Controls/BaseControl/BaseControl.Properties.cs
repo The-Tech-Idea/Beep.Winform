@@ -1083,10 +1083,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     // Auto-resize to compensate chrome when style-based painting is used
                     try
                     {
-                        if (UseFormStylePaint && !IsDisposed)
-                        {
-                            AdjustSizeForControlStyle();
-                        }
+                        //if (UseFormStylePaint && !IsDisposed)
+                        //{
+                        //    AdjustSizeForControlStyle();
+                        //}
                     }
                     catch { /* design-time safe */ }
                     Invalidate();

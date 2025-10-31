@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 12;
+            // Holographic theme - futuristic aesthetic
+            this.BorderRadius = 8;  // Matching FormStyle.Holographic
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.20f;
-            this.IsDarkTheme = true;
+            this.ShadowOpacity = 0.20f;  // Strong shadows for depth
+            this.IsDarkTheme = true;  // Dark theme with neon accents
         }
     }
 }

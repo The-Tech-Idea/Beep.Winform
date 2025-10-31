@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 6;
+            // Arc Linux aesthetic - subtle borders, moderate shadows
+            this.BorderRadius = 4;  // Slightly more squared, matching Linux aesthetic
             this.BorderSize = 1;
             this.ShadowOpacity = 0.10f;
-            this.IsDarkTheme = false;
+            this.IsDarkTheme = true;  // Arc is a dark theme
         }
     }
 }

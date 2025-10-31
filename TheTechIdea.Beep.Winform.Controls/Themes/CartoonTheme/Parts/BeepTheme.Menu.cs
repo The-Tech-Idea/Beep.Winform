@@ -10,22 +10,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
-            this.MenuBackColor = Color.FromArgb(255,251,235);
-            this.MenuForeColor = Color.FromArgb(33,37,41);
-            this.MenuBorderColor = Color.FromArgb(247,208,136);
-            this.MenuMainItemForeColor = Color.FromArgb(33,37,41);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(33,37,41);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(255,251,235);
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(33,37,41);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(255,251,235);
-            this.MenuItemForeColor = Color.FromArgb(33,37,41);
-            this.MenuItemHoverForeColor = Color.FromArgb(33,37,41);
-            this.MenuItemHoverBackColor = Color.FromArgb(255,251,235);
-            this.MenuItemSelectedForeColor = Color.FromArgb(33,37,41);
-            this.MenuItemSelectedBackColor = Color.FromArgb(255,251,235);
-            this.MenuGradiantStartColor = Color.FromArgb(255,251,235);
-            this.MenuGradiantEndColor = Color.FromArgb(255,251,235);
-            this.MenuGradiantMiddleColor = Color.FromArgb(255,251,235);
+            // Cartoon menu - playful purple theme
+            this.MenuBackColor = Color.FromArgb(255, 240, 255);  // Pink-tinted background
+            this.MenuForeColor = Color.FromArgb(80, 0, 120);  // Purple text
+            this.MenuBorderColor = Color.FromArgb(150, 100, 200);  // Purple border
+            
+            // Main menu items
+            this.MenuMainItemForeColor = Color.FromArgb(80, 0, 120);
+            this.MenuMainItemHoverForeColor = Color.FromArgb(80, 0, 120);
+            this.MenuMainItemHoverBackColor = Color.FromArgb(240, 220, 255);  // Light purple hover
+            this.MenuMainItemSelectedForeColor = Color.FromArgb(80, 0, 120);
+            this.MenuMainItemSelectedBackColor = Color.FromArgb(220, 180, 255);  // Medium purple selected
+            
+            // Sub menu items
+            this.MenuItemForeColor = Color.FromArgb(80, 0, 120);
+            this.MenuItemHoverForeColor = Color.FromArgb(80, 0, 120);
+            this.MenuItemHoverBackColor = Color.FromArgb(240, 220, 255);  // Light purple hover
+            this.MenuItemSelectedForeColor = Color.FromArgb(80, 0, 120);
+            this.MenuItemSelectedBackColor = Color.FromArgb(220, 180, 255);  // Medium purple selected
+            
+            // Playful gradient
+            this.MenuGradiantStartColor = Color.FromArgb(255, 250, 255);
+            this.MenuGradiantEndColor = Color.FromArgb(255, 230, 250);
+            this.MenuGradiantMiddleColor = Color.FromArgb(255, 240, 255);
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
         }
     }

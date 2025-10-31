@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 14;
+            // Glass theme - frosted glass aesthetic
+            this.BorderRadius = 8;  // Matching FormStyle.Glass
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.14f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.14f;  // Soft shadows for depth
+            this.IsDarkTheme = false;  // Light theme with transparency
         }
     }
 }

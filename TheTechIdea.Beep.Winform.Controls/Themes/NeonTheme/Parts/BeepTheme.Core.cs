@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 10;
-            this.BorderSize = 1;
-            this.ShadowOpacity = 0.20f;
-            this.IsDarkTheme = true;
+            // Neon theme - vibrant neon aesthetic
+            this.BorderRadius = 6;  // Matching FormStyle.Neon
+            this.BorderSize = 2;
+            this.ShadowOpacity = 0.20f;  // Strong shadows for neon glow
+            this.IsDarkTheme = true;  // Dark theme with neon accents
         }
     }
 }

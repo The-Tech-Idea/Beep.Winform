@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 4;
+            // Paper theme - Material Design paper aesthetic
+            this.BorderRadius = 4;  // Matching FormStyle.Paper
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.12f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.12f;  // Material Design shadows
+            this.IsDarkTheme = false;  // Light theme
         }
     }
 }

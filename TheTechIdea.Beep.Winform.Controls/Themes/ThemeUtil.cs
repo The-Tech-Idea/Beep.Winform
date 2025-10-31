@@ -15,3 +15,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         public static Color Lighten(Color c, double by) => Blend(c, Color.White, by);
     }
 }
+

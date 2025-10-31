@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 8;
-            this.BorderSize = 1;
-            this.ShadowOpacity = 0.22f;
-            this.IsDarkTheme = true;
+            // Cyberpunk theme - angular, neon aesthetic
+            this.BorderRadius = 4;  // Matching FormStyle.Cyberpunk
+            this.BorderSize = 2;  // Thicker borders for neon effect
+            this.ShadowOpacity = 0.22f;  // Glowing shadows
+            this.IsDarkTheme = true;  // Dark theme with neon accents
         }
     }
 }

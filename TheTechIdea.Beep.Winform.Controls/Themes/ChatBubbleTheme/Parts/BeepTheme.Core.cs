@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 22;
+            // ChatBubble theme - rounded, soft aesthetic
+            this.BorderRadius = 12;  // Matching FormStyle.ChatBubble
             this.BorderSize = 2;
-            this.ShadowOpacity = 0.16f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.16f;  // Soft shadows
+            this.IsDarkTheme = false;  // Light theme with blue accents
         }
     }
 }

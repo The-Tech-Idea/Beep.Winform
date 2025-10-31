@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 12;
+            // MacOS theme - clean macOS aesthetic
+            this.BorderRadius = 12;  // Matching FormStyle.MacOS
             this.BorderSize = 0;
-            this.ShadowOpacity = 0.10f;
-            this.IsDarkTheme = false;
+            this.ShadowOpacity = 0.10f;  // Subtle shadows
+            this.IsDarkTheme = false;  // Light theme
         }
     }
 }

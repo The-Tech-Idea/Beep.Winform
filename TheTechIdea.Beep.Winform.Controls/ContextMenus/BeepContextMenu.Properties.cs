@@ -395,11 +395,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _textFont;
             set
             {
-                if (_textFont != value)
+                // Validate font before setting
+                if (IsValidFont(value))
                 {
-                    _textFont = value ?? new Font("Segoe UI", 9f);
-                    RecalculateSize();
-                    Invalidate();
+                    if (_textFont != value)
+                    {
+                        _textFont = value;
+                        RecalculateSize();
+                        Invalidate();
+                    }
+                }
+                else
+                {
+                    // Use safe fallback font
+                    if (_textFont == null)
+                    {
+                        _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+                    }
+                    System.Diagnostics.Debug.WriteLine($"Invalid font provided to BeepContextMenu, keeping existing font");
                 }
             }
         }
@@ -415,10 +428,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _shortcutFont;
             set
             {
-                if (_shortcutFont != value)
+                // Validate font before setting
+                if (IsValidFont(value))
                 {
-                    _shortcutFont = value ?? new Font("Segoe UI", 8f);
-                    Invalidate();
+                    if (_shortcutFont != value)
+                    {
+                        _shortcutFont = value;
+                        Invalidate();
+                    }
+                }
+                else
+                {
+                    // Use safe fallback font
+                    if (_shortcutFont == null)
+                    {
+                        _shortcutFont = new Font("Segoe UI", 8f, FontStyle.Regular);
+                    }
+                    System.Diagnostics.Debug.WriteLine($"Invalid shortcut font provided to BeepContextMenu, keeping existing font");
                 }
             }
         }

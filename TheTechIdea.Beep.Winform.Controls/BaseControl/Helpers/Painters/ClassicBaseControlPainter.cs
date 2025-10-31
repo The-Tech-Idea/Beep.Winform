@@ -3,6 +3,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using static TheTechIdea.Beep.Winform.Controls.Base.BaseControl;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
@@ -28,26 +32,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 return;
             }
 
-            // Compute border thickness to consider
+            // Compute border thickness and padding
+            // When UseFormStylePaint is true, use BeepStyling values, otherwise use owner's properties
             int border = 0;
-            if (owner.ShowAllBorders || owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder))
+            int padding = 0;
+            int shadow = 0;
+            
+            if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
-                border = owner.BorderThickness;
+                // Use BeepStyling values for BeepStyling-based painting
+                float borderWidth = BeepStyling.GetBorderThickness(owner.ControlStyle);
+                border = (int)Math.Ceiling(borderWidth);
+                padding = BeepStyling.GetPadding(owner.ControlStyle);
+                
+                // Check if this style has shadows
+                if (StyleShadows.HasShadow(owner.ControlStyle))
+                {
+                    // Use a reasonable shadow offset based on style
+                    shadow = Math.Max(2, StyleShadows.GetShadowBlur(owner.ControlStyle) / 2);
+                }
             }
             else
-
             {
+                // Use owner's properties for classic painting
+                if (owner.ShowAllBorders || owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder))
+                {
+                    border = owner.BorderThickness;
+                }
+                
+                // For classic mode, use the average of padding
+                var pad = owner.Padding;
+                padding = (pad.Left + pad.Top + pad.Right + pad.Bottom) / 4;
+                
+                // Shadow offset
+                shadow = owner.ShowShadow ? owner.ShadowOffset : 0;
             }
 
-                // Base paddings + optional offsets
-                var padding = owner.Padding;
-            int leftPad = padding.Left + owner.LeftoffsetForDrawingRect;
-            int topPad = padding.Top + owner.TopoffsetForDrawingRect;
-            int rightPad = padding.Right + owner.RightoffsetForDrawingRect;
-            int bottomPad = padding.Bottom + owner.BottomoffsetForDrawingRect;
-
-            // Shadow offset
-            int shadow = owner.ShowShadow ? owner.ShadowOffset : 0;
+            // Base paddings + optional offsets (always use owner's specific offsets)
+            var ownerPadding = owner.Padding;
+            int leftPad = ownerPadding.Left + owner.LeftoffsetForDrawingRect;
+            int topPad = ownerPadding.Top + owner.TopoffsetForDrawingRect;
+            int rightPad = ownerPadding.Right + owner.RightoffsetForDrawingRect;
+            int bottomPad = ownerPadding.Bottom + owner.BottomoffsetForDrawingRect;
+            
+            // When using BeepStyling, apply the style padding on top of owner's padding
+            if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
+            {
+                leftPad += padding;
+                topPad += padding;
+                rightPad += padding;
+                bottomPad += padding;
+            }
 
             // Calculate inner drawing rect
             int calculatedWidth = owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad);
@@ -61,6 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             );
 
             // Reserve space for label and helper when not material
+            // IMPORTANT: Also ensure content height can accommodate the control's text font
             try
             {
                 int reserveTop = 0;
@@ -84,8 +120,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     reserveBottom = h + 4;
                 }
 
+                // Calculate minimum height needed for main control text
+                int mainTextHeight = 0;
+                if (!string.IsNullOrEmpty(owner.Text))
+                {
+                    // Get the actual height needed for the control's main text
+                    var textSize = TextRenderer.MeasureText(g, owner.Text, owner.Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    mainTextHeight = textSize.Height;
+                }
+                else
+                {
+                    // Even without text, ensure we can accommodate the control's font size
+                    mainTextHeight = owner.Font.Height;
+                }
+
                 if (reserveTop > 0 || reserveBottom > 0)
                 {
+                    int availableHeight = inner.Height - reserveTop - reserveBottom;
+                    
+                    // Ensure available height is at least enough for the main text
+                    if (availableHeight < mainTextHeight)
+                    {
+                        // Not enough space - reduce reserved space proportionally or don't reserve
+                        // Priority: main text > label/helper
+                        if (inner.Height < mainTextHeight + reserveTop + reserveBottom)
+                        {
+                            // Not enough space for everything - prioritize main text
+                            reserveTop = 0;
+                            reserveBottom = 0;
+                        }
+                        else
+                        {
+                            // Scale down reserves to fit
+                            int totalReserves = reserveTop + reserveBottom;
+                            int neededSpace = mainTextHeight;
+                            int availableForReserves = inner.Height - neededSpace;
+                            
+                            if (totalReserves > 0 && availableForReserves > 0)
+                            {
+                                // Proportionally reduce reserves
+                                reserveTop = (int)(reserveTop * (availableForReserves / (float)totalReserves));
+                                reserveBottom = (int)(reserveBottom * (availableForReserves / (float)totalReserves));
+                            }
+                        }
+                    }
+                    
                     inner = new Rectangle(
                         inner.X,
                         inner.Y + reserveTop,

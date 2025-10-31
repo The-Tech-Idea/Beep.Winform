@@ -10,10 +10,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCore()
         {
-            this.BorderRadius = 6;
+            // GruvBox theme - retro groove aesthetic
+            this.BorderRadius = 4;  // Matching FormStyle.GruvBox
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.16f;
-            this.IsDarkTheme = true;
+            this.ShadowOpacity = 0.16f;  // Moderate shadows
+            this.IsDarkTheme = true;  // Dark theme
         }
     }
 }

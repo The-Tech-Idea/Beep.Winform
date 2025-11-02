@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// </summary>
     public static class GraphicsExtensions
     {
-        public static GraphicsPath CreateRoundedRectanglePath(RectangleF     rect, CornerRadius radius)
+        public static GraphicsPath CreateRoundedRectanglePath(RectangleF rect, CornerRadius radius)
         {
             var path = new GraphicsPath();
             if (rect.Width <= 0 || rect.Height <= 0)
@@ -20,11 +20,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 path.AddRectangle(new RectangleF(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height)));
                 return path;
             }
-            int maxRadius = (int)(Math.Min(rect.Width, rect.Height) / 2);
-            int tl = Math.Max(0, Math.Min(radius.TopLeft, maxRadius));
-            int tr = Math.Max(0, Math.Min(radius.TopRight, maxRadius));
-            int br = Math.Max(0, Math.Min(radius.BottomRight, maxRadius));
-            int bl = Math.Max(0, Math.Min(radius.BottomLeft, maxRadius));
+            float maxRadius = Math.Min(rect.Width, rect.Height) / 2f;
+            float tl = Math.Max(0f, Math.Min((float)radius.TopLeft, maxRadius));
+            float tr = Math.Max(0f, Math.Min((float)radius.TopRight, maxRadius));
+            float br = Math.Max(0f, Math.Min((float)radius.BottomRight, maxRadius));
+            float bl = Math.Max(0f, Math.Min((float)radius.BottomLeft, maxRadius));
             if (tl == 0 && tr == 0 && br == 0 && bl == 0)
             {
                 path.AddRectangle(rect);
@@ -46,11 +46,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 path.AddRectangle(new Rectangle(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height)));
                 return path;
             }
-            int maxRadius = (int)(Math.Min(rect.Width, rect.Height) / 2);
-            int tl = Math.Max(0, Math.Min(radius.TopLeft, maxRadius));
-            int tr = Math.Max(0, Math.Min(radius.TopRight, maxRadius));
-            int br = Math.Max(0, Math.Min(radius.BottomRight, maxRadius));
-            int bl = Math.Max(0, Math.Min(radius.BottomLeft, maxRadius));
+            float maxRadius = Math.Min(rect.Width, rect.Height) / 2f;
+            float tl = Math.Max(0f, Math.Min((float)radius.TopLeft, maxRadius));
+            float tr = Math.Max(0f, Math.Min((float)radius.TopRight, maxRadius));
+            float br = Math.Max(0f, Math.Min((float)radius.BottomRight, maxRadius));
+            float bl = Math.Max(0f, Math.Min((float)radius.BottomLeft, maxRadius));
             if (tl == 0 && tr == 0 && br == 0 && bl == 0)
             {
                 path.AddRectangle(rect);
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         public static GraphicsPath CreateInsetPath(GraphicsPath originalPath, int inset)
         {
-           
+
             return originalPath.CreateInsetPath((float)inset);
         }
         /// <summary>
@@ -98,16 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     );
                 }
 
-                var scaledPath = new GraphicsPath();
-                scaledPath.AddPath(path, false); // Copy the original path structure
-
-                // Replace points while maintaining the original path types
-                if (scaledPath.PointCount == scaledPoints.Length)
-                {
-                    // This is a workaround since we can't directly set PathPoints
-                    scaledPath = new GraphicsPath(scaledPoints, path.PathTypes);
-                }
-
+                var scaledPath = new GraphicsPath(scaledPoints, path.PathTypes);
                 return scaledPath;
             }
             catch
@@ -172,12 +163,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 // Strategy 2: Rounded Rectangle (typically 8+ points with arcs)
                 if (pointCount >= 8 && HasArcs(originalPath) && IsRoundedRectangle(originalPath))
                 {
-                    int newRadius = Math.Max(0, radius - (int)inset);
-                    Rectangle innerRect = Rectangle.Round(RectangleF.Inflate(bounds, -inset, -inset));
+                    float newRadius = Math.Max(0f, radius - inset);
+                    RectangleF innerRectF = RectangleF.Inflate(bounds, -inset, -inset);
+                    Rectangle innerRect = Rectangle.Round(innerRectF);
                     if (innerRect.Width > 0 && innerRect.Height > 0)
                     {
-                        newRadius = Math.Min(newRadius, Math.Min(innerRect.Width, innerRect.Height) / 2);
-                        return CreateRoundedRectanglePath(innerRect, newRadius);
+                        newRadius = Math.Min(newRadius, Math.Min(innerRect.Width, innerRect.Height) / 2f);
+                        return CreateRoundedRectanglePath(innerRect, new CornerRadius((int)newRadius));
                     }
                 }
 
@@ -228,6 +220,105 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
+        /// <summary>
+        /// Creates an inset path for any shape type using multiple strategies.
+        /// This is the main entry point for creating inset paths.
+        /// </summary>
+        public static GraphicsPath CreateInsetPath(this GraphicsPath originalPath, float inset, CornerRadius cornerRadius)
+        {
+            // Validate input parameters
+            if (originalPath == null || originalPath.PointCount == 0)
+                return originalPath;
+
+            if (inset <= 0)
+                return (GraphicsPath)originalPath.Clone();
+
+            try
+            {
+                var bounds = originalPath.GetBounds();
+
+                // Check if bounds are valid
+                if (bounds.Width <= 0 || bounds.Height <= 0 || bounds.IsEmpty)
+                    return (GraphicsPath)originalPath.Clone();
+
+                var pointCount = originalPath.PointCount;
+
+                // Strategy 1: Simple Rectangle (4 points with straight lines)
+                if (pointCount == 4 && IsRectangle(originalPath))
+                {
+                    RectangleF innerRect = RectangleF.Inflate(bounds, -inset, -inset);
+
+                    // Ensure the inner rectangle is valid
+                    if (innerRect.Width > 0 && innerRect.Height > 0)
+                    {
+                        var innerPath = new GraphicsPath();
+                        innerPath.AddRectangle(innerRect);
+                        return innerPath;
+                    }
+                }
+
+                // Strategy 2: Rounded Rectangle (typically 8+ points with arcs)
+                if (pointCount >= 8 && HasArcs(originalPath) && IsRoundedRectangle(originalPath))
+                {
+                    CornerRadius newCornerRadius = new CornerRadius(
+                        (int)Math.Max(0f, cornerRadius.TopLeft - inset),
+                        (int)Math.Max(0f, cornerRadius.TopRight - inset),
+                        (int)Math.Max(0f, cornerRadius.BottomRight - inset),
+                        (int)Math.Max(0f, cornerRadius.BottomLeft - inset)
+                    );
+                    RectangleF innerRect = RectangleF.Inflate(bounds, -inset, -inset);
+                    if (innerRect.Width > 0 && innerRect.Height > 0)
+                    {
+                        return CreateRoundedRectanglePath(innerRect, newCornerRadius);
+                    }
+                }
+
+                // Strategy 3: Ellipse/Circle
+                if (IsEllipse(originalPath, bounds))
+                {
+                    RectangleF innerRect = RectangleF.Inflate(bounds, -inset, -inset);
+
+                    if (innerRect.Width > 0 && innerRect.Height > 0)
+                    {
+                        var innerPath = new GraphicsPath();
+                        innerPath.AddEllipse(innerRect);
+                        return innerPath;
+                    }
+                }
+
+                // Strategy 4: Polygon with straight edges
+                if (IsPolygon(originalPath))
+                {
+                    var insetPolygon = CreateInsetPolygon(originalPath, inset);
+                    if (insetPolygon != null && insetPolygon.PointCount > 0)
+                        return insetPolygon;
+                }
+
+                // Strategy 5: Complex Shapes with Bezier curves
+                if (HasBezierCurves(originalPath))
+                {
+                    var widenedPath = CreateInsetPathByWidening(originalPath, inset);
+                    if (widenedPath != null && widenedPath.PointCount > 0)
+                        return widenedPath;
+                }
+
+                // Strategy 6: Scale toward centroid (most reliable fallback)
+                var scaledPath = ScalePathTowardCentroid(originalPath, inset);
+                if (scaledPath != null && scaledPath.PointCount > 0)
+                    return scaledPath;
+
+                // Ultimate fallback: return original path
+                return (GraphicsPath)originalPath.Clone();
+            }
+            catch (Exception ex)
+            {
+                // Log the error if you have logging infrastructure
+                // System.Diagnostics.Debug.WriteLine($"CreateInsetPath error: {ex.Message}");
+
+                // Return a safe fallback
+                return (GraphicsPath)originalPath.Clone();
+            }
+        }
         /// <summary>
         /// Creates an inset polygon by moving each edge inward perpendicular to the edge.
         /// Works well for convex polygons.
@@ -430,7 +521,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <param name="topRightRadius">Top-right corner radius</param>
         /// <param name="bottomLeftRadius">Bottom-left corner radius</param>
         /// <param name="bottomRightRadius">Bottom-right corner radius</param>
-        public static void FillRoundedRectangle(this Graphics graphics, Brush brush, RectangleF rect, 
+        public static void FillRoundedRectangle(this Graphics graphics, Brush brush, RectangleF rect,
             float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius)
         {
             using (var path = CreateRoundedRectanglePath(rect, topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius))
@@ -461,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <param name="topRightRadius">Top-right corner radius</param>
         /// <param name="bottomLeftRadius">Bottom-left corner radius</param>
         /// <param name="bottomRightRadius">Bottom-right corner radius</param>
-        public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, RectangleF rect, 
+        public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, RectangleF rect,
             float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius)
         {
             using (var path = CreateRoundedRectanglePath(rect, topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius))
@@ -491,7 +582,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <param name="bottomLeftRadius">Bottom-left corner radius</param>
         /// <param name="bottomRightRadius">Bottom-right corner radius</param>
         /// <returns>GraphicsPath for the rounded rectangle</returns>
-        public static GraphicsPath CreateRoundedRectanglePath(RectangleF rect, 
+        public static GraphicsPath CreateRoundedRectanglePath(RectangleF rect,
             float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius)
         {
             var path = new GraphicsPath();
@@ -528,7 +619,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             // Bottom-right corner
             if (bottomRightRadius > 0)
             {
-                path.AddArc(rect.Right - bottomRightRadius * 2, rect.Bottom - bottomRightRadius * 2, 
+                path.AddArc(rect.Right - bottomRightRadius * 2, rect.Bottom - bottomRightRadius * 2,
                     bottomRightRadius * 2, bottomRightRadius * 2, 0, 90);
             }
 
@@ -595,7 +686,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Draws a subtle, professional gradient
         /// </summary>
-        public static void DrawSubtleGradient(Graphics g, Rectangle rect, Color baseColor,int GradientAngle,bool IsRounded,int BorderRadius)
+        public static void DrawSubtleGradient(Graphics g, Rectangle rect, Color baseColor, int GradientAngle, bool IsRounded, int BorderRadius)
         {
             // Create a very subtle gradient for modern, professional look
             Color color1 = baseColor;
@@ -633,14 +724,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 blend.Positions = new float[] { 0.0f, 0.3f, 1.0f };
                 gradientBrush.InterpolationColors = blend;
 
-                FillShape(g, gradientBrush, rect,IsRounded,BorderRadius);
+                FillShape(g, gradientBrush, rect, IsRounded, BorderRadius);
             }
         }
 
         /// <summary>
         /// Draws a linear gradient with custom angle support
         /// </summary>
-        public static void DrawLinearGradient(Graphics g, Rectangle rect, Color baseColor,Color GradientStartColor, Color GradientEndColor, PointF RadialCenter, bool IsRounded, int BorderRadius,int GradientAngle, List<GradientStop> GradientStops )
+        public static void DrawLinearGradient(Graphics g, Rectangle rect, Color baseColor, Color GradientStartColor, Color GradientEndColor, PointF RadialCenter, bool IsRounded, int BorderRadius, int GradientAngle, List<GradientStop> GradientStops)
         {
             Color startColor = GradientStartColor;
             Color endColor = GradientEndColor;
@@ -659,7 +750,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 // Add multi-stop gradient if gradient stops are defined
                 if (GradientStops.Count > 0)
                 {
-                    ApplyGradientStops(gradientBrush,GradientStops);
+                    ApplyGradientStops(gradientBrush, GradientStops);
                 }
 
                 FillShape(g, gradientBrush, rect, IsRounded, BorderRadius);
@@ -697,7 +788,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Draws a radial gradient from center outward
         /// </summary>
-        public static void DrawRadialGradient(Graphics g, Rectangle rect, Color baseColor,Color GradientStartColor,Color GradientEndColor, PointF RadialCenter,bool IsRounded, int BorderRadius)
+        public static void DrawRadialGradient(Graphics g, Rectangle rect, Color baseColor, Color GradientStartColor, Color GradientEndColor, PointF RadialCenter, bool IsRounded, int BorderRadius)
         {
             Color centerColor = GradientStartColor != Color.Gray ? GradientStartColor : baseColor;
             Color edgeColor = GradientEndColor != Color.Gray ? GradientEndColor : ModifyColorBrightness(baseColor, 0.7f);
@@ -720,7 +811,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     gradientBrush.SurroundColors = new Color[] { edgeColor };
                     gradientBrush.CenterPoint = center;
 
-                    FillShape(g, gradientBrush, rect,IsRounded,BorderRadius);
+                    FillShape(g, gradientBrush, rect, IsRounded, BorderRadius);
                 }
             }
         }
@@ -728,7 +819,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Draws a conic (angular) gradient - simulated with multiple linear gradients
         /// </summary>
-        public static void DrawConicGradient(Graphics g, Rectangle rect, Color baseColor,int GradientAngle)
+        public static void DrawConicGradient(Graphics g, Rectangle rect, Color baseColor, int GradientAngle)
         {
             // Simulate conic gradient using multiple segments
             PointF center = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
@@ -817,7 +908,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 // Apply overall glass overlay
-                FillShape(g, glassBrush, rect,IsRounded, BorderRadius);
+                FillShape(g, glassBrush, rect, IsRounded, BorderRadius);
             }
         }
 
@@ -828,7 +919,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Fills a shape (rounded or rectangular) with the specified brush
         /// </summary>
-        public static void FillShape(Graphics g, Brush brush, Rectangle rect,bool IsRounded,int BorderRadius)
+        public static void FillShape(Graphics g, Brush brush, Rectangle rect, bool IsRounded, int BorderRadius)
         {
             if (IsRounded)
             {
@@ -891,8 +982,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        
-       
+
+
 
         public static GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
@@ -962,7 +1053,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         #endregion "Drawing gradiants"
 
         #region "GraphicsPath-based Caption Button Drawing"
-        
+
         /// <summary>
         /// Creates a circular GraphicsPath from a rectangle bounds
         /// </summary>
@@ -1421,11 +1512,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var path = new GraphicsPath();
             var points = new PointF[3];
-            
+
             // Calculate triangle points (equilateral)
             float angleStep = 360f / 3f;
             float startAngle = -90f + rotation; // Start from top
-            
+
             for (int i = 0; i < 3; i++)
             {
                 float angle = (startAngle + angleStep * i) * (float)Math.PI / 180f;
@@ -1434,7 +1525,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     centerY + size * (float)Math.Sin(angle)
                 );
             }
-            
+
             path.AddPolygon(points);
             return path;
         }
@@ -1446,21 +1537,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var path = new GraphicsPath();
             var starPoints = new PointF[points * 2];
-            
+
             float angleStep = 360f / points;
             float startAngle = -90f + rotation;
-            
+
             for (int i = 0; i < points * 2; i++)
             {
                 float radius = (i % 2 == 0) ? outerRadius : innerRadius;
                 float angle = (startAngle + angleStep * (i / 2f)) * (float)Math.PI / 180f;
-                
+
                 starPoints[i] = new PointF(
                     centerX + radius * (float)Math.Cos(angle),
                     centerY + radius * (float)Math.Sin(angle)
                 );
             }
-            
+
             path.AddPolygon(starPoints);
             return path;
         }
@@ -1496,10 +1587,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var path = new GraphicsPath();
             var points = new PointF[sides];
-            
+
             float angleStep = 360f / sides;
             float startAngle = -90f + rotation;
-            
+
             for (int i = 0; i < sides; i++)
             {
                 float angle = (startAngle + angleStep * i) * (float)Math.PI / 180f;
@@ -1508,7 +1599,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     centerY + size * (float)Math.Sin(angle)
                 );
             }
-            
+
             path.AddPolygon(points);
             return path;
         }
@@ -1526,7 +1617,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 new PointF(centerX, centerY + height / 2),          // Bottom
                 new PointF(centerX - width / 2, centerY)            // Left
             };
-            
+
             path.AddPolygon(points);
             return path;
         }
@@ -1538,7 +1629,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var path = new GraphicsPath();
             PointF[] points;
-            
+
             switch (direction)
             {
                 case ArrowDirection.Up:
@@ -1553,7 +1644,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         new PointF(x, y + height * 0.6f)                 // Left outer
                     };
                     break;
-                    
+
                 case ArrowDirection.Down:
                     points = new PointF[]
                     {
@@ -1566,7 +1657,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         new PointF(x + width, y + height * 0.4f)         // Right outer
                     };
                     break;
-                    
+
                 case ArrowDirection.Left:
                     points = new PointF[]
                     {
@@ -1579,7 +1670,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         new PointF(x + width * 0.6f, y + height)         // Bottom outer
                     };
                     break;
-                    
+
                 case ArrowDirection.Right:
                 default:
                     points = new PointF[]
@@ -1594,7 +1685,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     };
                     break;
             }
-            
+
             path.AddPolygon(points);
             return path;
         }
@@ -1605,30 +1696,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateChevron(float x, float y, float width, float height, ArrowDirection direction = ArrowDirection.Right, float thickness = 0.3f)
         {
             var path = new GraphicsPath();
-            
+
             switch (direction)
             {
                 case ArrowDirection.Up:
                     path.AddLine(x, y + height, x + width / 2, y);
                     path.AddLine(x + width / 2, y, x + width, y + height);
                     break;
-                    
+
                 case ArrowDirection.Down:
                     path.AddLine(x, y, x + width / 2, y + height);
                     path.AddLine(x + width / 2, y + height, x + width, y);
                     break;
-                    
+
                 case ArrowDirection.Left:
                     path.AddLine(x + width, y, x, y + height / 2);
                     path.AddLine(x, y + height / 2, x + width, y + height);
                     break;
-                    
+
                 case ArrowDirection.Right:
                     path.AddLine(x, y, x + width, y + height / 2);
                     path.AddLine(x + width, y + height / 2, x, y + height);
                     break;
             }
-            
+
             return path;
         }
 
@@ -1639,7 +1730,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var path = new GraphicsPath();
             float radius = Math.Min(width, height) / 2f;
-            
+
             if (width > height)
             {
                 // Horizontal pill
@@ -1656,7 +1747,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 path.AddArc(x, y + height - width, width, width, 0, 180);
                 path.AddLine(x, y + height - radius, x, y + radius);
             }
-            
+
             path.CloseFigure();
             return path;
         }
@@ -1667,15 +1758,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateSpeechBubble(float x, float y, float width, float height, float cornerRadius = 10f, float tailSize = 15f, SpeechBubbleTailPosition tailPosition = SpeechBubbleTailPosition.BottomLeft)
         {
             var path = new GraphicsPath();
-            
+
             // Main rounded rectangle
             var mainRect = new RectangleF(x, y, width, height);
-            
+
             // Add rounded rectangle
             path.AddArc(x, y, cornerRadius * 2, cornerRadius * 2, 180, 90);
+            path.AddLine(x + cornerRadius, y, x + width - cornerRadius, y);
             path.AddArc(x + width - cornerRadius * 2, y, cornerRadius * 2, cornerRadius * 2, 270, 90);
+            path.AddLine(x + width, y + cornerRadius, x + width, y + height - cornerRadius);
             path.AddArc(x + width - cornerRadius * 2, y + height - cornerRadius * 2, cornerRadius * 2, cornerRadius * 2, 0, 90);
-            
+
             // Add tail based on position
             switch (tailPosition)
             {
@@ -1685,22 +1778,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     path.AddLine(x + tailSize, y + height + tailSize, x + tailSize, y + height);
                     path.AddLine(x + tailSize, y + height, x + cornerRadius, y + height);
                     break;
-                    
+
                 case SpeechBubbleTailPosition.BottomRight:
                     path.AddLine(x + width - cornerRadius, y + height, x + width - tailSize, y + height);
                     path.AddLine(x + width - tailSize, y + height, x + width - tailSize, y + height + tailSize);
                     path.AddLine(x + width - tailSize, y + height + tailSize, x + width - tailSize * 2, y + height);
                     path.AddLine(x + width - tailSize * 2, y + height, x + cornerRadius, y + height);
                     break;
-                    
+
                 default:
                     path.AddLine(x + width - cornerRadius, y + height, x + cornerRadius, y + height);
                     break;
             }
-            
+
             path.AddArc(x, y + height - cornerRadius * 2, cornerRadius * 2, cornerRadius * 2, 90, 90);
             path.CloseFigure();
-            
+
             return path;
         }
 
@@ -1712,13 +1805,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             var path = new GraphicsPath();
             float halfSize = size / 2f;
             float halfThickness = (size * thickness) / 2f;
-            
+
             // Horizontal bar
             path.AddRectangle(new RectangleF(centerX - halfSize, centerY - halfThickness, size, size * thickness));
-            
+
             // Vertical bar
             path.AddRectangle(new RectangleF(centerX - halfThickness, centerY - halfSize, size * thickness, size));
-            
+
             return path;
         }
 
@@ -1730,17 +1823,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             var path = new GraphicsPath();
             float width = size;
             float height = size * 0.9f;
-            
+
             // Top left arc
             path.AddArc(centerX - width / 2, centerY - height / 3, width / 2, height / 2, 135, 225);
-            
+
             // Top right arc
             path.AddArc(centerX, centerY - height / 3, width / 2, height / 2, 270, 225);
-            
+
             // Bottom point
             path.AddLine(centerX + width / 2, centerY + height / 6, centerX, centerY + height / 2);
             path.AddLine(centerX, centerY + height / 2, centerX - width / 2, centerY + height / 6);
-            
+
             path.CloseFigure();
             return path;
         }
@@ -1751,19 +1844,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateCloud(float x, float y, float width, float height)
         {
             var path = new GraphicsPath();
-            
+
             // Cloud is composed of multiple circles
             float r1 = height / 3f;
             float r2 = height / 2.5f;
             float r3 = height / 3.5f;
             float r4 = height / 4f;
-            
+
             path.AddEllipse(x, y + height / 3, r1 * 2, r1 * 2);
             path.AddEllipse(x + width / 4 - r2, y, r2 * 2, r2 * 2);
             path.AddEllipse(x + width / 2 - r2, y + height / 6, r2 * 2, r2 * 2);
             path.AddEllipse(x + width - r3 * 2, y + height / 4, r3 * 2, r3 * 2);
             path.AddEllipse(x + width - r4 * 2.5f, y + height / 2, r4 * 2, r4 * 2);
-            
+
             return path;
         }
 
@@ -1774,49 +1867,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var path = new GraphicsPath();
             var points = new List<PointF>();
-            
+
             float angleStep = 360f / teeth;
             float toothWidth = angleStep / 3f;
-            
+
             for (int i = 0; i < teeth; i++)
             {
                 float baseAngle = i * angleStep;
-                
+
                 // Outer tooth
                 float angle1 = (baseAngle - toothWidth / 2) * (float)Math.PI / 180f;
                 float angle2 = (baseAngle + toothWidth / 2) * (float)Math.PI / 180f;
-                
+
                 points.Add(new PointF(
                     centerX + outerRadius * (float)Math.Cos(angle1),
                     centerY + outerRadius * (float)Math.Sin(angle1)
                 ));
-                
+
                 points.Add(new PointF(
                     centerX + outerRadius * (float)Math.Cos(angle2),
                     centerY + outerRadius * (float)Math.Sin(angle2)
                 ));
-                
+
                 // Inner valley
                 float angle3 = ((baseAngle + angleStep / 2) - toothWidth / 2) * (float)Math.PI / 180f;
                 float angle4 = ((baseAngle + angleStep / 2) + toothWidth / 2) * (float)Math.PI / 180f;
                 float valleyRadius = outerRadius * (1 - toothDepth);
-                
+
                 points.Add(new PointF(
                     centerX + valleyRadius * (float)Math.Cos(angle3),
                     centerY + valleyRadius * (float)Math.Sin(angle3)
                 ));
-                
+
                 points.Add(new PointF(
                     centerX + valleyRadius * (float)Math.Cos(angle4),
                     centerY + valleyRadius * (float)Math.Sin(angle4)
                 ));
             }
-            
+
             path.AddPolygon(points.ToArray());
-            
+
             // Add center hole
             path.AddEllipse(centerX - innerRadius, centerY - innerRadius, innerRadius * 2, innerRadius * 2);
-            
+
             return path;
         }
 
@@ -1830,7 +1923,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateTab(float x, float y, float width, float height, float cornerRadius = 8f, TabPosition position = TabPosition.Top)
         {
             var path = new GraphicsPath();
-            
+
             switch (position)
             {
                 case TabPosition.Top:
@@ -1841,7 +1934,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     path.AddLine(x + width, y + height, x, y + height);
                     path.AddLine(x, y + height, x, y + cornerRadius);
                     break;
-                    
+
                 case TabPosition.Bottom:
                     path.AddLine(x, y, x + width, y);
                     path.AddLine(x + width, y, x + width, y + height - cornerRadius);
@@ -1850,7 +1943,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     path.AddArc(x, y + height - cornerRadius * 2, cornerRadius * 2, cornerRadius * 2, 90, 90);
                     path.AddLine(x, y + height - cornerRadius, x, y);
                     break;
-                    
+
                 case TabPosition.Left:
                     path.AddArc(x, y, cornerRadius * 2, cornerRadius * 2, 180, 90);
                     path.AddLine(x + cornerRadius, y, x + width, y);
@@ -1859,7 +1952,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     path.AddArc(x, y + height - cornerRadius * 2, cornerRadius * 2, cornerRadius * 2, 90, 90);
                     path.AddLine(x, y + height - cornerRadius, x, y + cornerRadius);
                     break;
-                    
+
                 case TabPosition.Right:
                     path.AddLine(x, y, x + width - cornerRadius, y);
                     path.AddArc(x + width - cornerRadius * 2, y, cornerRadius * 2, cornerRadius * 2, 270, 90);
@@ -1869,7 +1962,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     path.AddLine(x, y + height, x, y);
                     break;
             }
-            
+
             path.CloseFigure();
             return path;
         }
@@ -1880,19 +1973,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateTag(float x, float y, float width, float height, float cornerRadius = 5f)
         {
             var path = new GraphicsPath();
-            
+
             // Left side with rounded corners
             path.AddArc(x, y, cornerRadius * 2, cornerRadius * 2, 180, 90);
             path.AddLine(x + cornerRadius, y, x + width - height / 3, y);
-            
+
             // Right side arrow point
             path.AddLine(x + width - height / 3, y, x + width, y + height / 2);
             path.AddLine(x + width, y + height / 2, x + width - height / 3, y + height);
-            
+
             path.AddLine(x + width - height / 3, y + height, x + cornerRadius, y + height);
             path.AddArc(x, y + height - cornerRadius * 2, cornerRadius * 2, cornerRadius * 2, 90, 90);
             path.AddLine(x, y + height - cornerRadius, x, y + cornerRadius);
-            
+
             path.CloseFigure();
             return path;
         }
@@ -1903,12 +1996,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateBreadcrumb(float x, float y, float width, float height, float arrowSize = 10f)
         {
             var path = new GraphicsPath();
-            
+
             path.AddLine(x, y, x + width - arrowSize, y);
             path.AddLine(x + width - arrowSize, y, x + width, y + height / 2);
             path.AddLine(x + width, y + height / 2, x + width - arrowSize, y + height);
             path.AddLine(x + width - arrowSize, y + height, x, y + height);
-            
+
             if (x > arrowSize)
             {
                 path.AddLine(x, y + height, x + arrowSize, y + height / 2);
@@ -1918,7 +2011,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 path.AddLine(x, y + height, x, y);
             }
-            
+
             path.CloseFigure();
             return path;
         }
@@ -1970,7 +2063,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static GraphicsPath CreateDropdownArrow(float x, float y, float size, bool pointDown = true)
         {
             var path = new GraphicsPath();
-            
+
             if (pointDown)
             {
                 path.AddPolygon(new PointF[]
@@ -1989,7 +2082,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     new PointF(x + size / 2, y)
                 });
             }
-            
+
             return path;
         }
 
@@ -2077,14 +2170,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             var points = path.PathPoints;
             if (points.Length == 0) return PointF.Empty;
-            
+
             float cx = 0, cy = 0;
             foreach (var pt in points)
             {
                 cx += pt.X;
                 cy += pt.Y;
             }
-            
+
             return new PointF(cx / points.Length, cy / points.Length);
         }
 
@@ -2127,7 +2220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 bounds = new RectangleF(0, 0, 1, 1); // Fallback
             }
-            
+
             return new LinearGradientBrush(bounds, color1, color2, angle);
         }
 

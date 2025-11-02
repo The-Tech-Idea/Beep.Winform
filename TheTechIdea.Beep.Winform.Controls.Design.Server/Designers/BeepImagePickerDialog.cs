@@ -3,8 +3,10 @@ using System.ComponentModel.Design;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 using System.Xml.Linq;
 using Svg;
 using TheTechIdea.Beep.Winform.Controls;
@@ -18,14 +20,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly BeepImage _control;
         private readonly bool _embed; // no longer auto-embeds; only controls title/intent
         private readonly IServiceProvider _sp;
+        private readonly Assembly _resourceAssembly;
         private string[] _allResources = Array.Empty<string>();
 
         public string SelectedFilePath { get; private set; }
         public string SelectedResourcePath { get; private set; }
 
-        public BeepImagePickerDialog(BeepImage control, bool embed, IServiceProvider sp) : this()
+        public BeepImagePickerDialog(BeepImage control, bool embed, IServiceProvider sp, Assembly resourceAssembly = null) : this()
         {
             _control = control; _embed = embed; _sp = sp;
+            _resourceAssembly = resourceAssembly ?? control?.GetType().Assembly;
             Text = embed ? "Embed Image" : "Select Image";
             LoadEmbedded();
         }
@@ -59,7 +63,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (files == null || files.Length == 0) return;
             var first = files.First();
-            if (!IsSupported(first)) return;
+            if (!IsSupported(first))
+            {
+                ShowMessage("Unsupported file type.", "Embed Image");
+                return;
+            }
             _txtPath.Text = first;
             // Do NOT auto-embed. User must click Embed explicitly.
             SelectedFilePath = first;
@@ -110,8 +118,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private async Task ImportCurrentPathAsync()
         {
             var path = _txtPath.Text?.Trim();
-            if (string.IsNullOrEmpty(path)) { MessageBox.Show("Select a file first."); return; }
-            if (!IsSupported(path)) { MessageBox.Show("Unsupported file type."); return; }
+            if (string.IsNullOrEmpty(path)) { ShowMessage("Select a file first.", "Embed Image"); return; }
+            if (!IsSupported(path)) { ShowMessage("Unsupported file type.", "Embed Image"); return; }
             await ImportFileAsync(path);
         }
 
@@ -122,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 var projDir = FindProjectDirectory();
                 if (projDir == null)
                 {
-                    MessageBox.Show("Could not locate project directory to embed into.", "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowMessage("Could not locate project directory to embed into.", "Embed Image");
                     SelectedFilePath = filePath;
                     return;
                 }
@@ -132,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 if (!result.IsSuccess)
                 {
                     var err = string.Join(Environment.NewLine, result.Errors ?? System.Linq.Enumerable.Empty<string>());
-                    MessageBox.Show($"Embed failed: {err}", "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowMessage($"Embed failed: {err}", "Embed Image");
                     SelectedFilePath = filePath;
                     return;
                 }
@@ -155,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Embed failed: " + ex.Message, "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowMessage("Embed failed: " + ex.Message, "Embed Image");
                 SelectedFilePath = filePath;
             }
         }
@@ -198,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Embed failed: " + ex.Message, "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowMessage("Embed failed: " + ex.Message, "Embed Image");
                 SelectedFilePath = filePath;
             }
         }
@@ -230,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _lstEmbedded.Items.Clear();
             try
             {
-                var asm = _control?.GetType().Assembly;
+                var asm = _resourceAssembly ?? _control?.GetType().Assembly;
                 if (asm != null)
                 {
                     _allResources = asm.GetManifestResourceNames()
@@ -255,6 +263,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             foreach (var r in filtered) _lstEmbedded.Items.Add(r);
             _lstEmbedded.EndUpdate();
             _preview.ClearImage();
+        }
+
+        private void ShowMessage(string text, string caption)
+        {
+            if (_sp?.GetService(typeof(IUIService)) is IUIService uiService)
+            {
+                uiService.ShowMessage(text, caption, MessageBoxButtons.OK);
+            }
+            else
+            {
+                MessageBox.Show(this, text, caption, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }

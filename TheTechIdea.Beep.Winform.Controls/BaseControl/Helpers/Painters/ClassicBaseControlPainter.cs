@@ -217,13 +217,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner.UseFormStylePaint)
             {
                
-                GraphicsPath path=DrawingRect.ToGraphicsPath();
-                if (owner.IsRounded && owner.BorderRadius > 0)
-                {
-                    path = owner.ClientRectangle.ToGraphicsPath();//GraphicsExtensions.GetRoundedRectPath(owner.ClientRectangle, owner.BorderRadius);
-                   
-                }
-
+              //  GraphicsPath path=DrawingRect.ToGraphicsPath();
+                GraphicsPath  path=BeepStyling.CreateStylePath(owner.ClientRectangle);
+                
                 BeepStyling.PaintControl(g, path, owner.ControlStyle, owner._currentTheme, false, GetEffectiveState(owner), owner.IsTransparentBackground);
             }
             else

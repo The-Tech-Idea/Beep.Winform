@@ -748,7 +748,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             //beepButton1.DisableDpiAndScaling = false;
             beepButton1.DrawingRect = new Rectangle(18, 26, 385, 14);
             beepButton1.Easing = Vis.Modules.EasingType.Linear;
-            beepButton1.EmbeddedImagePath = null;
+         
             beepButton1.EnableHighQualityRendering = true;
             beepButton1.EnableMaterialStyle = false;
             beepButton1.EnableRippleEffect = false;

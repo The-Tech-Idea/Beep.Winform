@@ -80,7 +80,7 @@
             beepButton1.DisabledForeColor = Color.Gray;
             beepButton1.DrawingRect = new Rectangle(0, 0, 123, 56);
             beepButton1.Easing = EasingType.Linear;
-            beepButton1.EmbeddedImagePath = null;
+           
             beepButton1.EnableHighQualityRendering = true;
             beepButton1.EnableMaterialStyle = false;
             beepButton1.EnableRippleEffect = false;

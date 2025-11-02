@@ -1027,7 +1027,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             //CancelbeepButton.DisableDpiAndScaling = false;
             CancelbeepButton.DrawingRect = new Rectangle(24, 8, 82, 44);
             CancelbeepButton.Easing = Vis.Modules.EasingType.Linear;
-            CancelbeepButton.EmbeddedImagePath = null;
+        
             CancelbeepButton.EnableHighQualityRendering = true;
             CancelbeepButton.EnableRippleEffect = false;
             CancelbeepButton.EnableSplashEffect = false;
@@ -1219,7 +1219,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             //SavebeepButton.DisableDpiAndScaling = false;
             SavebeepButton.DrawingRect = new Rectangle(24, 8, 82, 44);
             SavebeepButton.Easing = Vis.Modules.EasingType.Linear;
-            SavebeepButton.EmbeddedImagePath = null;
+          
             SavebeepButton.EnableHighQualityRendering = true;
             SavebeepButton.EnableRippleEffect = false;
             SavebeepButton.EnableSplashEffect = false;

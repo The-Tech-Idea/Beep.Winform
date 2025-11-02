@@ -84,6 +84,10 @@
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
+    <!-- Ensure the designer-only assembly is available at design-time so UITypeEditors can be created -->
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Design.Server\TheTechIdea.Beep.Winform.Controls.Design.Server.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

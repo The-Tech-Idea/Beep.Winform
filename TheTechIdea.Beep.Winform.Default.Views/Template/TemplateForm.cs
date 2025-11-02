@@ -38,12 +38,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         {
             this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
-            beepService = services.GetService<IBeepService>();
-            Dependencies.DMEEditor = beepService.DMEEditor;
+            // Use fully qualified DI extension to avoid ambiguity with System.ServiceExtensions
+            beepService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<IBeepService>(services);
+            if (beepService != null)
+            {
+                Dependencies.DMEEditor = beepService.DMEEditor;
 
-            beepFormuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;
-            beepFormuiManager1.LogoImage = beepService.vis.LogoUrl;
-            beepFormuiManager1.Title = beepService.vis.Title;
+                beepFormuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;
+                beepFormuiManager1.LogoImage = beepService.vis.LogoUrl;
+                beepFormuiManager1.Title = beepService.vis.Title;
+            }
         }
 
         private void BeepuiManager1_OnThemeChanged(string obj)
@@ -86,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             string errormessage = "";
             if (Editor.ErrorObject != null)
             {
-                if (Editor.ErrorObject.Errors.Count > 0)
+                if (Editor.ErrorObject.Errors.Count >0)
                 {
                     foreach (var item in Editor.ErrorObject.Errors)
                     {

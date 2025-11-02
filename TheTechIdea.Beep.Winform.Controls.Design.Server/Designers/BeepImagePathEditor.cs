@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls;
@@ -8,48 +10,49 @@ using TheTechIdea.Beep.Winform.Controls;
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
-    /// UITypeEditor that opens BeepImagePickerDialog to select an image path or embedded resource.
+    /// Design-time editor that launches the shared image picker dialog.
     /// </summary>
-    public class BeepImagePathEditor : UITypeEditor
+    internal sealed class BeepImagePathEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
             => UITypeEditorEditStyle.Modal;
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            try
-            {
-                // Try to get a BeepImage from the owning component if available
-                BeepImage targetImage = null;
+            var owningControl = ExtractControl(context?.Instance);
+            var serviceProvider = provider ?? owningControl?.Site;
+            var resourceAssembly = owningControl?.GetType().Assembly ?? context?.PropertyDescriptor?.ComponentType?.Assembly;
 
-                // Attempt to use the owning component as a source for assembly scanning if it's a BeepImage or contains one
-                if (context?.Instance is BeepImage img)
+            using var dialog = new BeepImagePickerDialog(null, embed: false, serviceProvider, resourceAssembly);
+
+            // Don't use IUIService - just show the dialog directly
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                if (!string.IsNullOrWhiteSpace(dialog.SelectedResourcePath))
                 {
-                    targetImage = img;
+                    return dialog.SelectedResourcePath;
                 }
 
-                using var dlg = new BeepImagePickerDialog(targetImage, embed: false, sp: provider);
-                var result = dlg.ShowDialog();
-                if (result == DialogResult.OK)
+                if (!string.IsNullOrWhiteSpace(dialog.SelectedFilePath))
                 {
-                    // Prefer embedded resource path if chosen, else use file path
-                    if (!string.IsNullOrWhiteSpace(dlg.SelectedResourcePath))
-                        return dlg.SelectedResourcePath;
-                    if (!string.IsNullOrWhiteSpace(dlg.SelectedFilePath))
-                        return dlg.SelectedFilePath;
+                    return dialog.SelectedFilePath;
                 }
-                return value;
             }
-            catch
+
+            return value;
+        }
+
+        private static Control ExtractControl(object instance)
+        {
+            return instance switch
             {
-                // Fallback to default file dialog if the picker fails for any reason
-                using var ofd = new OpenFileDialog { Filter = "Images|*.svg;*.png;*.jpg;*.jpeg;*.bmp|All Files|*.*" };
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    return ofd.FileName;
-                }
-                return value;
-            }
+                Control control => control,
+                IComponent component when component is Control controlComponent => controlComponent,
+                object[] array => array.OfType<Control>().FirstOrDefault(),
+                _ => null
+            };
         }
     }
 }

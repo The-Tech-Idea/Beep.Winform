@@ -142,8 +142,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                                                             // Avoid manual scaling of sizes/locations/fonts.
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
-           
-            this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | 
             ControlStyles.SupportsTransparentBackColor, true);

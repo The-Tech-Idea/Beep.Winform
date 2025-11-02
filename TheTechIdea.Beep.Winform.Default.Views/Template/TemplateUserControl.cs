@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
       
         public TemplateUserControl(IServiceProvider services) : this()
         {
-            beepService = services.GetService<IBeepService>();
+            beepService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<IBeepService>(services);
             if (beepService != null)
             {
                 Dependencies.DMEEditor = beepService.DMEEditor;

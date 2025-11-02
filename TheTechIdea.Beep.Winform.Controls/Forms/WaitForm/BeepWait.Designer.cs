@@ -653,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.DisabledForeColor = Color.Gray;
             LogopictureBox.DrawingRect = new Rectangle(1, 0, 45, 40);
             LogopictureBox.Easing = EasingType.Linear;
-            LogopictureBox.EmbeddedImagePath = null;
+           
             LogopictureBox.EnableHighQualityRendering = true;
             LogopictureBox.EnableMaterialStyle = false;
             LogopictureBox.EnableRippleEffect = false;
@@ -839,7 +839,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.DisabledForeColor = Color.Gray;
             _spinnerImage.DrawingRect = new Rectangle(1, 0, 118, 60);
             _spinnerImage.Easing = EasingType.Linear;
-            _spinnerImage.EmbeddedImagePath = null;
+         
             _spinnerImage.EnableHighQualityRendering = true;
             _spinnerImage.EnableMaterialStyle = false;
             _spinnerImage.EnableRippleEffect = false;
@@ -1026,7 +1026,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.DisabledForeColor = Color.Gray;
             beepImage1.DrawingRect = new Rectangle(0, 0, 100, 100);
             beepImage1.Easing = EasingType.Linear;
-            beepImage1.EmbeddedImagePath = null;
+         
             beepImage1.EnableHighQualityRendering = true;
             beepImage1.EnableMaterialStyle = false;
             beepImage1.EnableRippleEffect = false;

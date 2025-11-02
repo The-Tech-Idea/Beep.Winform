@@ -6,6 +6,15 @@
     <Nullable>enable</Nullable>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls.Design.Server</AssemblyName>
   </PropertyGroup>
+  
+  <Target Name="CopyToDesignTools" AfterTargets="Build">
+    <PropertyGroup>
+      <DesignToolsPath>$(ProjectDir)..\TheTechIdea.Beep.Winform.Controls\bin\$(Configuration)\$(TargetFramework)\.designtools\</DesignToolsPath>
+    </PropertyGroup>
+    <MakeDir Directories="$(DesignToolsPath)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DesignToolsPath)" SkipUnchangedFiles="true" />
+  </Target>
+  
   <ItemGroup>
     <!-- Use latest available preview (restore previously showed 1.13.0-preview.2.24575.3) -->
     <PackageReference Include="Microsoft.WinForms.Designer.SDK" Version="1.13.0-preview.2.24575.3" />

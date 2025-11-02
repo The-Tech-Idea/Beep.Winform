@@ -175,7 +175,7 @@
             _preview.Dock = DockStyle.Fill;
             _preview.DrawingRect = new Rectangle(0, 0, 254, 685);
             _preview.Easing = Vis.Modules.EasingType.Linear;
-            _preview.EmbeddedImagePath = null;
+          
             _preview.EnableHighQualityRendering = true;
             _preview.EnableRippleEffect = false;
             _preview.EnableSplashEffect = true;

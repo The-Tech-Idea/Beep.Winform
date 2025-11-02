@@ -21,8 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Image")]
     [DesignTimeVisible(true)]
     [Description("A control that displays an image (SVG, PNG, JPG, BMP).")]
-    // Temporarily disable custom designer to use default Control designer
-    // [Designer("TheTechIdea.Beep.Winform.Controls.MDI.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepImage : BaseControl
     {
         #region "Fields"
@@ -54,20 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #endregion "Fields"
         #region "Properties"
-        [Browsable(true)]
-        [Category("Icons")]
-        [Description("SVG path for the  pic.")]
-        [TypeConverter(typeof(BeepImagesPathConverter))]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public string EmbeddedImagePath
-        {
-            get => _imagepath;
-            set
-            {
-                ImagePath = value;
 
-            }
-        }
         private bool _preserveSvgBackgrounds = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -325,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
@@ -1426,31 +1412,75 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return Path.GetExtension(path)?.ToLower() == ".svg";
         }
+        
+        /// <summary>
+        /// Normalizes the image path to handle both strongly-typed references (Option 1) 
+        /// and direct embedded resource paths (Option 2).
+        /// </summary>
+        /// <param name="path">The path to normalize</param>
+        /// <returns>Normalized path suitable for loading</returns>
+        private string NormalizeImagePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return path;
+
+            // Option 1: Handle strongly-typed static references from SvgsUI, Svgs, SvgsDatasources
+            // These classes expose static readonly strings like "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.key.svg"
+            // The value is already the full embedded resource path, so just return it
+            // This is detected by checking if the path already looks like a full embedded resource path
+            if (path.StartsWith("TheTechIdea.Beep.", StringComparison.OrdinalIgnoreCase) &&
+                (path.Contains(".GFX.") || path.Contains(".Fonts.")))
+            {
+                // Already a full embedded resource path (Option 1 or Option 2)
+                return path;
+            }
+
+            // Option 2: Direct embedded resource path - user typed the full path
+            // Just return as-is if it contains typical embedded resource namespace patterns
+            if (path.Contains("TheTechIdea", StringComparison.OrdinalIgnoreCase) && path.Contains("."))
+            {
+                return path;
+            }
+
+            // Handle short names - try to resolve from ImageListHelper
+            bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
+            if (isJustFileName)
+            {
+                string resolvedPath = ImageListHelper.GetImagePathFromName(path);
+                if (!string.IsNullOrWhiteSpace(resolvedPath))
+                {
+                    return resolvedPath;
+                }
+            }
+
+            // Return original path for file system paths or unresolved names
+            return path;
+        }
+
         /// <summary>
         /// Load the image from the provided path (checks if it's a file path or embedded resource).
+        /// Supports both strongly-typed references (Option 1: SvgsUI.Key) and 
+        /// direct embedded resource paths (Option 2: "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.key.svg")
         /// </summary>
         private bool LoadImage(string path)
         {
             bool retval = false;
             try
             {
+                // Normalize the path to handle both Option 1 and Option 2
+                path = NormalizeImagePath(path);
+
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    return false;
+                }
 
                 // Console.WriteLine($"Loading image: {path}");
                 if (IsEmbeddedResource(path))
                 {
-                    // Console.WriteLine("Loading from embedded resource 1"); 
+                    // Console.WriteLine("Loading from embedded resource"); 
                     // Attempt to load from embedded resources
-                    bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
-                    if (isJustFileName)
-                    {
-                        string newpath = ImageListHelper.GetImagePathFromName(path);
-                        if (newpath != null)
-                        {
-                            path = newpath;
-                        }
-                    }
                     retval = LoadImageFromEmbeddedResource(path);
-                    // Console.WriteLine("Loading from embedded resource 2");
                 }
                 else
                 {
@@ -1459,13 +1489,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Console.WriteLine("Loading from file system");
                         // Load from file system
                         retval = LoadImageFromFile(path);
-                        // Console.WriteLine("Loading from file system 2");
                     }
                 }
             }
             catch (Exception ex)
             {
                 // Console.WriteLine($"Error loading image: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"BeepImage LoadImage Error: {ex.Message}");
                 return false;
             }
             return retval;
@@ -1501,34 +1531,95 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (string.IsNullOrWhiteSpace(path))
                 return false;
 
+            // Normalize the path by replacing slashes with dots (CASE-INSENSITIVE comparison)
             string normalizedPath = path.Trim().Replace("\\", ".").Replace("/", ".");
 
-            // Check if it exists in any loaded assembly
+            // Check all loaded assemblies for matching embedded resources (CASE-INSENSITIVE)
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var resourceNames = assembly.GetManifestResourceNames();
-
-                if (resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase)))
+                try
                 {
-                    return true; // Found as an embedded resource
+                    var resourceNames = assembly.GetManifestResourceNames();
+                    
+                    // Use case-insensitive comparison
+                    if (resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return true;
+                    }
+
+                    // Also try partial matching for short names (e.g., "key.svg" might match "*.UI.key.svg")
+                    bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
+                    if (isJustFileName)
+                    {
+                        // Check if any resource ends with this filename (case-insensitive)
+                        if (resourceNames.Any(name => name.EndsWith("." + normalizedPath, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Skip assemblies that can't be queried
+                    continue;
                 }
             }
-            // if it's just a file name no path,its an embedded resource 
-            // Check if the path is just a filename (no path separators)
-            // Check if the path is just a filename (no path separators)
-            bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
-            if (isJustFileName)
+
+            // If it's just a filename without path separators, assume it might be embedded
+            bool isShortName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
+            if (isShortName)
             {
-                return true; // It's likely an embedded resource
+                return true;
             }
-            // If it's a valid file path, it's NOT an embedded resource
+
+            // If it's a valid file system path, it's NOT an embedded resource
             if (File.Exists(path) || Directory.Exists(path))
             {
                 return false;
             }
 
-            // If it has no valid file extension, assume it's an embedded resource
-            return string.IsNullOrEmpty(Path.GetExtension(path));
+            // If it has no valid file extension and looks like a namespace, assume it's embedded
+            return string.IsNullOrEmpty(Path.GetExtension(path)) || path.Contains(".");
+        }
+
+        /// <summary>
+        /// Diagnostics method to list all embedded SVG resources
+        /// </summary>
+        public static List<string> GetAllEmbeddedSvgResources()
+        {
+            var svgResources = new List<string>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    var resourceNames = assembly.GetManifestResourceNames();
+                    svgResources.AddRange(resourceNames.Where(r => r.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)));
+                }
+                catch { }
+            }
+            return svgResources;
+        }
+
+        /// <summary>
+        /// Diagnostics method to find all embedded resources matching a specific pattern (case-insensitive).
+        /// Useful for debugging why certain icons can't be loaded.
+        /// </summary>
+        /// <param name="searchPattern">The pattern to search for (e.g., "key.svg" or "UI")</param>
+        /// <returns>List of matching resource names</returns>
+        public static List<string> FindEmbeddedResources(string searchPattern)
+        {
+            var matchingResources = new List<string>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    var resourceNames = assembly.GetManifestResourceNames();
+                    matchingResources.AddRange(resourceNames.Where(r => 
+                        r.Contains(searchPattern, StringComparison.OrdinalIgnoreCase)));
+                }
+                catch { }
+            }
+            return matchingResources;
         }
 
         /// <summary>
@@ -1538,25 +1629,65 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                Stream stream = null;
-                string matchedResource = null;
+                Stream? stream = null;
+                string? matchedResource = null;
 
                 // Normalize resource path (remove starting dots or extra spaces)
                 string normalizedResourcePath = resourcePath.Trim().Replace("\\", ".").Replace("/", ".");
 
-                // Search all assemblies for the resource (case-insensitive)
+                // Debug output - list similar resources if not found
+                var allSvgs = new List<string>();
+
+                // Search all assemblies for the resource (CASE-INSENSITIVE)
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    var resourceNames = assembly.GetManifestResourceNames();
-
-                    // Perform a case-insensitive lookup
-                    matchedResource = resourceNames
-                        .FirstOrDefault(name => name.Equals(normalizedResourcePath, StringComparison.OrdinalIgnoreCase));
-
-                    if (matchedResource != null)
+                    try
                     {
-                        stream = assembly.GetManifestResourceStream(matchedResource);
-                        break;
+                        var resourceNames = assembly.GetManifestResourceNames();
+
+                        // Perform a case-insensitive lookup
+                        matchedResource = resourceNames
+                            .FirstOrDefault(name => name.Equals(normalizedResourcePath, StringComparison.OrdinalIgnoreCase));
+
+                        if (matchedResource != null)
+                        {
+                            stream = assembly.GetManifestResourceStream(matchedResource);
+                            break;
+                        }
+
+                        // Collect SVG resources for debugging if we haven't found a match yet
+                        if (stream == null && Path.GetExtension(resourcePath).Equals(".svg", StringComparison.OrdinalIgnoreCase))
+                        {
+                            allSvgs.AddRange(resourceNames.Where(r => r.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)));
+                        }
+                    }
+                    catch
+                    {
+                        // Skip problematic assemblies
+                        continue;
+                    }
+                }
+
+                // If not found, try to find similar resources for better error message
+                if (stream == null)
+                {
+                    string fileName = Path.GetFileName(resourcePath);
+                    var similarResources = allSvgs
+                        .Where(r => r.Contains(fileName, StringComparison.OrdinalIgnoreCase))
+                        .Take(5)
+                        .ToList();
+                    
+                    if (similarResources.Any())
+                    {
+                        System.Diagnostics.Debug.WriteLine($"BeepImage: Resource '{resourcePath}' not found. Similar resources:");
+                        foreach (var similar in similarResources)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"  - {similar}");
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"BeepImage: Resource '{resourcePath}' not found. No similar resources found.");
                     }
                 }
 
@@ -2096,5 +2227,4 @@ namespace TheTechIdea.Beep.Winform.Controls
             svgDocument = null;
         }
     }
-
 }

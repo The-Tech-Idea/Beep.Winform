@@ -1558,7 +1558,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
          
             btnExport.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnExport.Easing = Vis.Modules.EasingType.Linear;
-            btnExport.EmbeddedImagePath = null;
+         
             btnExport.EnableHighQualityRendering = true;
             btnExport.EnableRippleEffect = false;
             btnExport.EnableSplashEffect = false;
@@ -1752,7 +1752,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
         
             btnApply.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnApply.Easing = Vis.Modules.EasingType.Linear;
-            btnApply.EmbeddedImagePath = null;
+          
             btnApply.EnableHighQualityRendering = true;
             btnApply.EnableRippleEffect = false;
             btnApply.EnableSplashEffect = false;
@@ -1946,7 +1946,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
          
             btnReset.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnReset.Easing = Vis.Modules.EasingType.Linear;
-            btnReset.EmbeddedImagePath = null;
+          
             btnReset.EnableHighQualityRendering = true;
             btnReset.EnableRippleEffect = false;
             btnReset.EnableSplashEffect = false;
@@ -2140,7 +2140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
          
             btnClose.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnClose.Easing = Vis.Modules.EasingType.Linear;
-            btnClose.EmbeddedImagePath = null;
+          
             btnClose.EnableHighQualityRendering = true;
             btnClose.EnableRippleEffect = false;
             btnClose.EnableSplashEffect = false;

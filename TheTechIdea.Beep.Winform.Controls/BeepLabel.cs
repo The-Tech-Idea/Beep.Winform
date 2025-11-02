@@ -14,11 +14,12 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [DisplayName("Beep Label")]
     [Description("A label control with support for images and multi-line text.")]
+    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepLabelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepLabel : BaseControl
     {
 
-            #region "Fields"
-            private BeepImage beepImage;
+        #region "Fields"
+        private BeepImage beepImage;
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16);
@@ -33,9 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Add subheader field
         private string _subHeaderText = string.Empty;
         // Add spacing between header and subheader
-    private int _headerSubheaderSpacing = 2;
-    // Constants - framework handles DPI scaling
-   
+        private int _headerSubheaderSpacing = 2;
+        // Constants - framework handles DPI scaling
+
         #endregion "Fields"
 
         #region "Properties"
@@ -217,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
@@ -267,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value;
                 UseThemeFont = false;
-               // Font = value;
+                // Font = value;
                 Invalidate();
             }
         }
@@ -354,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public override void ApplyMaterialSizeCompensation()
         {
-            if (PainterKind!= BaseControlPainterKind.Material || !LabelAutoSizeForMaterial)
+            if (PainterKind != BaseControlPainterKind.Material || !LabelAutoSizeForMaterial)
                 return;
 
             Console.WriteLine($"BeepLabel: Applying Material size compensation. Current size: {Width}x{Height}");
@@ -367,28 +368,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var measuredSize = System.Windows.Forms.TextRenderer.MeasureText(Text, font);
                 textSize = measuredSize;
             }
-            
+
             // Add subheader text size if present
             if (!string.IsNullOrEmpty(SubHeaderText))
             {
                 var subFont = SubHeaderFont ?? Font;
                 var subHeaderMeasuredSize = System.Windows.Forms.TextRenderer.MeasureText(SubHeaderText, subFont);
                 textSize.Width = Math.Max(textSize.Width, subHeaderMeasuredSize.Width);
-                textSize.Height +=  subHeaderMeasuredSize.Height;
+                textSize.Height += subHeaderMeasuredSize.Height;
             }
-            
+
             // Use a reasonable default content size if no text
             if (textSize.IsEmpty)
             {
                 textSize = new Size(100, 20);
             }
-            
+
             Console.WriteLine($"BeepLabel: Base content size: {textSize}");
             Console.WriteLine($"BeepLabel: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
-            
+
             // Apply Material size compensation using base method
             AdjustSizeForMaterial(textSize, true);
-            
+
             Console.WriteLine($"BeepLabel: Final size after compensation: {Width}x{Height}");
         }
         /// <summary>
@@ -505,11 +506,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Base minimum width for label
             int baseMinWidth = 80;
-            
+
             // Add space for icons if present
             var iconSpace = GetMaterialIconSpace();
             baseMinWidth += iconSpace.Width;
-            
+
             return baseMinWidth;
         }
         #endregion "Properties"
@@ -526,7 +527,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (PainterKind == BaseControlPainterKind.Material && LabelAutoSizeForMaterial)
             {
                 // Apply size compensation when handle is created
-                this.HandleCreated += (s, e) => {
+                this.HandleCreated += (s, e) =>
+                {
                     ApplyMaterialSizeCompensation();
                 };
             }
@@ -611,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-          
+
         }
         protected override void DrawContent(Graphics g)
         {
@@ -626,8 +628,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawImageAndText(Graphics g)
         {
-            
-          
+
+
 
             bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
 
@@ -732,7 +734,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Rectangle subHeaderTextRect = new Rectangle(
                         textAreaRect.X,
-                        headerTextRect.Bottom ,
+                        headerTextRect.Bottom,
                         textAreaRect.Width,
                         subHeaderTextSize.Height);
 
@@ -743,7 +745,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
-      
+
 
         #endregion "Painting"
 
@@ -762,9 +764,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BackColor = _currentTheme.LabelBackColor;
 
                 }
-            
+
                 ForeColor = _currentTheme.LabelForeColor;
-                _subHeaderForeColor = ColorUtils.GetLighterColor(ForeColor,50);
+                _subHeaderForeColor = ColorUtils.GetLighterColor(ForeColor, 50);
                 HoverBackColor = _currentTheme.LabelHoverBackColor;
                 HoverForeColor = _currentTheme.LabelHoverForeColor;
                 SelectedBackColor = _currentTheme.LabelSelectedBackColor;
@@ -784,7 +786,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                                FontStyle.Regular);
                     }
                 }
-              // SafeApplyFont(TextFont ?? _textFont);
+                // SafeApplyFont(TextFont ?? _textFont);
                 ApplyThemeToSvg();
                 //Invalidate();
                 //Refresh();
@@ -916,7 +918,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-      
+
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -946,7 +948,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
                 }
                 // Calculate the total width required for text, image, and spacing
-                int totalWidth = textSize.Width +  imageSize.Width;
+                int totalWidth = textSize.Width + imageSize.Width;
                 int totalHeight = Math.Max(textSize.Height, imageSize.Height);
 
                 // Adjust contentRect to fit the total content
@@ -961,29 +963,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     case TextImageRelation.ImageBeforeText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width  , contentRect.Top, contentRect.Width - imageSize.Width  , contentRect.Height), textSize, TextAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width, contentRect.Top, contentRect.Width - imageSize.Width, contentRect.Height), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextBeforeImage:
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width  , contentRect.Top, contentRect.Width - textSize.Width  , contentRect.Height), imageSize, ImageAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width, contentRect.Top, contentRect.Width - textSize.Width, contentRect.Height), imageSize, ImageAlign);
                         break;
 
                     case TextImageRelation.ImageAboveText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height  , contentRect.Width, contentRect.Height - imageSize.Height  ), textSize, TextAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height, contentRect.Width, contentRect.Height - imageSize.Height), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextAboveImage:
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height  , contentRect.Width, contentRect.Height - textSize.Height  ), imageSize, ImageAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height, contentRect.Width, contentRect.Height - textSize.Height), imageSize, ImageAlign);
                         break;
                 }
                 // Adjust positions based on TextAlign and ImageAlign within the contentRect
                 if (TextImageRelation == TextImageRelation.TextBeforeImage)
                 {
                     // Recalculate the total content width and adjust positions
-                    int contentWidth = textRect.Width   + imageRect.Width;
+                    int contentWidth = textRect.Width + imageRect.Width;
                     int contentHeight = Math.Max(textRect.Height, imageRect.Height);
 
                     // Center the entire content (text + image) within the contentRect based on TextAlign
@@ -1030,7 +1032,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Adjust text and image positions within the content area
                     textRect = new Rectangle(contentX, contentY + (contentHeight - textRect.Height) / 2, textRect.Width, textRect.Height);
-                    imageRect = new Rectangle(contentX + textRect.Width  , contentY + (contentHeight - imageRect.Height) / 2, imageRect.Width, imageRect.Height);
+                    imageRect = new Rectangle(contentX + textRect.Width, contentY + (contentHeight - imageRect.Height) / 2, imageRect.Width, imageRect.Height);
                 }
             }
         }
@@ -1182,24 +1184,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Badge"
 
         #region "Material Design Support"
-        
+
         /// <summary>
         /// Manually triggers Material Design size compensation for testing/debugging
         /// </summary>
         public void ForceMaterialSizeCompensation()
         {
-            Console.WriteLine($"BeepLabel: Force compensation called. EnableMaterialStyle: { PainterKind}, AutoSize: {LabelAutoSizeForMaterial}");
-            
+            Console.WriteLine($"BeepLabel: Force compensation called. EnableMaterialStyle: {PainterKind}, AutoSize: {LabelAutoSizeForMaterial}");
+
             // Temporarily enable auto size if needed
             bool originalAutoSize = LabelAutoSizeForMaterial;
             LabelAutoSizeForMaterial = true;
-            
+
             ApplyMaterialSizeCompensation();
-            
+
             // Restore original setting
             LabelAutoSizeForMaterial = originalAutoSize;
-            
-          
+
+
             Invalidate();
         }
 
@@ -1210,12 +1212,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (PainterKind != BaseControlPainterKind.Material)
                 return "Material Design is disabled";
-                
+
             var padding = GetMaterialStylePadding();
             var effects = GetMaterialEffectsSpace();
             var icons = GetMaterialIconSpace();
             var minSize = CalculateMinimumSizeForMaterial(new Size(100, 20));
-            
+
             return $"Material Info:\n" +
                    $"Current Size: {Width}x{Height}\n" +
                    $"Variant: {MaterialVariant}\n" +
@@ -1226,7 +1228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                    $"Auto Size Enabled: {LabelAutoSizeForMaterial}\n" +
                    $"Has SubHeader: {!string.IsNullOrEmpty(SubHeaderText)}";
         }
-        
+
         #endregion "Material Design Support"
     }
 }

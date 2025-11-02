@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [Description("A button control with an image and text.")]
     [DisplayName("Beep Button")]
+    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepButtonDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepButton : BaseControl
     {
         #region "Properties"
@@ -77,24 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("SVG path for the   icon.")]
-        [TypeConverter(typeof(BeepImagesPathConverter))]
-        public string EmbeddedImagePath
-        {
-            get => beepImage?.ImagePath;
-            set
-            {
-              
-                if (beepImage != null)
-                {
-                    beepImage.ImagePath = value;
-                    Invalidate();
-                }
-
-            }
-        }
+     
         private Color tmpbackcolor;
         private Color tmpforcolor;
 
@@ -328,7 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
+        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
@@ -782,10 +766,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BackColor = _currentTheme.ButtonBackColor;
             }
 
-            // Store original colors for state management
-            _originalBackColor = BackColor;
-            ForeColor = _currentTheme.ButtonForeColor;
-            _originalForColor = ForeColor;
+      
 
             // Apply all button state colors
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
@@ -846,7 +827,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 menuDialog.Theme = Theme;
             }
-
+            Invalidate();
             // Force redraw with new theme - base.ApplyTheme() already calls Invalidate()
             // so we don't need to call it again to avoid double invalidation
         }
@@ -944,13 +925,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (IsPressed)
             {
                 // Very subtle pressed state overlay
-                overlayColor = Color.Black;
+                overlayColor = PressedBackColor;
                 alpha = 15; // Reduced from 30 for more subtlety
             }
             else if (IsHovered)
             {
                 // Very subtle hover state overlay
-                overlayColor = Color.White;
+                overlayColor =HoverBackColor;
                 alpha = 8; // Reduced from 15 for more subtlety
             }
 
@@ -1346,7 +1327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Binding and Control Type"
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Boolean;
 
-        public void SetBinding(string controlProperty, string dataSourceProperty)
+        public void SetBinding(String controlProperty, String dataSourceProperty)
         {
             // Implementation for setting up data binding
             DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
@@ -1446,15 +1427,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Color textColor;
 
-            // Determine text color based on current state and theme settings
-            if (_isColorFromTheme)
-            {
-                textColor = _originalForColor;
-            }
-            else
-            {
-                textColor = ForeColor;
-            }
+           
 
             // Update text color based on button state for better visibility
             if (Enabled)
@@ -1470,6 +1443,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (IsPressed)
                 {
                     textColor = PressedForeColor;
+                }
+                else
+                {
+                    textColor = ForeColor;
                 }
             }
             else

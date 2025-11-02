@@ -410,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //CancelbeepButton.DisableDpiAndScaling = false;
             CancelbeepButton.DrawingRect = new Rectangle(18, 26, 85, 14);
             CancelbeepButton.Easing = Vis.Modules.EasingType.Linear;
-            CancelbeepButton.EmbeddedImagePath = null;
+        
             CancelbeepButton.EnableHighQualityRendering = true;
             CancelbeepButton.EnableRippleEffect = false;
             CancelbeepButton.EnableSplashEffect = false;

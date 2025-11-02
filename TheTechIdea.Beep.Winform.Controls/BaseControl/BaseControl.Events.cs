@@ -86,36 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (IsDisposed || !IsHandleCreated)
                 return;
             base.OnPaint(e);
-            if (AllowBaseControlClear)
-            {
-                if (!(this is GridX.BeepGridPro))
-                {
-                    UpdateDrawingRect();
-                }
-
-                try
-                {
-                    if (IsChild)
-                    {
-                        ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
-                        BackColor = ParentBackColor;
-                    }
-                    else
-                    {
-                        if (_currentTheme != null)
-                            BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
-                        else
-                            BackColor = SystemColors.Control;
-                    }
-                    e.Graphics.Clear(BackColor);
-
-                }
-                catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
-                {
-                    // Silently fail on color operations
-                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
-                }
-            }
+      
             // Don't call UpdateDrawingRect for BeepGridPro - it handles its own layout
            
 

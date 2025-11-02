@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //CancelbeepButton.DisableDpiAndScaling = false;
             CancelbeepButton.DrawingRect = new Rectangle(0, 0, 216, 62);
             CancelbeepButton.Easing = EasingType.Linear;
-            CancelbeepButton.EmbeddedImagePath = null;
+           
             CancelbeepButton.EnableHighQualityRendering = true;
             CancelbeepButton.EnableMaterialStyle = false;
             CancelbeepButton.EnableRippleEffect = false;
@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //SavebeepButton.DisableDpiAndScaling = false;
             SavebeepButton.DrawingRect = new Rectangle(0, 0, 216, 58);
             SavebeepButton.Easing = EasingType.Linear;
-            SavebeepButton.EmbeddedImagePath = null;
+           
             SavebeepButton.EnableHighQualityRendering = true;
             SavebeepButton.EnableMaterialStyle = false;
             SavebeepButton.EnableRippleEffect = false;
@@ -1412,7 +1412,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //beepButton1.DisableDpiAndScaling = false;
             beepButton1.DrawingRect = new Rectangle(0, 0, 49, 38);
             beepButton1.Easing = EasingType.Linear;
-            beepButton1.EmbeddedImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.addressbook.svg";
+          
             beepButton1.EnableHighQualityRendering = true;
             beepButton1.EnableMaterialStyle = false;
             beepButton1.EnableRippleEffect = false;

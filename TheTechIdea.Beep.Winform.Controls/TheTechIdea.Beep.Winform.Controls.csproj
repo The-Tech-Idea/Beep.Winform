@@ -62,7 +62,13 @@
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*.ttf" />
     <EmbeddedResource Include="Fonts\**\*.otf" />
-	<EmbeddedResource Include="GFX\**\*.*" />
+
+	  <EmbeddedResource Include="GFX\Icons\Datasources\*.*" />
+	  <EmbeddedResource Include="GFX\Icons\UI\*.*" />
+
+	  <EmbeddedResource Include="GFX\SVG\INFO\*.*" />
+	  <EmbeddedResource Include="GFX\SVG\NAV\*.*" />
+	  <EmbeddedResource Include="GFX\SVG\*.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -101,6 +107,7 @@
   <ItemGroup>
     <Folder Include="BaseImage\Helpers\" />
     <Folder Include="BeepDateTimePicker\" />
+    <Folder Include="Buttons\BeepAdvancedButton\Samples\" />
     <Folder Include="ComboBoxes\Helpers\" />
     <Folder Include="ComboBoxes\Painters\" />
     <Folder Include="ContextMenus\Helpers\" />

@@ -1,76 +1,116 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Drawing.Design;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Winform.Controls.Design.Server.Designers;
 
-namespace TheTechIdea.Beep.Winform.Controls.MDI.Designers
+namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
-    public class BeepImageDesigner : ControlDesigner
+    /// <summary>
+    /// Provides design-time verbs for managing image content on the BeepImage control.
+    /// </summary>
+    internal sealed class BeepImageDesigner : ControlDesigner, IImagePathDesignerHost
     {
-        private DesignerActionListCollection _lists;
-        public override DesignerActionListCollection ActionLists => _lists ??= new DesignerActionListCollection { new BeepImageActionList(this) };
-        internal BeepImage ImageControl => Control as BeepImage;
-    }
+        private IComponentChangeService _changeService;
+        private DesignerVerbCollection _verbs;
+        private DesignerActionListCollection _actionLists;
 
-    internal class BeepImageActionList : DesignerActionList
-    {
-        private readonly BeepImageDesigner _designer;
-        private readonly IComponentChangeService _change;
-        public BeepImageActionList(BeepImageDesigner designer) : base(designer.Component)
+        public override void Initialize(IComponent component)
         {
-            _designer = designer;
-            _change = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            base.Initialize(component);
+            _changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
         }
 
-        private BeepImage C => _designer.ImageControl;
-
-        public string ImagePath
-        {
-            get => C?.ImagePath;
-            set
+        public override DesignerVerbCollection Verbs
+            => _verbs ??= new DesignerVerbCollection
             {
-                if (C == null) return;
-                var p = TypeDescriptor.GetProperties(C)[nameof(C.ImagePath)];
-                var old = p.GetValue(C);
-                if (Equals(old, value)) return;
-                _change?.OnComponentChanging(C, p);
-                p.SetValue(C, value);
-                _change?.OnComponentChanged(C, p, old, value);
-            }
-        }
-
-        public void SelectImage() => ShowPicker(false);
-        public void EmbedImage() => ShowPicker(true);
-
-        private void ShowPicker(bool embed)
-        {
-            if (C == null) return;
-            using var dlg = new BeepImagePickerDialog(C, embed, (IServiceProvider)C.Site);
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                ImagePath = dlg.SelectedResourcePath ?? dlg.SelectedFilePath;
-            }
-        }
-
-        public override DesignerActionItemCollection GetSortedActionItems()
-        {
-            return new DesignerActionItemCollection
-            {
-                new DesignerActionHeaderItem("Image"),
-                new DesignerActionPropertyItem(nameof(ImagePath),"Image Path"),
-                new DesignerActionMethodItem(this,nameof(SelectImage),"Select / Link Image"),
-                new DesignerActionMethodItem(this,nameof(EmbedImage),"Add & Embed Image")
+                new DesignerVerb("Select Image...", OnSelectImage),
+                new DesignerVerb("Clear Image", OnClearImage)
             };
+
+        public override DesignerActionListCollection ActionLists
+            => _actionLists ??= new DesignerActionListCollection
+            {
+                new ImagePathDesignerActionList(this)
+            };
+
+        private void OnSelectImage(object sender, EventArgs e)
+            => SelectImage();
+
+        private void OnClearImage(object sender, EventArgs e)
+            => ClearImage();
+
+        public void SelectImage()
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+
+            // For BeepImage, we can pass the component as BeepImage, otherwise null
+            var beepImage = Component as BeepImage;
+            using var dialog = new BeepImagePickerDialog(beepImage, embed: false, serviceProvider, Component.GetType().Assembly);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public void ClearImage()
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            SetImagePath(string.Empty);
+        }
+
+        public string GetImagePath()
+        {
+            if (Component == null)
+            {
+                return string.Empty;
+            }
+
+            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
+            return property?.GetValue(Component) as string ?? string.Empty;
+        }
+
+        public void SetImagePath(string value)
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
+            if (property == null)
+            {
+                return;
+            }
+
+            var current = property.GetValue(Component) as string;
+            if (string.Equals(current ?? string.Empty, value ?? string.Empty, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _changeService?.OnComponentChanging(Component, property);
+            property.SetValue(Component, value);
+            _changeService?.OnComponentChanged(Component, property, current, value);
         }
     }
-
-    
 }

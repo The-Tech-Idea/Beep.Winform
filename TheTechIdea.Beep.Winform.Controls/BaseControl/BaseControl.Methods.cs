@@ -728,13 +728,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             // DPI is automatically handled by the framework in .NET 8/9+
             // No manual UpdateDpiScaling needed
-            
-            // Allow derived controls to opt-out of background clearing
+
+            //// Allow derived controls to opt-out of background clearing
             if (AllowBaseControlClear)
             {
-                g.Clear(BackColor);
+                if (!(this is GridX.BeepGridPro))
+                {
+                    UpdateDrawingRect();
+                }
+
+                try
+                {
+                    if (IsChild)
+                    {
+                        ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
+                        BackColor = ParentBackColor;
+                    }
+                    else
+                    {
+                        if (_currentTheme != null)
+                            BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                        else
+                            BackColor = SystemColors.Control;
+                    }
+                    g.Clear(BackColor);
+
+                }
+                catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+                {
+                    // Silently fail on color operations
+                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
+                }
             }
-            
+
             if (EnableHighQualityRendering)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;

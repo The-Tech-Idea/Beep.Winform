@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.DisabledForeColor = Color.Gray;
             CycleBeepDataTimePickerModebeepButton.DrawingRect = new Rectangle(18, 18, 113, 5);
             CycleBeepDataTimePickerModebeepButton.Easing = EasingType.Linear;
-            CycleBeepDataTimePickerModebeepButton.EmbeddedImagePath = null;
+          
             CycleBeepDataTimePickerModebeepButton.EnableHighQualityRendering = true;
             CycleBeepDataTimePickerModebeepButton.EnableMaterialStyle = false;
             CycleBeepDataTimePickerModebeepButton.EnableRippleEffect = false;

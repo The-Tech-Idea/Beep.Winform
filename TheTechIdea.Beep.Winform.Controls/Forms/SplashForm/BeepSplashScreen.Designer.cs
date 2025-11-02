@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // REMOVED: DisableDpiAndScaling - .NET 8/9+ handles DPI automatically
             _logoImage.DrawingRect = new Rectangle(0, 0, 443, 395);
             _logoImage.Easing = EasingType.Linear;
-            _logoImage.EmbeddedImagePath = null;
+         
             _logoImage.Enabled = true;
             _logoImage.EnableHighQualityRendering = true;
             _logoImage.EnableRippleEffect = false;

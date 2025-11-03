@@ -35,8 +35,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             BottomRight = bottomRight;
         }
         public void SetAll(int radius) => TopLeft = TopRight = BottomLeft = BottomRight = radius;
-    }
 
+        /// <summary>
+        /// Gets a value indicating whether all corner radii are the same.
+        /// </summary>
+        [Browsable(false)]
+        public bool AllCornersEqual => TopLeft == TopRight && TopLeft == BottomLeft && TopLeft == BottomRight;
+    }
     /// <summary>
     /// Anti-aliasing quality modes
     /// </summary>

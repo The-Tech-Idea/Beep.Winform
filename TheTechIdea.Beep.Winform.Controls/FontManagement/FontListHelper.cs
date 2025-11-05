@@ -529,6 +529,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
+            // Segoe UI
             EnsureInitialized();
             if (string.IsNullOrWhiteSpace(fontName))
             {

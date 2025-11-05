@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
  
  
 
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly Dictionary<int, Rectangle> _headerSortIconRects = new();
         private readonly Dictionary<int, Rectangle> _headerFilterIconRects = new();
         private BeepCheckBoxBool? _selectAllCheckbox;
+        private IPaintGridHeader? _currentHeaderPainter;
 
         // Configuration properties
         public bool ShowGridLines { get; set; } = true;
@@ -45,7 +47,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public Dictionary<int, Rectangle> HeaderFilterIconRects => _headerFilterIconRects;
 
         /// <summary>
+        /// Calculate the recommended header height based on the current navigation style and font
+        /// </summary>
+        public int CalculateHeaderHeight()
+        {
+            if (_grid == null) return 28; // Default fallback
+
+            // Get or create header painter matching navigation style
+            if (_currentHeaderPainter == null || _currentHeaderPainter.Style != _grid.NavigationStyle)
+            {
+                _currentHeaderPainter = HeaderPainterFactory.CreateHeaderPainter(_grid.NavigationStyle);
+            }
+
+            // Use painter's calculation which accounts for font size
+            return _currentHeaderPainter?.CalculateHeaderHeight(_grid) ?? 28;
+        }
+
+        /// <summary>
         /// Main entry point to draw all column headers with sticky column support.
+        /// Uses header painters for consistent styling with navigation bar.
         /// </summary>
         public void DrawColumnHeaders(Graphics g)
         {
@@ -54,72 +74,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var headerRect = _grid.Layout.ColumnsHeaderRect;
             if (headerRect.Height <= 0 || headerRect.Width <= 0) return;
 
-            // Fill background
-            using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
+            // Get or create header painter matching navigation style
+            if (_currentHeaderPainter == null || _currentHeaderPainter.Style != _grid.NavigationStyle)
             {
-                g.FillRectangle(brush, headerRect);
+                _currentHeaderPainter = HeaderPainterFactory.CreateHeaderPainter(_grid.NavigationStyle);
             }
 
-            // Draw bottom border line if grid lines are enabled
-            if (ShowGridLines)
-            {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
-                {
-                    pen.DashStyle = GridLineStyle;
-                    g.DrawLine(pen, headerRect.Left, headerRect.Bottom, headerRect.Right, headerRect.Bottom);
-                }
-            }
-
-            // Draw select-all checkbox if enabled
+            // Draw select-all checkbox if enabled (before painter draws headers)
             DrawSelectAllCheckbox(g, headerRect);
 
-            // Calculate sticky regions
-            var stickyColumns = _grid.Data.Columns.Where(c => c.Sticked && c.Visible).ToList();
-            int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
-            stickyWidth = Math.Min(stickyWidth, headerRect.Width);
+            // Use painter to draw all headers
+            _currentHeaderPainter?.PaintHeaders(g, headerRect, _grid, Theme);
 
-            Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
-            Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top, Math.Max(0, headerRect.Width - stickyWidth), headerRect.Height);
-
-            // Draw scrolling (non-sticky) headers first
-            var state1 = g.Save();
-            g.SetClip(scrollingRegion);
-            for (int i = 0; i < _grid.Data.Columns.Count; i++)
-            {
-                var col = _grid.Data.Columns[i];
-                if (!col.Visible || col.Sticked) continue;
-                if (i < _grid.Layout.HeaderCellRects.Length)
-                {
-                    var cellRect = _grid.Layout.HeaderCellRects[i];
-                    if (cellRect.Width > 0 && cellRect.Height > 0)
-                        DrawHeaderCell(g, col, cellRect, i);
-                }
-            }
-            g.Restore(state1);
-
-            // Draw sticky headers on top
-            var state2 = g.Save();
-            g.SetClip(stickyRegion);
-            for (int i = 0; i < _grid.Data.Columns.Count; i++)
-            {
-                var col = _grid.Data.Columns[i];
-                if (!col.Visible || !col.Sticked) continue;
-                if (i < _grid.Layout.HeaderCellRects.Length)
-                {
-                    var cellRect = _grid.Layout.HeaderCellRects[i];
-                    if (cellRect.Width > 0 && cellRect.Height > 0)
-                        DrawHeaderCell(g, col, cellRect, i);
-                }
-            }
-            g.Restore(state2);
-
-            // Vertical separator after sticky section
-            if (stickyWidth > 0 && ShowGridLines)
-            {
-                using var pen2 = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark);
-                pen2.DashStyle = GridLineStyle;
-                g.DrawLine(pen2, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
-            }
+            // Register hit areas for interactions
+            _currentHeaderPainter?.RegisterHeaderHitAreas(_grid);
         }
 
         private void DrawSelectAllCheckbox(Graphics g, Rectangle headerRect)

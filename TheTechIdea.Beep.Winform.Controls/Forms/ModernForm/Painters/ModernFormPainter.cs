@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
@@ -12,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Modern, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultFor(FormStyle.Modern, owner);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -305,11 +306,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 return;
             }
             
-            var captionHeight = owner.Font.Height + 16;
+            // Get DPI scale factor for current display
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            
+            // Scale all sizes based on DPI
+            int captionPadding = DpiScalingHelper.ScaleValue(16, dpiScale);
+            var captionHeight = owner.Font.Height + captionPadding;
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
             layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
             
-            var buttonSize = new Size(32, captionHeight);
+            int buttonWidth = DpiScalingHelper.ScaleValue(32, dpiScale);
+            var buttonSize = new Size(buttonWidth, captionHeight);
             var buttonY = 0;
             var buttonX = owner.ClientSize.Width - buttonSize.Width;
             
@@ -353,8 +360,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
             }
             
-            var iconSize = 16;
-            var iconPadding = 8;
+            int iconSize = DpiScalingHelper.ScaleValue(16, dpiScale);
+            int iconPadding = DpiScalingHelper.ScaleValue(8, dpiScale);
             layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             

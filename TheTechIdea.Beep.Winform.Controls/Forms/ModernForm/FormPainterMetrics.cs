@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -102,6 +103,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public bool ShowSearchButton { get; set; }
         public bool ShowProfileButton { get; set; }
         public bool ShowMailButton { get; set; }
+
+        /// <summary>
+        /// Gets DPI-aware metrics for the specified owner form.
+        /// Automatically detects the current DPI and scales all metrics accordingly.
+        /// This is the recommended method for painters to call from GetMetrics().
+        /// </summary>
+        public static FormPainterMetrics DefaultFor(FormStyle style, BeepiFormPro owner)
+        {
+            if (owner == null || !owner.IsHandleCreated)
+            {
+                // Fallback to non-DPI aware if owner not available
+                return DefaultFor(style, null, false);
+            }
+            
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            return DefaultFor(style, owner.CurrentTheme, dpiScale, owner.UseThemeColors);
+        }
 
         public static FormPainterMetrics DefaultFor(FormStyle style, IBeepTheme theme,bool UseThemeColors=false)
         {
@@ -1211,6 +1229,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             
                 return m;
+        }
+
+        /// <summary>
+        /// Gets DPI-aware metrics for the specified style, theme, and DPI scale factor.
+        /// All size metrics will be scaled according to the DPI.
+        /// </summary>
+        public static FormPainterMetrics DefaultFor(FormStyle style, IBeepTheme theme, float dpiScaleFactor, bool useThemeColors = false)
+        {
+            // Get base metrics at 96 DPI (scale factor 1.0)
+            var m = DefaultFor(style, theme, useThemeColors);
+            
+            // If DPI scale is 1.0, return as-is (no scaling needed)
+            if (DpiScalingHelper.AreScaleFactorsEqual(dpiScaleFactor, 1.0f))
+                return m;
+            
+            // Scale all size-based metrics using DpiScalingHelper
+            m.CaptionHeight = DpiScalingHelper.ScaleValue(m.CaptionHeight, dpiScaleFactor);
+            m.ButtonWidth = DpiScalingHelper.ScaleValue(m.ButtonWidth, dpiScaleFactor);
+            m.IconSize = DpiScalingHelper.ScaleValue(m.IconSize, dpiScaleFactor);
+            m.ButtonSpacing = DpiScalingHelper.ScaleValue(m.ButtonSpacing, dpiScaleFactor);
+            m.TitleLeftPadding = DpiScalingHelper.ScaleValue(m.TitleLeftPadding, dpiScaleFactor);
+            m.IconLeftPadding = DpiScalingHelper.ScaleValue(m.IconLeftPadding, dpiScaleFactor);
+            
+            m.BorderWidth = DpiScalingHelper.ScaleValue(m.BorderWidth, dpiScaleFactor);
+            m.ResizeBorderWidth = DpiScalingHelper.ScaleValue(m.ResizeBorderWidth, dpiScaleFactor);
+            m.OuterMargin = DpiScalingHelper.ScaleValue(m.OuterMargin, dpiScaleFactor);
+            m.OuterMarginWhenMaximized = DpiScalingHelper.ScaleValue(m.OuterMarginWhenMaximized, dpiScaleFactor);
+            m.InnerMargin = DpiScalingHelper.ScaleValue(m.InnerMargin, dpiScaleFactor);
+            m.InnerMarginWhenMaximized = DpiScalingHelper.ScaleValue(m.InnerMarginWhenMaximized, dpiScaleFactor);
+            
+            m.BorderRadius = DpiScalingHelper.ScaleValue(m.BorderRadius, dpiScaleFactor);
+            m.BorderRadiusWhenMaximized = DpiScalingHelper.ScaleValue(m.BorderRadiusWhenMaximized, dpiScaleFactor);
+            m.CaptionButtonRadius = DpiScalingHelper.ScaleValue(m.CaptionButtonRadius, dpiScaleFactor);
+            m.AccentBarWidth = DpiScalingHelper.ScaleValue(m.AccentBarWidth, dpiScaleFactor);
+            m.CaptionMargin = DpiScalingHelper.ScaleValue(m.CaptionMargin, dpiScaleFactor);
+            
+            // FontHeightMultiplier is a ratio, not a size, so don't scale it
+            
+            return m;
         }
 
        

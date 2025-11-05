@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
-        private BeepGridStyle _gridStyle = BeepGridStyle.Default;
+        private BeepGridStyle _gridStyle = BeepGridStyle.Bootstrap;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The visual Style preset for the grid, inspired by popular JavaScript frameworks.")]
@@ -531,10 +531,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             // Enhance control styles for better performance and reduced flickering
             SetStyle(ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint |
+                  
                      ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.SupportsTransparentBackColor, true);
+                     ControlStyles.ResizeRedraw , true);
             SetStyle(ControlStyles.Selectable, true);
             UpdateStyles();
            // Console.WriteLine("BeepGridPro constructor called");
@@ -954,6 +953,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Data.RefreshRows();
             SafeRecalculate();
             ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Recalculates all heights (ColumnHeaderHeight, RowHeight, NavigatorHeight) using painter-based calculations
+        /// that account for font sizes and style-specific spacing requirements
+        /// </summary>
+        public void RecalculateHeightsFromPainters()
+        {
+            // Calculate header height from column header painter (font-aware)
+            var headerPainter = new Helpers.GridColumnHeadersPainterHelper(this);
+            ColumnHeaderHeight = headerPainter.CalculateHeaderHeight();
+
+            // Calculate row height from data font (font-aware)
+            if (Font != null)
+            {
+                int baseFontHeight = Font.Height;
+                int cellPadding = Render?.HeaderCellPadding ?? 2;
+                RowHeight = baseFontHeight + (cellPadding * 2) + 4; // 4px for comfortable spacing
+            }
+
+            // Calculate navigator height from navigator painter if enabled (already has font-aware calculation)
+            if (ShowNavigator && NavigatorPainter != null)
+            {
+                Layout.NavigatorHeight = NavigatorPainter.GetRecommendedNavigatorHeight();
+            }
+            else if (!ShowNavigator)
+            {
+                Layout.NavigatorHeight = 0;
+            }
+
+            // Recalculate layout with new heights
+            SafeRecalculate();
             Invalidate();
         }
 

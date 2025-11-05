@@ -15,6 +15,7 @@
 	<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
 	  <LangVersion>latest</LangVersion>
 	  <Title>TheTechIdea.Beep.Vis.Modules</Title>
+	  <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,7 +38,7 @@
 	</Target>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.10" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.102" />
   </ItemGroup>
 

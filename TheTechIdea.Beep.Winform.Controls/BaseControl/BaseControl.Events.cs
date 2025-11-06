@@ -22,6 +22,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 return;
             }
             base.OnLocationChanged(e);
+            
+            // Invalidate parent background cache since our position changed
+            if (IsTransparentBackground)
+            {
+                InvalidateParentBackgroundCache();
+            }
+            
             // Ensure parent redraws badge area when we move
             UpdateRegionForBadge();
         }
@@ -39,47 +46,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            //if (BackColor.A == 255 || !_istransparent) // fully opaque: do normal background fill
-            //{
-            //    //using var b = new SolidBrush(BackColor);
-            //    e.Graphics.Clear(BackColor);
+            if (_istransparent)
+            {
+                // Transparent: ask the parent to paint "behind" us.
+                PaintParentBackground(e.Graphics);
+            }
+            else
+            {
+                 if (IsChild)
+                    {
+                        ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
+                        BackColor = ParentBackColor;
+                    }
+                    else
+                    {
+                        if (_currentTheme != null)
+                            BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                        else
+                            BackColor = SystemColors.Control;
+                    }
+                // Opaque: normal background fill
                 base.OnPaintBackground(e);
-            //    return;
-            //}
-
-            //// Transparent: ask the parent to paint "behind" us.
-            //PaintParentBackground(e);
+            }
         }
 
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         private static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest,
-     int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
-
-        private void PaintParentBackground(Graphics g)
-        {
-            if (Parent == null) return;
-
-            // Get device contexts
-            IntPtr parentDc = GetDC(Parent.Handle);
-            IntPtr destDc = g.GetHdc();
-
-            try
-            {
-                // Copy directly from parent's DC to our DC
-                BitBlt(destDc, 0, 0, Width, Height, parentDc, Left, Top, 0x00CC0020); // SRCCOPY
-            }
-            finally
-            {
-                g.ReleaseHdc(destDc);
-                ReleaseDC(Parent.Handle, parentDc);
-            }
-        }
+            int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, uint dwRop);
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern IntPtr GetDC(IntPtr hWnd);
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        /// <summary>
+        /// Invalidates the cached parent background. Call when theme or style changes.
+        /// </summary>
+        public void InvalidateParentBackgroundCache()
+        {
+            _parentBackgroundCacheValid = false;
+            _cachedParentBackground?.Dispose();
+            _cachedParentBackground = null;
+        }
+
+        private void PaintParentBackground(Graphics g)
+        {
+            if (Parent == null || Width <= 0 || Height <= 0) return;
+
+            // Use cached background if valid
+            if (_parentBackgroundCacheValid && _cachedParentBackground != null)
+            {
+                g.DrawImageUnscaled(_cachedParentBackground, 0, 0);
+                return;
+            }
+
+            // Cache is invalid - capture parent background using BitBlt
+            // This only happens once (or when cache is invalidated), avoiding feedback loop
+            
+            // Create cache bitmap if needed
+            if (_cachedParentBackground == null || 
+                _cachedParentBackground.Width != Width || 
+                _cachedParentBackground.Height != Height)
+            {
+                _cachedParentBackground?.Dispose();
+                _cachedParentBackground = new Bitmap(Width, Height, g);
+            }
+
+            // Capture parent background to cache
+            using (var cacheGraphics = Graphics.FromImage(_cachedParentBackground))
+            {
+                IntPtr cacheDc = cacheGraphics.GetHdc();
+                IntPtr parentDc = IntPtr.Zero;
+                
+                try
+                {
+                    // Get parent's client DC (excludes title bar and borders)
+                    parentDc = GetDC(Parent.Handle);
+                    
+                    if (parentDc != IntPtr.Zero)
+                    {
+                        // BitBlt from parent at our location (in parent's client coordinates)
+                        // Location property is always relative to parent's client area
+                        BitBlt(cacheDc, 0, 0, Width, Height, parentDc, Location.X, Location.Y, 0x00CC0020); // SRCCOPY
+                    }
+                }
+                finally
+                {
+                    if (cacheDc != IntPtr.Zero)
+                        cacheGraphics.ReleaseHdc(cacheDc);
+                    if (parentDc != IntPtr.Zero)
+                        ReleaseDC(Parent.Handle, parentDc);
+                }
+            }
+
+            // Mark cache as valid
+            _parentBackgroundCacheValid = true;
+
+            // Draw the cached background
+            g.DrawImageUnscaled(_cachedParentBackground, 0, 0);
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             // Early out for safety during design-time removal/dispose
@@ -165,12 +231,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (g == null)
                 return;
 
-            var clearColor = BackColor;
-            if (IsTransparentBackground && Parent != null)
+            // Skip clearing if transparent - parent background already painted in OnPaintBackground
+            if (IsTransparentBackground)
             {
-                clearColor = ParentBackColor != Color.Empty ? ParentBackColor : Parent.BackColor;
+                // Parent background was already copied using BitBlt in OnPaintBackground
+                // Don't clear it here or we'll wipe it out!
+                return;
             }
 
+            // For opaque controls, clear with appropriate color
+            var clearColor = BackColor;
             if (clearColor.A == 0)
             {
                 clearColor = Parent?.BackColor ?? SystemColors.Control;
@@ -224,6 +294,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             try
             {
+                // Invalidate parent background cache since our size changed
+                if (IsTransparentBackground)
+                {
+                    InvalidateParentBackgroundCache();
+                }
+                
                 // Skip expensive operations for BeepGridPro - it manages its own layout
                 bool isGrid = this is GridX.BeepGridPro;
                 

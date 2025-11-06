@@ -757,17 +757,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         else
                             BackColor = SystemColors.Control;
                     }
-                    if (_istransparent) // fully opaque: do normal background fill
-                    {
-                        PaintParentBackground(g);
-                    }
-                    else
-                    {
-
-                        g.Clear(BackColor);
-                    }
-
-
+                    
+                    // Background is now painted in OnPaintBackground, not here
+                    // This prevents double-painting which caused darkening on hover
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
                 {

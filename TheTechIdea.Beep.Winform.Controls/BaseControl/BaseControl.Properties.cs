@@ -137,6 +137,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 _themeName = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
+                
+                // Invalidate cached parent background when theme changes
+                InvalidateParentBackgroundCache();
                 ApplyTheme();
             }
         }
@@ -1089,6 +1092,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         //}
                     }
                     catch { /* design-time safe */ }
+                    
+                    // Invalidate cached parent background when style changes
+                    InvalidateParentBackgroundCache();
                     Invalidate();
                 }
             }

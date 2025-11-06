@@ -66,6 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         // Material Design size compensation fields
         private bool _materialAutoSizeCompensation = true;
 
+        // Cached parent background for transparent controls (avoid BitBlt feedback loop)
+        private Bitmap _cachedParentBackground = null;
+        private bool _parentBackgroundCacheValid = false;
+
         // State flags (exposed like base BeepControl)
         [Browsable(true)]
         public bool IsHovered { get; set; }
@@ -308,6 +312,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _effects?.Dispose();
                 _externalDrawing?.Dispose();
                 _dataBinding?.Dispose();
+                
+                // Dispose cached parent background
+                _cachedParentBackground?.Dispose();
+                _cachedParentBackground = null;
+                _parentBackgroundCacheValid = false;
             }
 
             base.Dispose(disposing);

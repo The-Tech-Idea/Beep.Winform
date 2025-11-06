@@ -161,11 +161,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             Padding = new Padding(1);
             //Double buffering for smooth rendering
 
-           SetStyle(ControlStyles.AllPaintingInWmPaint |
-                    ControlStyles.UserPaint |
-                    ControlStyles.OptimizedDoubleBuffer |
-                    ControlStyles.ResizeRedraw, true);
-           UpdateStyles();
+           //SetStyle(ControlStyles.AllPaintingInWmPaint |
+           //         ControlStyles.UserPaint |
+           //         ControlStyles.OptimizedDoubleBuffer |
+           //         ControlStyles.ResizeRedraw, true);
+           //UpdateStyles();
 
             // DPI awareness
 

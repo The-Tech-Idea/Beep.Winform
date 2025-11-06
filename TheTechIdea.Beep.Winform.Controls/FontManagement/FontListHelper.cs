@@ -497,7 +497,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (style == null)
             {
                 // Return default font if Style is null
-                return GetFontWithFallback("Arial", "Segoe UI", 9.0f, FontStyle.Regular);
+                return GetFont("Segoe UI", 9.0f, FontStyle.Regular);
             }
 
             // Start with basic font Style
@@ -515,10 +515,9 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (style.FontWeight >= FontWeight.Bold)
                 fontStyle |= FontStyle.Bold;
 
-            // Get the font with fallback
-            return GetFontWithFallback(
+            // Get the font directly - GetFont handles all fallbacks internally
+            return GetFont(
                 style.FontFamily,
-                "Segoe UI",
                 style.FontSize,
                 fontStyle
             );
@@ -529,12 +528,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
-            // Segoe UI
             EnsureInitialized();
             if (string.IsNullOrWhiteSpace(fontName))
             {
-                return GetOrCreateFont("Arial|" + size + "|" + (int)style, 
-                    () => CreateValidFont("Arial", size, style));
+                fontName = "Segoe UI"; // Use default instead of Arial
             }
 
             string cacheKey = $"{fontName}|{size}|{(int)style}";
@@ -599,10 +596,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     return CreateValidFont(systemFamily, size, style);
                 }
 
-                // Fallback: Try Arial, then GenericSansSerif
-                return CreateValidFont("Arial", size, style) ?? 
-                       CreateValidFont(FontFamily.GenericSansSerif, size, style) ??
-                       CreateValidFont("Segoe UI", size, style);
+                // Fallback: Try creating with original name (may work even if not in our config)
+                var directFont = CreateValidFont(fontName, size, style);
+                if (directFont != null)
+                    return directFont;
+
+                // Ultimate fallback
+                return null; // GetOrCreateFont will call GetUltimateFallbackFont
             });
         }
 
@@ -657,10 +657,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             try
             {
                 var font = new Font(fontName, size, style);
-                // Test that the font is fully accessible by accessing all key properties
+                // Test that the font is fully accessible by accessing safe properties
+                // DO NOT access font.Height as it can throw for certain fonts
                 var _ = font.Size;
                 var __ = font.Name;
-                var ___ = font.Height; // This is what was failing - test it here
+                var ___ = font.FontFamily;
                 var ____ = font.FontFamily.Name;
                 return font;
             }
@@ -678,10 +679,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             try
             {
                 var font = new Font(family, size, style);
-                // Test that the font is fully accessible by accessing all key properties
+                // Test that the font is fully accessible by accessing safe properties
+                // DO NOT access font.Height as it can throw for certain fonts
                 var _ = font.Size;
                 var __ = font.Name;
-                var ___ = font.Height; // This is what was failing - test it here
+                var ___ = font.FontFamily;
                 var ____ = font.FontFamily.Name;
                 return font;
             }
@@ -781,45 +783,31 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font GetFontWithFallback(string primaryFontName, string fallbackFontName, float size, FontStyle style = FontStyle.Regular)
         {
             EnsureInitialized();
-            // Try to get the primary font
+            
+            // Try to get the primary font - GetFont handles all the caching and validation
             Font primaryFont = GetFont(primaryFontName, size, style);
-            if (primaryFont != null)
+            
+            // GetFont never returns null (it has GetUltimateFallbackFont), so we're done
+            // But we can check if we got what we wanted
+            if (primaryFont != null && 
+                NormalizeFontName(primaryFont.FontFamily.Name) == NormalizeFontName(primaryFontName))
             {
-                try
-                {
-                    // Validate the font by accessing properties
-                    var _ = primaryFont.Size;
-                    var __ = primaryFont.Name;
-                    return primaryFont;
-                }
-                catch
-                {
-                    primaryFont?.Dispose();
-                }
+                return primaryFont;
             }
 
-            // If primary font not found or invalid, try the fallback font
-            Font fallbackFont = GetFont(fallbackFontName, size, style);
-            if (fallbackFont != null)
+            // If primary didn't match, try fallback explicitly
+            if (!string.IsNullOrWhiteSpace(fallbackFontName) && 
+                !fallbackFontName.Equals(primaryFontName, StringComparison.OrdinalIgnoreCase))
             {
-                try
+                Font fallbackFont = GetFont(fallbackFontName, size, style);
+                if (fallbackFont != null)
                 {
-                    // Validate the font by accessing properties
-                    var _ = fallbackFont.Size;
-                    var __ = fallbackFont.Name;
                     return fallbackFont;
                 }
-                catch
-                {
-                    fallbackFont?.Dispose();
-                }
             }
 
-            // If fallback also fails, try multiple fallback options
-            return CreateValidFont("Segoe UI", size, style) ??
-                   CreateValidFont("Arial", size, style) ??
-                   CreateValidFont(FontFamily.GenericSansSerif, size, style) ??
-                   CreateValidFont("Microsoft Sans Serif", size, style);
+            // Return whatever GetFont gave us (it's guaranteed valid)
+            return primaryFont;
         }
 
         /// <summary>
@@ -891,9 +879,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         private static Font GetUltimateFallbackFont()
         {
+            // Try standard fallback fonts using CreateValidFont directly to avoid recursion
             return CreateValidFont("Segoe UI", 9f, FontStyle.Regular) ??
-                   CreateValidFont(FontFamily.GenericSansSerif, 9f, FontStyle.Regular) ??
                    CreateValidFont("Arial", 9f, FontStyle.Regular) ??
+                   CreateValidFont(FontFamily.GenericSansSerif, 9f, FontStyle.Regular) ??
                    CreateValidFont("Microsoft Sans Serif", 9f, FontStyle.Regular) ??
                    SystemFonts.DefaultFont;
         }

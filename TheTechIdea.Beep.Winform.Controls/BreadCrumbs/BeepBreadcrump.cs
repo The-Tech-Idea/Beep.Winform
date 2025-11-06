@@ -188,10 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Constructor
-        public BeepBreadcrump()
+        public BeepBreadcrump():base()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
-                    ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
 
             BackColor = Color.White;
             ForeColor = Color.Black;

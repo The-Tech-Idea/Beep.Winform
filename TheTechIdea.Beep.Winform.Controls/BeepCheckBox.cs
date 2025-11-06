@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepCheckBox<T> : BaseControl
     {
         #region Constructors
-        public BeepCheckBox()
+        public BeepCheckBox():base()
         {
             Padding = new Padding(1, 1, 1, 1);
             _beepImage = new BeepImage
@@ -72,10 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty = "State";
           
             
-            // Ensure the control is properly configured for user interaction
-            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Selectable, true);
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
-            TabStop = true;
+               TabStop = true;
             
             ApplyTheme();
         }

@@ -47,11 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         [Browsable(true)] [Category("Layout")] public int HeaderRightPadding { get; set; } = 20;
         [Browsable(true)] [Category("Layout")] public int GridLeftGutter { get; set; } = 12;
 
-        public BeepCalendarAdnvanced()
+        public BeepCalendarAdnvanced():base()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
-                     ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
-
+            
           
             ShowAllBorders = true;
 

@@ -79,10 +79,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 _ => region.Bounds
             };
         }        /// <summary>
-        /// Sets up graphics quality settings for modern rendering with advanced features
+        /// Sets up graphics quality settings for modern rendering with advanced features.
+        /// CRITICAL: This method configures the Graphics context for form chrome painting.
+        /// It should NOT affect child control rendering (especially text).
         /// </summary>
         private void SetupGraphicsQuality(Graphics g)
         {
+            if (g == null) return;
+
             // Determine effective anti-aliasing mode based on rendering quality
             var effectiveAntiAliasMode = AntiAliasMode;
             if (RenderingQuality != RenderingQuality.Auto)
@@ -97,7 +101,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 };
             }
 
-            // Apply anti-aliasing settings
+            // CRITICAL: Set CompositingMode to SourceOver for proper alpha blending
+            // This ensures semi-transparent overlays blend correctly without accumulation
+            g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+
+            // Apply anti-aliasing settings based on effective mode
             // NOTE: DO NOT set TextRenderingHint here! It affects child controls' text rendering.
             // The shared Graphics object in OnPaintBackground is used by all child controls.
             // Setting TextRenderingHint globally causes blurry text in labels, textboxes, etc.
@@ -107,17 +115,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Default;
                     break;
+
                 case AntiAliasMode.Low:
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Default;
                     break;
+
                 case AntiAliasMode.High:
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                     break;
+
                 case AntiAliasMode.Ultra:
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
@@ -126,29 +140,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     break;
             }
 
-            // Apply high contrast mode adjustments
+            // Apply high contrast mode adjustments for accessibility
             if (HighContrastMode)
             {
-                g.TextContrast = 12; // Maximum contrast for accessibility
-                // Additional high contrast adjustments can be added here
+                g.TextContrast = 12; // Maximum contrast (0-12 scale)
+                // Force high-quality rendering for better visibility
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             }
 
             // Apply backdrop effect optimizations
+            // These override base quality settings when specific effects are enabled
             switch (BackdropEffect)
             {
                 case BackdropEffect.Mica:
                 case BackdropEffect.MicaAlt:
-                    // Mica effects benefit from high-quality compositing
+                    // Mica effects benefit from high-quality compositing for subtle layering
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                     break;
+
                 case BackdropEffect.Acrylic:
-                    // Acrylic effects need high-quality blending
+                    // Acrylic effects need high-quality blending for transparency
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     break;
+
                 case BackdropEffect.Blur:
-                    // Blur effects require high interpolation quality
+                    // Blur effects require high interpolation quality for smooth blending
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                     break;
             }
         }

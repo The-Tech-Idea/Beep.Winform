@@ -89,7 +89,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         internal void RecalculateLayoutCache()
         {
+            // CRITICAL: Ensure DrawingRect is up-to-date with current ControlStyle metrics
+            // This ensures the painter has properly calculated border/padding/shadow
+            UpdateDrawingRect();
+            
             System.Diagnostics.Debug.WriteLine($"BeepTree.RecalculateLayoutCache: Processing {_visibleNodes.Count} nodes");
+            System.Diagnostics.Debug.WriteLine($"BeepTree.RecalculateLayoutCache: DrawingRect = {DrawingRect}, ControlStyle = {ControlStyle}, UseFormStylePaint = {UseFormStylePaint}");
+            
             if (_visibleNodes.Count == 0)
             {
                 System.Diagnostics.Debug.WriteLine("BeepTree.RecalculateLayoutCache: No visible nodes to process");
@@ -167,9 +173,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
                 currentX += nodeInfo.TextSize.Width + 10;
 
-                // Row bounds - use DrawingRect width as default (nodes span full width)
+                // Row bounds - ensure content can display properly
+                // minRowWidth = minimum space needed for all node elements
+                // Use the larger of: content width OR DrawingRect.Width (available viewport width)
+                // CRITICAL: Ensure DrawingRect.Width is positive before using it
                 int minRowWidth = currentX;  // Minimum needed for content
-                int rowWidth = Math.Max(minRowWidth, DrawingRect.Width);  // At least DrawingRect width
+                int availableWidth = Math.Max(1, DrawingRect.Width);  // Ensure positive width
+                int rowWidth = Math.Max(minRowWidth, availableWidth);  // Use larger value
+                
                 nodeInfo.RowRectContent = new Rectangle(0, y, rowWidth, nodeInfo.RowHeight);
                 nodeInfo.Y = y;
                 nodeInfo.RowWidth = rowWidth;
@@ -182,9 +193,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     maxWidth = minRowWidth;
 
                 y += nodeInfo.RowHeight;
-
-                // Write updated struct back to the list
-                _visibleNodes[i] = nodeInfo;
             }
 
             // Update virtual size

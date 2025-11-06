@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Brutalist menu - white with black borders
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Courier New", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Courier New", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Courier New", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(255, 255, 255);  // Pure white
             this.MenuForeColor = Color.FromArgb(0, 0, 0);  // Black text
             this.MenuBorderColor = Color.FromArgb(0, 0, 0);  // Black border

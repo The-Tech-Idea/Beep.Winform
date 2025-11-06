@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // NeoMorphism menu - soft neomorphic theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(240, 240, 245);  // Light gray-blue
             this.MenuForeColor = Color.FromArgb(50, 50, 60);  // Dark gray text
             this.MenuBorderColor = Color.FromArgb(220, 220, 225);  // Soft border

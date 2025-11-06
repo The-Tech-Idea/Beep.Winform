@@ -75,13 +75,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int rightPad = ownerPadding.Right + owner.RightoffsetForDrawingRect;
             int bottomPad = ownerPadding.Bottom + owner.BottomoffsetForDrawingRect;
             
-            // When using BeepStyling, apply the style padding on top of owner's padding
+            // When using BeepStyling, USE style padding instead of adding to owner's padding
+            // This prevents double-padding which causes layout issues
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
-                leftPad += padding;
-                topPad += padding;
-                rightPad += padding;
-                bottomPad += padding;
+                // Use the MAXIMUM of owner padding and style padding, not both
+                leftPad = Math.Max(leftPad, padding + owner.LeftoffsetForDrawingRect);
+                topPad = Math.Max(topPad, padding + owner.TopoffsetForDrawingRect);
+                rightPad = Math.Max(rightPad, padding + owner.RightoffsetForDrawingRect);
+                bottomPad = Math.Max(bottomPad, padding + owner.BottomoffsetForDrawingRect);
             }
 
             // Calculate inner drawing rect

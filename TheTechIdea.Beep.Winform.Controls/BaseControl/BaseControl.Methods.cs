@@ -355,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 //    }
                 //}
 
-                Invalidate();
+               // Invalidate();
             }
             catch (Exception ex)
             {
@@ -726,16 +726,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-            // DPI is automatically handled by the framework in .NET 8/9+
-            // No manual UpdateDpiScaling needed
-
-            //// Allow derived controls to opt-out of background clearing
-            if (AllowBaseControlClear)
+            if (EnableHighQualityRendering)
             {
-                if (!(this is GridX.BeepGridPro))
-                {
-                    UpdateDrawingRect();
-                }
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            }
+            else
+            {
+                g.SmoothingMode = SmoothingMode.None;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = PixelOffsetMode.Default;
+                g.TextRenderingHint = TextRenderingHint.SystemDefault;
+            }
+            UpdateDrawingRect();
+                
 
                 try
                 {
@@ -751,7 +757,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         else
                             BackColor = SystemColors.Control;
                     }
-                    g.Clear(BackColor);
+                    if (_istransparent) // fully opaque: do normal background fill
+                    {
+                        PaintParentBackground(g);
+                    }
+                    else
+                    {
+
+                        g.Clear(BackColor);
+                    }
+
 
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
@@ -759,22 +774,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     // Silently fail on color operations
                     System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
                 }
-            }
+            
 
-            if (EnableHighQualityRendering)
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            }
-            else
-            {
-                g.SmoothingMode = SmoothingMode.None;
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = PixelOffsetMode.Default;
-                g.TextRenderingHint = TextRenderingHint.SystemDefault;
-            }
+           
 
             // Always rely on painter if available
             EnsurePainter();

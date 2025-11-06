@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Fluent menu - light, modern
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(245, 246, 248);  // Light gray-blue
             this.MenuForeColor = Color.FromArgb(32, 32, 32);  // Dark gray text
             this.MenuBorderColor = Color.FromArgb(218, 223, 230);  // Light gray

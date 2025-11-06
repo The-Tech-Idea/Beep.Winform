@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color dotColor = _theme.AccentColor;
 
                     int centerX = toggleRect.Left + toggleRect.Width / 2;
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 3: Draw checkbox (pill rail Style with rounded corners)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var bgBrush = PaintersFactory.GetSolidBrush(node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor);
                     g.FillPath(bgBrush, CreateRoundedRectangle(checkRect, 4));
 
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw text with bold on selection (pill rail typography)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
                     var renderFont = _regularFont;
                     if (isSelected)

@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Holographic menu - futuristic gradient theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(25, 20, 35);  // Very dark purple
             this.MenuForeColor = Color.FromArgb(200, 150, 255);  // Light purple text
             this.MenuBorderColor = Color.FromArgb(138, 70, 255);  // Purple glow

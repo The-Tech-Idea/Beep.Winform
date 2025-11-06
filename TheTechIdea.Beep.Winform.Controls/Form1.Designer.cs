@@ -165,7 +165,7 @@
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
-            beepButton1.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+           
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
@@ -352,7 +352,7 @@
             beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepImage1.MaxHitListDrawPerFrame = 0;
-            beepImage1.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+         
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;
             beepImage1.Name = "beepImage1";

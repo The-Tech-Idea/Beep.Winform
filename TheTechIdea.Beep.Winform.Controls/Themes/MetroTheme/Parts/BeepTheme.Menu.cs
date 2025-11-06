@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Metro menu - Windows Metro theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(243, 242, 241);  // Light gray
             this.MenuForeColor = Color.FromArgb(32, 31, 30);  // Dark text
             this.MenuBorderColor = Color.FromArgb(225, 225, 225);  // Light gray

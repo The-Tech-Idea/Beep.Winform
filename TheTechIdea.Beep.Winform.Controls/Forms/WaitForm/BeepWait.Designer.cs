@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.MaterialVariant = MaterialTextFieldVariant.Standard;
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
-            Title.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+        
             Title.MinimumSize = new Size(86, 38);
             Title.ModernGradientType = ModernGradientType.None;
             Title.Multiline = false;
@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(32, 32);
-            beepLabel1.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+        
             beepLabel1.MinimumSize = new Size(155, 38);
             beepLabel1.ModernGradientType = ModernGradientType.None;
             beepLabel1.Multiline = false;
@@ -543,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.MaterialVariant = MaterialTextFieldVariant.Standard;
             messege.MaxHitListDrawPerFrame = 0;
             messege.MaxImageSize = new Size(20, 20);
-            messege.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+         
             messege.MinimumSize = new Size(65, 22);
             messege.ModernGradientType = ModernGradientType.None;
             messege.Modified = true;
@@ -742,7 +742,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             LogopictureBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             LogopictureBox.MaxHitListDrawPerFrame = 0;
-            LogopictureBox.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+          
             LogopictureBox.MinimumSize = new Size(9, 8);
             LogopictureBox.ModernGradientType = ModernGradientType.Subtle;
             LogopictureBox.Name = "LogopictureBox";
@@ -928,7 +928,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             _spinnerImage.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             _spinnerImage.MaxHitListDrawPerFrame = 0;
-            _spinnerImage.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+          
             _spinnerImage.MinimumSize = new Size(9, 8);
             _spinnerImage.ModernGradientType = ModernGradientType.Subtle;
             _spinnerImage.Name = "_spinnerImage";
@@ -1115,7 +1115,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepImage1.MaxHitListDrawPerFrame = 0;
-            beepImage1.MenuStyle = Forms.ModernForm.FormStyle.Modern;
+         
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;
             beepImage1.Name = "beepImage1";

@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // MacOS menu - clean macOS theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(250, 250, 252);  // Light gray
             this.MenuForeColor = Color.FromArgb(28, 28, 30);  // Dark gray text
             this.MenuBorderColor = Color.FromArgb(229, 229, 234);  // Medium gray

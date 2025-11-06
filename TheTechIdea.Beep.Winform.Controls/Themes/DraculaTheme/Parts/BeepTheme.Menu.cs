@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Dracula menu - dark purple theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(40, 42, 54);  // Dark background
             this.MenuForeColor = Color.FromArgb(248, 248, 242);  // Cream text
             this.MenuBorderColor = Color.FromArgb(68, 71, 90);  // Gray border

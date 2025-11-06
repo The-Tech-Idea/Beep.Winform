@@ -19,12 +19,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Brutalist: Flat, solid fill - no gradients
             g.SmoothingMode = SmoothingMode.None; // Sharp pixels
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Optional: Grid lines for geometric brutalist aesthetic
             using (var gridPen = new Pen(Color.FromArgb(30, metrics.BorderColor), 1))
@@ -35,6 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.DrawLine(gridPen, x, 0, x, owner.ClientRectangle.Height);
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

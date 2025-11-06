@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Cartoon menu - playful purple theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(255, 240, 255);  // Pink-tinted background
             this.MenuForeColor = Color.FromArgb(80, 0, 120);  // Purple text
             this.MenuBorderColor = Color.FromArgb(150, 100, 200);  // Purple border

@@ -39,6 +39,66 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         
         /// <summary>
+        /// Overrides ControlStyle to recalculate layout when FormStyle/ControlStyle changes.
+        /// This ensures node layout is refreshed when DrawingRect dimensions change due to style borders/padding/shadows.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the control.")]
+        [DefaultValue(BeepControlStyle.None)]
+        public new BeepControlStyle ControlStyle
+        {
+            get => base.ControlStyle;
+            set
+            {
+                if (base.ControlStyle != value)
+                {
+                    base.ControlStyle = value;
+                    // CRITICAL: Invalidate BOTH layout caches and recalculate
+                    // The layout helper cache must be cleared before recalculating
+                    try { _layoutHelper?.InvalidateCache(); } catch { }
+                    RecalculateLayoutCache();
+                    // Sync the layout helper's cache
+                    try { _layoutHelper?.RecalculateLayout(); } catch { }
+                    UpdateScrollBars();
+                    // Update hit areas since layout changed
+                    try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                    Invalidate();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Overrides UseFormStylePaint to recalculate layout when style painting mode changes.
+        /// This ensures node layout is refreshed when switching between classic and FormStyle painting.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Whether to use FormStyle-based painting for borders/shadows.")]
+        [DefaultValue(true)]
+        public new bool UseFormStylePaint
+        {
+            get => base.UseFormStylePaint;
+            set
+            {
+                if (base.UseFormStylePaint != value)
+                {
+                    base.UseFormStylePaint = value;
+                    // CRITICAL: Invalidate BOTH layout caches and recalculate
+                    // The layout helper cache must be cleared before recalculating
+                    try { _layoutHelper?.InvalidateCache(); } catch { }
+                    RecalculateLayoutCache();
+                    // Sync the layout helper's cache
+                    try { _layoutHelper?.RecalculateLayout(); } catch { }
+                    UpdateScrollBars();
+                    // Update hit areas since layout changed
+                    try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                    Invalidate();
+                }
+            }
+        }
+        
+        /// <summary>
         /// Gets or sets whether to use scaled font based on DPI.
         /// </summary>
         [Browsable(true)]

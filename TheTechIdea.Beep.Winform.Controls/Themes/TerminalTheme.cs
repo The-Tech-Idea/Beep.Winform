@@ -1149,6 +1149,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             NavigationSelectedForeColor = neonGreen;
 
             // Terminal menu - high contrast with neon green
+            MenuTitleFont = TitleSmall;
+            MenuItemSelectedFont = BodyMedium;
+            MenuItemUnSelectedFont = BodyMedium;
             MenuBackColor = CardBackColor;  // Dark panel
             MenuForeColor = softGreen;
             MenuBorderColor = lineGreen;

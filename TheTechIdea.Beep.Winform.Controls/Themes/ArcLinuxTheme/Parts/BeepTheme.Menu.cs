@@ -10,6 +10,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = SurfaceColor;
             this.MenuForeColor = ForeColor;
             this.MenuBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);

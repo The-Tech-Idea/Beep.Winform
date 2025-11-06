@@ -61,7 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
  if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
  {
- var toggleRect = node.ToggleRectContent;
+ // CRITICAL: Transform to viewport coordinates
+ var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
  Color caretColor = _theme.TreeForeColor;
 
  var pen = PaintersFactory.GetPen(caretColor,1.5f);
@@ -87,7 +88,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  // STEP3: Draw Ant Design checkbox (clean rectangular with thin border)
  if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
  {
- var checkboxRect = node.CheckRectContent;
+ // CRITICAL: Transform to viewport coordinates
+ var checkboxRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
  Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
  Color fillColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -134,7 +136,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  // STEP5: Draw text with Ant Design typography
  if (node.TextRectContent != Rectangle.Empty)
  {
- var textRect = node.TextRectContent;
+ // CRITICAL: Transform to viewport coordinates
+ var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
  Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
  TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,

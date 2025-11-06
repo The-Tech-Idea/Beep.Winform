@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Solarized menu - scientifically crafted color palette
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(0, 43, 54);  // Dark blue-green
             this.MenuForeColor = Color.FromArgb(238, 232, 213);  // Light beige text
             this.MenuBorderColor = Color.FromArgb(88, 110, 117);  // #586E75

@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // iOS menu - clean, modern theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(242, 242, 247);  // Light gray
             this.MenuForeColor = Color.FromArgb(28, 28, 30);  // Dark gray text
             this.MenuBorderColor = Color.FromArgb(198, 198, 207);  // Medium gray

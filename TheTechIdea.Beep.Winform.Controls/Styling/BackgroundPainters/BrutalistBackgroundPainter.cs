@@ -22,13 +22,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = Rectangle.Round(path.GetBounds());
             using var clip = new BackgroundPainterHelpers.ClipScope(g, path);
             var previousSmoothing = g.SmoothingMode;
+            var previousCompositing = g.CompositingMode;
+            
             g.SmoothingMode = SmoothingMode.None;
+            g.CompositingMode = CompositingMode.SourceOver; // Ensure proper alpha blending
+            
             var pen = PaintersFactory.GetPen(Color.FromArgb(30, 0, 0, 0), 1);
             for (int x = bounds.Left; x < bounds.Right; x += 40)
             {
                 g.DrawLine(pen, x, bounds.Top, x, bounds.Bottom);
             }
+            
             g.SmoothingMode = previousSmoothing;
+            g.CompositingMode = previousCompositing;
         }
     }
 }

@@ -1585,7 +1585,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepSimpleGrid1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
-            beepSimpleGrid1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepSimpleGrid1.ModernGradientType = ModernGradientType.Subtle;
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1792,7 +1792,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepLabel2.MaxHitListDrawPerFrame = 0;
             beepLabel2.MaxImageSize = new Size(16, 16);
-            beepLabel2.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+         
             beepLabel2.MinimumSize = new Size(86, 26);
             beepLabel2.ModernGradientType = ModernGradientType.Subtle;
             beepLabel2.Multiline = false;
@@ -1977,7 +1977,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
-            beepLabel1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+           
             beepLabel1.MinimumSize = new Size(90, 26);
             beepLabel1.ModernGradientType = ModernGradientType.Subtle;
             beepLabel1.Multiline = false;
@@ -2170,7 +2170,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             DatasourcebeepComboBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             DatasourcebeepComboBox.MaxHitListDrawPerFrame = 0;
-            DatasourcebeepComboBox.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+         
             DatasourcebeepComboBox.ModernGradientType = ModernGradientType.None;
             DatasourcebeepComboBox.Name = "DatasourcebeepComboBox";
             DatasourcebeepComboBox.OverrideFontSize = TypeStyleFontSize.None;
@@ -2357,7 +2357,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             EntitiesbeepComboBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             EntitiesbeepComboBox.MaxHitListDrawPerFrame = 0;
-            EntitiesbeepComboBox.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+           
             EntitiesbeepComboBox.ModernGradientType = ModernGradientType.None;
             EntitiesbeepComboBox.Name = "EntitiesbeepComboBox";
             EntitiesbeepComboBox.OverrideFontSize = TypeStyleFontSize.None;
@@ -2543,7 +2543,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
-            beepButton1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepButton1.MinimumSize = new Size(32, 32);
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
@@ -2731,7 +2731,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepImage1.MaxHitListDrawPerFrame = 0;
-            beepImage1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;
             beepImage1.Name = "beepImage1";

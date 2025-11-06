@@ -408,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         {
             // IMPORTANT: enable proper redraw & flicker-free resizing
             SetStyle(ControlStyles.AllPaintingInWmPaint
-                     | ControlStyles.UserPaint
+                    
                      | ControlStyles.OptimizedDoubleBuffer
                      | ControlStyles.ResizeRedraw, true);
             UpdateStyles();

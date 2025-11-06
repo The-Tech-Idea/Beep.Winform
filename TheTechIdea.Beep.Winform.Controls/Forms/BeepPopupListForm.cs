@@ -2,8 +2,11 @@
 using System.Diagnostics;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -135,13 +138,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             InitializePopupListBox();
+
         }
-        
+        protected override void OnStyleChanged(EventArgs e)
+        {
+            base.OnStyleChanged(e);
+        }
         public BeepPopupListForm(List<SimpleItem> items) : base()
         {
             InitializeComponent();
             InitializePopupListBox();
-            _beepListBox.MenuStyle = Forms.ModernForm.FormStyle.Minimal;
+           
             if (items != null && items.Count > 0)
             {
                 InitializeMenu(items);
@@ -163,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.CanBeSelected = false;
             _beepListBox.CanBeHovered = false;
             _beepListBox.CanBePressed = false;
-            _beepListBox.MenuStyle = Forms.ModernForm.FormStyle.Minimal;
+            _beepListBox.Theme= BeepThemesManager.CurrentThemeName;
             // Event handlers
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;
@@ -171,9 +178,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void InitializeMenu(List<SimpleItem> items)
         {
             if (items == null || items.Count == 0) return;
-             // Add padding to prevent listbox from overlapping the form's painted border
-            // The form draws its own border, so we need space for it
-            this.Padding = new Padding(2); // 2px on all sides for border visibility
+            _beepListBox.Theme = BeepThemesManager.CurrentThemeName;
+            // Calculate padding based on FormStyle border width and shadow
+            int formBorderWidth = (int)Math.Ceiling(GetFormStyleBorderWidth());
+            int shadowBlur = GetFormStyleShadowBlur();
+            
+            // Total padding = border width + shadow blur (to account for shadow expansion)
+            int totalChrome = formBorderWidth + (shadowBlur > 0 ? Math.Max(2, shadowBlur / 4) : 0);
+            int padding = Math.Max(totalChrome, 2); // Minimum 2px
+            
+            // Add padding to prevent listbox from overlapping the form's painted border and shadow
+            this.Padding = new Padding(padding);
             
             // Set list items first
             _beepListBox.ListItems = new BindingList<SimpleItem>(items);
@@ -192,10 +207,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShowAllBorders = false; // Critical: no borders on listbox
             _beepListBox.IsFrameless = true;
             _beepListBox.ShowHilightBox = false;
-            _beepListBox.Padding = new Padding(2); // 2px padding on all sides
+            _beepListBox.Padding = new Padding(padding); // Match form padding
           
             // Calculate required size
             CalculateAndSetSize(items);
+        }
+        
+        private float GetFormStyleBorderWidth()
+        {
+            // Get border width for the form's current style
+            try
+            {
+                var metrics = FormPainterMetrics.DefaultFor(FormStyle,(BeepiFormPro) this);
+                return metrics.BorderWidth;
+            }
+            catch
+            {
+                return 1.0f; // Default fallback
+            }
+        }
+        
+        private int GetFormStyleShadowBlur()
+        {
+            // Get shadow blur for the form's current style
+            try
+            {
+                // Check if form style has shadow and get blur radius
+                if (StyleShadows.HasShadow(BeepStyling.GetControlStyle(FormStyle)))
+                {
+                    return StyleShadows.GetShadowBlur(BeepStyling.GetControlStyle(FormStyle));
+                }
+            }
+            catch
+            {
+                // Silently fail - shadow blur is optional
+            }
+            return 0;
         }
         
         private void CalculateAndSetSize(List<SimpleItem> items)
@@ -230,10 +277,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 neededHeight = MaxHeight;
             }
             
-            Debug.WriteLine($"[BeepPopupListForm] Final size: {calculatedMaxWidth}x{neededHeight}");
+            // Get the total padding from form and listbox
+            int totalPaddingWidth = (Padding.Left + Padding.Right) + (_beepListBox.Padding.Left + _beepListBox.Padding.Right);
+            int totalPaddingHeight = (Padding.Top + Padding.Bottom) + (_beepListBox.Padding.Top + _beepListBox.Padding.Bottom);
             
-            // Set the client size directly - border is now handled by the form painter
-            ClientSize = new Size(calculatedMaxWidth, neededHeight);
+            // Set the client size - add extra padding for form border chrome
+            int formClientWidth = calculatedMaxWidth + totalPaddingWidth;
+            int formClientHeight = neededHeight + totalPaddingHeight;
+            
+            ClientSize = new Size(formClientWidth, formClientHeight);
+            
+            // Now size the BeepListBox to fit within the form's client area, accounting for form padding
+            // This ensures the listbox content doesn't overlap the form's painted borders
+            int listBoxWidth = formClientWidth - (Padding.Left + Padding.Right);
+            int listBoxHeight = formClientHeight - (Padding.Top + Padding.Bottom);
+            
+            _beepListBox.Size = new Size(Math.Max(1, listBoxWidth), Math.Max(1, listBoxHeight));
+            _beepListBox.Location = new Point(Padding.Left, Padding.Top);
+            
+            Debug.WriteLine($"[BeepPopupListForm] ClientSize: {formClientWidth}x{formClientHeight}, ListBoxSize: {listBoxWidth}x{listBoxHeight}");
             
             _beepListBox.Invalidate();
         }

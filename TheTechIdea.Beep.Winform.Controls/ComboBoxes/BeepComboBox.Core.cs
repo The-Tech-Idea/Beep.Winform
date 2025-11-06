@@ -91,17 +91,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region Constructor
         
-        public BeepComboBox()
+        public BeepComboBox():base()
         {
             // Set control styles
-            SetStyle(
-                ControlStyles.UserPaint |
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.OptimizedDoubleBuffer |
-                ControlStyles.ResizeRedraw |
-                ControlStyles.SupportsTransparentBackColor,
-                true);
-            
+           
             DoubleBuffered = true;
             
             // Initialize helper

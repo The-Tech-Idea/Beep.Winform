@@ -140,15 +140,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     // Don't set _activeTab here - let ActivateTab handle it
                 }
 
-                // Recalculate layout FIRST to set proper bounds for all tabs
-                RecalculateLayout();
-                
                 // Activate the tab to ensure proper positioning and visibility
                 // This will set _activeTab and handle all activation logic
+                // ActivateTab will call RecalculateLayout internally
                 ActivateTab(tab);
-                
-                // Ensure layout is recalculated after activation to fix any positioning issues
-                RecalculateLayout();
                 
                 OnAddinAdded(new ContainerEvents 
                 { 
@@ -158,16 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Guidid = control?.GuidID 
                 });
                 
-                // Force invalidation if handle is created - invalidate tab area specifically
-                if (IsHandleCreated && _displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty)
+                // Only invalidate once if we're not in batch mode
+                if (!_batchMode && IsHandleCreated)
                 {
-                    Invalidate(_tabArea, true);
-                    // Also invalidate entire control to ensure base drawing happens
-                    Invalidate(true);
-                }
-                else if (IsHandleCreated)
-                {
-                    Invalidate(true);
+                    Invalidate();
                 }
 
                 return true;

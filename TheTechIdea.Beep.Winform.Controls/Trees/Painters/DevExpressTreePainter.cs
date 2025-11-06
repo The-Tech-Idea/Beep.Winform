@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var bgBrush = PaintersFactory.GetSolidBrush(node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor);
                     g.FillRectangle(bgBrush, checkRect);
 

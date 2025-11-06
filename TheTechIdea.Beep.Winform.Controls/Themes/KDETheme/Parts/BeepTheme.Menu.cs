@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // KDE menu - clean Linux theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Noto Sans", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Noto Sans", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Noto Sans", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(248, 249, 250);  // Light gray
             this.MenuForeColor = Color.FromArgb(33, 37, 41);  // Dark gray text
             this.MenuBorderColor = Color.FromArgb(222, 226, 230);  // Medium gray

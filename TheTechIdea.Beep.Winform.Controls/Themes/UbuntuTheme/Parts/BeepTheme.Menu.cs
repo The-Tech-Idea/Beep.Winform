@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Ubuntu menu - Ubuntu Linux desktop aesthetic
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(242, 242, 245);  // Light grey
             this.MenuForeColor = Color.FromArgb(44, 44, 44);  // Dark grey text
             this.MenuBorderColor = Color.FromArgb(218, 218, 222);  // Light grey

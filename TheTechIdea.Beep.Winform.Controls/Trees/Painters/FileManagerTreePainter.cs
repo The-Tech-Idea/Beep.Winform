@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
                     var pen = PaintersFactory.GetPen(chevronColor, 1.5f);
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 3: Draw checkbox (rounded Style)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var bgBrush = PaintersFactory.GetSolidBrush(node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor);
                     g.FillPath(bgBrush, CreateRoundedRectangle(checkRect, 3));
 
@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw text with bold on selection (Google Drive Style)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     var fontToUse = isSelected ? _boldFont ?? _regularFont : _regularFont;

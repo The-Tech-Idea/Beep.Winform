@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color triangleColor = _theme.TreeForeColor;
 
                     var brush = PaintersFactory.GetSolidBrush(triangleColor);
@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP4: Draw macOS checkbox (rounded square)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = isHovered ? _theme.AccentColor : Color.FromArgb(180,180,180);
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : Color.White;
 
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP6: Draw text with macOS typography
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     var renderFont = _regularFont ?? SystemFonts.DefaultFont;

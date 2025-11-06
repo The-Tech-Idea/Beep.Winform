@@ -12,7 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             if (Width <= 0 || Height <= 0)
             {
-                System.Diagnostics.Debug.WriteLine($"RecalculateLayout: Skipping - Width: {Width}, Height: {Height}");
+                return;
+            }
+            
+            // Skip if in batch mode - will recalculate once at EndUpdate
+            if (_batchMode)
+            {
                 return;
             }
 
@@ -22,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _tabArea = Rectangle.Empty;
                 _contentArea = new Rectangle(0, 0, Width, Height);
                 PositionActiveAddin();
-                Invalidate(true);
+                // Don't invalidate here - caller will handle it
                 return;
             }
 
@@ -49,27 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     _tabArea = new Rectangle(Width - effectiveTabHeight, 0, effectiveTabHeight, Height);
                     break;
             }
-
-            System.Diagnostics.Debug.WriteLine($"RecalculateLayout: TabArea={_tabArea}, ContentArea={_contentArea}, TabCount={_tabs?.Count ?? 0}, Visible={Visible}, Enabled={Enabled}, IsHandleCreated={IsHandleCreated}");
             
             CalculateTabLayout();
             PositionActiveAddin();
             
-            // Force invalidation of tab area specifically if in Tabbed mode
-            if (IsHandleCreated)
-            {
-                if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty)
-                {
-                    // Invalidate tab area specifically
-                    Invalidate(_tabArea, false);
-                    // Also invalidate entire control
-                    Invalidate(true);
-                }
-                else
-                {
-                    Invalidate(true);
-                }
-            }
+            // Don't invalidate here - let caller handle it to avoid excessive repaints
         }
 
         private void CalculateTabLayout()
@@ -108,6 +97,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void PositionActiveAddin()
         {
+            // Skip if in batch mode
+            if (_batchMode) return;
+            
             // Ensure all tab controls are in the Controls collection and properly positioned
             foreach (var tab in _tabs)
             {
@@ -150,18 +142,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     if (control.Visible != isActive)
                     {
                         control.Visible = isActive;
-                        if (!isActive)
-                        {
-                            // Explicitly hide and invalidate non-active controls
-                            control.Invalidate(true);
-                        }
                     }
                     
-                    // If this is the active control, ensure it's repainted
-                    if (isActive && control.Visible)
-                    {
-                        control.Invalidate(true);
-                    }
+                    // Don't invalidate during positioning - let caller handle it
                 }
             }
         }
@@ -170,6 +153,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             base.OnResize(e);
             RecalculateLayout();
+            // Trigger repaint after resize
+            if (!_batchMode && IsHandleCreated)
+            {
+                Invalidate();
+            }
         }
 
         #endregion

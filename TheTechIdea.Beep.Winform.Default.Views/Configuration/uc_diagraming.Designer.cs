@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             CycleBeepDataTimePickerModebeepButton.MaxHitListDrawPerFrame = 0;
             CycleBeepDataTimePickerModebeepButton.MaxImageSize = new Size(32, 32);
-            CycleBeepDataTimePickerModebeepButton.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             CycleBeepDataTimePickerModebeepButton.ModernGradientType = ModernGradientType.None;
             CycleBeepDataTimePickerModebeepButton.Name = "CycleBeepDataTimePickerModebeepButton";
             CycleBeepDataTimePickerModebeepButton.OverrideFontSize = TypeStyleFontSize.None;
@@ -400,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             CalendarnamebeepLabel.MaxHitListDrawPerFrame = 0;
             CalendarnamebeepLabel.MaxImageSize = new Size(16, 16);
-            CalendarnamebeepLabel.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             CalendarnamebeepLabel.MinimumSize = new Size(86, 33);
             CalendarnamebeepLabel.ModernGradientType = ModernGradientType.None;
             CalendarnamebeepLabel.Multiline = false;
@@ -1919,7 +1919,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepGridPro1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepGridPro1.MaxHitListDrawPerFrame = 0;
-            beepGridPro1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepGridPro1.ModernGradientType = ModernGradientType.None;
             beepGridPro1.Name = "beepGridPro1";
             beepGridPro1.NavigationStyle = Winform.Controls.GridX.Painters.navigationStyle.Bootstrap;

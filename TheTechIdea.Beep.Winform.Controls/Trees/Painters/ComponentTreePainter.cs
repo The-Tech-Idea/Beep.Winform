@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
                     using (var brush = new SolidBrush(toggleColor))
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw component checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 7: Draw text with component tree typography (monospace bold on selection)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);

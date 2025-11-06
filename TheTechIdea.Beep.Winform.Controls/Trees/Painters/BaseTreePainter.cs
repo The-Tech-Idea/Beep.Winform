@@ -223,6 +223,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
                 g.FillRectangle(brush, nodeBounds);
             }
+            //}else
+            //    {
+            //    if (_owner.IsTransparentBackground)
+            //    {
+
+            //    }else
+            //    {
+            //        var brush = PaintersFactory.GetSolidBrush(_theme.TreeBackColor);
+            //        g.FillRectangle(brush, nodeBounds);
+            //    }
+                 
+            //}
         }
 
         public virtual int GetPreferredRowHeight(SimpleItem item, Font font)

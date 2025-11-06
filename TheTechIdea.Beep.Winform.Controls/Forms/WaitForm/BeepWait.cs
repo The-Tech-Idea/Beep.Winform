@@ -30,9 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
             StartSpinner();
-            Theme = BeepThemesManager.CurrentThemeName;
-            ApplyTheme();
 
+            Theme = BeepThemesManager.CurrentThemeName;
+            FormStyle = BeepThemesManager.CurrentStyle;
+            ApplyTheme();
             // NOTE: messege control configuration moved to OnShown event for safety
 
             // _spinnerImage.ApplyThemeOnImage = true;
@@ -45,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-
+         
             // Configure messege control after form is fully shown and initialized
             if (messege != null)
             {

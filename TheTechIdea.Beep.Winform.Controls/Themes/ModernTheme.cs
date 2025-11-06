@@ -9,12 +9,12 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
     /// <summary>
-    /// Modern/Console theme:
-    /// - Near-black background
-    /// - Phosphor green text and accents
+    /// Modern theme:
+    /// - Clean white background
+    /// - Black text with blue accents
     /// - High contrast, no transparency
-    /// - Monospace typography (Consolas/Courier New fallback)
-    /// - Sharp borders & pixel-perfect look (pairs with Modern)
+    /// - Sans-serif typography (Segoe UI)
+    /// - Sharp borders & modern appearance
     /// </summary>
     public class ModernTheme : IBeepTheme
     {
@@ -784,16 +784,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         // =========================
         public ModernTheme()
         {
-            // Base palette inspired by ModernFormPainter: light grays, whites, subtle blues
-            var lightGray = C(240, 240, 240); // Caption-like
-            var midGray = C(200, 200, 200); // Borders
-            var darkGray = C(100, 100, 100); // Text/inactive
-            var white = C(255, 255, 255); // Backgrounds
-            var black = C(0, 0, 0); // Strong text
-            var blueAccent = C(100, 150, 230); // Accents (inspired by min button)
-            var greenAccent = C(100, 200, 100); // Success/max
-            var redAccent = C(230, 90, 90); // Error/close
-            var subtleWhite = C(250, 250, 250); // Gradients
+            // Base palette tuned for a bright, modern look
+            var canvas = C(248, 250, 255); // Primary background
+            var lightGray = C(242, 245, 252); // Elevated surfaces
+            var midGray = C(220, 227, 240); // Borders
+            var darkGray = C(110, 118, 140); // Secondary text
+            var white = C(255, 255, 255); // Pure white surfaces
+            var black = C(38, 44, 57); // Soft charcoal text
+            var blueAccent = C(92, 139, 255); // Accent blue
+            var greenAccent = C(94, 204, 154); // Success/max
+            var redAccent = C(236, 112, 132); // Error/close
+            var subtleWhite = C(251, 252, 255); // Gradient midpoint
+            var hoverBlue = C(229, 237, 255); // Hover states
 
             // Typography defaults: sans-serif, clean
             FontName = PreferSansSerif();
@@ -813,13 +815,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             PrimaryColor = blueAccent;
             SecondaryColor = greenAccent;
             AccentColor = blueAccent;
-            BackgroundColor = white;
-            SurfaceColor = lightGray;
+            BackgroundColor = canvas;
+            SurfaceColor = white;
             ErrorColor = redAccent;
             WarningColor = C(255, 193, 7); // Amber
             SuccessColor = greenAccent;
             OnPrimaryColor = white;
-            OnBackgroundColor = white;
+            OnBackgroundColor = black;
 
             // Typography
             TitleStyle = TitleMedium;
@@ -832,13 +834,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
             // Core colors
             ForeColor = black;
-            BackColor = white;
+            BackColor = canvas;
             PanelBackColor = lightGray;
             PanelGradiantStartColor = subtleWhite;
             PanelGradiantEndColor = lightGray;
             PanelGradiantMiddleColor = white;
             PanelGradiantDirection = LinearGradientMode.Vertical;
-            DisabledBackColor = C(245, 245, 245);
+            DisabledBackColor = C(244, 246, 252);
             DisabledForeColor = darkGray;
             DisabledBorderColor = midGray;
             BorderColor = midGray;
@@ -872,7 +874,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Badge
             BadgeBackColor = blueAccent;
             BadgeForeColor = white;
-            HighlightBackColor = C(230, 240, 255);
+            HighlightBackColor = hoverBlue;
             BadgeFont = LabelSmall;
 
             // Markdown / Code
@@ -933,7 +935,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             CalendarForeColor = black;
             CalendarTodayForeColor = blueAccent;
             CalendarBorderColor = midGray;
-            CalendarHoverBackColor = C(230, 240, 255);
+            CalendarHoverBackColor = hoverBlue;
             CalendarHoverForeColor = black;
             HeaderFont = TitleSmall;
             MonthFont = BodyMedium;
@@ -966,7 +968,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             CheckBoxCheckedBackColor = blueAccent;
             CheckBoxCheckedForeColor = white;
             CheckBoxCheckedBorderColor = blueAccent;
-            CheckBoxHoverBackColor = C(230, 240, 255);
+            CheckBoxHoverBackColor = hoverBlue;
             CheckBoxHoverForeColor = black;
             CheckBoxHoverBorderColor = blueAccent;
             CheckBoxFont = BodyMedium;
@@ -976,7 +978,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ComboBoxBackColor = white;
             ComboBoxForeColor = black;
             ComboBoxBorderColor = midGray;
-            ComboBoxHoverBackColor = C(230, 240, 255);
+            ComboBoxHoverBackColor = hoverBlue;
             ComboBoxHoverForeColor = black;
             ComboBoxHoverBorderColor = blueAccent;
             ComboBoxSelectedBackColor = blueAccent;
@@ -1119,7 +1121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             GridHeaderSelectedForeColor = white;
             GridHeaderHoverBorderColor = blueAccent;
             GridHeaderSelectedBorderColor = blueAccent;
-            GridRowHoverBackColor = C(230, 240, 255);
+            GridRowHoverBackColor = hoverBlue;
             GridRowHoverForeColor = black;
             GridRowSelectedBackColor = blueAccent;
             GridRowSelectedForeColor = white;
@@ -1195,11 +1197,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             TaskCardProgressValueStyle = LabelMedium;
 
             // Tooltips / Markdown
-            ToolTipBackColor = lightGray;
+            ToolTipBackColor = white;
             ToolTipForeColor = black;
             ToolTipBorderColor = midGray;
-            ToolTipShadowColor = darkGray;
-            ToolTipShadowOpacity = C(0, 0, 0);
+            ToolTipShadowColor = Color.FromArgb(96, black);
+            ToolTipShadowOpacity = Color.FromArgb(32, black);
             ToolTipTextColor = black;
             ToolTipLinkColor = blueAccent;
             ToolTipLinkHoverColor = Darken(blueAccent, 0.1);
@@ -1262,7 +1264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             TreeBorderColor = midGray;
             TreeNodeForeColor = black;
             TreeNodeHoverForeColor = black;
-            TreeNodeHoverBackColor = C(230, 240, 255);
+            TreeNodeHoverBackColor = hoverBlue;
             TreeNodeSelectedForeColor = white;
             TreeNodeSelectedBackColor = blueAccent;
             TreeNodeCheckedBoxForeColor = blueAccent;
@@ -1301,9 +1303,179 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             CompanyDropdownTextColor = black;
             CompanyLogoBackgroundColor = lightGray;
 
+            // Menu (consistent with modern theme - light, clean appearance)
+            MenuTitleFont = TitleSmall;
+            MenuItemSelectedFont = BodyMedium;
+            MenuItemUnSelectedFont = BodyMedium;
+            MenuBackColor = white; // Solid white background (no transparency)
+            MenuForeColor = black;
+            MenuBorderColor = midGray;
+            // Main menu items (top-level menu bar items)
+            MenuMainItemForeColor = black;
+            MenuMainItemHoverForeColor = black;
+            MenuMainItemHoverBackColor = subtleWhite;
+            MenuMainItemSelectedForeColor = white;
+            MenuMainItemSelectedBackColor = blueAccent;
+            // Menu items (dropdown items)
+            MenuItemForeColor = black;
+            MenuItemHoverForeColor = black;
+            MenuItemHoverBackColor = hoverBlue; // Light blue hover
+            MenuItemSelectedForeColor = white;
+            MenuItemSelectedBackColor = blueAccent;
+            // Menu gradients
+            MenuGradiantStartColor = subtleWhite;
+            MenuGradiantEndColor = lightGray;
+            MenuGradiantMiddleColor = white;
+            MenuGradiantDirection = LinearGradientMode.Vertical;
+
+            // Side Menu (similar to Menu but for sidebars)
+            SideMenuTitleFont = TitleSmall;
+            SideMenuSubTitleFont = BodySmall;
+            SideMenuTextFont = BodyMedium;
+            SideMenuBackColor = lightGray;
+            SideMenuForeColor = black;
+            SideMenuBorderColor = midGray;
+            SideMenuHoverBackColor = subtleWhite;
+            SideMenuHoverForeColor = black;
+            SideMenuSelectedBackColor = blueAccent;
+            SideMenuSelectedForeColor = white;
+            SideMenuTitleTextColor = black;
+            SideMenuTitleBackColor = lightGray;
+            SideMenuTitleStyle = TitleSmall;
+            SideMenuSubTitleTextColor = darkGray;
+            SideMenuSubTitleBackColor = lightGray;
+            SideMenuSubTitleStyle = BodySmall;
+            SideMenuGradiantStartColor = subtleWhite;
+            SideMenuGradiantEndColor = lightGray;
+            SideMenuGradiantMiddleColor = white;
+            SideMenuGradiantDirection = LinearGradientMode.Vertical;
+
+            // Navigation (consistent with Menu)
+            NavigationTitleFont = TitleSmall;
+            NavigationSelectedFont = BodyMedium;
+            NavigationUnSelectedFont = BodyMedium;
+            NavigationBackColor = lightGray;
+            NavigationForeColor = black;
+            NavigationHoverBackColor = subtleWhite;
+            NavigationHoverForeColor = black;
+            NavigationSelectedBackColor = blueAccent;
+            NavigationSelectedForeColor = white;
+
+            // Labels (consistent with modern theme)
+            LabelFont = BodyMedium;
+            SubLabelFont = BodySmall;
+            LabelBackColor = white; // Solid white background (no transparency)
+            LabelForeColor = black;
+            LabelBorderColor = midGray;
+            LabelHoverBackColor = subtleWhite;
+            LabelHoverForeColor = black;
+            LabelHoverBorderColor = blueAccent;
+            LabelSelectedBackColor = blueAccent;
+            LabelSelectedForeColor = white;
+            LabelSelectedBorderColor = blueAccent;
+            LabelDisabledBackColor = DisabledBackColor;
+            LabelDisabledForeColor = DisabledForeColor;
+            LabelDisabledBorderColor = DisabledBorderColor;
+            SubLabelForColor = darkGray;
+            SubLabelBackColor = white; // Solid white background (no transparency)
+            SubLabelHoverBackColor = subtleWhite;
+            SubLabelHoverForeColor = black;
+
+            // TextBox (consistent with ComboBox)
+            TextBoxFont = BodyMedium;
+            TextBoxHoverFont = BodyMedium;
+            TextBoxSelectedFont = BodyMedium;
+            TextBoxBackColor = white;
+            TextBoxForeColor = black;
+            TextBoxBorderColor = midGray;
+            TextBoxHoverBackColor = white;
+            TextBoxHoverForeColor = black;
+            TextBoxHoverBorderColor = blueAccent;
+            TextBoxSelectedBackColor = white;
+            TextBoxSelectedForeColor = black;
+            TextBoxSelectedBorderColor = blueAccent;
+            TextBoxPlaceholderColor = darkGray;
+            TextBoxErrorBackColor = C(255, 230, 230);
+            TextBoxErrorForeColor = redAccent;
+            TextBoxErrorBorderColor = redAccent;
+            TextBoxErrorTextColor = redAccent;
+            TextBoxErrorPlaceholderColor = redAccent;
+            TextBoxErrorTextBoxColor = C(255, 230, 230);
+            TextBoxErrorTextBoxBorderColor = redAccent;
+            TextBoxErrorTextBoxHoverColor = C(255, 240, 240);
+
+            // List (consistent with Grid rows)
+            ListTitleFont = TitleSmall;
+            ListSelectedFont = BodyMedium;
+            ListUnSelectedFont = BodyMedium;
+            ListBackColor = white;
+            ListForeColor = black;
+            ListBorderColor = midGray;
+            ListItemForeColor = black;
+            ListItemHoverForeColor = black;
+            ListItemHoverBackColor = hoverBlue;
+            ListItemHoverBorderColor = blueAccent;
+            ListItemSelectedForeColor = white;
+            ListItemSelectedBackColor = blueAccent;
+            ListItemSelectedBorderColor = blueAccent;
+            ListItemBorderColor = white; // Solid white instead of transparent
+
+            // ScrollList (similar to List)
+            ScrollListTitleFont = TitleSmall;
+            ScrollListSelectedFont = BodyMedium;
+            ScrollListUnSelectedFont = BodyMedium;
+            ScrollListIItemFont = BodyMedium;
+            ScrollListItemSelectedFont = BodyMedium;
+            ScrollListBackColor = white;
+            ScrollListForeColor = black;
+            ScrollListBorderColor = midGray;
+            ScrollListItemForeColor = black;
+            ScrollListItemHoverForeColor = black;
+            ScrollListItemHoverBackColor = hoverBlue;
+            ScrollListItemSelectedForeColor = white;
+            ScrollListItemSelectedBackColor = blueAccent;
+            ScrollListItemSelectedBorderColor = blueAccent;
+            ScrollListItemBorderColor = white; // Solid white instead of transparent
+
+            // Links
+            LinkColor = blueAccent;
+            VisitedLinkColor = C(128, 0, 128); // Purple
+            HoverLinkColor = Darken(blueAccent, 0.1);
+            LinkHoverColor = Darken(blueAccent, 0.1);
+
+            // Misc / Utility
+            FontFamily = FontName;
+            FontStyleRegular = FontStyle.Regular;
+            FontStyleBold = FontStyle.Bold;
+            FontStyleItalic = FontStyle.Italic;
+            PrimaryTextColor = black;
+            SecondaryTextColor = darkGray;
+            AccentTextColor = blueAccent;
+            PaddingSmall = 4;
+            PaddingMedium = 8;
+            PaddingLarge = 16;
+            BorderRadius = 8;
+            BorderSize = 1;
+            IconSet = "Fluent";
+            ApplyThemeToIcons = true;
+            FocusIndicatorColor = blueAccent;
+            ShadowColor = Color.FromArgb(40, black);
+            ShadowOpacity = 0.18f;
+            AnimationDurationShort = 0.16;
+            AnimationDurationMedium = 0.28;
+            AnimationDurationLong = 0.4;
+            AnimationEasingFunction = "CubicBezier(0.33, 1, 0.68, 1)";
+            HighContrastMode = false;
+            IsDarkTheme = false;
+
             // Status & Gradients
             StatusBarBackColor = lightGray;
-            GradientStartColor = white;
+            StatusBarForeColor = black;
+            StatusBarBorderColor = midGray;
+            StatusBarHoverBackColor = hoverBlue;
+            StatusBarHoverForeColor = black;
+            StatusBarHoverBorderColor = blueAccent;
+            GradientStartColor = subtleWhite;
             GradientEndColor = lightGray;
             GradientDirection = LinearGradientMode.Vertical;
 
@@ -1403,9 +1575,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 else if (name.Contains("Success", StringComparison.OrdinalIgnoreCase))
                     p.SetValue(this, SuccessColor);
                 else if (name.Contains("Hover", StringComparison.OrdinalIgnoreCase) && name.EndsWith("BackColor"))
-                    p.SetValue(this, C(230, 240, 255));
+                    p.SetValue(this, C(229, 237, 255));
                 else if (name.Contains("Hover", StringComparison.OrdinalIgnoreCase) && name.EndsWith("ForeColor"))
-                    p.SetValue(this, C(0, 0, 0));
+                    p.SetValue(this, C(38, 44, 57));
                 else if (name.Contains("Selected", StringComparison.OrdinalIgnoreCase) && name.EndsWith("BackColor"))
                     p.SetValue(this, PrimaryColor);
                 else if (name.Contains("Selected", StringComparison.OrdinalIgnoreCase) && name.EndsWith("ForeColor"))

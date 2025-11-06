@@ -987,13 +987,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
             // === STEP 1: Apply padding to get content area first ===
             GraphicsPath contentPath = currentPath;
-            int padding = StyleSpacing.GetPadding(style);
-            if (padding > 0)
-            {
-                contentPath = currentPath.CreateInsetPath(padding);
-                if (contentPath == null)
-                    contentPath = currentPath;
-            }
+            //int padding = StyleSpacing.GetPadding(style);
+            //if (padding > 0)
+            //{
+            //    contentPath = currentPath.CreateInsetPath(padding);
+            //    if (contentPath == null)
+            //        contentPath = currentPath;
+            //}
 
             // === STEP 2: Paint Inner Shadow (paints around content area, returns smaller path) ===
             GraphicsPath pathAfterShadow = contentPath;
@@ -1020,14 +1020,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
             // === STEP 4: Paint Background (fills the area between border and final content) ===
-            //if(!IsTransparentBackground)
-            //{
-            //    var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
-            //    if (backgroundPainter != null)
-            //    {
-            //        backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
-            //    }
-            //}
+            if(!IsTransparentBackground)
+            {
+                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+                if (backgroundPainter != null)
+                {
+                    backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
+                }
+            }
           
 
             // Cleanup intermediate paths if they're different

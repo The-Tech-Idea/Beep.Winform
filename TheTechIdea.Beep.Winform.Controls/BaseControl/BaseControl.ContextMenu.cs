@@ -16,29 +16,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     /// </summary>
     public partial class BaseControl
     {
-        private FormStyle menustyle = FormStyle.Modern;
+      
         // Keep a reference for async menus to avoid premature GC
         private BeepContextMenu _activeAsyncContextMenu;
 
-        /// <summary>
-        /// Gets or sets the theme for styling
-        /// </summary>
-        [Category("Beep")]
-        [Description("The theme for styling the context menu")]
-        [Browsable(true)]
-        public FormStyle MenuStyle
-        {
-            get => menustyle;
-            set
-            {
-                if (menustyle != value)
-                {
-                    menustyle = value;
-                    Invalidate();
-                }
-            }
-        }
-
+      
         #region Context Menu Events
 
         /// <summary>
@@ -77,11 +59,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             if (items == null || items.Count == 0)
                 return null;
-            menustyle = style;
+          
             // Create a fresh context menu per invocation
             var menu = new BeepContextMenu
             {
-                ContextMenuType = menustyle,
+                ContextMenuType = FormStyle.Minimal,
                 DestroyOnClose = true,
                 MultiSelect = multiSelect,
                 ShowCheckBox = multiSelect,
@@ -256,12 +238,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             if (items == null || items.Count == 0)
                 return;
-            menustyle = style;
+          
             // Create a fresh context menu and keep a reference until it closes
             var menu = new BeepContextMenu
             {
                
-                ContextMenuType = FormStyle.Modern,
+                ContextMenuType = FormStyle.Minimal,
                 DestroyOnClose = true,
                 Theme = this.Theme
             };

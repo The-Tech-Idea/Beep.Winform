@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // GruvBox menu - warm retro theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(40, 40, 40);  // Dark gray
             this.MenuForeColor = Color.FromArgb(235, 219, 178);  // Beige text
             this.MenuBorderColor = Color.FromArgb(80, 73, 69);  // Muted brown

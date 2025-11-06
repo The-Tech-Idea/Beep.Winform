@@ -39,29 +39,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            if (BackColor.A == 255 ||!_istransparent) // fully opaque: do normal background fill
-            {
-                //using var b = new SolidBrush(BackColor);
-                e.Graphics.Clear(BackColor);
+            //if (BackColor.A == 255 || !_istransparent) // fully opaque: do normal background fill
+            //{
+            //    //using var b = new SolidBrush(BackColor);
+            //    e.Graphics.Clear(BackColor);
                 base.OnPaintBackground(e);
-                return;
-            }
+            //    return;
+            //}
 
-            // Transparent: ask the parent to paint "behind" us.
-            PaintParentBackground(e);
+            //// Transparent: ask the parent to paint "behind" us.
+            //PaintParentBackground(e);
         }
 
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         private static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest,
      int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
 
-        private void PaintParentBackground(PaintEventArgs e)
+        private void PaintParentBackground(Graphics g)
         {
             if (Parent == null) return;
 
             // Get device contexts
             IntPtr parentDc = GetDC(Parent.Handle);
-            IntPtr destDc = e.Graphics.GetHdc();
+            IntPtr destDc = g.GetHdc();
 
             try
             {
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
             finally
             {
-                e.Graphics.ReleaseHdc(destDc);
+                g.ReleaseHdc(destDc);
                 ReleaseDC(Parent.Handle, parentDc);
             }
         }
@@ -86,16 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (IsDisposed || !IsHandleCreated)
                 return;
             base.OnPaint(e);
-      
-            // Don't call UpdateDrawingRect for BeepGridPro - it handles its own layout
-           
-
-          
-          
+         
             // Always ensure clip rectangle is valid
-            var clipRect = EnsureValidRectangle(e.ClipRectangle);
-
-          
 
             if (UseExternalBufferedGraphics)
             {
@@ -104,9 +96,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     BufferedGraphicsContext context = BufferedGraphicsManager.Current;
                     if (context != null)
                     {
-                        using (BufferedGraphics buffer = context.Allocate(e.Graphics, EnsureValidRectangle(this.ClientRectangle)))
+                    using (BufferedGraphics buffer = context.Allocate(e.Graphics, EnsureValidRectangle(this.ClientRectangle)))
                         {
                             Graphics g = buffer.Graphics;
+                        ClearDrawingSurface(g);
 
                             // Paint the inner area using the new PaintInnerShape method
                            // SafePaintInnerShape(g);
@@ -145,6 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             try
             {
+                ClearDrawingSurface(g);
                 // Paint the inner area using the new PaintInnerShape method
               //  SafePaintInnerShape(g);
 
@@ -164,6 +158,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 System.Diagnostics.Debug.WriteLine($"BaseControl.SafeDraw error: {ex.Message}");
             }
+        }
+
+        private void ClearDrawingSurface(Graphics g)
+        {
+            if (g == null)
+                return;
+
+            var clearColor = BackColor;
+            if (IsTransparentBackground && Parent != null)
+            {
+                clearColor = ParentBackColor != Color.Empty ? ParentBackColor : Parent.BackColor;
+            }
+
+            if (clearColor.A == 0)
+            {
+                clearColor = Parent?.BackColor ?? SystemColors.Control;
+            }
+
+            g.Clear(clearColor);
         }
 
         private void SafePaintInnerShape(Graphics g)

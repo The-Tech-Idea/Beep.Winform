@@ -961,7 +961,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 // -- Labels
                 LabelBackColor = BackgroundColor;
                 LabelForeColor = ForeColor;
-                LabelBorderColor = Color.Transparent; // will be normalized below
+                LabelBorderColor = BorderColor; // Solid border color instead of transparent
                 LabelHoverBorderColor = ActiveBorderColor;
                 LabelHoverBackColor = BackgroundColor;
                 LabelHoverForeColor = ForeColor;
@@ -1044,6 +1044,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 NavigationSelectedBackColor = Blend(PrimaryColor, Color.White, 0.88);
                 NavigationSelectedForeColor = Darken(PrimaryColor, 0.35);
 
+                // Menu fonts and colors
+                MenuTitleFont = TitleSmall;
+                MenuItemSelectedFont = BodyMedium;
+                MenuItemUnSelectedFont = BodyMedium;
                 MenuBackColor = CardBackColor;
                 MenuForeColor = ForeColor;
                 MenuBorderColor = BorderColor;
@@ -1263,7 +1267,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 // -- Tooltips / Markdown
                 ToolTipBackColor = C(31, 41, 55);
                 ToolTipForeColor = Color.White;
-                ToolTipBorderColor = Color.Transparent;
+                ToolTipBorderColor = BorderColor; // Solid border color instead of transparent
                 ToolTipShadowColor = C(0, 0, 0);
                 ToolTipShadowOpacity = Color.FromArgb(64, 0, 0, 0); // type is Color in your interface
                 ToolTipTextColor = Color.White;

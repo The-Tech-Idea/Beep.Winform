@@ -104,8 +104,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 		public BeepTree():base()
 		{
 			// Control configuration
-			SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Opaque, true);
-			UpdateStyles();
+			// SetStyle( ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Opaque, true);
+			// UpdateStyles();
 			DoubleBuffered = true;
 			//Padding= new Padding(2);
             // Initialize helpers

@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
  if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
  {
- var toggleRect = node.ToggleRectContent;
+ var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
  Color chevronColor = _theme.TreeForeColor;
 
  var pen = PaintersFactory.GetPen(chevronColor,1.5f);
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  // STEP3: Draw checkbox (clean Stripe Style)
  if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
  {
- var checkRect = node.CheckRectContent;
+ var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
  var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
  var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  // STEP5: Draw text with bold on selection (Stripe typography)
  if (node.TextRectContent != Rectangle.Empty)
  {
- var textRect = node.TextRectContent;
+ var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
  Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
  Rectangle adjustedTextRect = new Rectangle(

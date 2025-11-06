@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // Neon menu - vibrant neon theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(15, 15, 25);  // Deep navy
             this.MenuForeColor = Color.FromArgb(0, 255, 255);  // Cyan text
             this.MenuBorderColor = Color.FromArgb(0, 255, 255);  // Cyan glow

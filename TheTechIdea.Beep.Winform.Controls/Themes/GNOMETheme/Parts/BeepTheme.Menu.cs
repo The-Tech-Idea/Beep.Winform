@@ -11,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyMenu()
         {
             // GNOME menu - clean light theme
+            this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 14F, FontStyle.Bold);
+            this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 12F, FontStyle.Bold);
+            this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Ubuntu", 12F, FontStyle.Regular);
+            
             this.MenuBackColor = Color.FromArgb(255, 255, 255);  // White
             this.MenuForeColor = Color.FromArgb(35, 38, 41);  // Dark gray text
             this.MenuBorderColor = Color.FromArgb(200, 200, 200);  // Light gray

@@ -12,23 +12,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     {
         #region Painting
         
-        // Win32 constants and P/Invoke for transparency
-        private const int WS_EX_TRANSPARENT = 0x20;
-        
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        private static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest,
-            int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
-        
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern IntPtr GetDC(IntPtr hWnd);
-        
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
-        
-        /// <summary>
-        /// Override OnPaintBackground to handle transparent backgrounds correctly
-        /// Uses BitBlt to copy parent's background directly, preventing flicker
-        /// </summary>
         //protected override void OnPaintBackground(PaintEventArgs e)
         //{
         //    // When transparent, copy parent's background using BitBlt (prevents flicker)
@@ -76,56 +59,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         //    base.WndProc(ref m);
         //}
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] OnPaint: Called! DisplayMode={_displayMode}, IsTransparentBackground={IsTransparentBackground}, TabCount={_tabs?.Count ?? 0}, Visible={Visible}, Enabled={Enabled}, Width={Width}, Height={Height}, ClipRect={e.ClipRectangle}, IsHandleCreated={IsHandleCreated}");
-            
-            // Enable high-quality rendering
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            
-            // Like BeepMenuBar: Do NOT call base.OnPaint when transparent - completely bypass BaseControl painting
-            // This prevents g.Clear(BackColor) from filling the background
-            if (IsTransparentBackground)
-            {
-               // e.Graphics.Clear(Color.Transparent);
-               // base.OnPaintBackground(e);
-                // In Tabbed mode, draw tabs only (tab area background is transparent, tabs have opaque backgrounds)
-                if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
-                {
-                    var visibleTabs = _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty).ToList();
-                    if (visibleTabs.Count > 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] OnPaint: Drawing {visibleTabs.Count} tabs directly (transparent mode - no base painting)");
-                        DrawTabsDirectlyInOnPaint(e.Graphics);
-                    }
-                }
-                // In Single mode with transparency, don't draw anything - just let parent show through
-                // But still handle transitions if active
-                HandleTabTransition(e.Graphics);
-                return;
-            }
-
-            // For non-transparent mode, call base.OnPaint first
-            base.OnPaint(e);
-            
-            // Then draw tabs on top if in Tabbed mode
-            if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
-            {
-                var visibleTabs = _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty).ToList();
-                if (visibleTabs.Count > 0)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] OnPaint: Drawing {visibleTabs.Count} tabs after base.OnPaint (non-transparent mode)");
-                    DrawTabsDirectlyInOnPaint(e.Graphics);
-                }
-            }
-            
-            // Handle tab transition animation
-            HandleTabTransition(e.Graphics);
-        }
-        
         /// <summary>
         /// Handles tab transition animation rendering
         /// </summary>
@@ -193,11 +126,44 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         }
 
 
+        /// <summary>
+        /// Override AllowBaseControlClear to prevent BaseControl from clearing the background
+        /// when transparent, since we handle it in OnPaintBackground
+        /// </summary>
+        protected override bool AllowBaseControlClear => !IsTransparentBackground;
+        
+        /// <summary>
+        /// DrawContent is called by BaseControl.OnPaint - this is where we draw our tabs
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            // This method is called by base.OnPaint when UseFormStylePaint is true
-            // Since we're handling painting in OnPaint directly, this can be empty
-            // But we keep it here in case base.DrawContent is called
+            // Skip painting during batch operations
+            if (_batchMode) return;
+            
+            // Don't call base.DrawContent - it would clear the background again
+            // We've already handled background in OnPaintBackground
+            
+            // Enable high-quality rendering
+            if (EnableHighQualityRendering)
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            }
+            
+            // Draw tabs if in Tabbed mode
+            if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
+            {
+                var visibleTabs = _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty).ToList();
+                if (visibleTabs.Count > 0)
+                {
+                    DrawTabsDirectlyInOnPaint(g);
+                }
+            }
+            
+            // Handle tab transition animation
+            HandleTabTransition(g);
         }
 
         private void DrawTabTransition(Graphics g)

@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     var triangleColor = _theme.TreeForeColor;
                     var triBrush = PaintersFactory.GetSolidBrush(triangleColor);
 
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw Telerik professional checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
                     var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 7: Draw text with Telerik professional typography
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }

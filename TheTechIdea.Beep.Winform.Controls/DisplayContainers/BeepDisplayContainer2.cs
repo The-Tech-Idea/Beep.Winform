@@ -63,6 +63,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         // Tab transition animation
         private AddinTab _previousTab;
+        
+        // Batch update mode to prevent flickering when adding multiple tabs
+        private bool _batchMode = false;
+        private int _batchUpdateDepth = 0;
 
         #endregion
 
@@ -89,13 +93,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void InitializeComponent()
         {
-            // CRITICAL: Set UserPaint style FIRST to ensure OnPaint is called
-            // These styles tell Windows Forms that this control handles its own painting
-            SetStyle(ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.UserPaint | 
-                     ControlStyles.OptimizedDoubleBuffer | 
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.SupportsTransparentBackColor, true);
+            // BaseControl already sets most painting styles
+            // We just need to ensure transparent background support and resize redraw
+            SetStyle(ControlStyles.SupportsTransparentBackColor | 
+                     ControlStyles.ResizeRedraw, true);
             
             DoubleBuffered = true;
             
@@ -197,6 +198,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 // Update hover animations only
                 _animationHelper.UpdateAnimations(_tabs, _animationSpeed);
+            }
+        }
+        
+        /// <summary>
+        /// Begin batch mode to add multiple tabs without flickering.
+        /// Call EndUpdate() when done to trigger a single repaint.
+        /// </summary>
+        public void BeginUpdate()
+        {
+            _batchUpdateDepth++;
+            if (_batchUpdateDepth == 1)
+            {
+                _batchMode = true;
+                // Suspend layout to prevent multiple recalculations
+                SuspendLayout();
+            }
+        }
+        
+        /// <summary>
+        /// End batch mode and trigger a single repaint for all changes.
+        /// </summary>
+        public void EndUpdate()
+        {
+            _batchUpdateDepth = Math.Max(0, _batchUpdateDepth - 1);
+            if (_batchUpdateDepth == 0)
+            {
+                _batchMode = false;
+                // Resume layout and perform a single recalculation
+                ResumeLayout(true);
+                // Single invalidation for all changes
+                if (IsHandleCreated)
+                {
+                    Invalidate();
+                }
             }
         }
 

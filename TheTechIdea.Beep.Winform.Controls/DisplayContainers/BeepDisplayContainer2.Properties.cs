@@ -73,46 +73,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         }
 
         /// <summary>
-        /// Override to prevent background clearing when transparent
-        /// </summary>
-        protected override bool AllowBaseControlClear => !IsTransparentBackground;
-
-        /// <summary>
+       /// <summary>
         /// Override BackColor to sync with IsTransparentBackground property
         /// Allows setting BackColor = Color.Transparent directly
         /// Like BeepMenuBar, we preserve Transparent and prevent BaseControl from resetting it
         /// </summary>
-        public override Color BackColor
-        {
-            get => base.BackColor;
-            set
-            {
-                // Check if trying to set transparent
-                bool shouldBeTransparent = (value == Color.Transparent || value.A == 0);
+        //public override Color BackColor
+        //{
+        //    get => base.BackColor;
+        //    set
+        //    {
+        //        // Check if trying to set transparent
+        //        bool shouldBeTransparent = (value == Color.Transparent || value.A == 0);
                 
-                // Always allow setting to Transparent (like BeepMenuBar does)
-                if (shouldBeTransparent)
-                {
-                    // Set IsTransparentBackground first, then set BackColor
-                    IsTransparentBackground = true;
-                    base.BackColor = Color.Transparent;
-                    Invalidate();
-                    return;
-                }
+        //        // Always allow setting to Transparent (like BeepMenuBar does)
+        //        if (shouldBeTransparent)
+        //        {
+        //            // Set IsTransparentBackground first, then set BackColor
+        //            IsTransparentBackground = true;
+        //            base.BackColor = Color.Transparent;
+        //            Invalidate();
+        //            return;
+        //        }
 
-                // For non-transparent colors, check if value actually changed
-                if (base.BackColor == value) return;
+        //        // For non-transparent colors, check if value actually changed
+        //        if (base.BackColor == value) return;
 
-                // Sync IsTransparentBackground when setting opaque color
-                if (!shouldBeTransparent && IsTransparentBackground && value.A == 255)
-                {
-                    IsTransparentBackground = false;
-                }
+        //        // Sync IsTransparentBackground when setting opaque color
+        //        if (!shouldBeTransparent && IsTransparentBackground && value.A == 255)
+        //        {
+        //            IsTransparentBackground = false;
+        //        }
 
-                base.BackColor = value;
-                Invalidate();
-            }
-        }
+        //        base.BackColor = value;
+        //        Invalidate();
+        //    }
+        //}
     }
 }
 

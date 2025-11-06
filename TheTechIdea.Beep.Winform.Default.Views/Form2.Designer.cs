@@ -172,7 +172,7 @@
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
-            beepButton1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+         
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
@@ -352,7 +352,7 @@
             beepDatePicker1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDatePicker1.MaxDate = null;
             beepDatePicker1.MaxHitListDrawPerFrame = 0;
-            beepDatePicker1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+         
             beepDatePicker1.MinDate = null;
             beepDatePicker1.MinimumSize = new Size(172, 30);
             beepDatePicker1.ModernGradientType = ModernGradientType.None;
@@ -527,7 +527,7 @@
             beepDatePickerView1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepDatePickerView1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDatePickerView1.MaxHitListDrawPerFrame = 0;
-            beepDatePickerView1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepDatePickerView1.MinimumSize = new Size(280, 434);
             beepDatePickerView1.ModernGradientType = ModernGradientType.None;
             beepDatePickerView1.Name = "beepDatePickerView1";
@@ -714,7 +714,7 @@
             beepComboBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
-            beepComboBox1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+           
             beepComboBox1.ModernGradientType = ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = TypeStyleFontSize.None;
@@ -881,7 +881,7 @@
             beepChevronButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepChevronButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepChevronButton1.MaxHitListDrawPerFrame = 0;
-            beepChevronButton1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepChevronButton1.ModernGradientType = ModernGradientType.None;
             beepChevronButton1.Name = "beepChevronButton1";
             beepChevronButton1.OverrideFontSize = TypeStyleFontSize.None;

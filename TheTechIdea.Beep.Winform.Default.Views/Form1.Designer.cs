@@ -151,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.MaxHitListDrawPerFrame = 0;
             beepMenuBar1.MenuItemHeight = 32;
             beepMenuBar1.MenuItemWidth = 60;
-            beepMenuBar1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepMenuBar1.ModernGradientType = ModernGradientType.None;
             beepMenuBar1.Name = "beepMenuBar1";
             beepMenuBar1.OverrideFontSize = TypeStyleFontSize.None;
@@ -336,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
-            beepButton1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+           
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
@@ -511,7 +511,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAdvancedButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepAdvancedButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepAdvancedButton1.MaxHitListDrawPerFrame = 0;
-            beepAdvancedButton1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+          
             beepAdvancedButton1.MinimumSize = new Size(80, 32);
             beepAdvancedButton1.ModernGradientType = ModernGradientType.None;
             beepAdvancedButton1.Name = "beepAdvancedButton1";

@@ -175,6 +175,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int lineSize = 7;
                 g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
             }
+            
+            // Style button: Purple-frost triangle (if shown)
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                int sx = styleRect.X + styleRect.Width / 2;
+                int sy = triangleY + triangleSize / 2;
+                
+                using (var trianglePath = CreateRoundedTrianglePath(sx, sy, triangleSize))
+                {
+                    // Frost gradient (purple)
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(sx - triangleSize/2, sy - triangleSize/2, triangleSize, triangleSize),
+                        Color.FromArgb(200, 180, 142, 173),  // Nord aurora purple
+                        Color.FromArgb(200, 170, 130, 160),
+                        LinearGradientMode.Vertical))
+                    {
+                        g.FillPath(gradBrush, trianglePath);
+                    }
+                    
+                    using (var outlinePen = new Pen(Color.FromArgb(150, 220, 230, 240), 1.5f))
+                    {
+                        g.DrawPath(outlinePen, trianglePath);
+                    }
+                }
+                
+                // Tree/Style icon (Nordic nature)
+                using (var iconPen = new Pen(Color.FromArgb(255, 236, 239, 244), 1.5f))
+                {
+                    int iconSize = 6;
+                    // Trunk
+                    g.DrawLine(iconPen, sx, sy - iconSize/2, sx, sy + iconSize/2);
+                    // Branches
+                    g.DrawLine(iconPen, sx - iconSize/3, sy - iconSize/4, sx + iconSize/3, sy - iconSize/4);
+                    g.DrawLine(iconPen, sx - iconSize/4, sy, sx + iconSize/4, sy);
+                }
+            }
+            
+            // Theme button: Orange-frost triangle (if shown)
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                int tx = themeRect.X + themeRect.Width / 2;
+                int ty = triangleY + triangleSize / 2;
+                
+                using (var trianglePath = CreateRoundedTrianglePath(tx, ty, triangleSize))
+                {
+                    // Frost gradient (orange)
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(tx - triangleSize/2, ty - triangleSize/2, triangleSize, triangleSize),
+                        Color.FromArgb(200, 208, 135, 112),  // Nord aurora orange
+                        Color.FromArgb(200, 195, 125, 100),
+                        LinearGradientMode.Vertical))
+                    {
+                        g.FillPath(gradBrush, trianglePath);
+                    }
+                    
+                    using (var outlinePen = new Pen(Color.FromArgb(150, 220, 230, 240), 1.5f))
+                    {
+                        g.DrawPath(outlinePen, trianglePath);
+                    }
+                }
+                
+                // Mountain/Theme icon (Nordic landscape)
+                using (var iconPen = new Pen(Color.FromArgb(255, 236, 239, 244), 1.5f))
+                {
+                    int iconSize = 6;
+                    var points = new PointF[] {
+                        new PointF(tx - iconSize/2, ty + iconSize/3),
+                        new PointF(tx, ty - iconSize/2),
+                        new PointF(tx + iconSize/2, ty + iconSize/3)
+                    };
+                    g.DrawPolygon(iconPen, points);
+                }
+            }
         }
         
         /// <summary>

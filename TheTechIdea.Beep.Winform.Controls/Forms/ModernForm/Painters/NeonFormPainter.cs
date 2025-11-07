@@ -6,7 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Neon Style with vibrant multi-color glow and star-shaped buttons
+    /// Neon style with vibrant multi-color glow and star-shaped buttons.
+    /// 
+    /// Neon Color Palette (synced with NeonTheme):
+    /// - Background: Deep dark background
+    /// - Neon Pink: #FF0096 (255, 0, 150) - Vibrant pink glow
+    /// - Neon Cyan: #00FFFF (0, 255, 255) - Vibrant cyan glow
+    /// - Neon Purple: #FF00FF (255, 0, 255) - Vibrant purple
+    /// - Neon Green: #00FF00 (0, 255, 0) - Vibrant green
+    /// 
+    /// Features:
+    /// - Multi-color RGB gradient glows (pink from top, cyan from left)
+    /// - Neon outline lines (semi-transparent)
+    /// - Star-shaped buttons with intense glow
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class NeonFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +32,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Neon: deep dark background
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Multi-color neon glow effect (RGB gradient layers)
             // Pink glow from top
@@ -55,6 +76,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.DrawLine(neonCyanPen, 0, 0, 0, owner.ClientRectangle.Height);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

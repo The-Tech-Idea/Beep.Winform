@@ -175,11 +175,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             };
             
-            // Enable double buffering for smooth rendering
-            SetStyle(ControlStyles.UserPaint |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.ResizeRedraw, true);
+            // CRITICAL: Enable double buffering for smooth rendering
+            // Set UserPaint = true to override BeepPanel's UserPaint = false
+            // This prevents flickering when used in popup/context menu scenarios
+           
+            
+            // CRITICAL: Override BeepPanel's UseExternalBufferedGraphics = false
+            // BeepListBox needs its own buffering for smooth painting
+            UseExternalBufferedGraphics = true;
+            
+            // CRITICAL: Ensure DoubleBuffered is explicitly enabled
+            this.DoubleBuffered = true;
+            
             UpdateStyles();
         }
 #pragma warning restore IL2026

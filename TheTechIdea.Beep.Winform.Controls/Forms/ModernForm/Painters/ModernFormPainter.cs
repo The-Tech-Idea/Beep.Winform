@@ -7,7 +7,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
     /// Modern form painter with clean, contemporary design.
-    /// Features smooth rounded corners, subtle shadows, and refined aesthetics.
+    /// 
+    /// Features:
+    /// - Smooth rounded corners
+    /// - Subtle gradient overlay for depth (semi-transparent white)
+    /// - Refined aesthetics with subtle shadows
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class ModernFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +24,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
 
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // Subtle gradient overlay for depth
             using (var grad = new LinearGradientBrush(
                 owner.ClientRectangle,
@@ -33,6 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillRectangle(grad, owner.ClientRectangle);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

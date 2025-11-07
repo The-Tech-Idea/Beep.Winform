@@ -508,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 var newFormStyle = e.NewStyle;
                 ControlStyle= BeepStyling.GetControlStyle(newFormStyle);
                 Theme= BeepThemesManager.GetThemeNameForFormStyle(newFormStyle);
-                //  Invalidate();
+               
             }
             catch (Exception ex)
             {

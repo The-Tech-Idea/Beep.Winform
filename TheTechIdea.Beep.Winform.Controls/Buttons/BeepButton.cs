@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [Description("A button control with an image and text.")]
     [DisplayName("Beep Button")]
-    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepButtonDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+    //[Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepButtonDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepButton : BaseControl
     {
         #region "Properties"

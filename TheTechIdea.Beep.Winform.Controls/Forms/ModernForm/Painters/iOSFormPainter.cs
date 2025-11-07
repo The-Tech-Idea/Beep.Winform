@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Apple iOS modern rounded Style
+    /// Apple iOS modern rounded style (synced with iOSTheme).
+    /// 
+    /// iOS Color Palette (synced with iOSTheme):
+    /// - Background: #FFFFFF (255, 255, 255) - Pure white base
+    /// - Foreground: #000000 (0, 0, 0) - Black text
+    /// - Border: #C6C6C8 (198, 198, 200) - Light gray border
+    /// - Hover: #F2F2F7 (242, 242, 247) - Very light gray hover
+    /// - Selected: #007AFF (0, 122, 255) - iOS blue selected
+    /// 
+    /// Features:
+    /// - Smooth vertical gradient with vibrancy overlay
+    /// - Rounded corners with large radius
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class iOSFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -21,6 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var radius = GetCornerRadius(owner);
             using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // iOS: Smooth vertical gradient with vibrancy overlay
             var topColor = ControlPaint.Light(metrics.BackgroundColor, 0.08f);
             using (var gradBrush = new LinearGradientBrush(
@@ -33,6 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillPath(gradBrush, path);
             }
             
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // Vibrancy effect - subtle white overlay
             var vibrancyColor = Color.FromArgb(12, 255, 255, 255);
             var topThird = new Rectangle(owner.ClientRectangle.X, owner.ClientRectangle.Y,
@@ -43,6 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillPath(vibrancyBrush, topPath);
             }
             topPath.Dispose();
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

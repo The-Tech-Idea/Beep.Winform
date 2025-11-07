@@ -106,7 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializePopupForm()
         {
-           
+            // CRITICAL: Enable double buffering and optimized painting to prevent flickering
+            this.DoubleBuffered = true;
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                  
+                     ControlStyles.ResizeRedraw, true);
+            UpdateStyles();
             
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;

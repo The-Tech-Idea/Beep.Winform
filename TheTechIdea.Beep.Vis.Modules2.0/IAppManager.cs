@@ -12,6 +12,12 @@ namespace TheTechIdea.Beep.Vis.Modules
     public interface IAppManager : IDisposable
     {
         event Action<string> OnThemeChanged;
+        event Action<string> OnLogoUrlChanged;
+        event Action<string> OnTitleChanged;
+        event Action<string> OnDescriptionChanged;
+        event Action<string> OnIconUrlChanged;
+        event Action<string> OnStyleChanged;
+        string Style { get; set; }
         string Theme { get; set; }
         bool IsLogOn { get; set; }
         IDMEEditor DMEEditor { get; set; }

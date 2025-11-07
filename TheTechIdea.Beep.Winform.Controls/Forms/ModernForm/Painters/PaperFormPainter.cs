@@ -6,7 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Material Design Paper Style with elevation shadows and layered depth
+    /// Material Design Paper style with elevation shadows and layered depth (synced with PaperTheme).
+    /// 
+    /// Paper Color Palette (synced with PaperTheme):
+    /// - Background: #FAFAFA (250, 250, 250) - Off-white paper
+    /// - Foreground: #212121 (33, 33, 33) - Dark gray text
+    /// - Border: #E0E0E0 (224, 224, 224) - Light gray border
+    /// - Hover: #F5F5F5 (245, 245, 245) - Lighter hover
+    /// - Selected: #EEEEEE (238, 238, 238) - Medium gray selected
+    /// 
+    /// Features:
+    /// - Subtle material texture (noise pattern)
+    /// - Material elevation line at top
+    /// - Elevated surface with subtle gradient for caption
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class PaperFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +32,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+
             // Material Paper: subtle texture with elevation effect
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Add subtle material texture (noise pattern)
             Random rand = new Random(owner.ClientRectangle.GetHashCode());
@@ -42,12 +63,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.DrawLine(linePen, 0, 0, owner.ClientRectangle.Width, 0);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // CRITICAL: Set compositing mode for semi-transparent overlays
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Material Paper caption: elevated surface with subtle gradient
             using (var capBrush = new LinearGradientBrush(captionRect, 
@@ -72,6 +100,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.DrawLine(linePen, 0, captionRect.Bottom - 1, captionRect.Width, captionRect.Bottom - 1);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
 
             // Paint Material Paper textured torn-edge buttons (ENHANCED UNIQUE SKIN)
             PaintPaperTexturedButtons(g, owner, captionRect, metrics);

@@ -6,7 +6,23 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// GruvBox retro Style with 3D beveled buttons and warm textured aesthetic
+    /// GruvBox retro style with 3D beveled buttons and warm textured aesthetic.
+    /// 
+    /// GruvBox Color Palette (synced with GruvBoxTheme):
+    /// - Background: #282828 (40, 40, 40) - Dark gray-brown base
+    /// - Surface: #3C3836 (60, 56, 54) - Slightly lighter surface
+    /// - Foreground: #EBDBB2 (235, 219, 178) - Light beige text
+    /// - Border: #504945 (80, 73, 69) - Muted brown border
+    /// - Red: #FB4934 (251, 73, 52) - Close button, primary accent
+    /// - Orange: #FE8019 (254, 128, 25) - Accent color, theme button
+    /// - Yellow: #FABD2F (250, 189, 47) - Warning, style button, warm glow
+    /// - Gray: #928374 (146, 131, 116) - Inactive elements, min/max buttons
+    /// 
+    /// Features:
+    /// - Warm grain texture overlay (horizontal scan lines)
+    /// - Subtle warm glow at top (yellow gradient)
+    /// - Win95-style 3D beveled buttons with ControlPaint
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class GruvBoxFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,30 +35,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+
             // GruvBox: warm textured background with subtle grain/noise
+            // Use theme BackgroundColor (#282828) for base
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
             
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // Add warm retro grain texture (horizontal scan-like pattern)
-            using (var grainPen = new Pen(Color.FromArgb(5, 255, 200, 100), 1))
+            // Use GruvBox orange accent (#FE8019) with low alpha for warm grain
+            using (var grainPen = new Pen(Color.FromArgb(5, 254, 128, 25), 1))
             {
+                g.SmoothingMode = SmoothingMode.None; // Sharp pixels for retro feel
                 for (int y = 0; y < owner.ClientRectangle.Height; y += 3)
                 {
                     g.DrawLine(grainPen, 0, y, owner.ClientRectangle.Width, y);
                 }
             }
             
-            // Add subtle warm glow at top
+            // Add subtle warm glow at top using GruvBox yellow (#FABD2F)
             using (var glowBrush = new LinearGradientBrush(
                 new Rectangle(0, 0, owner.ClientRectangle.Width, 40),
-                Color.FromArgb(15, 251, 184, 108), // Warm orange glow
-                Color.FromArgb(0, 251, 184, 108),
+                Color.FromArgb(15, 250, 189, 47), // GruvBox yellow glow
+                Color.FromArgb(0, 250, 189, 47),
                 LinearGradientMode.Vertical))
             {
                 g.FillRectangle(glowBrush, 0, 0, owner.ClientRectangle.Width, 40);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
@@ -50,24 +80,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // GruvBox: warm gradient caption with retro feel
-            using (var capBrush = new LinearGradientBrush(captionRect,
-                Color.FromArgb(20, 251, 184, 108), // Warm top
-                Color.FromArgb(10, 211, 134, 56),  // Darker warm bottom
-                LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(capBrush, captionRect);
-            }
-            
-            // Base caption color
+            // Base caption color (GruvBox SurfaceColor #3C3836)
             using (var baseBrush = new SolidBrush(metrics.CaptionColor))
             {
                 g.FillRectangle(baseBrush, captionRect);
+            }
+            
+            // GruvBox: warm gradient overlay with retro feel
+            // Use GruvBox yellow (#FABD2F) and orange (#FE8019) for warm gradient
+            using (var capBrush = new LinearGradientBrush(captionRect,
+                Color.FromArgb(20, 250, 189, 47), // Yellow top
+                Color.FromArgb(10, 254, 128, 25),  // Orange bottom
+                LinearGradientMode.Vertical))
+            {
+                g.FillRectangle(capBrush, captionRect);
             }
 
             // Paint GruvBox 3D beveled rectangle buttons (UNIQUE RETRO SKIN)
             PaintGruvBeveledButtons(g, owner, captionRect, metrics);
 
+            // Draw title text with GruvBox light beige (#EBDBB2)
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
@@ -92,12 +124,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int buttonY = (captionRect.Height - buttonSize) / 2;
             
-            // Close button: Red 3D beveled rectangle
+            // Close button: Red 3D beveled rectangle (GruvBox Red #FB4934)
             int cx = closeRect.X + (closeRect.Width - buttonSize) / 2;
             var closeButtonRect = new Rectangle(cx, buttonY, buttonSize, buttonSize);
             
-            // Fill with warm red
-            using (var fillBrush = new SolidBrush(Color.FromArgb(200, 80, 60)))
+            // Fill with GruvBox red
+            using (var fillBrush = new SolidBrush(Color.FromArgb(251, 73, 52)))
             {
                 g.FillRectangle(fillBrush, closeButtonRect);
             }
@@ -115,12 +147,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(iconPen, icx + iconSize/2, icy - iconSize/2, icx - iconSize/2, icy + iconSize/2);
             }
             
-            // Maximize button: Gray 3D beveled rectangle
+            // Maximize button: Gray 3D beveled rectangle (GruvBox gray #928374)
             int mx = maxRect.X + (maxRect.Width - buttonSize) / 2;
             var maxButtonRect = new Rectangle(mx, buttonY, buttonSize, buttonSize);
             
-            // Fill with warm gray
-            using (var fillBrush = new SolidBrush(Color.FromArgb(100, 90, 80)))
+            // Fill with GruvBox gray
+            using (var fillBrush = new SolidBrush(Color.FromArgb(146, 131, 116)))
             {
                 g.FillRectangle(fillBrush, maxButtonRect);
             }
@@ -137,12 +169,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawRectangle(iconPen, imx - sqSize/2, imy - sqSize/2, sqSize, sqSize);
             }
             
-            // Minimize button: Gray 3D beveled rectangle
+            // Minimize button: Gray 3D beveled rectangle (GruvBox gray #928374)
             int mnx = minRect.X + (minRect.Width - buttonSize) / 2;
             var minButtonRect = new Rectangle(mnx, buttonY, buttonSize, buttonSize);
             
-            // Fill with warm gray
-            using (var fillBrush = new SolidBrush(Color.FromArgb(100, 90, 80)))
+            // Fill with GruvBox gray
+            using (var fillBrush = new SolidBrush(Color.FromArgb(146, 131, 116)))
             {
                 g.FillRectangle(fillBrush, minButtonRect);
             }
@@ -213,11 +245,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
             using var path = owner.BorderShape; 
-            // GruvBox: warm-tinted border (thicker for retro feel)
-            using var pen = new Pen(Color.FromArgb(80, 251, 184, 108), 2);
+            // GruvBox: muted border (GruvBox border color #504945) with subtle orange tint
+            // Thicker for retro feel
+            using var pen = new Pen(Color.FromArgb(100, 254, 128, 25), 2); // Semi-transparent orange over border
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
+            
+            // Draw base border with theme color
+            using var basePen = new Pen(metrics.BorderColor, 1);
+            g.DrawPath(basePen, path);
         }
 
         public ShadowEffect GetShadowEffect(BeepiFormPro owner)

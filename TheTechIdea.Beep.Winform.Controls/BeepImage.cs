@@ -21,7 +21,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Image")]
     [DesignTimeVisible(true)]
     [Description("A control that displays an image (SVG, PNG, JPG, BMP).")]
-    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+    // DISABLED: Designer attribute causes controls to be non-interactive when Design.Server assembly isn't properly loaded
+    // [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepImage : BaseControl
     {
         #region "Fields"

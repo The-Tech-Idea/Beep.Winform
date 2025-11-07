@@ -12,7 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Containers")]
     [Description("A panel with a title and optional line below the title.")]
     [DisplayName("Beep Panel")]
-    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepPanelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+    // DISABLED: Designer attribute causes controls to be non-interactive when Design.Server assembly isn't properly loaded
+    // [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepPanelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepPanel : BaseControl
     {
         // We'll keep everything the same, only adjusting the logic in DrawTitle and DrawTitleLine

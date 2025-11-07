@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Clean Scandinavian minimalist design
+    /// Clean Scandinavian minimalist design (synced with NordicTheme).
+    /// 
+    /// Nordic Color Palette (synced with NordicTheme):
+    /// - Background: #ECEFF4 (236, 239, 244) - Very light blue-gray base
+    /// - Foreground: #2E3440 (46, 52, 64) - Dark blue-gray text
+    /// - Border: #D8DEE9 (216, 222, 233) - Light blue-gray border
+    /// - Hover: #E5E9F0 (229, 233, 240) - Very light blue-gray hover
+    /// - Selected: #88C0D0 (136, 192, 208) - Nordic cyan selected
+    /// 
+    /// Features:
+    /// - Clean minimalist design
+    /// - Very subtle gradient (5% variation)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class NordicFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -21,6 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var radius = GetCornerRadius(owner);
             using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Nordic: Clean with very subtle gradient (5% variation)
             var lightColor = ControlPaint.Light(metrics.BackgroundColor, 0.05f);
             using (var gradBrush = new LinearGradientBrush(
@@ -32,6 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.FillPath(gradBrush, path);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

@@ -5,7 +5,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Fluent Design form painter with acrylic background and shadow effects.
+    /// Fluent Design form painter with acrylic background and shadow effects (synced with FluentTheme).
+    /// 
+    /// Fluent Color Palette (synced with FluentTheme):
+    /// - Background: #F3F3F3 (243, 243, 243) - Light gray base
+    /// - Foreground: #000000 (0, 0, 0) - Black text
+    /// - Border: #E1E1E1 (225, 225, 225) - Light gray border
+    /// - Hover: #E5F3FF (229, 243, 255) - Light blue hover
+    /// - Selected: #0078D4 (0, 120, 212) - Fluent blue selected
+    /// 
+    /// Features:
+    /// - Acrylic background with noise texture
+    /// - Fluent reveal highlight effects
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class FluentFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -23,10 +35,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+
             // Paint only the base background across the entire form.
             // Effects (noise/gradients) are applied separately under controlled clipping in PaintWithEffects.
             using var baseBrush = new SolidBrush(Color.FromArgb(240, 243, 249, 253)); // Fluent light blue-gray
             g.FillRectangle(baseBrush, owner.ClientRectangle);
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

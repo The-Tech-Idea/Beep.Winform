@@ -233,6 +233,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
                     NewStyle = _currentstyle
                 };
                 FormStyleChanged?.Invoke(null, x);
+                // Optionally, you could also change the theme based on style here
+                CurrentThemeName= GetThemeForFormStyle(_currentstyle).ThemeName;
             }
         }
 

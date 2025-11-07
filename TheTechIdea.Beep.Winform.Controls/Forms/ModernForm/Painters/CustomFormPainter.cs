@@ -10,6 +10,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     /// Users can extend this class to create their own unique form styles with full control
     /// over shapes, colors, effects, and rendering behavior.
     /// ENHANCED: Configurable button shapes with multiple modes (circle, square, rounded, star, hexagon, etc.)
+    /// 
+    /// Features:
+    /// - Fully customizable colors, borders, and effects
+    /// - Multiple button shape modes
+    /// - Compositing mode management to prevent overlay accumulation
+    /// - Serves as a template for creating custom painters
     /// </summary>
     public class CustomFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {

@@ -6,7 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Holographic Style with rainbow iridescent effects and chevron-shaped buttons
+    /// Holographic style with rainbow iridescent effects and chevron-shaped buttons (synced with HolographicTheme).
+    /// 
+    /// Holographic Color Palette (synced with HolographicTheme):
+    /// - Background: #0A0A14 (10, 10, 20) - Deep dark base for holographic effects
+    /// - Foreground: #E0E0FF (224, 224, 255) - Light purple-tinted text
+    /// - Border: #4040FF (64, 64, 255) - Electric blue border
+    /// - Hover: #1A1A2E (26, 26, 46) - Slightly lighter dark hover
+    /// - Selected: #2A2A4E (42, 42, 78) - Medium dark selected
+    /// 
+    /// Features:
+    /// - Multi-color rainbow gradient overlay (iridescent effect)
+    /// - Prismatic shine effect (diagonal rainbow line)
+    /// - Iridescent caption gradient
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class HolographicFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +32,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+
             // Holographic: base layer
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
 
             // Rainbow gradient overlay (iridescent effect)
             using (var rainbowBrush = new LinearGradientBrush(
@@ -52,12 +73,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(shinePen, 0, owner.ClientRectangle.Height / 3,
                            owner.ClientRectangle.Width, 0);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // CRITICAL: Set compositing mode for semi-transparent overlays
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Holographic: iridescent caption gradient
             using (var capBrush = new LinearGradientBrush(captionRect,
@@ -73,6 +101,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillRectangle(baseBrush, captionRect);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
 
             // Paint Holographic chevron/arrow buttons (UNIQUE SKIN)
             PaintHolographicChevronButtons(g, owner, captionRect, metrics);

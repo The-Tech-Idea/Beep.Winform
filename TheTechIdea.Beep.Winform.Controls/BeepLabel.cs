@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [DisplayName("Beep Label")]
     [Description("A label control with support for images and multi-line text.")]
-    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepLabelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+  //  [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepLabelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepLabel : BaseControl
     {
 

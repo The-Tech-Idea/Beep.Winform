@@ -937,25 +937,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             int savedHeight = Height;
             
             // CRITICAL: Call base.ApplyTheme() first for safe font handling and DPI scaling
-           // base.ApplyTheme();
+            base.ApplyTheme();
 
             if (_currentTheme == null)
                 return;
-            //BackColor = Color.Transparent;
-
-            // Apply MenuBar-specific colors
-            //if (BackColor != Color.Transparent)
-            //{
-            //    if (IsChild && Parent != null)
-            //    {
-            //        BackColor = Parent.BackColor;
-            //        ParentBackColor = Parent.BackColor;
-            //    }
-            //    else
-            //    {
-            //        BackColor = _currentTheme.MenuBackColor;
-            //    }
-            //}
+            
           
             ForeColor = _currentTheme.MenuForeColor;
             BorderColor = _currentTheme.MenuBorderColor;
@@ -998,60 +984,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     System.Diagnostics.Debug.WriteLine($"BeepMenuBar: Failed to create font from theme: {ex.Message}");
                 }
             }
-            // If UseThemeFont is false OR _explicitTextFont is true, keep the current font unchanged
-
-            // CRITICAL: Ensure height remains fixed after theme application ONLY if not manually set
-            // This prevents FormStyle changes from modifying the height
-            // BUT preserves manually set heights by the developer
-            //if (!_heightManuallySet)
-            //{
-            //    int verticalBuffer = 12;
-            //    int fixedHeight = ScaledMenuItemHeight + verticalBuffer;
-            //    if (Height != fixedHeight)
-            //    {
-            //        base.Height = fixedHeight; // Use base.Height to avoid triggering the manual set flag
-            //    }
-            //}
-
-            // Apply theme to drawing components (for legacy fallback)
-            // if (_menuButton != null)
-            // {
-            //     _menuButton.Theme = Theme;
-            //     _menuButton.IsChild = true;
-            //     _menuButton.ParentBackColor = BackColor;
-            //     _menuButton.BackColor = _currentTheme.MenuBackColor;
-            //     _menuButton.ForeColor = _currentTheme.MenuItemForeColor;
-            //     _menuButton.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
-            //     _menuButton.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
-            //     _menuButton.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
-            //     _menuButton.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
-            //     _menuButton.PressedBackColor = _currentTheme.ButtonPressedBackColor;
-            //     _menuButton.PressedForeColor = _currentTheme.ButtonPressedForeColor;
-            //     _menuButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-            //     _menuButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-            //     _menuButton.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
-            //     _menuButton.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
-            //     _menuButton.IsColorFromTheme = false;
-            //     _menuButton.TextFont = _textFont;
-            //     _menuButton.UseScaledFont = true;
-            // }
-
-            // if (_menuImage != null)
-            // {
-            //     _menuImage.Theme = Theme;
-            //     _menuImage.BackColor = BackColor;
-            //     _menuImage.ParentBackColor = BackColor;
-            // }
-
-            // if (_menuLabel != null)
-            // {
-            //     _menuLabel.Theme = Theme;
-            //     _menuLabel.BackColor = BackColor;
-            //     _menuLabel.ForeColor = ForeColor;
-            //     _menuLabel.ParentBackColor = BackColor;
-            //     _menuLabel.TextFont = _textFont;
-            // }
-
+           
             Invalidate();
         }
         #endregion "Theme Application"

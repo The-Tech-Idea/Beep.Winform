@@ -6,7 +6,22 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Neon-lit futuristic dystopian Style
+    /// Neon-lit futuristic dystopian style.
+    /// 
+    /// Cyberpunk Color Palette (synced with CyberpunkTheme):
+    /// - Background: #0A0A14 (10, 10, 20) - Deep dark background
+    /// - Foreground: #00FFFF (0, 255, 255) - Neon cyan
+    /// - Border: #00FFFF (0, 255, 255) - Neon cyan
+    /// - Accent 1: #FF0064 (255, 0, 100) - Neon magenta/red
+    /// - Accent 2: #FF00FF (255, 0, 255) - Neon magenta
+    /// - Accent 3: #FF9600 (255, 150, 0) - Neon orange
+    /// 
+    /// Features:
+    /// - Scan line overlay (cyan tint, every 4 pixels)
+    /// - Random glitch effect (5% chance)
+    /// - Multi-layer neon glow on buttons (3 layers)
+    /// - Hexagon button shapes
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class CyberpunkFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -21,14 +36,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var radius = GetCornerRadius(owner);
             using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
             
-            // Cyberpunk: Flat dark background
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
+            // Cyberpunk: Flat dark background (#0A0A14)
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillPath(brush, path);
             }
             
-            // Scan line overlay for digital screen effect
-            using (var scanPen = new Pen(Color.FromArgb(15, 0, 255, 255), 1)) // Cyan tint
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
+            // Scan line overlay for digital screen effect (neon cyan #00FFFF)
+            using (var scanPen = new Pen(Color.FromArgb(15, 0, 255, 255), 1))
             {
                 for (int y = 0; y < owner.ClientRectangle.Height; y += 4)
                 {
@@ -36,9 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
             }
             
-            // Optional: Glitch effect - random offset rectangles
+            // Glitch effect - random offset rectangles (5% chance)
             var random = new Random(owner.ClientRectangle.GetHashCode());
-            if (random.Next(100) < 5) // 5% chance of glitch
+            if (random.Next(100) < 5)
             {
                 var glitchRect = new Rectangle(
                     random.Next(owner.ClientRectangle.Width / 2),
@@ -50,6 +73,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.FillRectangle(glitchBrush, glitchRect);
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

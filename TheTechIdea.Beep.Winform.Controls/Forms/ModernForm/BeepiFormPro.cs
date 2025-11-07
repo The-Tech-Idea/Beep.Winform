@@ -54,9 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public BeepiFormPro()
         {
 
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.Inherit;
             this.DoubleBuffered = true;
             // Enable double buffering and optimized painting
+            // CRITICAL: Do NOT set UserPaint = true on forms! It prevents child controls from painting.
+            // Forms should use OnPaintBackground for custom painting (which we do in BeepiFormPro.Events.cs)
             SetStyle(
             ControlStyles.OptimizedDoubleBuffer |
             ControlStyles.ResizeRedraw |
@@ -82,23 +84,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
             FormBorderStyle = FormBorderStyle.None;
-            //// Design-time: hook child control events for auto-refresh
-            //if (DesignMode || (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime))
-            //{
-            // this.ControlAdded += (s, e) => HookChildEvents(e.Control);
-            // foreach (Control c in Controls) HookChildEvents(c);
-            //}
-            if (BeepThemesManager.CurrentStyle != FormStyle)
+            
+            // CRITICAL: Design-time support - hook child control events for auto-refresh
+            // This ensures the form repaints when controls are selected/moved in the designer
+            this.ControlAdded += OnControlAddedDesignTime;
+            this.ControlRemoved += OnControlRemovedDesignTime;
+            
+            // Hook existing controls
+            foreach (Control c in Controls)
             {
-                FormStyle = BeepThemesManager.CurrentStyle;
+                HookChildEvents(c);
+            }
+        }
+
+        private void OnControlAddedDesignTime(object sender, ControlEventArgs e)
+        {
+            // Hook events for the newly added control
+            HookChildEvents(e.Control);
+            
+            // Invalidate the form to repaint with the new control
+            if (InDesignModeSafe)
+            {
+                this.Invalidate();
+            }
+        }
+
+        private void OnControlRemovedDesignTime(object sender, ControlEventArgs e)
+        {
+            // Unhook events from the removed control
+            UnhookChildEvents(e.Control);
+            
+            // Invalidate the form to repaint without the removed control
+            if (InDesignModeSafe)
+            {
+                this.Invalidate();
             }
         }
 
         private void HookChildEvents(Control ctrl)
         {
-            ctrl.Move += (s, e) => { if (DesignMode) this.Invalidate(); };
-            ctrl.Resize += (s, e) => { if (DesignMode) this.Invalidate(); };
-            ctrl.VisibleChanged += (s, e) => { if (DesignMode) this.Invalidate(); };
+            if (ctrl == null) return;
+            
+            // Hook events that should trigger form repaint in design mode
+            ctrl.Move += OnChildControlChanged;
+            ctrl.Resize += OnChildControlChanged;
+            ctrl.VisibleChanged += OnChildControlChanged;
+            ctrl.EnabledChanged += OnChildControlChanged;
+            ctrl.BackColorChanged += OnChildControlChanged;
+            ctrl.ForeColorChanged += OnChildControlChanged;
+            
+            // CRITICAL: Hook GotFocus and LostFocus to repaint when designer selects controls
+            ctrl.GotFocus += OnChildControlFocusChanged;
+            ctrl.LostFocus += OnChildControlFocusChanged;
+            
+            // Hook paint event to ensure form repaints when child repaints
+            ctrl.Paint += OnChildControlPaint;
+        }
+
+        private void UnhookChildEvents(Control ctrl)
+        {
+            if (ctrl == null) return;
+            
+            ctrl.Move -= OnChildControlChanged;
+            ctrl.Resize -= OnChildControlChanged;
+            ctrl.VisibleChanged -= OnChildControlChanged;
+            ctrl.EnabledChanged -= OnChildControlChanged;
+            ctrl.BackColorChanged -= OnChildControlChanged;
+            ctrl.ForeColorChanged -= OnChildControlChanged;
+            ctrl.GotFocus -= OnChildControlFocusChanged;
+            ctrl.LostFocus -= OnChildControlFocusChanged;
+            ctrl.Paint -= OnChildControlPaint;
+        }
+
+        private void OnChildControlChanged(object sender, EventArgs e)
+        {
+            // Only invalidate in design mode
+            if (InDesignModeSafe)
+            {
+                DebouncedInvalidate();
+            }
+        }
+
+        private void OnChildControlFocusChanged(object sender, EventArgs e)
+        {
+            // CRITICAL: When a control gets/loses focus in the designer (selection change),
+            // force an immediate repaint to prevent the form from going blank
+            if (InDesignModeSafe)
+            {
+                this.Invalidate();
+                this.Update(); // Force immediate repaint
+            }
+        }
+
+        private void OnChildControlPaint(object sender, PaintEventArgs e)
+        {
+            // When a child control paints in design mode, ensure form background is visible
+            if (InDesignModeSafe)
+            {
+                // Don't invalidate here - it would cause infinite loop
+                // Just ensure the form's background is properly painted
+            }
         }
 
         protected override void OnDpiChanged(DpiChangedEventArgs e)
@@ -276,6 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 PerformLayout();
             }
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
+         
 
             // CRITICAL: Update window region to match new Style's corner radius
             UpdateWindowRegion();

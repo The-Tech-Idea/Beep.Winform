@@ -12,54 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     {
         #region Painting
         
-        //protected override void OnPaintBackground(PaintEventArgs e)
-        //{
-        //    // When transparent, copy parent's background using BitBlt (prevents flicker)
-        //    if (IsTransparentBackground && Parent != null)
-        //    {
-        //        try
-        //        {
-        //            // Get device contexts
-        //            IntPtr parentDc = GetDC(Parent.Handle);
-        //            IntPtr destDc = e.Graphics.GetHdc();
-                    
-        //            try
-        //            {
-        //                // Copy directly from parent's DC to our DC using BitBlt
-        //                // This is more efficient than invalidating/updating parent
-        //                BitBlt(destDc, 0, 0, Width, Height, parentDc, Left, Top, 0x00CC0020); // SRCCOPY
-        //            }
-        //            finally
-        //            {
-        //                e.Graphics.ReleaseHdc(destDc);
-        //                ReleaseDC(Parent.Handle, parentDc);
-        //            }
-        //        }
-        //        catch
-        //        {
-        //            // If BitBlt fails, fall back to skipping background paint
-        //        }
-        //        // Don't call base.OnPaintBackground - we've already painted parent's background
-        //        return;
-        //    }
-            
-        //    // For non-transparent mode, use normal background painting
-        //    base.OnPaintBackground(e);
-        //}
-        
-        ////private const int WM_PAINT = 0x000F;
-        //private const int WM_NCPAINT = 0x0085;
-        
-        //protected override void WndProc(ref Message m)
-        //{
-        //    if (m.Msg == WM_PAINT)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] WndProc: WM_PAINT received! Handle={Handle}, Visible={Visible}, Enabled={Enabled}");
-        //    }
-        //    base.WndProc(ref m);
-        //}
-
-        /// <summary>
+       /// <summary>
         /// Handles tab transition animation rendering
         /// </summary>
         private void HandleTabTransition(Graphics g)
@@ -85,11 +38,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             if (g == null || _tabs == null || _tabs.Count == 0 || _tabArea.IsEmpty) return;
             
-            // Enable high-quality rendering
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             
                     // Ensure paint helper exists
                     if (_paintHelper == null)
@@ -127,31 +75,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
 
         /// <summary>
-        /// Override AllowBaseControlClear to prevent BaseControl from clearing the background
-        /// when transparent, since we handle it in OnPaintBackground
-        /// </summary>
-        protected override bool AllowBaseControlClear => !IsTransparentBackground;
-        
+      
         /// <summary>
         /// DrawContent is called by BaseControl.OnPaint - this is where we draw our tabs
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
+            base.DrawContent(g);
             // Skip painting during batch operations
             if (_batchMode) return;
             
             // Don't call base.DrawContent - it would clear the background again
             // We've already handled background in OnPaintBackground
             
-            // Enable high-quality rendering
-            if (EnableHighQualityRendering)
-            {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            }
-            
+         
             // Draw tabs if in Tabbed mode
             if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
             {

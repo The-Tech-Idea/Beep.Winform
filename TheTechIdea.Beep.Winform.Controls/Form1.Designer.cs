@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             beepButton1 = new BeepButton();
             beepImage1 = new BeepImage();
+            button1 = new Button();
             SuspendLayout();
             // 
             // beepButton1
@@ -48,7 +49,7 @@
             beepButton1.BadgeShape = BadgeShape.Circle;
             beepButton1.BadgeText = "";
             beepButton1.BlockID = null;
-            beepButton1.BorderColor = Color.Black;
+            beepButton1.BorderColor = Color.FromArgb(33, 150, 243);
             beepButton1.BorderDashStyle = DashStyle.Solid;
             beepButton1.BorderPainter = BeepControlStyle.None;
             beepButton1.BorderRadius = 8;
@@ -68,12 +69,12 @@
             beepButton1.CanBePressed = true;
             beepButton1.CanBeSelected = true;
             beepButton1.Category = Utilities.DbFieldCategory.Boolean;
-            beepButton1.ComponentName = "BaseControl";
+            beepButton1.ComponentName = "beepButton1";
             beepButton1.DataContext = null;
             beepButton1.DataSourceProperty = null;
-            beepButton1.DisabledBackColor = Color.LightGray;
+            beepButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepButton1.DisabledBorderColor = Color.Gray;
-            beepButton1.DisabledForeColor = Color.DarkGray;
+            beepButton1.DisabledForeColor = Color.Gray;
             beepButton1.DrawingRect = new Rectangle(0, 0, 100, 36);
             beepButton1.Easing = EasingType.Linear;
             beepButton1.EnableHighQualityRendering = true;
@@ -84,12 +85,13 @@
             beepButton1.ErrorText = "";
             beepButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton1.FieldID = null;
-            beepButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepButton1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepButton1.FloatingLabel = true;
-            beepButton1.FocusBackColor = Color.LightYellow;
+            beepButton1.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton1.FocusBorderColor = Color.RoyalBlue;
-            beepButton1.FocusForeColor = Color.Black;
+            beepButton1.FocusForeColor = Color.White;
             beepButton1.FocusIndicatorColor = Color.RoyalBlue;
+            beepButton1.Font = new Font("Arial", 10F);
             beepButton1.Form = null;
             beepButton1.GlassmorphismBlur = 10F;
             beepButton1.GlassmorphismOpacity = 0.1F;
@@ -105,10 +107,10 @@
             beepButton1.HideText = false;
             beepButton1.HitAreaEventOn = false;
             beepButton1.HitTestControl = null;
-            beepButton1.HoverBackColor = Color.LightBlue;
+            beepButton1.HoverBackColor = Color.FromArgb(227, 242, 253);
             beepButton1.HoverBorderColor = Color.Blue;
-            beepButton1.HoveredBackcolor = Color.LightBlue;
-            beepButton1.HoverForeColor = Color.Black;
+            beepButton1.HoveredBackcolor = Color.FromArgb(227, 242, 253);
+            beepButton1.HoverForeColor = Color.FromArgb(33, 150, 243);
             beepButton1.IconSize = 20;
             beepButton1.Id = -1;
             beepButton1.Image = null;
@@ -165,7 +167,6 @@
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
-           
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
@@ -175,7 +176,7 @@
             beepButton1.PopPosition = BeepPopupFormPosition.Bottom;
             beepButton1.PopupListForm = null;
             beepButton1.PopupMode = false;
-            beepButton1.PressedBackColor = Color.Gray;
+            beepButton1.PressedBackColor = Color.FromArgb(21, 101, 192);
             beepButton1.PressedBorderColor = Color.DarkGray;
             beepButton1.PressedForeColor = Color.White;
             beepButton1.RadialCenter = (PointF)resources.GetObject("beepButton1.RadialCenter");
@@ -183,10 +184,10 @@
             beepButton1.SavedGuidID = null;
             beepButton1.SavedID = null;
             beepButton1.ScaleMode = ImageScaleMode.KeepAspectRatio;
-            beepButton1.SelectedBackColor = Color.LightGreen;
+            beepButton1.SelectedBackColor = Color.FromArgb(25, 118, 210);
             beepButton1.SelectedBorderColor = Color.Green;
-            beepButton1.SelectedForeColor = Color.Black;
-            beepButton1.SelectedIndex = 0;
+            beepButton1.SelectedForeColor = Color.White;
+            beepButton1.SelectedIndex = -1;
             beepButton1.SelectedItem = null;
             beepButton1.SelectedValue = null;
             beepButton1.ShadowColor = Color.Black;
@@ -199,7 +200,6 @@
             beepButton1.ShowRightBorder = false;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = false;
-            beepButton1.Size = new Size(100, 36);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
@@ -233,14 +233,14 @@
             beepImage1.ApplyThemeToChilds = true;
             beepImage1.AutoDrawHitListComponents = true;
             beepImage1.BackColor = SystemColors.Control;
-            beepImage1.BadgeBackColor = Color.Red;
+            beepImage1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepImage1.BadgeFont = new Font("Segoe UI", 8F, FontStyle.Bold);
             beepImage1.BadgeForeColor = Color.White;
             beepImage1.BadgeShape = BadgeShape.Circle;
             beepImage1.BadgeText = "";
             beepImage1.BaseSize = 50;
             beepImage1.BlockID = null;
-            beepImage1.BorderColor = Color.Black;
+            beepImage1.BorderColor = Color.FromArgb(33, 150, 243);
             beepImage1.BorderDashStyle = DashStyle.Solid;
             beepImage1.BorderPainter = BeepControlStyle.None;
             beepImage1.BorderRadius = 8;
@@ -254,14 +254,14 @@
             beepImage1.CanBeSelected = true;
             beepImage1.Category = Utilities.DbFieldCategory.String;
             beepImage1.ClipShape = ImageClipShape.None;
-            beepImage1.ComponentName = "BaseControl";
+            beepImage1.ComponentName = "beepImage1";
             beepImage1.CornerRadius = 10F;
             beepImage1.CustomClipPath = null;
             beepImage1.DataContext = null;
             beepImage1.DataSourceProperty = null;
-            beepImage1.DisabledBackColor = Color.LightGray;
-            beepImage1.DisabledBorderColor = Color.Gray;
-            beepImage1.DisabledForeColor = Color.DarkGray;
+            beepImage1.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            beepImage1.DisabledBorderColor = Color.LightGray;
+            beepImage1.DisabledForeColor = Color.Gray;
             beepImage1.DrawingRect = new Rectangle(0, 0, 100, 100);
             beepImage1.Easing = EasingType.Linear;
             beepImage1.EnableHighQualityRendering = true;
@@ -273,19 +273,20 @@
             beepImage1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepImage1.FieldID = null;
             beepImage1.FillColor = Color.Black;
-            beepImage1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepImage1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepImage1.FloatingLabel = true;
             beepImage1.FocusBackColor = Color.LightYellow;
             beepImage1.FocusBorderColor = Color.RoyalBlue;
             beepImage1.FocusForeColor = Color.Black;
             beepImage1.FocusIndicatorColor = Color.RoyalBlue;
+            beepImage1.ForeColor = Color.FromArgb(33, 150, 243);
             beepImage1.Form = null;
             beepImage1.GlassmorphismBlur = 10F;
             beepImage1.GlassmorphismOpacity = 0.1F;
             beepImage1.GradientAngle = 0F;
             beepImage1.GradientDirection = LinearGradientMode.Horizontal;
-            beepImage1.GradientEndColor = Color.Gray;
-            beepImage1.GradientStartColor = Color.LightGray;
+            beepImage1.GradientEndColor = Color.FromArgb(230, 230, 230);
+            beepImage1.GradientStartColor = Color.FromArgb(255, 255, 255);
             beepImage1.Grayscale = false;
             beepImage1.GridMode = false;
             beepImage1.GuidID = "23fe82b2-e0c5-44ce-b858-8e9d59d923f7";
@@ -352,7 +353,6 @@
             beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepImage1.MaxHitListDrawPerFrame = 0;
-         
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;
             beepImage1.Name = "beepImage1";
@@ -375,7 +375,7 @@
             beepImage1.SelectedBorderColor = Color.Green;
             beepImage1.SelectedForeColor = Color.Black;
             beepImage1.SelectedValue = null;
-            beepImage1.ShadowColor = Color.Black;
+            beepImage1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepImage1.ShadowOffset = 3;
             beepImage1.ShadowOpacity = 0.25F;
             beepImage1.ShowAllBorders = false;
@@ -385,7 +385,6 @@
             beepImage1.ShowRightBorder = false;
             beepImage1.ShowShadow = false;
             beepImage1.ShowTopBorder = false;
-            beepImage1.Size = new Size(100, 100);
             beepImage1.SlideFrom = SlideDirection.Left;
             beepImage1.SpinSpeed = 5F;
             beepImage1.StaticNotMoving = false;
@@ -407,11 +406,21 @@
             beepImage1.UseThemeFont = true;
             beepImage1.Velocity = 0F;
             // 
+            // button1
+            // 
+            button1.Location = new Point(410, 255);
+            button1.Name = "button1";
+            button1.Size = new Size(75, 23);
+            button1.TabIndex = 2;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(button1);
             Controls.Add(beepImage1);
             Controls.Add(beepButton1);
             Name = "Form1";
@@ -423,5 +432,6 @@
 
         private BeepButton beepButton1;
         private BeepImage beepImage1;
+        private Button button1;
     }
 }

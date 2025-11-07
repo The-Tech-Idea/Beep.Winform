@@ -2052,7 +2052,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             DatasourcebeepComboBox.BeepContextMenu.BackColor = Color.White;
             DatasourcebeepComboBox.BeepContextMenu.ClientSize = new Size(216, 52);
-            DatasourcebeepComboBox.BeepContextMenu.ContextMenuType = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+
             DatasourcebeepComboBox.BeepContextMenu.ControlStyle = BeepControlStyle.Modern;
             DatasourcebeepComboBox.BeepContextMenu.FormBorderStyle = FormBorderStyle.None;
             DatasourcebeepComboBox.BeepContextMenu.Location = new Point(260, 260);
@@ -2239,7 +2239,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             EntitiesbeepComboBox.BeepContextMenu.BackColor = Color.White;
             EntitiesbeepComboBox.BeepContextMenu.ClientSize = new Size(216, 52);
-            EntitiesbeepComboBox.BeepContextMenu.ContextMenuType = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+            EntitiesbeepComboBox.BeepContextMenu.ContextMenuType = FormStyle.Modern;
             EntitiesbeepComboBox.BeepContextMenu.ControlStyle = BeepControlStyle.Modern;
             EntitiesbeepComboBox.BeepContextMenu.FormBorderStyle = FormBorderStyle.None;
             EntitiesbeepComboBox.BeepContextMenu.Location = new Point(286, 286);

@@ -38,7 +38,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         {
             this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
-            // Use fully qualified DI extension to avoid ambiguity with System.ServiceExtensions
+            Theme = BeepThemesManager.CurrentThemeName;
+            FormStyle = BeepThemesManager.CurrentStyle;
+            ApplyTheme();
             beepService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<IBeepService>(services);
             if (beepService != null)
             {

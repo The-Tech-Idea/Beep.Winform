@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Name = "TemplateForm";
             Padding = new Padding(3);
             Text = "TemplateForm";
-            Theme = "DefaultType";
+       
             ResumeLayout(false);
         }
 

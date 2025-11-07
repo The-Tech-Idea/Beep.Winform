@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    [ToolboxItem(false)]
+   
     public partial class BeepWait : BeepiFormPro, IWaitForm
     {
         public Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
@@ -25,9 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             _spinnerImage.IsChild = true;
-            LogopictureBox.IsChild = true;
+          //  LogopictureBox.IsChild = true;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
-            LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
+         //   LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
             StartSpinner();
 
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // _spinnerImage.ApplyThemeOnImage = true;
             //  _spinnerImage.MenuStyle = MenuStyle;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
-            LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
+          //  LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
         }
 
@@ -133,8 +133,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SafeInvoke(() =>
             {
-                LogopictureBox.Visible = true;
-                LogopictureBox.ImagePath = ImageListHelper.GetImagePathFromName(image);
+                //LogopictureBox.Visible = true;
+              //  LogopictureBox.ImagePath = ImageListHelper.GetImagePathFromName(image);
             });
         }
 
@@ -142,8 +142,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SafeInvoke(() =>
             {
-                LogopictureBox.Visible = true;
-                LogopictureBox.Image = image;
+               // LogopictureBox.Visible = true;
+              //  LogopictureBox.Image = image;
             });
         }
 
@@ -165,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SafeInvoke(() =>
             {
                 Title.Visible = true;
-                LogopictureBox.Visible = false;
+                //LogopictureBox.Visible = false;
                 Title.Text = title;
             });
         }
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SafeInvoke(() =>
             {
                 Title.Visible = true;
-                LogopictureBox.Visible = false;
+             //   LogopictureBox.Visible = false;
                 Title.Text = title;
                 // Use direct text assignment for consistency
                 string currentText = messege.Text ?? "";
@@ -281,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.Theme = Theme;
             Title.Theme = Theme;
             _spinnerImage.Theme = Theme;
-            LogopictureBox.Theme = Theme;
+            //LogopictureBox.Theme = Theme;
             beepLabel1.Theme = Theme;
 
 

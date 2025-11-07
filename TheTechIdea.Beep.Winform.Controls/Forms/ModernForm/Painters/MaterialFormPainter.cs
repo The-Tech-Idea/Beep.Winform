@@ -16,16 +16,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         /// <summary>
         /// Paints a Material Design 3 surface with elevation tint.
+        /// Uses compositing mode management to prevent overlay accumulation.
         /// </summary>
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+            
             // Base surface color
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
 
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            
             // Subtle elevation tint from top (Material surface depth)
             using (var elevation = new System.Drawing.Drawing2D.LinearGradientBrush(
                 owner.ClientRectangle,
@@ -35,6 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillRectangle(elevation, owner.ClientRectangle);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         /// <summary>

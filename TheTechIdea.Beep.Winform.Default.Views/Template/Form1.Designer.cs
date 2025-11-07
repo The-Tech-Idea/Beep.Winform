@@ -1613,7 +1613,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Controls.Add(beepCheckBoxBool1);
             Controls.Add(beepComboBox1);
             ForeColor = Color.Black;
-            FormStyle = Winform.Controls.Forms.ModernForm.FormStyle.Fluent;
+            FormStyle = FormStyle.Fluent;
             Location = new Point(0, 0);
             Name = "Form1";
             Padding = new Padding(3);

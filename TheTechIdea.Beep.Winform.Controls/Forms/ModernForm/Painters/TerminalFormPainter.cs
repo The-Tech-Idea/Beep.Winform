@@ -7,8 +7,23 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Terminal/Console Style form painter with monospace aesthetic and minimal UI.
-    /// Features sharp edges, monochrome colors, and text-focused design.
+    /// Terminal/Console style form painter with monospace aesthetic and minimal UI.
+    /// 
+    /// Terminal Color Palette (synced with TerminalTheme):
+    /// - Background: #0A0A0A (10, 10, 10) - Deep black (CRT screen)
+    /// - Surface: #0E0E0E (14, 14, 14) - Panel black
+    /// - Foreground: #00E699 (0, 230, 153) - Soft green (primary text)
+    /// - Border: #00FF00 (0, 255, 0) - Classic terminal green
+    /// - Accent: #00FF99 (0, 255, 153) - Neon green
+    /// - Error: #FF5050 (255, 80, 80) - Red
+    /// - Warning: #FFFF50 (255, 255, 80) - Yellow
+    /// 
+    /// Features:
+    /// - CRT scan line effect (horizontal lines)
+    /// - Subtle grid pattern overlay
+    /// - ASCII-style button borders
+    /// - Pixel-perfect rendering (no anti-aliasing)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class TerminalFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -21,14 +36,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
-            // Terminal: Solid dark background (black or dark gray)
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
+            // Terminal: Solid dark background (deep black #0A0A0A for CRT aesthetic)
             g.SmoothingMode = SmoothingMode.None; // Pixel-perfect, no anti-aliasing
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
             
-            // Optional: Subtle scanline effect for CRT monitor aesthetic
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
+            // CRT scanline effect for retro monitor aesthetic
+            // Use subtle white overlay for authentic CRT look
             using (var scanLinePen = new Pen(Color.FromArgb(8, 255, 255, 255), 1))
             {
                 for (int y = 0; y < owner.ClientRectangle.Height; y += 2)
@@ -37,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
             }
             
-            // Optional: Terminal grid pattern (very subtle)
+            // Terminal grid pattern (very subtle, using terminal green #00FF00)
             using (var gridPen = new Pen(Color.FromArgb(5, 0, 255, 0), 1))
             {
                 int gridSize = 20;
@@ -50,6 +74,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.DrawLine(gridPen, 0, y, owner.ClientRectangle.Width, y);
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
@@ -61,8 +88,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var capBrush = new SolidBrush(metrics.CaptionColor);
             g.FillRectangle(capBrush, captionRect);
             
-            // Terminal prompt-Style bottom border with ASCII characters
-            using (var borderPen = new Pen(Color.FromArgb(0, 255, 0), 2)) // Classic green terminal color
+            // Terminal prompt-style bottom border (using theme BorderColor #00FF00)
+            using (var borderPen = new Pen(metrics.BorderColor, 2))
             {
                 g.DrawLine(borderPen, captionRect.Left, captionRect.Bottom - 1, 
                     captionRect.Right, captionRect.Bottom - 1);

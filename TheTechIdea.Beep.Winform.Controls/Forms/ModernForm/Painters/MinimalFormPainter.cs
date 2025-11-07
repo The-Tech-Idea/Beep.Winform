@@ -7,8 +7,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Minimal form painter with clean lines and subtle accent borders.
-    /// Features a simple underline on the caption bar with primary color.
+    /// Minimal form painter with clean lines and subtle accent borders (synced with MinimalTheme).
+    /// 
+    /// Minimal Color Palette (synced with MinimalTheme):
+    /// - Background: #FEFEFE (254, 254, 254) - Almost white
+    /// - Foreground: #1A1A1A (26, 26, 26) - Almost black text
+    /// - Border: #E0E0E0 (224, 224, 224) - Light gray border
+    /// - Hover: #F5F5F5 (245, 245, 245) - Very light gray hover
+    /// - Selected: #EEEEEE (238, 238, 238) - Light gray selected
+    /// 
+    /// Features:
+    /// - Clean lines with subtle accent borders
+    /// - Simple underline on caption bar
+    /// - Whisper-light vertical highlight gradient
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class MinimalFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,13 +32,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Base fill
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
 
-            // Minimal Style: whisper-light vertical highlight
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+
+            // Minimal style: whisper-light vertical highlight
             using (var grad = new System.Drawing.Drawing2D.LinearGradientBrush(
                 owner.ClientRectangle,
                 Color.FromArgb(12, 255, 255, 255), // slight top highlight
@@ -35,6 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillRectangle(grad, owner.ClientRectangle);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

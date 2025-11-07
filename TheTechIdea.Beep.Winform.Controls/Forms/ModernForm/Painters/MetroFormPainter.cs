@@ -6,8 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Metro (Windows 8/10) form painter with flat design and sharp edges.
-    /// Features clean lines, flat colors, and modern minimalism.
+    /// Metro (Windows 8/10) form painter with flat design and sharp edges (synced with MetroTheme).
+    /// 
+    /// Metro Color Palette (synced with MetroTheme):
+    /// - Background: #FFFFFF (255, 255, 255) - Pure white
+    /// - Foreground: #000000 (0, 0, 0) - Pure black text
+    /// - Border: #0078D4 (0, 120, 212) - Windows blue accent
+    /// - Hover: #F0F0F0 (240, 240, 240) - Light gray hover
+    /// - Selected: #E0E0E0 (224, 224, 224) - Medium gray selected
+    /// 
+    /// Features:
+    /// - Flat colors with no gradients or shadows
+    /// - Sharp edges (no rounding)
+    /// - Modern minimalism
+    /// - No transparency issues (solid colors only)
     /// </summary>
     internal sealed class MetroFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {

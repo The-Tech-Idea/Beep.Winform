@@ -1011,16 +1011,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             // === STEP 3: Paint Border (uses shadow path, returns smaller path after border) ===
             GraphicsPath pathAfterBorder = pathAfterShadow;
             var borderPainter = BorderPainterFactory.CreatePainter(style);
-            if (borderPainter != null)
+            if (borderPainter != null && !IsTransparentBackground)
             {
                 bool isFocused = (state == ControlState.Focused);
                 pathAfterBorder = borderPainter.Paint(g, pathAfterShadow, isFocused, style, theme, useThemeColors, state);
-                if (pathAfterBorder == null)
-                    pathAfterBorder = pathAfterShadow;
+               
             }
-
+            if (pathAfterBorder == null)
+                pathAfterBorder = pathAfterShadow;
             // === STEP 4: Paint Background (fills the area between border and final content) ===
-            if(!IsTransparentBackground)
+            if (!IsTransparentBackground)
             {
                 var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
                 if (backgroundPainter != null)

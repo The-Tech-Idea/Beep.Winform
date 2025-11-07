@@ -6,7 +6,14 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// 80s/90s retro computing nostalgic aesthetic
+    /// 80s/90s retro computing nostalgic aesthetic.
+    /// 
+    /// Features:
+    /// - CRT scan line effect (horizontal lines every 3 pixels)
+    /// - Dithered pattern overlay (50% hatch pattern)
+    /// - Win95-style 3D beveled borders
+    /// - Pixel-perfect rendering (no anti-aliasing)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class RetroFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,6 +26,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Retro: Flat background with optional dithered pattern
             g.SmoothingMode = SmoothingMode.None; // Pixel-perfect
             using (var brush = new SolidBrush(metrics.BackgroundColor))
@@ -26,7 +38,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
             
-            // Optional: Scan lines for CRT effect (every 3 pixels)
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
+            // CRT scan lines effect (every 3 pixels for retro monitor aesthetic)
             using (var scanLinePen = new Pen(Color.FromArgb(10, 0, 0, 0), 1))
             {
                 for (int y = 0; y < owner.ClientRectangle.Height; y += 3)
@@ -35,13 +50,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
             }
             
-            // Optional: Dithered pattern for retro texture
+            // Dithered pattern for retro texture (classic 50% hatch pattern)
             using (var hatchBrush = new HatchBrush(HatchStyle.Percent50, 
                 Color.FromArgb(8, 0, 0, 0), 
                 Color.Transparent))
             {
                 g.FillRectangle(hatchBrush, owner.ClientRectangle);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

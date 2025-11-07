@@ -7,8 +7,21 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// A painter inspired by chat UI bubbles: soft gradients, speech bubble tails, and message-like appearance.
-    /// Features rounded bubble shapes, message-Style shadows, and chat application aesthetics.
+    /// A painter inspired by chat UI bubbles: soft gradients, speech bubble tails, and message-like appearance (synced with ChatBubbleTheme).
+    /// 
+    /// ChatBubble Color Palette (synced with ChatBubbleTheme):
+    /// - Background: #F0F0F0 (240, 240, 240) - Light gray base (chat canvas)
+    /// - Foreground: #000000 (0, 0, 0) - Black text
+    /// - Border: #CCCCCC (204, 204, 204) - Light gray border
+    /// - Hover: #E0E0E0 (224, 224, 224) - Light gray hover
+    /// - Selected: #4A90E2 (74, 144, 226) - Blue selected (chat bubble)
+    /// 
+    /// Features:
+    /// - Rounded bubble shapes
+    /// - Message-style shadows
+    /// - Chat application aesthetics
+    /// - Faint diagonal stripes pattern
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class ChatBubbleFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,11 +33,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Soft chat canvas base
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
 
             // Faint diagonal stripes pattern (very light)
             var r = owner.ClientRectangle;
@@ -33,6 +55,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.DrawLine(pen, r.Left, y, r.Left + r.Width, y + r.Width);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

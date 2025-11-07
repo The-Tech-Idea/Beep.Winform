@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Nord theme with frost gradients and rounded triangle buttons
+    /// Nord theme with frost gradients and rounded triangle buttons (synced with NordTheme).
+    /// 
+    /// Nord Color Palette (synced with NordTheme):
+    /// - Background: #2E3440 (46, 52, 64) - Dark blue-gray base (Polar Night)
+    /// - Foreground: #ECEFF4 (236, 239, 244) - Light gray text (Snow Storm)
+    /// - Border: #4C566A (76, 86, 106) - Medium gray border (Polar Night)
+    /// - Hover: #3B4252 (59, 66, 82) - Lighter hover (Polar Night)
+    /// - Selected: #5E81AC (94, 129, 172) - Frost blue selected
+    /// 
+    /// Features:
+    /// - Frost gradient overlay (icy blue-white tint from top)
+    /// - Subtle frost line at top
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class NordFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +31,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+
             // Nord: frost gradient background
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Frost gradient overlay (subtle blue-white tint from top)
             using (var frostBrush = new LinearGradientBrush(
@@ -40,6 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.DrawLine(linePen, 0, 0, owner.ClientRectangle.Width, 0);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

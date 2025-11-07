@@ -6,7 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Frosted glass with translucent blur effects
+    /// Frosted glass with translucent blur effects (synced with GlassTheme).
+    /// 
+    /// Glassmorphism Color Palette (synced with GlassTheme):
+    /// - Background: #ECF4FF (236, 244, 255) - Light blue frosted glass
+    /// - Foreground: #111827 (17, 24, 39) - Dark gray text
+    /// - Border: #C8DCF0 (200, 220, 240) - Visible border
+    /// - Hover: #D8EAF8 (216, 234, 250) - Light blue hover
+    /// - Selected: #BEDCF5 (190, 220, 245) - Medium blue selected
+    /// 
+    /// Features:
+    /// - Multi-layer translucent background with frosted texture
+    /// - Subtle white overlay for glass sheen effect
+    /// - Frosted texture using dotted grid hatch pattern
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class GlassmorphismFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -21,6 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var radius = GetCornerRadius(owner);
             using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Glassmorphism: Semi-transparent background with frosted effect
             // Layer 1: Base color with transparency
             var transBackground = Color.FromArgb(210, metrics.BackgroundColor);
@@ -28,6 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillPath(brush, path);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Layer 2: Frosted texture using hatching
             using (var hatchBrush = new HatchBrush(HatchStyle.DottedGrid, 
@@ -47,12 +68,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillPath(overlayBrush, topPath);
                 topPath.Dispose();
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
+            
+            // CRITICAL: Set compositing mode for semi-transparent overlays
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Glassmorphism: Translucent caption with frosted effect
             var transCaptionColor = Color.FromArgb(200, metrics.CaptionColor);
@@ -84,6 +112,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             captionPath.Dispose();
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
 
             // Paint Glassmorphism frosted translucent circle buttons (UNIQUE)
             PaintGlassmorphismButtons(g, owner, captionRect, metrics);

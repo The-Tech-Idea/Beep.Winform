@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Solarized light color scheme
+    /// Solarized light color scheme (synced with SolarizedTheme).
+    /// 
+    /// Solarized Color Palette (synced with SolarizedTheme):
+    /// - Background: #FDF6E3 (253, 246, 227) - Light warm base
+    /// - Foreground: #657B83 (101, 123, 131) - Blue-gray text
+    /// - Border: #EEE8D5 (238, 232, 213) - Light warm border
+    /// - Hover: #EEE8D5 (238, 232, 213) - Light warm hover
+    /// - Selected: #268BD2 (38, 139, 210) - Bright blue selected
+    /// 
+    /// Features:
+    /// - Flat design with pure solid fill
+    /// - Minimal transparency (only separator line in caption)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class SolarizedFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +31,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Solarized flat design - pure solid fill
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

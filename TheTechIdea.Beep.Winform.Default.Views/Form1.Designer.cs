@@ -189,7 +189,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.TempBackColor = Color.LightGray;
             beepMenuBar1.Text = "beepMenuBar1";
             beepMenuBar1.TextFont = new Font("Arial", 10F);
-            beepMenuBar1.Theme = null;
             beepMenuBar1.ToolTipText = null;
             beepMenuBar1.TopoffsetForDrawingRect = 0;
             beepMenuBar1.TrailingIconPath = "";

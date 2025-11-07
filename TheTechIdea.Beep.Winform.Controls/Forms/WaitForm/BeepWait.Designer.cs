@@ -39,7 +39,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title = new BeepLabel();
             beepLabel1 = new BeepLabel();
             messege = new BeepTextBox();
-            LogopictureBox = new BeepImage();
             _spinnerImage = new BeepImage();
             beepImage1 = new BeepImage();
             SuspendLayout();
@@ -71,14 +70,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.CanBePressed = true;
             Title.CanBeSelected = true;
             Title.Category = Utilities.DbFieldCategory.String;
-            Title.ComponentName = "BaseControl";
+            Title.ComponentName = "Title";
             Title.DataContext = null;
             Title.DataSourceProperty = null;
             Title.DisabledBackColor = Color.LightGray;
             Title.DisabledBorderColor = Color.Gray;
             Title.DisabledForeColor = Color.Gray;
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(1, 0, 646, 38);
+            Title.DrawingRect = new Rectangle(1, 0, 718, 38);
             Title.Easing = EasingType.Linear;
             Title.EnableHighQualityRendering = true;
             Title.EnableMaterialStyle = false;
@@ -143,6 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.IsSelected = false;
             Title.IsSelectedOptionOn = false;
             Title.IsShadowAffectedByTheme = true;
+            Title.IsTransparentBackground = true;
             Title.IsValid = true;
             Title.IsVisible = true;
             Title.Items = (List<object>)resources.GetObject("Title.Items");
@@ -169,7 +169,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.MaterialVariant = MaterialTextFieldVariant.Standard;
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
-        
             Title.MinimumSize = new Size(86, 38);
             Title.ModernGradientType = ModernGradientType.None;
             Title.Multiline = false;
@@ -201,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(648, 38);
+            Title.Size = new Size(720, 38);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.SubHeaderFont = new Font("Arial", 8F);
@@ -220,6 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.TrailingIconPath = "";
             Title.TrailingImagePath = "";
             Title.UseExternalBufferedGraphics = false;
+            Title.UseFormStylePaint = true;
             Title.UseGlassmorphism = false;
             Title.UseGradientBackground = false;
             Title.UseRichToolTip = true;
@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.CanBePressed = true;
             beepLabel1.CanBeSelected = true;
             beepLabel1.Category = Utilities.DbFieldCategory.String;
-            beepLabel1.ComponentName = "BaseControl";
+            beepLabel1.ComponentName = "beepLabel1";
             beepLabel1.DataContext = null;
             beepLabel1.DataSourceProperty = null;
             beepLabel1.DisabledBackColor = Color.LightGray;
@@ -326,6 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.IsSelected = false;
             beepLabel1.IsSelectedOptionOn = false;
             beepLabel1.IsShadowAffectedByTheme = true;
+            beepLabel1.IsTransparentBackground = true;
             beepLabel1.IsValid = true;
             beepLabel1.IsVisible = true;
             beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
@@ -339,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.LeadingImagePath = "";
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
-            beepLabel1.Location = new Point(215, 399);
+            beepLabel1.Location = new Point(272, 435);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaterialBorderRadius = 4;
             beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
@@ -352,8 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(32, 32);
-        
-            beepLabel1.MinimumSize = new Size(155, 38);
+            beepLabel1.MinimumSize = new Size(120, 38);
             beepLabel1.ModernGradientType = ModernGradientType.None;
             beepLabel1.Multiline = false;
             beepLabel1.Name = "beepLabel1";
@@ -403,6 +403,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.TrailingIconPath = "";
             beepLabel1.TrailingImagePath = "";
             beepLabel1.UseExternalBufferedGraphics = false;
+            beepLabel1.UseFormStylePaint = true;
             beepLabel1.UseGlassmorphism = false;
             beepLabel1.UseGradientBackground = false;
             beepLabel1.UseRichToolTip = true;
@@ -451,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.DisabledBackColor = Color.FromArgb(200, 200, 200);
             messege.DisabledBorderColor = Color.LightGray;
             messege.DisabledForeColor = Color.Gray;
-            messege.DrawingRect = new Rectangle(1, 0, 638, 239);
+            messege.DrawingRect = new Rectangle(1, 0, 698, 252);
             messege.Easing = EasingType.Linear;
             messege.EnableHighQualityRendering = true;
             messege.EnableMaterialStyle = false;
@@ -518,6 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.IsSelected = false;
             messege.IsSelectedOptionOn = false;
             messege.IsShadowAffectedByTheme = false;
+            messege.IsTransparentBackground = true;
             messege.IsValid = true;
             messege.IsVisible = true;
             messege.Items = (List<object>)resources.GetObject("messege.Items");
@@ -530,7 +532,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.LineNumberFont = new Font("Arial", 10F);
             messege.LineNumberForeColor = Color.Gray;
             messege.LinkedProperty = null;
-            messege.Location = new Point(10, 138);
+            messege.Location = new Point(14, 161);
             messege.Margin = new Padding(2, 1, 2, 1);
             messege.MaterialBorderRadius = 4;
             messege.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
@@ -543,7 +545,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.MaterialVariant = MaterialTextFieldVariant.Standard;
             messege.MaxHitListDrawPerFrame = 0;
             messege.MaxImageSize = new Size(20, 20);
-         
             messege.MinimumSize = new Size(65, 22);
             messege.ModernGradientType = ModernGradientType.None;
             messege.Modified = true;
@@ -587,7 +588,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ShowScrollbars = true;
             messege.ShowShadow = false;
             messege.ShowTopBorder = false;
-            messege.Size = new Size(640, 239);
+            messege.Size = new Size(700, 252);
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 15;
@@ -604,6 +605,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.TrailingIconPath = "";
             messege.TrailingImagePath = "";
             messege.UseExternalBufferedGraphics = false;
+            messege.UseFormStylePaint = true;
             messege.UseGlassmorphism = false;
             messege.UseGradientBackground = false;
             messege.UseRichToolTip = true;
@@ -611,192 +613,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.UseThemeFont = true;
             messege.UseWaitCursor = true;
             messege.WordWrap = false;
-            // 
-            // LogopictureBox
-            // 
-            LogopictureBox.AllowManualRotation = true;
-            LogopictureBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            LogopictureBox.AnimationDuration = 500;
-            LogopictureBox.AnimationType = DisplayAnimationType.None;
-            LogopictureBox.ApplyThemeOnImage = false;
-            LogopictureBox.ApplyThemeToChilds = false;
-            LogopictureBox.AutoDrawHitListComponents = true;
-            LogopictureBox.BackColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.BadgeBackColor = Color.FromArgb(33, 150, 243);
-            LogopictureBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
-            LogopictureBox.BadgeForeColor = Color.White;
-            LogopictureBox.BadgeShape = BadgeShape.Circle;
-            LogopictureBox.BadgeText = "";
-            LogopictureBox.BaseSize = 50;
-            LogopictureBox.BlockID = null;
-            LogopictureBox.BorderColor = Color.FromArgb(33, 150, 243);
-            LogopictureBox.BorderDashStyle = DashStyle.Solid;
-            LogopictureBox.BorderPainter = BeepControlStyle.None;
-            LogopictureBox.BorderRadius = 3;
-            LogopictureBox.BorderStyle = BorderStyle.FixedSingle;
-            LogopictureBox.BorderThickness = 1;
-            LogopictureBox.BottomoffsetForDrawingRect = 0;
-            LogopictureBox.BoundProperty = "ImagePath";
-            LogopictureBox.CanBeFocused = true;
-            LogopictureBox.CanBeHovered = false;
-            LogopictureBox.CanBePressed = true;
-            LogopictureBox.CanBeSelected = true;
-            LogopictureBox.Category = Utilities.DbFieldCategory.String;
-            LogopictureBox.ClipShape = ImageClipShape.None;
-            LogopictureBox.ComponentName = "LogopictureBox";
-            LogopictureBox.CornerRadius = 10F;
-            LogopictureBox.CustomClipPath = null;
-            LogopictureBox.DataContext = null;
-            LogopictureBox.DataSourceProperty = null;
-            LogopictureBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
-            LogopictureBox.DisabledBorderColor = Color.LightGray;
-            LogopictureBox.DisabledForeColor = Color.Gray;
-            LogopictureBox.DrawingRect = new Rectangle(1, 0, 45, 40);
-            LogopictureBox.Easing = EasingType.Linear;
-           
-            LogopictureBox.EnableHighQualityRendering = true;
-            LogopictureBox.EnableMaterialStyle = false;
-            LogopictureBox.EnableRippleEffect = false;
-            LogopictureBox.EnableSplashEffect = true;
-            LogopictureBox.ErrorColor = Color.FromArgb(176, 0, 32);
-            LogopictureBox.ErrorText = "";
-            LogopictureBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
-            LogopictureBox.FieldID = null;
-            LogopictureBox.FillColor = Color.Black;
-            LogopictureBox.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            LogopictureBox.FloatingLabel = true;
-            LogopictureBox.FocusBackColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.FocusBorderColor = Color.Gray;
-            LogopictureBox.FocusForeColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.FocusIndicatorColor = Color.Blue;
-            LogopictureBox.ForeColor = Color.FromArgb(33, 150, 243);
-            LogopictureBox.Form = null;
-            LogopictureBox.GlassmorphismBlur = 10F;
-            LogopictureBox.GlassmorphismOpacity = 0.1F;
-            LogopictureBox.GradientAngle = 0F;
-            LogopictureBox.GradientDirection = LinearGradientMode.Horizontal;
-            LogopictureBox.GradientEndColor = Color.FromArgb(230, 230, 230);
-            LogopictureBox.GradientStartColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.Grayscale = false;
-            LogopictureBox.GridMode = false;
-            LogopictureBox.GuidID = "406bd223-e60d-4992-ab0e-02ec79e3ced7";
-            LogopictureBox.HasError = false;
-            LogopictureBox.HelperText = "";
-            LogopictureBox.HelperTextOn = false;
-            LogopictureBox.HitAreaEventOn = false;
-            LogopictureBox.HitTestControl = null;
-            LogopictureBox.HoverBackColor = Color.Wheat;
-            LogopictureBox.HoverBorderColor = Color.FromArgb(65, 105, 225);
-            LogopictureBox.HoveredBackcolor = Color.Wheat;
-            LogopictureBox.HoverForeColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.IconSize = 20;
-            LogopictureBox.Id = -1;
-            LogopictureBox.Image = null;
-            LogopictureBox.ImageEmbededin = ImageEmbededin.Button;
-            LogopictureBox.ImagePath = null;
-            LogopictureBox.InactiveBorderColor = Color.Gray;
-            LogopictureBox.InnerShape = null;
-            LogopictureBox.IsAcceptButton = false;
-            LogopictureBox.IsBorderAffectedByTheme = true;
-            LogopictureBox.IsBouncing = false;
-            LogopictureBox.IsCancelButton = false;
-            LogopictureBox.IsChild = true;
-            LogopictureBox.IsCustomeBorder = false;
-            LogopictureBox.IsDefault = false;
-            LogopictureBox.IsDeleted = false;
-            LogopictureBox.IsDirty = false;
-            LogopictureBox.IsEditable = false;
-            LogopictureBox.IsFading = false;
-            LogopictureBox.IsFocused = false;
-            LogopictureBox.IsFrameless = true;
-            LogopictureBox.IsHovered = false;
-            LogopictureBox.IsNew = false;
-            LogopictureBox.IsPressed = false;
-            LogopictureBox.IsPulsing = false;
-            LogopictureBox.IsReadOnly = false;
-            LogopictureBox.IsRequired = false;
-            LogopictureBox.IsRounded = true;
-            LogopictureBox.IsRoundedAffectedByTheme = false;
-            LogopictureBox.IsSelected = false;
-            LogopictureBox.IsSelectedOptionOn = false;
-            LogopictureBox.IsShadowAffectedByTheme = false;
-            LogopictureBox.IsShaking = false;
-            LogopictureBox.IsSpinning = false;
-            LogopictureBox.IsStillImage = false;
-            LogopictureBox.IsValid = true;
-            LogopictureBox.IsVisible = true;
-            LogopictureBox.Items = (List<object>)resources.GetObject("LogopictureBox.Items");
-            LogopictureBox.LabelText = "";
-            LogopictureBox.LabelTextOn = false;
-            LogopictureBox.LeadingIconPath = "";
-            LogopictureBox.LeadingImagePath = "";
-            LogopictureBox.LeftoffsetForDrawingRect = 0;
-            LogopictureBox.LinkedProperty = null;
-            LogopictureBox.Location = new Point(574, 381);
-            LogopictureBox.ManualRotationAngle = 0F;
-            LogopictureBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            LogopictureBox.MaterialCustomPadding = new Padding(0);
-            LogopictureBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            LogopictureBox.MaterialIconPadding = 8;
-            LogopictureBox.MaterialIconSize = 20;
-            LogopictureBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            LogopictureBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            LogopictureBox.MaxHitListDrawPerFrame = 0;
-          
-            LogopictureBox.MinimumSize = new Size(9, 8);
-            LogopictureBox.ModernGradientType = ModernGradientType.Subtle;
-            LogopictureBox.Name = "LogopictureBox";
-            LogopictureBox.Opacity = 1F;
-            LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
-            LogopictureBox.Padding = new Padding(1, 0, 1, 0);
-         
-            LogopictureBox.ParentBackColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.ParentControl = null;
-            LogopictureBox.PreserveSvgBackgrounds = false;
-            LogopictureBox.PressedBackColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.PressedBorderColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.PressedForeColor = Color.FromArgb(255, 255, 255);
-            LogopictureBox.RadialCenter = (PointF)resources.GetObject("LogopictureBox.RadialCenter");
-            LogopictureBox.RightoffsetForDrawingRect = 0;
-            LogopictureBox.SavedGuidID = null;
-            LogopictureBox.SavedID = null;
-            LogopictureBox.ScaleFactor = 1F;
-            LogopictureBox.ScaleMode = ImageScaleMode.KeepAspectRatio;
-            LogopictureBox.SelectedBackColor = Color.White;
-            LogopictureBox.SelectedBorderColor = Color.Empty;
-            LogopictureBox.SelectedForeColor = Color.Black;
-            LogopictureBox.SelectedValue = null;
-            LogopictureBox.ShadowColor = Color.FromArgb(50, 0, 0, 0);
-            LogopictureBox.ShadowOffset = 0;
-            LogopictureBox.ShadowOpacity = 0.5F;
-            LogopictureBox.ShowAllBorders = false;
-            LogopictureBox.ShowBottomBorder = false;
-            LogopictureBox.ShowFocusIndicator = false;
-            LogopictureBox.ShowLeftBorder = false;
-            LogopictureBox.ShowRightBorder = false;
-            LogopictureBox.ShowShadow = false;
-            LogopictureBox.ShowTopBorder = false;
-            LogopictureBox.Size = new Size(47, 40);
-            LogopictureBox.SlideFrom = SlideDirection.Left;
-            LogopictureBox.SpinSpeed = 5F;
-            LogopictureBox.StaticNotMoving = false;
-            LogopictureBox.StrokeColor = Color.Black;
-            LogopictureBox.TabIndex = 6;
-            LogopictureBox.Tag = this;
-            LogopictureBox.TempBackColor = Color.White;
-            LogopictureBox.Text = "beepImage1";
-            LogopictureBox.Theme = "DefaultTheme";
-            LogopictureBox.ToolTipText = "";
-            LogopictureBox.TopoffsetForDrawingRect = 0;
-            LogopictureBox.TrailingIconPath = "";
-            LogopictureBox.TrailingImagePath = "";
-            LogopictureBox.UseExternalBufferedGraphics = false;
-            LogopictureBox.UseGlassmorphism = false;
-            LogopictureBox.UseGradientBackground = false;
-            LogopictureBox.UseRichToolTip = true;
-            LogopictureBox.UseThemeFont = true;
-            LogopictureBox.UseWaitCursor = true;
-            LogopictureBox.Velocity = 0F;
             // 
             // _spinnerImage
             // 
@@ -837,9 +653,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.DisabledBackColor = Color.FromArgb(200, 200, 200);
             _spinnerImage.DisabledBorderColor = Color.LightGray;
             _spinnerImage.DisabledForeColor = Color.Gray;
-            _spinnerImage.DrawingRect = new Rectangle(1, 0, 118, 60);
+            _spinnerImage.DrawingRect = new Rectangle(1, 0, 118, 64);
             _spinnerImage.Easing = EasingType.Linear;
-         
             _spinnerImage.EnableHighQualityRendering = true;
             _spinnerImage.EnableMaterialStyle = false;
             _spinnerImage.EnableRippleEffect = false;
@@ -909,6 +724,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.IsShaking = false;
             _spinnerImage.IsSpinning = false;
             _spinnerImage.IsStillImage = false;
+            _spinnerImage.IsTransparentBackground = true;
             _spinnerImage.IsValid = true;
             _spinnerImage.IsVisible = true;
             _spinnerImage.Items = (List<object>)resources.GetObject("_spinnerImage.Items");
@@ -918,7 +734,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.LeadingImagePath = "";
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(247, 66);
+            _spinnerImage.Location = new Point(304, 57);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             _spinnerImage.MaterialCustomPadding = new Padding(0);
@@ -928,7 +744,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             _spinnerImage.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             _spinnerImage.MaxHitListDrawPerFrame = 0;
-          
             _spinnerImage.MinimumSize = new Size(9, 8);
             _spinnerImage.ModernGradientType = ModernGradientType.Subtle;
             _spinnerImage.Name = "_spinnerImage";
@@ -962,7 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.ShowRightBorder = false;
             _spinnerImage.ShowShadow = false;
             _spinnerImage.ShowTopBorder = false;
-            _spinnerImage.Size = new Size(120, 60);
+            _spinnerImage.Size = new Size(120, 64);
             _spinnerImage.SlideFrom = SlideDirection.Left;
             _spinnerImage.SpinSpeed = 5F;
             _spinnerImage.StaticNotMoving = false;
@@ -977,6 +792,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.TrailingIconPath = "";
             _spinnerImage.TrailingImagePath = "";
             _spinnerImage.UseExternalBufferedGraphics = false;
+            _spinnerImage.UseFormStylePaint = true;
             _spinnerImage.UseGlassmorphism = false;
             _spinnerImage.UseGradientBackground = false;
             _spinnerImage.UseRichToolTip = true;
@@ -1016,7 +832,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.CanBeSelected = true;
             beepImage1.Category = Utilities.DbFieldCategory.String;
             beepImage1.ClipShape = ImageClipShape.None;
-            beepImage1.ComponentName = "BaseControl";
+            beepImage1.ComponentName = "beepImage1";
             beepImage1.CornerRadius = 10F;
             beepImage1.CustomClipPath = null;
             beepImage1.DataContext = null;
@@ -1026,7 +842,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.DisabledForeColor = Color.Gray;
             beepImage1.DrawingRect = new Rectangle(0, 0, 100, 100);
             beepImage1.Easing = EasingType.Linear;
-         
             beepImage1.EnableHighQualityRendering = true;
             beepImage1.EnableMaterialStyle = false;
             beepImage1.EnableRippleEffect = false;
@@ -1096,6 +911,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.IsShaking = false;
             beepImage1.IsSpinning = false;
             beepImage1.IsStillImage = false;
+            beepImage1.IsTransparentBackground = false;
             beepImage1.IsValid = true;
             beepImage1.IsVisible = true;
             beepImage1.Items = (List<object>)resources.GetObject("beepImage1.Items");
@@ -1115,7 +931,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepImage1.MaxHitListDrawPerFrame = 0;
-         
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;
             beepImage1.Name = "beepImage1";
@@ -1162,6 +977,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.TrailingIconPath = "";
             beepImage1.TrailingImagePath = "";
             beepImage1.UseExternalBufferedGraphics = false;
+            beepImage1.UseFormStylePaint = true;
             beepImage1.UseGlassmorphism = false;
             beepImage1.UseGradientBackground = false;
             beepImage1.UseRichToolTip = true;
@@ -1172,13 +988,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(656, 456);
-            Controls.Add(LogopictureBox);
+            ClientSize = new Size(728, 528);
             Controls.Add(messege);
             Controls.Add(beepLabel1);
             Controls.Add(Title);
             Controls.Add(_spinnerImage);
             ForeColor = Color.Black;
+            Location = new Point(0, 0);
             Margin = new Padding(2, 1, 2, 1);
             Name = "BeepWait";
             Padding = new Padding(3);
@@ -1195,7 +1011,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel Title;
         private BeepLabel beepLabel1;
         private BeepTextBox messege;
-        public BeepImage LogopictureBox;
         private BeepImage _spinnerImage;
         private BeepImage beepImage1;
     }

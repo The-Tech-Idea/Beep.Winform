@@ -16,21 +16,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// This ensures controls paint ON TOP of our decorations, allowing proper interaction.
         /// </summary>
         protected override void OnPaintBackground(PaintEventArgs e)
-        {// Always force repaint in design mode when properties change
-           // Always fill the background first
-           // using (var bgBrush = new SolidBrush(this.BackColor))
-           //// {
-          //      e.Graphics.FillRectangle(bgBrush, this.ClientRectangle);
-          //  }
-            // CRITICAL: When using custom skinning (DrawCustomWindowBorder = true), 
-            // we handle WM_ERASEBKGND ourselves and do NOT call base.OnPaintBackground.
-            // This prevents interference with child control rendering (black boxes on labels, etc.)
-            // 
-            // When NOT using custom skinning, call base to get standard form painting.
-            //if (!DrawCustomWindowBorder)
-            //{
-                base.OnPaintBackground(e);
-            //}
+        {
+            // CRITICAL: Always call base.OnPaintBackground first to ensure proper form background
+            // This prevents the form from going blank when controls are selected in the designer
+            base.OnPaintBackground(e);
+            
+            // CRITICAL: In design mode, ensure we have a valid background color
+            // This prevents the form from appearing blank when controls are selected
+            if (InDesignMode && e.ClipRectangle.Width > 0 && e.ClipRectangle.Height > 0)
+            {
+                // Fill the background with the form's background color
+                using (var bgBrush = new SolidBrush(this.BackColor))
+                {
+                    e.Graphics.FillRectangle(bgBrush, e.ClipRectangle);
+                }
+            }
 
             // Now lay our custom chrome on top while preserving the original graphics state so we don't leak
             // quality settings to child controls.

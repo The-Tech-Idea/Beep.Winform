@@ -6,8 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// GNOME (Adwaita) form painter inspired by modern Linux desktop design.
-    /// Features soft rounded headerbar, subtle shadows, and clean minimalist aesthetic.
+    /// GNOME (Adwaita) form painter inspired by modern Linux desktop design (synced with GNOMETheme).
+    /// 
+    /// GNOME Color Palette (synced with GNOMETheme):
+    /// - Background: #FAFAFA (250, 250, 250) - Very light gray base
+    /// - Foreground: #2E3436 (46, 52, 54) - Dark gray text
+    /// - Border: #CCCCCC (204, 204, 204) - Light gray border
+    /// - Hover: #EBEBEB (235, 235, 235) - Light gray hover
+    /// - Selected: #3584E4 (53, 132, 228) - GNOME blue selected
+    /// 
+    /// Features:
+    /// - Soft rounded headerbar
+    /// - Subtle shadows and clean minimalist aesthetic
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class GNOMEFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -23,12 +34,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             var cornerRadius = GetCornerRadius(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             using (var path = CreateRoundedPath(owner.ClientRectangle, cornerRadius))
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.FillPath(brush, path);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Atom One Dark editor theme
+    /// Atom One Dark editor theme (synced with OneDarkTheme).
+    /// 
+    /// OneDark Color Palette (synced with OneDarkTheme):
+    /// - Background: #282C34 (40, 44, 52) - Dark gray-blue base
+    /// - Foreground: #ABB2BF (171, 178, 191) - Light gray text
+    /// - Border: #3E4451 (62, 68, 81) - Medium gray border
+    /// - Hover: #2C313A (44, 49, 58) - Slightly lighter hover
+    /// - Selected: #3E4451 (62, 68, 81) - Medium gray selected
+    /// 
+    /// Features:
+    /// - Flat code editor style
+    /// - Subtle grid pattern (like code editor gutter)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class OneDarkFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +31,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
-            // OneDark flat code editor Style
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
+            // OneDark flat code editor style
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Subtle grid pattern (like code editor gutter) - 1px dots every 40px
             using (var gridPen = new Pen(Color.FromArgb(8, 255, 255, 255)))
@@ -36,6 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     }
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

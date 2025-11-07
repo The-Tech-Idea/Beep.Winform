@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Popular Dracula dark theme with purple accents
+    /// Popular Dracula dark theme with purple accents (synced with DraculaTheme).
+    /// 
+    /// Dracula Color Palette (synced with DraculaTheme):
+    /// - Background: #282A36 (40, 42, 54) - Dark purple-gray base
+    /// - Foreground: #F8F8F2 (248, 248, 242) - Off-white text
+    /// - Border: #6272A4 (98, 114, 164) - Blue-gray border
+    /// - Hover: #44475A (68, 71, 90) - Lighter purple-gray hover
+    /// - Selected: #6272A4 (98, 114, 164) - Blue-gray selected
+    /// 
+    /// Features:
+    /// - Vignette effect with darker edges
+    /// - Purple accent highlights
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class DraculaFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,11 +32,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Base fill
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Dracula vignette effect: darker edges (alpha 25, 30px inset)
             using (var vignettePath = new GraphicsPath())
@@ -52,6 +72,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     }
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

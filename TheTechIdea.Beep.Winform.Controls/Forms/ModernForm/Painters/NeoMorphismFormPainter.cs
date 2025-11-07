@@ -6,7 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Soft UI with extruded shadows and highlights
+    /// Soft UI with extruded shadows and highlights (synced with NeoMorphismTheme).
+    /// 
+    /// NeoMorphism Color Palette (synced with NeoMorphismTheme):
+    /// - Background: #E0E5EC (224, 229, 236) - Soft light gray base
+    /// - Foreground: #4A5568 (74, 85, 104) - Dark gray text
+    /// - Border: #D1D9E6 (209, 217, 230) - Subtle border
+    /// - Hover: #EDF2F7 (237, 242, 247) - Lighter hover
+    /// - Selected: #CBD5E0 (203, 213, 224) - Medium gray selected
+    /// 
+    /// Features:
+    /// - Dual shadows (light and dark) for extruded 3D effect
+    /// - Subtle embossed gradient
+    /// - Monochromatic depth from shadows
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class NeoMorphismFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,6 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // NeoMorphism: Background with subtle embossed gradient
             using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
             
@@ -28,6 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+            
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // Subtle gradient for embossed effect (5% lighter at top)
             var lightColor = ControlPaint.Light(metrics.BackgroundColor, 0.05f);
@@ -42,12 +63,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Inner shadow for depth (top-left)
             DrawInnerShadow(g, owner.ClientRectangle, radius, true);
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
+            
+            // CRITICAL: Set compositing mode for semi-transparent overlays
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceOver;
             
             // NeoMorphism: Caption uses SAME color as background (monochromatic depth from shadows)
             // Create rounded rectangle for top of form only
@@ -82,8 +110,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             captionPath.Dispose();
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
 
-            // Paint NeoMorphism embossed soft buttons (UNIQUE)
+            // Paint NeoMorphismembossed soft buttons (UNIQUE)
             PaintNeoMorphismButtons(g, owner, captionRect, metrics);
 
             var textRect = owner.CurrentLayout.TitleRect;

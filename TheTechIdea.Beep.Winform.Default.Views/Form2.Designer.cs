@@ -596,7 +596,7 @@
             // 
             beepComboBox1.BeepContextMenu.BackColor = Color.White;
             beepComboBox1.BeepContextMenu.ClientSize = new Size(200, 36);
-            beepComboBox1.BeepContextMenu.ContextMenuType = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
+            beepComboBox1.BeepContextMenu.ContextMenuType = FormStyle.Modern;
             beepComboBox1.BeepContextMenu.FormBorderStyle = FormBorderStyle.None;
             beepComboBox1.BeepContextMenu.Location = new Point(130, 130);
             beepComboBox1.BeepContextMenu.Name = "";

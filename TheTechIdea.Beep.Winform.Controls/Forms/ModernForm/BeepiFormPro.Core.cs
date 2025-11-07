@@ -788,7 +788,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         {
 
                             FormStyle = style;
-                          BeepThemesManager.SetCurrentStyle(style);
+                            BeepThemesManager.SetCurrentStyle(style);
                         }
                         catch { }
 

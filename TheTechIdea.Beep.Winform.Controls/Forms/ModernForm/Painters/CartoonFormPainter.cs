@@ -7,8 +7,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// A playful, cartoon-inspired painter with bold outlines, comic book effects, and vibrant styling.
-    /// Features thick borders, drop shadows, and comic book-Style caption with speech bubble elements.
+    /// A playful, cartoon-inspired painter with bold outlines, comic book effects, and vibrant styling (synced with CartoonTheme).
+    /// 
+    /// Cartoon Color Palette (synced with CartoonTheme):
+    /// - Background: #FFFACD (255, 250, 205) - Light yellow base (comic book paper)
+    /// - Foreground: #000000 (0, 0, 0) - Black text (comic book ink)
+    /// - Border: #000000 (0, 0, 0) - Black border (bold outline)
+    /// - Hover: #FFE4B5 (255, 228, 181) - Moccasin hover
+    /// - Selected: #FF6347 (255, 99, 71) - Tomato red selected (comic book accent)
+    /// 
+    /// Features:
+    /// - Thick borders and drop shadows
+    /// - Comic book-style caption with speech bubble elements
+    /// - Halftone dots for comic page texture
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class CartoonFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,11 +32,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Vibrant base
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
 
             // Subtle halftone dots for comic page texture
             using var dotBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
@@ -37,6 +58,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.FillEllipse(dotBrush, x, y, 1, 1);
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

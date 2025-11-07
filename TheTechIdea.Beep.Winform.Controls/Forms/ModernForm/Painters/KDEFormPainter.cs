@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// KDE Plasma Breeze theme Style
+    /// KDE Plasma Breeze theme style (synced with KDETheme).
+    /// 
+    /// KDE Color Palette (synced with KDETheme):
+    /// - Background: #EFF0F1 (239, 240, 241) - Light gray base
+    /// - Foreground: #31363B (49, 54, 59) - Dark gray text
+    /// - Border: #BDC3C7 (189, 195, 199) - Medium gray border
+    /// - Hover: #E3E5E7 (227, 229, 231) - Light gray hover
+    /// - Selected: #3DAEE9 (61, 174, 233) - KDE blue selected
+    /// 
+    /// Features:
+    /// - Subtle gradient (5% lighter at top)
+    /// - Layered depth with overlay on top third
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class KDEFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,6 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // KDE Breeze subtle gradient (5% lighter at top)
             using (var gradBrush = new LinearGradientBrush(
                 owner.ClientRectangle,
@@ -30,12 +47,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillRectangle(gradBrush, owner.ClientRectangle);
             }
             
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // KDE layered depth: subtle overlay on top third (alpha 8)
             var overlayRect = new Rectangle(0, 0, owner.ClientRectangle.Width, owner.ClientRectangle.Height / 3);
             using (var overlayBrush = new SolidBrush(Color.FromArgb(8, 255, 255, 255)))
             {
                 g.FillRectangle(overlayBrush, overlayRect);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

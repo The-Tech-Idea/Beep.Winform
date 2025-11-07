@@ -5,7 +5,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// macOS-Style form painter with traffic light buttons and subtle borders.
+    /// macOS-Style form painter with traffic light buttons and subtle borders (synced with MacOSTheme).
+    /// 
+    /// macOS Color Palette (synced with MacOSTheme):
+    /// - Background: #FFFFFF (255, 255, 255) - Pure white base
+    /// - Foreground: #000000 (0, 0, 0) - Black text
+    /// - Border: #D1D1D6 (209, 209, 214) - Light gray border
+    /// - Hover: #F2F2F7 (242, 242, 247) - Very light gray hover
+    /// - Selected: #007AFF (0, 122, 255) - macOS blue selected
+    /// 
+    /// Features:
+    /// - Gentle inner highlights/shading (top highlight + bottom shade)
+    /// - Traffic light buttons (red, yellow, green)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class MacOSFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -17,11 +29,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Base macOS background only; effects handled under clipping in PaintWithEffects
             using (var baseBrush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(baseBrush, owner.ClientRectangle);
             }
+
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
 
             // Gentle macOS-like inner highlights/shading
             var r = owner.ClientRectangle;
@@ -45,6 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.FillRectangle(botGrad, bottomBand);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

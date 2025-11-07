@@ -6,8 +6,21 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Glass-effect form painter with advanced transparency, blur effects, and mica-Style appearance.
-    /// Features multi-layer transparency, subtle noise texture, and frosted glass caption bar.
+    /// Glass-effect form painter with advanced transparency, blur effects, and mica-style appearance.
+    /// 
+    /// Glass Color Palette (synced with GlassTheme):
+    /// - Background: #ECF4FF (236, 244, 255) - Light blue frosted glass
+    /// - Foreground: #111827 (17, 24, 39) - Dark gray text
+    /// - Border: #C8DCF0 (200, 220, 240) - Visible border
+    /// - Hover: #D8EAF8 (216, 234, 250) - Light blue hover
+    /// - Selected: #BEDCF5 (190, 220, 245) - Medium blue selected
+    /// 
+    /// Features:
+    /// - Multi-layer transparency (frosted glass effect)
+    /// - Mica-style base layer
+    /// - Subtle noise texture
+    /// - Frosted glass caption bar with highlights
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class GlassFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,16 +32,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            // Paint only the base mica/glass color across the entire form.
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
+            // Paint only the base mica/glass color across the entire form
             var baseLayer = Color.FromArgb(220, metrics.CaptionColor.R, metrics.CaptionColor.G, metrics.CaptionColor.B);
             using var baseBrush = new SolidBrush(baseLayer);
             g.FillRectangle(baseBrush, owner.ClientRectangle);
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode for semi-transparent overlays
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // Frosted glass effect for caption
             using var frostBrush = new SolidBrush(Color.FromArgb(180, 255, 255, 255));
             g.FillRectangle(frostBrush, captionRect);
@@ -40,6 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Subtle inner shadow at bottom
             using var shadowPen = new Pen(Color.FromArgb(60, 0, 0, 0), 1f);
             g.DrawLine(shadowPen, captionRect.Left, captionRect.Bottom - 1, captionRect.Right, captionRect.Bottom - 1);
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
 
             // Paint Glass refraction buttons (UNIQUE SKIN)
             PaintGlassRefractionButtons(g, owner, captionRect, metrics);

@@ -22,19 +22,22 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         public MainFrm()
         {
             InitializeComponent();
-
+            Theme = BeepThemesManager.CurrentThemeName;
+            FormStyle = BeepThemesManager.CurrentStyle;
+            ApplyTheme();
         }
         public MainFrm(IServiceProvider services) : base(services)
         {
 
             InitializeComponent();
-            
+          
+
             beepService.vis.Container = beepDisplayContainer1;
             beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
 
             beepAppTree1.init(beepService);
             beepAppTree1.CreateRootTree();
-            //    beepAppBar1.ShowBadgeOnNotificationIcon("5");
+            FormStyle = BeepThemesManager.CurrentStyle;
 
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();

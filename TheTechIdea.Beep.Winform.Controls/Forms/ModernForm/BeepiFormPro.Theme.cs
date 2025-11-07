@@ -49,8 +49,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 return;
             }
-           
-         //   Invalidate();
+
+          // pass theme to controls or apply theme-specific settings here
+            foreach (var control in this.Controls)
+            {
+                if (control is IBeepUIComponent themableControl)
+                {
+                    themableControl.Theme=Theme;
+                }
+            }
+            Invalidate(); // Redraw with new theme
         }
         public virtual void ApplyTheme(string themeName)
         {

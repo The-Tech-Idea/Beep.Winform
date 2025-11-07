@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Arc Linux dark theme Style
+    /// Arc Linux dark theme style (synced with ArcLinuxTheme).
+    /// 
+    /// Arc Linux Color Palette (synced with ArcLinuxTheme):
+    /// - Background: #383C4A (56, 60, 74) - Dark blue-gray base
+    /// - Foreground: #D3DAE3 (211, 218, 227) - Light gray text
+    /// - Border: #2F343F (47, 52, 63) - Darker blue-gray border
+    /// - Hover: #404552 (64, 69, 82) - Medium blue-gray hover
+    /// - Selected: #5294E2 (82, 148, 226) - Arc blue selected
+    /// 
+    /// Features:
+    /// - Flat design (no gradients)
+    /// - Material design elevation line at top
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class ArcLinuxFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,17 +31,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Arc Linux flat design - solid fill only (no gradients)
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
             
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // Arc material design: subtle elevation line at top (1px, alpha 60)
             using (var linePen = new Pen(Color.FromArgb(60, 255, 255, 255), 1))
             {
                 g.DrawLine(linePen, 0, 0, owner.ClientRectangle.Width, 0);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

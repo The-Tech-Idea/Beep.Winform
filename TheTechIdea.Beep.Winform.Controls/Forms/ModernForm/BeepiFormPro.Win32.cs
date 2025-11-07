@@ -66,6 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private const int WM_MOVE = 0x0003;
         private const int WM_NCMOVE = 0x00A0;
         private const int WM_EXITSIZEMOVE = 0x0232;
+        private const int WM_SETFOCUS = 0x0007;
+        private const int WM_KILLFOCUS = 0x0008;
+        private const int WM_CHILDACTIVATE = 0x0022;
 
     // Window Style constants
     private const int WS_SIZEBOX = 0x00040000;
@@ -125,6 +128,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     case WM_ERASEBKGND:
                         m.Result = (IntPtr)1;
                         return;
+                    
+                    case WM_SETFOCUS:
+                    case WM_KILLFOCUS:
+                    case WM_CHILDACTIVATE:
+                        // CRITICAL: In design mode, when focus changes (control selection),
+                        // force an immediate repaint to prevent the form from going blank
+                        if (InDesignModeSafe)
+                        {
+                            base.WndProc(ref m);
+                            this.Invalidate();
+                            this.Update(); // Force immediate repaint
+                            return;
+                        }
+                        break;
+                    
                     case WM_PRINTCLIENT:
                         if (m.WParam != IntPtr.Zero)
                         {

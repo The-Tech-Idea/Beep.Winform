@@ -15,6 +15,45 @@ namespace TheTechIdea.Beep.Vis.Modules
         public bool IsHovered { get; set; }
         public bool IsSelected { get; set; }
     }
+    public enum FormStyle
+    {
+        Modern,         // Borderless, custom caption with rounded corners
+        Minimal,        // Thin border, minimal caption
+        MacOS,          // macOS-Style traffic lights (red/yellow/green)
+        Fluent,         // Microsoft Fluent Design System
+        Material,       // Material Design 3
+        Cartoon,        // Playful cartoon-Style with exaggerated shapes
+        ChatBubble,     // Chat bubble speech balloon Style
+        Glass,          // Transparent glass/acrylic effect
+        Metro,          // Windows 8/10 Metro Style
+        Metro2,         // Updated Metro with accent colors
+        GNOME,          // GNOME/Adwaita Style
+
+        // New styles
+        NeoMorphism,    // Soft UI with shadows and highlights
+        Glassmorphism,  // Frosted glass with blur effects
+        Brutalist,      // Bold, geometric, high-contrast design
+        Retro,          // 80s/90s retro computing aesthetic
+        Cyberpunk,      // Neon-lit futuristic Style
+        Nordic,         // Clean Scandinavian minimalist design
+        iOS,            // Apple iOS modern Style
+        // Windows11,   // REMOVED - hides caption, use regular WinForms for native Windows look
+        Ubuntu,         // Ubuntu/Unity Style
+        KDE,            // KDE Plasma Style
+        ArcLinux,       // Arc Linux theme Style
+        Dracula,        // Popular dark theme with purple accents
+        Solarized,      // Solarized color scheme Style
+        OneDark,        // Atom One Dark theme Style
+        GruvBox,        // Warm retro groove color scheme
+        Nord,           // Nordic-inspired color palette
+        Tokyo,          // Tokyo Night theme Style
+        Paper,          // Flat paper material design
+        Neon,           // Vibrant neon glow effects
+        Holographic,    // Iridescent holographic effects
+
+        Custom,          // Fully custom rendering by user
+        Terminal
+    }
 
     public enum BeepGridStyle
     {

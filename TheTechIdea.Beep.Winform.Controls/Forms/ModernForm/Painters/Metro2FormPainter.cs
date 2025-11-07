@@ -6,8 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Metro2 (updated Windows 10/11 Metro) form painter with accent colors and modern improvements.
-    /// Features colored accent stripes, flat design with subtle depth, and modern fluent touches.
+    /// Metro2 (updated Windows 10/11 Metro) form painter with accent colors and modern improvements (synced with Metro2Theme).
+    /// 
+    /// Metro2 Color Palette (synced with Metro2Theme):
+    /// - Background: #FFFFFF (255, 255, 255) - Pure white base
+    /// - Foreground: #000000 (0, 0, 0) - Black text
+    /// - Border: #0078D4 (0, 120, 212) - Windows blue border
+    /// - Hover: #E5F3FF (229, 243, 255) - Light blue hover
+    /// - Selected: #0078D4 (0, 120, 212) - Windows blue selected
+    /// 
+    /// Features:
+    /// - Colored accent stripes
+    /// - Flat design with subtle depth
+    /// - Diagonal accent pattern
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class Metro2FormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,10 +31,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
 
             // Subtle diagonal accent pattern
             using var accentPen = new Pen(Color.FromArgb(5, metrics.BorderColor), 1f);
@@ -30,6 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 g.DrawLine(accentPen, i, 0, i + owner.ClientRectangle.Height, owner.ClientRectangle.Height);
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

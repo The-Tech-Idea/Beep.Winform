@@ -6,7 +6,20 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Tokyo Night theme with neon accents, night city glow, and cross-shaped buttons
+    /// Tokyo Night theme with neon accents, night city glow, and cross-shaped buttons (synced with TokyoTheme).
+    /// 
+    /// Tokyo Color Palette (synced with TokyoTheme):
+    /// - Background: #1A1B26 (26, 27, 38) - Deep dark blue-purple base
+    /// - Foreground: #C0CAF5 (192, 202, 245) - Light blue-purple text
+    /// - Border: #7AA2F7 (122, 162, 247) - Bright blue border
+    /// - Hover: #24283B (36, 40, 59) - Slightly lighter hover
+    /// - Selected: #3D59A1 (61, 89, 161) - Medium blue selected
+    /// 
+    /// Features:
+    /// - Night city glow effect (cyan gradient from top)
+    /// - Neon accent line at top
+    /// - Subtle scan line effect (cyberpunk feel)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class TokyoFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -19,11 +32,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+
             // Tokyo Night: deep background with subtle gradient
             using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, owner.ClientRectangle);
             }
+
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
 
             // Night city glow effect (vertical gradient from top)
             using (var glowBrush = new LinearGradientBrush(
@@ -49,6 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.DrawLine(scanPen, 0, y, owner.ClientRectangle.Width, y);
                 }
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

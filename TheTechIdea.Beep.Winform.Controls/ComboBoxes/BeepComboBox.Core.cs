@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepContextMenu.ShowImage = true;
             BeepContextMenu.ShowCheckBox = false;
             BeepContextMenu.ShowSeparators = false;
-            BeepContextMenu.ContextMenuType = Forms.ModernForm.FormStyle.Modern;
+            BeepContextMenu.ContextMenuType = FormStyle.Modern;
             // Ensure theme and lifecycle are aligned with the control
             BeepContextMenu.Theme = this.Theme;
             BeepContextMenu.DestroyOnClose = false; // reuse for dropdown

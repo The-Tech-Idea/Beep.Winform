@@ -6,7 +6,19 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Ubuntu Unity desktop Style
+    /// Ubuntu Unity desktop style (synced with UbuntuTheme).
+    /// 
+    /// Ubuntu Color Palette (synced with UbuntuTheme):
+    /// - Background: #2C2C2C (44, 44, 44) - Dark gray base
+    /// - Foreground: #FFFFFF (255, 255, 255) - White text
+    /// - Border: #3C3C3C (60, 60, 60) - Medium gray border
+    /// - Hover: #3C3C3C (60, 60, 60) - Medium gray hover
+    /// - Selected: #E95420 (233, 84, 32) - Ubuntu orange selected
+    /// 
+    /// Features:
+    /// - Warm gradient (6% lighter at top)
+    /// - Unity launcher-inspired vertical accent line (left edge)
+    /// - Compositing mode management to prevent overlay accumulation
     /// </summary>
     internal sealed class UbuntuFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
@@ -20,6 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
+            // CRITICAL: Set compositing mode to SourceCopy to ensure we fully replace pixels
+            // This prevents semi-transparent overlays from accumulating on repaint
+            var previousCompositing = g.CompositingMode;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            
             // Ubuntu warm gradient (subtle 6% lighter at top)
             using (var gradBrush = new LinearGradientBrush(
                 owner.ClientRectangle,
@@ -30,12 +47,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillRectangle(gradBrush, owner.ClientRectangle);
             }
             
+            // Restore compositing mode for semi-transparent overlays
+            g.CompositingMode = CompositingMode.SourceOver;
+            
             // Ubuntu Unity launcher-inspired vertical accent line (4px wide, left edge)
             var accentColor = Color.FromArgb(180, 233, 84, 32); // Ubuntu orange with transparency
             using (var accentBrush = new SolidBrush(accentColor))
             {
                 g.FillRectangle(accentBrush, new Rectangle(0, 0, 4, owner.ClientRectangle.Height));
             }
+            
+            // Restore original compositing mode
+            g.CompositingMode = previousCompositing;
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)

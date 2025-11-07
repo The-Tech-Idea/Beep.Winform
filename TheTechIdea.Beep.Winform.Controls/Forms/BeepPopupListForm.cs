@@ -161,6 +161,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowCaptionBar = false;
             FormBorderStyle = FormBorderStyle.None;
             
+            // CRITICAL: Enable double buffering on the form to prevent flickering
+            this.DoubleBuffered = true;
+            
             // No padding needed - BeepiFormPro.Drawing.cs now handles border spacing correctly
             // by shrinking the background fill area instead of relying on padding
             
@@ -171,6 +174,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.CanBeHovered = false;
             _beepListBox.CanBePressed = false;
             _beepListBox.Theme= BeepThemesManager.CurrentThemeName;
+            
+            // CRITICAL: Ensure BeepListBox uses its own double buffering (not inherited from BeepPanel)
+            _beepListBox.UseExternalBufferedGraphics = true;
+         
             // Event handlers
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;

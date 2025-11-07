@@ -378,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 parentbranch.ChildBranchs.Remove(Branch);
                if (branchitem!=null)     beepTreeControl.RemoveNode(branchitem.ID);
 
-                // Editor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
+                // Editor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.OK);
             }
             catch (Exception ex)
             {
@@ -506,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 {
                     Tree.RunMethod(ToBranch, ActionType);
                 }
-                //   Editor.AddLogMessage("Success", "Added Database Connection", DateTime.Now, 0, null, Errors.Ok);
+                //   Editor.AddLogMessage("Success", "Added Database Connection", DateTime.Now, 0, null, Errors.OK);
             }
             catch (Exception ex)
             {

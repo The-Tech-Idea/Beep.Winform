@@ -4,213 +4,765 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 {
-     public   static partial class DialogManager 
+    /// <summary>
+    /// Static dialog manager for displaying various types of dialogs
+    /// </summary>
+    public static partial class DialogManager
     {
-         public static BeepPopupForm HostForm { get; private set; }
+        private static BeepPopupForm? _hostForm;
+        private static readonly Dictionary<int, Form> _progressDialogs = new Dictionary<int, Form>();
+        private static int _progressTokenCounter = 0;
 
+        /// <summary>
+        /// Gets the host form for dialogs
+        /// </summary>
+        public static BeepPopupForm? HostForm
+        {
+            get => _hostForm;
+            private set => _hostForm = value;
+        }
+
+        /// <summary>
+        /// Sets the host form for dialogs
+        /// </summary>
         public static void SetHostForm(BeepPopupForm popupForm)
         {
-             HostForm = popupForm;
+            HostForm = popupForm;
         }
 
-         public static  void CloseProgress(int token)
+        #region Basic Message Dialogs
+
+        /// <summary>
+        /// Display a simple message box
+        /// </summary>
+        public static void MsgBox(string title, string promptText)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = promptText;
+                dialog.DialogType = DialogType.Information;
+                dialog.ShowDialog();
+            }
         }
 
-         public static  DialogReturn Confirm(string title, string message, BeepDialogButtonSchema schema, BeepDialogIcon icon)
+        /// <summary>
+        /// Show a message with custom icon
+        /// </summary>
+        public static void ShowMessege(string title, string message, string icon)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = message;
+                dialog.DialogType = DialogType.Information;
+                // TODO: Set custom icon path if needed
+                dialog.ShowDialog();
+            }
         }
 
-         public static  DialogReturn Confirm(string title, string message, IEnumerable<Vis.Modules.BeepDialogButtons> buttons, BeepDialogIcon icon, Vis.Modules.BeepDialogButtons? defaultButton = null)
+        /// <summary>
+        /// Show an alert dialog
+        /// </summary>
+        public static DialogReturn ShowAlert(string title, string message, string icon)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = message;
+                dialog.DialogType = DialogType.Warning;
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Cancel = result == DialogResult.Cancel
+                };
+            }
         }
 
-         public static  DialogReturn ConfirmOverwrite(string filePath)
+        /// <summary>
+        /// Show exception details
+        /// </summary>
+        public static void ShowException(string title, Exception ex)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title ?? "Error";
+                dialog.Message = ex.Message;
+                dialog.DialogType = DialogType.Error;
+                // TODO: Add details section with stack trace
+                dialog.ShowDialog();
+            }
         }
 
-         public static  DialogReturn DialogCombo(string text, List<SimpleItem> comboSource, string DisplyMember, string ValueMember)
+        #endregion
+
+        #region Input Dialogs
+
+        /// <summary>
+        /// Display input box for single line text
+        /// </summary>
+        public static DialogReturn InputBox(string title, string promptText)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = promptText;
+                dialog.DialogType = DialogType.GetInputString;
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Value = dialog.ReturnValue ?? string.Empty,
+                    Cancel = result == DialogResult.Cancel,
+                    Submit = result == DialogResult.OK
+                };
+            }
         }
 
-         public static  DialogReturn InputBox(string title, string promptText)
+        /// <summary>
+        /// Display input box for multi-line text
+        /// </summary>
+        public static DialogReturn InputLargeBox(string title, string promptText)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = promptText;
+                dialog.DialogType = DialogType.GetInputString;
+                // TODO: Configure for multi-line input
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Value = dialog.ReturnValue ?? string.Empty,
+                    Cancel = result == DialogResult.Cancel,
+                    Submit = result == DialogResult.OK
+                };
+            }
         }
 
-         public static  DialogReturn InputBoxYesNo(string title, string promptText)
+        /// <summary>
+        /// Display input box with Yes/No buttons
+        /// </summary>
+        public static DialogReturn InputBoxYesNo(string title, string promptText)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = promptText;
+                dialog.DialogType = DialogType.Question;
+                dialog.DialogButtons = BeepDialogButtons.YesNo;
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Value = dialog.ReturnValue ?? string.Empty,
+                    Cancel = result == DialogResult.No || result == DialogResult.Cancel,
+                    Submit = result == DialogResult.Yes
+                };
+            }
         }
 
-         public static  DialogReturn InputCheckList(string title, string promptText, List<SimpleItem> items)
+        /// <summary>
+        /// Display password input box
+        /// </summary>
+        public static DialogReturn InputPassword(string title, string promptText, bool masked = true)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = promptText;
+                dialog.DialogType = DialogType.GetInputString;
+                // TODO: Set password masking
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Value = dialog.ReturnValue ?? string.Empty,
+                    Cancel = result == DialogResult.Cancel,
+                    Submit = result == DialogResult.OK
+                };
+            }
         }
 
-         public static  DialogReturn InputComboBox(string title, string promptText, List<SimpleItem> itvalues)
+        #endregion
+
+        #region List Selection Dialogs
+
+        /// <summary>
+        /// Display combo box selection dialog
+        /// </summary>
+        public static DialogReturn InputComboBox(string title, string promptText, List<SimpleItem> itvalues)
         {
-            throw new NotImplementedException();
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = promptText;
+                dialog.DialogType = DialogType.GetInputFromList;
+                dialog.Items = itvalues;
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Value = dialog.ReturnValue ?? string.Empty,
+                    Tag = dialog.ReturnItem,
+                    Cancel = result == DialogResult.Cancel,
+                    Submit = result == DialogResult.OK
+                };
+            }
         }
 
-         public static  DialogReturn InputComboBox(string title, string promptText, List<string> values)
+        /// <summary>
+        /// Display combo box with string list
+        /// </summary>
+        public static DialogReturn InputComboBox(string title, string promptText, List<string> values)
         {
-            throw new NotImplementedException();
+            var items = values.Select(v => new SimpleItem { Text = v, Value = v }).ToList();
+            return InputComboBox(title, promptText, items);
         }
 
-         public static  DialogReturn InputDateTime(string title, string promptText, DateTime? min = null, DateTime? max = null, DateTime? @default = null)
+        /// <summary>
+        /// Display list box selection dialog
+        /// </summary>
+        public static DialogReturn InputListBox(string title, string promptText, List<SimpleItem> itvalues)
         {
-            throw new NotImplementedException();
+            // Similar to combo box but with list box UI
+            return InputComboBox(title, promptText, itvalues);
         }
 
-         public static  DialogReturn InputDouble(string title, string promptText, double? min = null, double? max = null, double? @default = null, int? decimals = null)
+        /// <summary>
+        /// Display radio button group selection
+        /// </summary>
+        public static DialogReturn InputRadioGroupBox(string title, string promptText, List<SimpleItem> itvalues)
         {
-            throw new NotImplementedException();
+            // Similar to combo box but with radio buttons
+            return InputComboBox(title, promptText, itvalues);
         }
 
-         public static  DialogReturn InputInt(string title, string promptText, int? min = null, int? max = null, int? @default = null)
+        /// <summary>
+        /// Display multi-select list
+        /// </summary>
+        public static DialogReturn MultiSelect(string title, string promptText, List<SimpleItem> items)
         {
-            throw new NotImplementedException();
+            // TODO: Implement multi-select dialog
+            return new DialogReturn
+            {
+                Result = BeepDialogResult.Cancel,
+                Items = new List<SimpleItem>(),
+                Cancel = true
+            };
         }
 
-         public static  DialogReturn InputLargeBox(string title, string promptText)
+        /// <summary>
+        /// Display checklist dialog
+        /// </summary>
+        public static DialogReturn InputCheckList(string title, string promptText, List<SimpleItem> items)
         {
-            throw new NotImplementedException();
+            // TODO: Implement checklist dialog
+            return new DialogReturn
+            {
+                Result = BeepDialogResult.Cancel,
+                Items = new List<SimpleItem>(),
+                Cancel = true
+            };
         }
 
-         public static  DialogReturn InputListBox(string title, string promptText, List<SimpleItem> itvalues)
+        /// <summary>
+        /// Custom combo dialog
+        /// </summary>
+        public static DialogReturn DialogCombo(string text, List<SimpleItem> comboSource, string DisplyMember, string ValueMember)
         {
-            throw new NotImplementedException();
+            return InputComboBox("Select", text, comboSource);
         }
 
-         public static  DialogReturn InputPassword(string title, string promptText, bool masked = true)
+        #endregion
+
+        #region Numeric and Date/Time Input
+
+        /// <summary>
+        /// Input integer with validation
+        /// </summary>
+        public static DialogReturn InputInt(string title, string promptText, int? min = null, int? max = null, int? @default = null)
         {
-            throw new NotImplementedException();
+            var result = InputBox(title, promptText);
+            if (result.Submit && int.TryParse(result.Value, out int value))
+            {
+                if ((min.HasValue && value < min.Value) || (max.HasValue && value > max.Value))
+                {
+                    MsgBox("Invalid Input", $"Value must be between {min ?? int.MinValue} and {max ?? int.MaxValue}");
+                    result.Cancel = true;
+                    result.Submit = false;
+                }
+            }
+            return result;
         }
 
-         public static  DialogReturn InputRadioGroupBox(string title, string promptText, List<SimpleItem> itvalues)
+        /// <summary>
+        /// Input double with validation
+        /// </summary>
+        public static DialogReturn InputDouble(string title, string promptText, double? min = null, double? max = null, double? @default = null, int? decimals = null)
         {
-            throw new NotImplementedException();
+            var result = InputBox(title, promptText);
+            if (result.Submit && double.TryParse(result.Value, out double value))
+            {
+                if ((min.HasValue && value < min.Value) || (max.HasValue && value > max.Value))
+                {
+                    MsgBox("Invalid Input", $"Value must be between {min ?? double.MinValue} and {max ?? double.MaxValue}");
+                    result.Cancel = true;
+                    result.Submit = false;
+                }
+            }
+            return result;
         }
 
-         public static  DialogReturn InputTimeSpan(string title, string promptText, TimeSpan? min = null, TimeSpan? max = null, TimeSpan? @default = null)
+        /// <summary>
+        /// Input DateTime with validation
+        /// </summary>
+        public static DialogReturn InputDateTime(string title, string promptText, DateTime? min = null, DateTime? max = null, DateTime? @default = null)
         {
-            throw new NotImplementedException();
+            // TODO: Implement DateTimePicker dialog
+            return InputBox(title, promptText);
         }
 
-         public static  DialogReturn LoadFileDialog(string exts, string dir, string filter)
+        /// <summary>
+        /// Input TimeSpan with validation
+        /// </summary>
+        public static DialogReturn InputTimeSpan(string title, string promptText, TimeSpan? min = null, TimeSpan? max = null, TimeSpan? @default = null)
         {
-            throw new NotImplementedException();
+            // TODO: Implement TimeSpan picker dialog
+            return InputBox(title, promptText);
         }
 
-         public static  DialogReturn LoadFileDialog(string exts, string dir, string filter, string initialFileName)
+        #endregion
+
+        #region Confirmation Dialogs
+
+        /// <summary>
+        /// Show confirmation dialog with custom buttons
+        /// </summary>
+        public static DialogReturn Confirm(string title, string message, IEnumerable<Vis.Modules.BeepDialogButtons> buttons, BeepDialogIcon icon, Vis.Modules.BeepDialogButtons? defaultButton = null)
         {
-            throw new NotImplementedException();
+            // Map to BeepDialogModal enum
+            using (var dialog = new BeepDialogModal())
+            {
+                dialog.Title = title;
+                dialog.Message = message;
+                dialog.DialogType = MapIconToDialogType(icon);
+                
+                // Map buttons
+                var buttonList = buttons.ToList();
+                if (buttonList.Count == 2)
+                {
+                    if (buttonList.Contains(Vis.Modules.BeepDialogButtons.Yes) && buttonList.Contains(Vis.Modules.BeepDialogButtons.No))
+                        dialog.DialogButtons = BeepDialogButtons.YesNo;
+                    else if (buttonList.Contains(Vis.Modules.BeepDialogButtons.Ok) && buttonList.Contains(Vis.Modules.BeepDialogButtons.Cancel))
+                        dialog.DialogButtons = BeepDialogButtons.OkCancel;
+                }
+
+                var result = dialog.ShowDialog();
+
+                return new DialogReturn
+                {
+                    Result = ConvertDialogResult(result),
+                    Cancel = result == DialogResult.Cancel || result == DialogResult.No,
+                    Submit = result == DialogResult.OK || result == DialogResult.Yes
+                };
+            }
         }
 
-         public static  List<string> LoadFilesDialog(string exts, string dir, string filter)
+        /// <summary>
+        /// Confirm file overwrite
+        /// </summary>
+        public static DialogReturn ConfirmOverwrite(string filePath)
         {
-            throw new NotImplementedException();
+            return Confirm("Confirm Overwrite",
+                $"The file '{System.IO.Path.GetFileName(filePath)}' already exists. Do you want to overwrite it?",
+                new[] { Vis.Modules.BeepDialogButtons.Yes, Vis.Modules.BeepDialogButtons.No },
+                BeepDialogIcon.Question);
         }
 
-         public static  void MsgBox(string title, string promptText)
+        #endregion
+
+        #region File and Folder Dialogs
+
+        /// <summary>
+        /// Open file dialog
+        /// </summary>
+        public static DialogReturn LoadFileDialog(string exts, string dir, string filter)
         {
-            throw new NotImplementedException();
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = filter;
+                ofd.InitialDirectory = dir;
+                ofd.DefaultExt = exts;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = ofd.FileName,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  DialogReturn MultiSelect(string title, string promptText, List<SimpleItem> items)
+        /// <summary>
+        /// Open file dialog with initial filename
+        /// </summary>
+        public static DialogReturn LoadFileDialog(string exts, string dir, string filter, string initialFileName)
         {
-            throw new NotImplementedException();
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = filter;
+                ofd.InitialDirectory = dir;
+                ofd.DefaultExt = exts;
+                ofd.FileName = initialFileName;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = ofd.FileName,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  DialogReturn SaveFileDialog(string exts, string dir, string filter)
+        /// <summary>
+        /// Open multiple files dialog
+        /// </summary>
+        public static List<string> LoadFilesDialog(string exts, string dir, string filter)
         {
-            throw new NotImplementedException();
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = filter;
+                ofd.InitialDirectory = dir;
+                ofd.DefaultExt = exts;
+                ofd.Multiselect = true;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    return ofd.FileNames.ToList();
+                }
+            }
+
+            return new List<string>();
         }
 
-         public static  DialogReturn SaveFileDialog(string exts, string dir, string filter, string defaultFileName)
+        /// <summary>
+        /// Save file dialog
+        /// </summary>
+        public static DialogReturn SaveFileDialog(string exts, string dir, string filter)
         {
-            throw new NotImplementedException();
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.Filter = filter;
+                sfd.InitialDirectory = dir;
+                sfd.DefaultExt = exts;
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = sfd.FileName,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  DialogReturn SelectColor(string title = null, string initialColor = null)
+        /// <summary>
+        /// Save file dialog with default filename
+        /// </summary>
+        public static DialogReturn SaveFileDialog(string exts, string dir, string filter, string defaultFileName)
         {
-            throw new NotImplementedException();
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.Filter = filter;
+                sfd.InitialDirectory = dir;
+                sfd.DefaultExt = exts;
+                sfd.FileName = defaultFileName;
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = sfd.FileName,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  DialogReturn SelectFile(List<SimpleItem> files, string filter)
+        /// <summary>
+        /// Select folder dialog
+        /// </summary>
+        public static DialogReturn SelectFolderDialog()
         {
-            throw new NotImplementedException();
+            using (var fbd = new FolderBrowserDialog())
+            {
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = fbd.SelectedPath,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  DialogReturn SelectFolderDialog()
+        /// <summary>
+        /// Select folder dialog with options
+        /// </summary>
+        public static DialogReturn SelectFolderDialog(string title, string initialDir, bool allowCreate)
         {
-            throw new NotImplementedException();
+            using (var fbd = new FolderBrowserDialog())
+            {
+                fbd.Description = title;
+                fbd.SelectedPath = initialDir;
+                fbd.ShowNewFolderButton = allowCreate;
+
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = fbd.SelectedPath,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  DialogReturn SelectFolderDialog(string title, string initialDir, bool allowCreate)
+        /// <summary>
+        /// Select file from list
+        /// </summary>
+        public static DialogReturn SelectFile(List<SimpleItem> files, string filter)
         {
-            throw new NotImplementedException();
+            return InputComboBox("Select File", "Choose a file:", files);
         }
 
-         public static  DialogReturn SelectFont(string title = null, string initialFont = null)
+        #endregion
+
+        #region Special Directories
+
+        /// <summary>
+        /// Select special directory using combo box
+        /// </summary>
+        public static DialogReturn SelectSpecialDirectoriesComboBox()
         {
-            throw new NotImplementedException();
+            var dirs = GetSpecialDirectories();
+            return InputComboBox("Select Directory", "Choose a special directory:", dirs);
         }
 
-         public static  DialogReturn SelectSpecialDirectoriesComboBox()
+        /// <summary>
+        /// Select special directory using list box
+        /// </summary>
+        public static DialogReturn SelectSpecialDirectoriesListBox()
         {
-            throw new NotImplementedException();
+            var dirs = GetSpecialDirectories();
+            return InputListBox("Select Directory", "Choose a special directory:", dirs);
         }
 
-         public static  DialogReturn SelectSpecialDirectoriesListBox()
+        /// <summary>
+        /// Select special directory using radio buttons
+        /// </summary>
+        public static DialogReturn SelectSpecialDirectoriesRadioGroupBox()
         {
-            throw new NotImplementedException();
+            var dirs = GetSpecialDirectories();
+            return InputRadioGroupBox("Select Directory", "Choose a special directory:", dirs);
         }
 
-         public static  DialogReturn SelectSpecialDirectoriesRadioGroupBox()
+        private static List<SimpleItem> GetSpecialDirectories()
         {
-            throw new NotImplementedException();
+            return new List<SimpleItem>
+            {
+                new SimpleItem { Text = "Desktop", Value = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) },
+                new SimpleItem { Text = "My Documents", Value = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) },
+                new SimpleItem { Text = "Program Files", Value = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) },
+                new SimpleItem { Text = "AppData", Value = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) },
+                new SimpleItem { Text = "Temp", Value = System.IO.Path.GetTempPath() }
+            };
         }
 
-         public static  DialogReturn ShowAlert(string title, string message, string icon)
+        #endregion
+
+        #region Color and Font Pickers
+
+        /// <summary>
+        /// Select color
+        /// </summary>
+        public static DialogReturn SelectColor(string? title = null, string? initialColor = null)
         {
-            throw new NotImplementedException();
+            using (var cd = new ColorDialog())
+            {
+                if (!string.IsNullOrEmpty(initialColor))
+                {
+                    try
+                    {
+                        cd.Color = System.Drawing.ColorTranslator.FromHtml(initialColor);
+                    }
+                    catch { }
+                }
+
+                if (cd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = System.Drawing.ColorTranslator.ToHtml(cd.Color),
+                        Tag = cd.Color,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  void ShowException(string title, Exception ex)
+        /// <summary>
+        /// Select font
+        /// </summary>
+        public static DialogReturn SelectFont(string? title = null, string? initialFont = null)
         {
-            throw new NotImplementedException();
+            using (var fd = new FontDialog())
+            {
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    return new DialogReturn
+                    {
+                        Result = BeepDialogResult.OK,
+                        Value = fd.Font.Name,
+                        Tag = fd.Font,
+                        Submit = true
+                    };
+                }
+            }
+
+            return new DialogReturn { Result = BeepDialogResult.Cancel, Cancel = true };
         }
 
-         public static  void ShowMessege(string title, string message, string icon)
+        #endregion
+
+        #region Progress and Toast
+
+        /// <summary>
+        /// Show progress dialog
+        /// </summary>
+        public static int ShowProgress(string title, string? message = null)
         {
-            throw new NotImplementedException();
+            int token = ++_progressTokenCounter;
+            // TODO: Create and show progress form
+            // For now, return token for tracking
+            return token;
         }
 
-         public static  int ShowProgress(string title, string message = null)
+        /// <summary>
+        /// Update progress
+        /// </summary>
+        public static void UpdateProgress(int token, int percent, string? status = null)
         {
-            throw new NotImplementedException();
+            // TODO: Update progress form
+            if (_progressDialogs.ContainsKey(token))
+            {
+                // Update progress
+            }
         }
 
-         public static  void ShowToast(string message, int durationMs = 3000, string icon = null)
+        /// <summary>
+        /// Close progress dialog
+        /// </summary>
+        public static void CloseProgress(int token)
         {
-            throw new NotImplementedException();
+            if (_progressDialogs.ContainsKey(token))
+            {
+                _progressDialogs[token]?.Close();
+                _progressDialogs.Remove(token);
+            }
         }
 
-         public static  void UpdateProgress(int token, int percent, string status = null)
+        /// <summary>
+        /// Show toast notification
+        /// </summary>
+        public static void ShowToast(string message, int durationMs = 3000, string? icon = null)
         {
-            throw new NotImplementedException();
+            // TODO: Implement toast notification
+            // For now, use a simple message box
+            MsgBox("Notification", message);
         }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Convert WinForms DialogResult to BeepDialogResult
+        /// </summary>
+        private static BeepDialogResult ConvertDialogResult(DialogResult result)
+        {
+            return result switch
+            {
+                DialogResult.OK => BeepDialogResult.OK,
+                DialogResult.Cancel => BeepDialogResult.Cancel,
+                DialogResult.Yes => BeepDialogResult.Yes,
+                DialogResult.No => BeepDialogResult.No,
+                DialogResult.Abort => BeepDialogResult.Abort,
+                DialogResult.Retry => BeepDialogResult.Retry,
+                DialogResult.Ignore => BeepDialogResult.Ignore,
+                _ => BeepDialogResult.None
+            };
+        }
+
+        /// <summary>
+        /// Map BeepDialogIcon to DialogType
+        /// </summary>
+        private static DialogType MapIconToDialogType(BeepDialogIcon icon)
+        {
+            return icon switch
+            {
+                BeepDialogIcon.Information => DialogType.Information,
+                BeepDialogIcon.Warning => DialogType.Warning,
+                BeepDialogIcon.Error => DialogType.Error,
+                BeepDialogIcon.Question => DialogType.Question,
+                BeepDialogIcon.Success => DialogType.Information,
+                _ => DialogType.None
+            };
+        }
+
+        #endregion
     }
 }

@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 else
                 {
                     // Even without text, ensure we can accommodate the control's font size
-                    mainTextHeight = owner.Font.Height;
+                    mainTextHeight = owner.TextFont.Height;
                 }
 
                 if (reserveTop > 0 || reserveBottom > 0)

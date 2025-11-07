@@ -285,6 +285,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             if (disposing)
             {
+                // Cleanup ToolTipManager registration
+                CleanupTooltip();
+
                 // Dispose legacy tooltip if it exists
                 if (GetType().GetField("_legacyToolTip", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(this) is System.Windows.Forms.ToolTip tip)
                 {
@@ -367,10 +370,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 var cp = base.CreateParams;
                 const int WS_CLIPCHILDREN = 0x02000000;
                 const int WS_CLIPSIBLINGS = 0x04000000;
+                const int WS_EX_TRANSPARENT = 0x20;
 
                 // Prevent painting over child windows and sibling overlap artifacts
                 cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-                cp.ExStyle |= 0x20; // WS_EX_TRANSPARENT (lets parent paint first; reduces flicker)
+                
+                // CRITICAL: Only apply WS_EX_TRANSPARENT at runtime, NOT in design mode
+                // In design mode, WS_EX_TRANSPARENT causes the form to go blank when controls are selected
+                // because the parent form needs to repaint but doesn't get proper invalidation notifications
+                bool isDesignMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
+                                   DesignMode ||
+                                   (this.Site != null && this.Site.DesignMode);
+                
+                if (!isDesignMode)
+                {
+                    cp.ExStyle |= WS_EX_TRANSPARENT; // Runtime only: lets parent paint first; reduces flicker
+                }
+                
                 return cp;
             }
         }
@@ -493,7 +509,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 var newThemeName = BeepThemesManager.CurrentThemeName;
                 _themeName = newThemeName;
                 Theme = newThemeName;// BeepThemesManager.GetTheme(newThemeName) ?? BeepThemesManager.GetDefaultTheme();
-             //   ApplyTheme();
+                ApplyTheme();
             }
             catch (Exception ex)
             {
@@ -507,7 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 var newFormStyle = e.NewStyle;
                 ControlStyle= BeepStyling.GetControlStyle(newFormStyle);
-                Theme= BeepThemesManager.GetThemeNameForFormStyle(newFormStyle);
+               
                
             }
             catch (Exception ex)

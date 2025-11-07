@@ -17,66 +17,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // CRITICAL: Always call base.OnPaintBackground first to ensure proper form background
-            // This prevents the form from going blank when controls are selected in the designer
-            base.OnPaintBackground(e);
-            
-            // CRITICAL: In design mode, ensure we have a valid background color
-            // This prevents the form from appearing blank when controls are selected
-            if (InDesignMode && e.ClipRectangle.Width > 0 && e.ClipRectangle.Height > 0)
+            // CRITICAL: In design mode, behave EXACTLY like a normal WinForm for maximum compatibility
+            // This ensures the designer can properly track and repaint the form
+            if (InDesignMode)
             {
-                // Fill the background with the form's background color
-                using (var bgBrush = new SolidBrush(this.BackColor))
-                {
-                    e.Graphics.FillRectangle(bgBrush, e.ClipRectangle);
-                }
-            }
-
-            // Now lay our custom chrome on top while preserving the original graphics state so we don't leak
-            // quality settings to child controls.
-            var state = e.Graphics.Save();
-            try
-            {
-               
-                SetupGraphicsQuality(e.Graphics);
-
+                // Call base to let Windows paint the background normally
+                base.OnPaintBackground(e);
+                
+                // Then paint our custom style ON TOP (if we have a painter)
                 if (ActivePainter != null)
                 {
-                    _hits?.Clear();
-                    ActivePainter.CalculateLayoutAndHitAreas(this);
-
-                    if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                    var state = e.Graphics.Save();
+                    try
                     {
-                        _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                    }
-
-                    if (BackdropEffect != BackdropEffect.None)
-                    {
-                        ApplyBackdropEffect(e.Graphics);
-                    }
-
-                    if (ActivePainter.SupportsAnimations && EnableAnimations)
-                    {
-                        ActivePainter.PaintWithEffects(e.Graphics, this, ClientRectangle);
-                    }
-                    else
-                    {
+                        SetupGraphicsQuality(e.Graphics);
+                        
+                        // Clear and recalculate hit areas
+                        _hits?.Clear();
+                        ActivePainter.CalculateLayoutAndHitAreas(this);
+                        
+                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                        {
+                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                        }
+                        
+                        // Paint using the active form painter
                         ActivePainter.PaintBackground(e.Graphics, this);
-
+                        
                         if (ShowCaptionBar)
                         {
                             ActivePainter.PaintCaption(e.Graphics, this, CurrentLayout.CaptionRect);
                         }
-
+                        
                         ActivePainter.PaintBorders(e.Graphics, this);
+                        PaintRegions(e.Graphics);
+                    }
+                    finally
+                    {
+                        e.Graphics.Restore(state);
                     }
                 }
+                return;
+            }
+            
+            // RUNTIME: Full custom painting (no base call)
+            // Only call base if we don't have a custom painter (fallback for safety)
+            if (ActivePainter == null)
+            {
+                base.OnPaintBackground(e);
+                return;
+            }
 
+            // Custom painting: preserve graphics state to avoid leaking quality settings to child controls
+            var runtimeState = e.Graphics.Save();
+            try
+            {
+                SetupGraphicsQuality(e.Graphics);
+
+                // Clear and recalculate hit areas
+                _hits?.Clear();
+                ActivePainter.CalculateLayoutAndHitAreas(this);
+
+                if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                {
+                    _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                }
+
+                // Apply backdrop effects (Acrylic, Mica, etc.)
+                if (BackdropEffect != BackdropEffect.None)
+                {
+                    ApplyBackdropEffect(e.Graphics);
+                }
+
+                // Paint using the active form painter
+                if (ActivePainter.SupportsAnimations && EnableAnimations)
+                {
+                    ActivePainter.PaintWithEffects(e.Graphics, this, ClientRectangle);
+                }
+                else
+                {
+                    // Paint background (this fills the entire form with the custom style)
+                    ActivePainter.PaintBackground(e.Graphics, this);
+
+                    // Paint caption bar if visible
+                    if (ShowCaptionBar)
+                    {
+                        ActivePainter.PaintCaption(e.Graphics, this, CurrentLayout.CaptionRect);
+                    }
+
+                    // Paint borders
+                    ActivePainter.PaintBorders(e.Graphics, this);
+                }
+
+                // Paint any custom regions
                 PaintRegions(e.Graphics);
             }
             finally
             {
-                e.Graphics.Restore(state);
+                e.Graphics.Restore(runtimeState);
             }
         }
 

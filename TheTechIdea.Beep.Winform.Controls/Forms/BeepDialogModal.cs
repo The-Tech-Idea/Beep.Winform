@@ -18,13 +18,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         Close,
         Help,
         TryAgainContinue,
-        Ok,
+        TryAgain,
+        OK,
         Cancel,
         Yes,
         No,
         Abort,
         Retry,
-        Ignore
+        Ignore,
+        Continue
     }
     public enum  DialogType
     {

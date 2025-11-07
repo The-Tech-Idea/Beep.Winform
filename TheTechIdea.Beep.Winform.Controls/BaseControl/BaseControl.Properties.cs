@@ -71,6 +71,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region Text Property Override
+        protected Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+
+                SafeApplyFont(_textFont);
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The text displayed by the control.")]

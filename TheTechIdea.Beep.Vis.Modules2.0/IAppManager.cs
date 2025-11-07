@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         event Action<string> OnDescriptionChanged;
         event Action<string> OnIconUrlChanged;
         event Action<string> OnStyleChanged;
-        string Style { get; set; }
+        FormStyle Style { get; set; }
         string Theme { get; set; }
         bool IsLogOn { get; set; }
         IDMEEditor DMEEditor { get; set; }

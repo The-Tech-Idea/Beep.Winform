@@ -86,24 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 _hoveredItem = item;
                 _hoveredIndex = item != null ? _menuItems.IndexOf(item) : -1;
                 
-                // Cancel any pending submenu
-                _submenuTimer.Stop();
-                _submenuPendingItem = null;
-                
-                // Close any open submenu if we're not hovering over its parent
-                if (_openSubmenu != null && item != _openSubmenu.Owner?.Tag as SimpleItem)
-                {
-                    _openSubmenu.Close();
-                    _openSubmenu = null;
-                }
-                
-                // Start submenu timer if item has children
-                if (item != null && item.Children != null && item.Children.Count > 0)
-                {
-                    _submenuPendingItem = item;
-                    _submenuTimer.Start();
-                }
-                
+                // Fire ItemHovered event - ContextMenuManager will handle sub-menu logic
                 OnItemHovered(item);
                 Invalidate();
             }
@@ -117,9 +100,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             if (item != null && item.IsEnabled)
             {
-                // Don't close if item has children (submenu)
+                // If item has children (submenu), fire SubmenuOpening event
                 if (item.Children != null && item.Children.Count > 0)
                 {
+                    OnSubmenuOpening(item);
                     return;
                 }
                 
@@ -188,26 +172,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_MouseLeave(object sender, EventArgs e)
         {
-            // Don't clear hover if mouse moved to submenu
-            if (_openSubmenu != null && _openSubmenu.Visible)
-            {
-                return;
-            }
+            System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] MouseLeave event fired");
             
             _hoveredItem = null;
             _hoveredIndex = -1;
-            _submenuTimer.Stop();
+            
+            // Fire ItemHovered with null to cancel any pending sub-menus
+            OnItemHovered(null);
             Invalidate();
         }
         
         private void BeepContextMenu_Deactivate(object sender, EventArgs e)
         {
-            // Don't close if submenu is active
-            if (_openSubmenu != null && _openSubmenu.Visible)
-            {
-                return;
-            }
-            
             if (_closeOnFocusLost)
             {
                 Close();
@@ -227,12 +203,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void SubmenuTimer_Tick(object sender, EventArgs e)
         {
+            // NOTE: Sub-menu logic is now handled by ContextMenuManager
+            // This timer is kept for backward compatibility but does nothing
             _submenuTimer.Stop();
-            
-            if (_submenuPendingItem != null && _submenuPendingItem.Children != null && _submenuPendingItem.Children.Count > 0)
-            {
-                ShowSubmenu(_submenuPendingItem);
-            }
         }
         
         private void FadeTimer_Tick(object sender, EventArgs e)

@@ -159,13 +159,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
           
 
             Padding = new Padding(1);
-            //Double buffering for smooth rendering
-
-           //SetStyle(ControlStyles.AllPaintingInWmPaint |
-           //         ControlStyles.UserPaint |
-           //         ControlStyles.OptimizedDoubleBuffer |
-           //         ControlStyles.ResizeRedraw, true);
-           //UpdateStyles();
+            
+            // Double buffering for smooth rendering - CRITICAL to prevent flickering
+            this.DoubleBuffered = true;
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw, true);
+            UpdateStyles();
 
             // DPI awareness
 
@@ -180,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             // Initialize submenu timer
             _submenuTimer = new Timer();
-            _submenuTimer.Interval = 400; // 400ms delay before showing submenu
+            _submenuTimer.Interval = 300; // 300ms delay before showing submenu (DevExpress-style)
             _submenuTimer.Tick += SubmenuTimer_Tick;
             
             // Initialize fade timer

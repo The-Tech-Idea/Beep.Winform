@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Designers;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     [Designer(typeof(BeepiFormProDesigner))]
-    public partial class BeepiFormPro : Form
+    public partial class BeepiFormPro : Form, IFormStyle
     {
 
         private FormPainterMetrics _formpaintermaterics;
@@ -55,14 +55,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
 
             AutoScaleMode = AutoScaleMode.Inherit;
-            this.DoubleBuffered = true;
-            // Enable double buffering and optimized painting
-            // CRITICAL: Do NOT set UserPaint = true on forms! It prevents child controls from painting.
-            // Forms should use OnPaintBackground for custom painting (which we do in BeepiFormPro.Events.cs)
-            SetStyle(
-            ControlStyles.OptimizedDoubleBuffer |
-            ControlStyles.ResizeRedraw |
-            ControlStyles.SupportsTransparentBackColor, true);
+            
+            // CRITICAL: In design mode, use simpler painting to ensure designer can see changes
+            // In runtime, use optimized double buffering for smooth rendering
+            if (InDesignModeSafe)
+            {
+                // Design mode: simpler painting, no double buffering issues
+                this.DoubleBuffered = false; // Let designer handle buffering
+                SetStyle(
+                    ControlStyles.ResizeRedraw |
+                    ControlStyles.SupportsTransparentBackColor, true);
+            }
+            else
+            {
+                // Runtime: optimized double buffering for smooth rendering
+                this.DoubleBuffered = true;
+                SetStyle(
+                    ControlStyles.OptimizedDoubleBuffer |
+                    ControlStyles.AllPaintingInWmPaint |
+                    ControlStyles.ResizeRedraw |
+                    ControlStyles.SupportsTransparentBackColor, true);
+            }
             UpdateStyles();
 
             _layout = new BeepiFormProLayoutManager(this);
@@ -114,6 +127,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Unhook events from the removed control
             UnhookChildEvents(e.Control);
             
+            // Remove from tracking dictionary
+            if (_controlLastBounds.ContainsKey(e.Control))
+            {
+                _controlLastBounds.Remove(e.Control);
+            }
+            
             // Invalidate the form to repaint without the removed control
             if (InDesignModeSafe)
             {
@@ -121,6 +140,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
+        private System.Threading.Timer _designModeInvalidateTimer;
+        private bool _designModeInvalidatePending = false;
+        private readonly Dictionary<Control, Rectangle> _controlLastBounds = new Dictionary<Control, Rectangle>();
+        
         private void HookChildEvents(Control ctrl)
         {
             if (ctrl == null) return;
@@ -158,21 +181,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private void OnChildControlChanged(object sender, EventArgs e)
         {
-            // Only invalidate in design mode
-            if (InDesignModeSafe)
+            // CRITICAL: When controls are moved/resized in design mode, repaint immediately
+            // This ensures the form background is visible under the control as it moves
+            if (InDesignModeSafe && !IsDisposed && IsHandleCreated && sender is Control ctrl)
             {
-                DebouncedInvalidate();
+                // Get the old bounds if we have them
+                Rectangle oldBounds = Rectangle.Empty;
+                if (_controlLastBounds.ContainsKey(ctrl))
+                {
+                    oldBounds = _controlLastBounds[ctrl];
+                }
+                
+                // Get current bounds
+                Rectangle newBounds = ctrl.Bounds;
+                
+                // Update the tracked bounds
+                _controlLastBounds[ctrl] = newBounds;
+                
+                // CRITICAL: In design mode, force a FULL form refresh
+                // Partial invalidation doesn't work reliably in the designer
+                this.Invalidate(true); // Invalidate including children
+                this.Refresh(); // Force immediate synchronous repaint (stronger than Update())
             }
         }
 
         private void OnChildControlFocusChanged(object sender, EventArgs e)
         {
             // CRITICAL: When a control gets/loses focus in the designer (selection change),
-            // force an immediate repaint to prevent the form from going blank
-            if (InDesignModeSafe)
+            // we need to repaint, but defer it to batch multiple focus events together
+            // This prevents blank screen during control-to-control transitions
+            if (InDesignModeSafe && !IsDisposed && IsHandleCreated)
             {
-                this.Invalidate();
-                this.Update(); // Force immediate repaint
+                // Cancel any pending invalidation timer
+                _designModeInvalidateTimer?.Dispose();
+                
+                // Set up a new timer to invalidate after a short delay (50ms)
+                // This batches multiple focus events (LostFocus + GotFocus) into a single repaint
+                _designModeInvalidatePending = true;
+                _designModeInvalidateTimer = new System.Threading.Timer(_ =>
+                {
+                    if (!IsDisposed && IsHandleCreated && _designModeInvalidatePending)
+                    {
+                        try
+                        {
+                            BeginInvoke(new Action(() =>
+                            {
+                                if (!IsDisposed && IsHandleCreated)
+                                {
+                                    this.Invalidate();
+                                    this.Update();
+                                    _designModeInvalidatePending = false;
+                                }
+                            }));
+                        }
+                        catch { /* Form may be disposing */ }
+                    }
+                }, null, 50, System.Threading.Timeout.Infinite);
             }
         }
 

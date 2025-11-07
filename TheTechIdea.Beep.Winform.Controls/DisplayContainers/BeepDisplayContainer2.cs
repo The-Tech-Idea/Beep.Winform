@@ -93,26 +93,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void InitializeComponent()
         {
-            // BaseControl already sets most painting styles
-            // We just need to ensure transparent background support and resize redraw
+            // Follow BaseControl patterns for painting setup
             SetStyle(ControlStyles.SupportsTransparentBackColor | 
-                     ControlStyles.ResizeRedraw, true);
+                     ControlStyles.ResizeRedraw | 
+                     ControlStyles.UserPaint | 
+                     ControlStyles.AllPaintingInWmPaint | 
+                     ControlStyles.OptimizedDoubleBuffer, true);
             
             DoubleBuffered = true;
+            UseExternalBufferedGraphics = true;
             
-            // Enable high-quality rendering
+            // Enable high-quality rendering like BaseControl
             EnableHighQualityRendering = true;
             
-            // Use form style paint for modern appearance (like BeepMenuBar uses false)
-            UseFormStylePaint = true;
+            // Use form style paint for modern appearance (like BeepMenuBar)
+            UseFormStylePaint = false; // Container paints its own background, tabs use BeepStyling
             
             // Set modern defaults for better appearance
             IsRounded = true;
             BorderRadius = 8;
             BorderThickness = 1;
             
-            // Set initial BackColor - use IsTransparentBackground from BaseControl (like BeepMenuBar)
-            // Like BeepMenuBar: Set SupportsTransparentBackColor BEFORE setting BackColor
+            // Set default ControlStyle for tabs (can be overridden by user)
+            if (ControlStyle == BeepControlStyle.None)
+            {
+                ControlStyle = BeepControlStyle.Modern;
+            }
+            
+            // Transparent background support (like BeepMenuBar)
+            IsTransparentBackground = false; // Default to opaque for containers
+            
+            // Set initial BackColor from theme
             //if (IsTransparentBackground)
             //{
             //    base.BackColor = Color.Transparent;
@@ -147,13 +158,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _animationTimer.Start();
             }
 
-            // Initialize theme colors
+            // Initialize theme colors (follows BaseControl pattern)
             ApplyTheme();
 
             // Calculate initial layout
             RecalculateLayout();
             
-            // Hook into handle creation to force initial paint
+            // Hook into handle creation to force initial paint (like BaseControl)
             HandleCreated += (s, e) =>
             {
                 System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] HandleCreated - forcing initial paint");
@@ -169,6 +180,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Invalidate(true);
                 }
             };
+            
+            // Subscribe to ControlStyle changes to update tab appearance
+            PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ControlStyle))
+                {
+                    UpdateTabPainterStyle();
+                    Invalidate();
+                }
+            };
+        }
+        
+        /// <summary>
+        /// Updates the tab painter and layout when ControlStyle changes
+        /// </summary>
+        private void UpdateTabPainterStyle()
+        {
+            if (_paintHelper != null)
+            {
+                _paintHelper.ControlStyle = ControlStyle;
+                _paintHelper.IsTransparent = IsTransparentBackground;
+            }
+            
+            // Update layout helper with new style and font for proper tab sizing
+            if (_layoutHelper != null)
+            {
+                _layoutHelper.UpdateStyle(ControlStyle, Font);
+            }
+            
+            // Recalculate layout with new metrics
+            RecalculateLayout();
         }
 
         #endregion

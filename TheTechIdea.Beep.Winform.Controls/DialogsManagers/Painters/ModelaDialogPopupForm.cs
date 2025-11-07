@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
 {
     /// <summary>
     /// 
-    public partial class ModelaDialogPopupForm : BeepiFormPro
+    public partial class ModelaDialogPopupForm : BeepPopupForm
     {
         public ModelaDialogPopupForm()
         {

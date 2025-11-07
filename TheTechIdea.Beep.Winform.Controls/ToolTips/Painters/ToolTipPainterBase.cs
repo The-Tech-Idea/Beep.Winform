@@ -2,6 +2,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
@@ -88,6 +91,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             }
 
             width += contentWidth;
+
+            // Account for BeepControlStyle BorderThickness
+            var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
+            int borderWidth = (int)Math.Ceiling(StyleBorders.GetBorderWidth(beepStyle));
+            width += borderWidth * 2;  // Left + Right
+            height += borderWidth * 2; // Top + Bottom
+
+            // Account for BeepControlStyle Shadow size
+            if ((config.ShowShadow || config.EnableShadow) && StyleShadows.HasShadow(beepStyle))
+            {
+                int shadowBlur = StyleShadows.GetShadowBlur(beepStyle);
+                int shadowOffsetX = Math.Abs(StyleShadows.GetShadowOffsetX(beepStyle));
+                int shadowOffsetY = Math.Abs(StyleShadows.GetShadowOffsetY(beepStyle));
+                
+                // Add shadow space
+                width += shadowBlur + shadowOffsetX;
+                height += shadowBlur + shadowOffsetY;
+            }
 
             // Apply constraints
             width = Math.Max(DefaultMinWidth, Math.Min(width, DefaultMaxWidth));

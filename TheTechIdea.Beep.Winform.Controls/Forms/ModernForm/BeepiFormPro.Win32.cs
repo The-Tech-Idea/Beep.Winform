@@ -95,8 +95,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected override void WndProc(ref Message m)
         {
-            // DevExpress-like: no design-time guard, run all custom handling in designer and runtime
+            // CRITICAL: In design mode, behave EXACTLY like a normal WinForm
+            // Let Windows handle ALL messages normally for maximum designer compatibility
+            if (InDesignModeSafe)
+            {
+                base.WndProc(ref m);
+                return;
+            }
 
+            // RUNTIME: Custom window handling for skinned appearance
             if (_drawCustomWindowBorder)
             {
                 switch (m.Msg)
@@ -126,6 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         catch { }
                         break;
                     case WM_ERASEBKGND:
+                        // In runtime, suppress erase to prevent flicker (we paint everything in OnPaintBackground)
                         m.Result = (IntPtr)1;
                         return;
                     
@@ -133,12 +141,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     case WM_KILLFOCUS:
                     case WM_CHILDACTIVATE:
                         // CRITICAL: In design mode, when focus changes (control selection),
-                        // force an immediate repaint to prevent the form from going blank
+                        // we need to handle this carefully to avoid blank screen during transitions
                         if (InDesignModeSafe)
                         {
                             base.WndProc(ref m);
-                            this.Invalidate();
-                            this.Update(); // Force immediate repaint
+                            // Use BeginInvoke to defer invalidation until after all focus events complete
+                            // This prevents the form from going blank during control-to-control transitions
+                            if (!IsDisposed && IsHandleCreated)
+                            {
+                                BeginInvoke(new Action(() =>
+                                {
+                                    if (!IsDisposed && IsHandleCreated)
+                                    {
+                                        this.Invalidate();
+                                        this.Update();
+                                    }
+                                }));
+                            }
                             return;
                         }
                         break;

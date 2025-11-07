@@ -424,27 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
-        private Font _textFont = new Font("Arial", 10);
-        [Browsable(true)]
-        [MergableProperty(true)]
-        [Category("Appearance")]
-        [Description("Text Font displayed in the control.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public Font TextFont
-        {
-            get => _textFont;
-            set
-            {
-
-                    _textFont = value;
-                   
-                SafeApplyFont(_textFont);
-                UseThemeFont = false;
-                    Invalidate();
-                
-
-            }
-        }
+      
         [Browsable(true)]
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]

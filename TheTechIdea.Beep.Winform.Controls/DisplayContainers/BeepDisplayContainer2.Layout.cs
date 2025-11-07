@@ -75,6 +75,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
                 return;
             }
+            
+            // Update layout helper with current style and font before calculating layout
+            // This ensures tab widths account for border, shadow, padding, and text size
+            _layoutHelper.UpdateStyle(ControlStyle, Font);
 
             var result = _layoutHelper.CalculateTabLayout(_tabs, _tabArea, _tabPosition, 
                 _tabMinWidth, _tabMaxWidth, _scrollOffset);

@@ -191,43 +191,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 return;
             }
             
-            // Use simple solid/gradient backgrounds for tabs (more reliable than BeepStyling for small tabs)
-            var tabPath = CreateRoundedPath(bounds, Math.Min(4, bounds.Height / 4)); // Small radius for tabs
+            // Use BeepStyling for consistent appearance with ControlStyle
+            var tabPath = BeepStyling.CreateControlStylePath(bounds, _controlStyle);
             
             try
             {
-                // Draw subtle shadow for active tab to create elevation effect
+                // Determine control state based on tab state
+                ControlState state = ControlState.Normal;
                 if (isActive)
-                {
-                    var shadowRect = new Rectangle(bounds.X + 1, bounds.Y + 2, bounds.Width, bounds.Height);
-                    var shadowPath = CreateRoundedPath(shadowRect, Math.Min(4, bounds.Height / 4));
-                    using (var shadowBrush = new SolidBrush(Color.FromArgb(15, Color.Black)))
-                    {
-                        g.FillPath(shadowBrush, shadowPath);
-                    }
-                    shadowPath.Dispose();
-                }
+                    state = ControlState.Selected;
+                else if (isHovered)
+                    state = ControlState.Hovered;
                 
-                // Use simple gradient/solid fill for reliable rendering
-                if (isActive || isHovered)
-                {
-                    // Draw subtle gradient for active/hovered tabs
-                    using (var brush = new LinearGradientBrush(bounds,
-                        ControlPaint.Light(colors.BackgroundColor, 0.1f),
-                        ControlPaint.Dark(colors.BackgroundColor, 0.05f),
-                        LinearGradientMode.Vertical))
-                    {
-                        g.FillPath(brush, tabPath);
-                    }
-                }
-                else
-                {
-                    // Solid color for normal tabs
-                    using (var brush = new SolidBrush(colors.BackgroundColor))
-                    {
-                        g.FillPath(brush, tabPath);
-                    }
-                }
+                // Use BeepStyling.PaintControl for consistent rendering with the rest of the framework
+                // This automatically handles shadow, border, and background based on ControlStyle
+                var contentPath = BeepStyling.PaintControl(
+                    g,
+                    tabPath,
+                    _controlStyle,
+                    _theme,
+                    true, // useThemeColors
+                    state,
+                    _isTransparent
+                );
+                
+                // Dispose content path if returned
+                contentPath?.Dispose();
             }
             catch (Exception ex)
             {
@@ -246,50 +235,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         private void DrawTabBorder(Graphics g, Rectangle bounds, Color borderColor, bool isActive)
         {
-            var tabPath = CreateRoundedPath(bounds, Math.Min(4, bounds.Height / 4)); // Small radius for tabs
+            // BeepStyling.PaintControl already handles borders based on ControlStyle
+            // This method is now a no-op since borders are painted by BeepStyling
+            // Keeping it for backward compatibility but it does nothing
             
-            try
-            {
-                // Use simple border for tabs (more reliable)
-                using (var pen = new Pen(borderColor, 1f))
-                {
-                    pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
-                    g.DrawPath(pen, tabPath);
-                }
-                
-                // Add subtle inner highlight for active tab for extra depth
-                if (isActive)
-                {
-                    var innerBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height - 2);
-                    var innerRadius = Math.Max(0, Math.Min(4, bounds.Height / 4) - 1);
-                    using (var innerPath = CreateRoundedPath(innerBounds, innerRadius))
-                    using (var innerPen = new Pen(ControlPaint.Light(borderColor, 0.3f), 0.5f))
-                    {
-                        g.DrawPath(innerPen, innerPath);
-                    }
-                }
-            }
-            catch
-            {
-                // Fallback to simple border
-                using (var pen = new Pen(borderColor, isActive ? 1.5f : 1f))
-                {
-                    g.DrawPath(pen, tabPath);
-                    
-                    // Add inner highlight for active tab
-                    if (isActive)
-                    {
-                        var innerBounds = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height - 2);
-                        using (var innerPath = CreateRoundedPath(innerBounds, 3))
-                        using (var innerPen = new Pen(ControlPaint.Light(borderColor, 0.3f), 0.5f))
-                        {
-                            g.DrawPath(innerPen, innerPath);
-                        }
-                    }
-                }
-            }
-            
-            tabPath.Dispose();
+            // If you need custom border logic beyond what BeepStyling provides,
+            // you can add it here, but typically BeepStyling handles all border rendering
         }
 
         private void DrawTabText(Graphics g, Rectangle textBounds, string title, Font font, Color textColor, bool isActive)

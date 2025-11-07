@@ -22,5 +22,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Theme = BeepThemesManager.CurrentThemeName;
             FormStyle = BeepThemesManager.CurrentStyle;
             ApplyTheme();
-            beepService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<IBeepService>(services);
+            beepService = ServiceProviderServiceExtensions.GetService<IBeepService>(services);
             if (beepService != null)
             {
                 Dependencies.DMEEditor = beepService.DMEEditor;

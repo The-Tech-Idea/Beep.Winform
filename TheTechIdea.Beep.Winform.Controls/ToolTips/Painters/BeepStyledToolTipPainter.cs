@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
@@ -57,7 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         #region Background Painting
 
         /// <summary>
-        /// Paint background using BeepStyling BackgroundPainters
+        /// Paint background using BeepStyling system with GraphicsPath support
+        /// Fully integrated with all 20+ BeepControlStyle designs
         /// </summary>
         public override void PaintBackground(Graphics g, Rectangle bounds, 
             ToolTipConfig config, IBeepTheme theme)
@@ -70,41 +72,50 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
             using (var path = CreateRoundedRectangle(bounds, radius))
             {
-                // Apply custom background color if specified
+                // Priority 1: Custom background color
                 if (config.BackColor.HasValue)
                 {
                     using (var brush = new SolidBrush(config.BackColor.Value))
                     {
                         g.FillPath(brush, path);
                     }
+                    return;
                 }
-                else if (config.UseBeepThemeColors && theme != null)
+
+                // Priority 2: Use BeepStyling with theme colors
+                if (config.UseBeepThemeColors && theme != null)
                 {
-                    // Use BeepStyling system with theme colors
                     var savedTheme = BeepStyling.CurrentTheme;
                     var savedUseTheme = BeepStyling.UseThemeColors;
+                    var savedStyle = BeepStyling.CurrentControlStyle;
                     
                     try
                     {
                         BeepStyling.CurrentTheme = theme;
                         BeepStyling.UseThemeColors = true;
-                        BeepStyling.PaintStyleBackground(g, bounds, beepStyle);
+                        BeepStyling.SetControlStyle(beepStyle);
+                        
+                        // Use BeepStyling.PaintStyleBackground for GraphicsPath-based rendering
+                        BeepStyling.PaintStyleBackground(g, path, beepStyle, true);
                     }
                     finally
                     {
                         BeepStyling.CurrentTheme = savedTheme;
                         BeepStyling.UseThemeColors = savedUseTheme;
+                        BeepStyling.SetControlStyle(savedStyle);
                     }
                 }
                 else
                 {
-                    // Use BeepStyling without theme override
+                    // Priority 3: Standard BeepStyling without theme override
                     var savedStyle = BeepStyling.CurrentControlStyle;
                     
                     try
                     {
                         BeepStyling.SetControlStyle(beepStyle);
-                        BeepStyling.PaintStyleBackground(g, bounds, beepStyle);
+                        
+                        // Use BeepStyling.PaintStyleBackground for consistent styling
+                        BeepStyling.PaintStyleBackground(g, path, beepStyle);
                     }
                     finally
                     {
@@ -119,7 +130,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         #region Border Painting
 
         /// <summary>
-        /// Paint border using BeepStyling BorderPainters
+        /// Paint border using BeepStyling BorderPainters system
+        /// Supports all BeepControlStyle border designs
         /// </summary>
         public override void PaintBorder(Graphics g, Rectangle bounds, 
             ToolTipConfig config, IBeepTheme theme)
@@ -128,15 +140,44 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
 
             int radius = StyleBorders.GetRadius(beepStyle);
-            int borderWidth = (int)StyleBorders.GetBorderWidth(beepStyle);
 
             using (var path = CreateRoundedRectangle(bounds, radius))
             {
-                Color borderColor = config.BorderColor ?? colors.border;
-
-                using (var pen = new Pen(borderColor, borderWidth))
+                if (config.BorderColor.HasValue)
                 {
-                    g.DrawPath(pen, path);
+                    // Custom border color specified
+                    int borderWidth = (int)StyleBorders.GetBorderWidth(beepStyle);
+                    using (var pen = new Pen(config.BorderColor.Value, borderWidth))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else
+                {
+                    // Use BeepStyling.PaintStyleBorder for consistent border rendering
+                    var savedStyle = BeepStyling.CurrentControlStyle;
+                    var savedTheme = BeepStyling.CurrentTheme;
+                    var savedUseTheme = BeepStyling.UseThemeColors;
+                    
+                    try
+                    {
+                        BeepStyling.SetControlStyle(beepStyle);
+                        
+                        if (config.UseBeepThemeColors && theme != null)
+                        {
+                            BeepStyling.CurrentTheme = theme;
+                            BeepStyling.UseThemeColors = true;
+                        }
+                        
+                        // Paint border using BeepStyling
+                        BeepStyling.PaintStyleBorder(g, path, false, beepStyle);
+                    }
+                    finally
+                    {
+                        BeepStyling.SetControlStyle(savedStyle);
+                        BeepStyling.CurrentTheme = savedTheme;
+                        BeepStyling.UseThemeColors = savedUseTheme;
+                    }
                 }
             }
         }
@@ -318,60 +359,66 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         #region Icon Painting
 
         /// <summary>
-        /// Paint icon using ImagePainter from BeepStyling cache
+        /// Paint icon using StyledImagePainter from BeepStyling system
+        /// Fully integrated with BeepStyling cache and theme support
         /// </summary>
         private void PaintIcon(Graphics g, Rectangle iconRect, ToolTipConfig config, IBeepTheme theme)
         {
-            ImagePainter iconPainter = null;
-            string cacheKey = null;
-
             try
             {
-                // Determine icon source
+                var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
+                int cornerRadius = StyleBorders.GetRadius(beepStyle);
+
+                // Determine icon source and paint using StyledImagePainter
                 if (config.Icon != null)
                 {
-                    // Use provided image directly
-                    iconPainter = new ImagePainter();
+                    // Direct image - use ImagePainter for consistency
+                    ImagePainter iconPainter = new ImagePainter();
                     iconPainter.Image = config.Icon;
-                }
-                else if (!string.IsNullOrEmpty(config.IconPath))
-                {
-                    // Use cached ImagePainter for path-based icons
-                    cacheKey = $"tooltip_icon_{config.IconPath}";
-                    
-                    if (!BeepStyling.ImageCachedPainters.TryGetValue(cacheKey, out iconPainter))
-                    {
-                        iconPainter = new ImagePainter(config.IconPath);
-                        BeepStyling.ImageCachedPainters[cacheKey] = iconPainter;
-                    }
-                }
-                else if (!string.IsNullOrEmpty(config.ImagePath))
-                {
-                    // Use cached ImagePainter for image path
-                    cacheKey = $"tooltip_image_{config.ImagePath}";
-                    
-                    if (!BeepStyling.ImageCachedPainters.TryGetValue(cacheKey, out iconPainter))
-                    {
-                        iconPainter = new ImagePainter(config.ImagePath);
-                        BeepStyling.ImageCachedPainters[cacheKey] = iconPainter;
-                    }
-                }
-
-                if (iconPainter != null && iconPainter.HasImage)
-                {
-                    // Configure painter
                     iconPainter.CurrentTheme = theme;
                     iconPainter.ApplyThemeOnImage = config.ApplyThemeOnImage;
                     iconPainter.ScaleMode = ImageScaleMode.KeepAspectRatio;
                     iconPainter.Alignment = ContentAlignment.MiddleCenter;
-
-                    // Draw icon
                     iconPainter.DrawImage(g, iconRect);
+                }
+                else if (!string.IsNullOrEmpty(config.IconPath))
+                {
+                    // Use StyledImagePainter with path-based icon and rounded corners
+                    using (var path = CreateRoundedRectangle(iconRect, Math.Min(cornerRadius, iconRect.Width / 4)))
+                    {
+                        if (config.ApplyThemeOnImage && theme != null)
+                        {
+                            // Apply theme tint to icon
+                            var colors = ToolTipStyleAdapter.GetColors(config, theme);
+                            StyledImagePainter.PaintWithTint(g, path, config.IconPath, 
+                                colors.foreground, 0.8f, cornerRadius);
+                        }
+                        else
+                        {
+                            // Paint icon without tint
+                            StyledImagePainter.Paint(g, path, config.IconPath, beepStyle);
+                        }
+                    }
+                }
+                else if (!string.IsNullOrEmpty(config.ImagePath))
+                {
+                    // Use StyledImagePainter for image with rounded corners
+                    using (var path = CreateRoundedRectangle(iconRect, Math.Min(cornerRadius, iconRect.Width / 4)))
+                    {
+                        StyledImagePainter.Paint(g, path, config.ImagePath, beepStyle);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[BeepStyledToolTipPainter] Error painting icon: {ex.Message}");
+                
+                // Fallback: draw placeholder icon
+                var colors = ToolTipStyleAdapter.GetColors(config, theme);
+                using (var brush = new SolidBrush(Color.FromArgb(50, colors.foreground)))
+                {
+                    g.FillEllipse(brush, iconRect);
+                }
             }
         }
 

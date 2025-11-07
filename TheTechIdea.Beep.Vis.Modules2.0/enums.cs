@@ -462,21 +462,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         Circle,
         CustomSvg
     }
-    public enum BeepDialogButtonSchema
-    {
-        None,
-        OkCancel,
-        YesNo,
-        YesNoCancel,
-        Ok,
-        Cancel,
-        Yes,
-        No,
-        AbortRetryIgnore,
-        RetryCancel,
-        ContinueStop,
-        Custom
-    }
+   
     public enum BeepDialogButtons
     {
         None,

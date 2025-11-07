@@ -234,7 +234,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
                 };
                 FormStyleChanged?.Invoke(null, x);
                 // Optionally, you could also change the theme based on style here
-                CurrentThemeName= GetThemeForFormStyle(_currentstyle).ThemeName;
+                string themename= GetThemeForFormStyle(_currentstyle).ThemeName;
+                CurrentThemeName = themename;
+
+
             }
         }
 
@@ -597,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         {
             return newFormStyle switch
             {
-                FormStyle.Modern => "DefaultTheme",
+                FormStyle.Modern => "ModernTheme",
                 FormStyle.Minimal => "LightTheme",
                 FormStyle.MacOS => "MidnightTheme",
                 FormStyle.Fluent => "MaterialDesignTheme",

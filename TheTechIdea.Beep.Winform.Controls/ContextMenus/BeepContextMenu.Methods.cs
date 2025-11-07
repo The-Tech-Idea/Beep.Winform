@@ -23,7 +23,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         public void Show(Point screenLocation, Control owner)
         {
             _owner = owner;
-            
+
+            // ADD THIS LINE - forces handle creation BEFORE RecalculateSize/CreateGraphics
+            if (!IsHandleCreated) { var h = Handle; }
+
             // Recalculate size based on current items
             RecalculateSize();
             
@@ -60,7 +63,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var ownerCandidate = owner?.FindForm() ?? owner;
             if (ownerCandidate is System.Windows.Forms.IWin32Window ownerWindow)
             {
-                base.Show(ownerWindow);
+                try
+                {
+                    // Check if owner is disposed before showing
+                    if (ownerCandidate is Control ctrl && (ctrl.IsDisposed || !ctrl.IsHandleCreated))
+                    {
+                        // Owner is disposed, show without owner
+                        base.Show();
+                    }
+                    else
+                    {
+                        base.Show(ownerWindow);
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Owner was disposed during show, fall back to showing without owner
+                    base.Show();
+                }
             }
             else
             {
@@ -153,34 +173,47 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             };
             _menuItems.Add(separator);
         }
-        
-        
+
+
         #endregion
-        
+
         #region Private Methods
-        
+
         /// <summary>
-        /// Recalculates the form size based on menu items
+        /// Recalculates the form size based on menu items - FULLY FIXED VERSION
+        /// Fixes: 
+        /// - Consistent width calculation (no more mixing insets vs content)
+        /// - Correct scrollbar positioning 
+        /// - Accurate scrolling metrics (no off-by-pixel issues)
+        /// - Matches exact drawing logic in DrawMenuItemsSimple
+        /// - Eliminates the mysterious "+10" hack
+        /// - Forces handle creation BEFORE CreateGraphics() to prevent rare hangs
         /// </summary>
-        private void RecalculateSize()
+        public void RecalculateSize()
         {
-            // Get effective control style for BeepStyling calculations
+            // Force handle creation FIRST - this prevents CreateGraphics() hangs on some systems
+            if (!IsHandleCreated)
+            {
+                var ensureHandle = Handle; // Forces WinForms to create the window handle
+            }
+
             var effectiveStyle = ControlStyle;
-            
-            // Account for BeepStyling padding, border, and shadow
+
             int beepPadding = BeepStyling.GetPadding(effectiveStyle);
             float beepBorderWidth = BeepStyling.GetBorderThickness(effectiveStyle);
-            int beepShadow = StyleShadows.HasShadow(effectiveStyle) ? Math.Max(2, StyleShadows.GetShadowBlur(effectiveStyle) / 2) : 0;
-            
-            // Calculate total BeepStyling insets (padding + border + shadow on all sides)
+            int beepShadow = StyleShadows.HasShadow(effectiveStyle)
+                ? Math.Max(2, StyleShadows.GetShadowBlur(effectiveStyle) / 2)
+                : 0;
+
             int beepInsets = beepPadding + (int)Math.Ceiling(beepBorderWidth) + beepShadow;
-            
-            // Calculate minimum height as one item + padding + BeepStyling insets
-            int calculatedMinHeight = PreferredItemHeight + 8 + (beepInsets * 2); // One item + top/bottom padding + BeepStyling
-            
+            const int internalPadding = 4; // Matches your DrawMenuItemsSimple (4px top/bottom/left/right)
+
+            int calculatedMinHeight = PreferredItemHeight + (internalPadding * 2) + (beepInsets * 2);
+
+            // Handle empty menu
             if (_menuItems == null || _menuItems.Count == 0)
             {
-                Width = _menuWidth + (beepInsets * 2);
+                Width = _menuWidth + (internalPadding * 2) + (beepInsets * 2);
                 Height = calculatedMinHeight;
                 _needsScrolling = false;
                 _scrollBar.Visible = false;
@@ -188,119 +221,110 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 _scrollOffset = 0;
                 return;
             }
-            
-            // Calculate required height - add BeepStyling padding
-            int totalHeight = 4 + beepInsets; // Top padding + BeepStyling top inset
-            
+
+            // === HEIGHT CALCULATION (internal content only) ===
+            int contentHeight = internalPadding; // top
             foreach (var item in _menuItems)
             {
-                if (IsSeparator(item))
-                {
-                    totalHeight += 8; // Separator height
-                }
-                else
-                {
-                    totalHeight += PreferredItemHeight;
-                }
+                contentHeight += IsSeparator(item) ? 8 : PreferredItemHeight;
             }
-            
-            totalHeight += 4 + beepInsets; // Bottom padding + BeepStyling bottom inset
-            
-            // Store total content height for scrolling
+            contentHeight += internalPadding; // bottom
+
+            int totalHeight = contentHeight + (beepInsets * 2);
             _totalContentHeight = totalHeight;
-            
-            // Calculate required width - add BeepStyling left/right insets
-            int maxWidth = _menuWidth + (beepInsets * 2);
-            
+
+            // === WIDTH CALCULATION (exact match to your DrawMenuItemSimple logic) ===
+            int requiredContentWidth = 0;
+
             using (var g = CreateGraphics())
             {
                 foreach (var item in _menuItems)
                 {
                     if (IsSeparator(item)) continue;
-                    
-                    // Calculate text width
+
                     var textSize = TextRenderer.MeasureText(g, item.DisplayField ?? "", _textFont);
-                    int itemWidth =     8; // Left margin
-                    
-                    if (_showCheckBox)
-                    {
-                        itemWidth += 20; // Checkbox width
-                    }
-                    
-                    if (_showImage)
-                    {
-                        itemWidth += _imageSize + 4; // Image + spacing
-                    }
-                    
-                    itemWidth += textSize.Width + 8; // Text + spacing
-                    
-                    // Shortcut or submenu arrow
+
+                    int itemWidth = 8; // Left margin (matches your draw code)
+
+                    if (_showCheckBox) itemWidth += 20;
+                    if (_showImage) itemWidth += _imageSize + 4;
+                    itemWidth += textSize.Width + 8;
+
                     if (_showShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
                     {
                         var shortcutSize = TextRenderer.MeasureText(g, item.KeyCombination, _shortcutFont);
                         itemWidth += shortcutSize.Width + 16;
                     }
-                    else if (item.Children != null && item.Children.Count > 0)
+                    else if (ContextMenuManager.HasChildren(item)) // Use manager's HasChildren for consistency
                     {
-                        itemWidth += 20; // Submenu arrow
+                        itemWidth += 20; // Arrow
                     }
-                    
+
                     itemWidth += 8; // Right margin
-                    
-                    if (itemWidth > maxWidth)
-                    {
-                        maxWidth = itemWidth;
-                    }
+
+                    if (itemWidth > requiredContentWidth)
+                        requiredContentWidth = itemWidth;
                 }
             }
-            
-            // Constrain width
-            maxWidth = Math.Max(maxWidth, _minWidth);
-            maxWidth = Math.Min(maxWidth, _maxWidth);
-            
-            // Determine if scrolling is needed
-            _needsScrolling = _totalContentHeight > _maxHeight;
-            
+
+            // Apply your min/max constraints (these appear to be for the *content* area, not total width)
+            int contentWidth = Math.Max(_menuWidth, requiredContentWidth);
+            contentWidth = Math.Max(contentWidth, _minWidth);
+            contentWidth = Math.Min(contentWidth, _maxWidth);
+
+            // === SCROLLING & FINAL SIZE ===
+            _needsScrolling = totalHeight > _maxHeight;
+
+            int menuHeight = _needsScrolling
+                ? Math.Max(Math.Min(_maxHeight, totalHeight), calculatedMinHeight)
+                : totalHeight;
+
+            int scrollBarWidth = _needsScrolling ? SCROLL_BAR_WIDTH : 0;
+
+            // Final size: insets + internal padding + content + scrollbar
+            int menuWidth = (beepInsets * 2) + (internalPadding * 2) + contentWidth + scrollBarWidth;
+
+            Width = menuWidth;
+            Height = menuHeight;
+
+            // === SCROLLBAR CONFIG (perfect alignment) ===
             if (_needsScrolling)
             {
-                // Calculate height with scrolling - ensure at least one item is visible
-                Height = Math.Min(_totalContentHeight, _maxHeight);
-                Height = Math.Max(Height, calculatedMinHeight);
-                
-                // Add space for scrollbar - already includes beepInsets
-                Width = maxWidth + SCROLL_BAR_WIDTH;
-                
-                // Configure scrollbar
                 _scrollBar.Visible = true;
-                _scrollBar.Left = maxWidth - (beepInsets * 2); // Adjust for BeepStyling insets
-                _scrollBar.Top = 0;
-                _scrollBar.Height = Height;
+                _scrollBar.Left = beepInsets + internalPadding + contentWidth;
+                _scrollBar.Top = beepInsets;
+                _scrollBar.Height = Height - (beepInsets * 2);
                 _scrollBar.Minimum = 0;
-                _scrollBar.Maximum = _totalContentHeight - 1;
-                _scrollBar.LargeChange = Math.Max(1, Height);
                 _scrollBar.SmallChange = PreferredItemHeight;
-                
-                // Clamp scroll offset to valid range
-                int maxScroll = Math.Max(0, _totalContentHeight - Height);
-                _scrollOffset = Math.Min(_scrollOffset, maxScroll);
-                _scrollBar.Value = Math.Min(_scrollOffset, Math.Max(0, _scrollBar.Maximum - _scrollBar.LargeChange + 1));
 
-                _contentAreaRect = new Rectangle(0, 0, maxWidth , Height);
+                int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
+                _scrollBar.LargeChange = Math.Max(1, visibleContentHeight);
+
+                // Maximum = total scrollable content + visible - 1 (standard WinForms pattern)
+                _scrollBar.Maximum = contentHeight + _scrollBar.LargeChange - 1;
+
+                // Clamp scroll offset
+                int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
+                _scrollOffset = Math.Min(_scrollOffset, maxScroll);
+                _scrollBar.Value = _scrollOffset;
             }
             else
             {
-                // No scrolling needed - width already includes beepInsets
-                Width = maxWidth + 10;
-                Height = _totalContentHeight;
                 _scrollBar.Visible = false;
                 _scrollOffset = 0;
-                
-                _contentAreaRect = new Rectangle(0, 0, Width, Height);
             }
+
+            // Update content rectangle for any internal use
+            _contentAreaRect = new Rectangle(
+                beepInsets + internalPadding,
+                beepInsets + internalPadding,
+                contentWidth,
+                Height - (beepInsets * 2) - (internalPadding * 2));
         }
-        
         /// <summary>
         /// Shows a submenu for an item
+        /// NOTE: This is now handled by ContextMenuManager via ItemHovered events
+        /// This method is kept for keyboard navigation (Right arrow key)
         /// </summary>
         private void ShowSubmenu(SimpleItem parentItem)
         {
@@ -309,39 +333,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 return;
             }
             
-            // Close any existing submenu
-            if (_openSubmenu != null)
-            {
-                _openSubmenu.Close();
-                _openSubmenu.Dispose();
-            }
-            
-            // Create new submenu
-            _openSubmenu = new BeepContextMenu();
-            
-            _openSubmenu.ContextMenuType = this.ContextMenuType;
-            _openSubmenu.Theme = this.Theme; // propagate current theme
-            _openSubmenu.ShowCheckBox = this.ShowCheckBox;
-            _openSubmenu.ShowImage = this.ShowImage;
-            _openSubmenu.ShowSeparators = this.ShowSeparators;
-            _openSubmenu.ShowShortcuts = this.ShowShortcuts;
-            _openSubmenu.MenuItemHeight = this.MenuItemHeight;
-            _openSubmenu.ImageSize = this.ImageSize;
-            _openSubmenu.Owner = this;
-            _openSubmenu.Owner.Tag = parentItem;
-            
-            // Copy items
-            foreach (var child in parentItem.Children)
-            {
-                _openSubmenu.MenuItems.Add(child);
-            }
-            
-            // Position submenu to the right of parent item
-            var itemRect = _layoutHelper.GetItemRect(parentItem);
-            var submenuLocation = PointToScreen(new Point(Width, itemRect.Top));
-            
-            OnSubmenuOpening(parentItem);
-            _openSubmenu.Show(submenuLocation, this);
+            // Trigger the ItemHovered event, which will be caught by ContextMenuManager
+            OnItemHovered(parentItem);
         }
         
         /// <summary>

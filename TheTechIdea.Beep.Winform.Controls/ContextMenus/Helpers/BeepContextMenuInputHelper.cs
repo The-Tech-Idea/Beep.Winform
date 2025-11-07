@@ -26,6 +26,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return null;
             }
             
+            // Calculate beepInsets (border + padding + shadow from FormStyle)
+            var effectiveStyle = _owner.ControlStyle;
+            float styleBorder = TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.GetBorderThickness(effectiveStyle);
+            int stylePadding = TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.GetPadding(effectiveStyle);
+            int styleShadow = TheTechIdea.Beep.Winform.Controls.Styling.Shadows.StyleShadows.HasShadow(effectiveStyle) 
+                ? System.Math.Max(2, TheTechIdea.Beep.Winform.Controls.Styling.Shadows.StyleShadows.GetShadowBlur(effectiveStyle) / 2) 
+                : 0;
+            int beepInsets = (int)System.Math.Ceiling(styleBorder) + stylePadding + styleShadow;
+            
             // Adjust location for scroll offset
             Point adjustedLocation = location;
             if (_owner.NeedsScrolling)
@@ -33,25 +42,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 adjustedLocation = new Point(location.X, location.Y + _owner.ScrollOffset);
             }
 
-            int y = 4; // Top padding
+            // Content area starting position (must match DrawMenuItemsSimple)
+            int contentStartX = beepInsets + 4;
+            int contentStartY = beepInsets + 4;
+            int contentWidth = _owner.Width - (beepInsets * 2) - 8;
 
-            foreach (var item in _owner.MenuItems)
+            int yOffset = 0;
+
+            for (int i = 0; i < _owner.MenuItems.Count; i++)
             {
+                var item = _owner.MenuItems[i];
+                
                 if (IsSeparator(item))
                 {
-                    y += 8; // Separator height
+                    yOffset += 8; // Separator height
                     continue;
                 }
                 
                 int itemHeight = _owner.PreferredItemHeight;
-                var itemRect = new Rectangle(0, y, _owner.Width, itemHeight);
+                var itemRect = new Rectangle(
+                    contentStartX,
+                    contentStartY + yOffset,
+                    contentWidth,
+                    itemHeight
+                );
                 
                 if (itemRect.Contains(adjustedLocation))
                 {
                     return item;
                 }
                 
-                y += itemHeight;
+                yOffset += itemHeight;
             }
             
             return null;

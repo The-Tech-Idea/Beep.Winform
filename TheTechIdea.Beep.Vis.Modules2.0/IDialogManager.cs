@@ -44,10 +44,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         DialogReturn MultiSelect(string title, string promptText, List<SimpleItem> items);
         DialogReturn InputCheckList(string title, string promptText, List<SimpleItem> items);
 
-        // Confirm dialog with schema and icon
-        DialogReturn Confirm(string title, string message, BeepDialogButtonSchema schema, BeepDialogIcon icon);
-        // New overload: fully custom buttons using BeepDialogButtons
-        DialogReturn Confirm(string title, string message, IEnumerable<BeepDialogButtons> buttons, BeepDialogIcon icon, BeepDialogButtons? defaultButton = null);
+        // Confirm dialog with custom buttons
+        DialogReturn Confirm(string title, string message, BeepDialogButtons[] buttons, BeepDialogIcon icon);
+        // Confirm dialog with default button
+        DialogReturn Confirm(string title, string message, BeepDialogButtons[] buttons, BeepDialogIcon icon, BeepDialogButtons? defaultButton);
 
         // Color / Font pickers
         DialogReturn SelectColor(string title = null, string initialColor = null);

@@ -19,6 +19,7 @@
 
             }
             _bgBrush?.Dispose(); // Clean up cached brush
+            _designModeInvalidateTimer?.Dispose(); // Clean up design-mode timer
          
             base.Dispose(disposing);
         }

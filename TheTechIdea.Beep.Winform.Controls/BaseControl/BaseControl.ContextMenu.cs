@@ -5,9 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
-using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.SideBar;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {
@@ -16,11 +14,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     /// </summary>
     public partial class BaseControl
     {
-      
-        // Keep a reference for async menus to avoid premature GC
-        private BeepContextMenu _activeAsyncContextMenu;
-
-      
         #region Context Menu Events
 
         /// <summary>
@@ -59,46 +52,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             if (items == null || items.Count == 0)
                 return null;
-          
-            // Create a fresh context menu per invocation
-            var menu = new BeepContextMenu
-            {
-                ContextMenuType = FormStyle.Minimal,
-                DestroyOnClose = true,
-                MultiSelect = multiSelect,
-                ShowCheckBox = multiSelect,
-                Theme = this.Theme
-            };
 
-            foreach (var item in items)
+            // Use ContextMenuManager for centralized lifecycle management
+            var selectedItem = ContextMenus.ContextMenuManager.Show(
+                items,
+                screenLocation,
+                this,
+                style,
+                multiSelect,
+                this.Theme
+            );
+
+            // Fire event if item was selected
+            if (selectedItem != null)
             {
-                menu.AddItem(item);
+                OnContextMenuItemSelected(new ContextMenuItemSelectedEventArgs(selectedItem));
             }
 
-            // Track the selected item
-            SimpleItem selectedItem = null;
-            EventHandler<MenuItemEventArgs> itemClickedHandler = (sender, e) =>
-            {
-                selectedItem = e.Item;
-                OnContextMenuItemSelected(new ContextMenuItemSelectedEventArgs(e.Item));
-            };
-            menu.ItemClicked += itemClickedHandler;
-
-            try
-            {
-                menu.Show(screenLocation, this);
-                while (menu.Visible)
-                {
-                    Application.DoEvents();
-                }
-                return selectedItem;
-            }
-            finally
-            {
-                menu.ItemClicked -= itemClickedHandler;
-                try { menu.Close(); } catch { }
-                try { menu.Dispose(); } catch { }
-            }
+            return selectedItem;
         }
 
         /// <summary>
@@ -112,44 +83,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (items == null || items.Count == 0)
                 return new List<SimpleItem>();
 
-            var menu = new BeepContextMenu
-            {
-               
-                ContextMenuType = FormStyle.Modern,
-                DestroyOnClose = true,
-                MultiSelect = true,
-                ShowCheckBox = true,
-                Theme = this.Theme
-            };
+            // Use ContextMenuManager for centralized lifecycle management
+            var selectedItems = ContextMenus.ContextMenuManager.ShowMultiSelect(
+                items,
+                screenLocation,
+                this,
+                FormStyle.Modern,
+                this.Theme
+            );
 
-            foreach (var item in items)
+            // Fire event if items were selected
+            if (selectedItems != null && selectedItems.Count > 0)
             {
-                menu.AddItem(item);
+                OnContextMenuItemsSelected(new ContextMenuItemsSelectedEventArgs(selectedItems));
             }
 
-            List<SimpleItem> selectedItems = new List<SimpleItem>();
-            EventHandler<MenuItemsEventArgs> itemsSelectedHandler = (sender, e) =>
-            {
-                selectedItems = e.Items;
-                OnContextMenuItemsSelected(new ContextMenuItemsSelectedEventArgs(e.Items));
-            };
-            menu.ItemsSelected += itemsSelectedHandler;
-
-            try
-            {
-                menu.Show(screenLocation, this);
-                while (menu.Visible)
-                {
-                    Application.DoEvents();
-                }
-                return menu.GetSelectedItems();
-            }
-            finally
-            {
-                menu.ItemsSelected -= itemsSelectedHandler;
-                try { menu.Close(); } catch { }
-                try { menu.Dispose(); } catch { }
-            }
+            return selectedItems ?? new List<SimpleItem>();
         }
 
         /// <summary>
@@ -194,78 +143,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>The selected item, or null if no selection was made</returns>
         public SimpleItem ShowBeepContextMenu(Point screenLocation)
         {
-            if (_beepContextMenu == null)
+            if (_beepContextMenu == null || _beepContextMenu.MenuItems.Count == 0)
                 return null;
 
-            // Track the selected item
-            SimpleItem selectedItem = null;
+            // Convert BeepContextMenu items to list and use ContextMenuManager
+            // This ensures consistent lifecycle management and prevents ObjectDisposedException
+            var items = _beepContextMenu.MenuItems.ToList();
+            var style = _beepContextMenu.ContextMenuType;
+            var multiSelect = _beepContextMenu.MultiSelect;
 
-            // Handle item clicked event
-            EventHandler<MenuItemEventArgs> itemClickedHandler = (sender, e) =>
+            // Use ContextMenuManager for centralized lifecycle management
+            var selectedItem = ContextMenus.ContextMenuManager.Show(
+                items,
+                screenLocation,
+                this,
+                style,
+                multiSelect,
+                this.Theme
+            );
+
+            // Fire event if item was selected
+            if (selectedItem != null)
             {
-                selectedItem = e.Item;
-                OnContextMenuItemSelected(new ContextMenuItemSelectedEventArgs(e.Item));
-            };
-
-            _beepContextMenu.ItemClicked += itemClickedHandler;
-
-            try
-            {
-                // Show the menu
-                _beepContextMenu.Show(screenLocation, this);
-
-                // Wait for menu to close
-                while (_beepContextMenu.Visible)
-                {
-                    Application.DoEvents();
-                }
-
-                return selectedItem;
+                OnContextMenuItemSelected(new ContextMenuItemSelectedEventArgs(selectedItem));
             }
-            finally
-            {
-                // Clean up event handler
-                _beepContextMenu.ItemClicked -= itemClickedHandler;
-            }
+
+            return selectedItem;
         }
 
-        /// <summary>
-        /// Shows a context menu asynchronously (non-blocking)
-        /// </summary>
-        /// <param name="items">List of menu items to display</param>
-        /// <param name="screenLocation">Screen coordinates where the menu should appear</param>
-        public void ShowContextMenuAsync(List<SimpleItem> items, Point screenLocation, FormStyle style  = FormStyle.Modern)
-        {
-            if (items == null || items.Count == 0)
-                return;
-          
-            // Create a fresh context menu and keep a reference until it closes
-            var menu = new BeepContextMenu
-            {
-               
-                ContextMenuType = FormStyle.Minimal,
-                DestroyOnClose = true,
-                Theme = this.Theme
-            };
-            foreach (var item in items)
-            {
-                menu.AddItem(item);
-            }
-            _activeAsyncContextMenu = menu;
-
-            menu.FormClosed += (s, e) =>
-            {
-                try { menu.Dispose(); } catch { }
-                if (ReferenceEquals(_activeAsyncContextMenu, menu)) _activeAsyncContextMenu = null;
-            };
-
-            menu.ItemClicked += (sender, e) =>
-            {
-                OnContextMenuItemSelected(new ContextMenuItemSelectedEventArgs(e.Item));
-            };
-
-            menu.Show(screenLocation, this);
-        }
 
         // Intentionally no owner reactivation here to avoid desktop flicker during rapid menu re-open
 
@@ -305,97 +210,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Context Menu Configuration
 
-        /// <summary>
-        /// Configures the context menu with items and Style
-        /// </summary>
-        /// <param name="items">List of menu items</param>
-        /// <param name="menuType">Visual Style of the menu</param>
-        /// <param name="multiSelect">Enable multi-select mode</param>
-        public void ConfigureContextMenu(List<SimpleItem> items, FormStyle menuType =  FormStyle.Modern, bool multiSelect = false)
-        {
-            if (_beepContextMenu == null)
-            {
-                _beepContextMenu = new BeepContextMenu();
-               // _beepContextMenu.sty = menustyle;
-            }
+       
 
-            _beepContextMenu.ContextMenuType = menuType;
-            _beepContextMenu.MultiSelect = multiSelect;
-            _beepContextMenu.ShowCheckBox = multiSelect; // Auto-enable checkboxes in multi-select mode
-            _beepContextMenu.ClearItems();
-
-            if (items != null)
-            {
-                foreach (var item in items)
-                {
-                    _beepContextMenu.AddItem(item);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets the context menu Style
-        /// </summary>
-        /// <param name="menuType">Visual Style to apply</param>
-        public void SetContextMenuStyle(FormStyle menuType)
-        {
-            if (_beepContextMenu != null)
-            {
-                _beepContextMenu.ContextMenuType = menuType;
-            }
-        }
-
-        /// <summary>
-        /// Adds a single item to the context menu
-        /// </summary>
-        /// <param name="item">Item to add</param>
-        public void AddContextMenuItem(SimpleItem item)
-        {
-            if (_beepContextMenu == null)
-            {
-                _beepContextMenu = new BeepContextMenu();
-              
-            }
-
-            _beepContextMenu.AddItem(item);
-        }
-
-        /// <summary>
-        /// Adds a separator to the context menu
-        /// </summary>
-        public void AddContextMenuSeparator()
-        {
-            if (_beepContextMenu == null)
-            {
-                _beepContextMenu = new BeepContextMenu();
-                
-            }
-
-            _beepContextMenu.AddSeparator();
-        }
-
-        /// <summary>
-        /// Clears all items from the context menu
-        /// </summary>
-        public void ClearContextMenuItems()
-        {
-            if (_beepContextMenu != null)
-            {
-                _beepContextMenu.ClearItems();
-            }
-        }
-
-        /// <summary>
-        /// Gets the currently configured context menu items
-        /// </summary>
-        /// <returns>List of menu items</returns>
-        public List<SimpleItem> GetContextMenuItems()
-        {
-            if (_beepContextMenu == null)
-                return new List<SimpleItem>();
-
-            return _beepContextMenu.MenuItems.ToList();
-        }
+    
 
         #endregion
 
@@ -491,6 +308,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 DisplayField = "-",
                 Tag = "separator"
+            };
+        }
+
+        /// <summary>
+        /// Creates a menu item with sub-items (hierarchical menu)
+        /// </summary>
+        /// <param name="text">Display text</param>
+        /// <param name="children">List of child menu items</param>
+        /// <param name="imagePath">Optional image path</param>
+        /// <param name="tag">Optional tag object</param>
+        /// <returns>SimpleItem configured with children</returns>
+        public static SimpleItem CreateMenuItemWithChildren(string text, List<SimpleItem> children, string imagePath = null, object tag = null)
+        {
+            return new SimpleItem
+            {
+                DisplayField = text,
+                ImagePath = imagePath,
+                Tag = tag,
+                IsEnabled = true,
+                Children = new BindingList<SimpleItem>(children) ?? new BindingList<SimpleItem>()
+            };
+        }
+
+        /// <summary>
+        /// Creates a menu item with sub-items and a shortcut
+        /// </summary>
+        /// <param name="text">Display text</param>
+        /// <param name="shortcut">Shortcut text (e.g., "Ctrl+C")</param>
+        /// <param name="children">List of child menu items</param>
+        /// <param name="imagePath">Optional image path</param>
+        /// <param name="tag">Optional tag object</param>
+        /// <returns>SimpleItem configured with children and shortcut</returns>
+        public static SimpleItem CreateMenuItemWithChildrenAndShortcut(string text, string shortcut, List<SimpleItem> children, string imagePath = null, object tag = null)
+        {
+            return new SimpleItem
+            {
+                DisplayField = text,
+                KeyCombination = shortcut,
+                ImagePath = imagePath,
+                Tag = tag,
+                IsEnabled = true,
+                Children = new BindingList<SimpleItem>(children) ?? new BindingList<SimpleItem>()
             };
         }
 

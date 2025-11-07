@@ -482,7 +482,7 @@ public static partial class ControlExtensions
     //                method.Invoke(branch, null);
 
 
-    //            //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+    //            //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.OK);
     //        }
 
     //    }
@@ -1015,7 +1015,7 @@ public static partial class ControlExtensions
                     method.Invoke(branch, null);
 
 
-                //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+                //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.OK);
             }
 
         }

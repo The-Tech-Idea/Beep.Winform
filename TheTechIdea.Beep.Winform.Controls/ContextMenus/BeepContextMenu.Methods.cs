@@ -354,12 +354,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Close any open submenu
             if (_openSubmenu != null)
             {
+                _openSubmenu.SetCloseReason(BeepContextMenuCloseReason.AppFocusChange);
                 _openSubmenu.Close();
                 _openSubmenu.Dispose();
                 _openSubmenu = null;
             }
 
-            OnMenuClosing(e);
+            // Fire MenuClosing event with close reason
+            var closingArgs = new BeepContextMenuClosingEventArgs(_closeReason, e.Cancel);
+            OnMenuClosing(closingArgs);
+            e.Cancel = closingArgs.Cancel;
 
             // If we're not configured to destroy on close, hide instead of disposing
             if (!_destroyOnClose && e.CloseReason != CloseReason.ApplicationExitCall)
@@ -371,6 +375,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 _submenuTimer.Stop();
                 _fadeTimer.Stop();
                 Opacity = 1.0;
+                
+                // Fire Closed event before hiding
+                var closedArgs = new BeepContextMenuClosedEventArgs(_closeReason);
+                OnMenuClosed(closedArgs);
+                
                 Hide();
                 return;
             }

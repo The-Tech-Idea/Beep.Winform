@@ -8,26 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum BeepDialogButtons
-    {
-        OkCancel,
-        YesNo,
-        AbortRetryIgnore,
-        SaveDontSaveCancel,
-        SaveAllDontSaveCancel,
-        Close,
-        Help,
-        TryAgainContinue,
-        TryAgain,
-        OK,
-        Cancel,
-        Yes,
-        No,
-        Abort,
-        Retry,
-        Ignore,
-        Continue
-    }
+  
     public enum  DialogType
     {
         Information,

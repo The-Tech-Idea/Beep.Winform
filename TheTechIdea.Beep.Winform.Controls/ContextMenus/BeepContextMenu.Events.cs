@@ -184,10 +184,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_Deactivate(object sender, EventArgs e)
         {
-            if (_closeOnFocusLost)
-            {
-                Close();
-            }
+            // NOTE: Deactivation is now handled by BeepMenuManager.ModalMenuFilter
+            // This matches WinForms ToolStripManager.ModalMenuFilter pattern
+            // The message filter will detect activation changes and close menus appropriately
         }
         
         private void BeepContextMenu_VisibleChanged(object sender, EventArgs e)

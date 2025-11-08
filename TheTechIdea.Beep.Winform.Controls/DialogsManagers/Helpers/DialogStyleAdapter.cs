@@ -1,5 +1,4 @@
 using System.Drawing;
-using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
@@ -26,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
         }
 
         /// <summary>
-        /// Get icon path based on dialog icon type using SvgsUI
+        /// Get icon path based on dialog icon type
         /// </summary>
         public static string GetIconPath(DialogConfig config)
         {
@@ -37,16 +36,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             if (!string.IsNullOrEmpty(config.IconPath))
                 return config.IconPath;
 
-            // Map BeepDialogIcon to SvgsUI icon paths
+            // Map BeepDialogIcon to icon paths
             return config.IconType switch
             {
-                BeepDialogIcon.Information => SvgsUI.Info,
-                BeepDialogIcon.Warning => SvgsUI.AlertTriangle,
-                BeepDialogIcon.Error => SvgsUI.XOctagon,
-                BeepDialogIcon.Question => SvgsUI.HelpCircle,
-                BeepDialogIcon.Success => SvgsUI.CheckCircle,
+                BeepDialogIcon.Information => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.information.svg",
+                BeepDialogIcon.Warning => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.warning.svg",
+                BeepDialogIcon.Error => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.error.svg",
+                BeepDialogIcon.Question => "TheTechIdea.Beep.Winform.GFX.SVG.question.svg",
+                BeepDialogIcon.Success => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.success.svg",
                 BeepDialogIcon.None => string.Empty,
-                _ => SvgsUI.Info
+                _ => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.information.svg"
             };
         }
 

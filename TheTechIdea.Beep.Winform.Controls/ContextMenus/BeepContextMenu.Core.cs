@@ -136,6 +136,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
     // Fonts adoption toggle (follow theme fonts automatically)
     private bool _useThemeFonts = true;
+
+    // WinForms-style owner window management (prevents taskbar entry)
+    private static NativeWindow _dropDownOwnerWindow;
+    
+    // Close reason tracking (mirrors ToolStripDropDown)
+    private BeepContextMenuCloseReason _closeReason = BeepContextMenuCloseReason.AppFocusChange;
+    
+    // Activation message handling flag
+    private bool _sendingActivateMessage = false;
+    
+    // Message constants
+    private const int WM_NCACTIVATE = 0x0086;
+    private const int WM_ACTIVATE = 0x0006;
+    private const int WM_MOUSEACTIVATE = 0x0021;
+    private const int MA_NOACTIVATE = 3;
+    private const int WA_ACTIVE = 1;
         
         #endregion
         

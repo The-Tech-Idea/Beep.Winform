@@ -7,6 +7,27 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+    public enum BeepDialogButtons
+    {
+        Ok,
+        Cancel,
+        Yes,
+        No,
+        Abort,
+        Retry,
+        Ignore,
+        OkCancel,
+        YesNo,
+        AbortRetryIgnore,
+        SaveDontSaveCancel,
+        SaveAllDontSaveCancel,
+        Close,
+        Help,
+        TryAgainContinue,
+        OK,
+        Stop,
+        Continue
+    }
     public class DockItemState
     {
         public SimpleItem Item { get; set; }
@@ -463,23 +484,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         CustomSvg
     }
    
-    public enum BeepDialogButtons
-    {
-        None,
-        Ok,
-        Cancel,
-        Yes,
-        No,
-        Custom,
-        Abort,
-        Retry,
-        Ignore,
-        Continue,
-        Stop,
-        Suspend,
-        Resume
 
-    }
     public enum BeepDialogIcon
     {
         None,

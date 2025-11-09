@@ -370,11 +370,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            // Custom action button (if theme/Style not shown)
-            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            // Custom action button (only if ShowCustomActionButton is true)
+            if (owner.ShowCustomActionButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
             }
             
             // Icon and title areas (left side of caption, chat bubble Style)

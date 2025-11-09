@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
-    /// Brutalist border painter - thick slab outline with inner accent line.
+    /// Brutalist border painter - thick, bold black outline for high contrast geometric look.
     /// </summary>
     public static class BrutalistBorderPainter
     {
@@ -16,29 +16,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            float outerWidth = StyleBorders.GetBorderWidth(style);
-            Color outerColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(40, 40, 40));
-            Color accentColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Accent", Color.FromArgb(80, 80, 80));
+            // Brutalist: Very thick, bold borders (3-4px) in solid black or dark color
+            float outerWidth = Math.Max(StyleBorders.GetBorderWidth(style), 3f); // Minimum 3px for bold look
+            Color outerColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.Black);
 
             if (isFocused || state == ControlState.Selected)
             {
-                accentColor = BorderPainterHelpers.Lighten(accentColor, 0.2f);
+                // Make border even thicker when focused
+                outerWidth = Math.Max(outerWidth, 4f);
+                outerColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Accent", Color.FromArgb(40, 40, 40));
             }
 
-            // Brutalist: no anti aliasing for crisp slab edges.
+            // Brutalist: Sharp edges, no anti-aliasing for crisp geometric look
             var oldMode = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.None;
+
             var pen = PaintersFactory.GetPen(outerColor, outerWidth);
             pen.Alignment = PenAlignment.Inset;
             g.DrawPath(pen, path);
+
             g.SmoothingMode = oldMode;
 
-            using (var innerPath = path.CreateInsetPath(outerWidth + 3f))
-            {
-                BorderPainterHelpers.PaintSimpleBorder(g, innerPath, accentColor, 2f, state);
-            }
-
-            return path.CreateInsetPath(outerWidth + 5f);
+            // Return inset path accounting for the thick border
+            return path.CreateInsetPath(outerWidth);
         }
     }
 }

@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Notifications;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 
@@ -24,18 +25,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
-            //beepSimpleTextBox1.ImagePath = TheTechIdea.Beep.Icons.Svgs.Add;
-            //   this.beepCircularButton1.Click += BeepCircularButton1_Click;
-            //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
-        }
+         }
 
-        //private void BeepCircularButton1_Click(object? sender, EventArgs e)
-        //{
-        //    currentidx+=1;
-        //    if (currentidx >= beepStepperBar1.ListItems.Count)
-        //        currentidx = 0;
-        //    beepStepperBar1.UpdateCurrentStep(currentidx);
-        //}
+      
         DriversConfigViewModel viewModel;
 
         int currentidx = -1;
@@ -82,6 +74,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             int nextIndex = (currentIndex + 1) % modes.Length;
             beepGridPro1.NavigationStyle = (navigationStyle)modes.GetValue(nextIndex);
             CalendarnamebeepLabel.Text = beepGridPro1.NavigationStyle.ToString();
+            BeepNotificationManager.Instance.ShowInfo("Navigation Style Changed", $"Grid Navigation Style changed to {beepGridPro1.NavigationStyle}");
         }
 
         private void beepGridPro1_SaveCalled(object? sender, EventArgs e)

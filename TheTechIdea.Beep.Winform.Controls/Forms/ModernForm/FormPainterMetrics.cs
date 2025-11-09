@@ -103,6 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public bool ShowSearchButton { get; set; }
         public bool ShowProfileButton { get; set; }
         public bool ShowMailButton { get; set; }
+        public bool ShowCustomActionButton { get; set; }
 
         /// <summary>
         /// Gets DPI-aware metrics for the specified owner form.

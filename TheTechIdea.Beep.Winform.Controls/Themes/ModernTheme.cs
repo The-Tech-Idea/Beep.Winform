@@ -1205,7 +1205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ToolTipTextColor = black;
             ToolTipLinkColor = blueAccent;
             ToolTipLinkHoverColor = Darken(blueAccent, 0.1);
-            ToolTipLinkVisitedColor = C(128, 0, 128);
+            ToolTipLinkVisitedColor = Darken(blueAccent, 0.25);  // Darker blue instead of purple
 
             Heading1 = TitleLarge;
             Heading2 = TitleMedium;
@@ -1439,7 +1439,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
             // Links
             LinkColor = blueAccent;
-            VisitedLinkColor = C(128, 0, 128); // Purple
+            VisitedLinkColor = Darken(blueAccent, 0.25);  // Darker blue instead of purple for consistency
             HoverLinkColor = Darken(blueAccent, 0.1);
             LinkHoverColor = Darken(blueAccent, 0.1);
 

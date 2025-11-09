@@ -32,6 +32,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         {
             this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
+            BeepThemesManager.FormStyleChanged += (s, e) =>
+            {
+                FormStyle = BeepThemesManager.CurrentStyle;
+                Theme = BeepThemesManager.CurrentThemeName;
+                Invalidate();
+            };
         }
 
         public TemplateForm(IServiceProvider services) : base()

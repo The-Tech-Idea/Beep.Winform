@@ -798,7 +798,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             BackgroundColor = deepBlack;
             SurfaceColor = panelBlack;
             ForeColor = softGreen;
-            OnPrimaryColor = C(0, 0, 0);
+            OnPrimaryColor = softGreen;  // Bright green for consistency
             OnBackgroundColor = softGreen;
 
             ErrorColor = C(255, 80, 80);
@@ -807,11 +807,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
             BorderColor = lineGreen;
             ActiveBorderColor = lineGreen;
-            InactiveBorderColor = gray300;
+            InactiveBorderColor = C(64, 90, 70);  // Dim green instead of gray
 
             DisabledBackColor = gray200;
             DisabledForeColor = C(90, 140, 110);
-            DisabledBorderColor = gray300;
+            DisabledBorderColor = C(64, 90, 70);  // Dim green instead of gray
 
             // --- AppBar / Caption (matches TerminalFormPainter)
             AppBarBackColor = deepBlack;
@@ -851,7 +851,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             SubtitleStyle = TS(16, FontStyle.Regular, 600, dimGreen, mono: true);
             BodyStyle = TS(12, FontStyle.Regular, 400, softGreen, mono: true);
             CaptionStyle = TS(11, FontStyle.Regular, 400, dimGreen, mono: true);
-            ButtonStyle = TS(12, FontStyle.Bold, 600, C(0, 0, 0), mono: true);
+            ButtonStyle = TS(12, FontStyle.Bold, 600, softGreen, mono: true);  // Bright green for button text
             LinkStyle = TS(12, FontStyle.Underline, 500, softGreen, mono: true);
             OverlineStyle = TS(10, FontStyle.Regular, 600, dimGreen, mono: true);
 
@@ -905,19 +905,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             IsDarkTheme = true;
 
             // --- Buttons
-            // Default buttons: bright green background with black text
-            ButtonBackColor = softGreen;
-            ButtonForeColor = C(0, 0, 0);
+            // Terminal style: dark background with bright green text
+            ButtonBackColor = C(16, 16, 16);  // Dark background
+            ButtonForeColor = softGreen;  // Bright green text
             ButtonBorderColor = lineGreen;
             
-            // Hover: slightly darker green
-            ButtonHoverBackColor = Darken(softGreen, 0.08);
-            ButtonHoverForeColor = C(0, 0, 0);
+            // Hover: slightly lighter background with neon green text
+            ButtonHoverBackColor = C(20, 40, 25);  // Dark green tint
+            ButtonHoverForeColor = neonGreen;  // Bright neon green text
             ButtonHoverBorderColor = lineGreen;
             
-            // Pressed: darker green
-            ButtonPressedBackColor = Darken(softGreen, 0.16);
-            ButtonPressedForeColor = C(0, 0, 0);
+            // Pressed: darker background with bright text
+            ButtonPressedBackColor = C(10, 25, 15);
+            ButtonPressedForeColor = neonGreen;
             ButtonPressedBorderColor = lineGreen;
 
             // Selected: darker background with neon green text for clear contrast
@@ -930,10 +930,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ButtonSelectedHoverForeColor = C(0, 255, 204);  // Even brighter cyan-green
             ButtonSelectedHoverBorderColor = lineGreen;
 
-            // Error button: red background with black text
-            ButtonErrorBackColor = ErrorColor;
-            ButtonErrorForeColor = C(0, 0, 0);
-            ButtonErrorBorderColor = Darken(ErrorColor, 0.18);
+            // Error button: dark red background with bright green text
+            ButtonErrorBackColor = C(60, 20, 20);  // Dark red background
+            ButtonErrorForeColor = softGreen;  // Bright green text (terminal style)
+            ButtonErrorBorderColor = C(120, 180, 130);  // Green-tinted border for consistency
 
             ButtonFont = ButtonStyle;
             ButtonHoverFont = ButtonStyle;
@@ -1065,7 +1065,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // --- Labels
             LabelBackColor = BackgroundColor;
             LabelForeColor = softGreen;
-            LabelBorderColor = C(0, 0, 0); // keep non-transparent; borders are usually off
+            LabelBorderColor = lineGreen;  // Green for consistency (borders usually off anyway)
             LabelHoverBorderColor = lineGreen;
             LabelHoverBackColor = BackgroundColor;
             LabelHoverForeColor = neonGreen;
@@ -1093,14 +1093,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             TextBoxSelectedForeColor = neonGreen;
             TextBoxSelectedBorderColor = lineGreen;
             TextBoxPlaceholderColor = C(90, 140, 110);
-            TextBoxErrorBorderColor = ErrorColor;
+            TextBoxErrorBorderColor = C(180, 100, 100);  // Red-tinted green for errors
             TextBoxErrorBackColor = C(40, 20, 20);
             TextBoxErrorForeColor = C(255, 190, 190);
             TextBoxErrorTextColor = C(255, 190, 190);
             TextBoxErrorPlaceholderColor = C(200, 140, 140);
             TextBoxErrorTextBoxColor = TextBoxErrorBackColor;
-            TextBoxErrorTextBoxBorderColor = Darken(ErrorColor, 0.18);
-            TextBoxErrorTextBoxHoverColor = Darken(ErrorColor, 0.12);
+            TextBoxErrorTextBoxBorderColor = C(150, 90, 90);  // Red-tinted for errors but muted
+            TextBoxErrorTextBoxHoverColor = C(180, 100, 100);
             TextBoxFont = BodyMedium;
             TextBoxHoverFont = BodyMedium;
             TextBoxSelectedFont = BodyMedium;
@@ -1201,11 +1201,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ProgressBarErrorColor = ErrorColor;
             ProgressBarSuccessColor = SuccessColor;
             ProgressBarFont = LabelSmall;
-            ProgressBarInsideTextColor = C(0, 0, 0);
+            ProgressBarInsideTextColor = C(0, 0, 0);  // Black text on bright green progress bar
             ProgressBarHoverBackColor = C(18, 30, 18);
             ProgressBarHoverForeColor = neonGreen;
             ProgressBarHoverBorderColor = lineGreen;
-            ProgressBarHoverInsideTextColor = C(0, 0, 0);
+            ProgressBarHoverInsideTextColor = C(0, 0, 0);  // Black text for readability
 
             // --- Scrollbars
             ScrollBarBackColor = C(14, 14, 14);
@@ -1327,10 +1327,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             DialogNoButtonHoverFont = ButtonStyle;
             DialogOkButtonHoverFont = ButtonStyle;
 
-            DialogYesButtonBackColor = softGreen;
-            DialogYesButtonForeColor = C(0, 0, 0);
-            DialogYesButtonHoverBackColor = Darken(softGreen, 0.08);
-            DialogYesButtonHoverForeColor = C(0, 0, 0);
+            DialogYesButtonBackColor = C(16, 32, 20);  // Dark green background
+            DialogYesButtonForeColor = neonGreen;  // Bright green text
+            DialogYesButtonHoverBackColor = C(20, 40, 25);
+            DialogYesButtonHoverForeColor = C(0, 255, 204);  // Even brighter
             DialogYesButtonHoverBorderColor = lineGreen;
 
             DialogCancelButtonBackColor = C(16, 16, 16);
@@ -1352,34 +1352,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             DialogNoButtonHoverForeColor = neonGreen;
             DialogNoButtonHoverBorderColor = lineGreen;
 
-            DialogOkButtonBackColor = softGreen;
-            DialogOkButtonForeColor = C(0, 0, 0);
-            DialogOkButtonHoverBackColor = Darken(softGreen, 0.08);
-            DialogOkButtonHoverForeColor = C(0, 0, 0);
+            DialogOkButtonBackColor = C(16, 32, 20);  // Dark green background
+            DialogOkButtonForeColor = neonGreen;  // Bright green text
+            DialogOkButtonHoverBackColor = C(20, 40, 25);
+            DialogOkButtonHoverForeColor = C(0, 255, 204);  // Even brighter
             DialogOkButtonHoverBorderColor = lineGreen;
 
-            DialogWarningButtonBackColor = WarningColor;
-            DialogWarningButtonForeColor = C(0, 0, 0);
-            DialogWarningButtonHoverBackColor = Darken(WarningColor, 0.08);
-            DialogWarningButtonHoverForeColor = C(0, 0, 0);
-            DialogWarningButtonHoverBorderColor = Darken(WarningColor, 0.18);
+            DialogWarningButtonBackColor = C(60, 60, 20);  // Dark yellow background
+            DialogWarningButtonForeColor = WarningColor;  // Bright yellow text
+            DialogWarningButtonHoverBackColor = C(70, 70, 25);
+            DialogWarningButtonHoverForeColor = C(255, 255, 120);  // Brighter yellow
+            DialogWarningButtonHoverBorderColor = C(180, 200, 120);  // Yellow-green border
 
-            DialogErrorButtonBackColor = ErrorColor;
-            DialogErrorButtonForeColor = C(0, 0, 0);
-            DialogErrorButtonHoverBackColor = Darken(ErrorColor, 0.08);
-            DialogErrorButtonHoverForeColor = C(0, 0, 0);
-            DialogErrorButtonHoverBorderColor = Darken(ErrorColor, 0.18);
+            DialogErrorButtonBackColor = C(60, 20, 20);  // Dark red background
+            DialogErrorButtonForeColor = ErrorColor;  // Bright red text
+            DialogErrorButtonHoverBackColor = C(70, 25, 25);
+            DialogErrorButtonHoverForeColor = C(255, 100, 100);  // Brighter red
+            DialogErrorButtonHoverBorderColor = C(180, 120, 120);  // Red-tinted green border
 
-            DialogInformationButtonBackColor = softGreen;
-            DialogInformationButtonForeColor = C(0, 0, 0);
-            DialogInformationButtonHoverBackColor = Darken(softGreen, 0.08);
-            DialogInformationButtonHoverForeColor = C(0, 0, 0);
+            DialogInformationButtonBackColor = C(16, 32, 20);  // Dark green background
+            DialogInformationButtonForeColor = neonGreen;  // Bright green text
+            DialogInformationButtonHoverBackColor = C(20, 40, 25);
+            DialogInformationButtonHoverForeColor = C(0, 255, 204);
             DialogInformationButtonHoverBorderColor = lineGreen;
 
-            DialogQuestionButtonBackColor = softGreen;
-            DialogQuestionButtonForeColor = C(0, 0, 0);
-            DialogQuestionButtonHoverBackColor = Darken(softGreen, 0.08);
-            DialogQuestionButtonHoverForeColor = C(0, 0, 0);
+            DialogQuestionButtonBackColor = C(16, 32, 20);  // Dark green background
+            DialogQuestionButtonForeColor = neonGreen;  // Bright green text
+            DialogQuestionButtonHoverBackColor = C(20, 40, 25);
+            DialogQuestionButtonHoverForeColor = C(0, 255, 204);
             DialogQuestionButtonHoverBorderColor = lineGreen;
 
             // --- Tooltips / Markdown
@@ -1411,7 +1411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             BlockquoteBorderColor = lineGreen;
             InlineCodeBackgroundColor = C(12, 24, 16);
             CodeBlockBackgroundColor = C(10, 18, 12);
-            CodeBlockBorderColor = C(20, 36, 24);
+            CodeBlockBorderColor = lineGreen;  // Consistent green border
 
             UnorderedList = BodyMedium;
             OrderedList = BodyMedium;
@@ -1462,8 +1462,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             LoginSubtitleColor = dimGreen;
             LoginDescriptionColor = dimGreen;
             LoginLinkColor = LinkColor;
-            LoginButtonBackgroundColor = softGreen;
-            LoginButtonTextColor = C(0, 0, 0);
+            LoginButtonBackgroundColor = C(16, 32, 20);  // Dark green background
+            LoginButtonTextColor = neonGreen;  // Bright green text
             LoginDropdownBackgroundColor = CardBackColor;
             LoginDropdownTextColor = softGreen;
             LoginLogoBackgroundColor = CardBackColor;
@@ -1478,8 +1478,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             CompanySubtitleColor = dimGreen;
             CompanyDescriptionColor = dimGreen;
             CompanyLinkColor = LinkColor;
-            CompanyButtonBackgroundColor = softGreen;
-            CompanyButtonTextColor = C(0, 0, 0);
+            CompanyButtonBackgroundColor = C(16, 32, 20);  // Dark green background
+            CompanyButtonTextColor = neonGreen;  // Bright green text
             CompanyDropdownBackgroundColor = CardBackColor;
             CompanyDropdownTextColor = softGreen;
             CompanyLogoBackgroundColor = CardBackColor;

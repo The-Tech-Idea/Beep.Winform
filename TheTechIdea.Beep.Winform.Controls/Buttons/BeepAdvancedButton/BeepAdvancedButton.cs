@@ -531,9 +531,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                     SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
                     
                     // Glow and effects
-                    GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.Blue,
-                    RippleColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.Blue,
-                    LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.Blue,
+                    GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                    RippleColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                    LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
                     
                     // Toggle colors
                     ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.Green,
@@ -545,7 +545,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                     BadgeText = string.Empty,
                     
                     // Contact button icon background
-                    IconBackgroundColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.Blue,
+                    IconBackgroundColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
                     
                     // Shadow properties from BaseControl
                     ShowShadow = ShowShadow,

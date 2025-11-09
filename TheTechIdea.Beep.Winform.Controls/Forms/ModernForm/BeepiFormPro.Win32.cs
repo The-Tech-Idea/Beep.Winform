@@ -262,6 +262,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
+                            // CRITICAL: Recalculate layout after resize to ensure hit areas are correct
+                            RecalculateLayoutAndHitAreas();
+                            
                             // Invalidate the entire form (client + non-client) to repaint everything including child controls
                             Invalidate(true);
                             // Also repaint non-client area (title bar/borders)
@@ -579,9 +582,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnHandleCreated(e);
 
-                DisableDwmNonClientRendering();
+            DisableDwmNonClientRendering();
             
             ApplyBackdrop();
+            
+            // CRITICAL: Calculate hit areas when handle is created
+            // This ensures buttons are clickable from the start
+            if (!DesignMode)
+            {
+                RecalculateLayoutAndHitAreas();
+            }
         }
 
     

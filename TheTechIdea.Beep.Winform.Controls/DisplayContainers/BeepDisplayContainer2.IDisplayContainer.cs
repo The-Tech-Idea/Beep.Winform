@@ -19,6 +19,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 if (view is Form form)
                 {
+                    if(form is IFormStyle)
+                    {
+                        IFormStyle formStyle = (IFormStyle)form;
+                        formStyle.FormStyle = BeepThemesManager.CurrentStyle    ;
+                        formStyle.Theme= BeepThemesManager.CurrentThemeName;
+                    }
                     if (!form.IsDisposed)
                     {
                         IBeepUIComponent beepUIComponent = (IBeepUIComponent)view;
@@ -39,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         else
                         {
                             form.StartPosition = FormStartPosition.CenterParent;
-                            beepUIComponent.Theme = Theme;
+                          
                             form.Show();
                         }
                     }
@@ -53,7 +59,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     var popupForm = new BeepiFormPro
                     {
                         StartPosition = FormStartPosition.CenterParent,
-                        AutoSize = true
+                        AutoSize = true,
+                        FormStyle= BeepThemesManager.CurrentStyle,
+                        Theme= BeepThemesManager.CurrentThemeName,
+                        ShowThemeButton= false,
+                        ShowProfileButton=false,
+                        ShowStyleButton= false,
+                        ShowMinMaxButtons=false,
+                        ShowCloseButton=true
+
                     };
 
                     popupForm.Controls.Add(control);

@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 {
                     try
                     {
-                        Font = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
+                        TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
                         
                         // Update layout helper with new font for proper tab sizing
                         if (_layoutHelper != null)

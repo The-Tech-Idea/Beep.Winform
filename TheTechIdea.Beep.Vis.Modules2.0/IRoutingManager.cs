@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public delegate bool RouteGuard(Dictionary<string, object> parameters);
     public interface IRoutingManager
     {
+        IAppManager AppManager { get; set; }
         string Theme { get; set; }
         string BreadCrumb { get; }
         IDM_Addin CurrentControl { get; }

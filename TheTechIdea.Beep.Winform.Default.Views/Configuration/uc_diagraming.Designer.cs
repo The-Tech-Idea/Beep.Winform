@@ -38,6 +38,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_diagraming));
             BeepColumnConfig beepColumnConfig1 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig2 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig3 = new BeepColumnConfig();
@@ -68,19 +69,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig28 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig29 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig30 = new BeepColumnConfig();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_diagraming));
             driversConfigViewModelBindingSource = new BindingSource(components);
             CycleBeepDataTimePickerModebeepButton = new BeepButton();
             CalendarnamebeepLabel = new BeepLabel();
             beepGridPro1 = new TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
-            // 
-            // uc_diagraming
-            // 
-            Controls.Add(beepGridPro1);
-            Controls.Add(CalendarnamebeepLabel);
-            Controls.Add(CycleBeepDataTimePickerModebeepButton);
             // 
             // driversConfigViewModelBindingSource
             // 
@@ -95,14 +89,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.ApplyThemeToChilds = true;
             CycleBeepDataTimePickerModebeepButton.AutoDrawHitListComponents = false;
             CycleBeepDataTimePickerModebeepButton.AutoSizeContent = false;
-            CycleBeepDataTimePickerModebeepButton.BackColor = Color.White;
+            CycleBeepDataTimePickerModebeepButton.BackColor = Color.FromArgb(14, 14, 14);
             CycleBeepDataTimePickerModebeepButton.BadgeBackColor = Color.Red;
             CycleBeepDataTimePickerModebeepButton.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             CycleBeepDataTimePickerModebeepButton.BadgeForeColor = Color.White;
             CycleBeepDataTimePickerModebeepButton.BadgeShape = BadgeShape.Circle;
             CycleBeepDataTimePickerModebeepButton.BadgeText = "";
             CycleBeepDataTimePickerModebeepButton.BlockID = null;
-            CycleBeepDataTimePickerModebeepButton.BorderColor = Color.FromArgb(33, 150, 243);
+            CycleBeepDataTimePickerModebeepButton.BorderColor = Color.FromArgb(0, 255, 0);
             CycleBeepDataTimePickerModebeepButton.BorderDashStyle = DashStyle.Solid;
             CycleBeepDataTimePickerModebeepButton.BorderPainter = BeepControlStyle.None;
             CycleBeepDataTimePickerModebeepButton.BorderRadius = 8;
@@ -125,12 +119,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.ComponentName = "BaseControl";
             CycleBeepDataTimePickerModebeepButton.DataContext = null;
             CycleBeepDataTimePickerModebeepButton.DataSourceProperty = null;
-            CycleBeepDataTimePickerModebeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            CycleBeepDataTimePickerModebeepButton.DisabledBackColor = Color.FromArgb(38, 38, 38);
             CycleBeepDataTimePickerModebeepButton.DisabledBorderColor = Color.Gray;
-            CycleBeepDataTimePickerModebeepButton.DisabledForeColor = Color.Gray;
-            CycleBeepDataTimePickerModebeepButton.DrawingRect = new Rectangle(18, 18, 113, 5);
+            CycleBeepDataTimePickerModebeepButton.DisabledForeColor = Color.FromArgb(90, 140, 110);
+            CycleBeepDataTimePickerModebeepButton.DrawingRect = new Rectangle(0, 0, 151, 43);
             CycleBeepDataTimePickerModebeepButton.Easing = EasingType.Linear;
-          
             CycleBeepDataTimePickerModebeepButton.EnableHighQualityRendering = true;
             CycleBeepDataTimePickerModebeepButton.EnableMaterialStyle = false;
             CycleBeepDataTimePickerModebeepButton.EnableRippleEffect = false;
@@ -141,12 +134,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.FieldID = null;
             CycleBeepDataTimePickerModebeepButton.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             CycleBeepDataTimePickerModebeepButton.FloatingLabel = true;
-            CycleBeepDataTimePickerModebeepButton.FocusBackColor = Color.FromArgb(25, 118, 210);
+            CycleBeepDataTimePickerModebeepButton.FocusBackColor = Color.FromArgb(10, 30, 15);
             CycleBeepDataTimePickerModebeepButton.FocusBorderColor = Color.RoyalBlue;
-            CycleBeepDataTimePickerModebeepButton.FocusForeColor = Color.White;
+            CycleBeepDataTimePickerModebeepButton.FocusForeColor = Color.FromArgb(0, 255, 153);
             CycleBeepDataTimePickerModebeepButton.FocusIndicatorColor = Color.RoyalBlue;
-            CycleBeepDataTimePickerModebeepButton.Font = new Font("Arial", 15F);
-            CycleBeepDataTimePickerModebeepButton.ForeColor = Color.FromArgb(33, 150, 243);
+            CycleBeepDataTimePickerModebeepButton.Font = new Font("Consolas", 12F);
+            CycleBeepDataTimePickerModebeepButton.ForeColor = Color.FromArgb(0, 230, 153);
             CycleBeepDataTimePickerModebeepButton.Form = null;
             CycleBeepDataTimePickerModebeepButton.GlassmorphismBlur = 10F;
             CycleBeepDataTimePickerModebeepButton.GlassmorphismOpacity = 0.1F;
@@ -162,10 +155,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.HideText = false;
             CycleBeepDataTimePickerModebeepButton.HitAreaEventOn = false;
             CycleBeepDataTimePickerModebeepButton.HitTestControl = null;
-            CycleBeepDataTimePickerModebeepButton.HoverBackColor = Color.FromArgb(227, 242, 253);
+            CycleBeepDataTimePickerModebeepButton.HoverBackColor = Color.FromArgb(20, 40, 25);
             CycleBeepDataTimePickerModebeepButton.HoverBorderColor = Color.Blue;
-            CycleBeepDataTimePickerModebeepButton.HoveredBackcolor = Color.FromArgb(227, 242, 253);
-            CycleBeepDataTimePickerModebeepButton.HoverForeColor = Color.FromArgb(33, 150, 243);
+            CycleBeepDataTimePickerModebeepButton.HoveredBackcolor = Color.FromArgb(20, 40, 25);
+            CycleBeepDataTimePickerModebeepButton.HoverForeColor = Color.FromArgb(0, 255, 153);
             CycleBeepDataTimePickerModebeepButton.IconSize = 20;
             CycleBeepDataTimePickerModebeepButton.Id = -1;
             CycleBeepDataTimePickerModebeepButton.Image = null;
@@ -200,6 +193,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.IsShadowAffectedByTheme = true;
             CycleBeepDataTimePickerModebeepButton.IsSideMenuChild = false;
             CycleBeepDataTimePickerModebeepButton.IsStillButton = false;
+            CycleBeepDataTimePickerModebeepButton.IsTransparentBackground = false;
             CycleBeepDataTimePickerModebeepButton.IsValid = true;
             CycleBeepDataTimePickerModebeepButton.IsVisible = true;
             CycleBeepDataTimePickerModebeepButton.Items = (List<object>)resources.GetObject("CycleBeepDataTimePickerModebeepButton.Items");
@@ -221,27 +215,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             CycleBeepDataTimePickerModebeepButton.MaxHitListDrawPerFrame = 0;
             CycleBeepDataTimePickerModebeepButton.MaxImageSize = new Size(32, 32);
-          
             CycleBeepDataTimePickerModebeepButton.ModernGradientType = ModernGradientType.None;
             CycleBeepDataTimePickerModebeepButton.Name = "CycleBeepDataTimePickerModebeepButton";
             CycleBeepDataTimePickerModebeepButton.OverrideFontSize = TypeStyleFontSize.None;
-            CycleBeepDataTimePickerModebeepButton.PainterKind =  BaseControlPainterKind.Classic;
+            CycleBeepDataTimePickerModebeepButton.PainterKind = BaseControlPainterKind.Classic;
             CycleBeepDataTimePickerModebeepButton.ParentBackColor = Color.Empty;
             CycleBeepDataTimePickerModebeepButton.ParentControl = null;
             CycleBeepDataTimePickerModebeepButton.PopPosition = BeepPopupFormPosition.Bottom;
             CycleBeepDataTimePickerModebeepButton.PopupListForm = null;
             CycleBeepDataTimePickerModebeepButton.PopupMode = false;
-            CycleBeepDataTimePickerModebeepButton.PressedBackColor = Color.FromArgb(21, 101, 192);
+            CycleBeepDataTimePickerModebeepButton.PressedBackColor = Color.FromArgb(10, 25, 15);
             CycleBeepDataTimePickerModebeepButton.PressedBorderColor = Color.DarkGray;
-            CycleBeepDataTimePickerModebeepButton.PressedForeColor = Color.White;
+            CycleBeepDataTimePickerModebeepButton.PressedForeColor = Color.FromArgb(0, 255, 153);
             CycleBeepDataTimePickerModebeepButton.RadialCenter = (PointF)resources.GetObject("CycleBeepDataTimePickerModebeepButton.RadialCenter");
             CycleBeepDataTimePickerModebeepButton.RightoffsetForDrawingRect = 0;
             CycleBeepDataTimePickerModebeepButton.SavedGuidID = null;
             CycleBeepDataTimePickerModebeepButton.SavedID = null;
             CycleBeepDataTimePickerModebeepButton.ScaleMode = ImageScaleMode.KeepAspectRatio;
-            CycleBeepDataTimePickerModebeepButton.SelectedBackColor = Color.FromArgb(25, 118, 210);
+            CycleBeepDataTimePickerModebeepButton.SelectedBackColor = Color.FromArgb(10, 30, 15);
             CycleBeepDataTimePickerModebeepButton.SelectedBorderColor = Color.Green;
-            CycleBeepDataTimePickerModebeepButton.SelectedForeColor = Color.White;
+            CycleBeepDataTimePickerModebeepButton.SelectedForeColor = Color.FromArgb(0, 255, 153);
             CycleBeepDataTimePickerModebeepButton.SelectedIndex = -1;
             CycleBeepDataTimePickerModebeepButton.SelectedItem = null;
             CycleBeepDataTimePickerModebeepButton.SelectedValue = null;
@@ -261,18 +254,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("CycleBeepDataTimePickerModebeepButton.StandardImages");
             CycleBeepDataTimePickerModebeepButton.StaticNotMoving = false;
             CycleBeepDataTimePickerModebeepButton.TabIndex = 2;
-          
+            CycleBeepDataTimePickerModebeepButton.Tag = this;
             CycleBeepDataTimePickerModebeepButton.TempBackColor = Color.LightGray;
             CycleBeepDataTimePickerModebeepButton.Text = "Cycle";
             CycleBeepDataTimePickerModebeepButton.TextAlign = ContentAlignment.MiddleCenter;
-            CycleBeepDataTimePickerModebeepButton.TextFont = new Font("Arial", 15F);
+            CycleBeepDataTimePickerModebeepButton.TextFont = new Font("Consolas", 12F);
             CycleBeepDataTimePickerModebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CycleBeepDataTimePickerModebeepButton.Theme = "DefaultType";
+            CycleBeepDataTimePickerModebeepButton.Theme = "TerminalTheme";
             CycleBeepDataTimePickerModebeepButton.ToolTipText = null;
             CycleBeepDataTimePickerModebeepButton.TopoffsetForDrawingRect = 0;
             CycleBeepDataTimePickerModebeepButton.TrailingIconPath = "";
             CycleBeepDataTimePickerModebeepButton.TrailingImagePath = "";
             CycleBeepDataTimePickerModebeepButton.UseExternalBufferedGraphics = true;
+            CycleBeepDataTimePickerModebeepButton.UseFormStylePaint = true;
             CycleBeepDataTimePickerModebeepButton.UseGlassmorphism = false;
             CycleBeepDataTimePickerModebeepButton.UseGradientBackground = false;
             CycleBeepDataTimePickerModebeepButton.UseRichToolTip = true;
@@ -286,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.ApplyThemeOnImage = false;
             CalendarnamebeepLabel.ApplyThemeToChilds = true;
             CalendarnamebeepLabel.AutoDrawHitListComponents = false;
-            CalendarnamebeepLabel.BackColor = Color.White;
+            CalendarnamebeepLabel.BackColor = SystemColors.Control;
             CalendarnamebeepLabel.BadgeBackColor = Color.Red;
             CalendarnamebeepLabel.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             CalendarnamebeepLabel.BadgeForeColor = Color.White;
@@ -312,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.DisabledBackColor = Color.LightGray;
             CalendarnamebeepLabel.DisabledBorderColor = Color.Gray;
             CalendarnamebeepLabel.DisabledForeColor = Color.Gray;
-            CalendarnamebeepLabel.DrawingRect = new Rectangle(18, 18, 228, 12);
+            CalendarnamebeepLabel.DrawingRect = new Rectangle(1, 1, 264, 48);
             CalendarnamebeepLabel.Easing = EasingType.Linear;
             CalendarnamebeepLabel.EnableHighQualityRendering = true;
             CalendarnamebeepLabel.EnableMaterialStyle = false;
@@ -376,6 +370,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.IsSelected = false;
             CalendarnamebeepLabel.IsSelectedOptionOn = false;
             CalendarnamebeepLabel.IsShadowAffectedByTheme = true;
+            CalendarnamebeepLabel.IsTransparentBackground = false;
             CalendarnamebeepLabel.IsValid = true;
             CalendarnamebeepLabel.IsVisible = true;
             CalendarnamebeepLabel.Items = (List<object>)resources.GetObject("CalendarnamebeepLabel.Items");
@@ -400,15 +395,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             CalendarnamebeepLabel.MaxHitListDrawPerFrame = 0;
             CalendarnamebeepLabel.MaxImageSize = new Size(16, 16);
-          
-            CalendarnamebeepLabel.MinimumSize = new Size(86, 33);
+            CalendarnamebeepLabel.MinimumSize = new Size(86, 26);
             CalendarnamebeepLabel.ModernGradientType = ModernGradientType.None;
             CalendarnamebeepLabel.Multiline = false;
             CalendarnamebeepLabel.Name = "CalendarnamebeepLabel";
             CalendarnamebeepLabel.OverrideFontSize = TypeStyleFontSize.None;
             CalendarnamebeepLabel.Padding = new Padding(1);
-            CalendarnamebeepLabel.PainterKind =  BaseControlPainterKind.Classic;
-            CalendarnamebeepLabel.ParentBackColor = Color.White;
+            CalendarnamebeepLabel.PainterKind = BaseControlPainterKind.Classic;
+            CalendarnamebeepLabel.ParentBackColor = SystemColors.Control;
             CalendarnamebeepLabel.ParentControl = null;
             CalendarnamebeepLabel.PressedBackColor = Color.Gray;
             CalendarnamebeepLabel.PressedBorderColor = Color.DarkGray;
@@ -439,7 +433,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             CalendarnamebeepLabel.SubHeaderText = "";
             CalendarnamebeepLabel.TabIndex = 3;
-        
+            CalendarnamebeepLabel.Tag = this;
             CalendarnamebeepLabel.TempBackColor = Color.LightGray;
             CalendarnamebeepLabel.TextAlign = ContentAlignment.MiddleCenter;
             CalendarnamebeepLabel.TextFont = new Font("Arial", 10F);
@@ -450,6 +444,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.TrailingIconPath = "";
             CalendarnamebeepLabel.TrailingImagePath = "";
             CalendarnamebeepLabel.UseExternalBufferedGraphics = true;
+            CalendarnamebeepLabel.UseFormStylePaint = true;
             CalendarnamebeepLabel.UseGlassmorphism = false;
             CalendarnamebeepLabel.UseGradientBackground = false;
             CalendarnamebeepLabel.UseRichToolTip = true;
@@ -484,7 +479,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.CanBePressed = true;
             beepGridPro1.CanBeSelected = true;
             beepGridPro1.Category = Utilities.DbFieldCategory.String;
-            beepGridPro1.ColumnHeaderHeight = 26;
+            beepGridPro1.ColumnHeaderHeight = 39;
             beepColumnConfig1.AggregationType = AggregationType.None;
             beepColumnConfig1.AllowSort = true;
             beepColumnConfig1.CellEditor = BeepColumnType.CheckBoxBool;
@@ -1841,7 +1836,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepGridPro1.DisabledBorderColor = Color.LightGray;
             beepGridPro1.DisabledForeColor = Color.Gray;
-            beepGridPro1.DrawingRect = new Rectangle(0, 0, 954, 363);
+            beepGridPro1.DrawingRect = new Rectangle(0, 0, 1228, 493);
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableHighQualityRendering = true;
             beepGridPro1.EnableMaterialStyle = false;
@@ -1857,6 +1852,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.FocusBorderColor = Color.RoyalBlue;
             beepGridPro1.FocusForeColor = Color.Black;
             beepGridPro1.FocusIndicatorColor = Color.RoyalBlue;
+            beepGridPro1.Font = new Font("Arial", 10F);
             beepGridPro1.ForeColor = Color.FromArgb(40, 40, 40);
             beepGridPro1.Form = null;
             beepGridPro1.GlassmorphismBlur = 10F;
@@ -1866,6 +1862,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepGridPro1.GradientStartColor = Color.FromArgb(255, 255, 255);
             beepGridPro1.GridMode = false;
+            beepGridPro1.GridStyle = BeepGridStyle.Card;
             beepGridPro1.GuidID = "44ed0476-5e82-4da7-bfdd-9f1d897ab9c0";
             beepGridPro1.HasError = false;
             beepGridPro1.HelperText = "";
@@ -1901,6 +1898,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.IsSelected = false;
             beepGridPro1.IsSelectedOptionOn = false;
             beepGridPro1.IsShadowAffectedByTheme = true;
+            beepGridPro1.IsTransparentBackground = false;
             beepGridPro1.IsValid = true;
             beepGridPro1.IsVisible = true;
             beepGridPro1.Items = (List<object>)resources.GetObject("beepGridPro1.Items");
@@ -1919,13 +1917,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepGridPro1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepGridPro1.MaxHitListDrawPerFrame = 0;
-          
             beepGridPro1.ModernGradientType = ModernGradientType.None;
             beepGridPro1.Name = "beepGridPro1";
             beepGridPro1.NavigationStyle = Winform.Controls.GridX.Painters.navigationStyle.Bootstrap;
             beepGridPro1.OverrideFontSize = TypeStyleFontSize.None;
             beepGridPro1.PainterKind = BaseControlPainterKind.None;
-            beepGridPro1.ParentBackColor = Color.White;
+            beepGridPro1.ParentBackColor = SystemColors.Control;
             beepGridPro1.ParentControl = null;
             beepGridPro1.PressedBackColor = Color.Gray;
             beepGridPro1.PressedBorderColor = Color.DarkGray;
@@ -1951,13 +1948,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ShowRightBorder = false;
             beepGridPro1.ShowShadow = false;
             beepGridPro1.ShowTopBorder = false;
-            beepGridPro1.Size = new Size(954, 363);
+            beepGridPro1.Size = new Size(1228, 493);
             beepGridPro1.SlideFrom = SlideDirection.Left;
             beepGridPro1.StaticNotMoving = false;
             beepGridPro1.TabIndex = 4;
-          
+            beepGridPro1.Tag = this;
             beepGridPro1.TempBackColor = Color.LightGray;
             beepGridPro1.Text = "beepGridPro1";
+            beepGridPro1.TextFont = new Font("Arial", 10F);
             beepGridPro1.Theme = "DefaultType";
             beepGridPro1.ToolTipText = null;
             beepGridPro1.TopoffsetForDrawingRect = 0;
@@ -1965,6 +1963,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.TrailingImagePath = "";
             beepGridPro1.Uow = null;
             beepGridPro1.UseExternalBufferedGraphics = true;
+            beepGridPro1.UseFormStylePaint = true;
             beepGridPro1.UseGlassmorphism = false;
             beepGridPro1.UseGradientBackground = false;
             beepGridPro1.UseRichToolTip = true;
@@ -1974,6 +1973,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(beepGridPro1);
+            Controls.Add(CalendarnamebeepLabel);
+            Controls.Add(CycleBeepDataTimePickerModebeepButton);
             Margin = new Padding(6);
             Name = "uc_diagraming";
             Size = new Size(1326, 718);

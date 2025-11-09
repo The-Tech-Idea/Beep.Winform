@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 };
 
                 // Register with ToolTipManager
-                ToolTipManager.SetTooltip(this, _tooltipText, config);
+                ToolTipManager.Instance.SetTooltip(this, _tooltipText, config);
             }
             catch (Exception ex)
             {
@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             try
             {
-                ToolTipManager.RemoveTooltip(this);
+                ToolTipManager.Instance.RemoveTooltip(this);
             }
             catch (Exception ex)
             {
@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 var screenPos = PointToScreen(new Point(Width / 2, 0));
                 config.Position = screenPos;
 
-                _ = ToolTipManager.ShowTooltipAsync(config);
+                _ = ToolTipManager.Instance.ShowTooltipAsync(config);
             }
             catch (Exception ex)
             {

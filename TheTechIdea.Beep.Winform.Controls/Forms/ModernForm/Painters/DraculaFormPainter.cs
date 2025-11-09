@@ -415,11 +415,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonWidth;
             }
             
-            // Custom action button (if theme/Style not shown)
-            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            // Custom action button (only if ShowCustomActionButton is true)
+            if (owner.ShowCustomActionButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
             }
             
             int iconX = metrics.IconLeftPadding;

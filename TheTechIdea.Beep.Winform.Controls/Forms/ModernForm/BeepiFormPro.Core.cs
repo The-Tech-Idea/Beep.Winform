@@ -136,6 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private bool _showSearchBox = false;
         private bool _showCloseButton = true;
         private bool _showMinMaxButtons = true;
+        private bool _showCustomActionButton = false;
 
         // Events for region interaction
         public event EventHandler<RegionEventArgs> RegionHover;
@@ -506,6 +507,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to show the custom action button in the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(false)]
+        [System.ComponentModel.Description("Show custom action button in caption bar")]
+        public bool ShowCustomActionButton
+        {
+            get => _showCustomActionButton;
+            set
+            {
+                if (_showCustomActionButton != value)
+                {
+                    _showCustomActionButton = value;
+                   
+                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                }
+            }
+        }
+
         // Public API to register regions
         public void AddRegion(FormRegion region)
         {
@@ -627,7 +648,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 Dock = RegionDock.Caption,
                 OnPaint = (g, r) =>
                 {
-                    if (r.Width <= 0 || r.Height <= 0) return;
+                    if (!_showCustomActionButton || r.Width <= 0 || r.Height <= 0) return;
                    
                      var isHovered = _interact?.IsHovered(_hits?.GetHitArea("customAction")) ?? false;
                     var isPressed = _interact?.IsPressed(_hits?.GetHitArea("customAction")) ?? false;

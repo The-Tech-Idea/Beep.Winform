@@ -371,10 +371,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 buttonX -= buttonSize.Width;
             }
             
-            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            // Custom action button (only if ShowCustomActionButton is true)
+            if (owner.ShowCustomActionButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
             }
             
             int iconSize = DpiScalingHelper.ScaleValue(16, dpiScale);

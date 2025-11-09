@@ -32,14 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     {
                         SetupGraphicsQuality(e.Graphics);
                         
-                        // Clear and recalculate hit areas
-                        _hits?.Clear();
-                        ActivePainter.CalculateLayoutAndHitAreas(this);
-                        
-                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-                        {
-                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                        }
+                        // CRITICAL: Don't clear hit areas on every paint!
+                        // Hit areas should only be recalculated when layout changes (resize, property changes, etc.)
+                        // Clearing them here breaks mouse interaction because paint can happen between mouse-down and mouse-up
                         
                         // Paint using the active form painter
                         ActivePainter.PaintBackground(e.Graphics, this);
@@ -74,7 +69,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 SetupGraphicsQuality(e.Graphics);
 
-                // Clear and recalculate hit areas
+                // CRITICAL: Don't clear hit areas on every paint!
+                // Hit areas should only be recalculated when layout changes (resize, property changes, etc.)
+                // Clearing them here breaks mouse interaction because paint can happen between mouse-down and mouse-up
                 _hits?.Clear();
                 ActivePainter.CalculateLayoutAndHitAreas(this);
 
@@ -82,7 +79,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
                 }
-
                 // Apply backdrop effects (Acrylic, Mica, etc.)
                 if (BackdropEffect != BackdropEffect.None)
                 {

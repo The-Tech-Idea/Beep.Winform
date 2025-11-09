@@ -132,7 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
                 owner._styleButton?.OnPaint?.Invoke(g, owner.CurrentLayout.StyleButtonRect);
             
-            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            // Custom action button (only if ShowCustomActionButton is true)
+            if (owner.ShowCustomActionButton)
                 owner._customActionButton?.OnPaint?.Invoke(g, owner.CurrentLayout.CustomActionButtonRect);
         }
         
@@ -338,10 +339,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Custom action button (fallback if theme/Style not shown)
-            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            // Custom action button (only if ShowCustomActionButton is true)
+            if (owner.ShowCustomActionButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+               
                 rightX -= buttonWidth;
             }
             

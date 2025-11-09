@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 {
     /// <summary>
-    /// Internal tooltip instance management
+    /// Internal tooltip instance management with proper resource disposal
     /// Handles the lifecycle of a single tooltip: creation, display, updates, and disposal
-    /// Based on React component lifecycle and modern UI framework patterns
+    /// Implements IDisposable for proper cleanup
     /// </summary>
-    internal class ToolTipInstance
+    internal class ToolTipInstance : IDisposable
     {
         #region Fields
 
@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         private readonly DateTime _createdAt;
         private CustomToolTip _tooltip;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _disposed;
 
         #endregion
 
@@ -39,24 +40,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public async Task ShowAsync()
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ToolTipInstance));
+            }
+
             try
             {
+                // Create new tooltip form (inherits from BeepiFormPro)
                 _tooltip = new CustomToolTip();
                 _tooltip.ApplyConfig(_config);
                 
                 // Invoke show callback
-                _config.OnShow?.Invoke(_config.Key);
+                try
+                {
+                    _config.OnShow?.Invoke(_config.Key);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error in OnShow callback: {ex.Message}");
+                }
                 
-                // Display tooltip
+                // Display tooltip with cancellation support
                 await _tooltip.ShowAsync(_config.Position, _cancellationTokenSource.Token);
 
                 // Schedule auto-hide if duration is set
-                if (_config.Duration > 0)
+                if (_config.Duration > 0 && !_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     _ = Task.Delay(_config.Duration, _cancellationTokenSource.Token)
                         .ContinueWith(async t =>
                         {
-                            if (!t.IsCanceled)
+                            if (!t.IsCanceled && !_disposed)
                             {
                                 await HideAsync();
                             }
@@ -67,9 +81,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             {
                 // Expected when cancelled - suppress
             }
+            catch (ObjectDisposedException)
+            {
+                // Tooltip was disposed during show - suppress
+            }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error showing tooltip: {ex.Message}");
+                
+                // Cleanup on error
+                CleanupTooltip();
+                throw;
             }
         }
 
@@ -78,20 +100,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public async Task HideAsync()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             try
             {
                 // Cancel any pending operations
-                _cancellationTokenSource?.Cancel();
+                if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+                {
+                    _cancellationTokenSource.Cancel();
+                }
                 
-                if (_tooltip != null)
+                // Hide tooltip with animation
+                if (_tooltip != null && !_tooltip.IsDisposed)
                 {
                     await _tooltip.HideAsync();
-                    _tooltip.Dispose();
-                    _tooltip = null;
                 }
 
                 // Invoke close callback
-                _config.OnClose?.Invoke(_config.Key);
+                try
+                {
+                    _config.OnClose?.Invoke(_config.Key);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error in OnClose callback: {ex.Message}");
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Tooltip already disposed - suppress
             }
             catch (Exception ex)
             {
@@ -100,8 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             finally
             {
                 // Ensure cleanup
-                _tooltip?.Dispose();
-                _tooltip = null;
+                CleanupTooltip();
             }
         }
 
@@ -114,14 +153,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public void UpdateContent(string text, string title = null)
         {
-            if (_tooltip != null && !_tooltip.IsDisposed)
+            if (_disposed)
             {
-                _config.Text = text;
-                if (title != null)
+                return;
+            }
+
+            try
+            {
+                if (_tooltip != null && !_tooltip.IsDisposed)
                 {
-                    _config.Title = title;
+                    _config.Text = text;
+                    if (title != null)
+                    {
+                        _config.Title = title;
+                    }
+                    _tooltip.ApplyConfig(_config);
                 }
-                _tooltip.ApplyConfig(_config);
+            }
+            catch (ObjectDisposedException)
+            {
+                // Tooltip disposed - suppress
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error updating content: {ex.Message}");
             }
         }
 
@@ -130,10 +185,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public void UpdatePosition(Point position)
         {
-            if (_tooltip != null && !_tooltip.IsDisposed)
+            if (_disposed)
             {
-                _config.Position = position;
-                _tooltip.UpdatePosition(position);
+                return;
+            }
+
+            try
+            {
+                if (_tooltip != null && !_tooltip.IsDisposed)
+                {
+                    _config.Position = position;
+                    _tooltip.UpdatePosition(position);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Tooltip disposed - suppress
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error updating position: {ex.Message}");
             }
         }
 
@@ -146,6 +217,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public bool IsExpired(DateTime now)
         {
+            if (_disposed)
+            {
+                return true;
+            }
+
             if (_config.Duration <= 0)
             {
                 return false; // Indefinite duration
@@ -159,20 +235,104 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// <summary>
         /// Check if the tooltip is currently visible
         /// </summary>
-        public bool IsVisible => _tooltip != null && !_tooltip.IsDisposed && _tooltip.Visible;
+        public bool IsVisible
+        {
+            get
+            {
+                try
+                {
+                    return !_disposed && _tooltip != null && !_tooltip.IsDisposed && _tooltip.Visible;
+                }
+                catch (ObjectDisposedException)
+                {
+                    return false;
+                }
+            }
+        }
 
         #endregion
 
-        #region Disposal
+        #region Cleanup
+
+        /// <summary>
+        /// Internal cleanup of tooltip form
+        /// </summary>
+        private void CleanupTooltip()
+        {
+            if (_tooltip != null)
+            {
+                try
+                {
+                    if (!_tooltip.IsDisposed)
+                    {
+                        _tooltip.Dispose();
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Already disposed - suppress
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error disposing tooltip: {ex.Message}");
+                }
+                finally
+                {
+                    _tooltip = null;
+                }
+            }
+        }
+
+        #endregion
+
+        #region IDisposable
 
         /// <summary>
         /// Clean up resources
         /// </summary>
         public void Dispose()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _tooltip?.Dispose();
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            // Cancel pending operations
+            try
+            {
+                _cancellationTokenSource?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Already disposed - suppress
+            }
+
+            // Dispose cancellation token source
+            try
+            {
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ToolTipInstance] Error disposing cancellation token: {ex.Message}");
+            }
+
+            // Cleanup tooltip
+            CleanupTooltip();
+
+            // Suppress finalization
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Finalizer for cleanup if Dispose is not called
+        /// </summary>
+        ~ToolTipInstance()
+        {
+            Dispose();
         }
 
         #endregion

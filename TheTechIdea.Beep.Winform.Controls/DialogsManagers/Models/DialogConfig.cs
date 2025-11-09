@@ -84,9 +84,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         #region Styling
 
         /// <summary>
+        /// Dialog visual preset (ConfirmAction, SmoothPositive, RaisedDanger, etc.)
+        /// When set, overrides Style property and uses preset painter
+        /// Set to None to use Style-based painting
+        /// </summary>
+        public DialogPreset Preset { get; set; } = DialogPreset.None;
+
+        /// <summary>
         /// BeepControlStyle to use for dialog appearance
         /// Supports Material3, Fluent, Corporate, etc. (20+ styles)
         /// Defaults to current style from BeepStyling
+        /// Only used when Preset = None
         /// </summary>
         public BeepControlStyle Style { get; set; } = BeepStyling.CurrentControlStyle;
 
@@ -254,9 +262,93 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public bool CustomControlFillsDialog { get; set; } = false;
 
+        /// <summary>
+        /// Minimum height for custom control area (if CustomControl is set)
+        /// </summary>
+        public int CustomControlMinHeight { get; set; } = 100;
+
+        /// <summary>
+        /// Maximum height for custom control area (0 = no limit)
+        /// </summary>
+        public int CustomControlMaxHeight { get; set; } = 0;
+
+        /// <summary>
+        /// Padding around custom control
+        /// </summary>
+        public int CustomControlPadding { get; set; } = 12;
+
         #endregion
 
-        #region Helper Methods
+        #region Button Customization
+
+        /// <summary>
+        /// Custom button labels (key = BeepDialogButtons, value = custom text)
+        /// Example: { BeepDialogButtons.Ok, "Submit" } changes OK to Submit
+        /// </summary>
+        public Dictionary<Vis.Modules.BeepDialogButtons, string> CustomButtonLabels { get; set; } = new Dictionary<Vis.Modules.BeepDialogButtons, string>();
+
+        /// <summary>
+        /// Custom button colors (key = BeepDialogButtons, value = background color)
+        /// Overrides theme/preset colors for specific buttons
+        /// </summary>
+        public Dictionary<Vis.Modules.BeepDialogButtons, Color> CustomButtonColors { get; set; } = new Dictionary<Vis.Modules.BeepDialogButtons, Color>();
+
+        /// <summary>
+        /// Button order (left to right). If not specified, uses default order.
+        /// Example: new[] { BeepDialogButtons.Cancel, BeepDialogButtons.Ok }
+        /// </summary>
+        public Vis.Modules.BeepDialogButtons[]? ButtonOrder { get; set; }
+
+        /// <summary>
+        /// Minimum button width
+        /// </summary>
+        public int MinButtonWidth { get; set; } = 80;
+
+        /// <summary>
+        /// Button height
+        /// </summary>
+        public int ButtonHeight { get; set; } = 36;
+
+        /// <summary>
+        /// Spacing between buttons
+        /// </summary>
+        public int ButtonSpacing { get; set; } = 8;
+
+        #endregion
+
+        #region Validation and Data Binding
+
+        /// <summary>
+        /// Validation callback - called before dialog closes on OK/Yes
+        /// Return true to allow close, false to keep dialog open
+        /// </summary>
+        public Func<DialogResult, bool>? ValidationCallback { get; set; }
+
+        /// <summary>
+        /// Data extraction callback - called when dialog closes successfully
+        /// Use this to extract data from CustomControl into DialogResult.UserData
+        /// </summary>
+        public Action<DialogResult>? DataExtractionCallback { get; set; }
+
+        /// <summary>
+        /// Initialization callback - called after CustomControl is added to dialog
+        /// Use this to set up data binding, event handlers, etc.
+        /// </summary>
+        public Action<Control>? InitializationCallback { get; set; }
+
+        /// <summary>
+        /// Whether to validate on button click
+        /// </summary>
+        public bool ValidateOnButtonClick { get; set; } = true;
+
+        /// <summary>
+        /// Whether to show validation errors in dialog
+        /// </summary>
+        public bool ShowValidationErrors { get; set; } = true;
+
+        #endregion
+
+        #region Behavior
 
         /// <summary>
         /// Create default config for information dialog
@@ -274,51 +366,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         }
 
         /// <summary>
-        /// Create default config for warning dialog
-        /// </summary>
-        public static DialogConfig CreateWarning(string title, string message)
-        {
-            return new DialogConfig
-            {
-                Title = title,
-                Message = message,
-                IconType = BeepDialogIcon.Warning,
-                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok },
-                Style = BeepStyling.CurrentControlStyle
-            };
-        }
-
-        /// <summary>
-        /// Create default config for error dialog
-        /// </summary>
-        public static DialogConfig CreateError(string title, string message)
-        {
-            return new DialogConfig
-            {
-                Title = title,
-                Message = message,
-                IconType = BeepDialogIcon.Error,
-                Buttons = new[] {   Vis.Modules.BeepDialogButtons.Ok },
-                Style = BeepStyling.CurrentControlStyle
-            };
-        }
-
-        /// <summary>
-        /// Create default config for question dialog
-        /// </summary>
-        public static DialogConfig CreateQuestion(string title, string message)
-        {
-            return new DialogConfig
-            {
-                Title = title,
-                Message = message,
-                IconType = BeepDialogIcon.Question,
-                Buttons = new[] { Vis.Modules.BeepDialogButtons.Yes, Vis.Modules.BeepDialogButtons.No },
-                Style = BeepStyling.CurrentControlStyle
-            };
-        }
-
-        /// <summary>
         /// Create default config for confirmation dialog
         /// </summary>
         public static DialogConfig CreateConfirm(string title, string message)
@@ -331,6 +378,193 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok, Vis.Modules.BeepDialogButtons.Cancel },
                 Style = BeepStyling.CurrentControlStyle
             };
+        }
+
+        #endregion
+
+        #region Preset Factory Methods
+
+        /// <summary>
+        /// Create Information preset dialog
+        /// Neutral informational dialog with single OK button
+        /// Uses current BeepControlStyle colors
+        /// </summary>
+        public static DialogConfig CreateInformation(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Information,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok },
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Create Success preset dialog
+        /// Green/success themed with positive semantic meaning
+        /// </summary>
+        public static DialogConfig CreateSuccess(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Success,
+                IconType = BeepDialogIcon.Success,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok },
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Create Warning preset dialog
+        /// Yellow/warning themed for caution messages
+        /// </summary>
+        public static DialogConfig CreateWarning(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Warning,
+                IconType = BeepDialogIcon.Warning,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Create Danger preset dialog
+        /// Red/error themed for destructive actions
+        /// </summary>
+        public static DialogConfig CreateDanger(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Danger,
+                IconType = BeepDialogIcon.Error,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Create Question preset dialog
+        /// For asking user to make a choice (Yes/No)
+        /// </summary>
+        public static DialogConfig CreateQuestion(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Question,
+                IconType = BeepDialogIcon.Question,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.No, Vis.Modules.BeepDialogButtons.Yes },
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Create dialog with UserControl
+        /// </summary>
+        public static DialogConfig CreateWithUserControl(string title, Control userControl, params Vis.Modules.BeepDialogButtons[] buttons)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                CustomControl = userControl,
+                Buttons = buttons.Length > 0 ? buttons : new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                ShowIcon = false,
+                Preset = DialogPreset.None
+            };
+        }
+
+        #endregion
+
+        #region Obsolete Preset Methods (For Backward Compatibility)
+
+        /// <summary>
+        /// [Obsolete] Use CreateQuestion instead
+        /// </summary>
+        [Obsolete("Use CreateQuestion or CreateInformation instead")]
+        public static DialogConfig CreateConfirmAction(string title, string message)
+        {
+            return CreateQuestion(title, message);
+        }
+
+        /// <summary>
+        /// [Obsolete] Use CreateSuccess instead
+        /// </summary>
+        [Obsolete("Use CreateSuccess instead")]
+        public static DialogConfig CreateSmoothPositive(string title, string message)
+        {
+            return CreateSuccess(title, message);
+        }
+
+        /// <summary>
+        /// [Obsolete] Use CreateDanger instead
+        /// </summary>
+        [Obsolete("Use CreateDanger instead")]
+        public static DialogConfig CreateSmoothDanger(string title, string message)
+        {
+            return CreateDanger(title, message);
+        }
+
+        /// <summary>
+        /// [Obsolete] Use CreateInformation instead
+        /// </summary>
+        [Obsolete("Use CreateInformation instead")]
+        public static DialogConfig CreateSmoothPrimary(string title, string message)
+        {
+            return CreateInformation(title, message);
+        }
+
+        /// <summary>
+        /// [Obsolete] Use appropriate semantic preset (CreateInformation, CreateDanger, CreateSuccess, CreateWarning)
+        /// </summary>
+        [Obsolete("Use CreateInformation, CreateDanger, CreateSuccess, or CreateWarning instead")]
+        public static DialogConfig CreateSmoothDense(string title, string message, DialogPreset preset)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = preset,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok }
+            };
+        }
+
+        /// <summary>
+        /// [Obsolete] Use CreateInformation instead
+        /// </summary>
+        [Obsolete("Use CreateInformation instead")]
+        public static DialogConfig CreateRaisedDense(string title, string message)
+        {
+            return CreateInformation(title, message);
+        }
+
+        /// <summary>
+        /// [Obsolete] Use CreateSuccess instead
+        /// </summary>
+        [Obsolete("Use CreateSuccess instead")]
+        public static DialogConfig CreateSetproductDesign(string title, string message)
+        {
+            return CreateSuccess(title, message);
+        }
+
+        /// <summary>
+        /// [Obsolete] Use CreateDanger or CreateWarning instead
+        /// </summary>
+        [Obsolete("Use CreateDanger or CreateWarning instead")]
+        public static DialogConfig CreateRaisedDanger(string title, string message)
+        {
+            return CreateDanger(title, message);
         }
 
         #endregion

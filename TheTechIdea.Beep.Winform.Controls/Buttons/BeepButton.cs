@@ -759,7 +759,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DisabledForeColor = _currentTheme.DisabledForeColor;
             FocusBackColor = _currentTheme.ButtonSelectedBackColor;
             FocusForeColor = _currentTheme.ButtonSelectedForeColor;
-
+ForeColor = _currentTheme.ButtonForeColor;
             // Apply border colors
             BorderColor = _currentTheme.ButtonBorderColor;
 
@@ -849,7 +849,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             UpdateDrawingRect();
             contentRect = DrawingRect;
-
             DrawStateOverlays(g);   // <— subtle hover/press glaze
             DrawImageAndText(g);
             DrawSplashEffect(g);    // ripple on top
@@ -1406,7 +1405,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawImageAndText(Graphics g)
         {
             Color textColor;
-
+            Color backColor;
            
 
             // Update text color based on button state for better visibility
@@ -1414,24 +1413,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsHovered)
                 {
-                    textColor = HoverForeColor;
+                    textColor = _currentTheme.ButtonSelectedHoverForeColor;
+                    backColor= _currentTheme.ButtonSelectedHoverBackColor;
                 }
                 else if (IsSelected)
                 {
-                    textColor = SelectedForeColor;
+                    textColor = _currentTheme.ButtonSelectedForeColor;
+                    backColor= _currentTheme.ButtonSelectedBackColor;
                 }
                 else if (IsPressed)
                 {
-                    textColor = PressedForeColor;
+                    textColor = _currentTheme.ButtonPressedForeColor;
+                    backColor= _currentTheme.ButtonPressedBackColor;
                 }
                 else
                 {
-                    textColor = ForeColor;
+                    textColor = _currentTheme.ButtonForeColor;
+                    backColor= _currentTheme.ButtonBackColor;
                 }
             }
             else
             {
                 textColor = DisabledForeColor;
+                backColor= DisabledBackColor;
             }
 
             // Framework handles DPI scaling automatically - use font directly
@@ -1514,13 +1518,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
 
-                // Use high-quality text rendering for professional appearance
-                using (var textBrush = new SolidBrush(textColor))
-                {
+
                     // For better text rendering on modern buttons
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                     TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
-                }
+                
             }
         }
         #endregion // End Draw Button From Html source

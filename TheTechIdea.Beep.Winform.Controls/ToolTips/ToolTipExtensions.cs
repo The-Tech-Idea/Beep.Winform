@@ -15,13 +15,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static void SetTooltip(this Control control, string text)
         {
-            ToolTipManager.SetTooltip(control, text);
+            ToolTipManager.Instance.SetTooltip(control, text);
         }
 
         /// <summary>
         /// Add a rich tooltip with title and custom styling
         /// </summary>
-        public static void SetRichTooltip(this Control control, string text, string title = null,
+        public static void SetRichTooltip(this Control control, string text, string? title = null,
             ToolTipType type = ToolTipType.Info)
         {
             var config = new ToolTipConfig
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 ShowArrow = true,
                 EnableShadow = true
             };
-            ToolTipManager.SetTooltip(control, text, config);
+            ToolTipManager.Instance.SetTooltip(control, text, config);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static void SetTooltip(this Control control, ToolTipConfig config)
         {
-            ToolTipManager.SetTooltip(control, config.Text, config);
+            ToolTipManager.Instance.SetTooltip(control, config.Text, config);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static void RemoveTooltip(this Control control)
         {
-            ToolTipManager.RemoveTooltip(control);
+            ToolTipManager.Instance.RemoveTooltip(control);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 ShowArrow = true,
                 EnableShadow = true
             };
-            return await ToolTipManager.ShowTooltipAsync(config);
+            return await ToolTipManager.Instance.ShowTooltipAsync(config);
         }
 
         /// <summary>
@@ -231,12 +231,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         public async Task<string> ShowAsync(Point position)
         {
             _config.Position = position;
-            return await ToolTipManager.ShowTooltipAsync(_config);
+            return await ToolTipManager.Instance.ShowTooltipAsync(_config);
         }
 
         public void AttachTo(Control control)
         {
-            ToolTipManager.SetTooltip(control, _config.Text, _config);
+            ToolTipManager.Instance.SetTooltip(control, _config.Text, _config);
         }
     }
 }

@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Brutalist shadow painter - hard offset rectangle shadow.
+    /// Brutalist shadow painter - hard, offset block shadow for bold geometric 3D layered effect.
     /// </summary>
     public static class BrutalistShadowPainter
     {
@@ -19,11 +19,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (!StyleShadows.HasShadow(style))
                 return path;
 
-            Rectangle shadowRect = Rectangle.Round(path.GetBounds());
-            shadowRect.Offset(6, 6);
+            // Brutalist: Shadow is the same shape as the element, offset to create 3D layered effect
+            int offsetX = 3; // Offset to the right
+            int offsetY = 3; // Offset down
+            
+            // Clone the path and offset it
+            using (var shadowPath = (GraphicsPath)path.Clone())
+            {
+                // Create transformation matrix for offset
+                using (var matrix = new System.Drawing.Drawing2D.Matrix())
+                {
+                    matrix.Translate(offsetX, offsetY);
+                    shadowPath.Transform(matrix);
+                    
+                    // Disable anti-aliasing for sharp shadow edges
+                    var previousSmoothing = g.SmoothingMode;
+                    g.SmoothingMode = SmoothingMode.None;
 
-            var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(80, 0, 0, 0));
-            g.FillRectangle(brush, shadowRect);
+                    // Draw the shadow shape (solid dark block)
+                    var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, 0, 0, 0)); // Darker for more contrast
+                    g.FillPath(brush, shadowPath);
+
+                    g.SmoothingMode = previousSmoothing;
+                }
+            }
 
             return path.CreateInsetPath(0f);
         }

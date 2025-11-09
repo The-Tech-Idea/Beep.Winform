@@ -7,6 +7,7 @@ using System.Windows.Forms.Design; // added for design-time support
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Designers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -102,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // This ensures the form repaints when controls are selected/moved in the designer
             this.ControlAdded += OnControlAddedDesignTime;
             this.ControlRemoved += OnControlRemovedDesignTime;
-            
+          
             // Hook existing controls
             foreach (Control c in Controls)
             {
@@ -260,9 +261,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Update our DPI scale when monitor DPI changes
             // UpdateDpiScale();
 
-            // Force layout recalculation for custom chrome elements
-            if (ActivePainter != null)
-                ActivePainter.CalculateLayoutAndHitAreas(this);
+               _hits?.Clear();
+                        ActivePainter.CalculateLayoutAndHitAreas(this);
+                        
+                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                        {
+                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                        }
 
             // Update window region for new DPI
             UpdateWindowRegion();
@@ -277,6 +282,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // CRITICAL: Ensure window region is set when form is first shown
             // This prevents rectangular corners from showing through on initial display
             UpdateWindowRegion();
+            
+                _hits?.Clear();
+                        ActivePainter.CalculateLayoutAndHitAreas(this);
+                        
+                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                        {
+                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                        }
+        }
+
+      
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            base.OnResizeEnd(e);
+                                    // Clear and recalculate hit areas
+                        _hits?.Clear();
+                        ActivePainter.CalculateLayoutAndHitAreas(this);
+                        
+                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
+                        {
+                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
+                        }
+
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // Raise PreClose event to allow consumers to cancel or prepare for close
+            PreClose?.Invoke(this, e);
+            
+            base.OnFormClosing(e);
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            // Raise OnFormClose event after form has closed
+            OnFormClose?.Invoke(this, EventArgs.Empty);
+            
+            base.OnFormClosed(e);
         }
 
         private void ApplyFormStyle()
@@ -284,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             switch (FormStyle)
             {
                 case FormStyle.Terminal:
-                    FormBorderStyle = FormBorderStyle.Sizable;
+                    FormBorderStyle = FormBorderStyle.None;
                     ActivePainter = new TerminalFormPainter();
                     break;
                 case FormStyle.Modern:
@@ -425,8 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 PerformLayout();
             }
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
-         
-
+            ApplyStyletoChildControls();
             // CRITICAL: Update window region to match new Style's corner radius
             UpdateWindowRegion();
 
@@ -435,7 +478,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
             Invalidate();
         }
+        private void ApplyStyletoChildControls()
+        {
+            foreach (Control ctrl in Controls)
+            {
+                if (ctrl is BaseControl themedCtrl)
+                {
 
+                    themedCtrl.ControlStyle = BeepStyling.GetControlStyle(FormStyle);
+                }
+            }
+        }
         /// <summary>
         /// Override DisplayRectangle to exclude the caption bar area and borders.
         /// This ensures controls added to the form don't overlap the caption or borders.

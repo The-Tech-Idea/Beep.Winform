@@ -26,15 +26,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (row < 0 || row >= _grid.Data.Rows.Count) { Clear(); return; }
             if (col < 0 || col >= _grid.Data.Columns.Count) { Clear(); return; }
-            RowIndex = row; ColumnIndex = col;
+            
+            int oldRow = RowIndex;
+            int oldCol = ColumnIndex;
+            
+            RowIndex = row; 
+            ColumnIndex = col;
 
             // Only update active cell flags for highlighting; do NOT change row.IsSelected here.
+            // Use targeted invalidation for better performance
             for (int r = 0; r < _grid.Data.Rows.Count; r++)
             {
                 var rr = _grid.Data.Rows[r];
+                bool rowChanged = false;
+                
                 for (int c = 0; c < rr.Cells.Count; c++)
                 {
-                    rr.Cells[c].IsSelected = (r == row && c == col);
+                    bool wasSelected = rr.Cells[c].IsSelected;
+                    bool isSelected = (r == row && c == col);
+                    
+                    if (wasSelected != isSelected)
+                    {
+                        rr.Cells[c].IsSelected = isSelected;
+                        rowChanged = true;
+                    }
+                }
+                
+                // Only invalidate rows that actually changed
+                if (rowChanged)
+                {
+                    _grid.InvalidateRow(r);
                 }
             }
             

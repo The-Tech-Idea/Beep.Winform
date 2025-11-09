@@ -8,6 +8,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     internal class GridLayoutHelper
     {
         private readonly BeepGridPro _grid;
+        
+        // Scrollbar dimensions (must match GridScrollBarsHelper constants)
+        private const int SCROLLBAR_WIDTH = 15;
+        private const int SCROLLBAR_HEIGHT = 15;
+        
         public int RowHeight { get; set; } = 25;
         public int ColumnHeaderHeight { get; set; } = 28;
         public bool ShowColumnHeaders { get; set; } = true;
@@ -16,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public Rectangle FooterRect { get; private set; }
         public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
         public Rectangle RowsRect { get; private set; }
+        public Rectangle RowsRectWithScrollbars { get; private set; } // Full area including scrollbar space
         public Rectangle SelectAllCheckRect { get; private set; } = Rectangle.Empty;
         public Rectangle[] HeaderCellRects { get; private set; } = System.Array.Empty<Rectangle>();
         public int NavigatorHeight { get; set; } = 36;
@@ -25,12 +31,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public bool IsCalculating { get; private set; }
         public int HoveredHeaderColumnIndex { get; internal set; }
 
+        private int _lastScrollOffset = -1;
+        private int _lastRowCount = -1;
+
         public GridLayoutHelper(BeepGridPro grid) { _grid = grid; }
 
         public void EnsureCalculated()
         {
-            if (HeaderRect == Rectangle.Empty && RowsRect == Rectangle.Empty)
+            // Recalculate if layout is empty OR if scroll position/row count changed
+            bool needsRecalc = (HeaderRect == Rectangle.Empty && RowsRect == Rectangle.Empty);
+            
+            if (!needsRecalc)
+            {
+                // Check if scroll position changed
+                int currentOffset = _grid.Scroll?.VerticalOffset ?? 0;
+                int currentRowCount = _grid.Data?.Rows?.Count ?? 0;
+                
+                if (currentOffset != _lastScrollOffset || currentRowCount != _lastRowCount)
+                {
+                    needsRecalc = true;
+                }
+            }
+            
+            if (needsRecalc)
+            {
                 Recalculate();
+            }
         }
 
         public void Recalculate()
@@ -54,10 +80,40 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     return;
                 }
                 
+                // Pre-calculate if scrollbars will be needed to reserve space
+                // Check if vertical scrollbar is needed (rough estimate)
+                int totalRowHeight = 0;
+                if (_grid.Data?.Rows != null)
+                {
+                    for (int i = 0; i < _grid.Data.Rows.Count; i++)
+                    {
+                        var row = _grid.Data.Rows[i];
+                        totalRowHeight += row.Height > 0 ? row.Height : RowHeight;
+                    }
+                }
+                
+                // Check if horizontal scrollbar is needed
+                int totalColumnWidth = _grid.Data?.Columns?.Where(c => c.Visible).Sum(c => Math.Max(20, c.Width)) ?? 0;
+                
+                int availableHeight = r.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0);
+                if (_grid.ShowNavigator && NavigatorHeight > 0)
+                {
+                    availableHeight -= NavigatorHeight;
+                }
+                
+                bool needsVerticalScrollbar = totalRowHeight > availableHeight;
+                bool needsHorizontalScrollbar = totalColumnWidth > r.Width;
+                
+                // Reserve space for scrollbars
+                int scrollbarWidth = needsVerticalScrollbar ? SCROLLBAR_WIDTH : 0;
+                int scrollbarHeight = needsHorizontalScrollbar ? SCROLLBAR_HEIGHT : 0;
+                
                 int top = r.Top;
                 if (ShowColumnHeaders && r.Height > ColumnHeaderHeight)
                 {
-                    HeaderRect = new Rectangle(r.Left, top, r.Width, ColumnHeaderHeight);
+                    // Header should not extend into scrollbar area
+                    int headerWidth = Math.Max(0, r.Width - scrollbarWidth);
+                    HeaderRect = new Rectangle(r.Left, top, headerWidth, ColumnHeaderHeight);
                     top += ColumnHeaderHeight;
                 }
                 else
@@ -85,12 +141,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     NavigatorRect = Rectangle.Empty;
                 }
 
-                // Calculate RowsRect accounting for scrollbars exactly like BeepSimpleGrid
-                // Initially assume no scrollbars, then adjust if needed
-                int rowsHeight = Math.Max(0, r.Height - (top - r.Top) - bottomReserve);
-                if (rowsHeight > 0)
+                // Calculate RowsRect with scrollbar space reserved
+                int rowsHeight = Math.Max(0, r.Height - (top - r.Top) - bottomReserve - scrollbarHeight);
+                int rowsWidth = Math.Max(0, r.Width - scrollbarWidth);
+                
+                // Store the full area (with scrollbar space) for scrollbar positioning
+                int fullRowsHeight = Math.Max(0, r.Height - (top - r.Top) - bottomReserve);
+                int fullRowsWidth = r.Width;
+                RowsRectWithScrollbars = new Rectangle(r.Left, top, fullRowsWidth, fullRowsHeight);
+                
+                // Store the reduced area (without scrollbar space) for grid content
+                if (rowsHeight > 0 && rowsWidth > 0)
                 {
-                    RowsRect = new Rectangle(r.Left, top, r.Width, rowsHeight);
+                    RowsRect = new Rectangle(r.Left, top, rowsWidth, rowsHeight);
                 }
                 else
                 {
@@ -98,6 +161,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 LayoutCells();
+                
+                // Track scroll position and row count for change detection
+                _lastScrollOffset = _grid.Scroll?.VerticalOffset ?? 0;
+                _lastRowCount = _grid.Data?.Rows?.Count ?? 0;
             }
             finally
             {

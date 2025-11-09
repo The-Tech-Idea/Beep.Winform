@@ -44,6 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private bool _verticalThumbHovered = false;
         private bool _horizontalThumbHovered = false;
 
+        // Public property to check if actively dragging (prevents layout recalculation during drag)
+        public bool IsDragging => _isVerticalThumbDragging || _isHorizontalThumbDragging;
+
         // Public properties for scrollbar visibility
         public bool IsVerticalScrollBarNeeded
         {
@@ -132,23 +135,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void PositionScrollBars(bool needsVertical, bool needsHorizontal, int maxVerticalOffset, int totalRowHeight, int visibleHeight, int totalColumnWidth, int visibleWidth)
         {
-            var rowsRect = _grid.Layout.RowsRect;
-
+            // Use the full rect (with scrollbar space) for positioning scrollbars
+            var fullRect = _grid.Layout.RowsRectWithScrollbars;
+            
             // Reset scrollbar rectangles
             _verticalScrollBarRect = Rectangle.Empty;
             _horizontalScrollBarRect = Rectangle.Empty;
             _verticalThumbRect = Rectangle.Empty;
             _horizontalThumbRect = Rectangle.Empty;
 
-            // Position vertical scrollbar
+            // Position vertical scrollbar at the right edge of the full area
             if (needsVertical)
             {
                 int scrollbarWidth = SCROLLBAR_WIDTH;
-                int scrollbarHeight = rowsRect.Height - (needsHorizontal ? SCROLLBAR_HEIGHT : 0);
+                int scrollbarHeight = fullRect.Height - (needsHorizontal ? SCROLLBAR_HEIGHT : 0);
 
                 _verticalScrollBarRect = new Rectangle(
-                    rowsRect.Right - scrollbarWidth,
-                    rowsRect.Top,
+                    fullRect.Right - scrollbarWidth,
+                    fullRect.Top,
                     scrollbarWidth,
                     scrollbarHeight
                 );
@@ -169,15 +173,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 );
             }
 
-            // Position horizontal scrollbar
+            // Position horizontal scrollbar at the bottom edge of the full area
             if (needsHorizontal)
             {
                 int scrollbarHeight = SCROLLBAR_HEIGHT;
-                int scrollbarWidth = rowsRect.Width - (needsVertical ? SCROLLBAR_WIDTH : 0);
+                int scrollbarWidth = fullRect.Width - (needsVertical ? SCROLLBAR_WIDTH : 0);
 
                 _horizontalScrollBarRect = new Rectangle(
-                    rowsRect.Left,
-                    rowsRect.Bottom - scrollbarHeight,
+                    fullRect.Left,
+                    fullRect.Bottom - scrollbarHeight,
                     scrollbarWidth,
                     scrollbarHeight
                 );
@@ -313,15 +317,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _verticalThumbHovered = _verticalThumbRect.Contains(location);
             _horizontalThumbHovered = _horizontalThumbRect.Contains(location);
 
-            // Update cursor
-            if (_verticalThumbHovered || _horizontalThumbHovered)
+            // Update cursor ONLY if over scrollbar area
+            bool overScrollbar = _verticalScrollBarRect.Contains(location) || _horizontalScrollBarRect.Contains(location);
+            
+            if (overScrollbar)
             {
-                _grid.Cursor = Cursors.Hand;
+                if (_verticalThumbHovered || _horizontalThumbHovered)
+                {
+                    _grid.Cursor = Cursors.Hand;
+                }
+                else if (!_isVerticalThumbDragging && !_isHorizontalThumbDragging)
+                {
+                    _grid.Cursor = Cursors.Default;
+                }
             }
-            else if (!_isVerticalThumbDragging && !_isHorizontalThumbDragging)
-            {
-                _grid.Cursor = Cursors.Default;
-            }
+            // Don't set cursor if not over scrollbar - let Input handler manage it
 
             // Handle dragging
             if (_isVerticalThumbDragging)
@@ -340,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        public void HandleMouseDown(Point location, MouseButtons button)
+        public bool HandleMouseDown(Point location, MouseButtons button)
         {
             if (button == MouseButtons.Left)
             {
@@ -349,27 +359,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _isVerticalThumbDragging = true;
                     _lastMousePos = location;
                     _grid.Capture = true;
+                    return true; // Handled by scrollbar
                 }
                 else if (_horizontalThumbRect.Contains(location))
                 {
                     _isHorizontalThumbDragging = true;
                     _lastMousePos = location;
                     _grid.Capture = true;
+                    return true; // Handled by scrollbar
                 }
                 else if (_verticalScrollBarRect.Contains(location))
                 {
                     // Page up/down
                     HandleVerticalPageClick(location);
+                    return true; // Handled by scrollbar
                 }
                 else if (_horizontalScrollBarRect.Contains(location))
                 {
                     // Page left/right
                     HandleHorizontalPageClick(location);
+                    return true; // Handled by scrollbar
                 }
             }
+            return false; // Not handled by scrollbar
         }
 
-        public void HandleMouseUp(Point location, MouseButtons button)
+        public bool HandleMouseUp(Point location, MouseButtons button)
         {
             if (button == MouseButtons.Left)
             {
@@ -385,33 +400,46 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     UpdateBars();
                     _grid.Invalidate();
+                    return true; // Handled by scrollbar
                 }
             }
+            return false; // Not handled by scrollbar
         }
 
         private void HandleVerticalThumbDrag(Point location)
         {
-            int deltaY = location.Y - _lastMousePos.Y;
-            _lastMousePos = location;
-
-            if (!_verticalScrollBarRect.IsEmpty && deltaY != 0)
+            if (!_verticalScrollBarRect.IsEmpty)
             {
-                float scrollbarHeight = _verticalScrollBarRect.Height - _verticalThumbRect.Height;
+                int deltaY = location.Y - _lastMousePos.Y;
+                
+                // Only process if mouse actually moved
+                if (deltaY == 0)
+                    return;
+                    
+                _lastMousePos = location;
+
+                // Calculate total scrollable content
+                int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
+                int visibleHeight = _grid.Layout.RowsRect.Height;
+                int maxOffset = Math.Max(0, totalRowHeight - visibleHeight);
+
+                // Map the mouse delta to scroll offset delta
+                int scrollbarHeight = _verticalScrollBarRect.Height - _verticalThumbRect.Height;
                 if (scrollbarHeight > 0)
                 {
-                    float ratio = deltaY / scrollbarHeight;
-                    int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
-                    int visibleHeight = _grid.Layout.RowsRect.Height;
-                    int maxOffset = Math.Max(0, totalRowHeight - visibleHeight);
-
-                    int newOffset = _grid.Scroll.VerticalOffset + (int)(ratio * maxOffset);
+                    float ratio = (float)deltaY / scrollbarHeight;
+                    int delta = (int)(ratio * maxOffset);
+                    
+                    // Use exact same logic as mouse wheel
+                    int newOffset = _grid.Scroll.VerticalOffset + delta;
                     newOffset = Math.Max(0, Math.Min(maxOffset, newOffset));
 
                     if (newOffset != _grid.Scroll.VerticalOffset)
                     {
                         _grid.Scroll.SetVerticalOffset(newOffset);
-                        int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
-                        _grid.Scroll.SetVerticalIndex(rowIndex);
+                        // Update the scrollbar thumb position after mouse wheel scroll
+                        UpdateBars();
+                        // Invalidate will trigger paint which will call Layout.EnsureCalculated()
                         _grid.Invalidate();
                     }
                 }
@@ -469,11 +497,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             _grid.Scroll.SetVerticalOffset(newOffset);
-            int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
-            _grid.Scroll.SetVerticalIndex(rowIndex);
 
             // Update the scrollbar thumb position to reflect the new offset
             UpdateBars();
+            // Invalidate will trigger paint which will call Layout.EnsureCalculated()
             _grid.Invalidate();
         }
 
@@ -591,10 +618,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (newOffset != _grid.Scroll.VerticalOffset)
                 {
                     _grid.Scroll.SetVerticalOffset(newOffset);
-                    int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
-                    _grid.Scroll.SetVerticalIndex(rowIndex);
                     // Update the scrollbar thumb position after mouse wheel scroll
                     UpdateBars();
+                    // Invalidate will trigger paint which will call Layout.EnsureCalculated()
                     _grid.Invalidate();
                 }
             }

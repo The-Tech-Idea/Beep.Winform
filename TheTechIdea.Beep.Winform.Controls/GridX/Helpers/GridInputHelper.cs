@@ -112,25 +112,40 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 if (_grid.MultiSelect)
                 {
+                    // Invalidate only rows that changed state
                     for (int i = 0; i < _grid.Data.Rows.Count; i++)
                     {
+                        bool wasSelected = _grid.Data.Rows[i].IsSelected;
                         _grid.Data.Rows[i].IsSelected = _selectAllChecked;
                         // keep selection column cell in sync if present
                         SyncSelectionCellWithRow(i, _selectAllChecked);
+                        
+                        if (wasSelected != _selectAllChecked)
+                        {
+                            _grid.InvalidateRow(i);
+                        }
                     }
                     _grid.OnRowSelectionChanged(-1);
                 }
                 else
                 {
+                    // Invalidate all rows then select first if needed
                     for (int i = 0; i < _grid.Data.Rows.Count; i++)
                     {
+                        bool wasSelected = _grid.Data.Rows[i].IsSelected;
                         _grid.Data.Rows[i].IsSelected = false;
                         SyncSelectionCellWithRow(i, false);
+                        
+                        if (wasSelected)
+                        {
+                            _grid.InvalidateRow(i);
+                        }
                     }
                     if (_selectAllChecked && _grid.Data.Rows.Count > 0)
                     {
                         _grid.Data.Rows[0].IsSelected = true;
                         SyncSelectionCellWithRow(0, true);
+                        _grid.InvalidateRow(0);
                         _grid.OnRowSelectionChanged(0);
                     }
                     else
@@ -139,7 +154,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     }
                 }
 
-                _grid.Invalidate();
+                // Invalidate the header area for the checkbox itself
+                _grid.Invalidate(_grid.Layout.SelectAllCheckRect);
                 return;
             }
 
@@ -247,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.Selection.SelectCell(rrow, rcol);
                 EnsureSelectionVisible();
-                _grid.Invalidate();
+                // SelectCell already invalidates affected rows, no need for full grid invalidate
             }
         }
 
@@ -316,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Select the cell first
                 _grid.Selection.SelectCell(r, c);
                 EnsureSelectionVisible();
-                _grid.Invalidate();
+                // SelectCell already invalidates affected rows, no need for full grid invalidate
 
                 // Handle checkbox clicks (should be handled above through press tracking). Guard here for safety.
                 if (isCheckCol)
@@ -355,21 +371,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.MultiSelect)
             {
                 newState = !current;
+                // Only invalidate the toggled row in multi-select mode
+                row.IsSelected = newState;
+                SyncSelectionCellWithRow(rowIndex, newState);
+                _grid.InvalidateRow(rowIndex);
             }
             else
             {
                 newState = !current;
+                // Invalidate all previously selected rows and the new one
                 for (int k = 0; k < _grid.Data.Rows.Count; k++)
                 {
+                    bool wasSelected = _grid.Data.Rows[k].IsSelected;
                     _grid.Data.Rows[k].IsSelected = false;
                     SyncSelectionCellWithRow(k, false);
+                    
+                    // Only invalidate rows that changed
+                    if (wasSelected)
+                    {
+                        _grid.InvalidateRow(k);
+                    }
                 }
+                
+                row.IsSelected = newState;
+                SyncSelectionCellWithRow(rowIndex, newState);
+                _grid.InvalidateRow(rowIndex);
             }
 
-            row.IsSelected = newState;
-            SyncSelectionCellWithRow(rowIndex, newState);
             _grid.OnRowSelectionChanged(rowIndex);
-            _grid.Invalidate();
         }
 
         private void SyncSelectionCellWithRow(int rowIndex, bool state)
@@ -409,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _grid.Selection.SelectCell(0, 0);
                     EnsureSelectionVisible();
-                    _grid.Invalidate();
+                    // SelectCell already invalidates affected rows, no need for full grid invalidate
                 }
                 return;
             }
@@ -470,7 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             _grid.Selection.SelectCell(r, c);
             EnsureSelectionVisible();
-            _grid.Invalidate();
+            // SelectCell already invalidates affected rows, no need for full grid invalidate
         }
 
         private void EnsureSelectionVisible()

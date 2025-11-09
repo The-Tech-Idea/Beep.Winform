@@ -597,9 +597,38 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 // Subscribe to column model changes so designer edits are reflected immediately
                 HookColumnsCollection(Data.Columns);
 
-                this.MouseDown += (s, e) => Input.HandleMouseDown(e);
-                this.MouseMove += (s, e) => Input.HandleMouseMove(e);
-                this.MouseUp += (s, e) => Input.HandleMouseUp(e);
+                this.MouseDown += (s, e) => 
+                {
+                    // Check if scrollbar handled the click first
+                    bool handledByScrollbar = ScrollBars?.HandleMouseDown(e.Location, e.Button) ?? false;
+                    if (!handledByScrollbar)
+                    {
+                        Input.HandleMouseDown(e);
+                    }
+                };
+                this.MouseMove += (s, e) => 
+                {
+                    // Don't process input mouse move if scrollbar is dragging
+                    if (ScrollBars?.IsDragging ?? false)
+                    {
+                        ScrollBars?.HandleMouseMove(e.Location);
+                    }
+                    else
+                    {
+                        ScrollBars?.HandleMouseMove(e.Location);
+                        Input.HandleMouseMove(e);
+                    }
+                };
+                this.MouseUp += (s, e) => 
+                {
+                    // Let scrollbar handle mouse up and check if it was handled
+                    bool handledByScrollbar = ScrollBars?.HandleMouseUp(e.Location, e.Button) ?? false;
+                    // Only process input mouse up if scrollbar didn't handle it
+                    if (!handledByScrollbar)
+                    {
+                        Input.HandleMouseUp(e);
+                    }
+                };
                 this.MouseWheel += (s, e) => { 
                     // Handle mouse wheel exactly like BeepSimpleGrid
                     ScrollBars?.HandleMouseWheel(e); 
@@ -1226,35 +1255,106 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
-            // Handle custom scrollbar mouse interaction
-            if (!DesignMode)
-            {
-                ScrollBars?.HandleMouseMove(e.Location);
-            }
+            // Scrollbar handling moved to MouseMove event handler to prevent double-processing
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
-            // Handle custom scrollbar mouse interaction
-            if (!DesignMode)
-            {
-                ScrollBars?.HandleMouseDown(e.Location, e.Button);
-            }
+            // Scrollbar handling moved to MouseDown event handler to prevent double-processing
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
+            // Scrollbar handling moved to MouseUp event handler to prevent double-processing
+        }
 
-            // Handle custom scrollbar mouse interaction
-            if (!DesignMode)
+        #region Targeted Invalidation Methods
+
+        /// <summary>
+        /// Invalidates only the specified row, avoiding full grid repaint
+        /// </summary>
+        public void InvalidateRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= Data.Rows.Count)
+                return;
+
+            var row = Data.Rows[rowIndex];
+            if (row.Cells.Count > 0)
             {
-                ScrollBars?.HandleMouseUp(e.Location, e.Button);
+                // Get the bounding rectangle for the entire row
+                var firstCell = row.Cells[0];
+                var lastCell = row.Cells[row.Cells.Count - 1];
+                
+                if (!firstCell.Rect.IsEmpty && !lastCell.Rect.IsEmpty)
+                {
+                    var rowRect = new Rectangle(
+                        Layout.RowsRect.Left,
+                        firstCell.Rect.Top,
+                        Layout.RowsRect.Width,
+                        firstCell.Rect.Height
+                    );
+                    
+                    // Only invalidate the specific row region
+                    Invalidate(rowRect);
+                }
             }
         }
+
+        /// <summary>
+        /// Invalidates only the specified cell, avoiding full grid repaint
+        /// </summary>
+        public void InvalidateCell(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= Data.Rows.Count)
+                return;
+            if (columnIndex < 0 || columnIndex >= Data.Columns.Count)
+                return;
+
+            var cell = Data.Rows[rowIndex].Cells[columnIndex];
+            if (!cell.Rect.IsEmpty)
+            {
+                // Only invalidate the specific cell region
+                Invalidate(cell.Rect);
+            }
+        }
+
+        /// <summary>
+        /// Invalidates a range of rows for batch updates
+        /// </summary>
+        public void InvalidateRows(int startRowIndex, int endRowIndex)
+        {
+            if (startRowIndex < 0 || startRowIndex >= Data.Rows.Count)
+                return;
+            if (endRowIndex < 0 || endRowIndex >= Data.Rows.Count)
+                return;
+            
+            int start = Math.Min(startRowIndex, endRowIndex);
+            int end = Math.Max(startRowIndex, endRowIndex);
+            
+            if (Data.Rows[start].Cells.Count > 0 && Data.Rows[end].Cells.Count > 0)
+            {
+                var firstCell = Data.Rows[start].Cells[0];
+                var lastRow = Data.Rows[end];
+                var lastCell = lastRow.Cells[0];
+                
+                if (!firstCell.Rect.IsEmpty && !lastCell.Rect.IsEmpty)
+                {
+                    int rowHeight = lastCell.Rect.Height > 0 ? lastCell.Rect.Height : RowHeight;
+                    var rangeRect = new Rectangle(
+                        Layout.RowsRect.Left,
+                        firstCell.Rect.Top,
+                        Layout.RowsRect.Width,
+                        (lastCell.Rect.Top + rowHeight) - firstCell.Rect.Top
+                    );
+                    
+                    Invalidate(rangeRect);
+                }
+            }
+        }
+
+        #endregion
 
         protected override void Dispose(bool disposing)
         {

@@ -30,6 +30,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseMove(MouseEventArgs e)
         {
+            // Don't process mouse move while context menu is active
+            
+            
+            // Handle column reorder drag first (takes priority)
+            if (_grid.AllowColumnReorder && _grid.ColumnReorder.HandleMouseMove(e.Location))
+            {
+                return; // Column reorder is handling the drag
+            }
+
             // Handle column resize
             if (_resizingColumn && _resizingColIndex >= 0)
             {
@@ -39,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
                 _grid.ScrollBars?.UpdateBars();
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
                 _grid.Cursor = Cursors.SizeWE;
                 return;
             }
@@ -51,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.ColumnHeaderHeight = Math.Max(22, _grid.ColumnHeaderHeight + dy);
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
                 _grid.Cursor = Cursors.SizeNS;
                 return;
             }
@@ -66,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
                 _grid.ScrollBars?.UpdateBars();
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
                 _grid.Cursor = Cursors.SizeNS;
                 return;
             }
@@ -83,13 +92,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (_grid.Layout.HoveredHeaderColumnIndex != hoverIndex)
                 {
                     _grid.Layout.HoveredHeaderColumnIndex = hoverIndex;
-                    _grid.Invalidate();
+                    _grid.SafeInvalidate();
                 }
             }
             else if (_grid.Layout.HoveredHeaderColumnIndex != -1)
             {
                 _grid.Layout.HoveredHeaderColumnIndex = -1;
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
             }
 
             // Determine and set cursor based on possible action at this location
@@ -98,6 +107,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseDown(MouseEventArgs e)
         {
+            // Don't process mouse down while context menu is active
+            
+            
             _mouseDown = e.Location;
             _pressedOnCheckbox = false;
             _pressedRow = _pressedCol = -1;
@@ -155,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 // Invalidate the header area for the checkbox itself
-                _grid.Invalidate(_grid.Layout.SelectAllCheckRect);
+                _grid.SafeInvalidate(_grid.Layout.SelectAllCheckRect);
                 return;
             }
 
@@ -178,6 +190,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _grid.ToggleColumnSort(colIdx);
                     return;
+                }
+            }
+
+            // Column reorder drag - prepare for potential drag (before general header click)
+            if (_grid.AllowColumnReorder && _grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            {
+                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
+                if (colIdx >= 0)
+                {
+                    // Let reorder helper track the potential drag start
+                    _grid.ColumnReorder.HandleMouseDown(e.Location, colIdx);
                 }
             }
 
@@ -269,6 +292,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseUp(MouseEventArgs e)
         {
+            // Don't process mouse up while context menu is active
+            
+            
+            // Handle column reorder completion first
+            if (_grid.AllowColumnReorder && _grid.ColumnReorder.HandleMouseUp(e.Location))
+            {
+                return; // Column was being dragged, reorder handled it
+            }
+
             // Reset column resizing
             if (_resizingColumn)
             {
@@ -414,6 +446,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleKeyDown(KeyEventArgs e)
         {
+            // Don't process keyboard input while context menu is active
+            
+            
+            // Handle Ctrl+C (Copy)
+            if (e.Control && e.KeyCode == Keys.C)
+            {
+                _grid.Clipboard.CopyToClipboard();
+                e.Handled = true;
+                return;
+            }
+
+            // Handle Ctrl+X (Cut)
+            if (e.Control && e.KeyCode == Keys.X && !_grid.ReadOnly)
+            {
+                _grid.Clipboard.CutToClipboard();
+                e.Handled = true;
+                return;
+            }
+
+            // Handle Ctrl+V (Paste)
+            if (e.Control && e.KeyCode == Keys.V && !_grid.ReadOnly)
+            {
+                _grid.Clipboard.PasteFromClipboard();
+                e.Handled = true;
+                return;
+            }
+
             // F2 or Enter starts editing immediately (like BeepSimpleGrid)
             if ((e.KeyCode == Keys.F2 || e.KeyCode == Keys.Enter) && !_grid.ReadOnly)
             {

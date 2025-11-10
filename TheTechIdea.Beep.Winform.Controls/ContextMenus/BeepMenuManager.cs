@@ -317,21 +317,39 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     return true;
                 }
 
-                // If another window is being activated that's not one of our menus
-                bool isMenuWindow = false;
+                // Check if the active window is a menu or its owner
+                bool isMenuRelatedWindow = false;
+                
                 foreach (var menu in _activeMenus.ToList()) // ToList to avoid modification during iteration
                 {
                     if (menu == null || menu.IsDisposed)
                         continue;
 
+                    // Check if it's the menu window itself
                     if (menu.Handle == activeWindow || IsChild(menu.Handle, activeWindow))
                     {
-                        isMenuWindow = true;
+                        isMenuRelatedWindow = true;
                         break;
+                    }
+                    
+                    // CRITICAL FIX: Also check if it's the owner control's form
+                    // This prevents closing the menu when clicking from owner to menu
+                    try
+                    {
+                        var ownerForm = menu.Owner?.FindForm();
+                        if (ownerForm != null && ownerForm.Handle == activeWindow)
+                        {
+                            isMenuRelatedWindow = true;
+                            break;
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Owner was disposed, ignore
                     }
                 }
 
-                if (!isMenuWindow && activeWindow != IntPtr.Zero)
+                if (!isMenuRelatedWindow && activeWindow != IntPtr.Zero)
                 {
                     // Another window is being activated - close all menus
                     CloseAllMenus(BeepContextMenuCloseReason.AppFocusChange);

@@ -106,4 +106,76 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public Graphics Graphics { get; set; }
         public BeepCellEventArgs(BeepCellConfig cell) => Cell = cell;
     }
+
+    // Custom event args for column reordering
+    public class ColumnReorderedEventArgs : EventArgs
+    {
+        public int ColumnIndex { get; }
+        public int OldDisplayOrder { get; }
+        public int NewDisplayOrder { get; }
+        
+        public ColumnReorderedEventArgs(int columnIndex, int oldDisplayOrder, int newDisplayOrder)
+        {
+            ColumnIndex = columnIndex;
+            OldDisplayOrder = oldDisplayOrder;
+            NewDisplayOrder = newDisplayOrder;
+        }
+    }
+
+    /// <summary>
+    /// Event args for grid context menu actions, providing row data context
+    /// </summary>
+    public class GridContextMenuEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The menu item that was selected
+        /// </summary>
+        public SimpleItem SelectedItem { get; }
+        
+        /// <summary>
+        /// The action/command associated with the menu item (from Tag property)
+        /// </summary>
+        public string? Action { get; }
+        
+        /// <summary>
+        /// The currently focused/active row when context menu was invoked
+        /// </summary>
+        public BeepRowConfig? CurrentRow { get; }
+        
+        /// <summary>
+        /// All currently selected rows (for multi-select scenarios)
+        /// </summary>
+        public List<BeepRowConfig> SelectedRows { get; }
+        
+        /// <summary>
+        /// The row index of the current/focused row
+        /// </summary>
+        public int CurrentRowIndex { get; }
+        
+        /// <summary>
+        /// Gets or sets whether the default action should be cancelled
+        /// Set to true in event handler to prevent built-in action from executing
+        /// </summary>
+        public bool Cancel { get; set; }
+        
+        /// <summary>
+        /// Gets or sets whether the grid should be refreshed after the action
+        /// Default is true
+        /// </summary>
+        public bool RefreshGrid { get; set; } = true;
+
+        public GridContextMenuEventArgs(
+            SimpleItem selectedItem, 
+            BeepRowConfig? currentRow, 
+            List<BeepRowConfig> selectedRows,
+            int currentRowIndex)
+        {
+            SelectedItem = selectedItem;
+            Action = selectedItem?.Tag?.ToString();
+            CurrentRow = currentRow;
+            SelectedRows = selectedRows ?? new List<BeepRowConfig>();
+            CurrentRowIndex = currentRowIndex;
+        }
+    }
 }
+

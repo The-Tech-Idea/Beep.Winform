@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.UpdateDrawingRect();
                 _grid.Layout?.EnsureCalculated();
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
                 _grid.Update();
                 cell = _grid.Data.Rows[r].Cells[c];
             }
@@ -59,7 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (_currenteditorUIcomponent is BeepComboBox oldCb)
                         oldCb.PopupClosed -= OnComboPopupClosed;
                     
-                    _grid.Parent.Controls.Remove(_editorControl);
+                    // Remove from grid controls (not parent)
+                    _grid.Controls.Remove(_editorControl);
                     _editorControl.Dispose();
                 }
                 catch { }
@@ -150,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_editorControl is IBeepUIComponent ic)
                 ic.SetValue(cell.CellValue);
 
-            // Get the cell rect
+            // Get the cell rect - convert to grid-relative coordinates
             var rect = cell.Rect;
             if (rect.Width <= 0 || rect.Height <= 0)
             {
@@ -160,15 +161,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                      Math.Max(18, _grid.RowHeight));
             }
 
-           
+            // Calculate editor bounds to perfectly fit within the cell
+            // Add small padding for visual alignment with cell borders
+            int padding = 2; // Padding from cell borders
+            var editorRect = new Rectangle(
+                rect.X + padding,
+                rect.Y + padding,
+                rect.Width - (padding * 2),
+                rect.Height - (padding * 2)
+            );
 
-            // Add the editor to the host
-            _grid.Parent.Controls.Add(_editorControl);
+            // Ensure minimum size for usability
+            if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
+            if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
 
-            // Set editor bounds explicitly with padding for borders
-            var editorRect = new Rectangle(1, 1, rect.Width - 2, rect.Height - 2);
+            // Add the editor directly to the grid (not parent)
+            _grid.Controls.Add(_editorControl);
+
+            // Set editor bounds to align perfectly with cell
             _editorControl.Bounds = editorRect;
-            _editorControl.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            _editorControl.Anchor = AnchorStyles.None; // No anchoring - we handle positioning manually
             
             // Force the editor to be visible and on top
             _editorControl.Visible = true;
@@ -181,6 +193,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid.Paint += OnGridPaintReposition;
             _grid.Resize -= OnGridMovedOrSized;
             _grid.Resize += OnGridMovedOrSized;
+            _grid.MouseWheel -= OnGridMouseWheel;
+            _grid.MouseWheel += OnGridMouseWheel;
 
             // CRITICAL: Suppress LostFocus during initial setup
             _suppressLostFocus = true;
@@ -212,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }));
 
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private void OnComboPopupClosed(object sender, EventArgs e)
@@ -260,9 +274,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 try
                 {
                     var rect = _editingCell.Rect;
+                    
+                    // Check if cell is still visible (not scrolled out of view)
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        _editorControl.Bounds = rect;
+                        // Calculate editor bounds with padding
+                        int padding = 2;
+                        var editorRect = new Rectangle(
+                            rect.X + padding,
+                            rect.Y + padding,
+                            rect.Width - (padding * 2),
+                            rect.Height - (padding * 2)
+                        );
+                        
+                        // Ensure minimum size
+                        if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
+                        if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
+                        
+                        // Only update if position changed to avoid flicker
+                        if (_editorControl.Bounds != editorRect)
+                        {
+                            _editorControl.Bounds = editorRect;
+                            _editorControl.BringToFront();
+                        }
+                    }
+                    else
+                    {
+                        // Cell scrolled out of view - end editing
+                        EndEdit(true);
                     }
                 }
                 catch { }
@@ -276,13 +315,40 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 try
                 {
                     var rect = _editingCell.Rect;
+                    
+                    // Check if cell is still visible
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        _editorControl.Bounds = rect;
+                        // Calculate editor bounds with padding
+                        int padding = 2;
+                        var editorRect = new Rectangle(
+                            rect.X + padding,
+                            rect.Y + padding,
+                            rect.Width - (padding * 2),
+                            rect.Height - (padding * 2)
+                        );
+                        
+                        // Ensure minimum size
+                        if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
+                        if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
+                        
+                        _editorControl.Bounds = editorRect;
+                        _editorControl.BringToFront();
+                    }
+                    else
+                    {
+                        // Cell scrolled out of view - end editing
+                        EndEdit(true);
                     }
                 }
                 catch { }
             }
+        }
+
+        private void OnGridMouseWheel(object sender, MouseEventArgs e)
+        {
+            // Reposition editor when scrolling
+            OnGridPaintReposition(sender, null);
         }
 
         public void EndEdit(bool commit)
@@ -312,11 +378,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Detach grid event handlers
                 _grid.Paint -= OnGridPaintReposition;
                 _grid.Resize -= OnGridMovedOrSized;
+                _grid.MouseWheel -= OnGridMouseWheel;
 
-                // Completely clear and hide the editor host
-                _editorControl.Controls.Clear();
+                // Remove editor from grid and dispose
+                _grid.Controls.Remove(_editorControl);
                 _editorControl.Visible = false;
-                _editorControl.BackColor = Color.Transparent; // Reset background
 
                 // Dispose editor asynchronously to prevent blocking
                 var editorToDispose = _editorControl;
@@ -325,8 +391,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         editorToDispose?.Dispose(); 
                     } catch { } 
                 }));
-
-             //   System.Diagnostics.Debug.WriteLine($"EndEdit: Editor disposed, Host visible: {_grid.EditorHost.Visible}, Controls count: {_grid.EditorHost.Controls.Count}");
             }
             catch { }
             finally
@@ -334,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _editorControl = null;
                 _editingCell = null;
                 _isEndingEdit = false;
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
             }
         }
 

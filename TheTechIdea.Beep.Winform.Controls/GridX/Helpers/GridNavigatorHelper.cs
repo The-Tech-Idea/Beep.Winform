@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             _grid.Data.Bind(dataSource); // Bind to original data source
             _grid.Layout.Recalculate();
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private BindingSource ResolveBindingSource(object data)
@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 catch 
                 { 
-                    _grid.Invalidate(); // Fallback to full invalidate on error
+                    _grid.SafeInvalidate(); // Fallback to full invalidate on error
                 }
                 return;
             }
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     {
                         // No records left - clear selection
                         _grid.Selection.Clear();
-                        _grid.Invalidate(); // Full invalidate when grid becomes empty
+                        _grid.SafeInvalidate(); // Full invalidate when grid becomes empty
                     }
                     else if (newRowCount == 1)
                     {
@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 catch 
                 { 
-                    _grid.Invalidate(); // Fallback to full invalidate on error
+                    _grid.SafeInvalidate(); // Fallback to full invalidate on error
                 }
                 return;
             }
@@ -257,12 +257,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 else
                 {
-                    _grid.Invalidate(); // Fallback if no specific row is selected
+                    _grid.SafeInvalidate(); // Fallback if no specific row is selected
                 }
             }
             catch 
             { 
-                _grid.Invalidate(); 
+                _grid.SafeInvalidate(); 
             }
         }
         
@@ -280,12 +280,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 else
                 {
-                    _grid.Invalidate(); // Fallback if no specific row is selected
+                    _grid.SafeInvalidate(); // Fallback if no specific row is selected
                 }
             }
             catch 
             { 
-                _grid.Invalidate(); 
+                _grid.SafeInvalidate(); 
             }
         }
     }

@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 grid.RefreshGrid();
                 grid.Layout.Recalculate();
-                grid.Invalidate();
+                grid.SafeInvalidate();
             };
             popup.FilterApplied += (s, e) =>
             {
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 grid.Rows.Add(r);
             }
             grid.Layout.Recalculate();
-            grid.Invalidate();
+            grid.SafeInvalidate();
         }
 
         // Apply IN filter on selected values
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 grid.Rows.Add(r);
             }
             grid.Layout.Recalculate();
-            grid.Invalidate();
+            grid.SafeInvalidate();
         }
     }
 }

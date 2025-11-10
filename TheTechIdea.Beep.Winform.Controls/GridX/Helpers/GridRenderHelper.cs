@@ -25,30 +25,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Cache drawers per column (like BeepSimpleGrid)
         private readonly Dictionary<string, IBeepUIComponent> _columnDrawerCache = new();
 
-        // Navigator buttons (owner-drawn)
-        private BeepButton _btnFirst;
-        private BeepButton _btnPrev;
-        private BeepButton _btnNext;
-        private BeepButton _btnLast;
-        private BeepButton _btnInsert;
-        private BeepButton _btnDelete;
-        private BeepButton _btnSave;
-        private BeepButton _btnCancel;
-        private BeepButton _btnQuery;
-        private BeepButton _btnFilter;
-        private BeepButton _btnPrint;
+        // // Navigator buttons (owner-drawn)
+        // private BeepButton _btnFirst;
+        // private BeepButton _btnPrev;
+        // private BeepButton _btnNext;
+        // private BeepButton _btnLast;
+        // private BeepButton _btnInsert;
+        // private BeepButton _btnDelete;
+        // private BeepButton _btnSave;
+        // private BeepButton _btnCancel;
+        // private BeepButton _btnQuery;
+        // private BeepButton _btnFilter;
+        // private BeepButton _btnPrint;
 
-        // Enhanced navigation controls for professional paging
-        private BeepButton _btnPageFirst;
-        private BeepButton _btnPagePrev;
-        private BeepButton _btnPageNext;
-        private BeepButton _btnPageLast;
-        private BeepComboBox _cmbPageSize;
-        private BeepTextBox _txtPageJump;
-        private BeepButton _btnGoToPage;
-        private BeepLabel _lblPageInfo;
-        // Public property to access page info label for hit testing
-        public BeepLabel PageInfoLabel => _lblPageInfo;
+        // // Enhanced navigation controls for professional paging
+        // private BeepButton _btnPageFirst;
+        // private BeepButton _btnPagePrev;
+        // private BeepButton _btnPageNext;
+        // private BeepButton _btnPageLast;
+        // private BeepComboBox _cmbPageSize;
+        // private BeepTextBox _txtPageJump;
+        // private BeepButton _btnGoToPage;
+        // private BeepLabel _lblPageInfo;
+        // // Public property to access page info label for hit testing
+        // public BeepLabel PageInfoLabel => _lblPageInfo;
 
         // Store filter icon rectangles for hit-testing
         private readonly Dictionary<int, Rectangle> _headerFilterIconRects = new();
@@ -301,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Ensure the row is visible by scrolling
             grid.Scroll?.SetVerticalIndex(targetRow);
             
-            grid.Invalidate();
+            grid.SafeInvalidate();
         }
 
         /// <summary>
@@ -539,6 +539,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 Console.WriteLine("Error drawing selection indicators.");
                 // Silently handle selection drawing errors
+            }
+
+            // Draw column reorder drag feedback
+            if (_grid.AllowColumnReorder && _grid.ColumnReorder.IsDragging)
+            {
+                try
+                {
+                    _grid.ColumnReorder.DrawDragFeedback(g);
+                }
+                catch (Exception)
+                {
+                    // Silently handle drag feedback errors
+                }
             }
         }
 
@@ -1217,63 +1230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return visibleCount;
         }
 
-        private void EnsureNavigatorButtons()
-        {
-            if (_btnFirst != null) return;
-
-            // CRUD and actions
-            _btnInsert = new BeepButton { ImagePath = Svgs.NavPlus, Theme = _grid.Theme };
-            _btnDelete = new BeepButton { ImagePath = Svgs.NavMinus, Theme = _grid.Theme };
-            _btnSave = new BeepButton { ImagePath = Svgs.FloppyDisk, Theme = _grid.Theme };
-            _btnCancel = new BeepButton { ImagePath = Svgs.NavBackArrow, Theme = _grid.Theme };
-
-            // Record navigation
-            _btnFirst = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-left.svg", Theme = _grid.Theme };
-            _btnPrev = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-left.svg", Theme = _grid.Theme };
-            _btnNext = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg", Theme = _grid.Theme };
-            _btnLast = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-right.svg", Theme = _grid.Theme };
-
-            // Page info label (professional paging — keep only this)
-            _lblPageInfo = new BeepLabel { Theme = _grid.Theme, Text = "Page 1 of 1 — 0 records" };
-
-            // Utilities
-            _btnQuery = new BeepButton { ImagePath = Svgs.NavSearch, Theme = _grid.Theme };
-            _btnFilter = new BeepButton { ImagePath = Svgs.NavWaving, Theme = _grid.Theme };
-            _btnPrint = new BeepButton { ImagePath = Svgs.NavPrinter, Theme = _grid.Theme };
-
-            foreach (var btn in new[] { _btnInsert, _btnDelete, _btnSave, _btnCancel, _btnFirst, _btnPrev, _btnNext, _btnLast,
-                                       _btnQuery, _btnFilter, _btnPrint })
-                ConfigureIconButton(btn);
-
-            // Configure non-icon controls
-            ConfigurePagingControls();
-        }
-
-        // Configure icon button properties
-        private void ConfigureIconButton(BeepButton btn)
-        {
-            if (btn != null)
-            {
-                // Icon buttons don't need text, just set size and max image size
-                btn.Text = "";
-                btn.UseThemeFont = true;
-                btn.AutoSize = false;
-            }
-        }
-
-        private void ConfigurePagingControls()
-        {
-            // Only page info label remains
-            if (_lblPageInfo != null)
-            {
-                _lblPageInfo.IsChild = true;
-                _lblPageInfo.UseThemeFont = true;
-                _lblPageInfo.AutoSize = true;
-            }
-
-            // _btnGoToPage removed; no per-control config needed
-        }
-
+       
         private void DrawNavigatorArea(Graphics g)
         {
             // Delegate to GridNavigationPainterHelper
@@ -1286,16 +1243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         // Professional paging methods
-        public void UpdatePageInfo(int currentPage, int totalPages, int totalRecords)
-        {
-            if (_lblPageInfo != null)
-            {
-                if (totalRecords <= 0)
-                    _lblPageInfo.Text = "No records";
-                else
-                    _lblPageInfo.Text = $"Page {currentPage} of {totalPages} — {totalRecords} records";
-            }
-        }
+      
 
         public void SetCurrentPage(int pageNumber)
         {
@@ -1314,14 +1262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return 1;
         }
 
-        public void EnablePagingControls(bool enable)
-        {
-            // Only main navigation buttons exist; enable/disable them
-            if (_btnFirst != null) _btnFirst.Enabled = enable;
-            if (_btnPrev != null) _btnPrev.Enabled = enable;
-            if (_btnNext != null) _btnNext.Enabled = enable;
-            if (_btnLast != null) _btnLast.Enabled = enable;
-        }
+
 
         // Public methods for hit testing - connected to actual navigation
         public void TriggerPageFirst() => _grid.Navigator?.MoveFirst();

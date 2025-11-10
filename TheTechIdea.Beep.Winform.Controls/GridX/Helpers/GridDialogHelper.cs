@@ -182,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 cell.IsDirty = true;
                 _grid.Data.UpdateCellValue(cell, newValue);
                 _grid.OnCellValueChanged(cell);
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
             }
             _editorDialog?.Close();
             // If modeless, the FormClosed handler will run; but also trigger nav now just in case
@@ -319,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 // Apply column changes
                 ApplyColumnChanges(configPanel);
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
             }
         }
 

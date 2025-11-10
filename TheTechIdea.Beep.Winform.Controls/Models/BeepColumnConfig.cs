@@ -343,6 +343,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set { _index = value; OnPropertyChanged(nameof(Index)); }
         }
 
+        private int _displayOrder = -1;
+        [Category("Layout")]
+        [Description("The display order of the column (for reordering). -1 means use Index.")]
+        public int DisplayOrder
+        {
+            get => _displayOrder >= 0 ? _displayOrder : _index;
+            set { _displayOrder = value; OnPropertyChanged(nameof(DisplayOrder)); }
+        }
+
+        private bool _allowReorder = true;
+        [Category("Behavior")]
+        [Description("Indicates whether the column can be reordered by dragging.")]
+        public bool AllowReorder
+        {
+            get => _allowReorder;
+            set { _allowReorder = value; OnPropertyChanged(nameof(AllowReorder)); }
+        }
+
         private bool _readOnly;
         [Category("Behavior")]
         [Description("Indicates whether the column is read-only.")]

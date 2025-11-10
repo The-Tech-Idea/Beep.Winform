@@ -311,6 +311,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseMove(Point location)
         {
+            // Don't process mouse move while context menu is active
+            
+            
             bool wasVerticalHovered = _verticalThumbHovered;
             bool wasHorizontalHovered = _horizontalThumbHovered;
 
@@ -346,12 +349,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Redraw if hover state changed
             if (wasVerticalHovered != _verticalThumbHovered || wasHorizontalHovered != _horizontalThumbHovered)
             {
-                _grid.Invalidate();
+                _grid.SafeInvalidate();
             }
         }
 
         public bool HandleMouseDown(Point location, MouseButtons button)
         {
+            // Don't process mouse down while context menu is active
+            
+            
             if (button == MouseButtons.Left)
             {
                 if (_verticalThumbRect.Contains(location))
@@ -386,6 +392,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public bool HandleMouseUp(Point location, MouseButtons button)
         {
+            // Don't process mouse up while context menu is active
+            
+            
             if (button == MouseButtons.Left)
             {
                 bool wasDragging = _isVerticalThumbDragging || _isHorizontalThumbDragging;
@@ -399,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (wasDragging)
                 {
                     UpdateBars();
-                    _grid.Invalidate();
+                    _grid.SafeInvalidate();
                     return true; // Handled by scrollbar
                 }
             }
@@ -440,7 +449,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         // Update the scrollbar thumb position after mouse wheel scroll
                         UpdateBars();
                         // Invalidate will trigger paint which will call Layout.EnsureCalculated()
-                        _grid.Invalidate();
+                        _grid.SafeInvalidate();
                     }
                 }
             }
@@ -468,7 +477,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     {
                         _grid.Scroll.SetHorizontalOffset(newOffset);
                         _grid.Layout.Recalculate(); // Recalculate header positions with new offset
-                        _grid.Invalidate();
+                        _grid.SafeInvalidate();
                     }
                 }
             }
@@ -501,7 +510,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Update the scrollbar thumb position to reflect the new offset
             UpdateBars();
             // Invalidate will trigger paint which will call Layout.EnsureCalculated()
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private void HandleHorizontalPageClick(Point location)
@@ -529,7 +538,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Layout.Recalculate(); // Recalculate header positions with new offset
             }
 
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private int CalculateTotalContentHeight()
@@ -600,6 +609,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseWheel(MouseEventArgs e)
         {
+            // Don't process mouse wheel while context menu is active
+            
+            
             // Handle mouse wheel scrolling using custom scrollbar logic
             if (!_verticalScrollBarRect.IsEmpty)
             {
@@ -621,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Update the scrollbar thumb position after mouse wheel scroll
                     UpdateBars();
                     // Invalidate will trigger paint which will call Layout.EnsureCalculated()
-                    _grid.Invalidate();
+                    _grid.SafeInvalidate();
                 }
             }
         }

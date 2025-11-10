@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             _grid.Layout.Recalculate();
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private void OnListChanged(object sender, ListChangedEventArgs e)
@@ -102,13 +102,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.Layout.Recalculate();
             }
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             _grid.Layout.Recalculate();
-            _grid.Invalidate();
+            _grid.SafeInvalidate();
         }
 
         private static object GetUnits(object uow)
@@ -188,10 +188,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 case "PostEdit":
                 case "PostDelete":
                     _grid.Layout.Recalculate();
-                    _grid.Invalidate();
+                    _grid.SafeInvalidate();
                     break;
                 case "PostCommit":
-                    _grid.Invalidate();
+                    _grid.SafeInvalidate();
                     break;
             }
         }

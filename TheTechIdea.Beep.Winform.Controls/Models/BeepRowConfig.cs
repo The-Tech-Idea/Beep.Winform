@@ -23,7 +23,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public int OldDisplayIndex { get; set; }
         public bool IsDataLoaded { get; set; } = false;
         public BindingList<BeepCellConfig> Cells { get; set; } = new BindingList<BeepCellConfig>();
+        
+        /// <summary>
+        /// The underlying data object for this row (e.g., Customer, Order, etc.)
+        /// </summary>
         public object RowData { get; set; }
+        
+        /// <summary>
+        /// Alias for RowData - provides clearer semantics when accessing the underlying entity
+        /// </summary>
+        public object RowDataObject 
+        { 
+            get => RowData; 
+            set => RowData = value; 
+        }
+        
         public bool IsSelected { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsNew { get; set; }

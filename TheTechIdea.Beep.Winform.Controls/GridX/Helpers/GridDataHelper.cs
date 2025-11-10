@@ -302,6 +302,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int i = 0; i < maxRows; i++)
             {
                 var r = new BeepRowConfig { RowIndex = i, DisplayIndex = i, Height = _grid.RowHeight, RowData = items[i] };
+                
+                // Subscribe to property changes on the data object for automatic updates
+                if (items[i] is INotifyPropertyChanged inpc)
+                {
+                    inpc.PropertyChanged += (sender, e) => OnDataObjectPropertyChanged(sender, e, r);
+                }
+                
                 int colIndex = 0;
                 
                 foreach (var col in Columns)
@@ -742,14 +749,77 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid._dataOffset = 0;
         }
 
+        /// <summary>
+        /// Handles property changes on data objects to automatically update grid cells
+        /// </summary>
+        private void OnDataObjectPropertyChanged(object? sender, PropertyChangedEventArgs e, BeepRowConfig row)
+        {
+            if (sender == null || e.PropertyName == null || row == null) return;
+
+            // Find the column that matches the changed property
+            var column = Columns.FirstOrDefault(c => 
+                string.Equals(c.ColumnName, e.PropertyName, StringComparison.OrdinalIgnoreCase));
+
+            if (column == null) return;
+
+            // Find the cell for this column in the row
+            var cell = row.Cells.FirstOrDefault(c => c.ColumnIndex == column.Index);
+            if (cell == null) return;
+
+            try
+            {
+                // Get the new value from the data object
+                object? newValue = null;
+
+                if (sender is DataRowView drv)
+                {
+                    if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
+                        newValue = drv[column.ColumnName];
+                }
+                else if (sender is DataRow dr)
+                {
+                    if (dr.Table?.Columns.Contains(column.ColumnName) == true)
+                        newValue = dr[column.ColumnName];
+                }
+                else
+                {
+                    var prop = sender.GetType().GetProperty(column.ColumnName,
+                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    
+                    if (prop != null && prop.CanRead)
+                        newValue = prop.GetValue(sender);
+                }
+
+                // Update the cell value and mark as dirty
+                if (cell.CellValue != newValue && (newValue == null || !newValue.Equals(cell.CellValue)))
+                {
+                    cell.CellValue = newValue;
+                    cell.IsDirty = true;
+                    row.IsDirty = true;
+
+                    // Invalidate the specific row to refresh display
+                    if (row.RowIndex >= 0 && row.RowIndex < Rows.Count)
+                    {
+                        _grid.InvalidateRow(row.RowIndex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error handling property change: {ex.Message}");
+            }
+        }
+
         private void UpdatePageInfo()
         {
             // Update page info in the render helper
-            int totalRecords = Rows.Count;
-            int currentPage = 1; // For now, assume single page until paging is implemented
-            int totalPages = 1;   // For now, assume single page until paging is implemented
+            // TODO: Implement paging support
+            // int totalRecords = Rows.Count;
+            // int currentPage = 1; // For now, assume single page until paging is implemented
+            // int totalPages = 1;   // For now, assume single page until paging is implemented
 
-            _grid.Render.UpdatePageInfo(currentPage, totalPages, totalRecords);
+            // _grid.Render.UpdatePageInfo(currentPage, totalPages, totalRecords);
         }
     }
 }
+

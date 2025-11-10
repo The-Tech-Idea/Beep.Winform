@@ -192,7 +192,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             //}
 
             // Calculate sticky columns width exactly like BeepSimpleGrid
-            var stickyColumns = _grid.Data.Columns.Where(c => c.Visible && c.Sticked).ToList();
+            // Group columns by sticky/unpinned and order by DisplayOrder
+            var stickyColumns = _grid.Data.Columns
+                .Where(c => c.Visible && c.Sticked)
+                .OrderBy(c => c.DisplayOrder)
+                .ToList();
+            var unpinnedColumns = _grid.Data.Columns
+                .Where(c => c.Visible && !c.Sticked)
+                .OrderBy(c => c.DisplayOrder)
+                .ToList();
+            
             int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
             stickyWidth = Math.Min(stickyWidth, RowsRect.Width); // Prevent overflow
 
@@ -202,34 +211,57 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int px = RowsRect.Left;
             int ux = unpinnedStartX;
             
-            for (int i = 0; i < _grid.Data.Columns.Count; i++)
+            // Calculate sticky columns first (in display order)
+            foreach (var col in stickyColumns)
             {
-                var col = _grid.Data.Columns[i];
-                if (!col.Visible) 
-                {
-                    // Set empty rectangle for invisible columns
-                    HeaderCellRects[i] = Rectangle.Empty;
-                    continue;
-                }
+                int i = _grid.Data.Columns.IndexOf(col);
+                if (i < 0) continue;
                 
                 int w = Math.Max(20, col.Width);
-                int x = col.Sticked ? px : ux;
                 
-                // Validate the rectangle before creating it
-                if (w > 0 && HeaderRect.Height > 0 && x >= 0)
+                if (w > 0 && HeaderRect.Height > 0 && px >= 0)
                 {
-                    // Ensure the rectangle doesn't extend beyond the bounds
-                    int maxWidth = Math.Max(1, RowsRect.Right - x);
+                    int maxWidth = Math.Max(1, RowsRect.Right - px);
                     w = Math.Min(w, maxWidth);
-                    
-                    HeaderCellRects[i] = new Rectangle(x, HeaderRect.Top, w, HeaderRect.Height);
+                    HeaderCellRects[i] = new Rectangle(px, HeaderRect.Top, w, HeaderRect.Height);
                 }
                 else
                 {
                     HeaderCellRects[i] = Rectangle.Empty;
                 }
                 
-                if (col.Sticked) px += w; else ux += w;
+                px += w;
+            }
+            
+            // Calculate unpinned columns (in display order)
+            foreach (var col in unpinnedColumns)
+            {
+                int i = _grid.Data.Columns.IndexOf(col);
+                if (i < 0) continue;
+                
+                int w = Math.Max(20, col.Width);
+                
+                if (w > 0 && HeaderRect.Height > 0 && ux >= 0)
+                {
+                    int maxWidth = Math.Max(1, RowsRect.Right - ux);
+                    w = Math.Min(w, maxWidth);
+                    HeaderCellRects[i] = new Rectangle(ux, HeaderRect.Top, w, HeaderRect.Height);
+                }
+                else
+                {
+                    HeaderCellRects[i] = Rectangle.Empty;
+                }
+                
+                ux += w;
+            }
+            
+            // Set empty rectangles for invisible columns
+            for (int i = 0; i < _grid.Data.Columns.Count; i++)
+            {
+                if (!_grid.Data.Columns[i].Visible)
+                {
+                    HeaderCellRects[i] = Rectangle.Empty;
+                }
             }
 
             // Calculate SelectAllCheckRect exactly like BeepSimpleGrid

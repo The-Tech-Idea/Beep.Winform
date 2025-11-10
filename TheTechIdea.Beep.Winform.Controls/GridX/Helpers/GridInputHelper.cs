@@ -582,12 +582,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private (int row, int col) HitTestCell(Point p)
         {
-            for (int r = 0; r < _grid.Data.Rows.Count; r++)
+            // Only check visible rows that are actually rendered on screen
+            // This prevents selecting wrong rows when scrolled
+            var rowsRect = _grid.Layout.RowsRect;
+            if (!rowsRect.Contains(p))
+                return (-1, -1);
+
+            // Calculate visible row range based on scroll position
+            int firstVisibleRowIndex = _grid.Scroll.FirstVisibleRowIndex;
+            int lastVisibleRowIndex = Math.Min(_grid.Data.Rows.Count - 1, 
+                firstVisibleRowIndex + VisibleRowCount() + 1); // +1 for partial rows
+
+            // Only check cells in the visible range
+            for (int r = firstVisibleRowIndex; r <= lastVisibleRowIndex && r < _grid.Data.Rows.Count; r++)
             {
                 var row = _grid.Data.Rows[r];
                 for (int c = 0; c < row.Cells.Count; c++)
                 {
-                    if (row.Cells[c].Rect.Contains(p)) return (r, c);
+                    if (row.Cells[c].Rect.Contains(p)) 
+                        return (r, c);
                 }
             }
             return (-1, -1);

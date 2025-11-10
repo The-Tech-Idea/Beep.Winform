@@ -21,6 +21,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
         /// </summary>
         public SimpleItem HitTest(Point location)
         {
+            System.Diagnostics.Debug.WriteLine($"[HitTest] Input location: {location}");
+            
             if (_owner.MenuItems == null || _owner.MenuItems.Count == 0)
             {
                 return null;
@@ -34,6 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 ? System.Math.Max(2, TheTechIdea.Beep.Winform.Controls.Styling.Shadows.StyleShadows.GetShadowBlur(effectiveStyle) / 2) 
                 : 0;
             int beepInsets = (int)System.Math.Ceiling(styleBorder) + stylePadding + styleShadow;
+            
+            System.Diagnostics.Debug.WriteLine($"[HitTest] BeepInsets: {beepInsets}, NeedsScrolling: {_owner.NeedsScrolling}, ScrollOffset: {_owner.ScrollOffset}");
             
             // Adjust location for scroll offset
             Point adjustedLocation = location;
@@ -67,14 +71,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                     itemHeight
                 );
                 
+                System.Diagnostics.Debug.WriteLine($"[HitTest] Item {i} ({item.DisplayField}): Rect={itemRect}, AdjustedLoc={adjustedLocation}");
+                
                 if (itemRect.Contains(adjustedLocation))
                 {
+                    System.Diagnostics.Debug.WriteLine($"[HitTest] HIT! Returning item: {item.DisplayField}");
                     return item;
                 }
                 
                 yOffset += itemHeight;
             }
             
+            System.Diagnostics.Debug.WriteLine($"[HitTest] No hit found, returning null");
             return null;
         }
         

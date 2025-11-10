@@ -59,35 +59,54 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             Location = new Point(x, y);
             
-            // Show the menu as an owned form of the provided owner (or its parent form)
-            var ownerCandidate = owner?.FindForm() ?? owner;
-            if (ownerCandidate is System.Windows.Forms.IWin32Window ownerWindow)
+            // CRITICAL FIX: Get the parent form and show as owned TopMost form
+            Form parentForm = owner?.FindForm();
+            
+            if (parentForm != null && !parentForm.IsDisposed && parentForm.IsHandleCreated)
             {
-                try
-                {
-                    // Check if owner is disposed before showing
-                    if (ownerCandidate is Control ctrl && (ctrl.IsDisposed || !ctrl.IsHandleCreated))
-                    {
-                        // Owner is disposed, show without owner
-                        base.Show();
-                    }
-                    else
-                    {
-                        base.Show(ownerWindow);
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // Owner was disposed during show, fall back to showing without owner
-                    base.Show();
-                }
+                // Show with parent form as owner
+                base.Show(parentForm);
             }
             else
             {
+                // No valid parent form, show standalone
                 base.Show();
             }
+            TopMost = true;
+BringToFront();
+
+// IMMEDIATE HOVER: Highlight item under mouse on open
+var clientPos = PointToClient(Cursor.Position);
+if (ClientRectangle.Contains(clientPos))
+{
+    UpdateHoveredItem(GetItemAtPoint(clientPos));
+}
+
+// Start fade-in (if you use it)
+_opacity = 0;
+_fadeTimer.Start();
+
+// Keep focus for keyboard
+try { Activate(); Focus(); } catch { }
+            // Ensure TopMost after showing
+            TopMost = true;
             BringToFront();
-            try { Activate(); Focus(); } catch { }
+            
+            // CRITICAL: Ensure the menu can receive mouse events
+            try 
+            { 
+                Activate();
+                Focus();
+                
+                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Menu shown: TopMost={TopMost}, Visible={Visible}, Focused={Focused}, Bounds={Bounds}");
+                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Owner: {(parentForm != null ? parentForm.GetType().Name : "null")}");
+                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Mouse position: {Cursor.Position}");
+                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Contains mouse: {Bounds.Contains(Cursor.Position)}");
+            } 
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Failed to activate menu: {ex.Message}");
+            }
         }
         
         /// <summary>
@@ -178,7 +197,59 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         #endregion
 
         #region Private Methods
+        private void UpdateHoveredItem(SimpleItem newItem)
+        {
+            if (newItem == _hoveredItem) return;
 
+            _hoveredItem = newItem;
+            _hoveredIndex = newItem != null ? _menuItems.IndexOf(newItem) : -1;
+
+            Invalidate(); // Redraw highlight
+
+            // Submenu timer
+            _submenuTimer.Stop();
+            _submenuPendingItem = null;
+
+            if (newItem != null && newItem.Children?.Count > 0)
+            {
+                _submenuPendingItem = newItem;
+                _submenuTimer.Start();
+            }
+
+            OnItemHovered(newItem); // Notify ContextMenuManager
+        }
+        private SimpleItem GetItemAtPoint(Point clientPoint)
+        {
+            // 1. Must be inside content area (ignores border/shadow)
+            if (!_contentAreaRect.Contains(clientPoint))
+                return null;
+
+            // 2. Translate Y to virtual content (add scroll, subtract top padding)
+            int relY = clientPoint.Y - _contentAreaRect.Y + _scrollOffset;
+
+            // Top padding area = no item
+            if (relY < InternalPadding)
+                return null;
+
+            relY -= InternalPadding; // now 0 = start of first item
+
+            // 3. Walk items by cumulative height
+            int cumulativeY = 0;
+            for (int i = 0; i < _menuItems.Count; i++)
+            {
+                var item = _menuItems[i];
+                int itemHeight = IsSeparator(item) ? 8 : _menuItemHeight;
+
+                if (relY >= cumulativeY && relY < cumulativeY + itemHeight)
+                {
+                    return IsSeparator(item) || !item.IsEnabled ? null : item;
+                }
+
+                cumulativeY += itemHeight;
+            }
+
+            return null; // Bottom padding or empty
+        }
         /// <summary>
         /// Recalculates the form size based on menu items - FULLY FIXED VERSION
         /// Fixes: 

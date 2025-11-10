@@ -79,25 +79,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_MouseMove(object sender, MouseEventArgs e)
         {
-            var item = _inputHelper.HitTest(e.Location);
-            
-            if (item != _hoveredItem)
-            {
-                _hoveredItem = item;
-                _hoveredIndex = item != null ? _menuItems.IndexOf(item) : -1;
-                
-                // Fire ItemHovered event - ContextMenuManager will handle sub-menu logic
-                OnItemHovered(item);
-                Invalidate();
-            }
+            //System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] MouseMove: Location={e.Location}, Button={e.Button}");
+
+            //var item = _inputHelper.HitTest(e.Location);
+
+            //if (item != _hoveredItem)
+            //{
+            //    _hoveredItem = item;
+            //    _hoveredIndex = item != null ? _menuItems.IndexOf(item) : -1;
+
+            //    System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Hover changed: Item={item?.DisplayField ?? "null"}, Index={_hoveredIndex}");
+
+            //    // Fire ItemHovered event - ContextMenuManager will handle sub-menu logic
+            //    OnItemHovered(item);
+            //    Invalidate();
+            //}
+            UpdateHoveredItem(GetItemAtPoint(e.Location));
         }
         
         private void BeepContextMenu_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left) return;
-            
+
             var item = _inputHelper.HitTest(e.Location);
-            
+
             if (item != null && item.IsEnabled)
             {
                 // If item has children (submenu), fire SubmenuOpening event
@@ -106,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     OnSubmenuOpening(item);
                     return;
                 }
-                
+
                 // Handle checkbox
                 if (_showCheckBox)
                 {
@@ -115,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     {
                         item.IsChecked = !item.IsChecked;
                         Invalidate();
-                        
+
                         // In multi-select mode, update selected items list
                         if (_multiSelect)
                         {
@@ -131,11 +136,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                                 _selectedItems.Remove(item);
                             }
                         }
-                        
+
                         return;
                     }
                 }
-                
+
                 // Handle multi-select mode
                 if (_multiSelect)
                 {
@@ -150,36 +155,61 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                         _selectedItems.Add(item);
                         item.IsChecked = true;
                     }
-                    
+
                     _selectedItem = item;
                     OnItemClicked(item);
                     Invalidate();
-                    
+
                     // Don't close in multi-select mode
                     return;
                 }
-                
+
                 // Single-select mode
                 SelectedItem = item;
                 OnItemClicked(item);
-                
+
                 if (_closeOnItemClick)
                 {
                     Close();
                 }
             }
+            //if (e.Button != MouseButtons.Left) return;
+
+            //var item = GetItemAtPoint(e.Location);
+            //if (item == null || !item.IsEnabled)
+            //{
+            //    if (_closeOnItemClick) Close();
+            //    return;
+            //}
+
+            //if (_multiSelect)
+            //{
+            //    item.IsChecked = !item.IsChecked;
+            //    if (item.IsChecked) _selectedItems.Add(item);
+            //    else _selectedItems.Remove(item);
+            //    Invalidate();
+            //}
+            //else
+            //{
+            //    _selectedItem = item;
+            //    _selectedIndex = _menuItems.IndexOf(item);
+            //    OnSelectedItemChanged();
+            //    OnItemClicked(item);
+            //    if (_closeOnItemClick) Close();
+            //}
         }
         
         private void BeepContextMenu_MouseLeave(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] MouseLeave event fired");
-            
-            _hoveredItem = null;
-            _hoveredIndex = -1;
-            
-            // Fire ItemHovered with null to cancel any pending sub-menus
-            OnItemHovered(null);
-            Invalidate();
+            //System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] MouseLeave event fired");
+
+            //_hoveredItem = null;
+            //_hoveredIndex = -1;
+
+            //// Fire ItemHovered with null to cancel any pending sub-menus
+            //OnItemHovered(null);
+            //Invalidate();
+            UpdateHoveredItem(null);
         }
         
         private void BeepContextMenu_Deactivate(object sender, EventArgs e)
@@ -191,12 +221,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_VisibleChanged(object sender, EventArgs e)
         {
-            if (Visible)
+            if (!Visible || DesignMode) return;
+
+            // Wait for fade-in to finish (if used)
+            if (Opacity >= 1.0)
             {
-                // Start fade-in animation
-                _opacity = 0;
-                Opacity = 0;
-                _fadeTimer.Start();
+                var clientPos = PointToClient(Cursor.Position);
+                if (ClientRectangle.Contains(clientPos))
+                {
+                    UpdateHoveredItem(GetItemAtPoint(clientPos));
+                }
             }
         }
         

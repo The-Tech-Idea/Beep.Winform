@@ -312,45 +312,52 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void HandleMouseMove(Point location)
         {
             // Don't process mouse move while context menu is active
-            
-            
-            bool wasVerticalHovered = _verticalThumbHovered;
-            bool wasHorizontalHovered = _horizontalThumbHovered;
 
             _verticalThumbHovered = _verticalThumbRect.Contains(location);
             _horizontalThumbHovered = _horizontalThumbRect.Contains(location);
+            _grid.SafeInvalidate(); // Hover colors
 
-            // Update cursor ONLY if over scrollbar area
-            bool overScrollbar = _verticalScrollBarRect.Contains(location) || _horizontalScrollBarRect.Contains(location);
-            
-            if (overScrollbar)
-            {
-                if (_verticalThumbHovered || _horizontalThumbHovered)
-                {
-                    _grid.Cursor = Cursors.Hand;
-                }
-                else if (!_isVerticalThumbDragging && !_isHorizontalThumbDragging)
-                {
-                    _grid.Cursor = Cursors.Default;
-                }
-            }
-            // Don't set cursor if not over scrollbar - let Input handler manage it
-
-            // Handle dragging
             if (_isVerticalThumbDragging)
             {
-                HandleVerticalThumbDrag(location);
+                int trackTop = _verticalScrollBarRect.Top;
+                int trackHeight = _verticalScrollBarRect.Height - _verticalThumbRect.Height;
+
+                if (trackHeight <= 0)
+                {
+                    _grid.Scroll.SetVerticalOffset(0);
+                    UpdateBars();
+                    _grid.Layout.Recalculate(); // <--- FORCE RECALC
+                    _grid.SafeInvalidate();
+                    return;
+                }
+
+                int relativeY = location.Y - trackTop;
+                relativeY = Math.Max(0, Math.Min(relativeY, trackHeight));
+
+                float ratio = (float)relativeY / trackHeight;
+
+                int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
+                int visibleHeight = _grid.Layout.RowsRect.Height;
+                int maxOffset = Math.Max(0, totalRowHeight - visibleHeight);
+
+                int newOffset = (int)(ratio * maxOffset + 0.5f);
+
+                if (newOffset != _grid.Scroll.VerticalOffset)
+                {
+                    _grid.Scroll.SetVerticalOffset(newOffset);
+
+                    // === CRITICAL: Recalculate layout IMMEDIATELY ===
+                    _grid.Layout.Recalculate();
+                    UpdateBars(); // Update thumb to match new offset
+                    _grid.SafeInvalidate();
+                }
+                return;
             }
-            else if (_isHorizontalThumbDragging)
+            if (_isHorizontalThumbDragging)
             {
                 HandleHorizontalThumbDrag(location);
             }
 
-            // Redraw if hover state changed
-            if (wasVerticalHovered != _verticalThumbHovered || wasHorizontalHovered != _horizontalThumbHovered)
-            {
-                _grid.SafeInvalidate();
-            }
         }
 
         public bool HandleMouseDown(Point location, MouseButtons button)
@@ -616,7 +623,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (!_verticalScrollBarRect.IsEmpty)
             {
                 // Calculate scroll step based on row height
-                int step = _grid.RowHeight;
+                int step = _grid.RowHeight * 3; // ~3 rows (feel free to tweak)
                 int delta = (e.Delta / SystemInformation.MouseWheelScrollDelta) * step;
 
                 // Calculate new vertical offset

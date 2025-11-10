@@ -127,15 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
                 case WM_ACTIVATE:
                     // Handle activation changes
-                    // WE ALLOW ACTIVATION NOW - the ModalMenuFilter will handle closing
-                    if (m.WParam.ToInt32() == WA_ACTIVE)
-                    {
-                        if (Visible && !BeepMenuManager.IsInMenuMode)
-                        {
-                            // Menu is being activated - enter menu mode
-                            BeepMenuManager.EnterMenuMode(this);
-                        }
-                    }
+                    // ContextMenuManager handles menu lifecycle, not BeepMenuManager
                     base.WndProc(ref m);
                     return;
 
@@ -209,14 +201,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                         return; // User cancelled opening
                     }
 
-                    // Reparent to hidden owner window to prevent taskbar entry
-                    ReparentToDropDownOwnerWindow();
+                    // TEMPORARILY DISABLED: Reparent might be blocking mouse events
+                    // TODO: Re-enable once mouse tracking is working
+                    // ReparentToDropDownOwnerWindow();
 
                     // Actually show the window
                     base.SetVisibleCore(true);
+                    
+                    // CRITICAL FIX: Enable mouse tracking
+                    // Without this, MouseMove events don't fire properly
+                    if (IsHandleCreated)
+                    {
+                        // Enable mouse hover tracking for the window
+                        NativeMethods.TRACKMOUSEEVENT tme = new NativeMethods.TRACKMOUSEEVENT
+                        {
+                            cbSize = Marshal.SizeOf(typeof(NativeMethods.TRACKMOUSEEVENT)),
+                            dwFlags = NativeMethods.TME_HOVER | NativeMethods.TME_LEAVE,
+                            hwndTrack = this.Handle,
+                            dwHoverTime = 1 // Immediate hover detection
+                        };
+                        NativeMethods.TrackMouseEvent(ref tme);
+                        
+                        System.Diagnostics.Debug.WriteLine("[BeepContextMenu] Mouse tracking enabled");
+                    }
 
-                    // Enter menu mode - this activates the message filter
-                    BeepMenuManager.EnterMenuMode(this);
+                    // ContextMenuManager handles menu lifecycle - no BeepMenuManager needed
 
                     // Fire Opened event
                     OnMenuOpened(EventArgs.Empty);
@@ -239,8 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     // Actually hide the window
                     base.SetVisibleCore(false);
 
-                    // Remove from menu manager
-                    BeepMenuManager.RemoveActiveMenu(this);
+                    // ContextMenuManager handles menu lifecycle - no BeepMenuManager needed
 
                     // Fire Closed event
                     var closedArgs = new BeepContextMenuClosedEventArgs(_closeReason);
@@ -250,6 +258,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     ResetCloseReason();
                 }
             }
+        }
+        
+        /// <summary>
+        /// Native methods for mouse tracking
+        /// </summary>
+        private static class NativeMethods
+        {
+            [DllImport("user32.dll")]
+            public static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT lpEventTrack);
+
+            [StructLayout(LayoutKind.Sequential)]
+            public struct TRACKMOUSEEVENT
+            {
+                public int cbSize;
+                public uint dwFlags;
+                public IntPtr hwndTrack;
+                public uint dwHoverTime;
+            }
+
+            public const uint TME_HOVER = 0x00000001;
+            public const uint TME_LEAVE = 0x00000002;
         }
 
         #endregion

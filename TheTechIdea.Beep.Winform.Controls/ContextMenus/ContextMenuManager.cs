@@ -201,50 +201,62 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
 
                 // **BULLETPROOF MOUSE TRACKING**
-                Timer mousePoller = new Timer { Interval = 50 };
-                bool wasHovered=false; // Declare here but set after show
-                mousePoller.Tick += (s, e) =>
+                // CRITICAL: Only track mouse leave for SUB-MENUS, not root menus
+                // Root menus should only close on click-outside or ESC
+                bool isRootMenu = string.IsNullOrEmpty(parentMenuId);
+                
+                Timer mousePoller = null;
+                bool wasHovered = false;
+                
+                // Only create and start mouse poller for SUB-MENUS
+                if (!isRootMenu)
                 {
-                    // **CRITICAL**: Check if menu is closing/disposed FIRST
-                    if (menu.IsDisposed || !menu.Visible)
+                    mousePoller = new Timer { Interval = 50 };
+                    
+                    mousePoller.Tick += (s, e) =>
                     {
-                        mousePoller.Stop();
-                        mousePoller.Dispose();
-                        return;
-                    }
-                    // **CRITICAL**: Check if we're in a closing state
-                    lock (_lock)
-                    {
-                        if (!_activeMenus.TryGetValue(menuId, out var context) || context.CloseInitiated)
+                        // **CRITICAL**: Check if menu is closing/disposed FIRST
+                        if (menu.IsDisposed || !menu.Visible)
                         {
                             mousePoller.Stop();
                             mousePoller.Dispose();
                             return;
                         }
-                    }
-                    Point mousePos = Cursor.Position;
-                    bool isHovered = menu.Bounds.Contains(mousePos);
-                    if (wasHovered && !isHovered)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MOUSE LEAVE DETECTED for menu {menuId}");
+                        // **CRITICAL**: Check if we're in a closing state
                         lock (_lock)
                         {
-                            _menusHovered[menuId] = false;
+                            if (!_activeMenus.TryGetValue(menuId, out var context) || context.CloseInitiated)
+                            {
+                                mousePoller.Stop();
+                                mousePoller.Dispose();
+                                return;
+                            }
                         }
-                        StartBufferTimer();
-                        wasHovered = false;
-                    }
-                    else if (!wasHovered && isHovered)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MOUSE ENTER DETECTED for menu {menuId}");
-                        lock (_lock)
+                        
+                        Point mousePos = Cursor.Position;
+                        bool isHovered = menu.Bounds.Contains(mousePos);
+                        if (wasHovered && !isHovered)
                         {
-                            _menusHovered[menuId] = true;
+                            System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MOUSE LEAVE DETECTED for SUB-menu {menuId}");
+                            lock (_lock)
+                            {
+                                _menusHovered[menuId] = false;
+                            }
+                            StartBufferTimer();
+                            wasHovered = false;
                         }
-                        StopAllTimers();
-                        wasHovered = true;
-                    }
-                };
+                        else if (!wasHovered && isHovered)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MOUSE ENTER DETECTED for SUB-menu {menuId}");
+                            lock (_lock)
+                            {
+                                _menusHovered[menuId] = true;
+                            }
+                            StopAllTimers();
+                            wasHovered = true;
+                        }
+                    };
+                }
 
                 // (Existing itemClickedHandler, submenuOpeningHandler, formClosedHandler definitions remain unchanged)
                 EventHandler<MenuItemEventArgs> itemClickedHandler = null;
@@ -296,9 +308,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 formClosedHandler = (sender, e) =>
                 {
                     System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] FormClosed: Menu {menuId} is closing");
-                    mousePoller.Stop();
-                    mousePoller.Dispose();
-                    System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MousePoller STOPPED for menu {menuId}");
+                    if (mousePoller != null)
+                    {
+                        mousePoller.Stop();
+                        mousePoller.Dispose();
+                        System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MousePoller STOPPED for menu {menuId}");
+                    }
                     lock (_lock)
                     {
                         if (_activeMenus.ContainsKey(menuId))
@@ -348,11 +363,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                         _menusHovered[menuId] = initialHovered;
                     }
                 }
-                wasHovered = initialHovered;
-
-                // NOW start the poller
-                mousePoller.Start();
-                System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MousePoller STARTED for menu {menuId}");
+                
+                // NOW start the poller (only for sub-menus)
+                if (mousePoller != null)
+                {
+                    wasHovered = initialHovered;
+                    mousePoller.Start();
+                    System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] MousePoller STARTED for SUB-menu {menuId}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] No MousePoller for ROOT menu {menuId}");
+                }
 
                 if (string.IsNullOrEmpty(parentMenuId))
                 {

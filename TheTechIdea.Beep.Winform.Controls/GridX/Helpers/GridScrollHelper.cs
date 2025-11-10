@@ -60,15 +60,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void SetVerticalOffset(int offsetPx)
         {
-            VerticalOffset = System.Math.Max(0, offsetPx);
-            // Recalculate FirstVisibleRowIndex from pixel offset
+            if (VerticalOffset == offsetPx) return;
+
+            VerticalOffset = Math.Max(0, offsetPx);
+
+            // === ALWAYS RECALCULATE FIRST VISIBLE ROW ===
             _firstVisibleRowIndex = CalculateRowIndexFromPixelOffset(VerticalOffset);
+
+            // Trigger layout update
+            _grid.Layout.Recalculate();
+            _grid.ScrollBars?.UpdateBars();
+            _grid.SafeInvalidate();
         }
 
         public void SetHorizontalOffset(int offset)
         {
-            HorizontalOffset = System.Math.Max(0, offset);
-            // Don't call layout recalculate here - let the scrollbar helper handle it
+            if (HorizontalOffset == offset) return;
+
+            HorizontalOffset = Math.Max(0, offset);
+            // No row index for horizontal
+            _grid.Layout.Recalculate();
+            _grid.ScrollBars?.UpdateBars();
+            _grid.SafeInvalidate();
         }
 
         /// <summary>

@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         private void DrawMenuItemSimple(Graphics g, Rectangle itemRect, SimpleItem item, int index)
         {
-            bool isHovered = (_hoveredIndex == index);
+            bool isHovered = (_hoveredItem ==  item);
             bool isSelected = (_selectedIndex == index);
             bool hasChildren = ContextMenuManager.HasChildren(item);
             bool hasShortcut = _showShortcuts && !string.IsNullOrEmpty(item.ShortcutText);

@@ -13,11 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            if (ContextMenus.ContextMenuManager.IsAnyMenuActive)
-            {
-                base.OnMouseDown(e);
-                return; // Let menu keep mouse focus
-            }
+            // === ADD THESE TWO LINES ===
+            Layout.EnsureCalculated();
+            ScrollBars?.UpdateBars();
             if (e.Button == MouseButtons.Right)
             {
                 ShowGridContextMenu(e);
@@ -37,11 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (ContextMenus.ContextMenuManager.IsAnyMenuActive)
-            {
-                base.OnMouseMove(e);
-                return;
-            }
+            // === ADD THESE TWO LINES ===
+            Layout.EnsureCalculated();
+            ScrollBars?.UpdateBars();
             if (ScrollBars?.IsDragging ?? false)
             {
                 ScrollBars?.HandleMouseMove(e.Location);
@@ -59,11 +55,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            if (ContextMenus.ContextMenuManager.IsAnyMenuActive)
-            {
-                base.OnMouseUp(e);
-                return;
-            }
+            // === ADD THESE TWO LINES ===
+            Layout.EnsureCalculated();
+            ScrollBars?.UpdateBars();
             bool handledByScrollbar = ScrollBars?.HandleMouseUp(e.Location, e.Button) ?? false;
             if (!handledByScrollbar)
             {

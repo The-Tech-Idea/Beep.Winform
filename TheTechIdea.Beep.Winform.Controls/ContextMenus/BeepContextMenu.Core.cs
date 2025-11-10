@@ -51,12 +51,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _menuItemHeight;
         }
 
-   
+
 
         #endregion
 
         #region Core Fields
-
+        // Add near other fields (after _scrollOffset)
+        private const int InternalPadding = 4; // Matches your 4px top/bottom padding in drawing
         // Visual Style
         private FormStyle _contextMenuType = FormStyle.Modern;
         private BeepControlStyle _controlStyle = BeepControlStyle.None;
@@ -172,6 +173,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             ShowInTaskbar = false;
             TopMost = true;
             BackColor = Color.White;
+            
+            // CRITICAL: Enable focus and mouse events
+           
+            TabStop = true;
           
 
             Padding = new Padding(1);

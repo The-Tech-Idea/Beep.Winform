@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Right-side action buttons
             int actionTop = ctx.DrawingRect.Top + pad + 2;
             _dismissRect = new Rectangle(ctx.DrawingRect.Right - pad - 16, actionTop, 16, 16);
-            bool enableCopy = !(ctx.CustomData.ContainsKey("DisableCopy") && (bool)ctx.CustomData["DisableCopy"]);
+            bool enableCopy = !ctx.DisableCopy;
             _copyRect = enableCopy ? new Rectangle(_dismissRect.X - 20, actionTop, 16, 16) : Rectangle.Empty;
 
             // Content area
@@ -54,8 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             // Determine validation type and colors
-            string validationType = ctx.CustomData.ContainsKey("ValidationType") ?
-                ctx.CustomData["ValidationType"].ToString().ToLower() : "error";
+            string validationType = ctx.ValidationType ?? "error";
 
             Color bgColor1, bgColor2, borderColor;
 
@@ -106,8 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            string validationType = ctx.CustomData.ContainsKey("ValidationType") ?
-                ctx.CustomData["ValidationType"].ToString().ToLower() : "error";
+            string validationType = ctx.ValidationType ?? "error";
 
             if (ctx.ShowIcon)
             {
@@ -122,9 +120,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.ContentRect.X, ctx.ContentRect.Y);
             }
 
-            if (ctx.CustomData.ContainsKey("Message"))
+            if (!string.IsNullOrEmpty(ctx.Message))
             {
-                string message = ctx.CustomData["Message"].ToString();
+                string message = ctx.Message;
                 Color messageColor = Color.FromArgb(120, GetValidationColor(validationType));
                 using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var messageBrush = new SolidBrush(messageColor);
@@ -250,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("Validation_Dismiss", _dismissRect, null, () =>
                 {
-                    ctx.CustomData["ValidationDismissed"] = true;
+                    ctx.ValidationDismissed = true;
                     notifyAreaHit?.Invoke("Validation_Dismiss", _dismissRect);
                     Owner?.Invalidate();
                 });
@@ -260,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("Validation_Copy", _copyRect, null, () =>
                 {
-                    ctx.CustomData["ValidationCopyRequested"] = ctx.CustomData.ContainsKey("Message") ? ctx.CustomData["Message"] : ctx.Value;
+                    ctx.ValidationCopyRequested = !string.IsNullOrEmpty(ctx.Message) ? ctx.Message : ctx.Value;
                     notifyAreaHit?.Invoke("Validation_Copy", _copyRect);
                     Owner?.Invalidate();
                 });

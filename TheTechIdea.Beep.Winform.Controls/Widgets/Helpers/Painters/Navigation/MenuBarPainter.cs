@@ -42,8 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var items = ctx.CustomData.ContainsKey("Items") ?
-                (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleMenuItems();
+            var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleMenuItems();
 
             if (!items.Any()) return;
 

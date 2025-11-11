@@ -148,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             ClearOwnerHitAreas();
             owner.AddHitArea("ImageOverlay_Close", _topCloseRect, null, () =>
             {
-                ctx.CustomData["OverlayClosed"] = true;
+                ctx.OverlayClosed = true;
                 notifyAreaHit?.Invoke("ImageOverlay_Close", _topCloseRect);
                 Owner?.Invalidate();
             });
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea($"ImageOverlay_Action_{id}", rect, null, () =>
                 {
-                    ctx.CustomData[$"OverlayAction"] = id;
+                    ctx.OverlayAction = id;
                     notifyAreaHit?.Invoke($"ImageOverlay_Action_{id}", rect);
                     Owner?.Invalidate();
                 });

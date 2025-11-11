@@ -93,14 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             g.FillPath(trackBrush, trackPath);
             
             // Progress value (default to 75% if not specified)
-            float progress = 0.75f;
-            if (ctx.CustomData.ContainsKey("Progress"))
-            {
-                if (ctx.CustomData["Progress"] is float progressValue)
-                    progress = Math.Max(0f, Math.Min(1f, progressValue));
-                else if (float.TryParse(ctx.CustomData["Progress"]?.ToString(), out var parsedProgress))
-                    progress = Math.Max(0f, Math.Min(1f, parsedProgress / 100f));
-            }
+            float progress = ctx.Progress > 0 ? Math.Max(0f, Math.Min(1f, ctx.Progress)) : 0.75f;
             
             // Progress fill with gradient
             if (progress > 0)
@@ -124,8 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             }
             
             // Progress percentage text
-            if (ctx.CustomData.ContainsKey("ShowPercentage") && 
-                (bool)ctx.CustomData["ShowPercentage"])
+            if (ctx.ShowPercentage)
             {
                 using var percentFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                 using var percentBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));

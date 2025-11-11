@@ -25,6 +25,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         ExtraLarge
     }
 
+    #region Validation Event Args
+    /// <summary>
+    /// Event args for value validation before change
+    /// </summary>
+    public class NumericValueValidatingEventArgs : EventArgs
+    {
+        public decimal OldValue { get; set; }
+        public decimal NewValue { get; set; }
+        public bool Cancel { get; set; }
+        public string ValidationMessage { get; set; }
+    }
+
+    /// <summary>
+    /// Event args for value validation after change
+    /// </summary>
+    public class NumericValueValidatedEventArgs : EventArgs
+    {
+        public decimal OldValue { get; set; }
+        public decimal NewValue { get; set; }
+        public bool IsValid { get; set; }
+        public string ValidationMessage { get; set; }
+    }
+
+    /// <summary>
+    /// Event args for range exceeded
+    /// </summary>
+    public class RangeExceededEventArgs : EventArgs
+    {
+        public decimal AttemptedValue { get; set; }
+        public decimal MinimumValue { get; set; }
+        public decimal MaximumValue { get; set; }
+        public bool IsMaximumExceeded { get; set; }
+    }
+
+    /// <summary>
+    /// Event args for invalid input
+    /// </summary>
+    public class InvalidInputEventArgs : EventArgs
+    {
+        public string Input { get; set; }
+        public string Reason { get; set; }
+    }
+
+    /// <summary>
+    /// Event args for format validation
+    /// </summary>
+    public class FormatValidationEventArgs : EventArgs
+    {
+        public string Input { get; set; }
+        public bool IsValid { get; set; }
+        public string ExpectedFormat { get; set; }
+    }
+    #endregion
+
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Numeric UpDown")]
@@ -32,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     public partial class BeepNumericUpDown : BaseControl
     {
         #region Internal Fields (exposed to partial classes)
-        internal TextBox _textBox;
+        internal TextBox? _textBox;
         internal bool _isEditing = false;
         internal Rectangle _upButtonRect;
         internal Rectangle _downButtonRect;
@@ -40,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         internal bool _downButtonPressed;
         internal bool _upButtonHovered;
         internal bool _downButtonHovered;
-        internal Timer _repeatTimer;
+        internal Timer? _repeatTimer;
         internal int _repeatCount;
         internal const int INITIAL_DELAY = 500;
         internal const int REPEAT_DELAY = 50;
@@ -55,6 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         private int _decimalPlaces = 0;
         private NumericUpDownDisplayMode _displayMode = NumericUpDownDisplayMode.Standard;
         private NumericSpinButtonSize _buttonSize = NumericSpinButtonSize.Standard;
+        private NumericStyle _numericStyle = NumericStyle.Standard;
         private string _prefix = "";
         private string _suffix = "";
         private string _unit = "";
@@ -71,16 +126,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         private bool _isPercentageMode = false;
         private bool _autoCalculateFromTotal = false;
         private decimal _totalValue = 0m;
+        private NumericMaskPreset _maskPreset = NumericMaskPreset.None;
+        private NumericMaskConfig? _maskConfig;
+        private string _customMask = "";
         #endregion
 
         #region Events
-        public event EventHandler ValueChanged;
-        public event EventHandler<ValueValidatingEventArgs> ValueValidating;
-        public event EventHandler MinimumReached;
-        public event EventHandler MaximumReached;
-        public event EventHandler UpButtonClicked;
-        public event EventHandler DownButtonClicked;
-        public event EventHandler ValueValidationFailed;
+        /// <summary>Fired when the numeric value changes</summary>
+        public event EventHandler? ValueChanged;
+        
+        /// <summary>Fired before the value changes, allowing cancellation</summary>
+        public event EventHandler<ValueValidatingEventArgs>? ValueValidating;
+        
+        /// <summary>Fired when minimum value is reached</summary>
+        public event EventHandler? MinimumReached;
+        
+        /// <summary>Fired when maximum value is reached</summary>
+        public event EventHandler? MaximumReached;
+        
+        /// <summary>Fired when up button is clicked</summary>
+        public event EventHandler? UpButtonClicked;
+        
+        /// <summary>Fired when down button is clicked</summary>
+        public event EventHandler? DownButtonClicked;
+        
+        /// <summary>Fired when value validation fails</summary>
+        public event EventHandler? ValueValidationFailed;
+        
+        /// <summary>Fired before value validation occurs</summary>
+        public event EventHandler<NumericValueValidatingEventArgs>? ValueValidatingEx;
+        
+        /// <summary>Fired after value validation completes</summary>
+        public event EventHandler<NumericValueValidatedEventArgs>? ValueValidated;
+        
+        /// <summary>Fired when range is exceeded</summary>
+        public event EventHandler<RangeExceededEventArgs>? RangeExceeded;
+        
+        /// <summary>Fired when invalid input is detected</summary>
+        public event EventHandler<InvalidInputEventArgs>? InvalidInput;
+        
+        /// <summary>Fired when format validation occurs</summary>
+        public event EventHandler<FormatValidationEventArgs>? FormatValidation;
+        
+        /// <summary>Fired when step validation fails</summary>
+        public event EventHandler<EventArgs>? StepValidationFailed;
         #endregion
 
         #region Properties
@@ -181,6 +270,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                 _displayMode = value;
                 ConfigureForDisplayMode();
                 Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(NumericStyle.Standard)]
+        [Description("The style/type of numeric input control (Standard, Slider, Currency, etc.)")]
+        public NumericStyle NumericStyle
+        {
+            get => _numericStyle;
+            set
+            {
+                if (_numericStyle != value)
+                {
+                    _numericStyle = value;
+                    ConfigureForNumericStyle();
+                    InitializePainter();
+                    Invalidate();
+                }
             }
         }
 
@@ -360,6 +468,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             get => _totalValue;
             set => _totalValue = value;
         }
+
+        [Browsable(true)]
+        [Category("Format")]
+        [DefaultValue(NumericMaskPreset.None)]
+        [Description("Predefined input mask preset for common formats (phone, SSN, credit card, etc.)")]
+        public NumericMaskPreset MaskPreset
+        {
+            get => _maskPreset;
+            set
+            {
+                if (_maskPreset != value)
+                {
+                    _maskPreset = value;
+                    ApplyMaskPreset();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Format")]
+        [DefaultValue("")]
+        [Description("Custom mask pattern when MaskPreset is set to Custom. Use # for digits, others as literals.")]
+        public string CustomMask
+        {
+            get => _customMask;
+            set
+            {
+                _customMask = value ?? "";
+                if (_maskPreset == NumericMaskPreset.Custom)
+                {
+                    ApplyMaskPreset();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public NumericMaskConfig? MaskConfig => _maskConfig;
         #endregion
 
         #region Constructor

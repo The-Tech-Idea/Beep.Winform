@@ -79,8 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             DrawThreadHeader(g, ctx.HeaderRect, ctx);
 
             // Draw comments
-            var comments = ctx.CustomData.ContainsKey("Comments") ? 
-                (List<Comment>)ctx.CustomData["Comments"] : CreateSampleComments();
+            var comments = ctx.Comments?.Cast<Comment>().ToList() ?? CreateSampleComments();
             
             DrawComments(g, ctx.ContentRect, comments, ctx);
 
@@ -104,8 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 new StringFormat { LineAlignment = StringAlignment.Center });
 
             // Comment count and stats
-            var comments = ctx.CustomData.ContainsKey("Comments") ? 
-                (List<Comment>)ctx.CustomData["Comments"] : new List<Comment>();
+            var comments = ctx.Comments?.Cast<Comment>().ToList() ?? new List<Comment>();
             
             int totalComments = CountTotalComments(comments);
             var statsRect = new Rectangle(rect.X, rect.Y + 20, rect.Width, 12);
@@ -343,8 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             g.FillEllipse(avatarBrush, avatarRect);
 
             // Placeholder text or current input
-            string inputText = ctx.CustomData.ContainsKey("CommentText") ? 
-                ctx.CustomData["CommentText"].ToString() : "";
+            string inputText = ctx.CommentText ?? "";
             
             string displayText = string.IsNullOrEmpty(inputText) ? "Add a comment..." : inputText;
             Color textColor = string.IsNullOrEmpty(inputText) ? 
@@ -472,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw new comment indicator if there are unread comments
-            if (ctx.CustomData.ContainsKey("HasNewComments") && (bool)ctx.CustomData["HasNewComments"])
+            if (ctx.HasNewComments)
             {
                 var indicatorRect = new Rectangle(ctx.DrawingRect.Right - 16, ctx.DrawingRect.Top + 8, 8, 8);
                 using var indicatorBrush = new SolidBrush(Color.FromArgb(244, 67, 54));

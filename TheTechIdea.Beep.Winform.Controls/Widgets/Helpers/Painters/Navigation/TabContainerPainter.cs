@@ -51,11 +51,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var items = ctx.CustomData.ContainsKey("Items") ? 
-                (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleTabs();
-            
-            int currentIndex = ctx.CustomData.ContainsKey("CurrentIndex") ? 
-                (int)ctx.CustomData["CurrentIndex"] : 0;
+            var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleTabs();
+            int currentIndex = ctx.CurrentIndex >= 0 ? ctx.CurrentIndex : 0;
             
             if (!items.Any()) return;
             
@@ -155,10 +152,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Optional: Draw tab separators for better visual separation
-            if (ctx.CustomData.ContainsKey("ShowSeparators") && ctx.CustomData["ShowSeparators"] is bool show && show)
+            if (ctx.ShowTabSeparators)
             {
-                var items = ctx.CustomData.ContainsKey("Items") ? 
-                    (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleTabs();
+                var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleTabs();
                 
                 int tabWidth = ctx.ContentRect.Width / items.Count;
                 using var separatorPen = new Pen(Color.FromArgb(30, Color.Gray), 1);

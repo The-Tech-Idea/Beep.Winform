@@ -106,8 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private StatusInfo GetStatusInfo(WidgetContext ctx)
         {
-            var statusType = ctx.CustomData.ContainsKey("StatusType") ? 
-                ctx.CustomData["StatusType"].ToString().ToLower() : "info";
+            var statusType = ctx.StatusType ?? "info";
             
             return statusType switch
             {
@@ -137,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             // Optional progress indicator for loading status
             var status = GetStatusInfo(ctx);
-            if (status.Type == "loading" && ctx.CustomData.ContainsKey("ShowProgress"))
+            if (status.Type == "loading" && ctx.ShowProgress)
             {
                 var progressRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Bottom - 8, 
                     ctx.ContentRect.Width, 4);
@@ -146,8 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 using var trackPath = CreateRoundedPath(progressRect, 2);
                 g.FillPath(trackBrush, trackPath);
                 
-                var progress = ctx.CustomData.ContainsKey("Progress") ? 
-                    (float)ctx.CustomData["Progress"] / 100f : 0.3f;
+                var progress = ctx.Progress / 100f;
                 
                 if (progress > 0)
                 {
@@ -160,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw action (dismiss) 'x' icon
-            bool showAction = !(ctx.CustomData.ContainsKey("HideAction") && (bool)ctx.CustomData["HideAction"]);
+            bool showAction = !ctx.HideAction;
             if (showAction && !_actionRectCache.IsEmpty)
             {
                 bool hover = IsAreaHovered("StatusCard_Action");
@@ -186,17 +184,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
             owner.AddHitArea("StatusCard_Card", _cardRectCache, null, () =>
             {
-                ctx.CustomData["StatusCardClicked"] = true;
+                ctx.StatusCardClicked = true;
                 notifyAreaHit?.Invoke("StatusCard_Card", _cardRectCache);
                 Owner?.Invalidate();
             });
 
-            bool showAction = !(ctx.CustomData.ContainsKey("HideAction") && (bool)ctx.CustomData["HideAction"]);
+            bool showAction = !ctx.HideAction;
             if (showAction)
             {
                 owner.AddHitArea("StatusCard_Action", _actionRectCache, null, () =>
                 {
-                    ctx.CustomData["StatusCardDismissed"] = true;
+                    ctx.StatusCardDismissed = true;
                     notifyAreaHit?.Invoke("StatusCard_Action", _actionRectCache);
                     Owner?.Invalidate();
                 });

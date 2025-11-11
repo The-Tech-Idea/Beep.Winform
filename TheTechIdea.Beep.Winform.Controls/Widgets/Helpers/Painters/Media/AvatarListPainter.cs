@@ -56,7 +56,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			int itemHeight = avatarSize + 8;
 			int maxItems = Math.Max(0, ctx.ContentRect.Height / itemHeight);
 			int dataCount = 0;
-			if (ctx.CustomData.TryGetValue("Users", out var raw) && raw is List<Dictionary<string, object>> users)
+			var users = ctx.SocialItems?.Cast<Dictionary<string, object>>().ToList();
+			if (users != null)
 			{
 				dataCount = users.Count;
 			}
@@ -285,19 +286,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				var statusRect = _statusRects[i];
 				owner.AddHitArea($"AvatarList_Item_{idx}", itemRect, null, () =>
 				{
-					ctx.CustomData["SelectedAvatarItemIndex"] = idx;
+					ctx.SelectedAvatarItemIndex = idx;
 					notifyAreaHit?.Invoke($"AvatarList_Item_{idx}", itemRect);
 					Owner?.Invalidate();
 				});
 				owner.AddHitArea($"AvatarList_Avatar_{idx}", avatarRect, null, () =>
 				{
-					ctx.CustomData["SelectedAvatarIndex"] = idx;
+					ctx.SelectedAvatarIndex = idx;
 					notifyAreaHit?.Invoke($"AvatarList_Avatar_{idx}", avatarRect);
 					Owner?.Invalidate();
 				});
 				owner.AddHitArea($"AvatarList_Status_{idx}", statusRect, null, () =>
 				{
-					ctx.CustomData["SelectedStatusIndex"] = idx;
+					ctx.SelectedStatusIndex = idx;
 					notifyAreaHit?.Invoke($"AvatarList_Status_{idx}", statusRect);
 					Owner?.Invalidate();
 				});

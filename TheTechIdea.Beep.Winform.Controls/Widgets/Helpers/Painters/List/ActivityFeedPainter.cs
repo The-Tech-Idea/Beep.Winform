@@ -58,10 +58,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
             
             // Draw activity items
-            if (ctx.CustomData.ContainsKey("Items"))
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
-                var items = (List<Dictionary<string, object>>)ctx.CustomData["Items"];
-                int maxItems = ctx.CustomData.ContainsKey("MaxVisibleItems") ? (int)ctx.CustomData["MaxVisibleItems"] : 10;
+                int maxItems = ctx.MaxVisibleItems;
                 
                 DrawActivityItems(g, ctx, ctx.ContentRect, items.Take(maxItems).ToList());
             }
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var rect = _itemRects[i];
                 owner.AddHitArea($"ActivityFeed_Item_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedActivityIndex"] = idx;
+                    ctx.SelectedActivityIndex = idx;
                     notifyAreaHit?.Invoke($"ActivityFeed_Item_{idx}", rect);
                     Owner?.Invalidate();
                 });

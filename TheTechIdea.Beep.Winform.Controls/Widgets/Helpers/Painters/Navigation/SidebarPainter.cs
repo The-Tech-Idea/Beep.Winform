@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void UpdateSelectionFromIndex()
         {
             var idx = _itemAreaIndices[_flatItemIndex];
-            _lastCtx.CustomData["SidebarSelection"] = _areas[idx].id;
+            _lastCtx.SidebarSelectionId = _areas[idx].id;
             Owner?.Invalidate();
         }
 
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             int pad = 8;
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
-            _collapsed = ctx.CustomData.ContainsKey("Collapsed") && (bool)ctx.CustomData["Collapsed"];
+            _collapsed = ctx.IsCollapsed;
             int width = _collapsed ? 56 : Math.Max(160, ctx.DrawingRect.Width);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.X, ctx.DrawingRect.Y, width, ctx.DrawingRect.Height);
 
@@ -116,9 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _toggleRect = new Rectangle(ctx.ContentRect.Right - 20, ctx.ContentRect.Y + 8, 16, 16);
 
             // Expect Groups as List<(string header, List<string> items)>
-            var groups = ctx.CustomData.ContainsKey("Groups")
-                ? (List<(string, List<string>)>)ctx.CustomData["Groups"]
-                : new List<(string, List<string>)> {
+            var groups = ctx.NavigationGroups ?? new List<(string, List<string>)> {
                     ("Main", new List<string>{"Dashboard","Analytics","Reports"}),
                     ("Management", new List<string>{"Users","Settings"})
                 };
@@ -148,7 +146,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
             // Initialize selection index from current selection id
             _flatItemIndex = 0;
-            if (ctx.CustomData.TryGetValue("SidebarSelection", out var val) && val is string selId)
+            string? selId = ctx.SidebarSelectionId;
+            if (!string.IsNullOrEmpty(selId))
             {
                 int foundIdx = -1;
                 for (int i = 0; i < _itemAreaIndices.Count; i++)
@@ -192,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Current selection id
-            string activeId = ctx.CustomData.TryGetValue("SidebarSelection", out var v) ? v as string : null;
+            string? activeId = ctx.SidebarSelectionId;
 
             // Sections and items
             for (int i = 0; i < _areas.Count; i++)
@@ -240,8 +239,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (owner == null) return; ClearOwnerHitAreas();
             owner.AddHitArea("Sidebar_Toggle", _toggleRect, null, () =>
             {
-                bool collapsed = ctx.CustomData.ContainsKey("Collapsed") && (bool)ctx.CustomData["Collapsed"];
-                ctx.CustomData["Collapsed"] = !collapsed;
+                bool collapsed = ctx.IsCollapsed;
+                ctx.IsCollapsed = !collapsed;
                 notifyAreaHit?.Invoke("Sidebar_Toggle", _toggleRect);
                 Owner?.Invalidate();
             });
@@ -252,7 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 {
                     if (!capture.StartsWith("Sidebar_Header_"))
                     {
-                        ctx.CustomData["SidebarSelection"] = capture;
+                        ctx.SidebarSelectionId = capture;
                     }
                     notifyAreaHit?.Invoke(capture, rect);
                     Owner?.Invalidate();

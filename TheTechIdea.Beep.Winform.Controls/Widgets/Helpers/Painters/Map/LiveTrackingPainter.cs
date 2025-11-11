@@ -66,11 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var locations = ctx.CustomData.ContainsKey("Locations") ? 
-                (List<MapLocation>)ctx.CustomData["Locations"] : new List<MapLocation>();
-            double latitude = ctx.CustomData.ContainsKey("Latitude") ? (double)ctx.CustomData["Latitude"] : 0.0;
-            double longitude = ctx.CustomData.ContainsKey("Longitude") ? (double)ctx.CustomData["Longitude"] : 0.0;
-            var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ? (DateTime)ctx.CustomData["LastUpdated"] : DateTime.Now;
+            var locations = ctx.MapLocations?.Cast<MapLocation>().ToList() ?? new List<MapLocation>();
+            double latitude = ctx.Latitude;
+            double longitude = ctx.Longitude;
+            var lastUpdated = ctx.LastUpdated;
 
             // Draw live status indicator (pulsing green)
             using var statusBrush = new SolidBrush(Color.FromArgb(76, 175, 80)); // Green for live

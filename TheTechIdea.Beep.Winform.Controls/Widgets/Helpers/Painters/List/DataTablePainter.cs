@@ -63,10 +63,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Pager buttons (bottom-right inside content)
             _pagerPrevRect = Rectangle.Empty;
             _pagerNextRect = Rectangle.Empty;
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
-                int pageIndex = ctx.CustomData.ContainsKey("PageIndex") ? Math.Max(0, (int)ctx.CustomData["PageIndex"]) : 0;
-                int pageSize = ctx.CustomData.ContainsKey("PageSize") ? Math.Max(1, (int)ctx.CustomData["PageSize"]) : items.Count;
+                int pageIndex = Math.Max(0, ctx.PageIndex);
+                int pageSize = Math.Max(1, ctx.PageSize);
                 bool hasPaging = pageSize < items.Count;
                 if (hasPaging)
                 {
@@ -92,21 +93,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Draw header
             if (ctx.ShowHeader && (ctx.Labels?.Any() == true))
             {
-                int sortedCol = ctx.CustomData.ContainsKey("SortColumnIndex") ? (int)ctx.CustomData["SortColumnIndex"] : -1;
-                string sortDir = ctx.CustomData.ContainsKey("SortDirection") ? ctx.CustomData["SortDirection"].ToString() : "";
+                int sortedCol = ctx.SortColumnIndex;
+                string sortDir = ctx.SortDirection ?? "";
                 DrawTableHeader(g, ctx.HeaderRect, ctx.Labels, sortedCol, sortDir);
             }
             
             // Draw data rows (optionally sorted locally by current sort state and paged)
-            if (ctx.CustomData.ContainsKey("Items") && (ctx.Labels?.Any() == true))
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0 && (ctx.Labels?.Any() == true))
             {
-                var items = (List<Dictionary<string, object>>)ctx.CustomData["Items"];
-                int pageIndex = ctx.CustomData.ContainsKey("PageIndex") ? Math.Max(0, (int)ctx.CustomData["PageIndex"]) : 0;
-                int pageSize = ctx.CustomData.ContainsKey("PageSize") ? Math.Max(1, (int)ctx.CustomData["PageSize"]) : items.Count;
+                int pageIndex = Math.Max(0, ctx.PageIndex);
+                int pageSize = Math.Max(1, ctx.PageSize);
 
-                var itemsToRender = items?.ToList() ?? new List<Dictionary<string, object>>();
-                int sortedCol = ctx.CustomData.ContainsKey("SortColumnIndex") ? (int)ctx.CustomData["SortColumnIndex"] : -1;
-                string sortDir = ctx.CustomData.ContainsKey("SortDirection") ? ctx.CustomData["SortDirection"].ToString() : "";
+                var itemsToRender = items.ToList();
+                int sortedCol = ctx.SortColumnIndex;
+                string sortDir = ctx.SortDirection ?? "";
                 if (sortedCol >= 0 && sortedCol < ctx.Labels.Count && itemsToRender.Count > 1)
                 {
                     string key = ctx.Labels[sortedCol];
@@ -142,11 +143,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Draw pager buttons
             if (!_pagerPrevRect.IsEmpty)
             {
-                DrawPagerButton(g, _pagerPrevRect, "‹", IsAreaHovered("DataTable_PrevPage"));
+                DrawPagerButton(g, _pagerPrevRect, "ï¿½", IsAreaHovered("DataTable_PrevPage"));
             }
             if (!_pagerNextRect.IsEmpty)
             {
-                DrawPagerButton(g, _pagerNextRect, "›", IsAreaHovered("DataTable_NextPage"));
+                DrawPagerButton(g, _pagerNextRect, "ï¿½", IsAreaHovered("DataTable_NextPage"));
             }
 
             // Hover accents
@@ -182,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             using var txt = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
             using var f = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Italic);
             var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(ctx.CustomData.ContainsKey("EmptyText") ? ctx.CustomData["EmptyText"].ToString() : "No data to display", f, txt, rect, fmt);
+            g.DrawString(ctx.EmptyText ?? "No data to display", f, txt, rect, fmt);
         }
 
         private void DrawTableHeader(Graphics g, Rectangle rect, List<string> columns, int sortedCol, string sortDir)
@@ -281,17 +282,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Selection highlight if present
-            if (ctx.CustomData.ContainsKey("SelectedRowIndex") && _rowRects.Count > 0)
+            if (ctx.SelectedRowIndex >= 0 && ctx.SelectedRowIndex < _rowRects.Count)
             {
-                int idx = (int)ctx.CustomData["SelectedRowIndex"];
-                if (idx >= 0 && idx < _rowRects.Count)
-                {
-                    var r = _rowRects[idx];
-                    using var sel = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
-                    using var pen = new Pen(Color.FromArgb(140, Theme?.PrimaryColor ?? Color.Blue), 1f);
-                    g.FillRectangle(sel, r);
-                    g.DrawRectangle(pen, r);
-                }
+                var r = _rowRects[ctx.SelectedRowIndex];
+                using var sel = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                using var pen = new Pen(Color.FromArgb(140, Theme?.PrimaryColor ?? Color.Blue), 1f);
+                g.FillRectangle(sel, r);
+                g.DrawRectangle(pen, r);
             }
         }
 
@@ -304,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("DataTable_Header", _headerRectCache, null, () =>
                 {
-                    ctx.CustomData["HeaderClicked"] = true;
+                    ctx.HeaderClicked = true;
                     notifyAreaHit?.Invoke("DataTable_Header", _headerRectCache);
                 });
             }
@@ -316,8 +313,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var rect = _headerColRects[i];
                 owner.AddHitArea($"DataTable_HeaderCol_{idx}", rect, null, () =>
                 {
-                    int current = ctx.CustomData.ContainsKey("SortColumnIndex") ? (int)ctx.CustomData["SortColumnIndex"] : -1;
-                    string dir = ctx.CustomData.ContainsKey("SortDirection") ? ctx.CustomData["SortDirection"].ToString() : "asc";
+                    int current = ctx.SortColumnIndex;
+                    string dir = ctx.SortDirection ?? "asc";
                     if (current == idx)
                     {
                         // Toggle
@@ -327,8 +324,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     {
                         current = idx; dir = "asc";
                     }
-                    ctx.CustomData["SortColumnIndex"] = current;
-                    ctx.CustomData["SortDirection"] = dir;
+                    ctx.SortColumnIndex = current;
+                    ctx.SortDirection = dir;
                     notifyAreaHit?.Invoke($"DataTable_HeaderCol_{idx}", rect);
                     Owner?.Invalidate();
                 });
@@ -340,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var rect = _rowRects[i];
                 owner.AddHitArea($"DataTable_Row_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedRowIndex"] = idx;
+                    ctx.SelectedRowIndex = idx;
                     notifyAreaHit?.Invoke($"DataTable_Row_{idx}", rect);
                     Owner?.Invalidate();
                 });
@@ -351,13 +348,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("DataTable_PrevPage", _pagerPrevRect, null, () =>
                 {
-                    if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+                    var items = ctx.ListItems;
+                    if (items != null && items.Count > 0)
                     {
-                        int pageIndex = ctx.CustomData.ContainsKey("PageIndex") ? Math.Max(0, (int)ctx.CustomData["PageIndex"]) : 0;
-                        int pageSize = ctx.CustomData.ContainsKey("PageSize") ? Math.Max(1, (int)ctx.CustomData["PageSize"]) : items.Count;
+                        int pageIndex = Math.Max(0, ctx.PageIndex);
+                        int pageSize = Math.Max(1, ctx.PageSize);
                         if (pageSize < items.Count && pageIndex > 0)
                         {
-                            ctx.CustomData["PageIndex"] = pageIndex - 1;
+                            ctx.PageIndex = pageIndex - 1;
                             notifyAreaHit?.Invoke("DataTable_PrevPage", _pagerPrevRect);
                             Owner?.Invalidate();
                         }
@@ -368,14 +366,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("DataTable_NextPage", _pagerNextRect, null, () =>
                 {
-                    if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+                    var items = ctx.ListItems;
+                    if (items != null && items.Count > 0)
                     {
-                        int pageIndex = ctx.CustomData.ContainsKey("PageIndex") ? Math.Max(0, (int)ctx.CustomData["PageIndex"]) : 0;
-                        int pageSize = ctx.CustomData.ContainsKey("PageSize") ? Math.Max(1, (int)ctx.CustomData["PageSize"]) : items.Count;
+                        int pageIndex = Math.Max(0, ctx.PageIndex);
+                        int pageSize = Math.Max(1, ctx.PageSize);
                         int maxIndex = Math.Max(0, (int)Math.Ceiling(items.Count / (double)pageSize) - 1);
                         if (pageSize < items.Count && pageIndex < maxIndex)
                         {
-                            ctx.CustomData["PageIndex"] = pageIndex + 1;
+                            ctx.PageIndex = pageIndex + 1;
                             notifyAreaHit?.Invoke("DataTable_NextPage", _pagerNextRect);
                             Owner?.Invalidate();
                         }
@@ -387,12 +386,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private List<Rectangle> CalculateRowRects(WidgetContext ctx)
         {
             var result = new List<Rectangle>();
-            if (!ctx.CustomData.ContainsKey("Items")) return result;
-            var items = (List<Dictionary<string, object>>)ctx.CustomData["Items"];
+            var items = ctx.ListItems;
             if (items == null || items.Count == 0) return result;
 
-            int pageIndex = ctx.CustomData.ContainsKey("PageIndex") ? Math.Max(0, (int)ctx.CustomData["PageIndex"]) : 0;
-            int pageSize = ctx.CustomData.ContainsKey("PageSize") ? Math.Max(1, (int)ctx.CustomData["PageSize"]) : items.Count;
+            int pageIndex = Math.Max(0, ctx.PageIndex);
+            int pageSize = Math.Max(1, ctx.PageSize);
             int start = pageIndex * pageSize;
             int visible = start < items.Count ? Math.Min(pageSize, items.Count - start) : 0;
 

@@ -46,8 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var actions = ctx.CustomData.ContainsKey("Actions") ?
-                (List<NavigationItem>)ctx.CustomData["Actions"] : CreateSampleQuickActions();
+            var actions = ctx.QuickActions?.OfType<NavigationItem>().ToList() ?? CreateSampleQuickActions();
 
             if (!actions.Any()) return;
 

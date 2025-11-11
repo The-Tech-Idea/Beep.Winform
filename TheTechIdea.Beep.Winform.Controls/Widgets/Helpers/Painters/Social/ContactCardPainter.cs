@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
             
             // Contact layout type (horizontal or vertical)
-            bool isVerticalLayout = ctx.CustomData.ContainsKey("VerticalLayout") && (bool)ctx.CustomData["VerticalLayout"];
+            bool isVerticalLayout = ctx.IsVerticalLayout;
             
             if (isVerticalLayout)
             {
@@ -134,10 +134,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             _imagePainter.UseThemeColors = true;
 
             // Get contact data
-            var contact = ctx.CustomData.ContainsKey("Contact") ? 
-                (ContactInfo)ctx.CustomData["Contact"] : CreateSampleContact();
+            var contact = ctx.ContactInfo != null ? (ContactInfo)ctx.ContactInfo : CreateSampleContact();
             
-            bool isVerticalLayout = ctx.CustomData.ContainsKey("VerticalLayout") && (bool)ctx.CustomData["VerticalLayout"];
+            bool isVerticalLayout = ctx.IsVerticalLayout;
 
             // Draw avatar
             DrawContactAvatar(g, ctx.IconRect, contact);
@@ -487,8 +486,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            var contact = ctx.CustomData.ContainsKey("Contact") ? 
-                (ContactInfo)ctx.CustomData["Contact"] : new ContactInfo();
+            var contact = ctx.ContactInfo != null ? (ContactInfo)ctx.ContactInfo : new ContactInfo();
             
             // Draw favorite star if contact is favorited
             if (contact.IsFavorite)

@@ -26,7 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Precompute item and checkbox rects
             _itemRects.Clear();
             _checkboxRects.Clear();
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items && items.Count > 0)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 int itemHeight = Math.Min(28, ctx.ContentRect.Height / Math.Max(items.Count, 1));
                 for (int i = 0; i < items.Count; i++)
@@ -60,7 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
             
             // Draw task items
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 DrawTaskItems(g, ctx.ContentRect, items);
             }
@@ -146,14 +148,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
                 owner.AddHitArea($"TaskList_Item_{idx}", itemRect, null, () =>
                 {
-                    ctx.CustomData["SelectedTaskIndex"] = idx;
+                    ctx.SelectedTaskIndex = idx;
                     notifyAreaHit?.Invoke($"TaskList_Item_{idx}", itemRect);
                     Owner?.Invalidate();
                 });
 
                 owner.AddHitArea($"TaskList_Check_{idx}", checkRect, null, () =>
                 {
-                    ctx.CustomData["ToggleTaskIndex"] = idx;
+                    ctx.ToggleTaskIndex = idx;
                     notifyAreaHit?.Invoke($"TaskList_Check_{idx}", checkRect);
                     Owner?.Invalidate();
                 });

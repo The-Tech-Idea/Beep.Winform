@@ -54,9 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var routes = ctx.CustomData.ContainsKey("Routes") ? 
-                (List<MapRoute>)ctx.CustomData["Routes"] : new List<MapRoute>();
-            var routeColor = ctx.CustomData.ContainsKey("RouteColor") ? (Color)ctx.CustomData["RouteColor"] : Color.Blue;
+            var routes = ctx.MapRoutes?.Cast<MapRoute>().ToList() ?? new List<MapRoute>();
+            var routeColor = ctx.RouteColor;
 
             // Draw route title and type
             using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);

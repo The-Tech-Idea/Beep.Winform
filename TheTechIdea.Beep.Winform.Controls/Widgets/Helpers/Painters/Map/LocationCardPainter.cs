@@ -60,9 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            string address = ctx.CustomData.ContainsKey("Address") ? ctx.CustomData["Address"].ToString() : "Unknown Location";
-            double latitude = ctx.CustomData.ContainsKey("Latitude") ? (double)ctx.CustomData["Latitude"] : 0.0;
-            double longitude = ctx.CustomData.ContainsKey("Longitude") ? (double)ctx.CustomData["Longitude"] : 0.0;
+            string address = ctx.Address;
+            double latitude = ctx.Latitude;
+            double longitude = ctx.Longitude;
 
             // Draw location icon
             using var iconBrush = new SolidBrush(ctx.AccentColor);
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             // Draw last updated
             using var updateFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             using var updateBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
-            var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ? (DateTime)ctx.CustomData["LastUpdated"] : DateTime.Now;
+            var lastUpdated = ctx.LastUpdated;
             string updateText = $"Updated: {lastUpdated:HH:mm}";
             var updateSize = TextUtils.MeasureText(g,updateText, updateFont);
             g.DrawString(updateText, updateFont, updateBrush, ctx.FooterRect.Right - updateSize.Width, ctx.FooterRect.Y);

@@ -25,7 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
             _avatarRects.Clear();
             _nameRects.Clear();
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 int itemHeight = Math.Min(48, ctx.ContentRect.Height / Math.Max(items.Count, 1));
                 for (int i = 0; i < items.Count; i++)
@@ -57,7 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
             }
             
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 DrawProfileItems(g, ctx.ContentRect, items, ctx.AccentColor);
             }
@@ -131,13 +133,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var nr = _nameRects[i];
                 owner.AddHitArea($"ProfileList_Avatar_{idx}", ar, null, () =>
                 {
-                    ctx.CustomData["SelectedProfileAvatarIndex"] = idx;
+                    ctx.SelectedProfileAvatarIndex = idx;
                     notifyAreaHit?.Invoke($"ProfileList_Avatar_{idx}", ar);
                     Owner?.Invalidate();
                 });
                 owner.AddHitArea($"ProfileList_Name_{idx}", nr, null, () =>
                 {
-                    ctx.CustomData["SelectedProfileNameIndex"] = idx;
+                    ctx.SelectedProfileNameIndex = idx;
                     notifyAreaHit?.Invoke($"ProfileList_Name_{idx}", nr);
                     Owner?.Invalidate();
                 });

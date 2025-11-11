@@ -76,13 +76,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var primaryValue = ctx.CustomData.ContainsKey("PrimaryValue") ? Convert.ToDecimal(ctx.CustomData["PrimaryValue"]) : 5000m;
-            var secondaryValue = ctx.CustomData.ContainsKey("SecondaryValue") ? Convert.ToDecimal(ctx.CustomData["SecondaryValue"]) : 3200m;
-            var currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
+            var primaryValue = ctx.PrimaryValue ?? 5000m;
+            var secondaryValue = ctx.SecondaryValue ?? 3200m;
+            var currencySymbol = ctx.CurrencySymbol ?? "$";
 
-            var validColor = ctx.CustomData.ContainsKey("ValidColor") ? (Color)ctx.CustomData["ValidColor"] : Color.Green;
-            var errorColor = ctx.CustomData.ContainsKey("ErrorColor") ? (Color)ctx.CustomData["ErrorColor"] : Color.Red;
-            var warningColor = ctx.CustomData.ContainsKey("WarningColor") ? (Color)ctx.CustomData["WarningColor"] : Color.Orange;
+            var validColor = ctx.ValidColor;
+            var errorColor = ctx.ErrorColor;
+            var warningColor = ctx.WarningColor;
 
             decimal budgetAmount = primaryValue;
             decimal spentAmount = secondaryValue;
@@ -236,11 +236,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             }
         }
 
-        private void HandleProgressClick(WidgetContext ctx) { ctx.CustomData["ToggleProgressView"] = true; Owner?.Invalidate(); }
-        private void HandleSpentClick(WidgetContext ctx) { ctx.CustomData["ShowSpentDetails"] = true; Owner?.Invalidate(); }
-        private void HandleRemainingClick(WidgetContext ctx) { ctx.CustomData["ShowRemainingDetails"] = true; Owner?.Invalidate(); }
-        private void HandleVarianceClick(WidgetContext ctx) { ctx.CustomData["ShowVarianceAnalysis"] = true; Owner?.Invalidate(); }
-        private void HandleStatusClick(WidgetContext ctx) { ctx.CustomData["ShowStatusInfo"] = true; Owner?.Invalidate(); }
+        private void HandleProgressClick(WidgetContext ctx) { ctx.ToggleProgressView = true; Owner?.Invalidate(); }
+        private void HandleSpentClick(WidgetContext ctx) { ctx.ShowSpentDetails = true; Owner?.Invalidate(); }
+        private void HandleRemainingClick(WidgetContext ctx) { ctx.ShowRemainingDetails = true; Owner?.Invalidate(); }
+        private void HandleVarianceClick(WidgetContext ctx) { ctx.ShowVarianceAnalysis = true; Owner?.Invalidate(); }
+        private void HandleStatusClick(WidgetContext ctx) { ctx.ShowStatusInfo = true; Owner?.Invalidate(); }
 
         public void Dispose()
         {

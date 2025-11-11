@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            string userName = ctx.CustomData.ContainsKey("UserName") ? ctx.CustomData["UserName"].ToString() : "User";
+            string userName = ctx.UserName ?? "User";
             
             // Draw message header (sender)
             using var headerFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);

@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			}
 
 			// Optional badge
-			bool showBadge = ctx.CustomData.ContainsKey("ShowBadge") && Convert.ToBoolean(ctx.CustomData["ShowBadge"]);
+			bool showBadge = ctx.ShowBadge;
 			if (showBadge)
 			{
 				using var badgeBrush = new SolidBrush(Color.FromArgb(200, ctx.AccentColor));
@@ -163,16 +163,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			ClearOwnerHitAreas();
 			owner.AddHitArea("IconCard_Card", _cardRectCache, null, () =>
 			{
-				ctx.CustomData["IconCardClicked"] = true;
+				ctx.IconCardClicked = true;
 				notifyAreaHit?.Invoke("IconCard_Card", _cardRectCache);
 				Owner?.Invalidate();
 			});
-			bool showBadge = ctx.CustomData.ContainsKey("ShowBadge") && Convert.ToBoolean(ctx.CustomData["ShowBadge"]);
+			bool showBadge = ctx.ShowBadge;
 			if (showBadge)
 			{
 				owner.AddHitArea("IconCard_Badge", _badgeRectCache, null, () =>
 				{
-					ctx.CustomData["IconCardBadgeClicked"] = true;
+					ctx.IconCardBadgeClicked = true;
 					notifyAreaHit?.Invoke("IconCard_Badge", _badgeRectCache);
 					Owner?.Invalidate();
 				});

@@ -55,11 +55,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            string address = ctx.CustomData.ContainsKey("Address") ? ctx.CustomData["Address"].ToString() : "";
-            string city = ctx.CustomData.ContainsKey("City") ? ctx.CustomData["City"].ToString() : "";
-            string region = ctx.CustomData.ContainsKey("Region") ? ctx.CustomData["Region"].ToString() : "";
-            string country = ctx.CustomData.ContainsKey("Country") ? ctx.CustomData["Country"].ToString() : "";
-            string postalCode = ctx.CustomData.ContainsKey("PostalCode") ? ctx.CustomData["PostalCode"].ToString() : "";
+            string address = ctx.Address;
+            string city = ctx.City;
+            string region = ctx.Region;
+            string country = ctx.Country;
+            string postalCode = ctx.PostalCode;
 
             // Draw address icon
             using var iconBrush = new SolidBrush(ctx.AccentColor);
@@ -111,8 +111,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             }
 
             // Draw coordinates if available
-            double latitude = ctx.CustomData.ContainsKey("Latitude") ? (double)ctx.CustomData["Latitude"] : 0.0;
-            double longitude = ctx.CustomData.ContainsKey("Longitude") ? (double)ctx.CustomData["Longitude"] : 0.0;
+            double latitude = ctx.Latitude;
+            double longitude = ctx.Longitude;
             
             if (latitude != 0.0 || longitude != 0.0)
             {

@@ -43,27 +43,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         #endregion
 
         #region Painter Initialization
+        /// <summary>
+        /// Initializes the appropriate painter based on NumericStyle.
+        /// Visual styling is handled by BeepStyling via the Style property.
+        /// </summary>
         private void InitializePainter()
         {
-            _currentPainter = _style switch
+            // Select painter based on NumericStyle (layout/interaction pattern)
+            // NOT based on BeepControlStyle (visual styling)
+            _currentPainter = _numericStyle switch
             {
-                BeepControlStyle.Material3 => new Material3NumericUpDownPainter(),
-                BeepControlStyle.iOS15 => new iOS15NumericUpDownPainter(),
-                BeepControlStyle.AntDesign => new AntDesignNumericUpDownPainter(),
-                BeepControlStyle.Fluent2 => new Fluent2NumericUpDownPainter(),
-                BeepControlStyle.MaterialYou => new MaterialYouNumericUpDownPainter(),
-                BeepControlStyle.Windows11Mica => new Windows11MicaNumericUpDownPainter(),
-                BeepControlStyle.MacOSBigSur => new MacOSBigSurNumericUpDownPainter(),
-                BeepControlStyle.ChakraUI => new ChakraUINumericUpDownPainter(),
-                BeepControlStyle.TailwindCard => new TailwindCardNumericUpDownPainter(),
-                BeepControlStyle.NotionMinimal => new NotionMinimalNumericUpDownPainter(),
-                BeepControlStyle.Minimal => new MinimalNumericUpDownPainter(),
-                BeepControlStyle.VercelClean => new VercelCleanNumericUpDownPainter(),
-                BeepControlStyle.StripeDashboard => new StripeDashboardNumericUpDownPainter(),
-                BeepControlStyle.DarkGlow => new DarkGlowNumericUpDownPainter(),
-                BeepControlStyle.DiscordStyle => new DiscordStyleNumericUpDownPainter(),
-                BeepControlStyle.GradientModern => new GradientModernNumericUpDownPainter(),
-                _ => new Material3NumericUpDownPainter()
+                NumericStyle.CompactStepper => new CompactStepperPainter(),
+                NumericStyle.Inline => new InlineStepperPainter(),
+                NumericStyle.Currency => new CurrencyPainter(),
+                NumericStyle.Phone => new PhoneNumberPainter(),
+                
+                // More styles can use the same painter with different configurations
+                NumericStyle.Integer => new CompactStepperPainter(),
+                NumericStyle.Decimal => new CompactStepperPainter(),
+                NumericStyle.Percentage => new CompactStepperPainter(),
+                
+                // Standard painter for default and similar styles
+                NumericStyle.Standard => new StandardNumericPainter(),
+                NumericStyle.VerticalStepper => new StandardNumericPainter(),
+                
+                // TODO: Add more specialized painters:
+                // NumericStyle.Slider => new SliderPainter(),
+                // NumericStyle.Dial => new DialPainter(),
+                // NumericStyle.Rating => new RatingPainter(),
+                // NumericStyle.Progress => new ProgressPainter(),
+                // NumericStyle.Time => new TimePainter(),
+                // NumericStyle.Temperature => new TemperaturePainter(),
+                
+                _ => new StandardNumericPainter()
             };
 
             RefreshHitAreas();
@@ -126,7 +138,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         #region Context Adapter Class
         /// <summary>
-        /// Adapter class to expose BeepNumericUpDown properties to painters
+        /// Adapter class to expose BeepNumericUpDown properties to painters.
+        /// Painters use this for layout calculations and text formatting only.
+        /// Visual styling is handled by BeepStyling.
         /// </summary>
         private class NumericUpDownPainterContext : INumericUpDownPainterContext
         {
@@ -158,26 +172,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             public bool DownButtonHovered => _control._downButtonHovered;
             public bool ShowSpinButtons => _control._showSpinButtons;
 
-            // Visual properties
+            // Layout properties (for calculations only)
             public bool IsRounded => _control.IsRounded;
             public int BorderRadius => _control.BorderRadius;
-            public Color AccentColor => _control.AccentColor;
-            public bool UseThemeColors => _control.UseThemeColors;
-            public IBeepTheme Theme => _control._currentTheme;
 
             // Display properties
             public NumericUpDownDisplayMode DisplayMode => _control._displayMode;
+            public NumericStyle NumericStyle => _control._numericStyle;
             public NumericSpinButtonSize ButtonSize => _control._buttonSize;
             public string Prefix => _control._prefix;
             public string Suffix => _control._suffix;
             public string Unit => _control._unit;
             public bool ThousandsSeparator => _control._thousandsSeparator;
             public bool AllowNegative => _control._allowNegative;
-            public bool EnableShadow
-            {
-                get => _control.EnableShadow;
-                set => _control.EnableShadow = value;
-            }
+
+            // Theme (for text colors only)
+            public IBeepTheme Theme => _control._currentTheme;
 
             // Actions
             public void IncreaseValue() => _control.IncrementValueInternal();

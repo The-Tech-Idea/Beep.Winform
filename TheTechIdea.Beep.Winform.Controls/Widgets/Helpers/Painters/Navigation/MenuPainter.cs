@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_itemsCount <= 0 || _lastCtx == null) return;
             _activeIndex = Math.Clamp(idx, 0, _itemsCount - 1);
-            _lastCtx.CustomData["ActiveIndex"] = _activeIndex;
+            _lastCtx.ActiveIndex = _activeIndex;
             Owner?.Invalidate();
         }
 
@@ -78,9 +78,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - pad * 2);
 
             _itemRects.Clear();
-            var items = ctx.CustomData.ContainsKey("Items") ? (List<string>)ctx.CustomData["Items"] : new List<string> { "Home", "Analytics", "Reports", "Settings" };
+            var items = ctx.NavigationItems?.OfType<string>().ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
             _itemsCount = items.Count;
-            _activeIndex = ctx.CustomData.ContainsKey("ActiveIndex") ? Math.Clamp((int)ctx.CustomData["ActiveIndex"], 0, Math.Max(0, _itemsCount - 1)) : 0;
+            _activeIndex = ctx.ActiveIndex > 0 ? Math.Clamp(ctx.ActiveIndex, 0, Math.Max(0, _itemsCount - 1)) : 0;
 
             int itemHeight = 28;
             int visible = Math.Max(0, Math.Min(items.Count, ctx.ContentRect.Height / itemHeight));
@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             _lastCtx = ctx;
-            var items = ctx.CustomData.ContainsKey("Items") ? (List<string>)ctx.CustomData["Items"] : new List<string> { "Home", "Analytics", "Reports", "Settings" };
+            var items = ctx.NavigationItems?.OfType<string>().ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
             int active = _activeIndex;
             using var font = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
 
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 int idx = i; var rect = _itemRects[i];
                 owner.AddHitArea($"Menu_Item_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["ActiveIndex"] = idx;
+                    ctx.ActiveIndex = idx;
                     _activeIndex = idx;
                     notifyAreaHit?.Invoke($"Menu_Item_{idx}", rect);
                     Owner?.Invalidate();

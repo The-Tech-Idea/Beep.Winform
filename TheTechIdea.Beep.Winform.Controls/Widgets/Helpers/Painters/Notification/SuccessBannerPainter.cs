@@ -49,9 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 using var titleBrush = new SolidBrush(Color.FromArgb(34, 197, 94));
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.ContentRect.X, ctx.ContentRect.Y);
             }
-            if (ctx.CustomData.ContainsKey("Message"))
+            if (!string.IsNullOrEmpty(ctx.Message))
             {
-                string message = ctx.CustomData["Message"].ToString();
+                string message = ctx.Message;
                 using var messageFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
                 using var messageBrush = new SolidBrush(Color.FromArgb(120, 34, 197, 94));
                 var messageRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + (ctx.ShowHeader ? 20 : 0), ctx.ContentRect.Width, ctx.ContentRect.Height - (ctx.ShowHeader ? 20 : 0));
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             ClearOwnerHitAreas();
             owner.AddHitArea("SuccessBanner_Dismiss", _dismissRect, null, () =>
             {
-                ctx.CustomData["SuccessDismissed"] = true;
+                ctx.SuccessDismissed = true;
                 notifyAreaHit?.Invoke("SuccessBanner_Dismiss", _dismissRect);
                 Owner?.Invalidate();
             });

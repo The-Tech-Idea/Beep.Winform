@@ -70,12 +70,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            string userName = ctx.CustomData.ContainsKey("UserName") ? ctx.CustomData["UserName"].ToString() : "User";
-            string userRole = ctx.CustomData.ContainsKey("UserRole") ? ctx.CustomData["UserRole"].ToString() : "Role";
-            string userStatus = ctx.CustomData.ContainsKey("UserStatus") ? ctx.CustomData["UserStatus"].ToString() : "Offline";
-            var avatarImage = ctx.CustomData.ContainsKey("AvatarImage") ? ctx.CustomData["AvatarImage"] as Image : null;
-            var statusColor = ctx.CustomData.ContainsKey("StatusColor") ? (Color)ctx.CustomData["StatusColor"] : Color.Gray;
-            bool showStatus = ctx.CustomData.ContainsKey("ShowStatus") && (bool)ctx.CustomData["ShowStatus"];
+            string userName = ctx.UserName ?? "User";
+            string userRole = ctx.UserRole ?? "Role";
+            string userStatus = ctx.UserStatus ?? "Offline";
+            var avatarImage = ctx.AvatarImage as Image;
+            var statusColor = ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.Gray;
+            bool showStatus = ctx.ShowStatus;
 
             // Draw avatar
             DrawAvatar(g, ctx, ctx.IconRect, avatarImage, userName, ctx.AccentColor);
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             using var borderPen = new Pen(Color.FromArgb(200, Color.White), 3);
             g.DrawEllipse(borderPen, rect);
             
-            if (avatarImage != null || ctx.CustomData.ContainsKey("AvatarImagePath"))
+            if (avatarImage != null || !string.IsNullOrEmpty(ctx.AvatarImagePath))
             {
                 // Configure avatar painter
                 _avatarPainter.CurrentTheme = Theme;
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 _avatarPainter.ScaleMode = ImageScaleMode.Fill;
                 
                 // Set image source
-                var avatarImagePath = ctx.CustomData.ContainsKey("AvatarImagePath") ? ctx.CustomData["AvatarImagePath"]?.ToString() : null;
+                var avatarImagePath = ctx.AvatarImagePath;
                 if (!string.IsNullOrEmpty(avatarImagePath))
                 {
                     _avatarPainter.ImagePath = avatarImagePath;

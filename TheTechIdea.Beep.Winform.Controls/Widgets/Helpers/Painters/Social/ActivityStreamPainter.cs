@@ -71,15 +71,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             if (!string.IsNullOrEmpty(ctx.Title) && !ctx.HeaderRect.IsEmpty)
             {
                 // Determine activities first so count can be shown in header
-                var activitiesForHeader = ctx.CustomData.ContainsKey("Activities") ? 
-                    (List<ActivityItem>)ctx.CustomData["Activities"] : new List<ActivityItem>();
+                var activitiesForHeader = ctx.ActivityItems?.Cast<ActivityItem>().ToList() ?? new List<ActivityItem>();
 
                 DrawActivityHeader(g, ctx.HeaderRect, ctx.Title, ctx.AccentColor, activitiesForHeader.Count);
             }
             
             // Draw activity items
-            var activities = ctx.CustomData.ContainsKey("Activities") ? 
-                (List<ActivityItem>)ctx.CustomData["Activities"] : CreateSampleActivities();
+            var activities = ctx.ActivityItems?.Cast<ActivityItem>().ToList() ?? CreateSampleActivities();
             
             DrawActivityTimeline(g, ctx.ContentRect, activities);
         }
@@ -336,8 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw activity status indicator
-            var activities = ctx.CustomData.ContainsKey("Activities") ? 
-                (List<ActivityItem>)ctx.CustomData["Activities"] : new List<ActivityItem>();
+            var activities = ctx.ActivityItems?.Cast<ActivityItem>().ToList() ?? new List<ActivityItem>();
             
             if (activities.Any(a => (DateTime.Now - a.Timestamp).TotalMinutes < 5))
             {

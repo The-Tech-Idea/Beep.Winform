@@ -41,11 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var processes = ctx.CustomData.ContainsKey("Processes") ?
-                (List<NavigationItem>)ctx.CustomData["Processes"] : CreateSampleProcessFlow();
-
-            int activeProcess = ctx.CustomData.ContainsKey("ActiveProcess") ?
-                (int)ctx.CustomData["ActiveProcess"] : 1;
+            var processes = ctx.ProcessFlowItems?.OfType<NavigationItem>().ToList() ?? CreateSampleProcessFlow();
+            int activeProcess = ctx.ActiveProcessIndex;
 
             if (!processes.Any()) return;
 

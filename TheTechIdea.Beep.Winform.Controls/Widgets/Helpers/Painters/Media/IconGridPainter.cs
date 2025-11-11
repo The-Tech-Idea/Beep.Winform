@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
                 // Try custom icon
                 bool drawn = false;
-                var customIconPath = ctx.CustomData.ContainsKey("IconPath") ? ctx.CustomData["IconPath"]?.ToString() : null;
+                var customIconPath = ctx.IconPath;
                 if (!string.IsNullOrEmpty(customIconPath))
                 {
                     try
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 var rect = _cellRects[i];
                 owner.AddHitArea($"IconGrid_Cell_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedIconIndex"] = idx;
+                    ctx.SelectedIconIndex = idx;
                     notifyAreaHit?.Invoke($"IconGrid_Cell_{idx}", rect);
                     Owner?.Invalidate();
                 });

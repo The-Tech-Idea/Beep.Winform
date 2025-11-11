@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             );
 
             // Optional dismiss button (X) on the right
-            bool dismissible = ctx.CustomData.ContainsKey("Dismissible") && (bool)ctx.CustomData["Dismissible"];
+            bool dismissible = ctx.IsDismissible;
             _dismissRectCache = dismissible
                 ? new Rectangle(ctx.DrawingRect.Right - pad - 18, ctx.DrawingRect.Top + pad + 3, 18, 18)
                 : Rectangle.Empty;
@@ -72,8 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Draw notification icon
             if (ctx.ShowIcon && !_iconRectCache.IsEmpty)
             {
-                var notificationType = ctx.CustomData.ContainsKey("NotificationType") ?
-                    (NotificationType)ctx.CustomData["NotificationType"] : NotificationType.Info;
+                var notificationType = !string.IsNullOrEmpty(ctx.NotificationType) ?
+                    Enum.Parse<NotificationType>(ctx.NotificationType, true) : NotificationType.Info;
                 WidgetRenderingHelpers.DrawNotificationIcon(g, ctx.IconRect, notificationType, ctx.AccentColor);
             }
 
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("AlertBanner_Banner", _bannerRectCache, null, () =>
                 {
-                    ctx.CustomData["BannerClicked"] = true;
+                    ctx.BannerClicked = true;
                     notifyAreaHit?.Invoke("AlertBanner_Banner", _bannerRectCache);
                     Owner?.Invalidate();
                 });
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("AlertBanner_Icon", _iconRectCache, null, () =>
                 {
-                    ctx.CustomData["IconClicked"] = true;
+                    ctx.IconClicked = true;
                     notifyAreaHit?.Invoke("AlertBanner_Icon", _iconRectCache);
                     Owner?.Invalidate();
                 });
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("AlertBanner_Dismiss", _dismissRectCache, null, () =>
                 {
-                    ctx.CustomData["Dismissed"] = true;
+                    ctx.Dismissed = true;
                     notifyAreaHit?.Invoke("AlertBanner_Dismiss", _dismissRectCache);
                     Owner?.Invalidate();
                 });

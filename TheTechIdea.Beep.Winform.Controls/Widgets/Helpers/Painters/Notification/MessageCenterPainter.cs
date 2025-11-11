@@ -89,15 +89,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw message list
-            if (ctx.CustomData.ContainsKey("Messages"))
+            if (ctx.NotificationMessages != null)
             {
-                var messages = (List<Dictionary<string, object>>)ctx.CustomData["Messages"];
+                var messages = ctx.NotificationMessages.Cast<Dictionary<string, object>>().ToList();
                 DrawMessageList(g, ctx.ContentRect, messages);
             }
-            else if (ctx.CustomData.ContainsKey("MessageCount"))
+            else if (ctx.MessageCount > 0)
             {
                 // Show message count if no detailed messages
-                int count = (int)ctx.CustomData["MessageCount"];
+                int count = ctx.MessageCount;
                 DrawMessageCount(g, ctx.ContentRect, count);
             }
         }

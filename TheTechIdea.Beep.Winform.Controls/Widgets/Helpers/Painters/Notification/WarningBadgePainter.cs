@@ -81,9 +81,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw message
-            if (ctx.CustomData.ContainsKey("Message"))
+            if (!string.IsNullOrEmpty(ctx.Message))
             {
-                string message = ctx.CustomData["Message"].ToString();
+                string message = ctx.Message;
                 using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var messageBrush = new SolidBrush(Color.FromArgb(120, 245, 158, 11));
 

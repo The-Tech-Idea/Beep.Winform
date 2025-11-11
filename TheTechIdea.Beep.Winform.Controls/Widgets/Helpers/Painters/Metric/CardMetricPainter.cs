@@ -94,8 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             g.FillRoundedRectangle(iconBgBrush, ctx.IconRect, 8);
 
             // Metric type icon
-            string iconName = ctx.CustomData.ContainsKey("MetricType") 
-                ? GetMetricIcon(ctx.CustomData["MetricType"].ToString())
+            string iconName = !string.IsNullOrEmpty(ctx.MetricType)
+                ? GetMetricIcon(ctx.MetricType)
                 : "activity";
             
             var iconRect = Rectangle.Inflate(ctx.IconRect, -6, -6);
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             {
                 owner.AddHitArea("CardMetric_Icon", ctx.IconRect, null, () =>
                 {
-                    ctx.CustomData["IconClicked"] = true;
+                    ctx.IconClicked = true;
                     notifyAreaHit?.Invoke("CardMetric_Icon", ctx.IconRect);
                     Owner?.Invalidate();
                 });

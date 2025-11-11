@@ -93,13 +93,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             DrawChatHeader(g, ctx.HeaderRect, ctx);
 
             // Draw messages area
-            var messages = ctx.CustomData.ContainsKey("Messages") ? 
-                (List<ChatMessage>)ctx.CustomData["Messages"] : CreateSampleMessages();
+            var messages = ctx.ChatMessages?.Cast<ChatMessage>().ToList() ?? CreateSampleMessages();
             
             DrawMessages(g, ctx.ContentRect, messages, ctx);
 
             // Draw typing indicator if someone is typing
-            bool someoneTyping = ctx.CustomData.ContainsKey("IsTyping") && ctx.CustomData["IsTyping"] is bool t && t;
+            bool someoneTyping = ctx.IsTyping;
             if (someoneTyping)
             {
                 DrawTypingIndicator(g, ctx.ContentRect, ctx);
@@ -112,8 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawChatHeader(Graphics g, Rectangle rect, WidgetContext ctx)
         {
             string chatTitle = ctx.Title ?? "Chat";
-            var participants = ctx.CustomData.ContainsKey("Participants") ? 
-                (List<ChatParticipant>)ctx.CustomData["Participants"] : new List<ChatParticipant>();
+            var participants = ctx.ChatParticipants?.Cast<ChatParticipant>().ToList() ?? new List<ChatParticipant>();
             
             // Chat icon or participant avatar
             var iconRect = _headerIconRect;
@@ -165,8 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             }
 
             int currentY = rect.Y;
-            string currentUserId = ctx.CustomData.ContainsKey("CurrentUserId") ? 
-                ctx.CustomData["CurrentUserId"].ToString() : "current_user";
+            string currentUserId = ctx.CurrentUserId ?? "current_user";
 
             // Show most recent messages (scroll to bottom behavior)
             var visibleMessages = messages.TakeLast(10).ToList();
@@ -378,8 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             g.DrawPath(borderPen, inputPath);
 
             // Placeholder text or current input
-            string inputText = ctx.CustomData.ContainsKey("InputText") ? 
-                ctx.CustomData["InputText"].ToString() : "";
+            string inputText = ctx.InputText ?? "";
             
             string displayText = string.IsNullOrEmpty(inputText) ? "Type a message..." : inputText;
             Color textColor = string.IsNullOrEmpty(inputText) ? 
@@ -528,9 +524,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw unread message count if any
-            if (ctx.CustomData.ContainsKey("UnreadCount") && ctx.CustomData["UnreadCount"] is int uc && uc > 0)
+            int unreadCount = ctx.UnreadCount;
+            if (unreadCount > 0)
             {
-                int unreadCount = uc;
                 var badgeRect = new Rectangle(ctx.DrawingRect.Right - 24, ctx.DrawingRect.Top + 4, 16, 16);
                 
                 using var badgeBrush = new SolidBrush(Color.FromArgb(244, 67, 54));
@@ -554,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             {
                 owner.AddHitArea("Chat_HeaderIcon", _headerIconRect, null, () =>
                 {
-                    ctx.CustomData["HeaderIconClicked"] = true;
+                    ctx.HeaderIconClicked = true;
                     notifyAreaHit?.Invoke("Chat_HeaderIcon", _headerIconRect);
                     Owner?.Invalidate();
                 });
@@ -566,8 +562,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 string name = $"Chat_Message_{index}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedMessageIndex"] = index;
-                    ctx.CustomData["SelectedMessageIsMine"] = mine;
+                    ctx.SelectedMessageIndex = index;
+                    ctx.SelectedMessageIsMine = mine;
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -578,7 +574,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             {
                 owner.AddHitArea("Chat_Input", _inputRectCache, null, () =>
                 {
-                    ctx.CustomData["InputFocused"] = true;
+                    ctx.InputFocused = true;
                     notifyAreaHit?.Invoke("Chat_Input", _inputRectCache);
                     Owner?.Invalidate();
                 });
@@ -587,13 +583,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Send
             if (!_sendRectCache.IsEmpty)
             {
-                string inputText = ctx.CustomData.ContainsKey("InputText") ? ctx.CustomData["InputText"].ToString() : string.Empty;
+                string inputText = ctx.InputText ?? string.Empty;
                 bool canSend = !string.IsNullOrWhiteSpace(inputText);
                 owner.AddHitArea("Chat_Send", _sendRectCache, null, () =>
                 {
                     if (canSend)
                     {
-                        ctx.CustomData["SendClicked"] = true;
+                        ctx.SendClicked = true;
                         notifyAreaHit?.Invoke("Chat_Send", _sendRectCache);
                     }
                     Owner?.Invalidate();

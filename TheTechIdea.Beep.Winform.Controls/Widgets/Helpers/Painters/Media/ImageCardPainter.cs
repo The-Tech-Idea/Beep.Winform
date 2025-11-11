@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             _imageRectCache = ctx.ContentRect;
 
             // Overlay area at bottom if enabled
-            if (ctx.ShowIcon && ctx.CustomData.ContainsKey("ShowOverlay") && (bool)ctx.CustomData["ShowOverlay"])
+            if (ctx.ShowIcon && ctx.ShowImageOverlay)
             {
                 ctx.FooterRect = new Rectangle(
                     ctx.ContentRect.Left,
@@ -55,8 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
         {
             DrawSoftShadow(g, ctx.DrawingRect, 8, layers: 3, offset: 2);
 
-            var image = ctx.CustomData.ContainsKey("Image") ? ctx.CustomData["Image"] as Image : null;
-            var imagePath = ctx.CustomData.ContainsKey("ImagePath") ? ctx.CustomData["ImagePath"]?.ToString() : null;
+            var image = ctx.Image;
+            var imagePath = ctx.ImagePath;
             
             if (image != null || !string.IsNullOrEmpty(imagePath))
             {
@@ -80,13 +80,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            bool showOverlay = ctx.CustomData.ContainsKey("ShowOverlay") && (bool)ctx.CustomData["ShowOverlay"];
+            bool showOverlay = ctx.ShowImageOverlay;
             if (showOverlay && !_overlayRectCache.IsEmpty)
             {
                 using var overlayBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
                 using var overlayPath = CreateRoundedPath(_overlayRectCache, 0);
                 g.FillPath(overlayBrush, overlayPath);
-                string overlayText = ctx.CustomData.ContainsKey("OverlayText") ? ctx.CustomData["OverlayText"].ToString() : ctx.Title;
+                string overlayText = !string.IsNullOrEmpty(ctx.OverlayText) ? ctx.OverlayText : ctx.Title;
                 using var overlayFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
                 using var overlayTextBrush = new SolidBrush(Color.White);
                 var textRect = Rectangle.Inflate(_overlayRectCache, -12, -8);
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea("ImageCard_Image", _imageRectCache, null, () =>
                 {
-                    ctx.CustomData["ImageClicked"] = true;
+                    ctx.ImageClicked = true;
                     notifyAreaHit?.Invoke("ImageCard_Image", _imageRectCache);
                     Owner?.Invalidate();
                 });
@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea("ImageCard_Overlay", _overlayRectCache, null, () =>
                 {
-                    ctx.CustomData["OverlayClicked"] = true;
+                    ctx.OverlayClicked = true;
                     notifyAreaHit?.Invoke("ImageCard_Overlay", _overlayRectCache);
                     Owner?.Invalidate();
                 });

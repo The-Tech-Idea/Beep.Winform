@@ -45,11 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var items = ctx.CustomData.ContainsKey("Items") ?
-                (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleSidebarItems();
-
-            int activeIndex = ctx.CustomData.ContainsKey("ActiveIndex") ?
-                (int)ctx.CustomData["ActiveIndex"] : 0;
+            var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleSidebarItems();
+            int activeIndex = ctx.ActiveIndex;
 
             if (!items.Any()) return;
 

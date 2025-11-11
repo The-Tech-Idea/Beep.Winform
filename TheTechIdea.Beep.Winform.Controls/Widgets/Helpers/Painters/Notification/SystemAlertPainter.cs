@@ -81,10 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw message
-            if (ctx.CustomData.ContainsKey("Message"))
+            if (!string.IsNullOrEmpty(ctx.Message))
             {
-                string message = ctx.CustomData["Message"].ToString();
-                using var messageFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
+                string message = ctx.Message;
+                using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var messageBrush = new SolidBrush(Color.FromArgb(120, 107, 114, 128));
 
                 Rectangle messageRect = new Rectangle(
@@ -98,9 +98,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw timestamp if available
-            if (ctx.CustomData.ContainsKey("Timestamp"))
+            if (!string.IsNullOrEmpty(ctx.Timestamp))
             {
-                string timestamp = ctx.CustomData["Timestamp"].ToString();
+                string timestamp = ctx.Timestamp;
                 using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                 using var timeBrush = new SolidBrush(Color.FromArgb(80, 107, 114, 128));
 

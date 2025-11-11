@@ -67,8 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             }
 
             // Draw avatar cluster
-            var mediaItems = ctx.CustomData.ContainsKey("MediaItems") ?
-                (List<MediaItem>)ctx.CustomData["MediaItems"] : new List<MediaItem>();
+            var mediaItems = ctx.MediaItems?.Cast<MediaItem>().ToList() ?? new List<MediaItem>();
 
             DrawAvatarCluster(g, ctx, ctx.ContentRect, mediaItems.Where(x => x.IsAvatar).Take(6).ToList(), ctx.AccentColor);
         }
@@ -187,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 var rect = _avatarRects[i].rect;
                 owner.AddHitArea($"AvatarGroup_Item_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedAvatarIndex"] = idx;
+                    ctx.SelectedAvatarIndex = idx;
                     notifyAreaHit?.Invoke($"AvatarGroup_Item_{idx}", rect);
                     Owner?.Invalidate();
                 });

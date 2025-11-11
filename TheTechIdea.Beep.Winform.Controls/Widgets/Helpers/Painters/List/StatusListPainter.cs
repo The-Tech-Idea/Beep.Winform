@@ -25,7 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
             _rowRects.Clear();
             _statusRects.Clear();
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 int itemHeight = Math.Min(28, ctx.ContentRect.Height / Math.Max(items.Count, 1));
                 for (int i = 0; i < items.Count; i++)
@@ -57,7 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
             }
             
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 DrawStatusItems(g, ctx, ctx.ContentRect, items);
             }
@@ -72,8 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             using var statusFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
 
             // Optional local overrides for status after toggle (kept in CustomData)
-            var overrides = ctx.CustomData.ContainsKey("StatusOverrides") && ctx.CustomData["StatusOverrides"] is Dictionary<int, string> map
-                ? map : null;
+            var overrides = ctx.StatusOverrides;
             
             for (int i = 0; i < items.Count; i++)
             {
@@ -161,28 +162,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
                 owner.AddHitArea($"StatusList_Row_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedStatusRowIndex"] = idx;
+                    ctx.SelectedStatusRowIndex = idx;
                     notifyAreaHit?.Invoke($"StatusList_Row_{idx}", rect);
                     Owner?.Invalidate();
                 });
                 owner.AddHitArea($"StatusList_Status_{idx}", statRect, null, () =>
                 {
                     // Toggle in StatusOverrides without mutating original Items
-                    if (!ctx.CustomData.ContainsKey("StatusOverrides") || ctx.CustomData["StatusOverrides"] is not Dictionary<int, string>)
-                        ctx.CustomData["StatusOverrides"] = new Dictionary<int, string>();
-                    var map = (Dictionary<int, string>)ctx.CustomData["StatusOverrides"];
+                    if (ctx.StatusOverrides == null)
+                        ctx.StatusOverrides = new Dictionary<int, string>();
+                    var map = ctx.StatusOverrides;
 
                     // Determine current status (override -> items)
                     string current;
                     if (map.ContainsKey(idx)) current = map[idx];
-                    else if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items && idx < items.Count && items[idx].ContainsKey("Status"))
-                        current = items[idx]["Status"].ToString();
+                    else if (ctx.ListItems != null && idx < ctx.ListItems.Count && ctx.ListItems[idx].ContainsKey("Status"))
+                        current = ctx.ListItems[idx]["Status"]?.ToString() ?? "Unknown";
                     else current = "Unknown";
 
                     string next = NextStatus(current);
                     map[idx] = next;
-                    ctx.CustomData["ToggledStatusRowIndex"] = idx;
-                    ctx.CustomData["ToggledStatusNewValue"] = next;
+                    ctx.ToggledStatusRowIndex = idx;
+                    ctx.ToggledStatusNewValue = next;
 
                     notifyAreaHit?.Invoke($"StatusList_Status_{idx}", statRect);
                     Owner?.Invalidate();

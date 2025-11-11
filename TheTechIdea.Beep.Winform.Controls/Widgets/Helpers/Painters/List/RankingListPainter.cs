@@ -23,7 +23,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 8, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
 
             _rowRects.Clear();
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 int itemHeight = Math.Min(32, ctx.ContentRect.Height / Math.Max(items.Count, 1));
                 for (int i = 0; i < items.Count; i++)
@@ -53,7 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
             }
             
-            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            var items = ctx.ListItems;
+            if (items != null && items.Count > 0)
             {
                 DrawRankingItems(g, ctx.ContentRect, items);
             }
@@ -137,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var rect = _rowRects[i];
                 owner.AddHitArea($"RankingList_Row_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedRankIndex"] = idx;
+                    ctx.SelectedRankIndex = idx;
                     notifyAreaHit?.Invoke($"RankingList_Row_{idx}", rect);
                     Owner?.Invalidate();
                 });

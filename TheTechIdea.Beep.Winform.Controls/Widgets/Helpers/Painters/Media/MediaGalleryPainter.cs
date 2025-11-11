@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 var rect = _itemRects[i];
                 owner.AddHitArea($"MediaGallery_Item_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedMediaIndex"] = idx;
+                    ctx.SelectedMediaIndex = idx;
                     notifyAreaHit?.Invoke($"MediaGallery_Item_{idx}", rect);
                     Owner?.Invalidate();
                 });

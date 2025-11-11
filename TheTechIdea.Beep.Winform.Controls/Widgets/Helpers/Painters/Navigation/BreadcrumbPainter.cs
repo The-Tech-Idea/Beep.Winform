@@ -56,11 +56,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var items = ctx.CustomData.ContainsKey("Items") ? 
-                (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleBreadcrumb();
-            
-            int currentIndex = ctx.CustomData.ContainsKey("CurrentIndex") ? 
-                (int)ctx.CustomData["CurrentIndex"] : items.Count - 1;
+            var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleBreadcrumb();
+            int currentIndex = ctx.CurrentIndex >= 0 ? ctx.CurrentIndex : items.Count - 1;
             
             if (!items.Any()) return;
             
@@ -148,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("Breadcrumb_Home", _homeRect, null, () =>
                 {
-                    ctx.CustomData["BreadcrumbHomeClicked"] = true;
+                    ctx.BreadcrumbHomeClicked = true;
                     notifyAreaHit?.Invoke("Breadcrumb_Home", _homeRect);
                     Owner?.Invalidate();
                 });
@@ -161,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var rect = _itemRects[i].rect;
                 owner.AddHitArea($"Breadcrumb_Item_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["BreadcrumbIndex"] = idx;
+                    ctx.BreadcrumbIndex = idx;
                     notifyAreaHit?.Invoke($"Breadcrumb_Item_{idx}", rect);
                     Owner?.Invalidate();
                 });

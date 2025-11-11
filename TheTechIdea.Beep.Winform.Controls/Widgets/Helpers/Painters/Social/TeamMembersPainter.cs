@@ -56,8 +56,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Draw title with online count
             if (!string.IsNullOrEmpty(ctx.Title) && !ctx.HeaderRect.IsEmpty)
             {
-                int onlineCount = ctx.CustomData.ContainsKey("OnlineCount") ? (int)ctx.CustomData["OnlineCount"] : 0;
-                int totalCount = ctx.CustomData.ContainsKey("TotalCount") ? (int)ctx.CustomData["TotalCount"] : 0;
+                int onlineCount = ctx.OnlineCount;
+                int totalCount = ctx.TotalCount;
                 
                 string titleText = $"{ctx.Title} ({onlineCount}/{totalCount} online)";
                 
@@ -67,8 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             }
             
             // Draw team member avatars
-            var socialItems = ctx.CustomData.ContainsKey("SocialItems") ? 
-                (List<SocialItem>)ctx.CustomData["SocialItems"] : new List<SocialItem>();
+            var socialItems = ctx.SocialItems?.Cast<SocialItem>().ToList() ?? new List<SocialItem>();
             
             DrawTeamMemberGrid(g, ctx.ContentRect, socialItems.Take(6).ToList(), ctx.AccentColor);
         }

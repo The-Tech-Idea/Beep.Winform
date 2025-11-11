@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _panelRect = ctx.DrawingRect;
             ctx.IconRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, 24, 24);
             _toggleRect = new Rectangle(ctx.DrawingRect.Right - pad - 18, ctx.DrawingRect.Top + pad + 3, 18, 18);
-            bool collapsed = ctx.CustomData.ContainsKey("Collapsed") && (bool)ctx.CustomData["Collapsed"];
+            bool collapsed = ctx.IsCollapsed;
             int contentHeight = collapsed ? 24 : ctx.DrawingRect.Height - pad * 2;
             ctx.ContentRect = new Rectangle(ctx.IconRect.Right + 12, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - ctx.IconRect.Width - pad * 3 - 20, contentHeight);
             return ctx;
@@ -48,10 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 using var titleBrush = new SolidBrush(Color.FromArgb(59, 130, 246));
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.ContentRect.X, ctx.ContentRect.Y);
             }
-            bool collapsed = ctx.CustomData.ContainsKey("Collapsed") && (bool)ctx.CustomData["Collapsed"];
-            if (!collapsed && ctx.CustomData.ContainsKey("Message"))
+            bool collapsed = ctx.IsCollapsed;
+            if (!collapsed && !string.IsNullOrEmpty(ctx.Message))
             {
-                string message = ctx.CustomData["Message"].ToString();
+                string message = ctx.Message;
                 using var messageFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
                 using var messageBrush = new SolidBrush(Color.FromArgb(120, 59, 130, 246));
                 var messageRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + (ctx.ShowHeader ? 20 : 0), ctx.ContentRect.Width, ctx.ContentRect.Height - (ctx.ShowHeader ? 20 : 0));
@@ -71,8 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            bool collapsed = ctx.CustomData.ContainsKey("Collapsed") && (bool)ctx.CustomData["Collapsed"];
-            string glyph = collapsed ? "+" : "?"; // minus
+            bool collapsed = ctx.IsCollapsed;
+            string glyph = collapsed ? "+" : "−"; // minus
             bool hover = IsAreaHovered("InfoPanel_Toggle");
             using var font = new Font(Owner.Font.FontFamily, 10, FontStyle.Bold);
             using var brush = new SolidBrush(hover ? (Theme?.PrimaryColor ?? Color.Blue) : (Theme?.ForeColor ?? Color.Black));
@@ -86,8 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             ClearOwnerHitAreas();
             owner.AddHitArea("InfoPanel_Toggle", _toggleRect, null, () =>
             {
-                bool collapsed = ctx.CustomData.ContainsKey("Collapsed") && (bool)ctx.CustomData["Collapsed"];
-                ctx.CustomData["Collapsed"] = !collapsed;
+                bool collapsed = ctx.IsCollapsed;
+                ctx.IsCollapsed = !collapsed;
                 notifyAreaHit?.Invoke("InfoPanel_Toggle", _toggleRect);
                 Owner?.Invalidate();
             });

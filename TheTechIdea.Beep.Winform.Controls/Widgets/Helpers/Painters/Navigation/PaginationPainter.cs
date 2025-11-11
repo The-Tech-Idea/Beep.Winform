@@ -60,9 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void SetPage(int page)
         {
             if (_lastCtx == null) return;
-            int total = _lastCtx.CustomData.ContainsKey("TotalPages") ? Math.Max(1, (int)_lastCtx.CustomData["TotalPages"]) : Math.Max(1, _totalPages);
+            int total = _lastCtx.TotalPages > 0 ? _lastCtx.TotalPages : Math.Max(1, _totalPages);
             int clamped = Math.Clamp(page, 1, total);
-            _lastCtx.CustomData["CurrentPage"] = clamped;
+            _lastCtx.CurrentPage = clamped;
             _currentPage = clamped;
             Owner?.Invalidate();
         }
@@ -80,8 +80,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             );
 
             // Capture state
-            _currentPage = ctx.CustomData.ContainsKey("CurrentPage") ? (int)ctx.CustomData["CurrentPage"] : 1;
-            _totalPages = ctx.CustomData.ContainsKey("TotalPages") ? Math.Max(1, (int)ctx.CustomData["TotalPages"]) : 10;
+            _currentPage = ctx.CurrentPage > 0 ? ctx.CurrentPage : 1;
+            _totalPages = ctx.TotalPages > 0 ? Math.Max(1, ctx.TotalPages) : 10;
             _currentPage = Math.Clamp(_currentPage, 1, _totalPages);
 
             BuildButtons(ctx);
@@ -159,8 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.ApplyThemeOnImage = true;
 
             // Ensure buttons reflect any runtime changes
-            _currentPage = ctx.CustomData.ContainsKey("CurrentPage") ? (int)ctx.CustomData["CurrentPage"] : _currentPage;
-            _totalPages = ctx.CustomData.ContainsKey("TotalPages") ? Math.Max(1, (int)ctx.CustomData["TotalPages"]) : _totalPages;
+            _currentPage = ctx.CurrentPage > 0 ? ctx.CurrentPage : _currentPage;
+            _totalPages = ctx.TotalPages > 0 ? Math.Max(1, ctx.TotalPages) : _totalPages;
             _currentPage = Math.Clamp(_currentPage, 1, _totalPages);
             BuildButtons(ctx);
             _lastCtx = ctx;
@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 }
             }
 
-            if (ctx.CustomData.ContainsKey("ShowPageInfo") && (bool)ctx.CustomData["ShowPageInfo"])
+            if (ctx.ShowPageInfo)
             {
                 using var infoFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                 using var infoBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
@@ -254,8 +254,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 string captureId = id;
                 owner.AddHitArea(id, rect, null, () =>
                 {
-                    int current = ctx.CustomData.ContainsKey("CurrentPage") ? (int)ctx.CustomData["CurrentPage"] : _currentPage;
-                    int total = ctx.CustomData.ContainsKey("TotalPages") ? Math.Max(1, (int)ctx.CustomData["TotalPages"]) : _totalPages;
+                    int current = ctx.CurrentPage > 0 ? ctx.CurrentPage : _currentPage;
+                    int total = ctx.TotalPages > 0 ? Math.Max(1, ctx.TotalPages) : _totalPages;
                     switch (captureId)
                     {
                         case "Pagination_First":
@@ -271,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                                 current = Math.Clamp(p, 1, total);
                             break;
                     }
-                    ctx.CustomData["CurrentPage"] = current;
+                    ctx.CurrentPage = current;
                     _currentPage = current;
                     notifyAreaHit?.Invoke(captureId, rect);
                     Owner?.Invalidate();

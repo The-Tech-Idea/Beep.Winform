@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Dismiss button area
-            bool isDismissible = ctx.CustomData.ContainsKey("IsDismissible") && (bool)ctx.CustomData["IsDismissible"];
+            bool isDismissible = ctx.IsDismissible;
             Rectangle dismissRect = Rectangle.Empty;
             if (isDismissible)
             {
@@ -76,8 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.UseThemeColors = true;
 
             // Get notification data
-            string notificationType = ctx.CustomData.ContainsKey("NotificationType") ?
-                ctx.CustomData["NotificationType"].ToString() : "info";
+            string notificationType = ctx.NotificationType ?? "info";
             string title = ctx.Title ?? "Notification";
             string message = ctx.Value ?? "This is a sample notification message";
 
@@ -141,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw modern dismiss button
-            bool isDismissible = ctx.CustomData.ContainsKey("IsDismissible") && (bool)ctx.CustomData["IsDismissible"];
+            bool isDismissible = ctx.IsDismissible;
             if (isDismissible)
             {
                 var dismissRect = new Rectangle(ctx.DrawingRect.Right - 28, ctx.DrawingRect.Top + 8, 20, 20);

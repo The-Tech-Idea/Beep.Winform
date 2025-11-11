@@ -193,12 +193,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = _showIcons,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["Items"] = _items,
-                    ["CurrentIndex"] = _currentIndex,
-                    ["IsHorizontal"] = _isHorizontal
-                }
+                
+                // Navigation-specific typed properties
+                CurrentIndex = _currentIndex,
+                IsHorizontal = _isHorizontal
             };
 
             _painter?.Initialize(this, _currentTheme);

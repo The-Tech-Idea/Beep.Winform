@@ -147,16 +147,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawRevenueData(Graphics g, WidgetContext ctx)
         {
-            var financeItems = ctx.CustomData.ContainsKey("FinanceItems") ?
-                ctx.CustomData["FinanceItems"] as List<FinanceItem> : null;
+            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList() ?? new List<FinanceItem>();
 
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ?
-                ctx.CustomData["CurrencySymbol"]?.ToString() ?? "$" : "$";
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
 
-            bool showCurrency = ctx.CustomData.ContainsKey("ShowCurrency") ?
-                Convert.ToBoolean(ctx.CustomData["ShowCurrency"]) : true;
+            bool showCurrency = ctx.ShowCurrency;
 
-            if (financeItems != null && financeItems.Count > 0)
+            if (financeItems.Count > 0)
             {
                 // Sum might be decimal depending on FinanceItem.Value type; convert explicitly to double
                 var totalRevenueDecimal = financeItems.Where(item => item.Value > 0).Sum(item => item.Value);
@@ -181,8 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 string countText = $"{revenueCount} revenue transaction{(revenueCount != 1 ? "s" : "")}";
                 g.DrawString(countText, countFont, countBrush, _countRect);
 
-                var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ?
-                    ctx.CustomData["LastUpdated"] : null;
+                var lastUpdated = ctx.LastUpdated;
                 if (lastUpdated != null)
                 {
                     using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
@@ -193,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 }
 
                 // Trend area visual
-                string trend = ctx.CustomData.ContainsKey("Trend") ? ctx.CustomData["Trend"]?.ToString() : null;
+                string trend = ctx.Trend;
                 if (!string.IsNullOrEmpty(trend))
                 {
                     using var trendFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
@@ -252,22 +248,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void HandleAmountClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowRevenueDetails"] = true;
+            ctx.ShowRevenueDetails = true;
             Owner?.Invalidate();
         }
         private void HandleCountClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowTransactionsList"] = true;
+            ctx.ShowTransactionsList = true;
             Owner?.Invalidate();
         }
         private void HandleTrendClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowTrendChart"] = true;
+            ctx.ShowTrendChart = true;
             Owner?.Invalidate();
         }
         private void HandleIconClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowIconInfo"] = true;
+            ctx.ShowIconInfo = true;
             Owner?.Invalidate();
         }
 

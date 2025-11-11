@@ -58,8 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var events = ctx.CustomData.ContainsKey("Events") ? 
-                (List<CalendarEvent>)ctx.CustomData["Events"] : new List<CalendarEvent>();
+            var events = ctx.Events?.Cast<CalendarEvent>().ToList() ?? new List<CalendarEvent>();
             
             // Get next upcoming event or first event
             var upcomingEvent = events.FirstOrDefault(e => e.StartTime >= DateTime.Now) ?? events.FirstOrDefault();

@@ -55,8 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             if (ctx.Values?.Any() == true)
             {
                 double value = ctx.Values.First();
-                double minValue = ctx.CustomData.ContainsKey("MinValue") ? Convert.ToDouble(ctx.CustomData["MinValue"]) : 0d;
-                double maxValue = ctx.CustomData.ContainsKey("MaxValue") ? Convert.ToDouble(ctx.CustomData["MaxValue"]) : 100d;
+                double minValue = ctx.MinValue;
+                double maxValue = ctx.MaxValue;
                 
                 WidgetRenderingHelpers.DrawGauge(g, ctx.ChartRect, value, minValue, maxValue, ctx.AccentColor, Color.FromArgb(30, Theme?.BorderColor ?? Color.Gray), 10);
             }
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 owner.AddHitArea("GaugeChart_Gauge", _chartRectCache, null, () =>
                 {
-                    ctx.CustomData["GaugeClicked"] = true;
+                    ctx.GaugeClicked = true;
                     notifyAreaHit?.Invoke("GaugeChart_Gauge", _chartRectCache);
                     Owner?.Invalidate();
                 });

@@ -194,6 +194,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public decimal? Amount { get; set; }
         public string Currency { get; set; } = "$";
         public DateTime? Date { get; set; }
+        public string Status { get; set; } = "";
+        public string FilterByCategory { get; set; } = "";
+        public bool ShowTransactionDetails { get; set; }
+        public bool ShowFullDetails { get; set; }
         public bool ShowBalanceHistory { get; set; }
         public bool ShowCopiedMessage { get; set; }
         public bool ShowCryptoInfo { get; set; }
@@ -209,6 +213,61 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool ShowExpenseDetails { get; set; }
         public bool ShowExpensesList { get; set; }
         public bool ShowIconInfo { get; set; }
+        public bool IsPortfolio { get; set; }
+        public decimal? CurrentValue { get; set; }
+        public decimal? InitialValue { get; set; }
+        public bool ShowInvestmentDetails { get; set; }
+        public string ChartPeriod { get; set; } = "1M";
+        public bool ShowValueHistory { get; set; }
+        public bool ShowPerformanceAnalytics { get; set; }
+        public bool ShowPortfolioBreakdown { get; set; }
+        public string PaymentMethod { get; set; } = "";
+        public string CardNumber { get; set; } = "";
+        public string ExpiryDate { get; set; } = "";
+        public decimal? Balance { get; set; }
+        public bool ShowFullNumber { get; set; }
+        public string BalanceView { get; set; } = "Current";
+        public bool ShowRenewalOptions { get; set; }
+        public bool ShowPortfolioDetails { get; set; }
+        public bool ShowPerformance { get; set; }
+        public bool ShowRevenueDetails { get; set; }
+        public bool ShowTransactionsList { get; set; }
+        public bool ShowTrendChart { get; set; }
+
+        // Media-specific additional properties
+        public int SelectedPhotoIndex { get; set; } = -1;
+        public string MediaViewerAction { get; set; } = "play";
+        public bool ShowMediaInfo { get; set; }
+        public bool Fullscreen { get; set; }
+
+        // Form-specific properties
+        public List<FormField>? Fields { get; set; }
+        public List<ValidationResult>? ValidationResults { get; set; }
+        public bool ShowValidation { get; set; }
+        public bool ShowRequired { get; set; }
+        public int CurrentStep { get; set; }
+        public int TotalSteps { get; set; }
+        public int SelectedFieldIndex { get; set; } = -1;
+        public bool LegendClicked { get; set; }
+        public bool ContentClicked { get; set; }
+        public string[]? InlineFields { get; set; }
+        public Dictionary<string, object>? InlineFieldData { get; set; }
+        public string? Description { get; set; }
+        public bool IsReadOnly { get; set; }
+        public bool IsFocused { get; set; }
+        public bool HeaderLabelClicked { get; set; }
+        public bool InputClicked { get; set; }
+        public bool ValidationIconClicked { get; set; }
+        public bool FooterClicked { get; set; }
+        public bool LabelClicked { get; set; }
+        public bool ValidationClicked { get; set; }
+        public bool ValidationHeaderClicked { get; set; }
+        public bool ValidationMessagesClicked { get; set; }
+        public bool ValidationFieldsClicked { get; set; }
+
+        // Navigation Additional properties
+        public int ActiveTabIndex { get; set; } = -1;
+        public List<TreeNodeItem>? TreeItems { get; set; }
 
         // ===========================================
         // INTERACTION/STATE PROPERTIES (Event Results)
@@ -251,6 +310,87 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public int ToggleTaskIndex { get; set; } = -1;
         public int MaxVisibleItems { get; set; } = 10;
         public int SelectedActivityIndex { get; set; } = -1;
+
+        // Control category properties
+        public double MinValue { get; set; } = 0;
+        public double MaxValue { get; set; } = 100;
+        public Color SelectedColor { get; set; } = Color.Empty;
+        public string SelectedButton { get; set; } = "";
+        public int SelectedButtonIndex { get; set; } = -1;
+        public bool ShowButtonGroupOptions { get; set; }
+        public Dictionary<string, bool> CheckedItems { get; set; } = new Dictionary<string, bool>();
+
+        // Calendar category properties
+        public DateTime SelectedDate { get; set; } = DateTime.Today;
+        public DateTime DisplayMonth { get; set; } = DateTime.Now;
+        public List<object>? Events { get; set; }
+        public List<object>? ScheduleEvents { get; set; }
+        public int Completed { get; set; }
+        public int Total { get; set; }
+        public Color EventColor { get; set; } = Color.Blue;
+        public Color TodayColor { get; set; } = Color.Red;
+        public bool ShowToday { get; set; } = true;
+        public bool ShowEvents { get; set; } = true;
+        public DateTime ScheduleDate { get; set; } = DateTime.Today;
+        public int SelectedScheduleIndex { get; set; } = -1;
+        public bool StatusClicked { get; set; }
+        public int SelectedEventIndex { get; set; } = -1;
+        public bool EventListClicked { get; set; }
+        public string FooterText { get; set; } = "";
+        public bool OpenDatePicker { get; set; }
+        public bool OpenDatePickerFromIcon { get; set; }
+        public bool PrevMonth { get; set; }
+        public bool NextMonth { get; set; }
+        public bool CalendarGridClicked { get; set; }
+        public List<object>? TimeSlots { get; set; }
+        public List<object>? WeekEvents { get; set; }
+        public string SelectedDayHeader { get; set; } = "";
+        public string SelectedEventDay { get; set; } = "";
+        public bool WeekGridClicked { get; set; }
+        public string SelectedDay { get; set; } = "";
+        public string SelectedSlot { get; set; } = "";
+        public string HeaderDayClicked { get; set; } = "";
+        public bool GridClicked { get; set; }
+
+        // Chart category properties
+        public bool PieChartClicked { get; set; }
+        public bool LineChartClicked { get; set; }
+        public bool HeatmapChartClicked { get; set; }
+        public int SelectedCellIndex { get; set; } = -1;
+        public bool GaugeClicked { get; set; }
+        public bool CombinationChartClicked { get; set; }
+        public bool BarChartClicked { get; set; }
+
+        // Dashboard category properties
+        public List<object>? Metrics { get; set; }
+        public int Columns { get; set; } = 2;
+        public int Rows { get; set; } = 2;
+        public bool StatusHeaderClicked { get; set; }
+        public int SelectedMetricIndex { get; set; } = -1;
+        public bool TitleClicked { get; set; }
+        public bool LeftPanelClicked { get; set; }
+        public bool RightPanelClicked { get; set; }
+        public bool VsClicked { get; set; }
+        public bool IsExpandable { get; set; }
+        public bool ExpandRequested { get; set; }
+        public string TitleIcon { get; set; } = "";
+        public bool ChartClicked { get; set; }
+
+        // List widget properties
+        public int SelectedIndex { get; set; } = -1;
+
+        // Media widget properties
+        public bool ShowOverlay { get; set; }
+
+        // Navigation widget properties
+        public bool IsHorizontal { get; set; } = true;
+
+        // Notification widget properties
+        public string ActionText { get; set; } = "";
+        public bool ShowAction { get; set; }
+
+        // Social widget properties
+        public bool ShowAvatar { get; set; } = true;
 
         // Note: We don't need ClickableAreas here because BaseControl handles hit areas
         // through its AddHitArea(), ClearHitList(), HitTest(), etc. methods

@@ -192,13 +192,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowHeader = _showHeader,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["Items"] = _items,
-                    ["AllowSelection"] = _allowSelection,
-                    ["SelectedIndex"] = _selectedIndex,
-                    ["MaxVisibleItems"] = _maxVisibleItems
-                }
+                
+                // List-specific typed properties  
+                MaxVisibleItems = _maxVisibleItems,
+                SelectedIndex = _selectedIndex
             };
 
             _painter?.Initialize(this, _currentTheme);

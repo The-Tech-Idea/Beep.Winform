@@ -48,11 +48,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var items = ctx.CustomData.ContainsKey("Items") ? 
-                (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleSteps();
+            var items = ctx.NavigationItems?.Cast<NavigationItem>().ToList() ?? CreateSampleSteps();
             
-            int currentIndex = ctx.CustomData.ContainsKey("CurrentIndex") ? 
-                (int)ctx.CustomData["CurrentIndex"] : 1;
+            int currentIndex = ctx.CurrentIndex;
             
             if (!items.Any()) return;
             
@@ -164,14 +162,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Optional: Draw progress percentage
-            var items = ctx.CustomData.ContainsKey("Items") ? 
-                (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleSteps();
-            int currentIndex = ctx.CustomData.ContainsKey("CurrentIndex") ? 
-                (int)ctx.CustomData["CurrentIndex"] : 1;
+            var items = ctx.NavigationItems?.Cast<NavigationItem>().ToList() ?? CreateSampleSteps();
+            int currentIndex = ctx.CurrentIndex;
                 
             float progress = (float)currentIndex / Math.Max(items.Count - 1, 1);
             
-            if (ctx.CustomData.ContainsKey("ShowProgress") && ctx.CustomData["ShowProgress"] is bool show && show)
+            if (ctx.ShowProgress)
             {
                 using var progressFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                 var primary = Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243);

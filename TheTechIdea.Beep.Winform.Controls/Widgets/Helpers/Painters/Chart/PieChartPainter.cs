@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 owner.AddHitArea("PieChart_Chart", _chartRectCache, null, () =>
                 {
-                    ctx.CustomData["PieChartClicked"] = true;
+                    ctx.PieChartClicked = true;
                     notifyAreaHit?.Invoke("PieChart_Chart", _chartRectCache);
                     Owner?.Invalidate();
                 });

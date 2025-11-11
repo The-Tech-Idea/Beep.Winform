@@ -84,14 +84,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var fields = ctx.CustomData.ContainsKey("Fields") ? 
-                (List<FormField>)ctx.CustomData["Fields"] : new List<FormField>();
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? 
-                (List<ValidationResult>)ctx.CustomData["ValidationResults"] : new List<ValidationResult>();
+            var fields = ctx.Fields ?? new List<FormField>();
+            var validationResults = ctx.ValidationResults ?? new List<ValidationResult>();
             var validColor = Color.FromArgb(76, 175, 80);
             var errorColor = Color.FromArgb(244, 67, 54);
-            var showRequired = ctx.CustomData.ContainsKey("ShowRequired") && ctx.CustomData["ShowRequired"] is bool b1 ? b1 : true;
-            var isReadOnly = ctx.CustomData.ContainsKey("IsReadOnly") && ctx.CustomData["IsReadOnly"] is bool b2 ? b2 : false;
+            var showRequired = ctx.ShowRequired;
+            var isReadOnly = ctx.IsReadOnly;
 
             // Get primary field (first field or focused field)
             var primaryField = fields.FirstOrDefault();
@@ -289,7 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Focus indicator
-            if (ctx.CustomData.ContainsKey("IsFocused") && ctx.CustomData["IsFocused"] is bool isFocused && isFocused)
+            if (ctx.IsFocused)
             {
                 var focusRect = Rectangle.Inflate(ctx.DrawingRect, 2, 2);
                 using var focusPen = new Pen(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 2);
@@ -335,31 +333,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             owner.AddHitArea("InputCard_HeaderIcon", _headerIconRect, null, () =>
             {
-                ctx.CustomData["HeaderIconClicked"] = true;
+                ctx.HeaderIconClicked = true;
                 notifyAreaHit?.Invoke("InputCard_HeaderIcon", _headerIconRect);
                 Owner?.Invalidate();
             });
             owner.AddHitArea("InputCard_HeaderLabel", _headerLabelRect, null, () =>
             {
-                ctx.CustomData["HeaderLabelClicked"] = true;
+                ctx.HeaderLabelClicked = true;
                 notifyAreaHit?.Invoke("InputCard_HeaderLabel", _headerLabelRect);
                 Owner?.Invalidate();
             });
             owner.AddHitArea("InputCard_Input", _inputRectCache, null, () =>
             {
-                ctx.CustomData["InputClicked"] = true;
+                ctx.InputClicked = true;
                 notifyAreaHit?.Invoke("InputCard_Input", _inputRectCache);
                 Owner?.Invalidate();
             });
             owner.AddHitArea("InputCard_ValidationIcon", _validationIconRect, null, () =>
             {
-                ctx.CustomData["ValidationIconClicked"] = true;
+                ctx.ValidationIconClicked = true;
                 notifyAreaHit?.Invoke("InputCard_ValidationIcon", _validationIconRect);
                 Owner?.Invalidate();
             });
             owner.AddHitArea("InputCard_Footer", _footerRectCache, null, () =>
             {
-                ctx.CustomData["FooterClicked"] = true;
+                ctx.FooterClicked = true;
                 notifyAreaHit?.Invoke("InputCard_Footer", _footerRectCache);
                 Owner?.Invalidate();
             });

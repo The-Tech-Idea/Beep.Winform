@@ -41,8 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var treeItems = ctx.CustomData.ContainsKey("TreeItems") ?
-                (List<TreeNodeItem>)ctx.CustomData["TreeItems"] : CreateSampleTreeStructure();
+            var treeItems = ctx.TreeItems?.Cast<TreeNodeItem>().ToList() ?? CreateSampleTreeStructure();
 
             if (!treeItems.Any()) return;
 

@@ -88,9 +88,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             DrawMainChart(g, ctx.ChartRect);
 
             // Draw bottom metrics with icons
-            if (ctx.CustomData.ContainsKey("Metrics"))
+            if (ctx.Metrics != null)
             {
-                var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
+                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawBottomMetrics(g, ctx.ContentRect, metrics);
             }
         }
@@ -108,10 +108,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
             // Title icon
             var iconRect = new Rectangle(ctx.HeaderRect.X + 8, ctx.HeaderRect.Y + 4, 16, 16);
-            if (ctx.CustomData.ContainsKey("TitleIcon"))
+            if (!string.IsNullOrEmpty(ctx.TitleIcon))
             {
-                var iconSource = ctx.CustomData["TitleIcon"].ToString();
-                _imagePainter.DrawSvg(g, iconSource, iconRect, 
+                _imagePainter.DrawSvg(g, ctx.TitleIcon, iconRect, 
                     Theme?.ForeColor ?? Color.Black, 0.8f);
             }
             else
@@ -238,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw drill-down indicator if interactive
-            if (ctx.CustomData.ContainsKey("IsInteractive") && (bool)ctx.CustomData["IsInteractive"])
+            if (ctx.IsInteractive)
             {
                 var indicatorRect = new Rectangle(ctx.DrawingRect.Right - 24, ctx.DrawingRect.Y + 8, 16, 16);
                 _imagePainter.DrawSvg(g, "external-link", indicatorRect, 
@@ -256,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("AnalyticsPanel_Chart", _chartHitRect, null, () =>
                 {
-                    ctx.CustomData["ChartClicked"] = true;
+                    ctx.ChartClicked = true;
                     notifyAreaHit?.Invoke("AnalyticsPanel_Chart", _chartHitRect);
                     Owner?.Invalidate();
                 });
@@ -270,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 if (rect.IsEmpty) continue;
                 owner.AddHitArea($"AnalyticsPanel_Metric_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedMetricIndex"] = idx;
+                    ctx.SelectedMetricIndex = idx;
                     notifyAreaHit?.Invoke($"AnalyticsPanel_Metric_{idx}", rect);
                     Owner?.Invalidate();
                 });
@@ -280,8 +279,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         private List<Rectangle> CalculateMetricRects(Rectangle area, WidgetContext ctx)
         {
             var result = new List<Rectangle>();
-            if (!ctx.CustomData.ContainsKey("Metrics")) return result;
-            var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
+            if (ctx.Metrics == null) return result;
+            var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
             if (metrics == null || metrics.Count == 0) return result;
             int count = Math.Min(metrics.Count, 4);
             int metricWidth = area.Width / count;

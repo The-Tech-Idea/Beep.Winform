@@ -214,13 +214,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = _showOverlay,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["MediaItems"] = _mediaItems,
-                    ["Image"] = _image,
-                    ["OverlayText"] = _overlayText,
-                    ["ShowOverlay"] = _showOverlay
-                }
+                
+                // Media-specific typed properties
+                Image = _image,
+                ShowOverlay = _showOverlay
             };
 
             _painter?.Initialize(this, _currentTheme);

@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             }
 
             // Draw toggle switch
-            bool isOn = ctx.CustomData.ContainsKey("CurrentValue") && Convert.ToBoolean(ctx.CustomData["CurrentValue"]);
+            bool isOn = Convert.ToBoolean(ctx.CurrentValue);
             Color trackColor = isOn ? ctx.AccentColor : Color.FromArgb(200, Color.Gray);
             Color thumbColor = Color.White;
 

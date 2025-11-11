@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         private void DrawScheduleHeader(Graphics g, WidgetContext ctx)
         {
             // Draw date header (allow override via CustomData["ScheduleDate"])
-            var date = ctx.CustomData.ContainsKey("ScheduleDate") ? Convert.ToDateTime(ctx.CustomData["ScheduleDate"]) : DateTime.Today;
+            var date = ctx.ScheduleDate;
             var headerRect = ctx.HeaderRect;
 
             using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
@@ -108,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private List<ScheduleItem> GetScheduleItems(WidgetContext ctx)
         {
-            if (ctx.CustomData.TryGetValue("ScheduleEvents", out var raw) && raw is IEnumerable<Dictionary<string, object>> dicts)
+            if (ctx.ScheduleEvents is IEnumerable<Dictionary<string, object>> dicts)
             {
                 var list = new List<ScheduleItem>();
                 foreach (var d in dicts)
@@ -202,8 +202,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         private void DrawStatusIndicators(Graphics g, WidgetContext ctx)
         {
             // Overall schedule status, allow override via CustomData["Completed"] and ["Total"]
-            int completed = ctx.CustomData.TryGetValue("Completed", out var c) && int.TryParse(c?.ToString(), out var ci) ? ci : _eventRects.Count;
-            int total = ctx.CustomData.TryGetValue("Total", out var t) && int.TryParse(t?.ToString(), out var ti) ? ti : _eventRects.Count;
+            int completed = ctx.Completed > 0 ? ctx.Completed : _eventRects.Count;
+            int total = ctx.Total > 0 ? ctx.Total : _eventRects.Count;
             total = Math.Max(total, completed);
 
             using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("Schedule_Header", _headerRectCache, null, () =>
                 {
-                    ctx.CustomData["HeaderClicked"] = true;
+                    ctx.HeaderClicked = true;
                     notifyAreaHit?.Invoke("Schedule_Header", _headerRectCache);
                     Owner?.Invalidate();
                 });
@@ -243,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"Schedule_Event_{idx}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedScheduleIndex"] = idx;
+                    ctx.SelectedScheduleIndex = idx;
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("Schedule_Status", _statusRectCache, null, () =>
                 {
-                    ctx.CustomData["StatusClicked"] = true;
+                    ctx.StatusClicked = true;
                     notifyAreaHit?.Invoke("Schedule_Status", _statusRectCache);
                     Owner?.Invalidate();
                 });

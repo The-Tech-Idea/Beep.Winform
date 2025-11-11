@@ -349,25 +349,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = true,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["Events"] = _events,
-                    ["TimeSlots"] = _timeSlots,
-                    ["SelectedDate"] = _selectedDate,
-                    ["DisplayMonth"] = _displayMonth,
-                    ["EventColor"] = _eventColor,
-                    ["SelectedColor"] = _selectedColor,
-                    ["TodayColor"] = _todayColor,
-                    ["ShowWeekends"] = _showWeekends,
-                    ["ShowToday"] = _showToday,
-                    ["ShowEvents"] = _showEvents,
-                    ["AllowMultiSelect"] = _allowMultiSelect,
-                    ["ViewMode"] = _viewMode,
-                    ["WorkingHoursStart"] = _workingHoursStart,
-                    ["WorkingHoursEnd"] = _workingHoursEnd,
-                    ["FirstDayOfWeek"] = _firstDayOfWeek,
-                    ["SelectedDates"] = _selectedDates
-                }
+                
+                // Calendar-specific typed properties
+                Events = _events.Cast<object>().ToList(),
+                TimeSlots = _timeSlots.Cast<object>().ToList(),
+                SelectedDate = _selectedDate,
+                DisplayMonth = _displayMonth,
+                EventColor = _eventColor,
+                SelectedColor = _selectedColor,
+                TodayColor = _todayColor,
+                ShowToday = _showToday,
+                ShowEvents = _showEvents
             };
 
             _painter?.Initialize(this, _currentTheme);

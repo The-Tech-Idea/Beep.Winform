@@ -45,9 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                                           ctx.DrawingRect.Bottom - contentTop);
 
             // Calculate field positions
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
             if (fields != null && fields.Count > 0)
             {
+                ctx.InlineFieldData ??= new Dictionary<string, object>();
+                
                 int currentY = ctx.ContentRect.Y;
                 for (int i = 0; i < fields.Count; i++)
                 {
@@ -55,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                                                 ctx.ContentRect.Width, fieldHeight);
 
                     // Store field rectangles for drawing
-                    ctx.CustomData[$"FieldRect_{i}"] = fieldRect;
+                    ctx.InlineFieldData[$"FieldRect_{i}"] = fieldRect;
                     currentY += fieldHeight + fieldSpacing;
                 }
             }
@@ -100,10 +102,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             DrawFormFields(g, ctx);
 
             // Draw section description if available
-            var description = ctx.CustomData.ContainsKey("Description") ? ctx.CustomData["Description"]?.ToString() : null;
+            var description = ctx.Description;
             if (!string.IsNullOrEmpty(description))
             {
-                using var descFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                using var descFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var descBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                 var descRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Bottom - 20,
                                            ctx.ContentRect.Width, 16);
@@ -114,12 +116,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw validation summary if there are errors
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ?
-                ctx.CustomData["ValidationResults"] as List<ValidationResult> : null;
+            var validationResults = ctx.ValidationResults;
             if (validationResults != null && validationResults.Any(v => !v.IsValid))
             {
                 int errorCount = validationResults.Count(v => !v.IsValid);
-                using var errorFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
+                using var errorFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                 using var errorBrush = new SolidBrush(Color.Red);
 
                 string errorText = $"{errorCount} field{(errorCount != 1 ? "s" : "")} need attention";
@@ -129,14 +130,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             }
 
             // Draw progress indicator if applicable
-            var showProgress = ctx.CustomData.ContainsKey("ShowProgress") ?
-                Convert.ToBoolean(ctx.CustomData["ShowProgress"]) : false;
+            var showProgress = ctx.ShowProgress;
             if (showProgress)
             {
-                var currentStep = ctx.CustomData.ContainsKey("CurrentStep") ?
-                    Convert.ToInt32(ctx.CustomData["CurrentStep"]) : 1;
-                var totalSteps = ctx.CustomData.ContainsKey("TotalSteps") ?
-                    Convert.ToInt32(ctx.CustomData["TotalSteps"]) : 1;
+                var currentStep = ctx.CurrentStep;
+                var totalSteps = ctx.TotalSteps;
 
                 DrawProgressIndicator(g, ctx, currentStep, totalSteps);
             }
@@ -144,17 +142,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawFormFields(Graphics g, WidgetContext ctx)
         {
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? ctx.CustomData["ValidationResults"] as List<ValidationResult> : null;
+            var fields = ctx.Fields;
+            var validationResults = ctx.ValidationResults;
 
             if (fields == null) return;
 
             for (int i = 0; i < fields.Count; i++)
             {
-                if (!ctx.CustomData.ContainsKey($"FieldRect_{i}")) continue;
+                if (ctx.InlineFieldData == null || !ctx.InlineFieldData.ContainsKey($"FieldRect_{i}")) continue;
 
                 var field = fields[i];
-                var fieldRect = (Rectangle)ctx.CustomData[$"FieldRect_{i}"];
+                var fieldRect = (Rectangle)ctx.InlineFieldData[$"FieldRect_{i}"];
 
                 // Draw field label
                 using var labelFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
@@ -240,14 +238,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                     switch (validation.Severity)
                     {
                         case ValidationSeverity.Error:
-                            return ctx.CustomData.ContainsKey("ErrorColor") ?
-                                (Color)ctx.CustomData["ErrorColor"] : Color.Red;
+                            return ctx.ErrorColor;
                         case ValidationSeverity.Warning:
-                            return ctx.CustomData.ContainsKey("WarningColor") ?
-                                (Color)ctx.CustomData["WarningColor"] : Color.Orange;
+                            return ctx.WarningColor;
                         default:
-                            return ctx.CustomData.ContainsKey("ValidColor") ?
-                                (Color)ctx.CustomData["ValidColor"] : Color.Green;
+                            return ctx.ValidColor;
                     }
                 }
             }

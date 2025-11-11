@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
                 owner.AddHitArea(name, rect, null, () =>
                 {
                     _selectedIndex = idx;
-                    ctx.CustomData["SelectedColor"] = _paletteCells[idx].color;
+                    ctx.SelectedColor = _paletteCells[idx].color;
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });

@@ -121,8 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawFinancialData(Graphics g, WidgetContext ctx)
         {
-            var financeItems = ctx.CustomData.ContainsKey("FinanceItems") ?
-                ctx.CustomData["FinanceItems"] as List<FinanceItem> : null;
+            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList();
 
             if (financeItems == null || financeItems.Count == 0)
             {
@@ -213,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawTrendIndicators(Graphics g, WidgetContext ctx)
         {
-            var trend = ctx.CustomData.ContainsKey("Trend") ? ctx.CustomData["Trend"]?.ToString() : null;
+            var trend = ctx.Trend;
             if (string.IsNullOrEmpty(trend)) return;
 
             // Draw trend arrow in top-right corner

@@ -68,12 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var currentStep = ctx.CustomData.ContainsKey("CurrentStep") ? (int)ctx.CustomData["CurrentStep"] : 2;
-            var totalSteps = ctx.CustomData.ContainsKey("TotalSteps") ? (int)ctx.CustomData["TotalSteps"] : 4;
-            var fields = ctx.CustomData.ContainsKey("Fields") ? 
-                (List<FormField>)ctx.CustomData["Fields"] : new List<FormField>();
-            var description = ctx.CustomData.ContainsKey("Description") ? 
-                ctx.CustomData["Description"].ToString() : "Complete your personal information";
+            var currentStep = ctx.CurrentStep;
+            var totalSteps = ctx.TotalSteps;
+            var fields = ctx.Fields ?? new List<FormField>();
+            var description = ctx.Description ?? "Complete your personal information";
 
             // Draw modern step progress
             DrawModernStepProgress(g, ctx.HeaderRect, currentStep, totalSteps);
@@ -282,8 +280,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Navigation buttons
-            var currentStep = ctx.CustomData.ContainsKey("CurrentStep") ? (int)ctx.CustomData["CurrentStep"] : 2;
-            var totalSteps = ctx.CustomData.ContainsKey("TotalSteps") ? (int)ctx.CustomData["TotalSteps"] : 4;
+            var currentStep = ctx.CurrentStep;
+            var totalSteps = ctx.TotalSteps;
             
             var buttonRect = new Rectangle(ctx.DrawingRect.Right - 100, ctx.DrawingRect.Bottom - 40, 90, 32);
             

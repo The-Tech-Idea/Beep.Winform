@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_tabRects.Count == 0 || _lastCtx == null) return;
             _activeIndex = Math.Max(0, _activeIndex - 1);
-            _lastCtx.CustomData["ActiveTabIndex"] = _activeIndex;
+            _lastCtx.ActiveTabIndex = _activeIndex;
             Owner?.Invalidate();
         }
 
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_tabRects.Count == 0 || _lastCtx == null) return;
             _activeIndex = Math.Min(_tabRects.Count - 1, _activeIndex + 1);
-            _lastCtx.CustomData["ActiveTabIndex"] = _activeIndex;
+            _lastCtx.ActiveTabIndex = _activeIndex;
             Owner?.Invalidate();
         }
 
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_tabRects.Count == 0 || _lastCtx == null) return;
             _activeIndex = 0;
-            _lastCtx.CustomData["ActiveTabIndex"] = _activeIndex;
+            _lastCtx.ActiveTabIndex = _activeIndex;
             Owner?.Invalidate();
         }
 
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (_tabRects.Count == 0 || _lastCtx == null) return;
             _activeIndex = _tabRects.Count - 1;
-            _lastCtx.CustomData["ActiveTabIndex"] = _activeIndex;
+            _lastCtx.ActiveTabIndex = _activeIndex;
             Owner?.Invalidate();
         }
 
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 28);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom, ctx.DrawingRect.Width - pad * 2, Math.Max(0, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad));
 
-            _activeIndex = ctx.CustomData.ContainsKey("ActiveTabIndex") ? Math.Max(0, (int)ctx.CustomData["ActiveTabIndex"]) : 0;
+            _activeIndex = Math.Max(0, ctx.ActiveTabIndex);
 
             // Build tab rects
             _tabRects.Clear();
@@ -180,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 int idx = i; var rect = _tabRects[i];
                 owner.AddHitArea($"Tabs_Tab_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["ActiveTabIndex"] = idx;
+                    ctx.ActiveTabIndex = idx;
                     _activeIndex = idx;
                     notifyAreaHit?.Invoke($"Tabs_Tab_{idx}", rect);
                     Owner?.Invalidate();

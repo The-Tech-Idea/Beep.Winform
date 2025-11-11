@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea($"MediaViewer_{id}", rect, null, () =>
                 {
-                    ctx.CustomData[$"MediaViewerAction"] = id;
+                    ctx.MediaViewerAction = id;
                     notifyAreaHit?.Invoke($"MediaViewer_{id}", rect);
                     Owner?.Invalidate();
                 });
@@ -170,8 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea("MediaViewer_Media", _mediaRectCache, null, () =>
                 {
-                    string current = ctx.CustomData.ContainsKey("MediaViewerAction") ? ctx.CustomData["MediaViewerAction"].ToString() : "play";
-                    ctx.CustomData["MediaViewerAction"] = current == "play" ? "pause" : "play";
+                    ctx.MediaViewerAction = ctx.MediaViewerAction == "play" ? "pause" : "play";
                     notifyAreaHit?.Invoke("MediaViewer_Media", _mediaRectCache);
                     Owner?.Invalidate();
                 });
@@ -182,8 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea("MediaViewer_Info", _infoRectCache, null, () =>
                 {
-                    bool show = ctx.CustomData.ContainsKey("ShowMediaInfo") && (bool)ctx.CustomData["ShowMediaInfo"];
-                    ctx.CustomData["ShowMediaInfo"] = !show;
+                    ctx.ShowMediaInfo = !ctx.ShowMediaInfo;
                     notifyAreaHit?.Invoke("MediaViewer_Info", _infoRectCache);
                     Owner?.Invalidate();
                 });
@@ -192,8 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 owner.AddHitArea("MediaViewer_Fullscreen", _fullRectCache, null, () =>
                 {
-                    bool full = ctx.CustomData.ContainsKey("Fullscreen") && (bool)ctx.CustomData["Fullscreen"];
-                    ctx.CustomData["Fullscreen"] = !full;
+                    ctx.Fullscreen = !ctx.Fullscreen;
                     notifyAreaHit?.Invoke("MediaViewer_Fullscreen", _fullRectCache);
                     Owner?.Invalidate();
                 });

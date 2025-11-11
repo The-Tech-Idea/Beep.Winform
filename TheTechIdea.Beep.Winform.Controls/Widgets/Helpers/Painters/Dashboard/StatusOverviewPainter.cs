@@ -31,13 +31,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             _rowRects.Clear();
 
             // Precompute row rects if metrics count is known
-            if (ctx.CustomData.TryGetValue("Metrics", out var raw) && raw is List<Dictionary<string, object>> services && services.Count > 0)
+            if (ctx.Metrics is List<object> raw)
             {
-                int serviceHeight = Math.Min(40, ctx.ContentRect.Height / Math.Max(services.Count, 1));
-                for (int i = 0; i < services.Count; i++)
+                var services = raw.Cast<Dictionary<string, object>>().ToList();
+                if (services.Count > 0)
                 {
-                    int y = ctx.ContentRect.Y + i * serviceHeight;
-                    _rowRects.Add(new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, serviceHeight));
+                    int serviceHeight = Math.Min(40, ctx.ContentRect.Height / Math.Max(services.Count, 1));
+                    for (int i = 0; i < services.Count; i++)
+                    {
+                        int y = ctx.ContentRect.Y + i * serviceHeight;
+                        _rowRects.Add(new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, serviceHeight));
+                    }
                 }
             }
 
@@ -64,8 +68,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
 
             // Draw status overview
-            if (ctx.CustomData.TryGetValue("Metrics", out var raw) && raw is List<Dictionary<string, object>> services)
+            if (ctx.Metrics != null)
             {
+                var services = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawStatusOverview(g, ctx.ContentRect, services);
             }
         }
@@ -149,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("StatusOverview_Header", _headerRectCache, null, () =>
                 {
-                    ctx.CustomData["StatusHeaderClicked"] = true;
+                    ctx.StatusHeaderClicked = true;
                     notifyAreaHit?.Invoke("StatusOverview_Header", _headerRectCache);
                     Owner?.Invalidate();
                 });
@@ -161,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 var rect = _rowRects[i];
                 owner.AddHitArea($"StatusOverview_Row_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedStatusIndex"] = idx;
+                    ctx.SelectedStatusIndex = idx;
                     notifyAreaHit?.Invoke($"StatusOverview_Row_{idx}", rect);
                     Owner?.Invalidate();
                 });

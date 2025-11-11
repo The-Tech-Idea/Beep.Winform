@@ -318,25 +318,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = true,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["FinanceItems"] = _financeItems,
-                    ["PrimaryValue"] = _primaryValue,
-                    ["SecondaryValue"] = _secondaryValue,
-                    ["Percentage"] = _percentage,
-                    ["Currency"] = _currency,
-                    ["CurrencySymbol"] = _currencySymbol,
-                    ["PositiveColor"] = _positiveColor,
-                    ["NegativeColor"] = _negativeColor,
-                    ["NeutralColor"] = _neutralColor,
-                    ["ShowCurrency"] = _showCurrency,
-                    ["ShowPercentage"] = _showPercentage,
-                    ["ShowTrend"] = _showTrend,
-                    ["Trend"] = _trend,
-                    ["AccountNumber"] = _accountNumber,
-                    ["CardType"] = _cardType,
-                    ["LastUpdated"] = _lastUpdated
-                }
+                
+                // Finance-specific typed properties
+                FinanceItems = _financeItems.Cast<object>().ToList(),
+                PrimaryValue = _primaryValue,
+                SecondaryValue = _secondaryValue,
+                Percentage = _percentage,
+                Currency = _currency,
+                CurrencySymbol = _currencySymbol,
+                ShowCurrency = _showCurrency,
+                Trend = _trend.ToString()
             };
 
             _painter?.Initialize(this, _currentTheme);

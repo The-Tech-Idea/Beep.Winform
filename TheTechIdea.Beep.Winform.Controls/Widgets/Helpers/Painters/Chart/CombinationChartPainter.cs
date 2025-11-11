@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 owner.AddHitArea("CombinationChart_Chart", _chartRectCache, null, () =>
                 {
-                    ctx.CustomData["CombinationChartClicked"] = true;
+                    ctx.CombinationChartClicked = true;
                     notifyAreaHit?.Invoke("CombinationChart_Chart", _chartRectCache);
                     Owner?.Invalidate();
                 });

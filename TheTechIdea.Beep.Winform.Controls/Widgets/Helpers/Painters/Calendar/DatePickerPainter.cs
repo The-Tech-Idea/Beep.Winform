@@ -64,8 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var selectedDate = ctx.CustomData.ContainsKey("SelectedDate") ? 
-                Convert.ToDateTime(ctx.CustomData["SelectedDate"]) : DateTime.Today;
+            var selectedDate = ctx.SelectedDate;
 
             // Draw selected date
             using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Regular);
@@ -82,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             // Draw format/info
             using var infoFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var infoBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
-            string infoText = ctx.CustomData.ContainsKey("FooterText") ? ctx.CustomData["FooterText"].ToString() : "Click to select a different date";
+            string infoText = !string.IsNullOrEmpty(ctx.FooterText) ? ctx.FooterText : "Click to select a different date";
             g.DrawString(infoText, infoFont, infoBrush, ctx.FooterRect);
 
             // Hover overlays
@@ -148,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("DatePicker_Header", _headerRectCache, null, () =>
                 {
-                    ctx.CustomData["OpenDatePicker"] = true;
+                    ctx.OpenDatePicker = true;
                     notifyAreaHit?.Invoke("DatePicker_Header", _headerRectCache);
                     Owner?.Invalidate();
                 });
@@ -157,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("DatePicker_Icon", _iconRectCache, null, () =>
                 {
-                    ctx.CustomData["OpenDatePickerFromIcon"] = true;
+                    ctx.OpenDatePickerFromIcon = true;
                     notifyAreaHit?.Invoke("DatePicker_Icon", _iconRectCache);
                     Owner?.Invalidate();
                 });
@@ -166,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("DatePicker_Footer", _footerRectCache, null, () =>
                 {
-                    ctx.CustomData["FooterClicked"] = true;
+                    ctx.FooterClicked = true;
                     notifyAreaHit?.Invoke("DatePicker_Footer", _footerRectCache);
                     Owner?.Invalidate();
                 });

@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _currentValueAreaRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y, ctx.ContentRect.Width, 30);
             _gainLossAreaRect = new Rectangle(ctx.ContentRect.X, _currentValueAreaRect.Bottom + 8, ctx.ContentRect.Width, 24);
 
-            if (ctx.CustomData.ContainsKey("IsPortfolio") && (bool)ctx.CustomData["IsPortfolio"])
+            if (ctx.IsPortfolio)
             {
                 _portfolioAreaRect = new Rectangle(ctx.DrawingRect.Right - 28, ctx.DrawingRect.Y + 8, 20, 20);
             }
@@ -102,11 +102,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.UseThemeColors = true;
 
             // Investment data
-            decimal currentValue = ctx.CustomData.ContainsKey("CurrentValue") ? (decimal)ctx.CustomData["CurrentValue"] : 15750.00m;
-            decimal initialValue = ctx.CustomData.ContainsKey("InitialValue") ? (decimal)ctx.CustomData["InitialValue"] : 10000.00m;
+            decimal currentValue = ctx.CurrentValue ?? 15750.00m;
+            decimal initialValue = ctx.InitialValue ?? 10000.00m;
             decimal gainLoss = currentValue - initialValue;
             decimal gainLossPercent = initialValue > 0 ? (gainLoss / initialValue) * 100 : 0;
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
 
             // Enhanced drawing with interactive feedback - similar to BeepAppBar components
             DrawInvestmentHeader(g, ctx, IsAreaHovered("Investment_Title"));
@@ -274,10 +274,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             if (IsAreaHovered("Investment_GainLoss"))
             {
                 bool isGain = true;
-                if (ctx.CustomData.ContainsKey("CurrentValue") && ctx.CustomData.ContainsKey("InitialValue"))
+                if (ctx.CurrentValue.HasValue && ctx.InitialValue.HasValue)
                 {
-                    decimal current = (decimal)ctx.CustomData["CurrentValue"];
-                    decimal initial = (decimal)ctx.CustomData["InitialValue"];
+                    decimal current = ctx.CurrentValue.Value;
+                    decimal initial = ctx.InitialValue.Value;
                     isGain = current >= initial;
                 }
                 
@@ -295,16 +295,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         // Action handlers (no painter-level events; invoke via BaseControl hit areas)
         private void HandleTitleClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowInvestmentDetails"] = true;
+            ctx.ShowInvestmentDetails = true;
             Owner?.Invalidate();
         }
 
         private void HandleValueClick(WidgetContext ctx)
         {
-            string chartPeriod = ctx.CustomData.ContainsKey("ChartPeriod") ? 
-                ctx.CustomData["ChartPeriod"].ToString() : "1M";
-            
-            string nextPeriod = chartPeriod switch
+            string chartPeriod = ctx.ChartPeriod ?? "1M";            string nextPeriod = chartPeriod switch
             {
                 "1D" => "1W",
                 "1W" => "1M", 
@@ -315,20 +312,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 _ => "1M"
             };
             
-            ctx.CustomData["ChartPeriod"] = nextPeriod;
-            ctx.CustomData["ShowValueHistory"] = true;
+            ctx.ChartPeriod = nextPeriod;
+            ctx.ShowValueHistory = true;
             Owner?.Invalidate();
         }
 
         private void HandleGainLossClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowPerformanceAnalytics"] = true;
+            ctx.ShowPerformanceAnalytics = true;
             Owner?.Invalidate();
         }
 
         private void HandlePortfolioClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowPortfolioBreakdown"] = true;
+            ctx.ShowPortfolioBreakdown = true;
             Owner?.Invalidate();
         }
 

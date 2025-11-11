@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 owner.AddHitArea("BarChart_Chart", _chartRectCache, null, () =>
                 {
-                    ctx.CustomData["BarChartClicked"] = true;
+                    ctx.BarChartClicked = true;
                     notifyAreaHit?.Invoke("BarChart_Chart", _chartRectCache);
                     Owner?.Invalidate();
                 });

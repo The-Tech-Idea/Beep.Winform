@@ -133,14 +133,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawExpenseData(Graphics g, WidgetContext ctx)
         {
-            var financeItems = ctx.CustomData.ContainsKey("FinanceItems") ?
-                ctx.CustomData["FinanceItems"] as List<FinanceItem> : null;
+            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList();
 
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ?
-                ctx.CustomData["CurrencySymbol"]?.ToString() ?? "$" : "$";
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
 
-            bool showCurrency = ctx.CustomData.ContainsKey("ShowCurrency") ?
-                Convert.ToBoolean(ctx.CustomData["ShowCurrency"]) : true;
+            bool showCurrency = ctx.ShowCurrency;
 
             if (financeItems != null && financeItems.Count > 0)
             {
@@ -165,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 string countText = $"{expenseCount} expense{(expenseCount != 1 ? "s" : "")}";
                 g.DrawString(countText, countFont, countBrush, _countRect);
 
-                var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ? ctx.CustomData["LastUpdated"] : null;
+                var lastUpdated = ctx.LastUpdated;
                 if (lastUpdated != null)
                 {
                     using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
@@ -202,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawExpenseIcon(Graphics g, WidgetContext ctx)
         {
-            var iconPath = ctx.CustomData.ContainsKey("IconPath") ? ctx.CustomData["IconPath"]?.ToString() : null;
+            var iconPath = ctx.IconPath;
             if (!string.IsNullOrEmpty(iconPath))
             {
                 _imagePainter.CurrentTheme = Theme;
@@ -223,26 +220,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private Color GetExpenseColor(WidgetContext ctx, double amount)
         {
             if (amount > 5000)
-                return ctx.CustomData.ContainsKey("NegativeColor") ? (Color)ctx.CustomData["NegativeColor"] : Color.Red;
+                return ctx.NegativeColor;
             else if (amount > 1000)
-                return ctx.CustomData.ContainsKey("NeutralColor") ? (Color)ctx.CustomData["NeutralColor"] : Color.Orange;
+                return ctx.NeutralColor;
             else
                 return ctx.AccentColor;
         }
 
         private void HandleAmountClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowExpenseDetails"] = true;
+            ctx.ShowExpenseDetails = true;
             Owner?.Invalidate();
         }
         private void HandleCountClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowExpensesList"] = true;
+            ctx.ShowExpensesList = true;
             Owner?.Invalidate();
         }
         private void HandleIconClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowIconInfo"] = true;
+            ctx.ShowIconInfo = true;
             Owner?.Invalidate();
         }
 

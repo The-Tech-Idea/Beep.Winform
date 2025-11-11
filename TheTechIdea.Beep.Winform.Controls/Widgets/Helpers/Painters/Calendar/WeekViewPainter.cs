@@ -148,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         private void DrawWeekEvents(Graphics g, WidgetContext ctx)
         {
             // Sample events throughout the week (replace with ctx.CustomData if present)
-            var events = ctx.CustomData.ContainsKey("WeekEvents") ? (IEnumerable<dynamic>)ctx.CustomData["WeekEvents"] : new[]
+            var events = ctx.WeekEvents ?? new List<object>
             {
                 new { Day = 1, StartHour = 9, Duration = 1, Title = "Meeting", Color = Color.FromArgb(76, 175, 80) },
                 new { Day = 2, StartHour = 14, Duration = 2, Title = "Project Review", Color = Color.FromArgb(33, 150, 243) },
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
             _eventRects.Clear();
             int idx = 0;
-            foreach (var evt in events)
+            foreach (dynamic evt in events)
             {
                 var eventRect = new Rectangle(
                     ctx.DrawingRect.Left + timeSlotWidth + evt.Day * dayWidth + 2,
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"WeekView_DayHeader_{day}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedDayHeader"] = day;
+                    ctx.SelectedDayHeader = day.ToString();
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -265,8 +265,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"WeekView_Event_{day}_{idx}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedEventDay"] = day;
-                    ctx.CustomData["SelectedEventIndex"] = idx;
+                    ctx.SelectedEventDay = day.ToString();
+                    ctx.SelectedEventIndex = idx;
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("WeekView_Grid", _gridRectCache, null, () =>
                 {
-                    ctx.CustomData["WeekGridClicked"] = true;
+                    ctx.WeekGridClicked = true;
                     notifyAreaHit?.Invoke("WeekView_Grid", _gridRectCache);
                     Owner?.Invalidate();
                 });

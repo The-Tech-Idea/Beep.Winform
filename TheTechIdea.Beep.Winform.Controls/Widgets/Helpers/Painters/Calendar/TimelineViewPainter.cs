@@ -55,16 +55,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var events = ctx.CustomData.ContainsKey("Events") ? 
-                (List<CalendarEvent>)ctx.CustomData["Events"] : new List<CalendarEvent>();
-            var displayMonth = ctx.CustomData.ContainsKey("DisplayMonth") ? 
-                (DateTime)ctx.CustomData["DisplayMonth"] : DateTime.Now;
-            var eventColor = ctx.CustomData.ContainsKey("EventColor") ? 
-                (Color)ctx.CustomData["EventColor"] : Color.Blue;
-            var showToday = ctx.CustomData.ContainsKey("ShowToday") ? 
-                (bool)ctx.CustomData["ShowToday"] : true;
-            var todayColor = ctx.CustomData.ContainsKey("TodayColor") ? 
-                (Color)ctx.CustomData["TodayColor"] : Color.Red;
+            var events = ctx.Events?.Cast<CalendarEvent>().ToList() ?? new List<CalendarEvent>();
+            var displayMonth = ctx.DisplayMonth;
+            var eventColor = ctx.EventColor != Color.Empty ? ctx.EventColor : Color.Blue;
+            var showToday = ctx.ShowToday;
+            var todayColor = ctx.TodayColor != Color.Empty ? ctx.TodayColor : Color.Red;
 
             // Draw timeline header
             DrawTimelineHeader(g, ctx.HeaderRect, ctx.Title, ctx.Value, displayMonth, ctx.AccentColor);

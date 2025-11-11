@@ -71,11 +71,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var financeItems = ctx.CustomData.ContainsKey("FinanceItems") ? (List<FinanceItem>)ctx.CustomData["FinanceItems"] : new List<FinanceItem>();
-            decimal totalValue = ctx.CustomData.ContainsKey("PrimaryValue") ? (decimal)ctx.CustomData["PrimaryValue"] : 250000m;
-            decimal percentage = ctx.CustomData.ContainsKey("Percentage") ? (decimal)ctx.CustomData["Percentage"] : 12.5m;
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
-            var trend = ctx.CustomData.ContainsKey("Trend") ? (FinanceTrend)ctx.CustomData["Trend"] : FinanceTrend.Up;
+            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList() ?? new List<FinanceItem>();
+            decimal totalValue = ctx.PrimaryValue ?? 250000m;
+            decimal percentage = ctx.Percentage ?? 12.5m;
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
+            var trend = Enum.TryParse<FinanceTrend>(ctx.Trend, out var parsedTrend) ? parsedTrend : FinanceTrend.Up;
             var positiveColor = Color.FromArgb(76, 175, 80);
             var negativeColor = Color.FromArgb(244, 67, 54);
 
@@ -165,9 +165,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void HandleTitleClick(WidgetContext ctx) { ctx.CustomData["ShowPortfolioDetails"] = true; Owner?.Invalidate(); }
-        private void HandleValueClick(WidgetContext ctx) { ctx.CustomData["ShowValueHistory"] = true; Owner?.Invalidate(); }
-        private void HandlePerformanceClick(WidgetContext ctx) { ctx.CustomData["ShowPerformance"] = true; Owner?.Invalidate(); }
+        private void HandleTitleClick(WidgetContext ctx) { ctx.ShowPortfolioDetails = true; Owner?.Invalidate(); }
+        private void HandleValueClick(WidgetContext ctx) { ctx.ShowValueHistory = true; Owner?.Invalidate(); }
+        private void HandlePerformanceClick(WidgetContext ctx) { ctx.ShowPerformance = true; Owner?.Invalidate(); }
 
         public void Dispose() { _imagePainter?.Dispose(); }
     }

@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         private List<EventItem> GetEventItems(WidgetContext ctx)
         {
             // If provided via CustomData["Events"], accept list of dictionaries with Title, Time, Duration, Color
-            if (ctx.CustomData.TryGetValue("Events", out var raw) && raw is IEnumerable<Dictionary<string, object>> dicts)
+            if (ctx.Events is IEnumerable<Dictionary<string, object>> dicts)
             {
                 var list = new List<EventItem>();
                 foreach (var d in dicts)
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"EventList_Item_{idx}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedEventIndex"] = idx;
+                    ctx.SelectedEventIndex = idx;
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("EventList_List", _listRectCache, null, () =>
                 {
-                    ctx.CustomData["EventListClicked"] = true;
+                    ctx.EventListClicked = true;
                     notifyAreaHit?.Invoke("EventList_List", _listRectCache);
                     Owner?.Invalidate();
                 });

@@ -49,11 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             _headerRectCache = ctx.HeaderRect;
             _cellRects.Clear();
 
-            if (ctx.CustomData.TryGetValue("Metrics", out var raw) && raw is List<Dictionary<string, object>> metrics)
+            if (ctx.Metrics != null)
             {
-                int columns = ctx.CustomData.ContainsKey("Columns") ? (int)ctx.CustomData["Columns"] : 2;
-                int rows = ctx.CustomData.ContainsKey("Rows") ? (int)ctx.CustomData["Rows"] : 2;
-                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics.Count, columns, rows));
+                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
+                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics.Count, ctx.Columns, ctx.Rows));
             }
             
             return ctx;
@@ -80,12 +79,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
             
             // Draw enhanced metrics grid
-            if (ctx.CustomData.TryGetValue("Metrics", out var raw) && raw is List<Dictionary<string, object>> metrics)
+            if (ctx.Metrics != null)
             {
-                int columns = ctx.CustomData.ContainsKey("Columns") ? (int)ctx.CustomData["Columns"] : 2;
-                int rows = ctx.CustomData.ContainsKey("Rows") ? (int)ctx.CustomData["Rows"] : 2;
-                
-                DrawMetricsGrid(g, ctx.ContentRect, metrics, columns, rows, ctx.AccentColor);
+                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
+                DrawMetricsGrid(g, ctx.ContentRect, metrics, ctx.Columns, ctx.Rows, ctx.AccentColor);
             }
         }
 
@@ -245,7 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("MultiMetric_Title", _headerRectCache, null, () =>
                 {
-                    ctx.CustomData["TitleClicked"] = true;
+                    ctx.TitleClicked = true;
                     notifyAreaHit?.Invoke("MultiMetric_Title", _headerRectCache);
                     Owner?.Invalidate();
                 });
@@ -257,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 var rect = _cellRects[i];
                 owner.AddHitArea($"MultiMetric_Cell_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedMetricIndex"] = idx;
+                    ctx.SelectedMetricIndex = idx;
                     notifyAreaHit?.Invoke($"MultiMetric_Cell_{idx}", rect);
                     Owner?.Invalidate();
                 });

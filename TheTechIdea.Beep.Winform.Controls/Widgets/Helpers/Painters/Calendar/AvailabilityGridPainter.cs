@@ -190,8 +190,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"Availability_Slot_{day}_{slot}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedDay"] = day;
-                    ctx.CustomData["SelectedSlot"] = slot;
+                    ctx.SelectedDay = day.ToString();
+                    ctx.SelectedSlot = slot.ToString();
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"Availability_Day_{day}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["HeaderDayClicked"] = day;
+                    ctx.HeaderDayClicked = day.ToString();
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("Availability_Grid", _gridRectCache, null, () =>
                 {
-                    ctx.CustomData["GridClicked"] = true;
+                    ctx.GridClicked = true;
                     notifyAreaHit?.Invoke("Availability_Grid", _gridRectCache);
                     Owner?.Invalidate();
                 });

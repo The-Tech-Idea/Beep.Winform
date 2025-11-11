@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawInputField(Graphics g, WidgetContext ctx)
         {
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
             if (fields == null || fields.Count == 0) return;
 
             var field = fields.First();
@@ -134,8 +134,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawValidationMessage(Graphics g, WidgetContext ctx)
         {
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? ctx.CustomData["ValidationResults"] as List<ValidationResult> : null;
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var validationResults = ctx.ValidationResults;
+            var fields = ctx.Fields;
 
             if (validationResults == null || fields == null || fields.Count == 0) return;
 
@@ -153,8 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private Color GetBorderColor(WidgetContext ctx)
         {
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? ctx.CustomData["ValidationResults"] as List<ValidationResult> : null;
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var validationResults = ctx.ValidationResults;
+            var fields = ctx.Fields;
 
             if (validationResults == null || fields == null || fields.Count == 0)
                 return Theme?.TextBoxBorderColor ?? Color.FromArgb(200, 200, 200);
@@ -176,11 +176,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             switch (severity)
             {
                 case ValidationSeverity.Error:
-                    return ctx.CustomData.ContainsKey("ErrorColor") ? (Color)ctx.CustomData["ErrorColor"] : Color.Red;
+                    return ctx.ErrorColor;
                 case ValidationSeverity.Warning:
-                    return ctx.CustomData.ContainsKey("WarningColor") ? (Color)ctx.CustomData["WarningColor"] : Color.Orange;
+                    return ctx.WarningColor;
                 default:
-                    return ctx.CustomData.ContainsKey("ValidColor") ? (Color)ctx.CustomData["ValidColor"] : Color.Green;
+                    return ctx.ValidColor;
             }
         }
 
@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 owner.AddHitArea("ValidatedInput_Input", _inputRectCache, null, () =>
                 {
-                    ctx.CustomData["InputClicked"] = true;
+                    ctx.InputClicked = true;
                     notifyAreaHit?.Invoke("ValidatedInput_Input", _inputRectCache);
                     Owner?.Invalidate();
                 });
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 owner.AddHitArea("ValidatedInput_Label", _labelRectCache, null, () =>
                 {
-                    ctx.CustomData["LabelClicked"] = true;
+                    ctx.LabelClicked = true;
                     notifyAreaHit?.Invoke("ValidatedInput_Label", _labelRectCache);
                     Owner?.Invalidate();
                 });
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 owner.AddHitArea("ValidatedInput_Validation", _validationRectCache, null, () =>
                 {
-                    ctx.CustomData["ValidationClicked"] = true;
+                    ctx.ValidationClicked = true;
                     notifyAreaHit?.Invoke("ValidatedInput_Validation", _validationRectCache);
                     Owner?.Invalidate();
                 });

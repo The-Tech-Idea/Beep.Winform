@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             _fieldRects.Clear();
 
             // Precompute field rectangles if fields exist (for hit testing)
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
             if (fields != null && fields.Count > 0)
             {
                 int fieldHeight = 35;
@@ -92,8 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw fieldset-specific accents like required indicators
-            var fields = ctx.CustomData.ContainsKey("Fields") ?
-                ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
 
             if (fields != null && fields.Any(f => f.IsRequired))
             {
@@ -127,8 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawFieldsetContent(Graphics g, WidgetContext ctx)
         {
-            var fields = ctx.CustomData.ContainsKey("Fields") ?
-                ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
 
             if (fields == null || fields.Count == 0)
             {
@@ -237,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 owner.AddHitArea("FieldSet_Legend", _legendRectCache, null, () =>
                 {
-                    ctx.CustomData["LegendClicked"] = true;
+                    ctx.LegendClicked = true;
                     notifyAreaHit?.Invoke("FieldSet_Legend", _legendRectCache);
                     Owner?.Invalidate();
                 });
@@ -250,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 var rect = _fieldRects[i].rect;
                 owner.AddHitArea($"FieldSet_Field_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedFieldIndex"] = idx;
+                    ctx.SelectedFieldIndex = idx;
                     notifyAreaHit?.Invoke($"FieldSet_Field_{idx}", rect);
                     Owner?.Invalidate();
                 });
@@ -261,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 owner.AddHitArea("FieldSet_Content", _contentRectCache, null, () =>
                 {
-                    ctx.CustomData["ContentClicked"] = true;
+                    ctx.ContentClicked = true;
                     notifyAreaHit?.Invoke("FieldSet_Content", _contentRectCache);
                     Owner?.Invalidate();
                 });

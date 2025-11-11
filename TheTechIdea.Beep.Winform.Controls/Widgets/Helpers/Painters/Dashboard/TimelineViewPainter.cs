@@ -53,9 +53,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
             
             // Draw timeline
-            if (ctx.CustomData.ContainsKey("Metrics"))
+            if (ctx.Metrics != null)
             {
-                var events = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
+                var events = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawTimeline(g, ctx.ContentRect, events, ctx.AccentColor);
             }
         }

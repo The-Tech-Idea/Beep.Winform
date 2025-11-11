@@ -68,9 +68,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 DrawComparisonTitle(g, ctx);
             }
             
-            if (ctx.CustomData.ContainsKey("Metrics"))
+            if (ctx.Metrics != null)
             {
-                var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
+                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawComparisonPanels(g, _leftPanelRect, _rightPanelRect, metrics);
             }
         }
@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("ComparisonGrid_Title", ctx.HeaderRect, null, () =>
                 {
-                    ctx.CustomData["TitleClicked"] = true;
+                    ctx.TitleClicked = true;
                     notifyAreaHit?.Invoke("ComparisonGrid_Title", ctx.HeaderRect);
                     Owner?.Invalidate();
                 });
@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("ComparisonGrid_Left", _leftPanelRect, null, () =>
                 {
-                    ctx.CustomData["LeftPanelClicked"] = true;
+                    ctx.LeftPanelClicked = true;
                     notifyAreaHit?.Invoke("ComparisonGrid_Left", _leftPanelRect);
                     Owner?.Invalidate();
                 });
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("ComparisonGrid_Right", _rightPanelRect, null, () =>
                 {
-                    ctx.CustomData["RightPanelClicked"] = true;
+                    ctx.RightPanelClicked = true;
                     notifyAreaHit?.Invoke("ComparisonGrid_Right", _rightPanelRect);
                     Owner?.Invalidate();
                 });
@@ -235,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("ComparisonGrid_VS", _vsIconRect, null, () =>
                 {
-                    ctx.CustomData["VsClicked"] = true;
+                    ctx.VsClicked = true;
                     notifyAreaHit?.Invoke("ComparisonGrid_VS", _vsIconRect);
                     Owner?.Invalidate();
                 });

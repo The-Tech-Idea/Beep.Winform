@@ -18,9 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -6, -6);
 
             // Calculate compact layout - fields arranged in a grid or horizontal layout
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
             if (fields != null && fields.Count > 0)
             {
+                ctx.InlineFieldData ??= new Dictionary<string, object>();
+
                 int fieldHeight = 28;
                 int fieldSpacing = 2;
                 int labelWidth = (int)(ctx.DrawingRect.Width * 0.35); // 35% for labels
@@ -32,11 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                     var labelRect = new Rectangle(ctx.DrawingRect.X, y, labelWidth, fieldHeight);
                     var inputRect = new Rectangle(ctx.DrawingRect.X + labelWidth + 4, y, inputWidth, fieldHeight);
 
-                    // Store in custom data for drawing
-                    if (!ctx.CustomData.ContainsKey($"FieldLabelRect_{i}"))
-                        ctx.CustomData[$"FieldLabelRect_{i}"] = labelRect;
-                    if (!ctx.CustomData.ContainsKey($"FieldInputRect_{i}"))
-                        ctx.CustomData[$"FieldInputRect_{i}"] = inputRect;
+                    // Store in inline field data for drawing
+                    if (!ctx.InlineFieldData.ContainsKey($"FieldLabelRect_{i}"))
+                        ctx.InlineFieldData[$"FieldLabelRect_{i}"] = labelRect;
+                    if (!ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
+                        ctx.InlineFieldData[$"FieldInputRect_{i}"] = inputRect;
                 }
             }
 
@@ -51,14 +53,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.FillPath(bgBrush, bgPath);
 
             // Draw field backgrounds
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
             if (fields != null)
             {
                 for (int i = 0; i < fields.Count; i++)
                 {
-                    if (ctx.CustomData.ContainsKey($"FieldInputRect_{i}"))
+                    if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
                     {
-                        var inputRect = (Rectangle)ctx.CustomData[$"FieldInputRect_{i}"];
+                        var inputRect = (Rectangle)ctx.InlineFieldData[$"FieldInputRect_{i}"];
                         using var fieldBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.White);
                         using var fieldPath = CreateRoundedPath(inputRect, 2);
                         g.FillPath(fieldBrush, fieldPath);
@@ -73,11 +75,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var fields = ctx.Fields;
             if (fields == null) return;
 
-            using var labelFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var valueFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var valueFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.FromArgb(100, 100, 100));
             using var valueBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.Black);
             using var requiredBrush = new SolidBrush(Color.Red);
@@ -87,9 +89,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 var field = fields[i];
 
                 // Draw label
-                if (ctx.CustomData.ContainsKey($"FieldLabelRect_{i}"))
+                if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldLabelRect_{i}"))
                 {
-                    var labelRect = (Rectangle)ctx.CustomData[$"FieldLabelRect_{i}"];
+                    var labelRect = (Rectangle)ctx.InlineFieldData[$"FieldLabelRect_{i}"];
                     string labelText = field.Label;
                     if (field.IsRequired) labelText += "*";
 
@@ -98,9 +100,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 }
 
                 // Draw input value
-                if (ctx.CustomData.ContainsKey($"FieldInputRect_{i}"))
+                if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
                 {
-                    var inputRect = (Rectangle)ctx.CustomData[$"FieldInputRect_{i}"];
+                    var inputRect = (Rectangle)ctx.InlineFieldData[$"FieldInputRect_{i}"];
                     string displayValue = field.Value?.ToString() ?? "";
                     string textToDraw = string.IsNullOrEmpty(displayValue) ? field.Placeholder ?? "" : displayValue;
 
@@ -114,10 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw validation indicators
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults")
-                ? ctx.CustomData["ValidationResults"] as List<ValidationResult>
-                : null;
-            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            var validationResults = ctx.ValidationResults;
+            var fields = ctx.Fields;
 
             if (validationResults == null || fields == null) return;
 
@@ -127,13 +127,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             for (int i = 0; i < fields.Count; i++)
             {
                 var field = fields[i];
-                var validation = validationResults.FirstOrDefault(v => v.FieldName == field.Name);
+                var validation = validationResults?.FirstOrDefault(v => v.FieldName == field.Name);
 
                 if (validation != null && !validation.IsValid)
                 {
-                    if (ctx.CustomData.ContainsKey($"FieldInputRect_{i}"))
+                    if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
                     {
-                        var inputRect = (Rectangle)ctx.CustomData[$"FieldInputRect_{i}"];
+                        var inputRect = (Rectangle)ctx.InlineFieldData[$"FieldInputRect_{i}"];
                         var indicatorRect = new Rectangle(inputRect.Right - 8, inputRect.Top + 2, 6, 6);
 
                         using var indicatorBrush = new SolidBrush(

@@ -359,28 +359,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = true,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["Locations"] = _locations,
-                    ["Routes"] = _routes,
-                    ["Address"] = _address,
-                    ["City"] = _city,
-                    ["Region"] = _region,
-                    ["Country"] = _country,
-                    ["PostalCode"] = _postalCode,
-                    ["Latitude"] = _latitude,
-                    ["Longitude"] = _longitude,
-                    ["ZoomLevel"] = _zoomLevel,
-                    ["RouteColor"] = _routeColor,
-                    ["MarkerColor"] = _markerColor,
-                    ["ShowMarkers"] = _showMarkers,
-                    ["ShowRoutes"] = _showRoutes,
-                    ["ShowTraffic"] = _showTraffic,
-                    ["ShowSatellite"] = _showSatellite,
-                    ["MapProvider"] = _mapProvider,
-                    ["ViewType"] = _viewType,
-                    ["LastUpdated"] = _lastUpdated
-                }
+                
+                // Map-specific typed properties
+                Address = _address,
+                City = _city,
+                Region = _region,
+                Country = _country,
+                Latitude = _latitude,
+                Longitude = _longitude
             };
 
             _painter?.Initialize(this, _currentTheme);

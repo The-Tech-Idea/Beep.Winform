@@ -351,23 +351,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = true,
                 IsInteractive = !_isReadOnly,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["Fields"] = _fields,
-                    ["ValidationResults"] = _validationResults,
-                    ["Description"] = _description,
-                    ["ValidColor"] = _validColor,
-                    ["ErrorColor"] = _errorColor,
-                    ["WarningColor"] = _warningColor,
-                    ["ShowValidation"] = _showValidation,
-                    ["ShowRequired"] = _showRequired,
-                    ["IsReadOnly"] = _isReadOnly,
-                    ["ShowProgress"] = _showProgress,
-                    ["CurrentStep"] = _currentStep,
-                    ["TotalSteps"] = _totalSteps,
-                    ["Layout"] = _layout,
-                    ["ValidationMode"] = _validationMode
-                }
+                
+                // Form-specific typed properties
+                Fields = _fields,
+                ValidationResults = _validationResults,
+                Description = _description,
+                ShowValidation = _showValidation,
+                ShowRequired = _showRequired,
+                IsReadOnly = _isReadOnly,
+                CurrentStep = _currentStep,
+                TotalSteps = _totalSteps
             };
 
             _painter?.Initialize(this, _currentTheme);

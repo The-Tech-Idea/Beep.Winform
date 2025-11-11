@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 owner.AddHitArea("Heatmap_Chart", _chartRectCache, null, () =>
                 {
-                    ctx.CustomData["HeatmapChartClicked"] = true;
+                    ctx.HeatmapChartClicked = true;
                     notifyAreaHit?.Invoke("Heatmap_Chart", _chartRectCache);
                     Owner?.Invalidate();
                 });
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                     var rect = _cellRects[i];
                     owner.AddHitArea($"Heatmap_Cell_{idx}", rect, null, () =>
                     {
-                        ctx.CustomData["SelectedCellIndex"] = idx;
+                        ctx.SelectedCellIndex = idx;
                         notifyAreaHit?.Invoke($"Heatmap_Cell_{idx}", rect);
                         Owner?.Invalidate();
                     });

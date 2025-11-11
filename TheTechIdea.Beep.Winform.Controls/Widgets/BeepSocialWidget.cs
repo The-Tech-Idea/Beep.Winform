@@ -276,19 +276,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowIcon = _showAvatar,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["SocialItems"] = _socialItems,
-                    ["UserName"] = _userName,
-                    ["UserRole"] = _userRole,
-                    ["UserStatus"] = _userStatus,
-                    ["AvatarImage"] = _avatarImage,
-                    ["StatusColor"] =_statusColor,
-                    ["ShowStatus"] = _showStatus,
-                    ["ShowAvatar"] = _showAvatar,
-                    ["OnlineCount"] = _onlineCount,
-                    ["TotalCount"] = _totalCount
-                }
+                
+                // Social-specific typed properties
+                UserName = _userName,
+                UserRole = _userRole,
+                UserStatus = _userStatus.ToString(),
+                AvatarImage = _avatarImage,
+                StatusColor = _statusColor,
+                ShowStatus = _showStatus,
+                ShowAvatar = _showAvatar,
+                OnlineCount = _onlineCount,
+                TotalCount = _totalCount
             };
 
             _painter?.Initialize(this, _currentTheme);

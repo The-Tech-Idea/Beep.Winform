@@ -10,14 +10,57 @@ using TheTechIdea.Beep.Report;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.DataBase; // EntityStructure, EntityField
+using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Winform.Controls.Filtering; // EntityStructure, EntityField
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    // Legacy support classes for old BeepFilter (deprecated - use new Filtering folder architecture)
+    /// <summary>Logical operator for filter groups</summary>
+    public enum FilterLogicalOperator { And, Or }
+    
+    /// <summary>Filter condition class</summary>
+    public class FilterCondition
+    {
+        public string FieldName { get; set; } = string.Empty;
+        public FilterOperator Operator { get; set; }
+        public object? Value { get; set; }
+        public object? Value2 { get; set; }
+        public Type? DataType { get; set; }
+        public FilterLogicalOperator LogicalOperator { get; set; } = FilterLogicalOperator.And;
+    }
+    
+    /// <summary>Filter action event args</summary>
+    public class FilterActionEventArgs : EventArgs
+    {
+        public string Action { get; set; } = string.Empty;
+        public object? Data { get; set; }
+        public string Expression { get; set; } = string.Empty;
+        public List<FilterCondition>? Conditions { get; set; }
+        public List<IAppFilter>? Filters { get; set; }
+        
+        public FilterActionEventArgs() { }
+        public FilterActionEventArgs(string expression, List<FilterCondition> conditions, List<IAppFilter> filters)
+        {
+            Expression = expression;
+            Conditions = conditions;
+            Filters = filters;
+        }
+    }
+    
+    /// <summary>Filter changed event args</summary>
+    public class FilterChangedEventArgs : EventArgs
+    {
+        public int Index { get; set; }
+        public List<FilterCondition>? Conditions { get; set; }
+        public FilterChangedEventArgs() { }
+        public FilterChangedEventArgs(List<FilterCondition> conditions) { Conditions = conditions; }
+    }
+
     [ToolboxItem(true)]
     [Category("Controls")]
-    [DisplayName("Beep Filter")]
-    [Description("Filter control for filtering data sources")]
+    [DisplayName("Beep Filter (Legacy)")]
+    [Description("Filter control for filtering data sources (LEGACY - use new BeepFilter[StyleName] controls)")]
     public class BeepFilter : BaseControl
     {
         // Group/Tree model
@@ -40,17 +83,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly List<BeepFilterItem> filterItems = new List<BeepFilterItem>();
         private FilterGroupNode RootGroup = new FilterGroupNode();
 
-        private object dataSource;
-        private EntityStructure _entity; // optional entity-based source
+        private object? dataSource;
+        private EntityStructure? _entity; // optional entity-based source
         private readonly List<string> fieldNames = new List<string>();
         private readonly List<Type> fieldTypes = new List<Type>();
 
-        public event EventHandler<FilterChangedEventArgs> FilterChanged;
+        public event EventHandler<FilterChangedEventArgs>? FilterChanged;
 
         // New: parent can handle these (Bind from a dialog with OK/Cancel/Apply)
-        public event EventHandler<FilterActionEventArgs> OkClicked;
-        public event EventHandler<FilterActionEventArgs> ApplyClicked;
-        public event EventHandler CancelClicked;
+        public event EventHandler<FilterActionEventArgs>? OkClicked;
+        public event EventHandler<FilterActionEventArgs>? ApplyClicked;
+        public event EventHandler? CancelClicked;
 
         [Browsable(true)]
         [DefaultValue(false)]
@@ -647,7 +690,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // FilterOperator.GreaterThanOrEqual => ">=",
                         // FilterOperator.LessThanOrEqual => "<=",
                         FilterOperator.Contains => "LIKE",
-                        FilterOperator.IsBetween => "BETWEEN",
+                        FilterOperator.Between => "BETWEEN",
                         _ => "="
                     };
 
@@ -657,7 +700,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     else if (op == "=" && c.Operator.ToString().Equals("LessThanOrEqual", StringComparison.OrdinalIgnoreCase))
                         op = "<=";
 
-                    if (c.Operator == FilterOperator.IsBetween)
+                    if (c.Operator == FilterOperator.Between)
                     {
                         var v1 = valueStr;
                         var v2 = c.DataType == typeof(string) ? $"'{c.Value2}'" : c.Value2?.ToString() ?? "NULL";
@@ -721,7 +764,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     FieldName = c.FieldName,
                     Operator = c.Operator.ToString(),
                     FilterValue = c.Value?.ToString(),
-                    FilterValue1 = c.Operator == FilterOperator.IsBetween ? c.Value2?.ToString() : null,
+                    FilterValue1 = c.Operator == FilterOperator.Between ? c.Value2?.ToString() : null,
                     valueType = c.DataType?.Name ?? "string",
                     FieldType = c.DataType ?? typeof(string)
                 };

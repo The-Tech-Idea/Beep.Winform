@@ -203,14 +203,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowHeader = _showLabel,
                 IsInteractive = _isEnabled,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["MinValue"] = _minValue,
-                    ["MaxValue"] = _maxValue,
-                    ["Options"] = _options,
-                    ["IsEnabled"] = _isEnabled,
-                    ["CurrentValue"] = _value
-                }
+                
+                // Control-specific typed properties with type conversions
+                MinValue = Convert.ToDouble(_minValue),
+                MaxValue = Convert.ToDouble(_maxValue),
+                CurrentValue = _value != null ? Convert.ToDecimal(_value) : (decimal?)null
             };
 
             _painter?.Initialize(this, _currentTheme);

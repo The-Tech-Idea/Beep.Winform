@@ -203,12 +203,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowLegend = _showLegend,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["ShowGrid"] = _showGrid,
-                    ["MinValue"] = _minValue,
-                    ["MaxValue"] = _maxValue
-                }
+                
+                // Chart-specific typed properties
+                MinValue = _minValue,
+                MaxValue = _maxValue
             };
 
             _painter?.Initialize(this, _currentTheme);

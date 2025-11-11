@@ -260,8 +260,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             
             // Store button action in context for parent control to handle
             string buttonText = buttonIndex < _buttonTexts.Count ? _buttonTexts[buttonIndex] : $"Button_{buttonIndex}";
-            ctx.CustomData["SelectedButton"] = buttonText;
-            ctx.CustomData["SelectedButtonIndex"] = buttonIndex;
+            ctx.SelectedButton = buttonText;
+            ctx.SelectedButtonIndex = buttonIndex;
             
             // Force repaint to show selection change (same as BeepAppBar)
             Owner?.Invalidate();
@@ -273,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
         private void HandleTitleClick(WidgetContext ctx)
         {
             // Show button group configuration or help
-            ctx.CustomData["ShowButtonGroupOptions"] = true;
+            ctx.ShowButtonGroupOptions = true;
             
             // Force repaint (same as BeepAppBar)
             Owner?.Invalidate();

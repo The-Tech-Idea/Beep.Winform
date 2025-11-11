@@ -46,14 +46,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var fields = ctx.CustomData.ContainsKey("Fields") ? 
-                (List<FormField>)ctx.CustomData["Fields"] : new List<FormField>();
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? 
-                (List<ValidationResult>)ctx.CustomData["ValidationResults"] : new List<ValidationResult>();
-            var showValidation = ctx.CustomData.ContainsKey("ShowValidation") ? (bool)ctx.CustomData["ShowValidation"] : true;
-            var showRequired = ctx.CustomData.ContainsKey("ShowRequired") ? (bool)ctx.CustomData["ShowRequired"] : true;
-            var validColor = ctx.CustomData.ContainsKey("ValidColor") ? (Color)ctx.CustomData["ValidColor"] : Color.Green;
-            var errorColor = ctx.CustomData.ContainsKey("ErrorColor") ? (Color)ctx.CustomData["ErrorColor"] : Color.Red;
+            var fields = ctx.Fields ?? new List<FormField>();
+            var validationResults = ctx.ValidationResults ?? new List<ValidationResult>();
+            var showValidation = ctx.ShowValidation;
+            var showRequired = ctx.ShowRequired;
+            var validColor = ctx.ValidColor;
+            var errorColor = ctx.ErrorColor;
 
             // Draw form title
             DrawFormHeader(g, ctx.HeaderRect, ctx.Title, ctx.Value, ctx.AccentColor);
@@ -65,14 +63,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         private void DrawFormHeader(Graphics g, Rectangle rect, string title, string subtitle, Color accentColor)
         {
             // Draw title
-            using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(200, Color.Black));
             g.DrawString(title, titleFont, titleBrush, rect.X, rect.Y);
             
             // Draw subtitle if provided
             if (!string.IsNullOrEmpty(subtitle))
             {
-                using var subtitleFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+                using var subtitleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
                 using var subtitleBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
                 g.DrawString(subtitle, subtitleFont, subtitleBrush, rect.X, rect.Y + 16);
             }
@@ -196,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 // Handle password field display
                 if (field.Type == FormFieldType.Password && field.Value != null)
                 {
-                    displayText = new string('•', field.Value.ToString().Length);
+                    displayText = new string('ï¿½', field.Value.ToString().Length);
                 }
                 
                 g.DrawString(displayText, font, textBrush, textRect, textFormat);

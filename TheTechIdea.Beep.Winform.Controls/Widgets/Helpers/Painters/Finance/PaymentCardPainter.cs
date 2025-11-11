@@ -129,11 +129,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.ApplyThemeOnImage = true;
 
             // Payment method data
-            string paymentMethod = ctx.CustomData.ContainsKey("PaymentMethod") ? ctx.CustomData["PaymentMethod"].ToString() : "Credit Card";
-            string cardNumber = ctx.CustomData.ContainsKey("CardNumber") ? ctx.CustomData["CardNumber"].ToString() : "**** **** **** 1234";
-            string expiryDate = ctx.CustomData.ContainsKey("ExpiryDate") ? ctx.CustomData["ExpiryDate"].ToString() : "12/26";
-            decimal balance = ctx.CustomData.ContainsKey("Balance") ? (decimal)ctx.CustomData["Balance"] : 2500.00m;
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
+            string paymentMethod = ctx.PaymentMethod ?? "Credit Card";
+            string cardNumber = ctx.CardNumber ?? "**** **** **** 1234";
+            string expiryDate = ctx.ExpiryDate ?? "12/26";
+            decimal balance = ctx.Balance ?? 2500.00m;
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
 
             // Draw components with hover states - BeepAppBar pattern
             DrawPaymentHeader(g, ctx, paymentMethod);
@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             var eyeIconRect = new Rectangle(cardDetailsRect.X, cardDetailsRect.Y + 2, 16, 16);
             
             // Show different icon based on hover/click state
-            bool showFullNumber = ctx.CustomData.ContainsKey("ShowFullNumber") && (bool)ctx.CustomData["ShowFullNumber"];
+            bool showFullNumber = ctx.ShowFullNumber;
             string eyeIcon = (showFullNumber || isHovered) ? "eye" : "eye-off";
             
             Color eyeColor = isHovered 
@@ -287,8 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void HandleCardDetailsClick(WidgetContext ctx)
         {
             // Toggle show/hide full card number
-            bool currentState = ctx.CustomData.ContainsKey("ShowFullNumber") && (bool)ctx.CustomData["ShowFullNumber"];
-            ctx.CustomData["ShowFullNumber"] = !currentState;
+            ctx.ShowFullNumber = !ctx.ShowFullNumber;
             
             // Trigger parent invalidation to redraw
             Owner?.Invalidate();
@@ -297,8 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void HandleBalanceClick(WidgetContext ctx)
         {
             // Refresh balance or show recent transactions - BeepAppBar pattern
-            string balanceView = ctx.CustomData.ContainsKey("BalanceView") ? 
-                ctx.CustomData["BalanceView"].ToString() : "Current";
+            string balanceView = ctx.BalanceView ?? "Current";
             
             string nextView = balanceView switch
             {
@@ -308,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 _ => "Current"
             };
             
-            ctx.CustomData["BalanceView"] = nextView;
+            ctx.BalanceView = nextView;
             
             // Trigger parent invalidation to redraw
             Owner?.Invalidate();
@@ -317,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void HandleExpiryClick(WidgetContext ctx)
         {
             // Show card renewal options - BeepAppBar pattern
-            ctx.CustomData["ShowRenewalOptions"] = true;
+            ctx.ShowRenewalOptions = true;
             
             // Trigger parent invalidation to redraw
             Owner?.Invalidate();

@@ -80,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Category = Utilities.DbFieldCategory.String;
             beepAppTree1.CategoryIcon = "Category.svg";
             beepAppTree1.ComponentName = "BaseControl";
+            beepAppTree1.ControlStyle = BeepControlStyle.Terminal;
             beepAppTree1.CurrentBranch = null;
             beepAppTree1.CurrentMenutems = null;
             beepAppTree1.DataContext = null;
@@ -152,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.IsSelected = false;
             beepAppTree1.IsSelectedOptionOn = false;
             beepAppTree1.IsShadowAffectedByTheme = true;
-            beepAppTree1.IsTransparentBackground = false;
+            beepAppTree1.IsTransparentBackground = true;
             beepAppTree1.IsValid = true;
             beepAppTree1.IsVisible = true;
             beepAppTree1.Items = (List<object>)resources.GetObject("beepAppTree1.Items");
@@ -195,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 1;
+            beepAppTree1.SeqID = 17;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 3;
             beepAppTree1.ShadowOpacity = 0.25F;
@@ -224,9 +225,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.TrailingIconPath = "";
             beepAppTree1.TrailingImagePath = "";
             beepAppTree1.Treebranchhandler = null;
-            beepAppTree1.TreeStyle = TreeStyle.Telerik;
+            beepAppTree1.TreeStyle = TreeStyle.Standard;
             beepAppTree1.TreeType = "Beep";
             beepAppTree1.UseExternalBufferedGraphics = true;
+            beepAppTree1.UseFormStylePaint = false;
             beepAppTree1.UseGlassmorphism = false;
             beepAppTree1.UseGradientBackground = false;
             beepAppTree1.UseRichToolTip = true;
@@ -287,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.FocusBorderColor = Color.RoyalBlue;
             beepDisplayContainer1.FocusForeColor = Color.Black;
             beepDisplayContainer1.FocusIndicatorColor = Color.RoyalBlue;
-            beepDisplayContainer1.Font = new Font("Segoe UI", 9F);
+            beepDisplayContainer1.Font = new Font("Segoe UI", 10F);
             beepDisplayContainer1.ForeColor = Color.FromArgb(33, 33, 33);
             beepDisplayContainer1.Form = null;
             beepDisplayContainer1.GlassmorphismBlur = 10F;
@@ -387,6 +389,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Tag = this;
             beepDisplayContainer1.TempBackColor = Color.LightGray;
             beepDisplayContainer1.Text = "beepDisplayContainer21";
+            beepDisplayContainer1.TextFont = new Font("Segoe UI", 10F);
             beepDisplayContainer1.Theme = null;
             beepDisplayContainer1.ToolTipText = null;
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
@@ -427,13 +430,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.CanBeSelected = false;
             beepMenuAppBar1.Category = Utilities.DbFieldCategory.String;
             beepMenuAppBar1.ComponentName = "BaseControl";
+            beepMenuAppBar1.ControlStyle = BeepControlStyle.Terminal;
             beepMenuAppBar1.DataContext = null;
             beepMenuAppBar1.DataSourceProperty = null;
             beepMenuAppBar1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepMenuAppBar1.DisabledBorderColor = Color.LightGray;
             beepMenuAppBar1.DisabledForeColor = Color.Gray;
             beepMenuAppBar1.Dock = DockStyle.Top;
-            beepMenuAppBar1.DrawingRect = new Rectangle(0, 0, 2334, 90);
+            beepMenuAppBar1.DrawingRect = new Rectangle(14, 14, 2306, 62);
             beepMenuAppBar1.Easing = EasingType.Linear;
             beepMenuAppBar1.EnableHighQualityRendering = true;
             beepMenuAppBar1.EnableMaterialStyle = false;

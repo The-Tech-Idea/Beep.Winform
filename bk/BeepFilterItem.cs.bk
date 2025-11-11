@@ -2,7 +2,7 @@
 using System.Diagnostics;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
- 
+using TheTechIdea.Beep.Winform.Controls.Filtering;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             operatorLabel.Click += (s, e) => SwitchToEditMode();
             visualPanel.Controls.Add(operatorLabel);
 
-            if (condition.Operator == FilterOperator.IsBetween)
+            if (condition.Operator == FilterOperator.Between)
             {
                 var value1Label = new Label
                 {
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 FilterOperator.Contains => "contains",
                 FilterOperator.StartsWith => "begins with",
                 FilterOperator.EndsWith => "ends with",
-                FilterOperator.IsBetween => "between",
+                FilterOperator.Between => "between",
                 _ => op.ToString()
             };
         }
@@ -349,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var control in valueControls)
                 editPanel.Controls.Remove(control);
 
-            if (condition.Operator == FilterOperator.IsBetween)
+            if (condition.Operator == FilterOperator.Between)
             {
                 var value1Control = CreateValueControl("Value", condition.Value, v => condition.Value = v);
                 editPanel.Controls.Add(value1Control);

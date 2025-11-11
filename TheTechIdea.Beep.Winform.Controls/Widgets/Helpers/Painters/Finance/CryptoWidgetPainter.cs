@@ -80,9 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            decimal value = ctx.CustomData.ContainsKey("PrimaryValue") ? Convert.ToDecimal(ctx.CustomData["PrimaryValue"]) : 0m;
-            decimal percentage = ctx.CustomData.ContainsKey("Percentage") ? Convert.ToDecimal(ctx.CustomData["Percentage"]) : 0m;
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
+            decimal value = ctx.PrimaryValue ?? 0m;
+            decimal percentage = ctx.Percentage ?? 0m;
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
 
             DrawCryptoIcon(g, ctx);
             DrawCryptoInfo(g, ctx, value, percentage, currencySymbol);
@@ -90,20 +90,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawCryptoIcon(Graphics g, WidgetContext ctx)
         {
-            string cryptoName = ctx.CustomData.ContainsKey("CryptoName") ? ctx.CustomData["CryptoName"].ToString().ToLower() : "bitcoin";
+            string cryptoName = (ctx.CryptoName ?? "bitcoin").ToLower();
             string iconName = cryptoName switch { "bitcoin" or "btc" => "dollar-sign", "ethereum" or "eth" => "hexagon", "litecoin" or "ltc" => "circle", "ripple" or "xrp" => "zap", _ => "trending-up" };
-            Color cryptoColor = ctx.CustomData.ContainsKey("CryptoColor") ? (Color)ctx.CustomData["CryptoColor"] : (Theme?.AccentColor ?? Color.FromArgb(255, 193, 7));
+            Color cryptoColor = ctx.CryptoColor;
             _imagePainter.DrawSvg(g, iconName, _iconRect, cryptoColor, 0.9f);
         }
 
         private void DrawCryptoInfo(Graphics g, WidgetContext ctx, decimal value, decimal percentage, string currencySymbol)
         {
-            var trend = ctx.CustomData.ContainsKey("Trend") ? (FinanceTrend)ctx.CustomData["Trend"] : FinanceTrend.Neutral;
-            var positiveColor = ctx.CustomData.ContainsKey("PositiveColor") ? (Color)ctx.CustomData["PositiveColor"] : Color.Green;
-            var negativeColor = ctx.CustomData.ContainsKey("NegativeColor") ? (Color)ctx.CustomData["NegativeColor"] : Color.Red;
+            var trend = Enum.TryParse<FinanceTrend>(ctx.Trend, out var parsedTrend) ? parsedTrend : FinanceTrend.Neutral;
+            var positiveColor = ctx.PositiveColor;
+            var negativeColor = ctx.NegativeColor;
 
-            string cryptoName = ctx.CustomData.ContainsKey("CryptoName") ? ctx.CustomData["CryptoName"].ToString() : "Bitcoin";
-            string cryptoSymbol = ctx.CustomData.ContainsKey("CryptoSymbol") ? ctx.CustomData["CryptoSymbol"].ToString() : "BTC";
+            string cryptoName = ctx.CryptoName ?? "Bitcoin";
+            string cryptoSymbol = ctx.CryptoSymbol ?? "BTC";
 
             // Name and symbol
             var nameIconRect = new Rectangle(_nameRect.X, _nameRect.Y, 16, 16);
@@ -189,11 +189,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             }
         }
 
-        private void HandleIconClick(WidgetContext ctx) { ctx.CustomData["ShowCryptoInfo"] = true; Owner?.Invalidate(); }
-        private void HandleNameClick(WidgetContext ctx) { ctx.CustomData["ShowCryptoDetails"] = true; Owner?.Invalidate(); }
-        private void HandlePriceClick(WidgetContext ctx) { ctx.CustomData["ShowOrderBook"] = true; Owner?.Invalidate(); }
-        private void HandleChangeClick(WidgetContext ctx) { ctx.CustomData["ShowChangeHistory"] = true; Owner?.Invalidate(); }
-        private void HandleChartClick(WidgetContext ctx) { ctx.CustomData["ShowPriceChart"] = true; Owner?.Invalidate(); }
+        private void HandleIconClick(WidgetContext ctx) { ctx.ShowCryptoInfo = true; Owner?.Invalidate(); }
+        private void HandleNameClick(WidgetContext ctx) { ctx.ShowCryptoDetails = true; Owner?.Invalidate(); }
+        private void HandlePriceClick(WidgetContext ctx) { ctx.ShowOrderBook = true; Owner?.Invalidate(); }
+        private void HandleChangeClick(WidgetContext ctx) { ctx.ShowChangeHistory = true; Owner?.Invalidate(); }
+        private void HandleChartClick(WidgetContext ctx) { ctx.ShowPriceChart = true; Owner?.Invalidate(); }
 
         public void Dispose() { _imagePainter?.Dispose(); }
     }

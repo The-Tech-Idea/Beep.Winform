@@ -43,10 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var timeSlots = ctx.CustomData.ContainsKey("TimeSlots") ?
-                (List<TimeSlot>)ctx.CustomData["TimeSlots"] : new List<TimeSlot>();
-            var selectedDate = ctx.CustomData.ContainsKey("SelectedDate") ?
-                (DateTime)ctx.CustomData["SelectedDate"] : DateTime.Today;
+            var timeSlots = ctx.TimeSlots?.Cast<TimeSlot>().ToList() ?? new List<TimeSlot>();
+            var selectedDate = ctx.SelectedDate;
 
             // Draw header
             using var headerFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);

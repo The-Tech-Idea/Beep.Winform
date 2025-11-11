@@ -40,16 +40,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var items = ctx.CustomData.ContainsKey("Items")
-                ? (List<NavigationItem>)ctx.CustomData["Items"]
-                : CreateSampleSteps();
+            var items = ctx.NavigationItems?.Cast<NavigationItem>().ToList() ?? CreateSampleSteps();
 
             // Support both CurrentIndex and ActiveIndex keys
-            int currentIndex = ctx.CustomData.ContainsKey("CurrentIndex")
-                ? (int)ctx.CustomData["CurrentIndex"]
-                : ctx.CustomData.ContainsKey("ActiveIndex")
-                    ? (int)ctx.CustomData["ActiveIndex"]
-                    : 0;
+            int currentIndex = ctx.CurrentIndex;
 
             if (!items.Any()) return;
 

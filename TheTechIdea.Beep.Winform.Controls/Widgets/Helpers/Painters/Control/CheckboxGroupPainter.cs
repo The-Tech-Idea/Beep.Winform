@@ -75,7 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw checkboxes
             for (int i = 0; i < _checkboxTexts.Count && i < _checkboxRects.Count; i++)
             {
-                bool isChecked = ctx.CustomData.TryGetValue($"CheckboxGroup_Checked_{i}", out var v) && v is bool b && b;
+                string key = $"CheckboxGroup_Checked_{i}";
+                bool isChecked = ctx.CheckedItems.TryGetValue(key, out var v) && v;
                 bool hovered = IsAreaHovered($"CheckboxGroup_Item_{i}");
                 DrawCheckbox(g, _checkboxRects[i], _checkboxTexts[i], isChecked, hovered);
             }
@@ -97,8 +98,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
                 if (rect.IsEmpty) continue;
                 owner.AddHitArea($"CheckboxGroup_Item_{idx}", rect, null, () =>
                 {
-                    bool current = ctx.CustomData.TryGetValue($"CheckboxGroup_Checked_{idx}", out var v) && v is bool b && b;
-                    ctx.CustomData[$"CheckboxGroup_Checked_{idx}"] = !current;
+                    string key = $"CheckboxGroup_Checked_{idx}";
+                    bool current = ctx.CheckedItems.TryGetValue(key, out var v) && v;
+                    ctx.CheckedItems[key] = !current;
                     notifyAreaHit?.Invoke($"CheckboxGroup_Item_{idx}", rect);
                     Owner?.Invalidate();
                 });

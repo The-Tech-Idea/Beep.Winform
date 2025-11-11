@@ -73,13 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var fields = ctx.CustomData.ContainsKey("Fields") ? 
-                (List<FormField>)ctx.CustomData["Fields"] : new List<FormField>();
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? 
-                (List<ValidationResult>)ctx.CustomData["ValidationResults"] : new List<ValidationResult>();
-            var errorColor = ctx.CustomData.ContainsKey("ErrorColor") ? (Color)ctx.CustomData["ErrorColor"] : Color.Red;
-            var warningColor = ctx.CustomData.ContainsKey("WarningColor") ? (Color)ctx.CustomData["WarningColor"] : Color.Orange;
-            var validColor = ctx.CustomData.ContainsKey("ValidColor") ? (Color)ctx.CustomData["ValidColor"] : Color.Green;
+            var fields = ctx.Fields ?? new List<FormField>();
+            var validationResults = ctx.ValidationResults ?? new List<ValidationResult>();
+            var errorColor = ctx.ErrorColor;
+            var warningColor = ctx.WarningColor;
+            var validColor = ctx.ValidColor;
 
             // Draw title and validation summary
             DrawValidationHeader(g, ctx.HeaderRect, ctx.Title, validationResults, ctx.AccentColor, errorColor);
@@ -266,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("ValidationPanel_Header", _headerRectCache, null, () =>
                 {
-                    ctx.CustomData["ValidationHeaderClicked"] = true;
+                    ctx.ValidationHeaderClicked = true;
                     notifyAreaHit?.Invoke("ValidationPanel_Header", _headerRectCache);
                     Owner?.Invalidate();
                 });
@@ -275,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("ValidationPanel_Messages", _messagesRectCache, null, () =>
                 {
-                    ctx.CustomData["ValidationMessagesClicked"] = true;
+                    ctx.ValidationMessagesClicked = true;
                     notifyAreaHit?.Invoke("ValidationPanel_Messages", _messagesRectCache);
                     Owner?.Invalidate();
                 });
@@ -284,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 owner.AddHitArea("ValidationPanel_Fields", _fieldsRectCache, null, () =>
                 {
-                    ctx.CustomData["ValidationFieldsClicked"] = true;
+                    ctx.ValidationFieldsClicked = true;
                     notifyAreaHit?.Invoke("ValidationPanel_Fields", _fieldsRectCache);
                     Owner?.Invalidate();
                 });

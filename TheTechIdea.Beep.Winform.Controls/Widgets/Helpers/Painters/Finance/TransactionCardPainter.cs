@@ -76,12 +76,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            string merchant = ctx.CustomData.ContainsKey("Merchant") ? ctx.CustomData["Merchant"].ToString() : "Amazon";
-            string category = ctx.CustomData.ContainsKey("Category") ? ctx.CustomData["Category"].ToString() : "Shopping";
-            decimal amount = ctx.CustomData.ContainsKey("Amount") ? (decimal)ctx.CustomData["Amount"] : -45.99m;
-            string currency = ctx.CustomData.ContainsKey("Currency") ? ctx.CustomData["Currency"].ToString() : "$";
-            DateTime date = ctx.CustomData.ContainsKey("Date") ? (DateTime)ctx.CustomData["Date"] : DateTime.Now.AddDays(-1);
-            string status = ctx.CustomData.ContainsKey("Status") ? ctx.CustomData["Status"].ToString() : "Posted";
+            string merchant = ctx.Merchant ?? "Amazon";
+            string category = ctx.Category ?? "Shopping";
+            decimal amount = ctx.Amount ?? -45.99m;
+            string currency = ctx.Currency ?? "$";
+            DateTime date = ctx.Date ?? DateTime.Now.AddDays(-1);
+            string status = ctx.Status ?? "Posted";
 
             DrawTransactionHeader(g, ctx, merchant, category);
             DrawTransactionDetails(g, ctx, amount, currency, date, status);
@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             using var detailsFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, isDetailsHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
             Color detailsColor = isDetailsHovered ? Theme?.PrimaryColor ?? Color.Blue : Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray);
             using var detailsBrush = new SolidBrush(detailsColor);
-            string detailsText = isDetailsHovered ? $"{date:MMM dd} • {status} - Click for full details" : $"{date:MMM dd} • {status}";
+            string detailsText = isDetailsHovered ? $"{date:MMM dd} ï¿½ {status} - Click for full details" : $"{date:MMM dd} ï¿½ {status}";
             var detailsFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(detailsText, detailsFont, detailsBrush, _detailsAreaRect, detailsFormat);
         }
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             bool isStatusHovered = IsAreaHovered("Transaction_Status");
-            string status = ctx.CustomData.ContainsKey("Status") ? ctx.CustomData["Status"].ToString() : "Posted";
+            string status = ctx.Status ?? "Posted";
             Color statusColor = status.ToLower() switch { "posted" => Color.FromArgb(76, 175, 80), "pending" => Color.FromArgb(255, 193, 7), "failed" => Color.FromArgb(244, 67, 54), _ => Color.FromArgb(120, 120, 120) };
             if (isStatusHovered) statusColor = Color.FromArgb(Math.Min(255, statusColor.R + 40), Math.Min(255, statusColor.G + 40), Math.Min(255, statusColor.B + 40));
             var statusRect = _statusAreaRect; if (isStatusHovered) statusRect.Inflate(2, 2);
@@ -158,26 +158,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void HandleCategoryClick(WidgetContext ctx)
         {
-            string category = ctx.CustomData.ContainsKey("Category") ? ctx.CustomData["Category"].ToString() : "Shopping";
-            ctx.CustomData["FilterByCategory"] = category;
+            ctx.FilterByCategory = ctx.Category ?? "Shopping";
             Owner?.Invalidate();
         }
 
         private void HandleAmountClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowTransactionDetails"] = true;
+            ctx.ShowTransactionDetails = true;
             Owner?.Invalidate();
         }
 
         private void HandleDetailsClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowFullDetails"] = true;
+            ctx.ShowFullDetails = true;
             Owner?.Invalidate();
         }
 
         private void HandleStatusClick(WidgetContext ctx)
         {
-            ctx.CustomData["ShowStatusInfo"] = true;
+            ctx.ShowStatusInfo = true;
             Owner?.Invalidate();
         }
 

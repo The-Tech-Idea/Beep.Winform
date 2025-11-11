@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             var baseRect = Owner?.DrawingRect ?? drawingRect;
             ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
 
-            // Create inline fields layout from ctx.CustomData["Fields"] (array of labels)
+            // Create inline fields layout from ctx.InlineFields (array of labels)
             int pad = 8;
             int fieldHeight = 28;
             int labelWidth = 90;
@@ -27,17 +27,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                                              ctx.DrawingRect.Width - pad * 2, fieldHeight);
 
             // Determine number of fields
-            string[] fields = ctx.CustomData.ContainsKey("Fields") ? (string[])ctx.CustomData["Fields"] : new[] { "First Name", "Last Name", "Email" };
+            string[] fields = ctx.InlineFields ?? new[] { "First Name", "Last Name", "Email" };
             int count = fields.Length;
             int perFieldWidth = Math.Max(60, (ctx.ContentRect.Width - (count - 1) * spacing) / Math.Max(count, 1));
             _fieldRects = new Rectangle[count];
+
+            ctx.InlineFieldData ??= new Dictionary<string, object>();
 
             for (int i = 0; i < count; i++)
             {
                 int x = ctx.ContentRect.Left + i * (perFieldWidth + spacing);
                 _fieldRects[i] = new Rectangle(x + labelWidth, ctx.ContentRect.Top, perFieldWidth - labelWidth, fieldHeight);
-                ctx.CustomData[$"InlineFieldLabel_{i}"] = fields[i];
-                ctx.CustomData[$"InlineFieldRect_{i}"] = _fieldRects[i];
+                ctx.InlineFieldData[$"InlineFieldLabel_{i}"] = fields[i];
+                ctx.InlineFieldData[$"InlineFieldRect_{i}"] = _fieldRects[i];
             }
 
             return ctx;
@@ -60,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             for (int i = 0; i < _fieldRects.Length; i++)
             {
-                string label = ctx.CustomData[$"InlineFieldLabel_{i}"]?.ToString() ?? $"Field {i + 1}";
+                string label = ctx.InlineFieldData?[$"InlineFieldLabel_{i}"]?.ToString() ?? $"Field {i + 1}";
                 var labelRect = new Rectangle(_fieldRects[i].Left - 90, _fieldRects[i].Top, 86, _fieldRects[i].Height);
                 var textRect = Rectangle.Inflate(_fieldRects[i], -6, -4);
 
@@ -73,7 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 g.DrawPath(borderPen, path);
 
                 // Value (placeholder)
-                string value = ctx.CustomData.ContainsKey($"InlineFieldValue_{i}") ? ctx.CustomData[$"InlineFieldValue_{i}"].ToString() : "";
+                string value = (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"InlineFieldValue_{i}")) 
+                    ? ctx.InlineFieldData[$"InlineFieldValue_{i}"]?.ToString() ?? "" : "";
                 using var valueBrush = new SolidBrush(string.IsNullOrEmpty(value) ? Color.Gray : (Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black));
                 g.DrawString(string.IsNullOrEmpty(value) ? "Type here..." : value, valueFont, valueBrush, textRect, new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
 
@@ -98,7 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 var rect = _fieldRects[i];
                 owner.AddHitArea($"InlineForm_Field_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData[$"InlineFieldFocused_{idx}"] = true;
+                    ctx.InlineFieldData ??= new Dictionary<string, object>();
+                    ctx.InlineFieldData[$"InlineFieldFocused_{idx}"] = true;
                     notifyAreaHit?.Invoke($"InlineForm_Field_{idx}", rect);
                     Owner?.Invalidate();
                 });

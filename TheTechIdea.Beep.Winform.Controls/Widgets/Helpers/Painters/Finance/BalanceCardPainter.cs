@@ -106,9 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.Theme = Theme?.ThemeName;
             _imagePainter.ApplyThemeOnImage = true;
 
-            decimal balance = ctx.CustomData.ContainsKey("PrimaryValue") ? (decimal)ctx.CustomData["PrimaryValue"] : 12345.67m;
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
-            string accountNumber = ctx.CustomData.ContainsKey("AccountNumber") ? ctx.CustomData["AccountNumber"].ToString() : "****1234";
+            decimal balance = ctx.PrimaryValue ?? 12345.67m;
+            string currencySymbol = ctx.CurrencySymbol ?? "$";
+            string accountNumber = ctx.AccountNumber ?? "****1234";
 
             DrawLogoComponent(g, ctx, IsAreaHovered("BalanceCard_Logo"));
             DrawBalanceComponent(g, ctx, balance, currencySymbol, IsAreaHovered("BalanceCard_Balance"));
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, isHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(220, Color.White));
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-            string accountType = ctx.CustomData.ContainsKey("AccountType") ? ctx.CustomData["AccountType"].ToString() : "Checking Account";
+            string accountType = ctx.AccountType ?? "Checking Account";
             string displayText = isHovered ? $"{accountType} - Click for details" : accountType;
             g.DrawString(displayText, titleFont, titleBrush, titleRect, format);
         }
@@ -208,8 +208,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         // Action handlers - invoked from BaseControl hit areas
         private void HandleLogoClick(WidgetContext ctx) { Owner?.Invalidate(); }
-        private void HandleBalanceClick(WidgetContext ctx) { bool showHistory = ctx.CustomData.ContainsKey("ShowBalanceHistory") && (bool)ctx.CustomData["ShowBalanceHistory"]; ctx.CustomData["ShowBalanceHistory"] = !showHistory; Owner?.Invalidate(); }
-        private void HandleAccountClick(WidgetContext ctx) { string accountNumber = ctx.CustomData.ContainsKey("AccountNumber") ? ctx.CustomData["AccountNumber"].ToString() : "****1234"; try { System.Windows.Forms.Clipboard.SetText(accountNumber); ctx.CustomData["ShowCopiedMessage"] = true; } catch { } Owner?.Invalidate(); }
+        private void HandleBalanceClick(WidgetContext ctx) { ctx.ShowBalanceHistory = !ctx.ShowBalanceHistory; Owner?.Invalidate(); }
+        private void HandleAccountClick(WidgetContext ctx) { string accountNumber = ctx.AccountNumber ?? "****1234"; try { System.Windows.Forms.Clipboard.SetText(accountNumber); ctx.ShowCopiedMessage = true; } catch { } Owner?.Invalidate(); }
         private void HandleSecurityClick(WidgetContext ctx) { Owner?.Invalidate(); }
 
         public void Dispose() { _imagePainter?.Dispose(); }

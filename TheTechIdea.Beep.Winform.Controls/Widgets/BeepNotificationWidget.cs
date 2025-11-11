@@ -226,14 +226,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
                 TrendPercentage = _progress,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["NotificationType"] = _notificationType,
-                    ["ActionText"] = _actionText,
-                    ["IsDismissible"] = _isDismissible,
-                    ["ShowAction"] = _showAction,
-                    ["Timestamp"] = _timestamp
-                }
+                
+                // Notification-specific typed properties
+                NotificationType = _notificationType.ToString(),
+                ActionText = _actionText,
+                IsDismissible = _isDismissible,
+                ShowAction = _showAction,
+                Timestamp = _timestamp.ToString("g")
             };
 
             _painter?.Initialize(this, _currentTheme);

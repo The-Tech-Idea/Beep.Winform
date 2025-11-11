@@ -68,13 +68,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var displayMonth = ctx.CustomData.ContainsKey("DisplayMonth") ? Convert.ToDateTime(ctx.CustomData["DisplayMonth"]) : DateTime.Now;
-            var selectedDate = ctx.CustomData.ContainsKey("SelectedDate") ? Convert.ToDateTime(ctx.CustomData["SelectedDate"]) : DateTime.Now;
-            var events = ctx.CustomData.ContainsKey("Events") ? (List<CalendarEvent>)ctx.CustomData["Events"] : new List<CalendarEvent>();
-            var todayColor = ctx.CustomData.ContainsKey("TodayColor") ? (Color)ctx.CustomData["TodayColor"] : (Theme?.PrimaryColor ?? Color.Red);
-            var selectedColor = ctx.CustomData.ContainsKey("SelectedColor") ? (Color)ctx.CustomData["SelectedColor"] : (Theme?.AccentColor ?? Color.Blue);
-            var showEvents = ctx.CustomData.ContainsKey("ShowEvents") && ctx.CustomData["ShowEvents"] is bool b1 ? b1 : true;
-            var showToday = ctx.CustomData.ContainsKey("ShowToday") && ctx.CustomData["ShowToday"] is bool b2 ? b2 : true;
+            var displayMonth = ctx.DisplayMonth;
+            var selectedDate = ctx.SelectedDate;
+            var events = ctx.Events?.Cast<CalendarEvent>().ToList() ?? new List<CalendarEvent>();
+            var todayColor = ctx.TodayColor != Color.Empty ? ctx.TodayColor : (Theme?.PrimaryColor ?? Color.Red);
+            var selectedColor = ctx.SelectedColor != Color.Empty ? ctx.SelectedColor : (Theme?.AccentColor ?? Color.Blue);
+            var showEvents = ctx.ShowEvents;
+            var showToday = ctx.ShowToday;
 
             // Draw month/year header
             DrawCalendarHeader(g, ctx.HeaderRect, displayMonth, ctx.AccentColor);
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("Calendar_Prev", _prevRect, null, () =>
                 {
-                    ctx.CustomData["PrevMonth"] = true;
+                    ctx.PrevMonth = true;
                     notifyAreaHit?.Invoke("Calendar_Prev", _prevRect);
                     Owner?.Invalidate();
                 });
@@ -307,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("Calendar_Next", _nextRect, null, () =>
                 {
-                    ctx.CustomData["NextMonth"] = true;
+                    ctx.NextMonth = true;
                     notifyAreaHit?.Invoke("Calendar_Next", _nextRect);
                     Owner?.Invalidate();
                 });
@@ -319,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 string name = $"Calendar_Cell_{date:yyyyMMdd}";
                 owner.AddHitArea(name, rect, null, () =>
                 {
-                    ctx.CustomData["SelectedDate"] = date;
+                    ctx.SelectedDate = date;
                     notifyAreaHit?.Invoke(name, rect);
                     Owner?.Invalidate();
                 });
@@ -330,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 owner.AddHitArea("Calendar_Grid", _gridRect, null, () =>
                 {
-                    ctx.CustomData["CalendarGridClicked"] = true;
+                    ctx.CalendarGridClicked = true;
                     notifyAreaHit?.Invoke("Calendar_Grid", _gridRect);
                     Owner?.Invalidate();
                 });

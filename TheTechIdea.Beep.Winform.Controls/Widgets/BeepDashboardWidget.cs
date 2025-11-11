@@ -175,12 +175,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowHeader = _showTitle,
                 IsInteractive = true,
                 CornerRadius = BorderRadius,
-                CustomData = new Dictionary<string, object>
-                {
-                    ["Metrics"] = _metrics,
-                    ["Columns"] = _columns,
-                    ["Rows"] = _rows
-                }
+                
+                // Dashboard-specific typed properties
+                Metrics = _metrics.Cast<object>().ToList(),
+                Columns = _columns,
+                Rows = _rows
             };
 
             _painter?.Initialize(this, _currentTheme);

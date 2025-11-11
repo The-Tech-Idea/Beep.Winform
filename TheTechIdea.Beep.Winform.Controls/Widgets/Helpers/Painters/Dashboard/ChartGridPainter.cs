@@ -35,12 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
             // Precompute grid cell rectangles for hit testing
             _cellRects.Clear();
-            if (ctx.CustomData.ContainsKey("Metrics"))
+            if (ctx.Metrics != null)
             {
-                var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
-                int columns = ctx.CustomData.ContainsKey("Columns") ? (int)ctx.CustomData["Columns"] : 2;
-                int rows = ctx.CustomData.ContainsKey("Rows") ? (int)ctx.CustomData["Rows"] : 2;
-                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics?.Count ?? 0, columns, rows));
+                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
+                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics?.Count ?? 0, ctx.Columns, ctx.Rows));
             }
 
             // Expand button location (if expandable)
@@ -70,11 +68,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
             
             // Draw enhanced chart grid
-            if (ctx.CustomData.ContainsKey("Metrics"))
+            if (ctx.Metrics != null)
             {
-                var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
-                int columns = ctx.CustomData.ContainsKey("Columns") ? (int)ctx.CustomData["Columns"] : 2;
-                int rows = ctx.CustomData.ContainsKey("Rows") ? (int)ctx.CustomData["Rows"] : 2;
+                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
+                int columns = ctx.Columns;
+                int rows = ctx.Rows;
                 
                 DrawChartsGrid(g, ctx.ContentRect, metrics, columns, rows, ctx.AccentColor);
             }
@@ -192,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw expand indicator for full grid view
-            if (ctx.CustomData.ContainsKey("IsExpandable") && (bool)ctx.CustomData["IsExpandable"])
+            if (ctx.IsExpandable)
             {
                 using var expandBrush = new SolidBrush(Color.FromArgb(30, Theme?.AccentColor ?? Color.Gray));
                 g.FillRoundedRectangle(expandBrush, _expandRect, 4);
@@ -220,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             {
                 owner.AddHitArea("ChartGrid_Title", ctx.HeaderRect, null, () =>
                 {
-                    ctx.CustomData["TitleClicked"] = true;
+                    ctx.TitleClicked = true;
                     notifyAreaHit?.Invoke("ChartGrid_Title", ctx.HeaderRect);
                     Owner?.Invalidate();
                 });
@@ -234,18 +232,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 if (rect.IsEmpty) continue;
                 owner.AddHitArea($"ChartGrid_Cell_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedCellIndex"] = idx;
+                    ctx.SelectedCellIndex = idx;
                     notifyAreaHit?.Invoke($"ChartGrid_Cell_{idx}", rect);
                     Owner?.Invalidate();
                 });
             }
 
             // Expand area
-            if (ctx.CustomData.ContainsKey("IsExpandable") && (bool)ctx.CustomData["IsExpandable"])
+            if (ctx.IsExpandable)
             {
                 owner.AddHitArea("ChartGrid_Expand", _expandRect, null, () =>
                 {
-                    ctx.CustomData["ExpandRequested"] = true;
+                    ctx.ExpandRequested = true;
                     notifyAreaHit?.Invoke("ChartGrid_Expand", _expandRect);
                     Owner?.Invalidate();
                 });

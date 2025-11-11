@@ -52,9 +52,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             }
 
             // Get slider values
-            double minValue = ctx.CustomData.ContainsKey("MinValue") ? Convert.ToDouble(ctx.CustomData["MinValue"]) : 0;
-            double maxValue = ctx.CustomData.ContainsKey("MaxValue") ? Convert.ToDouble(ctx.CustomData["MaxValue"]) : 100;
-            double currentValue = ctx.CustomData.ContainsKey("CurrentValue") ? Convert.ToDouble(ctx.CustomData["CurrentValue"]) : 50;
+            double minValue = ctx.MinValue;
+            double maxValue = ctx.MaxValue;
+            double currentValue = Convert.ToDouble(ctx.CurrentValue);
 
             // Draw track
             using var trackBrush = new SolidBrush(Color.FromArgb(200, Color.Gray));

@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 var rect = _photoRects[i];
                 owner.AddHitArea($"PhotoGrid_Cell_{idx}", rect, null, () =>
                 {
-                    ctx.CustomData["SelectedPhotoIndex"] = idx;
+                    ctx.SelectedPhotoIndex = idx;
                     notifyAreaHit?.Invoke($"PhotoGrid_Cell_{idx}", rect);
                     Owner?.Invalidate();
                 });

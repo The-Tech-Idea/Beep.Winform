@@ -44,6 +44,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     {
                         var controlStyle = ControlStyle;
                         _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
+                        _paintHelper.TabStyle = this.TabStyle; // use container's TabStyle
+                    }
+                    else
+                    {
+                        // Update helper style
+                        _paintHelper.ControlStyle = ControlStyle;
+                        _paintHelper.IsTransparent = IsTransparentBackground;
+                        _paintHelper.TabStyle = this.TabStyle;
                     }
                     else
                     {

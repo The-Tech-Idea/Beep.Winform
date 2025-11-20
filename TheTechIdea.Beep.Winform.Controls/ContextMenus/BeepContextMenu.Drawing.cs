@@ -89,23 +89,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (_menuItems == null || _menuItems.Count == 0)
                 return;
-
-            var itemHeight = PreferredItemHeight;
-
             int contentStartX = beepInsets + 4;
             int contentStartY = beepInsets + 4;
             int contentWidth = Width - (beepInsets * 2) - 8 - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0);
+            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
+            if (searchAreaHeight > 0)
+            {
+                // Draw or position the actual search textbox control
+                if (_searchTextBox != null)
+                {
+                    try
+                    {
+                        _searchTextBox.Left = contentStartX;
+                        _searchTextBox.Top = contentStartY + 4; // inside padding
+                        _searchTextBox.Width = Math.Max(100, Width - (beepInsets * 2) - 8 - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0));
+                        _searchTextBox.Visible = true;
+                        _searchTextBox.BringToFront();
+                    }
+                    catch { }
+                }
+                contentStartY += searchAreaHeight + 8; // space after search
+            }
             var yOffset = 0;
-
             for (int i = 0; i < _menuItems.Count; i++)
             {
                 var item = _menuItems[i];
-                var itemRect = new Rectangle(
-                    contentStartX,
-                    contentStartY + yOffset,
-                    contentWidth,
-                    itemHeight
-                );
+                var itemHeight = (int)PreferredItemHeight; // default
+                if (item != null) itemHeight = GetItemHeight(item);
+                var itemRect = new Rectangle(contentStartX, contentStartY + yOffset, contentWidth, itemHeight);
 
                 if (_needsScrolling && (yOffset < _scrollOffset - itemHeight || yOffset > _scrollOffset + Height))
                 {
@@ -192,13 +203,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 catch { }
             }
 
-            // Draw text (same approach as BeepMenuBar - use TextRenderer for safety)
+            // Draw text and optional subtext
             var textColor = UseThemeColors && _currentTheme != null ? _currentTheme.MenuItemForeColor : Color.Black;
             var textRect = new Rectangle(textStartX, itemRect.Y, textWidth, itemRect.Height);
             var safeFont = _textFont;
-            
-            TextRenderer.DrawText(g, item.DisplayField ?? "", safeFont, textRect, textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+            if (!string.IsNullOrEmpty(item.SubText))
+            {
+                // Two-line layout: title at top, subtext smaller and muted below
+                var titleRect = new Rectangle(textStartX, itemRect.Y + 2, textWidth, itemRect.Height / 2 - 2);
+                var subRect = new Rectangle(textStartX, itemRect.Y + itemRect.Height / 2, textWidth, itemRect.Height / 2 - 2);
+                TextRenderer.DrawText(g, item.DisplayField ?? "", safeFont, titleRect, textColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+                Color subColor = UseThemeColors && _currentTheme != null ? Color.FromArgb(160, _currentTheme.MenuItemForeColor) : Color.Gray;
+                // use smaller font for subtitle
+                TextRenderer.DrawText(g, item.SubText ?? "", _shortcutFont, subRect, subColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+            }
+            else
+            {
+                TextRenderer.DrawText(g, item.DisplayField ?? "", safeFont, textRect, textColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+            }
             
             // Draw shortcut text if present (right-aligned, before arrow)
             if (hasShortcut)

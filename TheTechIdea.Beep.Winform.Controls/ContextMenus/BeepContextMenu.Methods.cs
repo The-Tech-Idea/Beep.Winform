@@ -88,6 +88,11 @@ _fadeTimer.Start();
 
 // Keep focus for keyboard
 try { Activate(); Focus(); } catch { }
+            // Focus search textbox if present
+            if (_showSearchBox && _searchTextBox != null)
+            {
+                try { _searchTextBox.Focus(); } catch { }
+            }
             // Ensure TopMost after showing
             TopMost = true;
             BringToFront();
@@ -127,6 +132,7 @@ try { Activate(); Focus(); } catch { }
         {
             if (item == null) return;
             _menuItems.Add(item);
+            _fullMenuItems.Add(item);
         }
         
         /// <summary>
@@ -145,6 +151,9 @@ try { Activate(); Focus(); } catch { }
             _selectedItems.Clear();
             _hoveredItem = null;
             _hoveredIndex = -1;
+            _fullMenuItems.Clear();
+            _searchText = string.Empty;
+            if (_searchTextBox != null) _searchTextBox.Text = string.Empty;
         }
         
         /// <summary>
@@ -238,7 +247,7 @@ try { Activate(); Focus(); } catch { }
             for (int i = 0; i < _menuItems.Count; i++)
             {
                 var item = _menuItems[i];
-                int itemHeight = IsSeparator(item) ? 8 : _menuItemHeight;
+                int itemHeight = GetItemHeight(item);
 
                 if (relY >= cumulativeY && relY < cumulativeY + itemHeight)
                 {
@@ -278,6 +287,7 @@ try { Activate(); Focus(); } catch { }
 
             int beepInsets = beepPadding + (int)Math.Ceiling(beepBorderWidth) + beepShadow;
             const int internalPadding = 4; // Matches your DrawMenuItemsSimple (4px top/bottom/left/right)
+            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
 
             int calculatedMinHeight = PreferredItemHeight + (internalPadding * 2) + (beepInsets * 2);
 
@@ -295,9 +305,11 @@ try { Activate(); Focus(); } catch { }
 
             // === HEIGHT CALCULATION (internal content only) ===
             int contentHeight = internalPadding; // top
+            // include search area if enabled
+            if (searchAreaHeight > 0) contentHeight += searchAreaHeight + 8; // 8px spacing after search
             foreach (var item in _menuItems)
             {
-                contentHeight += IsSeparator(item) ? 8 : PreferredItemHeight;
+                contentHeight += GetItemHeight(item);
             }
             contentHeight += internalPadding; // bottom
 
@@ -365,19 +377,45 @@ try { Activate(); Focus(); } catch { }
                 _scrollBar.Left = beepInsets + internalPadding + contentWidth;
                 _scrollBar.Top = beepInsets;
                 _scrollBar.Height = Height - (beepInsets * 2);
-                _scrollBar.Minimum = 0;
-                _scrollBar.SmallChange = PreferredItemHeight;
 
-                int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
-                _scrollBar.LargeChange = Math.Max(1, visibleContentHeight);
-
-                // Maximum = total scrollable content + visible - 1 (standard WinForms pattern)
-                _scrollBar.Maximum = contentHeight + _scrollBar.LargeChange - 1;
-
-                // Clamp scroll offset
-                int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
-                _scrollOffset = Math.Min(_scrollOffset, maxScroll);
-                _scrollBar.Value = _scrollOffset;
+                // Configure properties that may not exist on Control
+                if (_scrollBar is VScrollBar vs)
+                {
+                    vs.Minimum = 0;
+                    vs.SmallChange = PreferredItemHeight;
+                    int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
+                    vs.LargeChange = Math.Max(1, visibleContentHeight);
+                    vs.Maximum = contentHeight + vs.LargeChange - 1;
+                    int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
+                    _scrollOffset = Math.Min(_scrollOffset, maxScroll);
+                    vs.Value = _scrollOffset;
+                }
+                else
+                {
+                    // Use reflection for BeepScrollBar or other custom scroll implementations
+                    try
+                    {
+                        var t = _scrollBar.GetType();
+                        var propMin = t.GetProperty("Minimum");
+                        var propMax = t.GetProperty("Maximum");
+                        var propSmall = t.GetProperty("SmallChange");
+                        var propLarge = t.GetProperty("LargeChange");
+                        var propValue = t.GetProperty("Value");
+                        if (propMin != null) propMin.SetValue(_scrollBar, 0);
+                        if (propSmall != null) propSmall.SetValue(_scrollBar, PreferredItemHeight);
+                        int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2);
+                        if (propLarge != null) propLarge.SetValue(_scrollBar, Math.Max(1, visibleContentHeight));
+                        if (propMax != null && propLarge != null)
+                        {
+                            int large = (int)propLarge.GetValue(_scrollBar);
+                            propMax.SetValue(_scrollBar, contentHeight + large - 1);
+                        }
+                        int maxScroll = Math.Max(0, contentHeight - visibleContentHeight);
+                        _scrollOffset = Math.Min(_scrollOffset, maxScroll);
+                        if (propValue != null) propValue.SetValue(_scrollBar, _scrollOffset);
+                    }
+                    catch { }
+                }
             }
             else
             {
@@ -388,9 +426,17 @@ try { Activate(); Focus(); } catch { }
             // Update content rectangle for any internal use
             _contentAreaRect = new Rectangle(
                 beepInsets + internalPadding,
-                beepInsets + internalPadding,
+                beepInsets + internalPadding + (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0),
                 contentWidth,
-                Height - (beepInsets * 2) - (internalPadding * 2));
+                Height - (beepInsets * 2) - (internalPadding * 2) - (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0));
+        }
+
+        private int GetItemHeight(SimpleItem item)
+        {
+            if (IsSeparator(item)) return 8;
+            int baseHeight = PreferredItemHeight;
+            if (!string.IsNullOrEmpty(item.SubText)) baseHeight += 14; // extra room for subtitle
+            return baseHeight;
         }
         /// <summary>
         /// Shows a submenu for an item
@@ -464,10 +510,12 @@ try { Activate(); Focus(); } catch { }
             {
                 case Keys.Up:
                     SelectPreviousItem();
+                    EnsureIndexVisible(_hoveredIndex);
                     return true;
                     
                 case Keys.Down:
                     SelectNextItem();
+                    EnsureIndexVisible(_hoveredIndex);
                     return true;
                     
                 case Keys.Enter:
@@ -543,6 +591,55 @@ try { Activate(); Focus(); } catch { }
                 }
                 index++;
             }
+        }
+
+        /// <summary>
+        /// Ensures the provided index is visible in the current scroll viewport.
+        /// Adjusts scrollbar value to bring item into view if necessary.
+        /// </summary>
+        private void EnsureIndexVisible(int index)
+        {
+            if (!_needsScrolling) return;
+            if (index < 0 || index >= _menuItems.Count) return;
+
+            int beepPadding = BeepStyling.GetPadding(_controlStyle);
+            float beepBorderWidth = BeepStyling.GetBorderThickness(_controlStyle);
+            int beepShadow = StyleShadows.HasShadow(ControlStyle) ? Math.Max(2, StyleShadows.GetShadowBlur(ControlStyle) / 2) : 0;
+            int beepInsets = beepPadding + (int)Math.Ceiling(beepBorderWidth) + beepShadow;
+            const int internalPadding = 4;
+            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
+
+            int visibleContentHeight = Height - (beepInsets * 2) - (internalPadding * 2) - (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0);
+
+            // Compute top of item relative to content beginning
+            int cumulativeY = internalPadding;
+            if (searchAreaHeight > 0) cumulativeY += searchAreaHeight + 8;
+            for (int i = 0; i < index; i++) cumulativeY += GetItemHeight(_menuItems[i]);
+
+            int itemTop = cumulativeY;
+            int itemBottom = itemTop + GetItemHeight(_menuItems[index]);
+
+            int currentScroll = GetScrollBarValue();
+
+            if (itemTop < currentScroll)
+            {
+                currentScroll = itemTop;
+            }
+            else if (itemBottom > currentScroll + visibleContentHeight)
+            {
+                currentScroll = itemBottom - visibleContentHeight;
+            }
+
+            // Clamp and apply
+            int min = GetScrollBarMinimum();
+            int max = Math.Max(0, GetScrollBarMaximum() - GetScrollBarLargeChange() + 1);
+            currentScroll = Math.Max(min, Math.Min(currentScroll, max));
+            if (currentScroll != GetScrollBarValue())
+            {
+                SetScrollBarValue(currentScroll);
+            }
+            _scrollOffset = currentScroll;
+            Invalidate();
         }
         
         #endregion

@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls; // TabStyle enum
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
@@ -16,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private readonly IBeepTheme _theme;
         private BeepControlStyle _controlStyle = BeepControlStyle.Modern;
         private bool _isTransparent = false;
+        private TabStyle _tabStyle = TabStyle.Capsule; // default for DC2
 
         public TabPaintHelper(IBeepTheme theme)
         {
@@ -41,6 +43,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         {
             get => _controlStyle;
             set => _controlStyle = value;
+        }
+        public TabStyle TabStyle
+        {
+            get => _tabStyle;
+            set => _tabStyle = value;
         }
 
         public bool IsTransparent
@@ -72,8 +79,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Get theme colors
                 var colors = GetTabColors(isActive, isHovered, animationProgress);
                 
-                // Draw tab background with gradient
-                DrawTabBackground(g, bounds, colors, isActive, isHovered);
+                // Draw tab background with gradient or style-specific background
+                switch (_tabStyle)
+                {
+                    case TabStyle.Classic:
+                        DrawTabBackground(g, bounds, colors, isActive, isHovered);
+                        break;
+                    case TabStyle.Capsule:
+                        DrawCapsuleBackground(g, bounds, colors, isActive, isHovered);
+                        break;
+                    case TabStyle.Underline:
+                        // Underline has no background; we'll draw underline separately later
+                        break;
+                    case TabStyle.Minimal:
+                        // Minimal draws no background
+                        break;
+                    case TabStyle.Segmented:
+                        DrawSegmentBackground(g, bounds, colors, isActive, isHovered);
+                        break;
+                    default:
+                        DrawTabBackground(g, bounds, colors, isActive, isHovered);
+                        break;
+                }
                 
                 // Draw tab border
                 DrawTabBorder(g, bounds, colors.BorderColor, isActive);
@@ -105,6 +132,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 {
                     System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Skipping close button - bounds too small or disabled: width={bounds.Width}, height={bounds.Height}, showClose={showCloseButton}");
                 }
+                // If style is underline or minimal and active, draw underline accent
+                if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && isActive)
+                {
+                    DrawUnderline(g, bounds, colors);
+                }
             }
             catch (Exception ex)
             {
@@ -135,6 +167,46 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 catch
                 {
                     // If even the fallback fails, give up gracefully
+                }
+            }
+        }
+
+        private void DrawUnderline(Graphics g, Rectangle bounds, TabColors colors)
+        {
+            // Draw a thin accent underline centered under the tab title region
+            int thickness = Math.Max(2, bounds.Height / 8);
+            var r = new Rectangle(bounds.X + 8, bounds.Bottom - thickness - 2, Math.Max(10, bounds.Width - 16), thickness);
+            using (var brush = new SolidBrush(colors.TextColor))
+            {
+                g.FillRectangle(brush, r);
+            }
+        }
+
+        private void DrawCapsuleBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered)
+        {
+            // Draw rounded capsule background
+            int radius = Math.Max(6, bounds.Height / 2);
+            var path = CreateRoundedPath(bounds, radius);
+            using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(240, colors.BackgroundColor)))
+            {
+                g.FillPath(brush, path);
+            }
+            DrawTabBorder(g, bounds, colors.BorderColor, isActive);
+            path.Dispose();
+        }
+
+        private void DrawSegmentBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered)
+        {
+            // Segmented style uses a subtle border and a selected fill
+            using (var path = CreateRoundedPath(bounds, 6))
+            {
+                using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(245, 245, 245)))
+                {
+                    g.FillPath(brush, path);
+                }
+                using(var pen = new Pen(colors.BorderColor, 1f))
+                {
+                    g.DrawPath(pen, path);
                 }
             }
         }

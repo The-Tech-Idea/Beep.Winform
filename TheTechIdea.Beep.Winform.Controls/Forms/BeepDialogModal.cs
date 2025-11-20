@@ -195,6 +195,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.Invalidate();
 
             SetDialogImage();
+            // Accessibility and default button mapping
+            SetDefaultButtonAndAccessibility();
+        }
+
+        private void SetDefaultButtonAndAccessibility()
+        {
+            // Accessibility name
+            LeftButton.AccessibleName = "LeftActionButton";
+            MiddleButton.AccessibleName = "MiddleActionButton";
+            RightButton.AccessibleName = "RightActionButton";
+
+            // Default/Cancel mapping based on visible buttons - use custom handling instead of AcceptButton binding
+            // Focus the default button for keyboard users
+            if (MiddleButton.Visible)
+            {
+                MiddleButton.Focus();
+            }
+            else if (LeftButton.Visible)
+            {
+                LeftButton.Focus();
+            }
+            else if (RightButton.Visible)
+            {
+                RightButton.Focus();
+            }
         }
         #region "Setting Visible Buttons"
         public void SetVisiblityofButtonsBasedondialogType()
@@ -397,6 +422,24 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
+        {
+            // Provide common keyboard behavior: Enter = Accept, Esc = Cancel/Close
+            if (keyData == Keys.Enter)
+            {
+                if (MiddleButton != null && MiddleButton.Visible) { MiddleButton.PerformClick(); return true; }
+                if (LeftButton != null && LeftButton.Visible) { LeftButton.PerformClick(); return true; }
+            }
+            if (keyData == Keys.Escape)
+            {
+                if (RightButton != null && RightButton.Visible) { RightButton.PerformClick(); return true; }
+                if (LeftButton != null && LeftButton.Visible) { LeftButton.PerformClick(); return true; }
+                this.Close();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
         #endregion "Setting Visible Buttons"
         #region "Setting Button Captions"

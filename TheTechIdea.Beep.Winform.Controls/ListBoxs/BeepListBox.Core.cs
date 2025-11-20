@@ -8,14 +8,25 @@ using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
-namespace TheTechIdea.Beep.Winform.Controls
-{
+            _selectedItem = null;
+            _selectedIndex = -1;
+            if (_selectedItems != null) _selectedItems.Clear();
+            foreach (var kvp in _itemCheckBoxes)
+            {
+                kvp.Value.State = CheckBoxState.Unchecked;
+            }
     /// <summary>
     /// Core fields, properties, and initialization for BeepListBox
     /// Modern implementation using painter methodology
     /// </summary>
     public partial class BeepListBox : BeepPanel
     {
+        public enum SelectionMode
+        {
+            Single = 0,
+            MultiSimple = 1,
+            MultiExtended = 2
+        }
 #pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
         #region Helper and Painter
         
@@ -53,6 +64,18 @@ namespace TheTechIdea.Beep.Winform.Controls
     }
         
         #endregion
+
+        /// <summary>
+        /// Returns hover progress for a given item (0..1).
+        /// Caller must handle thread-safe or UI thread invocation.
+        /// </summary>
+        internal float GetHoverProgress(SimpleItem item)
+        {
+            if (item == null) return 0f;
+            if (item == _hoveredItem) return _hoverProgress;
+            if (item == _prevHoveredItem) return _prevHoverProgress;
+            return 0f;
+        }
         
         #region Core Fields
         
@@ -77,18 +100,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Layout caching
         private int _menuItemHeight = 32;
+            private SimpleItem _anchorItem = null; // for range selection as item anchor
         private int _imageSize = 24;
         private Rectangle _contentAreaRect;
         
         // Visual state
         private bool _isHovered = false;
         private SimpleItem _hoveredItem = null;
+        private SimpleItem _prevHoveredItem = null;
+        private Timer _hoverAnimationTimer;
+        private float _hoverProgress = 0f; // 0..1
+        private float _hoverAnimationStep = 0.1f; // computed based on duration
+        private bool _hoverTarget = false;
+        private float _prevHoverProgress = 0f;
         
         // Font
         private Font _textFont = new Font("Segoe UI", 9f);
         
         // DPI scaling
         private float _scaleFactor = 1.0f;
+
+        // Scrolling support
+        private int _yOffset = 0;
+        private int _xOffset = 0;
+        private Size _virtualSize = Size.Empty;
+        private BeepScrollBar _verticalScrollBar;
+        private BeepScrollBar _horizontalScrollBar;
         
         // Checkbox tracking
         private Dictionary<SimpleItem, BeepCheckBoxBool> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBoxBool>();
@@ -101,6 +138,50 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Action<Graphics, Rectangle, SimpleItem, bool, bool> _customItemRenderer;
         
         #endregion
+
+        /// <summary>
+        /// Returns true if the given item is considered selected (single selection or multi selection or by checkbox)
+        /// </summary>
+        public bool IsItemSelected(SimpleItem item)
+        {
+            if (item == null) return false;
+            if (SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended || MultiSelect)
+            {
+                return _selectedItems?.Contains(item) == true;
+            }
+            // Checkbox-driven selection
+            if (_showCheckBox)
+            {
+                return _itemCheckBoxes.ContainsKey(item) && _itemCheckBoxes[item].State == CheckBoxState.Checked;
+            }
+            // Fallback single selection
+            return item == _selectedItem;
+        }
+
+        /// <summary>
+        /// Add item to multi selection (if not already present)
+        /// </summary>
+        public void AddToSelection(SimpleItem item)
+        {
+            if (item == null) return;
+            if (SelectionMode == SelectionMode.Single || (!MultiSelect && SelectionMode == SelectionMode.Single)) { SelectedItem = item; return; }
+            if (!_selectedItems.Contains(item)) _selectedItems.Add(item);
+            // update anchor
+            _anchorItem = item;
+            RequestDelayedInvalidate();
+        }
+
+        /// <summary>
+        /// Remove item from multi selection
+        /// </summary>
+        public void RemoveFromSelection(SimpleItem item)
+        {
+            if (item == null) return;
+            if (!MultiSelect) { if (_selectedItem == item) ClearSelection(); return; }
+            if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
+            RequestDelayedInvalidate();
+        }
+
         
         #region Events
         
@@ -188,7 +269,234 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.DoubleBuffered = true;
             
             UpdateStyles();
+
+            // Hover animation timer
+            _hoverAnimationTimer = new Timer();
+            _hoverAnimationTimer.Interval = 16; // ~60 FPS
+            _hoverAnimationTimer.Tick += HoverAnimationTimer_Tick;
+            _hoverAnimationStep = 16f / Math.Max(1f, (float)HoverAnimationDuration);
+
+            // Initialize scrolling
+            InitializeScrollbars();
+
+            // Set default selection visuals from theme when available
+            try
+            {
+                var t = _currentTheme;
+                if (t != null)
+                {
+                    if (SelectionBackColor == Color.Empty)
+                        SelectionBackColor = t.PrimaryColor;
+                    if (SelectionBorderColor == Color.Empty)
+                        SelectionBorderColor = t.AccentColor;
+                    if (FocusOutlineColor == Color.Empty)
+                        FocusOutlineColor = t.PrimaryColor;
+                }
+            }
+            catch { }
         }
+
+        private void HoverAnimationTimer_Tick(object sender, EventArgs e)
+        {
+            if (!EnableHoverAnimation)
+            {
+                _hoverAnimationTimer.Stop();
+                _hoverProgress = 0f;
+                _prevHoverProgress = 0f;
+                return;
+            }
+
+            float step = _hoverAnimationStep;
+
+            if (_hoverTarget)
+            {
+                _hoverProgress = Math.Min(1f, _hoverProgress + step);
+            }
+            else
+            {
+                _hoverProgress = Math.Max(0f, _hoverProgress - step);
+            }
+
+            // prev hover fades oppositely
+            if (_prevHoveredItem != null)
+            {
+                if (_hoverTarget)
+                {
+                    _prevHoverProgress = Math.Max(0f, 1f - _hoverProgress);
+                }
+                else
+                {
+                    _prevHoverProgress = Math.Max(0f, _prevHoverProgress - step);
+                }
+            }
+
+            if (_hoverProgress == 0f && _prevHoverProgress == 0f && !_hoverTarget)
+            {
+                _hoverAnimationTimer.Stop();
+            }
+
+            Invalidate();
+        }
+
+        #region Scrollbar Management
+        private void InitializeScrollbars()
+        {
+            // Vertical scrollbar
+            try
+            {
+                if (_verticalScrollBar == null)
+                {
+                    _verticalScrollBar = new BeepScrollBar
+                    {
+                        IsChild = true,
+                        ScrollOrientation = Orientation.Vertical,
+                        Dock = DockStyle.None,
+                        Width = 16
+                    };
+                    _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
+                    Controls.Add(_verticalScrollBar);
+                }
+
+                if (_horizontalScrollBar == null)
+                {
+                    _horizontalScrollBar = new BeepScrollBar
+                    {
+                        IsChild = true,
+                        ScrollOrientation = Orientation.Horizontal,
+                        Dock = DockStyle.None,
+                        Height = 16
+                    };
+                    _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
+                    Controls.Add(_horizontalScrollBar);
+                }
+            }
+            catch { /* BeepScrollBar may not be available in some contexts - ignore */ }
+            UpdateScrollBars();
+        }
+
+        private void UpdateScrollBars()
+        {
+            if (_verticalScrollBar == null || _horizontalScrollBar == null) return;
+
+            var inner = DrawingRect;
+            if (inner.Width <= 0 || inner.Height <= 0)
+            {
+                _verticalScrollBar.Visible = false;
+                _horizontalScrollBar.Visible = false;
+                return;
+            }
+
+            int availW = inner.Width;
+            int availH = inner.Height;
+            int vBarW = _verticalScrollBar.Width;
+            int hBarH = _horizontalScrollBar.Height;
+
+            // Determine needs
+            bool needsV = (_virtualSize.Height > availH);
+            bool needsH = (_virtualSize.Width > availW);
+
+            if (needsV) availW -= vBarW;
+            if (needsH) availH -= hBarH;
+
+            if (needsV && !(_virtualSize.Height > availH))
+            {
+                needsV = false;
+                availW += vBarW;
+            }
+
+            if (needsH && !(_virtualSize.Width > availW))
+            {
+                needsH = false;
+                availH += hBarH;
+            }
+
+            if (_verticalScrollBar.Visible != needsV) _verticalScrollBar.Visible = needsV;
+            if (_horizontalScrollBar.Visible != needsH) _horizontalScrollBar.Visible = needsH;
+
+            var clientArea = GetClientArea();
+
+            if (needsV)
+            {
+                int vHeight = inner.Height - (needsH ? hBarH : 0);
+                var vBounds = new Rectangle(inner.Right - vBarW, inner.Top, vBarW, Math.Max(0, vHeight));
+                if (_verticalScrollBar.Bounds != vBounds) _verticalScrollBar.Bounds = vBounds;
+                _verticalScrollBar.Minimum = 0;
+                int newVMax = Math.Max(0, _virtualSize.Height);
+                int newVLarge = Math.Max(1, clientArea.Height);
+                int newVSmall = Math.Max(1, _menuItemHeight);
+                if (_verticalScrollBar.Maximum != newVMax) _verticalScrollBar.Maximum = newVMax;
+                if (_verticalScrollBar.LargeChange != newVLarge) _verticalScrollBar.LargeChange = newVLarge;
+                if (_verticalScrollBar.SmallChange != newVSmall) _verticalScrollBar.SmallChange = newVSmall;
+                int vMaxVal = Math.Max(0, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
+                int vVal = Math.Min(Math.Max(0, _yOffset), vMaxVal);
+                if (_verticalScrollBar.Value != vVal) _verticalScrollBar.Value = vVal;
+            }
+            else
+            {
+                _yOffset = 0;
+            }
+
+            // Horizontal not used heavily but support it
+            if (needsH)
+            {
+                int hWidth = inner.Width - (needsV ? vBarW : 0);
+                var hBounds = new Rectangle(inner.Left, inner.Bottom - hBarH, Math.Max(0, hWidth), hBarH);
+                if (_horizontalScrollBar.Bounds != hBounds) _horizontalScrollBar.Bounds = hBounds;
+                _horizontalScrollBar.Minimum = 0;
+                int newHMax = Math.Max(0, _virtualSize.Width);
+                int newHLarge = Math.Max(1, clientArea.Width);
+                int newHSmall = Math.Max(1, 1);
+                if (_horizontalScrollBar.Maximum != newHMax) _horizontalScrollBar.Maximum = newHMax;
+                if (_horizontalScrollBar.LargeChange != newHLarge) _horizontalScrollBar.LargeChange = newHLarge;
+                if (_horizontalScrollBar.SmallChange != newHSmall) _horizontalScrollBar.SmallChange = newHSmall;
+                int hMaxVal = Math.Max(0, _horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange);
+                int hVal = Math.Min(Math.Max(0, _xOffset), hMaxVal);
+                if (_horizontalScrollBar.Value != hVal) _horizontalScrollBar.Value = hVal;
+            }
+            else
+            {
+                _xOffset = 0;
+            }
+        }
+
+        /// <summary>
+        /// Current Y/vertical offset used for scrolling
+        /// </summary>
+        internal int YOffset => _yOffset;
+
+        /// <summary>
+        /// Update virtual size for scrollbar calculations
+        /// </summary>
+        internal void UpdateVirtualSize(Size size)
+        {
+            _virtualSize = size;
+            UpdateScrollBars();
+        }
+
+        private Rectangle GetClientArea()
+        {
+            var inner = DrawingRect;
+            if (inner.Width <= 0 || inner.Height <= 0) return Rectangle.Empty;
+            int vBarW = (_verticalScrollBar?.Visible == true) ? _verticalScrollBar.Width : 0;
+            int hBarH = (_horizontalScrollBar?.Visible == true) ? _horizontalScrollBar.Height : 0;
+            return new Rectangle(inner.Left, inner.Top, Math.Max(0, inner.Width - vBarW), Math.Max(0, inner.Height - hBarH));
+        }
+
+        private void VerticalScrollBar_Scroll(object sender, EventArgs e)
+        {
+            if (sender is BeepScrollBar sb) _yOffset = sb.Value;
+            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            Invalidate();
+        }
+
+        private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
+        {
+            if (sender is BeepScrollBar sb) _xOffset = sb.Value;
+            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            Invalidate();
+        }
+
+        #endregion
 #pragma warning restore IL2026
         
         private void ListItems_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
@@ -217,8 +525,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateLayout()
         {
             if (Width <= 0 || Height <= 0) return;
-            
-            var clientRect = DrawingRect;
+            var clientRect = GetClientArea();
             int currentY = DrawingRect.Top;
             
             // Search area
@@ -242,6 +549,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 currentY,
                 clientRect.Width,
                 clientRect.Bottom - currentY);
+
+            // After layout update, refresh layout cache and scrollbars virtual size
+            try { _layoutHelper?.CalculateLayout(); } catch { }
+            UpdateScrollBars();
         }
         
         #endregion
@@ -265,6 +576,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 
                 _itemCheckBoxes?.Clear();
+                if (_hoverAnimationTimer != null)
+                {
+                    _hoverAnimationTimer.Stop();
+                    _hoverAnimationTimer.Dispose();
+                    _hoverAnimationTimer = null;
+                }
             }
             
             base.Dispose(disposing);

@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
             }
             // Draw subtle divider using theme border color
             using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f))

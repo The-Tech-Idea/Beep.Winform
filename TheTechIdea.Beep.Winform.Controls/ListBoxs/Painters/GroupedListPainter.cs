@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Rectangle textRect = info?.TextRect ?? itemRect;
 
                 // Background
-                DrawItemBackground(g, itemRect, isHovered, isSelected);
+                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
                 // Checkbox
                 if (_owner.ShowCheckBox && SupportsCheckboxes() && !checkRect.IsEmpty)
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
                     using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))

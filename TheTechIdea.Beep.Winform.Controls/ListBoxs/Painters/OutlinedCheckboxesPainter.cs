@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Use layout-provided rectangles for consistent UX
             var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
                     using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))

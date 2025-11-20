@@ -117,6 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     }
                     
                     _menuItems = value ?? new BindingList<SimpleItem>();
+                    _fullMenuItems = _menuItems.ToList();
                     _menuItems.ListChanged += MenuItems_ListChanged;
                     RecalculateSize();
                     Invalidate();
@@ -548,9 +549,46 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         private void MenuItems_ListChanged(object sender, ListChangedEventArgs e)
         {
+            _fullMenuItems = _menuItems.ToList();
             RecalculateSize();
             Invalidate();
         }
+
+        /// <summary>
+        /// Gets or sets whether a search box is shown at the top of the context menu
+        /// </summary>
+        [Category("Beep")]
+        [Description("Show a search box at the top of the context menu for filtering items")]
+        [Browsable(true)]
+        [DefaultValue(false)]
+        public bool ShowSearchBox
+        {
+            get => _showSearchBox;
+            set
+            {
+                if (_showSearchBox != value)
+                {
+                    _showSearchBox = value;
+                    // Ensure search textbox control existence
+                    if (_showSearchBox)
+                    {
+                        EnsureSearchTextBox();
+                    }
+                    else
+                    {
+                        EnsureSearchTextBox(); // will dispose/hide the search control
+                    }
+                    RecalculateSize();
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns height of the search area, if present (used by layout/drawing helpers)
+        /// </summary>
+        [Browsable(false)]
+        public int SearchBoxHeight => _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
         
         #endregion
     }

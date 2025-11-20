@@ -21,6 +21,10 @@ namespace WinformSampleApp
             {
                 mainForm = new MaterialDesignTestForm();
             }
+            else if (args.Length > 0 && args[0].ToLower() == "tabstyle")
+            {
+                mainForm = new TabStylePresetsForm();
+            }
             else
             {
                 mainForm = new Form1();

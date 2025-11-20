@@ -94,6 +94,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _selectedItem = null;
             _selectedIndex = -1;
+            if (_selectedItems != null) _selectedItems.Clear();
+            _anchorItem = null;
+            foreach (var kvp in _itemCheckBoxes)
+            {
+                kvp.Value.State = CheckBoxState.Unchecked;
+            }
             RequestDelayedInvalidate();
         }
         
@@ -138,18 +144,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ToggleItemCheckbox(SimpleItem item)
         {
             if (item == null || !_showCheckBox) return;
-            
-            if (!_itemCheckBoxes.ContainsKey(item))
-            {
-                _itemCheckBoxes[item] = new BeepCheckBoxBool();
-            }
-            
-            var checkbox = _itemCheckBoxes[item];
-            checkbox.State = checkbox.State == CheckBoxState.Checked
-                ? CheckBoxState.Unchecked
-                : CheckBoxState.Checked;
-            
-            RequestDelayedInvalidate();
+            bool current = GetItemCheckbox(item);
+            SetItemCheckbox(item, !current);
         }
         
         /// <summary>
@@ -168,6 +164,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ? CheckBoxState.Checked
                 : CheckBoxState.Unchecked;
             
+            // If multi-select is enabled, keep selection state in sync (for consistency)
+            if (isChecked && (MultiSelect || SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended))
+            {
+                if (!_selectedItems.Contains(item)) _selectedItems.Add(item);
+            }
+            else if (!isChecked && (MultiSelect || SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended))
+            {
+                if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
+            }
             RequestDelayedInvalidate();
         }
         
@@ -181,6 +186,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             return _itemCheckBoxes[item].State == CheckBoxState.Checked;
         }
+
+        /// <summary>
+        /// Toggle selection for the given item in multi-select mode (or if checkboxes are not used), toggles selection membership
+        /// </summary>
+        public void ToggleSelection(SimpleItem item)
+        {
+            if (item == null) return;
+            if (SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended || MultiSelect)
+            {
+                if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
+                else _selectedItems.Add(item);
+                // set anchor and focus
+                _anchorItem = item;
+                SelectedItem = item;
+            }
+            else
+            {
+                if (_selectedItem == item) ClearSelection();
+                else SelectedItem = item;
+            }
+            RequestDelayedInvalidate();
+        }
+
         
         /// <summary>
         /// Clears all checkbox selections
@@ -274,6 +302,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _listBoxPainter.Initialize(this, _currentTheme);
                 RequestDelayedInvalidate();
             }
+
+            // Apply theme defaults for selection visuals if not explicitly set
+            try
+            {
+                if (_currentTheme != null)
+                {
+                    if (SelectionBackColor == Color.Empty) SelectionBackColor = _currentTheme.PrimaryColor;
+                    if (SelectionBorderColor == Color.Empty) SelectionBorderColor = _currentTheme.AccentColor;
+                    if (FocusOutlineColor == Color.Empty) FocusOutlineColor = _currentTheme.PrimaryColor;
+                }
+            }
+            catch { }
         }
         
         #endregion
@@ -285,9 +325,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void EnsureItemVisible(SimpleItem item)
         {
-            // TODO: Implement scrolling when item is out of view
-            // For now, just refresh
-            RequestDelayedInvalidate();
+            if (item == null) return;
+            var layout = _layout.GetCachedLayout();
+            if (layout == null || layout.Count == 0) return;
+
+            var info = layout.FirstOrDefault(i => i.Item == item);
+            if (info == null) return;
+
+            var clientArea = GetClientArea();
+            if (clientArea.IsEmpty) return;
+
+            int itemTopVirtual = info.RowRect.Top + _yOffset; // virtual y of item
+            int itemBottomVirtual = itemTopVirtual + info.RowRect.Height;
+
+            if (itemTopVirtual < clientArea.Top)
+            {
+                _yOffset = itemTopVirtual - clientArea.Top;
+            }
+            else if (itemBottomVirtual > clientArea.Bottom)
+            {
+                _yOffset = itemBottomVirtual - clientArea.Bottom;
+            }
+
+            // Clamp
+            _yOffset = Math.Max(0, Math.Min(_yOffset, Math.Max(0, _virtualSize.Height - clientArea.Height)));
+            if (_verticalScrollBar != null && _verticalScrollBar.Visible)
+            {
+                _verticalScrollBar.Value = _yOffset;
+            }
+            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Ensures the item at index is visible (based on visible/filtered items set)
+        /// </summary>
+        public void EnsureIndexVisible(int index)
+        {
+            var visibleItems = GetVisibleItems();
+            if (visibleItems == null || visibleItems.Count == 0) return;
+            if (index < 0 || index >= visibleItems.Count) return;
+            EnsureItemVisible(visibleItems[index]);
         }
         
         /// <summary>
@@ -295,8 +373,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ScrollToTop()
         {
-            // TODO: Implement scrolling
-            RequestDelayedInvalidate();
+            _yOffset = 0;
+            if (_verticalScrollBar != null && _verticalScrollBar.Visible)
+            {
+                _verticalScrollBar.Value = _yOffset;
+            }
+            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            Invalidate();
         }
         
         /// <summary>
@@ -304,8 +387,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ScrollToBottom()
         {
-            // TODO: Implement scrolling
-            RequestDelayedInvalidate();
+            var clientArea = GetClientArea();
+            if (clientArea.IsEmpty) return;
+            _yOffset = Math.Max(0, _virtualSize.Height - clientArea.Height);
+            if (_verticalScrollBar != null && _verticalScrollBar.Visible)
+            {
+                _verticalScrollBar.Value = _yOffset;
+            }
+            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            Invalidate();
         }
         
         #endregion
@@ -423,6 +513,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             ClearSelection();
             SearchText = string.Empty;
             RequestDelayedInvalidate();
+        }
+
+        /// <summary>
+        /// Select all visible items in multi-select mode
+        /// </summary>
+        public void SelectAll()
+        {
+            var visible = GetVisibleItems();
+            if (visible == null || visible.Count == 0) return;
+            if (SelectionMode == SelectionMode.Single) return;
+            if (SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended)
+            {
+                _selectedItems.Clear();
+                foreach (var item in visible)
+                {
+                    _selectedItems.Add(item);
+                    if (_showCheckBox) SetItemCheckbox(item, true);
+                }
+                RequestDelayedInvalidate();
+            }
         }
         
         #endregion

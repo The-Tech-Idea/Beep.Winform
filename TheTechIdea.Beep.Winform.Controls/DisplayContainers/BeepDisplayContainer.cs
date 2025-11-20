@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A container control for displaying addins.")]
     public partial class BeepDisplayContainer : BaseControl, IDisplayContainer
     {
+        private TheTechIdea.Beep.Winform.Controls.TabStyle _tabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule;
         public ContainerTypeEnum _containerType = ContainerTypeEnum.TabbedPanel;
         private Panel ContainerPanel;
         private BeepTabs TabContainerPanel;
@@ -35,6 +36,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _containerType = value;
                     UpdateContainerLayout();
+                }
+            }
+        }
+
+        [Category("Appearance")]
+        [DefaultValue(TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule)]
+        [Description("Determines the visual style used by the tab header (Classic, Underline, Capsule, Minimal, Segmented)")]
+        public TheTechIdea.Beep.Winform.Controls.TabStyle TabStyle
+        {
+            get => _tabStyle;
+            set
+            {
+                if (_tabStyle != value)
+                {
+                    _tabStyle = value;
+                    if (TabContainerPanel != null)
+                    {
+                        TabContainerPanel.TabStyle = _tabStyle;
+                        TabContainerPanel.Invalidate();
+                    }
                 }
             }
         }
@@ -71,6 +92,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Set initial layout based on ContainerType
             UpdateContainerLayout();
+        }
+
+        /// <summary>
+        /// Apply a TabStyle preset quickly for a consistent look
+        /// </summary>
+        public void SetTabStylePreset(TheTechIdea.Beep.Winform.Controls.TabStyle style)
+        {
+            TheTechIdea.Beep.Winform.Controls.Styling.TabStylePresets.ApplyPreset(this, style);
         }
 
         // 4) Don’t let the base control paint—children will paint themselves
@@ -128,7 +157,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Fill,
                 Visible = true,
                 TabStop = true
-               
+                ,
+                // adhere to default TabStyle
+                TabStyle = _tabStyle
             };
 
           
@@ -584,6 +615,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
              //   TabContainerPanel.BackColor = _currentTheme.PanelBackColor;
                 TabContainerPanel.Theme = Theme;
+                TabContainerPanel.TabStyle = TabStyle;
                 //TabContainerPanel.ApplyTheme();
             }
             // Ensure DPI scaling is applied after theme changes

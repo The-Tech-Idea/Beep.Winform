@@ -61,6 +61,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         private int _headerHeight = 30;
+        private TabStyle _tabStyle = TabStyle.Classic;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Tab visual style: Classic, Underline, Capsule, Minimal, Segmented.")]
+        [DefaultValue(TabStyle.Classic)]
+        public TabStyle TabStyle
+        {
+            get => _tabStyle;
+            set
+            {
+                if (value == _tabStyle) return;
+                // Start transition from current style to new
+                StartStyleTransition(_tabStyle, value);
+                _tabStyle = value;
+                Invalidate();
+            }
+        }
+
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -157,12 +175,51 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isDragging = false;
         private DateTime _mouseDownTime;
 
+        // Underline animation state
+        private RectangleF _underlineCurrentRect = RectangleF.Empty;
+        private RectangleF _underlineStartRect = RectangleF.Empty;
+        private RectangleF _underlineTargetRect = RectangleF.Empty;
+        private Timer _underlineTimer;
+        private int _underlineElapsed;
+        private int _underlineDuration = 220; // ms
+        // Style transition
+        private TabStyle _transitionFrom = TabStyle.Classic;
+        private TabStyle _transitionTo = TabStyle.Classic;
+        private float _styleTransitionProgress = 0f;
+        private Timer _styleTransitionTimer;
+        private int _styleTransitionElapsed;
+        private int _styleTransitionDuration = 220; // ms
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Duration in milliseconds for tab animations (underline, style transitions)")]
+        [DefaultValue(220)]
+        public int TabAnimationDuration
+        {
+            get => _styleTransitionDuration;
+            set
+            {
+                _styleTransitionDuration = Math.Max(50, value);
+                _underlineDuration = _styleTransitionDuration;
+            }
+        }
+
         public BeepTabs()
         {
             Alignment = TabAlignment.Top;
             Appearance = TabAppearance.FlatButtons;
            
             SizeMode = TabSizeMode.Fixed;
+            // Style transition timer - small duration by default
+            _styleTransitionTimer = new Timer { Interval = 16 };
+            _styleTransitionTimer.Tick += (s, e) =>
+            {
+                _styleTransitionElapsed += _styleTransitionTimer.Interval;
+                float progress = Math.Min(1f, (float)_styleTransitionElapsed / _styleTransitionDuration);
+                var easing = _currentTheme?.AnimationEasingFunction;
+                _styleTransitionProgress = TheTechIdea.Beep.Winform.Controls.Helpers.AnimationEasingHelper.Evaluate(easing, progress);
+                Invalidate();
+                if (progress >= 1f) _styleTransitionTimer.Stop();
+            };
             DrawMode = TabDrawMode.OwnerDrawFixed;
             
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
@@ -194,9 +251,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.DragOver += BeepTabs_DragOver;
             this.DragDrop += BeepTabs_DragDrop;
             this.DragLeave += BeepTabs_DragLeave;
+            this.Paint += BeepTabs_Paint;
 
             this.AccessibleRole = AccessibleRole.PageTabList;
             this.AccessibleName = "Beep Tabs";
+        }
+
+        /// <summary>
+        /// Apply TabStyle preset to this tabs control
+        /// </summary>
+        public void SetTabStylePreset(TheTechIdea.Beep.Winform.Controls.TabStyle style)
+        {
+            TheTechIdea.Beep.Winform.Controls.Styling.TabStylePresets.ApplyPreset(this, style);
         }
         // ✅ Initialize DPI scaling when handle is created
         private void BeepTabs_HandleCreated(object sender, EventArgs e)
@@ -206,6 +272,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Now set DPI-scaled values
             closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
             UpdateLayout();
+            // Initialize underline timer
+            _underlineTimer = new Timer { Interval = 16 };
+            _underlineTimer.Tick += (s, ev) =>
+            {
+                _underlineElapsed += _underlineTimer.Interval;
+                float progress = Math.Min(1f, (float)_underlineElapsed / _underlineDuration);
+                // Allow theme easing string if present
+                var easing = _currentTheme?.AnimationEasingFunction;
+                progress = TheTechIdea.Beep.Winform.Controls.Helpers.AnimationEasingHelper.Evaluate(easing, progress);
+                _underlineCurrentRect = LerpRect(_underlineStartRect, _underlineTargetRect, progress);
+                if (progress >= 1f) _underlineTimer.Stop();
+                Invalidate();
+            };
+            // Ensure current underline is initialized for current selection
+            StartUnderlineAnimation();
         }
 
         public override Rectangle DisplayRectangle
@@ -461,10 +542,61 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             g.SetClip(tabRect, CombineMode.Replace);
 
-            using (GraphicsPath path = GetRoundedRect(tabRect,4))
+            // If a style transition is in progress, render both styles cross-fading
+            if (_styleTransitionProgress > 0f && _transitionFrom != _transitionTo)
             {
-                var brush = PaintersFactory.GetSolidBrush(backgroundColor);
-                g.FillPath(brush, path);
+                DrawHeaderForTabStyle(g, tabRect, index, _transitionFrom, vertical, 1f - _styleTransitionProgress);
+                DrawHeaderForTabStyle(g, tabRect, index, _transitionTo, vertical, _styleTransitionProgress);
+                g.ResetClip();
+                return;
+            }
+
+            // otherwise draw the normal style
+            DrawHeaderForTabStyle(g, tabRect, index, _tabStyle, vertical, 1f);
+            g.ResetClip();
+            return;
+
+            // Switch drawing style based on TabStyle
+            switch (_tabStyle)
+            {
+                case TabStyle.Classic:
+                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
+                    {
+                        var brush = PaintersFactory.GetSolidBrush(backgroundColor);
+                        g.FillPath(brush, path);
+                    }
+                    break;
+                case TabStyle.Capsule:
+                    {
+                        var radius = (int)Math.Min(tabRect.Height/2, 18);
+                        using (GraphicsPath path = GetRoundedRect(tabRect, radius))
+                        {
+                            var brush = PaintersFactory.GetSolidBrush(isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor);
+                            g.FillPath(brush, path);
+                        }
+                    }
+                    break;
+                case TabStyle.Underline:
+                    // Draw nothing for background; only selected state has underline
+                    break;
+                case TabStyle.Minimal:
+                    // Minimal draws no background
+                    break;
+                case TabStyle.Segmented:
+                    // Draw slightly rounded background for group (per-tab approximation)
+                    using (GraphicsPath path = GetRoundedRect(tabRect, 6))
+                    {
+                        var brush = PaintersFactory.GetSolidBrush(isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor);
+                        g.FillPath(brush, path);
+                    }
+                    break;
+                default:
+                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
+                    {
+                        var brush = PaintersFactory.GetSolidBrush(backgroundColor);
+                        g.FillPath(brush, path);
+                    }
+                    break;
             }
 
             string text = TabPages[index].Text;
@@ -498,6 +630,92 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             g.ResetClip();
+
+            // Underline handled globally for animated styles
+        }
+
+        private void PaintUnderline(Graphics g, RectangleF tabRect)
+        {
+            int y = (int)(tabRect.Bottom - 3);
+            var rect = new RectangleF(tabRect.X + 6, y, tabRect.Width - 12, 3);
+            var brush = PaintersFactory.GetSolidBrush(_currentTheme.PrimaryColor);
+            g.FillRectangle(brush, rect);
+        }
+
+        private void DrawHeaderForTabStyle(Graphics g, RectangleF tabRect, int index, TabStyle style, bool vertical, float alpha)
+        {
+            bool isSelected = (SelectedIndex == index);
+            Color baseBack = isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor;
+            Color baseFore = isSelected ? _currentTheme.TabSelectedForeColor : _currentTheme.TabForeColor;
+            // Apply alpha
+            var backgroundColor = Color.FromArgb((int)(alpha * 255), baseBack.R, baseBack.G, baseBack.B);
+            var textColor = Color.FromArgb((int)(alpha * 255), baseFore.R, baseFore.G, baseFore.B);
+
+            // Background drawing for each style
+            switch (style)
+            {
+                case TabStyle.Classic:
+                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
+                    {
+                        g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
+                    }
+                    break;
+                case TabStyle.Capsule:
+                    {
+                        var radius = (int)Math.Min(tabRect.Height / 2, 18);
+                        using (GraphicsPath path = GetRoundedRect(tabRect, radius))
+                        {
+                            g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
+                        }
+                    }
+                    break;
+                case TabStyle.Underline:
+                    // No background, handled separately
+                    break;
+                case TabStyle.Minimal:
+                    // No background
+                    break;
+                case TabStyle.Segmented:
+                    using (GraphicsPath path = GetRoundedRect(tabRect, 6))
+                    {
+                        g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
+                    }
+                    break;
+                default:
+                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
+                    {
+                        g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
+                    }
+                    break;
+            }
+
+            // Draw text with alpha
+            string text = TabPages[index].Text;
+            using (Font font = new Font(this.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
+            {
+                var textBrush = PaintersFactory.GetSolidBrush(textColor);
+                if (!vertical)
+                {
+                    SizeF textSize = TextUtils.MeasureText(g, text, font);
+                    PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) / 2);
+                    g.DrawString(text, font, textBrush, textPoint);
+                }
+                else
+                {
+                    GraphicsState state = g.Save();
+                    g.TranslateTransform(tabRect.X + tabRect.Width / 2, tabRect.Y + tabRect.Height / 2);
+                    g.RotateTransform(90);
+                    SizeF textSize = TextUtils.MeasureText(g, text, font);
+                    PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
+                    g.DrawString(text, font, textBrush, textPoint);
+                    g.Restore(state);
+                }
+            }
+
+            if (ShowCloseButtons)
+            {
+                DrawCloseButton(g, tabRect, vertical);
+            }
         }
 
         private void DrawCloseButton(Graphics g, RectangleF tabRect, bool vertical)
@@ -586,6 +804,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             e.Effect = DragDropEffects.Move;
+                // Drop marker calculations - continue
 
             // Calculate drop target
             Point clientPoint = PointToClient(new Point(e.X, e.Y));
@@ -715,9 +934,81 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _underlineTimer?.Stop();
+                _underlineTimer?.Dispose();
+                _underlineTimer = null;
+                _styleTransitionTimer?.Stop();
+                _styleTransitionTimer?.Dispose();
+                _styleTransitionTimer = null;
+            }
+            base.Dispose(disposing);
+        }
+
         private void BeepTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Invalidate();
+            StartUnderlineAnimation();
+        }
+
+        private void StartUnderlineAnimation()
+        {
+            if (TabCount == 0) return;
+            // Calculate current tab rect for selected index
+            using (var g = CreateGraphics())
+            {
+                float[] sizes = CalculateTabSizes(g, _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
+                float currentX = 0;
+                int headerH = _headerHeight;
+                int yPos = (_headerPosition == TabHeaderPosition.Top) ? 0 : ClientSize.Height - headerH;
+                for (int i = 0; i < TabCount; i++)
+                {
+                    var r = new RectangleF(currentX, yPos, sizes[i], headerH);
+                    if (i == SelectedIndex)
+                    {
+                        _underlineTargetRect = new RectangleF(r.X + 6, r.Bottom - 3, r.Width - 12, 3);
+                        break;
+                    }
+                    currentX += sizes[i];
+                }
+            }
+
+            if (_underlineCurrentRect == RectangleF.Empty)
+            {
+                _underlineCurrentRect = _underlineTargetRect;
+                Invalidate();
+                return;
+            }
+
+            _underlineStartRect = _underlineCurrentRect;
+            _underlineElapsed = 0;
+            _underlineTimer?.Start();
+        }
+
+        private void StartStyleTransition(TabStyle from, TabStyle to)
+        {
+            _transitionFrom = from;
+            _transitionTo = to;
+            _styleTransitionElapsed = 0;
+            _styleTransitionProgress = 0f;
+            _styleTransitionTimer?.Start();
+        }
+
+        private float ApplyEasing(float p)
+        {
+            // EaseOut
+            return 1 - (float)Math.Pow(1 - p, 2);
+        }
+
+        private RectangleF LerpRect(RectangleF a, RectangleF b, float t)
+        {
+            return new RectangleF(
+                a.X + (b.X - a.X) * t,
+                a.Y + (b.Y - a.Y) * t,
+                a.Width + (b.Width - a.Width) * t,
+                a.Height + (b.Height - a.Height) * t);
         }
 
         public virtual void ApplyTheme()
@@ -1038,11 +1329,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         //// ✅ Add DPI-aware layout update method
         //private void UpdateLayoutWithDpi()
         //{
-        //    Rectangle rect = DisplayRectangle; // Now DPI-aware
-        //    foreach (TabPage page in TabPages)
-        //    {
-        //        page.Bounds = rect;
+            // Underline will be drawn after painting headers when style is Underline or Minimal
 
+
+        private void BeepTabs_Paint(object sender, PaintEventArgs e)
+        {
+            // Draw animated underline (top/bottom header only)
+            if ((HeaderPosition == TabHeaderPosition.Top || HeaderPosition == TabHeaderPosition.Bottom))
+            {
+                // If style transition occurs, draw underlines for both from/to styles with blending
+                if (_styleTransitionProgress > 0f && _transitionFrom != _transitionTo)
+                {
+                    if (_transitionFrom == TabStyle.Underline || _transitionFrom == TabStyle.Minimal)
+                    {
+                        using (var brush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)((1 - _styleTransitionProgress) * 255), _currentTheme?.PrimaryColor ?? Color.Blue)))
+                        {
+                            e.Graphics.FillRectangle(brush, _underlineCurrentRect);
+                        }
+                    }
+                    if (_transitionTo == TabStyle.Underline || _transitionTo == TabStyle.Minimal)
+                    {
+                        using (var brush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(_styleTransitionProgress * 255), _currentTheme?.PrimaryColor ?? Color.Blue)))
+                        {
+                            e.Graphics.FillRectangle(brush, _underlineCurrentRect);
+                        }
+                    }
+                }
+                else
+                {
+                    if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && _underlineCurrentRect != RectangleF.Empty)
+                    {
+                        using (var brush = PaintersFactory.GetSolidBrush(_currentTheme?.PrimaryColor ?? Color.Blue))
+                        {
+                            e.Graphics.FillRectangle(brush, _underlineCurrentRect);
+                        }
+                    }
+                }
+            }
+        }
         //        // Ensure child controls respect the new bounds
         //        foreach (Control control in page.Controls)
         //        {

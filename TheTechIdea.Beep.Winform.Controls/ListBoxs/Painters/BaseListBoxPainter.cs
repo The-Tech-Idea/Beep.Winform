@@ -57,7 +57,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 yOffset = DrawSearchArea(g, drawingRect, yOffset);
             }
 
+            // If no items, draw empty state if enabled
+            if ((items == null || items.Count == 0) && _owner.ShowEmptyState)
+            {
+                DrawEmptyState(g, drawingRect, yOffset);
+                return;
+            }
+
             DrawItems(g, drawingRect, items, yOffset);
+        }
+
+        protected virtual void DrawEmptyState(Graphics g, Rectangle drawingRect, int yOffset)
+        {
+            var rect = new Rectangle(drawingRect.Left, yOffset + 12, drawingRect.Width, drawingRect.Height - (yOffset - drawingRect.Top) - 12);
+            string text = !string.IsNullOrEmpty(_owner.EmptyStateText) ? _owner.EmptyStateText : "No items";
+
+            // Small icon or circle
+            int iconSize = 36;
+            Rectangle iconRect = new Rectangle(rect.Left + (rect.Width - iconSize) / 2, rect.Top + 8, iconSize, iconSize);
+            using (var brush = new SolidBrush(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.LightBlue)))
+            {
+                g.FillEllipse(brush, iconRect);
+            }
+
+            // Draw text
+            var textRect = new Rectangle(rect.Left + 8, iconRect.Bottom + 8, rect.Width - 16, 36);
+            using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
+            using (var font = new Font(_owner.Font.FontFamily, Math.Max(10, _owner.Font.Size - 1f), FontStyle.Regular))
+            using (var brush = new SolidBrush(_theme?.TextColor ?? Color.Gray))
+            {
+                g.DrawString(text, font, brush, textRect, sf);
+            }
         }
         
         public virtual int GetPreferredItemHeight()
@@ -126,11 +156,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (rowRect.IsEmpty) continue;
 
                 bool isHovered = rowRect.Contains(mousePoint);
-                bool isSelected = item == _owner.SelectedItem;
+                bool isSelected = _owner.IsItemSelected(item);
 
                 // Let concrete painter draw using the row rect
                 DrawItem(g, rowRect, item, isHovered, isSelected);
             }
+
+            // Optionally draw 'Page Up / Page Down' hints if the content is taller than the viewport
+            try
+            {
+                var clientArea = _owner.GetClientArea();
+                var ownerVirt = new Size();
+                ownerVirt = new Size(_owner.Width, _owner.PreferredItemHeight * items.Count);
+                if (clientArea.Height > 0 && ownerVirt.Height > clientArea.Height)
+                {
+                    using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
+                    using (var font = new Font(_owner.Font.FontFamily, Math.Max(8, _owner.Font.Size - 2), FontStyle.Regular))
+                    using (var brush = new SolidBrush(Color.FromArgb(140, _theme?.TextColor ?? Color.Gray)))
+                    {
+                        var hint = "PgUp / PgDn";
+                        var hintRect = new Rectangle(drawingRect.Right - 120, drawingRect.Bottom - 26, 110, 20);
+                        g.DrawString(hint, font, brush, hintRect, sf);
+                    }
+                }
+            }
+            catch { }
         }
         
         protected virtual void DrawItemText(Graphics g, Rectangle textRect, string text, Color textColor, Font font)
@@ -204,20 +254,49 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected virtual void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty) return;
+            // Compute hover progress-based color blending for smooth transitions
+            float hoverProgress = 0f;
+            try
+            {
+                hoverProgress = _owner.GetHoverProgress(_owner.SelectedItem == null ? null : _owner.SelectedItem); // default 0
+            }
+            catch
+            {
+                hoverProgress = 0f;
+            }
 
-            Color backgroundColor = Color.White;
+            // If owner can provide hover progress for this item directly, use it
+            try
+            {
+                hoverProgress = Math.Max(hoverProgress, _owner.GetHoverProgress(_owner.SelectedItem == null ? null : _owner.SelectedItem));
+            }
+            catch { }
 
+            // If the painter supports direct detection using IsHovered flag, we still use it as fallback
+            if (isHovered)
+            {
+                hoverProgress = Math.Max(hoverProgress, 1f);
+            }
+
+            // Base background
+            Color backgroundColor = _theme?.BackgroundColor ?? Color.White;
+
+            // Selection override
             if (isSelected)
             {
-                backgroundColor = _theme?.PrimaryColor ?? Color.LightBlue;
-                using (var pen = new Pen(Color.FromArgb(150, backgroundColor), 2))
+                // Use primary color but with subtle alpha blend based on hover progress for pleasing effect
+                Color primary = _theme?.PrimaryColor ?? Color.LightBlue;
+                backgroundColor = Color.FromArgb(20, primary.R, primary.G, primary.B);
+                using (var pen = new Pen(Color.FromArgb(200, primary), 1.5f))
                 {
                     g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
                 }
             }
-            else if (isHovered)
+            else if (hoverProgress > 0f)
             {
-                backgroundColor = Color.FromArgb(230, 230, 230); // Subtle hover effect
+                // Blend between base background and hover color based on progress
+                Color hoverColor = _theme?.HoverBackColor ?? Color.FromArgb(230, 230, 230);
+                backgroundColor = BlendColors(backgroundColor, hoverColor, hoverProgress);
             }
 
             using (var brush = new SolidBrush(backgroundColor))
@@ -226,12 +305,95 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
 
+        /// <summary>
+        /// Extended DrawItemBackground with access to item context. Backwards-compatible: default calls DrawItemBackground.
+        /// Painters can override DrawItemBackground or override this Ex method for better control.
+        /// </summary>
+        protected virtual void DrawItemBackgroundEx(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
+        {
+            // Respect existing painter override for background first
+            try
+            {
+                DrawItemBackground(g, itemRect, isHovered, isSelected);
+            }
+            catch { /* ignore errors in painter override */ }
+            // Compute hover progress using owner helper if available
+            float hoverProgress = 0f;
+            try
+            {
+                hoverProgress = (_owner != null && item != null) ? _owner.GetHoverProgress(item) : 0f;
+            }
+            catch { hoverProgress = 0f; }
+
+            // Base background color for overlay calculations
+            var backgroundColor = _theme?.BackgroundColor ?? Color.White;
+
+            // If selected, ensure a selection border/overlay is present
+            if (isSelected)
+            {
+                // Use owner-defined selection color or fallback to theme
+                var selColor = (_owner.SelectionBackColor != Color.Empty) ? _owner.SelectionBackColor : (_theme?.PrimaryColor ?? Color.LightBlue);
+                int alpha = Math.Max(0, Math.Min(255, _owner.SelectionOverlayAlpha > 0 ? _owner.SelectionOverlayAlpha : 90));
+                using (var fillBrush = new SolidBrush(Color.FromArgb(alpha, selColor.R, selColor.G, selColor.B)))
+                {
+                    g.FillRectangle(fillBrush, itemRect);
+                }
+
+                // Draw selection border
+                var borderColor = (_owner.SelectionBorderColor != Color.Empty) ? _owner.SelectionBorderColor : (_theme?.AccentColor ?? Color.FromArgb(40, 40, 40));
+                int borderThickness = Math.Max(1, _owner.SelectionBorderThickness);
+                using (var pen = new Pen(borderColor, borderThickness))
+                {
+                    g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
+                }
+                // Focus outline for focused item
+                if (_owner.Focused && _owner.SelectedItem == item)
+                {
+                    var focusColor = (_owner.FocusOutlineColor != Color.Empty) ? _owner.FocusOutlineColor : (_theme?.PrimaryColor ?? Color.LightBlue);
+                    int focusThickness = Math.Max(1, _owner.FocusOutlineThickness);
+                    using (var penFocus = new Pen(focusColor, focusThickness))
+                    {
+                        // draw a rounded or simple rectangle as focus outline
+                        g.DrawRectangle(penFocus, itemRect.X + 2, itemRect.Y + 2, itemRect.Width - 4, itemRect.Height - 4);
+                    }
+                }
+            }
+            else if (hoverProgress > 0f)
+            {
+                var hoverColor = _theme?.HoverBackColor ?? Color.FromArgb(230, 230, 230);
+                // Instead of replacing painter background, paint a subtle overlay on top to preserve painter's custom drawing
+                var overlayColor = BlendColors(Color.FromArgb(0, 0, 0, 0), hoverColor, hoverProgress);
+                using (var brush = new SolidBrush(Color.FromArgb((int)(hoverProgress * 60), overlayColor.R, overlayColor.G, overlayColor.B)))
+                {
+                    g.FillRectangle(brush, itemRect);
+                }
+                // Return after overlay; we avoid drawing default rectangle to prevent overriding painter-specific backgrounds
+                return;
+            }
+            
+            // When no special overlay was drawn (selected handled earlier), still allow overriding painters to have drawn backgrounds
+            // and we avoid re-drawing default rectangle to preserve those customizations.
+        }
+
+        /// <summary>
+        /// Blends two colors by amount t (0..1)
+        /// </summary>
+        protected Color BlendColors(Color a, Color b, float t)
+        {
+            t = Math.Max(0f, Math.Min(1f, t));
+            int r = (int)(a.R + (b.R - a.R) * t);
+            int g = (int)(a.G + (b.G - a.G) * t);
+            int bl = (int)(a.B + (b.B - a.B) * t);
+            int alpha = (int)(a.A + (b.A - a.A) * t);
+            return Color.FromArgb(alpha, r, g, bl);
+        }
+
         protected virtual void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
 
-            // Draw background
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
+            // Draw background - use extended method by default
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Calculate layout
             var padding = GetPreferredPadding();
@@ -247,7 +409,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw text
-            DrawItemText(g, contentRect, item.Text, Color.Black, _owner.Font);
+            Color textColor = isSelected ? Color.White : (_theme?.TextColor ?? Color.Black);
+            DrawItemText(g, contentRect, item.Text, textColor, _owner.Font);
         }
         
         #endregion

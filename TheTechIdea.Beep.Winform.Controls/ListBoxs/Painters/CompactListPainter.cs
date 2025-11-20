@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             var padding = GetPreferredPadding();
             var textRect = new Rectangle(

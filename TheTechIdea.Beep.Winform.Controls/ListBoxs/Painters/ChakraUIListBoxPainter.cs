@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
                 }
 
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
             }
         }
 
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             try
             {
                 // STEP 1: Background via base contract
-                DrawItemBackground(g, itemRect, isHovered, isSelected);
+                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
                 // Chakra UI spacing (content rect inside the rounded background)
                 var contentBounds = new Rectangle(
@@ -154,8 +154,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 );
 
                 // Chakra uses specific text colors
-                Color textColor = isSelected 
-                    ? Color.FromArgb(44, 82, 130) // blue.700
+                Color textColor = _owner.IsItemSelected(item) 
+                    ? Color.White
                     : Color.FromArgb(26, 32, 44); // gray.800
                 
                 using (var textBrush = new SolidBrush(textColor))

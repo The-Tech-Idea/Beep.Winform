@@ -277,6 +277,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
         }
 
+        /// <summary>
+        /// Apply the style preset to this container
+        /// </summary>
+        public void SetTabStylePreset(TheTechIdea.Beep.Winform.Controls.TabStyle style)
+        {
+            TheTechIdea.Beep.Winform.Controls.Styling.TabStylePresets.ApplyPreset(this, style);
+        }
+
         #endregion
     }
 }

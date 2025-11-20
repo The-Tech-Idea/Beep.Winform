@@ -516,6 +516,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         public int ShowProgress(string title, string? message = null)
         {
             int token = ++_progressTokenCounter;
+            var dlg = new BeepProgressDialog();
+            dlg.Text = title;
+            dlg.SetMessage(message ?? title);
+            dlg.Cancellable = false;
+            _progressDialogs[token] = dlg;
+
+            // If a host form is configured, show owned to host, otherwise show as modal
+            if (DialogManager.HostForm != null)
+            {
+                dlg.Show(DialogManager.HostForm);
+                DialogManager.ApplyDialogAnimation(dlg, TheTechIdea.Beep.Vis.Modules.DialogShowAnimation.FadeIn);
+            }
+            else
+            {
+                dlg.Show();
+            }
+
             return token;
         }
 
@@ -528,7 +545,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             if (_progressDialogs.ContainsKey(token))
             {
-                // TODO: Update progress
+                if (_progressDialogs[token] is BeepProgressDialog p)
+                {
+                    p.SetProgress(percent, status);
+                }
             }
         }
 

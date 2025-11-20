@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 );
 
                 // STEP 1: Draw item background
-                DrawItemBackground(g, itemRect, isHovered, isSelected);
+                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
                 // Calculate content areas
                 int leftOffset = contentBounds.X + 12;
@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
                     using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))

@@ -35,14 +35,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             _layoutCache.Clear();
             if (_owner.Width <= 0 || _owner.Height <= 0) return;
 
-            var drawingRect = _owner.DrawingRect;
+            var drawingRect = _owner.GetClientArea();
+            if (drawingRect.IsEmpty)
+            {
+                drawingRect = _owner.DrawingRect;
+            }
             var visibleItems = _owner.Helper.GetVisibleItems();
             if (visibleItems == null || visibleItems.Count == 0) return;
 
             // Use the owner's preferred item height exposed publicly
             int itemHeight = Math.Max(1, _owner.PreferredItemHeight);
 
-            int y = drawingRect.Top;
+            int y = drawingRect.Top - _owner.YOffset;
             int x = drawingRect.Left;
             int w = drawingRect.Width;
 
@@ -90,6 +94,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
                 y += itemHeight;
                 if (y >= drawingRect.Bottom) break;
             }
+
+            // Compute virtual size and notify owner: height is absolute content height we computed starting at drawingRect.Top
+            int totalHeight = 0;
+            if (_layoutCache.Count > 0)
+            {
+                var last = _layoutCache[_layoutCache.Count - 1];
+                totalHeight = (last.RowRect.Bottom - drawingRect.Top);
+            }
+            else
+            {
+                totalHeight = 0;
+            }
+
+            // update owner's virtual size width and height
+            try { _owner.UpdateVirtualSize(new Size(drawingRect.Width, Math.Max(0, totalHeight))); } catch { }
         }
     }
 }

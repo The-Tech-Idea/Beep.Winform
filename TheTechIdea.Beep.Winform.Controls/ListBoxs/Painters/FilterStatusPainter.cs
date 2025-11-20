@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var rect = itemRect;
             rect.Inflate(-4, -2);
             
-            DrawItemBackground(g, rect, isHovered, isSelected);
+            DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
             int currentX = rect.Left + 12;
             
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
                     using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))

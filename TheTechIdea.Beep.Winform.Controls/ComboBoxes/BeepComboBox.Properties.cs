@@ -115,6 +115,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _comboBoxType = value;
                 _comboBoxPainter = null; // Force painter recreation
                 InvalidateLayout();
+                // Update dropdown properties
+                if (BeepContextMenu != null)
+                {
+                    BeepContextMenu.ShowSearchBox = (_comboBoxType == ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
+                }
             }
         }
         
@@ -185,6 +190,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Whether the combo box allows text editing.")]
         [DefaultValue(false)]
         public bool IsEditable { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show a search box in the dropdown (useful for long lists).")]
+        [DefaultValue(false)]
+        private bool _showSearchInDropdown = false;
+        public bool ShowSearchInDropdown
+        {
+            get => _showSearchInDropdown;
+            set
+            {
+                _showSearchInDropdown = value;
+                if (BeepContextMenu != null)
+                {
+                    BeepContextMenu.ShowSearchBox = (_comboBoxType == ComboBoxType.SearchableDropdown) || _showSearchInDropdown;
+                }
+                Invalidate();
+            }
+        }
         
         [Browsable(true)]
         [Category("Behavior")]
@@ -203,6 +227,81 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Category type for the combo box.")]
         public DbFieldCategory Category { get; set; } = DbFieldCategory.String;
         
+        #endregion
+
+        #region Multi-Select Properties
+
+        private bool _allowMultipleSelection = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow multiple items to be selected.")]
+        [DefaultValue(false)]
+        public bool AllowMultipleSelection
+        {
+            get => _allowMultipleSelection;
+            set
+            {
+                if (_allowMultipleSelection == value) return;
+                _allowMultipleSelection = value;
+                if (BeepContextMenu != null)
+                {
+                    BeepContextMenu.MultiSelect = value;
+                    BeepContextMenu.ShowCheckBox = value;
+                }
+                Invalidate();
+            }
+        }
+
+        private System.Collections.Generic.List<SimpleItem> _selectedItems = new System.Collections.Generic.List<SimpleItem>();
+        [Browsable(false)]
+        public System.Collections.Generic.List<SimpleItem> SelectedItems
+        {
+            get => _selectedItems;
+            set
+            {
+                var newList = value ?? new System.Collections.Generic.List<SimpleItem>();
+                // Diff: start animations for added/removed chips
+                var added = new System.Collections.Generic.List<SimpleItem>();
+                var removed = new System.Collections.Generic.List<SimpleItem>();
+                foreach (var it in newList)
+                {
+                    if (!_selectedItems.Contains(it)) added.Add(it);
+                }
+                foreach (var it in _selectedItems)
+                {
+                    if (!newList.Contains(it)) removed.Add(it);
+                }
+                _selectedItems = newList;
+                // Start appearing animations for added items
+                foreach (var it in added)
+                {
+                    StartChipAnimation(it, true);
+                }
+                // Start disappearing animations for removed items
+                foreach (var it in removed)
+                {
+                    StartChipAnimation(it, false);
+                }
+                // Keep SelectedItem in sync when one selected
+                _selectedItem = _selectedItems.Count > 0 ? _selectedItems[0] : null;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Number of chips to show in the input when multiple items are selected.")]
+        [DefaultValue(3)]
+        public int MaxDisplayChips { get; set; } = 3;
+
+        public event EventHandler SelectedItemsChanged;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Duration in milliseconds for chip add/remove animations.")]
+        [DefaultValue(200)]
+        public int ChipAnimationDuration { get; set; } = 200;
+
         #endregion
         
         #region Layout Properties

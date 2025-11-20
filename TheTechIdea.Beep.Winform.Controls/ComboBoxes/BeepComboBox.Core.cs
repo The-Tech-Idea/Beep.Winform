@@ -65,6 +65,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle _textAreaRect;
         private Rectangle _dropdownButtonRect;
         private Rectangle _imageRect;
+
+        // Chip animations: track progress for chips when adding/removing
+        private readonly System.Collections.Generic.Dictionary<SimpleItem, float> _chipProgress = new System.Collections.Generic.Dictionary<SimpleItem, float>();
+        private readonly System.Collections.Generic.Dictionary<SimpleItem, bool> _chipAnimatingIn = new System.Collections.Generic.Dictionary<SimpleItem, bool>();
+        private Timer _chipAnimationTimer;
         
         // Visual state
         private bool _isHovered = false;
@@ -131,6 +136,39 @@ namespace TheTechIdea.Beep.Winform.Controls
             GotFocus += OnControlGotFocus;
             LostFocus += OnControlLostFocus;
             Click += OnControlClick;
+
+            // Chip animations timer
+            _chipAnimationTimer = new Timer { Interval = 16 }; // ~60 FPS
+            _chipAnimationTimer.Tick += (s, e) =>
+            {
+                bool any = false;
+                float step = 16f / Math.Max(1f, ChipAnimationDuration);
+                var keys = new System.Collections.Generic.List<SimpleItem>(_chipProgress.Keys);
+                foreach (var key in keys)
+                {
+                    bool animIn = _chipAnimatingIn.ContainsKey(key) && _chipAnimatingIn[key];
+                    float p = _chipProgress[key];
+                    p += animIn ? step : -step;
+                    // Apply easing from theme, if available
+                    var themeEasing = _helper?.Owner?._currentTheme?.AnimationEasingFunction; // helper owner might not be present, fallback
+                    // No concept of _helper.Owner as helper has the owner; fallback to use BeepControl easing if needed
+                    // Evaluate easing on the resulting p later in rendering; here we keep linear progress
+                    p = Math.Max(0f, Math.Min(1f, p));
+                    _chipProgress[key] = p;
+                    if (p <= 0f && !animIn)
+                    {
+                        _chipProgress.Remove(key);
+                        _chipAnimatingIn.Remove(key);
+                    }
+                    else if (p >= 1f && animIn)
+                    {
+                        // animation finished
+                        _chipAnimatingIn[key] = true; // keep it flagged as in
+                    }
+                    any = any || p > 0f && p < 1f || (_chipProgress.Count > 0);
+                }
+                if (any || _chipProgress.Count > 0) Invalidate();
+            };
         }
         
         #endregion
@@ -147,7 +185,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             
 
             BeepContextMenu.ShowImage = true;
-            BeepContextMenu.ShowCheckBox = false;
+            BeepContextMenu.ShowCheckBox = AllowMultipleSelection;
+            // If this combo box type is searchable, show the search box in the dropdown
+            BeepContextMenu.ShowSearchBox = (ComboBoxType == ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
             BeepContextMenu.ShowSeparators = false;
             BeepContextMenu.ContextMenuType = FormStyle.Modern;
             // Ensure theme and lifecycle are aligned with the control
@@ -194,8 +234,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void OnContextMenuItemClicked(object sender, MenuItemEventArgs e)
         {
-            SelectedItem = e.Item;
-            CloseDropdown();
+            if (AllowMultipleSelection || (BeepContextMenu != null && BeepContextMenu.MultiSelect))
+            {
+                // Toggle selection in selected items
+                var selectedList = SelectedItems ?? new System.Collections.Generic.List<SimpleItem>();
+                if (selectedList.Contains(e.Item))
+                {
+                    selectedList.Remove(e.Item);
+                }
+                else
+                {
+                    selectedList.Add(e.Item);
+                }
+                SelectedItems = selectedList;
+                SelectedItemsChanged?.Invoke(this, EventArgs.Empty);
+                // Do not close dropdown when MultiSelect is true unless context menu is configured to close
+                if (BeepContextMenu != null && BeepContextMenu.CloseOnItemClick)
+                {
+                    CloseDropdown();
+                }
+            }
+            else
+            {
+                SelectedItem = e.Item;
+                CloseDropdown();
+            }
         }
         
         #endregion
@@ -248,10 +311,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 _helper?.Dispose();
                 _helper = null;
+                _chipAnimationTimer?.Stop();
+                _chipAnimationTimer?.Dispose();
+                _chipAnimationTimer = null;
             }
             
             base.Dispose(disposing);
         }
+
+        #region Chip Animation Helpers
+        private void StartChipAnimation(SimpleItem item, bool animIn)
+        {
+            if (item == null) return;
+            if (!_chipProgress.ContainsKey(item))
+            {
+                _chipProgress[item] = animIn ? 0f : 1f;
+                _chipAnimatingIn[item] = animIn;
+            }
+            else
+            {
+                _chipAnimatingIn[item] = animIn;
+                if (animIn && _chipProgress[item] < 1f) _chipProgress[item] = Math.Max(_chipProgress[item], 0f);
+            }
+            if (!_chipAnimationTimer.Enabled) _chipAnimationTimer.Start();
+        }
+
+        internal float GetChipAnimationProgress(SimpleItem item)
+        {
+            if (item == null) return 0f;
+            if (_chipProgress.TryGetValue(item, out float p)) return p;
+            // Default: if item is currently selected, return 1
+            return _selectedItems != null && _selectedItems.Contains(item) ? 1f : 0f;
+        }
+
+        internal System.Collections.Generic.IEnumerable<SimpleItem> GetAnimatingChips()
+        {
+            return _chipProgress.Keys;
+        }
+        #endregion
         
         #endregion
     }

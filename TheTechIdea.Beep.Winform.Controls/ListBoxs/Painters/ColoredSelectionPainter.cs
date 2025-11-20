@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
+                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             int currentX = itemRect.Left + 16;
 
@@ -29,8 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw main text
             Rectangle textRect = new Rectangle(currentX, itemRect.Y + 8, itemRect.Width - currentX - 16, itemRect.Height / 2);
-            Color textColor = isSelected
-                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.FromArgb(40, 60, 40)
+            Color textColor = _owner.IsItemSelected(item)
+                ? Color.White
                 : Color.FromArgb(40, 40, 40);
 
             Font boldFont = new Font(_owner.TextFont, FontStyle.Bold);
@@ -41,8 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 Font smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
                 Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - 16, itemRect.Height / 2 - 8);
-                Color descColor = isSelected
-                    ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.FromArgb(80, 100, 80)
+                Color descColor = _owner.IsItemSelected(item)
+                    ? Color.FromArgb(200, 200, 200)
                     : Color.FromArgb(120, 120, 120);
 
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
                 }
 
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
             }
         }
 

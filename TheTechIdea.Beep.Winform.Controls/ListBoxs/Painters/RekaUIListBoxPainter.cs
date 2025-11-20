@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 );
 
                 // STEP 1: Draw item background
-                DrawItemBackground(g, itemBounds, isHovered, isSelected);
+                DrawItemBackgroundEx(g, itemBounds, item, isHovered, isSelected);
 
                 // STEP 2: Draw left accent bar on selected items
                 if (isSelected)
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
             {
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
 
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)

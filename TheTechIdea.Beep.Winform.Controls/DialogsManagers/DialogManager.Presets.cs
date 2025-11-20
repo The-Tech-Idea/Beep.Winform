@@ -243,6 +243,38 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             }
         }
 
+        /// <summary>
+        /// Asynchronous version of ShowPresetDialog that returns the dialog result as a Task.
+        /// Uses HostForm overlay if configured.
+        /// </summary>
+        public static async Task<DialogReturn> ShowPresetDialogAsync(DialogConfig config, DialogsManagers.Models.DialogShowAnimation animation = DialogsManagers.Models.DialogShowAnimation.FadeIn)
+        {
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            // If a HostForm is set, use hosted method with overlay
+            if (HostForm != null)
+            {
+                var tcs = new TaskCompletionSource<DialogReturn>();
+                HostForm.BeginInvoke(new Action(() =>
+                {
+                    try
+                    {
+                        var result = ShowPresetDialogHosted(config, animation);
+                        tcs.SetResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                }));
+                return await tcs.Task;
+            }
+
+            // Fallback to synchronous dialog in a Task
+            return await Task.Run(() => ShowPresetDialog(config));
+        }
+
         #endregion
 
         #region Enums

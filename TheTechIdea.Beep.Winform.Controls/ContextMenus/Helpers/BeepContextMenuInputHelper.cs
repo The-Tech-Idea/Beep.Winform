@@ -49,6 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             // Content area starting position (must match DrawMenuItemsSimple)
             int contentStartX = beepInsets + 4;
             int contentStartY = beepInsets + 4;
+            int searchAreaHeight = _owner.ShowSearchBox ? _owner.SearchBoxHeight : 0;
+            if (searchAreaHeight > 0)
+            {
+                // If the click is in the search area, do not treat it as an item
+                var searchRect = new Rectangle(contentStartX, contentStartY, _owner.Width - (beepInsets * 2) - 8 - (_owner.NeedsScrolling ? 17 : 0), searchAreaHeight + 8);
+                if (searchRect.Contains(adjustedLocation)) return null;
+                contentStartY += searchAreaHeight + 8;
+            }
             int contentWidth = _owner.Width - (beepInsets * 2) - 8;
 
             int yOffset = 0;

@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (g == null || item == null || itemRect.IsEmpty) return;
 
             // Draw item background
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Calculate checkbox rectangle
             var padding = GetPreferredPadding();

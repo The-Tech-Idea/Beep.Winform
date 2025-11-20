@@ -24,13 +24,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BeepContextMenu.AddItem(item);
             }
+
+            // Set multi-select behavior based on property
+            BeepContextMenu.MultiSelect = AllowMultipleSelection;
+            BeepContextMenu.ShowCheckBox = AllowMultipleSelection;
             
             // Calculate dropdown position
             Point screenLocation = PointToScreen(new Point(0, Height));
             
             // Set context menu width to match combo box
             BeepContextMenu.MenuWidth = Width;
+            // Multi-select behaviors
+            BeepContextMenu.CloseOnItemClick = !AllowMultipleSelection;
             
+            // Ensure searchbox state is up to date
+            BeepContextMenu.ShowSearchBox = (ComboBoxType == ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
             // Show the context menu
             BeepContextMenu.Show(screenLocation, this);
             

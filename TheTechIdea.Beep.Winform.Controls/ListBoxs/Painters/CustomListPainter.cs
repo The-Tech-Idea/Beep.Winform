@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
                 }
 
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
             }
         }
         
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var rect = itemRect;
             rect.Inflate(-4, -2);
             
-            DrawItemBackground(g, rect, isHovered, isSelected);
+            DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
             int currentX = rect.Left + 8;
             

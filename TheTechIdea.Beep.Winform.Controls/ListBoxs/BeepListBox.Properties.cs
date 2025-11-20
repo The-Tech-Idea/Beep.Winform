@@ -96,6 +96,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     
                     OnSelectedItemChanged(_selectedItem);
+                    // Anchor the selection for potential range selection
+                    _anchorItem = _selectedItem;
                     RequestDelayedInvalidate();
                 }
             }
@@ -110,15 +112,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                var selectedItems = new List<SimpleItem>();
+                if (MultiSelect)
+                {
+                    return _selectedItems.ToList();
+                }
+                var selected = new List<SimpleItem>();
                 foreach (var kvp in _itemCheckBoxes)
                 {
                     if (kvp.Value.State == CheckBoxState.Checked)
                     {
-                        selectedItems.Add(kvp.Key);
+                        selected.Add(kvp.Key);
                     }
                 }
-                return selectedItems;
+                return selected;
             }
         }
         
@@ -251,6 +257,42 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
+        /// <summary>
+        /// Enable hover animations for the list items
+        /// </summary>
+        [Browsable(true)]
+        [Category("Animation")]
+        [Description("Enable subtle hover animations for items")]
+        [DefaultValue(true)]
+        public bool EnableHoverAnimation { get; set; } = true;
+
+        /// <summary>
+        /// Duration in milliseconds for hover animation
+        /// </summary>
+        [Browsable(true)]
+        [Category("Animation")]
+        [Description("Duration in milliseconds for hover animations")]
+        [DefaultValue(200)]
+        private int _hoverAnimationDuration = 200;
+        public int HoverAnimationDuration
+        {
+            get => _hoverAnimationDuration;
+            set
+            {
+                if (value <= 0) value = 200;
+                if (_hoverAnimationDuration != value)
+                {
+                    _hoverAnimationDuration = value;
+                    // Make sure the timer step is recalculated in owner
+                    try
+                    {
+                        _hoverAnimationStep = 16f / Math.Max(1f, (float)_hoverAnimationDuration);
+                    }
+                    catch { }
+                }
+            }
+        }
         
         #endregion
         
@@ -304,6 +346,88 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        #endregion
+
+        #region Selection Visuals
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color used for selection overlays")]
+        [DefaultValue(null)]
+        public Color SelectionBackColor { get; set; } = Color.Empty;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Selection overlay alpha (0..255)")]
+        [DefaultValue(90)]
+        public int SelectionOverlayAlpha { get; set; } = 90;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Border color for selected items")]
+        [DefaultValue(null)]
+        public Color SelectionBorderColor { get; set; } = Color.Empty;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Border thickness for selected item border")]
+        [DefaultValue(1)]
+        public int SelectionBorderThickness { get; set; } = 1;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Outline color when the control and item are focused")]
+        [DefaultValue(null)]
+        public Color FocusOutlineColor { get; set; } = Color.Empty;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Outline thickness when focused")]
+        [DefaultValue(2)]
+        public int FocusOutlineThickness { get; set; } = 2;
+
+        #endregion
+
+        #region MultiSelect
+
+        /// <summary>
+        /// When true, selecting multiple items is allowed using Shift/Ctrl (non-checkbox multi selection)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow multiple selection with Shift/Ctrl when no checkboxes are shown")]
+        [DefaultValue(false)]
+        private bool _multiSelect = false;
+        public bool MultiSelect
+        {
+            get => _multiSelect;
+            set
+            {
+                if (_multiSelect != value)
+                {
+                    _multiSelect = value;
+                    if (_multiSelect && SelectionMode == SelectionMode.Single)
+                    {
+                        SelectionMode = SelectionMode.MultiExtended; // keep behavior consistent
+                    }
+                    RequestDelayedInvalidate();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Selection Mode
+
+        /// <summary>
+        /// Selection mode for the list box - Single, MultiSimple (click toggles), MultiExtended (Shift range + Ctrl toggle)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Selection mode of the ListBox (Single, MultiSimple, MultiExtended)")]
+        [DefaultValue(SelectionMode.Single)]
+        public SelectionMode SelectionMode { get; set; } = SelectionMode.Single;
+
         #endregion
         
         #region Font Property
@@ -396,6 +520,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("The placeholder text displayed in the search box")]
         [DefaultValue("Search...")]
         public string SearchPlaceholderText { get; set; } = "Search...";
+
+        /// <summary>
+        /// Show a friendly empty state when there are no items
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show a friendly empty state when there are no items")]
+        [DefaultValue(true)]
+        public bool ShowEmptyState { get; set; } = true;
+
+        /// <summary>
+        /// Text displayed when the list has no items
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Placeholder text to show when the list is empty")]
+        [DefaultValue("No items")] 
+        public string EmptyStateText { get; set; } = "No items";
         
         #endregion
         

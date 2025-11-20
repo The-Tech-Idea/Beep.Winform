@@ -26,6 +26,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             }
             
             int y = 4; // Top padding
+            // Account for optional search area
+            if (_owner.ShowSearchBox)
+            {
+                y += _owner.SearchBoxHeight + 8; // same spacing as DrawMenuItemsSimple
+            }
             
             foreach (var menuItem in _owner.MenuItems)
             {

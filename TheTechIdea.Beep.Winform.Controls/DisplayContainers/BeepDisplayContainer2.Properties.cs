@@ -72,6 +72,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             set => _containerType = value;
         }
 
+        private TheTechIdea.Beep.Winform.Controls.TabStyle _tabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule;
+
+        [Category("Appearance")]
+        [DefaultValue(TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule)]
+        public TheTechIdea.Beep.Winform.Controls.TabStyle TabStyle
+        {
+            get => _tabStyle;
+            set { _tabStyle = value; if (_paintHelper != null) _paintHelper.TabStyle = value; RecalculateLayout(); Invalidate(); }
+        }
+
         /// <summary>
        /// <summary>
         /// Override BackColor to sync with IsTransparentBackground property

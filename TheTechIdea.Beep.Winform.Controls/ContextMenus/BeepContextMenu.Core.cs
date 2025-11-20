@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -65,6 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         // Menu items
         private BindingList<SimpleItem> _menuItems = new BindingList<SimpleItem>();
+        // Full items (unfiltered) to support search
+        private System.Collections.Generic.List<SimpleItem> _fullMenuItems = new System.Collections.Generic.List<SimpleItem>();
         private SimpleItem _selectedItem;
         private int _selectedIndex = -1;
         
@@ -86,10 +89,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private int _minWidth = 150;
         private int _maxWidth = 400;
         
+        // Search support
+        private bool _showSearchBox = false;
+        private string _searchText = string.Empty;
+        private TheTechIdea.Beep.Winform.Controls.TextFields.BeepTextBox _searchTextBox = null;
+
         // Scrolling support
         private int _maxHeight = 600; // Maximum height before scrolling
         private int _minHeight = 0; // Will be calculated as one item height + padding
-        private VScrollBar _scrollBar;
+        private Control _scrollBar; // VScrollBar or BeepScrollBar depending on availability
         private int _scrollOffset = 0;
         private bool _needsScrolling = false;
         private int _totalContentHeight = 0;
@@ -210,14 +218,57 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             _fadeTimer.Interval = FADE_INTERVAL;
             _fadeTimer.Tick += FadeTimer_Tick;
             
-            // Initialize scrollbar
-            _scrollBar = new VScrollBar();
-            _scrollBar.Dock = DockStyle.Right;
-            _scrollBar.Width = SCROLL_BAR_WIDTH;
-            _scrollBar.Visible = false;
-            _scrollBar.Scroll += ScrollBar_Scroll;
-            _scrollBar.TabStop = false;
-            this.Controls.Add(_scrollBar);
+            // Initialize scrollbar - prefer BeepScrollBar if available
+            try
+            {
+                var beepScrollType = Type.GetType("TheTechIdea.Beep.Winform.Controls.BeepScrollBar, TheTechIdea.Beep.Winform.Controls");
+                if (beepScrollType != null)
+                {
+                    var beepScroll = (Control)Activator.CreateInstance(beepScrollType);
+                    beepScroll.Dock = DockStyle.Right;
+                    beepScroll.Width = SCROLL_BAR_WIDTH;
+                    beepScroll.Visible = false;
+                    // Wire generic event handler (ValueChanged) to our ScrollBar_Scroll
+                    var eventInfo = beepScrollType.GetEvent("ValueChanged");
+                    if (eventInfo != null)
+                    {
+                        eventInfo.AddEventHandler(beepScroll, new EventHandler((s, e) => InternalScrollBarValueChanged(s, e)));
+                    }
+                    // Try to set theme and some properties for consistent styling
+                    try
+                    {
+                        var themeProp = beepScrollType.GetProperty("Theme");
+                        if (themeProp != null) themeProp.SetValue(beepScroll, _themeName);
+                        var applyThemeMethod = beepScrollType.GetMethod("ApplyTheme");
+                        applyThemeMethod?.Invoke(beepScroll, null);
+                    }
+                    catch { }
+                    _scrollBar = beepScroll;
+                    this.Controls.Add(_scrollBar);
+                }
+                else
+                {
+                    var vscroll = new VScrollBar();
+                    vscroll.Dock = DockStyle.Right;
+                    vscroll.Width = SCROLL_BAR_WIDTH;
+                    vscroll.Visible = false;
+                    vscroll.Scroll += ScrollBar_Scroll;
+                    vscroll.TabStop = false;
+                    _scrollBar = vscroll;
+                    this.Controls.Add(_scrollBar);
+                }
+            }
+            catch
+            {
+                var vscroll = new VScrollBar();
+                vscroll.Dock = DockStyle.Right;
+                vscroll.Width = SCROLL_BAR_WIDTH;
+                vscroll.Visible = false;
+                vscroll.Scroll += ScrollBar_Scroll;
+                vscroll.TabStop = false;
+                _scrollBar = vscroll;
+                this.Controls.Add(_scrollBar);
+            }
             
             // Event handlers
             this.MouseMove += BeepContextMenu_MouseMove;
@@ -246,6 +297,141 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Map FormStyle to BeepControlStyle using BeepStyling
             _controlStyle = BeepStyling.GetControlStyle(type);
             Invalidate();
+        }
+
+        private void EnsureSearchTextBox()
+        {
+            if (!_showSearchBox)
+            {
+                if (_searchTextBox != null)
+                {
+                    try { _searchTextBox.TextChanged -= SearchTextBox_TextChanged; } catch { }
+                    try { Controls.Remove(_searchTextBox); } catch { }
+                    try { _searchTextBox.Dispose(); } catch { }
+                    _searchTextBox = null;
+                }
+                return;
+            }
+            if (_searchTextBox != null) return;
+            try
+            {
+                _searchTextBox = new TheTechIdea.Beep.Winform.Controls.TextFields.BeepTextBox();
+                _searchTextBox.BorderStyle = BorderStyle.None;
+                _searchTextBox.AutoSize = false;
+                // Slightly smaller height and compact style
+                _searchTextBox.Height = 34;
+                _searchTextBox.Width = Math.Max(100, _menuWidth - 24);
+                _searchTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                _searchTextBox.TextChanged += SearchTextBox_TextChanged;
+                _searchTextBox.KeyDown += SearchTextBox_KeyDown;
+                // Visual polish: leading icon, trailing clear icon and placeholder
+                try
+                {
+                    _searchTextBox.Theme = _themeName;
+                    _searchTextBox.PlaceholderText = "Search...";
+                    _searchTextBox.PlaceholderTextColor = _currentTheme?.TextBoxPlaceholderColor ?? _searchTextBox.PlaceholderTextColor;
+                    _searchTextBox.LeadingIconPath = TheTechIdea.Beep.Icons.Svgs.Search;
+                    _searchTextBox.TrailingIconPath = TheTechIdea.Beep.Icons.Svgs.Close;
+                    _searchTextBox.ShowClearButton = true;
+                    _searchTextBox.LeadingIconClickable = false;
+                    _searchTextBox.TrailingIconClickable = true;
+                    _searchTextBox.IsRounded = true;
+                    _searchTextBox.BorderRadius = _currentTheme?.BorderRadius ?? _searchTextBox.BorderRadius;
+                    // Apply theme and ensure consistent colors
+                    _searchTextBox.ApplyTheme();
+                    // Ensure trailing click clears the field
+                    _searchTextBox.TrailingIconClicked += (s, ev) =>
+                    {
+                        try { _searchTextBox.Text = string.Empty; } catch { }
+                    };
+                }
+                catch { }
+                Controls.Add(_searchTextBox);
+            }
+            catch
+            {
+                var tb = new System.Windows.Forms.TextBox();
+                tb.BorderStyle = BorderStyle.FixedSingle;
+                tb.Height = 28;
+                tb.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                try
+                {
+                    // Attempt to set colors to match theme (safe fallback)
+                    tb.BackColor = _currentTheme?.TextBoxBackColor ?? tb.BackColor;
+                    tb.ForeColor = _currentTheme?.TextBoxForeColor ?? tb.ForeColor;
+                }
+                catch { }
+                tb.TextChanged += (s, e) => { _searchText = tb.Text; FilterMenuItems(); };
+                Controls.Add(tb);
+            }
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_searchTextBox != null) _searchText = _searchTextBox.Text;
+            else if (sender is System.Windows.Forms.TextBox tb) _searchText = tb.Text;
+            FilterMenuItems();
+        }
+
+        private void FilterMenuItems()
+        {
+            if (_fullMenuItems == null || _fullMenuItems.Count == 0) _fullMenuItems = _menuItems.ToList();
+            if (string.IsNullOrEmpty(_searchText))
+            {
+                _menuItems.Clear();
+                foreach (var it in _fullMenuItems) _menuItems.Add(it);
+            }
+            else
+            {
+                var matches = _fullMenuItems.Where(it => (it.DisplayField ?? "").IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0
+                                                         || (it.SubText ?? "").IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0
+                                                         || (it.Description ?? "").IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                _menuItems.Clear();
+                foreach (var it in matches) _menuItems.Add(it);
+            }
+            RecalculateSize();
+            Invalidate();
+        }
+
+        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Support arrow navigation (up/down) while using the search textbox
+            if (e.KeyCode == Keys.Up)
+            {
+                SelectPreviousItem();
+                EnsureIndexVisible(_hoveredIndex);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                SelectNextItem();
+                EnsureIndexVisible(_hoveredIndex);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+            if (e.KeyCode == Keys.Escape)
+            {
+                // Close the menu
+                _closeReason = BeepContextMenuCloseReason.AppFocusChange;
+                Close();
+                e.Handled = true;
+                return;
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Select the first enabled item in the current (filtered) list
+                var candidate = _menuItems.FirstOrDefault(it => it != null && it.IsEnabled && !IsSeparator(it));
+                if (candidate != null)
+                {
+                    SelectedItem = candidate;
+                    OnItemClicked(candidate);
+                    if (_closeOnItemClick) Close();
+                }
+                e.Handled = true;
+            }
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -289,6 +475,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 _currentTheme = ThemeManagement.BeepThemesManager.GetTheme(newThemeName)
                                ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
                 ApplyThemeFontsSafely();
+                try { if (_searchTextBox != null) { _searchTextBox.Theme = _themeName; _searchTextBox.ApplyTheme(); _searchTextBox.BorderRadius = _currentTheme?.BorderRadius ?? _searchTextBox.BorderRadius; }} catch { }
                 Invalidate();
             }
             catch (Exception ex)
@@ -336,18 +523,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         #region IDisposable Support
         
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing)
-        //    {
-        //        _submenuTimer?.Stop();
-        //        _submenuTimer?.Dispose();
-        //        _fadeTimer?.Stop();
-        //        _fadeTimer?.Dispose();
-        //        _openSubmenu?.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                try { _submenuTimer?.Stop(); _submenuTimer?.Dispose(); } catch { }
+                try { _fadeTimer?.Stop(); _fadeTimer?.Dispose(); } catch { }
+                try { _openSubmenu?.Dispose(); } catch { }
+                try { if (_scrollBar != null) { if (_scrollBar is VScrollBar v) v.Scroll -= ScrollBar_Scroll; else { var ev = _scrollBar.GetType().GetEvent("ValueChanged"); ev?.RemoveEventHandler(_scrollBar, new EventHandler((s, e) => InternalScrollBarValueChanged(s, e))); } } } catch { }
+                try { if (_searchTextBox != null) { _searchTextBox.TextChanged -= SearchTextBox_TextChanged; Controls.Remove(_searchTextBox); _searchTextBox.Dispose(); _searchTextBox = null; } } catch { }
+            }
+            base.Dispose(disposing);
+        }
         
         #endregion
         

@@ -31,6 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _paintHelper.ControlStyle = controlStyle;
                 _paintHelper.IsTransparent = IsTransparentBackground;
             }
+            // Ensure paint helper uses the selected tab style
+            _paintHelper.TabStyle = this.TabStyle;
            
             if (_currentTheme != null)
             {

@@ -25,15 +25,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             var items = owner.Items;
             var font = owner.Font;
-            var selectedIndex = owner.SelectedIndex;
 
             for (int i = 0; i < items.Count; i++)
             {
                 var itemRect = new Rectangle(drawingRect.X, drawingRect.Y + i * 36, drawingRect.Width, 36);
+                var item = items[i];
                 bool isHovered = itemRect.Contains(owner.PointToClient(Control.MousePosition));
-                bool isSelected = i == selectedIndex;
+                bool isSelected = owner.IsItemSelected(item);
 
-                DrawItemBackground(g, itemRect, isHovered, isSelected);
+                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
                 DrawItemText(g, itemRect, items[i].ToString(), font, isSelected);
             }
         }

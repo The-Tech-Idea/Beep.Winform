@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             int currentX = itemRect.Left + 16;
 
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
                 }
 
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, isSelected, Style);
+                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
             }
         }
 

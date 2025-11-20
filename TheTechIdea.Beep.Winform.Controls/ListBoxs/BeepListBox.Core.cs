@@ -8,25 +8,14 @@ using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
-            _selectedItem = null;
-            _selectedIndex = -1;
-            if (_selectedItems != null) _selectedItems.Clear();
-            foreach (var kvp in _itemCheckBoxes)
-            {
-                kvp.Value.State = CheckBoxState.Unchecked;
-            }
+namespace TheTechIdea.Beep.Winform.Controls;
     /// <summary>
     /// Core fields, properties, and initialization for BeepListBox
     /// Modern implementation using painter methodology
     /// </summary>
     public partial class BeepListBox : BeepPanel
     {
-        public enum SelectionMode
-        {
-            Single = 0,
-            MultiSimple = 1,
-            MultiExtended = 2
-        }
+        
 #pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
         #region Helper and Painter
         
@@ -145,7 +134,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
         public bool IsItemSelected(SimpleItem item)
         {
             if (item == null) return false;
-            if (SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended || MultiSelect)
+            if (SelectionMode == SelectionModeEnum.MultiSimple || SelectionMode == SelectionModeEnum.MultiExtended || MultiSelect)
             {
                 return _selectedItems?.Contains(item) == true;
             }
@@ -164,7 +153,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
         public void AddToSelection(SimpleItem item)
         {
             if (item == null) return;
-            if (SelectionMode == SelectionMode.Single || (!MultiSelect && SelectionMode == SelectionMode.Single)) { SelectedItem = item; return; }
+            if (SelectionMode == SelectionModeEnum.Single || (!MultiSelect && SelectionMode == SelectionModeEnum.Single)) { SelectedItem = item; return; }
             if (!_selectedItems.Contains(item)) _selectedItems.Add(item);
             // update anchor
             _anchorItem = item;
@@ -473,7 +462,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
             UpdateScrollBars();
         }
 
-        private Rectangle GetClientArea()
+        public Rectangle GetClientArea()
         {
             var inner = DrawingRect;
             if (inner.Width <= 0 || inner.Height <= 0) return Rectangle.Empty;
@@ -589,4 +578,4 @@ using TheTechIdea.Beep.Winform.Controls.Models;
         
         #endregion
     }
-}
+

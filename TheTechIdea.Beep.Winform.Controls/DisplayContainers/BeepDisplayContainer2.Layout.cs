@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     {
         #region Layout Management
 
-        private void RecalculateLayout()
+        public void RecalculateLayout()
         {
             if (Width <= 0 || Height <= 0)
             {

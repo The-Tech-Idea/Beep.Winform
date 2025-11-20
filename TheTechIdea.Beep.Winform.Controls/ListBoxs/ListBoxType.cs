@@ -151,4 +151,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         /// </summary>
         Custom = 25
     }
+    public enum SelectionModeEnum
+    {
+        Single = 0,
+        MultiSimple = 1,
+        MultiExtended = 2
+    }
 }

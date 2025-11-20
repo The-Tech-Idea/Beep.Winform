@@ -78,9 +78,8 @@
             beepButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepButton1.DisabledBorderColor = Color.Gray;
             beepButton1.DisabledForeColor = Color.Gray;
-            beepButton1.DrawingRect = new Rectangle(0, 0, 123, 56);
+            beepButton1.DrawingRect = new Rectangle(18, 18, 232, 45);
             beepButton1.Easing = EasingType.Linear;
-           
             beepButton1.EnableHighQualityRendering = true;
             beepButton1.EnableMaterialStyle = false;
             beepButton1.EnableRippleEffect = false;
@@ -160,7 +159,7 @@
             beepButton1.LeadingImagePath = "";
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
-            beepButton1.Location = new Point(128, 158);
+            beepButton1.Location = new Point(238, 337);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepButton1.MaterialCustomPadding = new Padding(0);
@@ -172,7 +171,6 @@
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
-         
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
@@ -206,7 +204,7 @@
             beepButton1.ShowRightBorder = false;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = false;
-            beepButton1.Size = new Size(123, 56);
+            beepButton1.Size = new Size(268, 81);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
@@ -270,7 +268,7 @@
             beepDatePicker1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepDatePicker1.DisabledBorderColor = Color.LightGray;
             beepDatePicker1.DisabledForeColor = Color.Gray;
-            beepDatePicker1.DrawingRect = new Rectangle(0, 0, 223, 30);
+            beepDatePicker1.DrawingRect = new Rectangle(0, 0, 329, 49);
             beepDatePicker1.Easing = EasingType.Linear;
             beepDatePicker1.EnableHighQualityRendering = true;
             beepDatePicker1.EnableMaterialStyle = false;
@@ -342,7 +340,8 @@
             beepDatePicker1.LeadingImagePath = "";
             beepDatePicker1.LeftoffsetForDrawingRect = 0;
             beepDatePicker1.LinkedProperty = null;
-            beepDatePicker1.Location = new Point(376, 117);
+            beepDatePicker1.Location = new Point(698, 250);
+            beepDatePicker1.Margin = new Padding(6, 6, 6, 6);
             beepDatePicker1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepDatePicker1.MaterialCustomPadding = new Padding(0);
             beepDatePicker1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -352,9 +351,8 @@
             beepDatePicker1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDatePicker1.MaxDate = null;
             beepDatePicker1.MaxHitListDrawPerFrame = 0;
-         
             beepDatePicker1.MinDate = null;
-            beepDatePicker1.MinimumSize = new Size(172, 30);
+            beepDatePicker1.MinimumSize = new Size(307, 49);
             beepDatePicker1.ModernGradientType = ModernGradientType.None;
             beepDatePicker1.Name = "beepDatePicker1";
             beepDatePicker1.OverrideFontSize = TypeStyleFontSize.None;
@@ -385,13 +383,14 @@
             beepDatePicker1.ShowRightBorder = false;
             beepDatePicker1.ShowShadow = false;
             beepDatePicker1.ShowTopBorder = false;
-            beepDatePicker1.Size = new Size(223, 30);
+            beepDatePicker1.Size = new Size(329, 49);
             beepDatePicker1.SlideFrom = SlideDirection.Left;
             beepDatePicker1.StaticNotMoving = false;
             beepDatePicker1.TabIndex = 1;
             beepDatePicker1.Tag = this;
             beepDatePicker1.TempBackColor = Color.LightGray;
             beepDatePicker1.Text = "beepDatePicker1";
+            beepDatePicker1.TextFont = new Font("Arial", 10F);
             beepDatePicker1.Theme = null;
             beepDatePicker1.ToolTipText = null;
             beepDatePicker1.TopoffsetForDrawingRect = 0;
@@ -447,7 +446,7 @@
             beepDatePickerView1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepDatePickerView1.DisabledBorderColor = Color.LightGray;
             beepDatePickerView1.DisabledForeColor = Color.Gray;
-            beepDatePickerView1.DrawingRect = new Rectangle(0, 0, 332, 434);
+            beepDatePickerView1.DrawingRect = new Rectangle(16, 16, 488, 894);
             beepDatePickerView1.Easing = EasingType.Linear;
             beepDatePickerView1.EnableHighQualityRendering = true;
             beepDatePickerView1.EnableMaterialStyle = false;
@@ -518,7 +517,8 @@
             beepDatePickerView1.LeadingImagePath = "";
             beepDatePickerView1.LeftoffsetForDrawingRect = 0;
             beepDatePickerView1.LinkedProperty = null;
-            beepDatePickerView1.Location = new Point(279, 225);
+            beepDatePickerView1.Location = new Point(769, 480);
+            beepDatePickerView1.Margin = new Padding(6, 6, 6, 6);
             beepDatePickerView1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepDatePickerView1.MaterialCustomPadding = new Padding(0);
             beepDatePickerView1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -527,8 +527,7 @@
             beepDatePickerView1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepDatePickerView1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDatePickerView1.MaxHitListDrawPerFrame = 0;
-          
-            beepDatePickerView1.MinimumSize = new Size(280, 434);
+            beepDatePickerView1.MinimumSize = new Size(520, 926);
             beepDatePickerView1.ModernGradientType = ModernGradientType.None;
             beepDatePickerView1.Name = "beepDatePickerView1";
             beepDatePickerView1.OverrideFontSize = TypeStyleFontSize.None;
@@ -560,13 +559,14 @@
             beepDatePickerView1.ShowShadow = false;
             beepDatePickerView1.ShowTime = true;
             beepDatePickerView1.ShowTopBorder = false;
-            beepDatePickerView1.Size = new Size(332, 434);
+            beepDatePickerView1.Size = new Size(520, 926);
             beepDatePickerView1.SlideFrom = SlideDirection.Left;
             beepDatePickerView1.StaticNotMoving = false;
             beepDatePickerView1.TabIndex = 2;
             beepDatePickerView1.Tag = this;
             beepDatePickerView1.TempBackColor = Color.LightGray;
             beepDatePickerView1.Text = "beepDatePickerView1";
+            beepDatePickerView1.TextFont = new Font("Arial", 10F);
             beepDatePickerView1.Theme = null;
             beepDatePickerView1.ToolTipText = null;
             beepDatePickerView1.TopoffsetForDrawingRect = 0;
@@ -595,7 +595,7 @@
             // 
             // 
             beepComboBox1.BeepContextMenu.BackColor = Color.White;
-            beepComboBox1.BeepContextMenu.ClientSize = new Size(200, 36);
+            beepComboBox1.BeepContextMenu.ClientSize = new Size(234, 62);
             beepComboBox1.BeepContextMenu.ContextMenuType = FormStyle.Modern;
             beepComboBox1.BeepContextMenu.FormBorderStyle = FormBorderStyle.None;
             beepComboBox1.BeepContextMenu.Location = new Point(130, 130);
@@ -627,14 +627,14 @@
             beepComboBox1.CanBePressed = true;
             beepComboBox1.CanBeSelected = true;
             beepComboBox1.Category = Utilities.DbFieldCategory.String;
-            beepComboBox1.ComboBoxType = Winform.Controls.ComboBoxes.ComboBoxType.SearchableDropdown;
+            beepComboBox1.ComboBoxType = Winform.Controls.ComboBoxes.ComboBoxType.Rounded;
             beepComboBox1.ComponentName = "BaseControl";
             beepComboBox1.DataContext = null;
             beepComboBox1.DataSourceProperty = null;
             beepComboBox1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepComboBox1.DisabledBorderColor = Color.LightGray;
             beepComboBox1.DisabledForeColor = Color.Gray;
-            beepComboBox1.DrawingRect = new Rectangle(1, 1, 188, 34);
+            beepComboBox1.DrawingRect = new Rectangle(1, 1, 351, 75);
             beepComboBox1.DropdownIconPath = "dropdown_arrow";
             beepComboBox1.Easing = EasingType.Linear;
             beepComboBox1.EnableHighQualityRendering = true;
@@ -705,7 +705,8 @@
             beepComboBox1.LeadingImagePath = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(73, 459);
+            beepComboBox1.Location = new Point(177, 647);
+            beepComboBox1.Margin = new Padding(6, 6, 6, 6);
             beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepComboBox1.MaterialCustomPadding = new Padding(0);
             beepComboBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -714,7 +715,6 @@
             beepComboBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
-           
             beepComboBox1.ModernGradientType = ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = TypeStyleFontSize.None;
@@ -735,6 +735,7 @@
             beepComboBox1.SelectedForeColor = Color.Black;
             beepComboBox1.SelectedIndex = -1;
             beepComboBox1.SelectedItem = null;
+            beepComboBox1.SelectedItems = (List<SimpleItem>)resources.GetObject("beepComboBox1.SelectedItems");
             beepComboBox1.SelectedValue = null;
             beepComboBox1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepComboBox1.ShadowOffset = 3;
@@ -744,9 +745,10 @@
             beepComboBox1.ShowFocusIndicator = false;
             beepComboBox1.ShowLeftBorder = false;
             beepComboBox1.ShowRightBorder = false;
+            beepComboBox1.ShowSearchInDropdown = false;
             beepComboBox1.ShowShadow = false;
             beepComboBox1.ShowTopBorder = false;
-            beepComboBox1.Size = new Size(190, 36);
+            beepComboBox1.Size = new Size(353, 77);
             beepComboBox1.SlideFrom = SlideDirection.Left;
             beepComboBox1.StaticNotMoving = false;
             beepComboBox1.TabIndex = 3;
@@ -799,7 +801,7 @@
             beepChevronButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepChevronButton1.DisabledBorderColor = Color.LightGray;
             beepChevronButton1.DisabledForeColor = Color.Gray;
-            beepChevronButton1.DrawingRect = new Rectangle(5, 5, 146, 58);
+            beepChevronButton1.DrawingRect = new Rectangle(9, 11, 272, 123);
             beepChevronButton1.Easing = EasingType.Linear;
             beepChevronButton1.EnableHighQualityRendering = true;
             beepChevronButton1.EnableMaterialStyle = false;
@@ -872,7 +874,8 @@
             beepChevronButton1.LeadingImagePath = "";
             beepChevronButton1.LeftoffsetForDrawingRect = 0;
             beepChevronButton1.LinkedProperty = null;
-            beepChevronButton1.Location = new Point(63, 591);
+            beepChevronButton1.Location = new Point(188, 798);
+            beepChevronButton1.Margin = new Padding(6, 6, 6, 6);
             beepChevronButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepChevronButton1.MaterialCustomPadding = new Padding(0);
             beepChevronButton1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -881,11 +884,10 @@
             beepChevronButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepChevronButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepChevronButton1.MaxHitListDrawPerFrame = 0;
-          
             beepChevronButton1.ModernGradientType = ModernGradientType.None;
             beepChevronButton1.Name = "beepChevronButton1";
             beepChevronButton1.OverrideFontSize = TypeStyleFontSize.None;
-            beepChevronButton1.Padding = new Padding(5);
+            beepChevronButton1.Padding = new Padding(9, 11, 9, 11);
             beepChevronButton1.PainterKind = BaseControlPainterKind.Classic;
             beepChevronButton1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepChevronButton1.ParentControl = null;
@@ -911,7 +913,7 @@
             beepChevronButton1.ShowRightBorder = false;
             beepChevronButton1.ShowShadow = false;
             beepChevronButton1.ShowTopBorder = false;
-            beepChevronButton1.Size = new Size(156, 68);
+            beepChevronButton1.Size = new Size(290, 145);
             beepChevronButton1.SlideFrom = SlideDirection.Left;
             beepChevronButton1.StaticNotMoving = false;
             beepChevronButton1.TabIndex = 5;
@@ -933,16 +935,18 @@
             // 
             // Form2
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(863, 754);
+            ClientSize = new Size(1603, 1609);
             Controls.Add(beepChevronButton1);
             Controls.Add(beepComboBox1);
             Controls.Add(beepDatePickerView1);
             Controls.Add(beepDatePicker1);
             Controls.Add(beepButton1);
             Location = new Point(0, 0);
+            Margin = new Padding(11, 13, 11, 13);
             Name = "Form2";
+            Padding = new Padding(11, 13, 11, 13);
             Text = "Form2";
             ResumeLayout(false);
         }

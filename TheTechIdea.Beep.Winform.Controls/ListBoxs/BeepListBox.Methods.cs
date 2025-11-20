@@ -165,11 +165,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 : CheckBoxState.Unchecked;
             
             // If multi-select is enabled, keep selection state in sync (for consistency)
-            if (isChecked && (MultiSelect || SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended))
+            if (isChecked && (MultiSelect || SelectionMode == ListBoxs.SelectionModeEnum.MultiSimple || SelectionMode == ListBoxs.SelectionModeEnum.MultiExtended))
             {
                 if (!_selectedItems.Contains(item)) _selectedItems.Add(item);
             }
-            else if (!isChecked && (MultiSelect || SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended))
+            else if (!isChecked && (MultiSelect || SelectionMode == ListBoxs.SelectionModeEnum.MultiSimple || SelectionMode == ListBoxs.SelectionModeEnum.MultiExtended))
             {
                 if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
             }
@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ToggleSelection(SimpleItem item)
         {
             if (item == null) return;
-            if (SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended || MultiSelect)
+            if (SelectionMode == ListBoxs.SelectionModeEnum.MultiSimple || SelectionMode == ListBoxs.SelectionModeEnum  .MultiExtended || MultiSelect)
             {
                 if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
                 else _selectedItems.Add(item);
@@ -326,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void EnsureItemVisible(SimpleItem item)
         {
             if (item == null) return;
-            var layout = _layout.GetCachedLayout();
+            var layout = _layoutHelper.GetCachedLayout();
             if (layout == null || layout.Count == 0) return;
 
             var info = layout.FirstOrDefault(i => i.Item == item);
@@ -522,8 +522,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var visible = GetVisibleItems();
             if (visible == null || visible.Count == 0) return;
-            if (SelectionMode == SelectionMode.Single) return;
-            if (SelectionMode == SelectionMode.MultiSimple || SelectionMode == SelectionMode.MultiExtended)
+            if (SelectionMode == ListBoxs.SelectionModeEnum.Single) return;
+            if (SelectionMode == ListBoxs.SelectionModeEnum.MultiSimple || SelectionMode == ListBoxs.SelectionModeEnum.MultiExtended)
             {
                 _selectedItems.Clear();
                 foreach (var item in visible)

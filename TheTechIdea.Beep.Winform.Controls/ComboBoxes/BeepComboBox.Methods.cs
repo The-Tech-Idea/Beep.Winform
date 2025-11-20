@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepContextMenu.CloseOnItemClick = !AllowMultipleSelection;
             
             // Ensure searchbox state is up to date
-            BeepContextMenu.ShowSearchBox = (ComboBoxType == ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
+            BeepContextMenu.ShowSearchBox = (ComboBoxType== ComboBoxes.ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
             // Show the context menu
             BeepContextMenu.Show(screenLocation, this);
             

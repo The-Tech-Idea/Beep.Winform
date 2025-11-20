@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     float p = _chipProgress[key];
                     p += animIn ? step : -step;
                     // Apply easing from theme, if available
-                    var themeEasing = _helper?.Owner?._currentTheme?.AnimationEasingFunction; // helper owner might not be present, fallback
+                    var themeEasing = _currentTheme?.AnimationEasingFunction; // helper owner might not be present, fallback
                     // No concept of _helper.Owner as helper has the owner; fallback to use BeepControl easing if needed
                     // Evaluate easing on the resulting p later in rendering; here we keep linear progress
                     p = Math.Max(0f, Math.Min(1f, p));

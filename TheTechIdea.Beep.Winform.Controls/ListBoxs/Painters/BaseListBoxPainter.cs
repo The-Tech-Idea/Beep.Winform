@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var textRect = new Rectangle(rect.Left + 8, iconRect.Bottom + 8, rect.Width - 16, 36);
             using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
             using (var font = new Font(_owner.Font.FontFamily, Math.Max(10, _owner.Font.Size - 1f), FontStyle.Regular))
-            using (var brush = new SolidBrush(_theme?.TextColor ?? Color.Gray))
+            using (var brush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray))
             {
                 g.DrawString(text, font, brush, textRect, sf);
             }
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
                     using (var font = new Font(_owner.Font.FontFamily, Math.Max(8, _owner.Font.Size - 2), FontStyle.Regular))
-                    using (var brush = new SolidBrush(Color.FromArgb(140, _theme?.TextColor ?? Color.Gray)))
+                    using (var brush = new SolidBrush(Color.FromArgb(140, _theme?.ListForeColor ?? Color.Gray)))
                     {
                         var hint = "PgUp / PgDn";
                         var hintRect = new Rectangle(drawingRect.Right - 120, drawingRect.Bottom - 26, 110, 20);
@@ -295,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else if (hoverProgress > 0f)
             {
                 // Blend between base background and hover color based on progress
-                Color hoverColor = _theme?.HoverBackColor ?? Color.FromArgb(230, 230, 230);
+                Color hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
                 backgroundColor = BlendColors(backgroundColor, hoverColor, hoverProgress);
             }
 
@@ -360,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (hoverProgress > 0f)
             {
-                var hoverColor = _theme?.HoverBackColor ?? Color.FromArgb(230, 230, 230);
+                var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
                 // Instead of replacing painter background, paint a subtle overlay on top to preserve painter's custom drawing
                 var overlayColor = BlendColors(Color.FromArgb(0, 0, 0, 0), hoverColor, hoverProgress);
                 using (var brush = new SolidBrush(Color.FromArgb((int)(hoverProgress * 60), overlayColor.R, overlayColor.G, overlayColor.B)))
@@ -409,7 +409,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw text
-            Color textColor = isSelected ? Color.White : (_theme?.TextColor ?? Color.Black);
+            Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
             DrawItemText(g, contentRect, item.Text, textColor, _owner.Font);
         }
         

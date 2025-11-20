@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// <summary>
         /// Apply presets to BeepDisplayContainer (wraps internal BeepTabs)
         /// </summary>
-        public static void ApplyPreset(TheTechIdea.Beep.Winform.Controls.DisplayContainers.BeepDisplayContainer container, TheTechIdea.Beep.Winform.Controls.TabStyle style)
+        public static void ApplyPreset(BeepDisplayContainer container, TheTechIdea.Beep.Winform.Controls.TabStyle style)
         {
             if (container == null) return;
             container.TabStyle = style;
@@ -119,14 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             {
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule:
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Segmented:
-                    container.ControlStyle = TheTechIdea.Beep.Winform.Controls.Styling.BeepControlStyle.PillRail;
+                    container.ControlStyle = BeepControlStyle.PillRail;
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Minimal:
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Underline:
-                    container.ControlStyle = TheTechIdea.Beep.Winform.Controls.Styling.BeepControlStyle.Minimal;
+                    container.ControlStyle =BeepControlStyle.Minimal;
                     break;
                 default:
-                    container.ControlStyle = TheTechIdea.Beep.Winform.Controls.Styling.BeepControlStyle.FigmaCard;
+                    container.ControlStyle = BeepControlStyle.FigmaCard;
                     break;
             }
 

@@ -406,9 +406,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_multiSelect != value)
                 {
                     _multiSelect = value;
-                    if (_multiSelect && SelectionMode == SelectionMode.Single)
+                    if (_multiSelect && SelectionMode == SelectionModeEnum.Single)
                     {
-                        SelectionMode = SelectionMode.MultiExtended; // keep behavior consistent
+                        SelectionMode = SelectionModeEnum.MultiExtended; // keep behavior consistent
                     }
                     RequestDelayedInvalidate();
                 }
@@ -425,8 +425,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Behavior")]
         [Description("Selection mode of the ListBox (Single, MultiSimple, MultiExtended)")]
-        [DefaultValue(SelectionMode.Single)]
-        public SelectionMode SelectionMode { get; set; } = SelectionMode.Single;
+        [DefaultValue(SelectionModeEnum.Single)]
+        public SelectionModeEnum SelectionMode { get; set; } = SelectionModeEnum.Single;
 
         #endregion
         

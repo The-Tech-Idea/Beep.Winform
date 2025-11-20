@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // Search support
         private bool _showSearchBox = false;
         private string _searchText = string.Empty;
-        private TheTechIdea.Beep.Winform.Controls.TextFields.BeepTextBox _searchTextBox = null;
+        private BeepTextBox _searchTextBox = null;
 
         // Scrolling support
         private int _maxHeight = 600; // Maximum height before scrolling
@@ -315,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (_searchTextBox != null) return;
             try
             {
-                _searchTextBox = new TheTechIdea.Beep.Winform.Controls.TextFields.BeepTextBox();
+                _searchTextBox = new BeepTextBox();
                 _searchTextBox.BorderStyle = BorderStyle.None;
                 _searchTextBox.AutoSize = false;
                 // Slightly smaller height and compact style
@@ -523,18 +523,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         #region IDisposable Support
         
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                try { _submenuTimer?.Stop(); _submenuTimer?.Dispose(); } catch { }
-                try { _fadeTimer?.Stop(); _fadeTimer?.Dispose(); } catch { }
-                try { _openSubmenu?.Dispose(); } catch { }
-                try { if (_scrollBar != null) { if (_scrollBar is VScrollBar v) v.Scroll -= ScrollBar_Scroll; else { var ev = _scrollBar.GetType().GetEvent("ValueChanged"); ev?.RemoveEventHandler(_scrollBar, new EventHandler((s, e) => InternalScrollBarValueChanged(s, e))); } } } catch { }
-                try { if (_searchTextBox != null) { _searchTextBox.TextChanged -= SearchTextBox_TextChanged; Controls.Remove(_searchTextBox); _searchTextBox.Dispose(); _searchTextBox = null; } } catch { }
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing)
+        //    {
+        //        try { _submenuTimer?.Stop(); _submenuTimer?.Dispose(); } catch { }
+        //        try { _fadeTimer?.Stop(); _fadeTimer?.Dispose(); } catch { }
+        //        try { _openSubmenu?.Dispose(); } catch { }
+        //        try { if (_scrollBar != null) { if (_scrollBar is VScrollBar v) v.Scroll -= ScrollBar_Scroll; else { var ev = _scrollBar.GetType().GetEvent("ValueChanged"); ev?.RemoveEventHandler(_scrollBar, new EventHandler((s, e) => InternalScrollBarValueChanged(s, e))); } } } catch { }
+        //        try { if (_searchTextBox != null) { _searchTextBox.TextChanged -= SearchTextBox_TextChanged; Controls.Remove(_searchTextBox); _searchTextBox.Dispose(); _searchTextBox = null; } } catch { }
+        //    }
+        //    base.Dispose(disposing);
+        //}
         
         #endregion
         

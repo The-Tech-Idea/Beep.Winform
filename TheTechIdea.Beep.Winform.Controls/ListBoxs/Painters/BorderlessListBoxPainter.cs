@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || owner == null || drawingRect.IsEmpty) return;
 
-            var items = owner.Items;
+            var items = owner.ListItems;
             var font = owner.Font;
 
             for (int i = 0; i < items.Count; i++)
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 bool isHovered = itemRect.Contains(owner.PointToClient(Control.MousePosition));
                 bool isSelected = owner.IsItemSelected(item);
 
-                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
+                DrawItemBackground(g, itemRect, isHovered, isSelected);
                 DrawItemText(g, itemRect, items[i].ToString(), font, isSelected);
             }
         }

@@ -38,26 +38,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             if (g == null || _tabs == null || _tabs.Count == 0 || _tabArea.IsEmpty) return;
             
-            
-                    // Ensure paint helper exists
-                    if (_paintHelper == null)
-                    {
-                        var controlStyle = ControlStyle;
-                        _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
-                        _paintHelper.TabStyle = this.TabStyle; // use container's TabStyle
-                    }
-                    else
-                    {
-                        // Update helper style
-                        _paintHelper.ControlStyle = ControlStyle;
-                        _paintHelper.IsTransparent = IsTransparentBackground;
-                        _paintHelper.TabStyle = this.TabStyle;
-                    }
-                    else
-                    {
-                        // Update transparency state if it changed
-                        _paintHelper.IsTransparent = IsTransparentBackground;
-                    }
+            // Ensure paint helper exists
+            if (_paintHelper == null)
+            {
+                var controlStyle = ControlStyle;
+                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
+                _paintHelper.TabStyle = this.TabStyle; // use container's TabStyle
+            }
+            else
+            {
+                // Update helper style
+                _paintHelper.ControlStyle = ControlStyle;
+                _paintHelper.IsTransparent = IsTransparentBackground;
+                _paintHelper.TabStyle = this.TabStyle;
+            }
             
             // Tab area background should be TRANSPARENT - don't draw it
             // Each tab will draw its own opaque background so they're visible
@@ -287,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         
         private void DrawModernButton(Graphics g, Rectangle bounds, ArrowDirection? arrowDirection, BeepControlStyle style, bool isPlusButton = false)
         {
-            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+            if(bounds.Width <= 0 || bounds.Height <= 0) return;
             
             // Create rounded path for button
             var buttonPath = BeepStyling.CreateControlStylePath(bounds, style);

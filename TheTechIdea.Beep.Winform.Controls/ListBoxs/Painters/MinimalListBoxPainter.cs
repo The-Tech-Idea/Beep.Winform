@@ -1,27 +1,41 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Minimal list box painter - subtle styling
+    /// Minimal list box painter - subtle styling with understated borders and backgrounds
     /// </summary>
     internal class MinimalListBoxPainter : StandardListBoxPainter
     {
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Use BeepStyling for Minimal Style background, border, and shadow
-            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+            if (g == null || itemRect.IsEmpty) return;
+
+            // Minimal: flat background with subtle hover
+            if (isSelected)
             {
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
-                if (isHovered)
+                // Subtle selection highlight
+                using (var brush = new SolidBrush(Color.FromArgb(25, _theme?.PrimaryColor ?? Color.LightBlue)))
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
+                    g.FillRectangle(brush, itemRect);
+                }
+
+                // Very subtle selection indicator on left
+                using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.Blue))
+                {
+                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, 2, itemRect.Height);
                 }
             }
+            else if (isHovered)
+            {
+                // Very subtle hover background
+                using (var brush = new SolidBrush(Color.FromArgb(8, Color.Black)))
+                {
+                    g.FillRectangle(brush, itemRect);
+                }
+            }
+            // No background for normal state - minimal approach
         }
         
         public override int GetPreferredItemHeight()

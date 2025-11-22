@@ -50,6 +50,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     tabs.Padding = new Point(10, 8);
                     tabs.Theme = "Light";
                     break;
+                case TheTechIdea.Beep.Winform.Controls.TabStyle.Card:
+                    tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Card;
+                    tabs.ShowCloseButtons = true;
+                    tabs.HeaderHeight = 32;
+                    tabs.Padding = new Point(10, 6);
+                    tabs.Theme = "Default";
+                    break;
+                case TheTechIdea.Beep.Winform.Controls.TabStyle.Button:
+                    tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Button;
+                    tabs.ShowCloseButtons = false;
+                    tabs.HeaderHeight = 36;
+                    tabs.Padding = new Point(12, 8);
+                    tabs.Theme = "Default";
+                    break;
             }
             tabs.Invalidate();
         }
@@ -112,6 +126,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     container.ShowCloseButtons = false;
                     container.AllowTabReordering = true;
                     break;
+                case TheTechIdea.Beep.Winform.Controls.TabStyle.Card:
+                    container.TabHeight = 32;
+                    container.ShowCloseButtons = true;
+                    container.AllowTabReordering = true;
+                    break;
+                case TheTechIdea.Beep.Winform.Controls.TabStyle.Button:
+                    container.TabHeight = 36;
+                    container.ShowCloseButtons = false;
+                    container.AllowTabReordering = true;
+                    break;
             }
 
             // Set suggested ControlStyle for visual coherence
@@ -124,6 +148,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Minimal:
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Underline:
                     container.ControlStyle =BeepControlStyle.Minimal;
+                    break;
+                case TheTechIdea.Beep.Winform.Controls.TabStyle.Card:
+                    container.ControlStyle = BeepControlStyle.FigmaCard;
+                    break;
+                case TheTechIdea.Beep.Winform.Controls.TabStyle.Button:
+                    container.ControlStyle = BeepControlStyle.FigmaCard;
                     break;
                 default:
                     container.ControlStyle = BeepControlStyle.FigmaCard;

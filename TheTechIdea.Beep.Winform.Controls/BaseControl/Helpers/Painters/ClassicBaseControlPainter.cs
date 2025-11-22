@@ -49,7 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 if (StyleShadows.HasShadow(owner.ControlStyle))
                 {
                     // Use a reasonable shadow offset based on style
-                    shadow = Math.Max(2, StyleShadows.GetShadowBlur(owner.ControlStyle) / 2);
+                    //shadow = Math.Max(2, StyleShadows.GetShadowBlur(owner.ControlStyle) / 2);
+                    shadow = 0;
                 }
             }
             else
@@ -86,13 +87,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 bottomPad = Math.Max(bottomPad, padding + owner.BottomoffsetForDrawingRect);
             }
 
+            // Account for rounded corners - reduce drawable area to prevent corners from being cut off
+            int cornerAdjustment = 0;
+            if (owner.IsRounded && owner.BorderRadius > 0)
+            {
+                // When corners are rounded, reduce the drawing rect to account for the corner curve
+                // This prevents content from extending into rounded corner areas
+                cornerAdjustment = Math.Max(2, owner.BorderRadius / 2);
+            }
+
             // Calculate inner drawing rect
-            int calculatedWidth = owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad);
-            int calculatedHeight = owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad);
+            int calculatedWidth = owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad + (cornerAdjustment * 2));
+            int calculatedHeight = owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad + (cornerAdjustment * 2));
 
             var inner = new Rectangle(
-                shadow + border + leftPad,
-                shadow + border + topPad,
+                shadow + border + leftPad + cornerAdjustment,
+                shadow + border + topPad + cornerAdjustment,
                 Math.Max(0, calculatedWidth),
                 Math.Max(0, calculatedHeight)
             );
@@ -107,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
                 if (!string.IsNullOrEmpty(owner.LabelText))
                 {
-                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    float labelSize = 8f;
                     using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
                     int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                     reserveTop = h + 2;
@@ -116,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 string support = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
                 if (!string.IsNullOrEmpty(support))
                 {
-                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    float supSize = 8f;
                     using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
                     int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                     reserveBottom = h + 4;
@@ -124,17 +134,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
                 // Calculate minimum height needed for main control text
                 int mainTextHeight = 0;
-                if (!string.IsNullOrEmpty(owner.Text))
-                {
-                    // Get the actual height needed for the control's main text
-                    var textSize = TextRenderer.MeasureText(g, owner.Text, owner.Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+               
+                    var textSize = TextRenderer.MeasureText(g, "Ag", owner.TextFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                     mainTextHeight = textSize.Height;
-                }
-                else
-                {
-                    var textSize = TextRenderer.MeasureText(g, "Ag", owner.Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
-                    mainTextHeight = textSize.Height;
-                }
+                
 
                 if (reserveTop > 0 || reserveBottom > 0)
                 {
@@ -176,27 +179,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 }
             }
             catch { /* best-effort */ }
+
+            // Border rectangle with rounded corner consideration
             var borderRect = new Rectangle(
-                  shadow,
-                  shadow,
-                  Math.Max(0, owner.Width - (shadow) * 2),
-                  Math.Max(0, owner.Height - (shadow) * 2)
-              );
+                shadow,
+                shadow,
+                Math.Max(0, owner.Width - (shadow) * 2),
+                Math.Max(0, owner.Height - (shadow) * 2)
+            );
+            
+            // Adjust border rect for rounded corners
+            if (owner.IsRounded && owner.BorderRadius > 0)
+            {
+                int cornerOffset = Math.Max(1, owner.BorderRadius / 3);
+                borderRect = new Rectangle(
+                    borderRect.X + cornerOffset,
+                    borderRect.Y + cornerOffset,
+                    Math.Max(0, borderRect.Width - (cornerOffset * 2)),
+                    Math.Max(0, borderRect.Height - (cornerOffset * 2))
+                );
+            }
+
             // Border rectangle like BeepControl
             if (border > 0)
             {
                 int halfPen = (int)Math.Ceiling(owner.BorderThickness / 2f);
-                 borderRect = new Rectangle(
-                    shadow + halfPen,
-                    shadow + halfPen,
-                    Math.Max(0, owner.Width - (shadow + halfPen) * 2),
-                    Math.Max(0, owner.Height - (shadow + halfPen) * 2)
+                borderRect = new Rectangle(
+                    borderRect.X + halfPen,
+                    borderRect.Y + halfPen,
+                    Math.Max(0, borderRect.Width - (halfPen * 2)),
+                    Math.Max(0, borderRect.Height - (halfPen * 2))
                 );
             }
 
-
-                // Compute icon-adjusted content
-                Rectangle contentRect = inner;
+            // Compute icon-adjusted content
+            Rectangle contentRect = inner;
             bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
             bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
             if (hasLeading || hasTrailing)

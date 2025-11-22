@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
     /// Core fields, properties, and initialization for BeepListBox
     /// Modern implementation using painter methodology
     /// </summary>
-    public partial class BeepListBox : BeepPanel
+    public partial class BeepListBox 
     {
         
 #pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios

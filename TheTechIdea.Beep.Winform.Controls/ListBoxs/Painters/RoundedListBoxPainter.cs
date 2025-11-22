@@ -6,7 +6,7 @@ using System.Linq;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Rounded list box painter - rounded item corners
+    /// Rounded list box painter - rounded item corners with distinct styling
     /// </summary>
     internal class RoundedListBoxPainter : BaseListBoxPainter
     {
@@ -43,44 +43,78 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Use BeepStyling for Rounded Style background, border, and shadow
-            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+            if (g == null || itemRect.IsEmpty) return;
+
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, ItemRadius))
             {
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
-
-                // Add hover effect with subtle gradient
-                if (isHovered && !isSelected)
-                {
-                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Color.LightGray), Color.Transparent, LinearGradientMode.Vertical))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
-                }
-
-                // Add shadow for selected items
                 if (isSelected)
                 {
-                    using (var shadowBrush = new SolidBrush(Color.FromArgb(50, Color.Black)))
+                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+
+                    // Shadow for selected state
+                    var shadowRect = itemRect;
+                    shadowRect.Offset(0, 2);
+                    using (var shadowBrush = new LinearGradientBrush(shadowRect,
+                        Color.FromArgb(50, Color.Black),
+                        Color.Transparent,
+                        90f))
                     {
-                        g.FillPath(shadowBrush, path);
+                        g.FillRectangle(shadowBrush, shadowRect);
+                    }
+
+                    // Filled background
+                    using (var brush = new LinearGradientBrush(itemRect,
+                        Color.FromArgb(120, selColor.R, selColor.G, selColor.B),
+                        Color.FromArgb(80, selColor.R, selColor.G, selColor.B),
+                        LinearGradientMode.Vertical))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Border
+                    using (var pen = new Pen(selColor, 2.5f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else if (isHovered)
+                {
+                    // Hover shadow
+                    using (var shadowBrush = new LinearGradientBrush(itemRect,
+                        Color.FromArgb(25, Color.Black),
+                        Color.Transparent,
+                        90f))
+                    {
+                        g.FillRectangle(shadowBrush, itemRect);
+                    }
+
+                    // Hover background
+                    using (var brush = new SolidBrush(Color.FromArgb(235, 235, 235)))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Hover border
+                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1.5f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else
+                {
+                    // Normal rounded style
+                    using (var brush = new SolidBrush(Color.White))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Subtle border
+                    using (var pen = new Pen(Color.FromArgb(210, 210, 210), 1f))
+                    {
+                        g.DrawPath(pen, path);
                     }
                 }
             }
-        }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
         }
         
         public override int GetPreferredItemHeight()

@@ -232,10 +232,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowImage = true,
                 ShowCheckBox = false,
                 ShowHilightBox = true,
-                ShowTitleLine = false,
+              
                 MenuItemHeight = 30,
                 ImageSize = 20,
-                ShowTitle=false,
+             
                 AutoSize = false // We'll set the size in RefreshLayout
             };
             UpdateFeaturesList();

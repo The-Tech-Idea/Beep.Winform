@@ -5,7 +5,7 @@ using System.Linq;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// List with checkboxes for multi-select (from images 1, 3)
+    /// List with checkboxes for multi-select with distinct styling
     /// </summary>
     internal class CheckboxListPainter : OutlinedListBoxPainter
     {
@@ -50,73 +50,72 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             );
 
             Color textColor = isSelected
-                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Black
+                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.OnPrimaryColor ?? Color.White
                 : Color.FromArgb(26, 32, 44);
 
             DrawItemText(g, textRect, item.Text, textColor, _owner.Font);
         }
 
-        private void DrawCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered)
+        protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            using (var path = CreateRoundedRectangle(checkboxRect, 3))
+            if (g == null || itemRect.IsEmpty) return;
+
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 3))
             {
-                Color borderColor = isHovered
-                    ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray
-                    : Color.FromArgb(200, 200, 200);
-
-                using (var borderPen = new Pen(borderColor, 1.5f))
+                if (isSelected)
                 {
-                    g.DrawPath(borderPen, path);
-                }
+                    var selColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.LightBlue;
 
-                if (isChecked)
-                {
-                    Color fillColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
-                    using (var fillBrush = new SolidBrush(fillColor))
+                    // Selected background with subtle gradient
+                    using (var brush = new LinearGradientBrush(itemRect,
+                        Color.FromArgb(30, selColor.R, selColor.G, selColor.B),
+                        Color.FromArgb(10, selColor.R, selColor.G, selColor.B),
+                        LinearGradientMode.Vertical))
                     {
-                        g.FillPath(fillBrush, path);
+                        g.FillPath(brush, path);
                     }
 
-                    using (var checkPen = new Pen(Color.White, 2))
+                    // Selection border
+                    using (var pen = new Pen(selColor, 2f))
                     {
-                        checkPen.StartCap = LineCap.Round;
-                        checkPen.EndCap = LineCap.Round;
-
-                        var centerX = checkboxRect.X + checkboxRect.Width / 2;
-                        var centerY = checkboxRect.Y + checkboxRect.Height / 2;
-                        var size = 4;
-
-                        g.DrawLine(checkPen,
-                            centerX - size, centerY,
-                            centerX - 1, centerY + size);
-                        g.DrawLine(checkPen,
-                            centerX - 1, centerY + size,
-                            centerX + size + 1, centerY - size);
+                        g.DrawPath(pen, path);
                     }
                 }
-
-                if (isHovered)
+                else if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, borderColor)))
+                    // Hover background
+                    using (var brush = new SolidBrush(Color.FromArgb(248, 248, 248)))
                     {
-                        g.FillPath(hoverBrush, path);
+                        g.FillPath(brush, path);
+                    }
+
+                    // Hover border
+                    using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray, 1.5f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else
+                {
+                    // Normal state
+                    using (var brush = new SolidBrush(Color.White))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Normal border
+                    using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(200, 200, 200), 0.5f))
+                    {
+                        g.DrawPath(pen, path);
                     }
                 }
             }
-        }
 
-        private GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-
-            path.AddArc(bounds.X, bounds.Y, diameter, diameter, 180, 90);
-            path.AddArc(bounds.Right - diameter, bounds.Y, diameter, diameter, 270, 90);
-            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(bounds.X, bounds.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-
-            return path;
+            // Draw subtle divider
+            using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
+            {
+                g.DrawLine(pen, itemRect.Left + 8, itemRect.Bottom - 1, itemRect.Right - 8, itemRect.Bottom - 1);
+            }
         }
     }
 }

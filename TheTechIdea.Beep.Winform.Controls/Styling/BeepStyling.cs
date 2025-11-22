@@ -218,6 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         public static int GetPadding(BeepControlStyle style)
         {
+            return 0;
             return StyleSpacing.GetPadding(style);
         }
         public static Color GetBackgroundColor(BeepControlStyle style)
@@ -994,7 +995,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             //    if (contentPath == null)
             //        contentPath = currentPath;
             //}
-
+           
+            // === STEP 4: Paint Background (fills the area between border and final content) ===
+            if (!IsTransparentBackground)
+            {
+                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+                if (backgroundPainter != null)
+                {
+                    backgroundPainter.Paint(g, contentPath, style, theme, useThemeColors, state);
+                }
+            }
             // === STEP 2: Paint Inner Shadow (paints around content area, returns smaller path) ===
             GraphicsPath pathAfterShadow = contentPath;
             if (StyleShadows.HasShadow(style) && state != ControlState.Disabled)
@@ -1017,17 +1027,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 pathAfterBorder = borderPainter.Paint(g, pathAfterShadow, isFocused, style, theme, useThemeColors, state);
                
             }
-            if (pathAfterBorder == null)
-                pathAfterBorder = pathAfterShadow;
-            // === STEP 4: Paint Background (fills the area between border and final content) ===
-            if (!IsTransparentBackground)
-            {
-                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
-                if (backgroundPainter != null)
-                {
-                    backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
-                }
-            }
+          
           
 
             // Cleanup intermediate paths if they're different

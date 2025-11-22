@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 150;
                 Height = _collapsedHeight;
             }
-            ShowTitleLine = false;
+          
             UpdateDrawingRect();
 
             // Initialize the GDI button for drawing
@@ -142,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _isExpanded = true;
             UpdateDrawingRect();
-            _targetHeight = Math.Min(_maxMenuHeight, TitleBottomY + GetMaxHeight() + 10);
+            _targetHeight = Math.Min(_maxMenuHeight,  GetMaxHeight() + 10);
             SetDropDownButtonImage();
             StartAnimation();
         }

@@ -178,8 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsFrameless = true,
-                ShowTitleLine = false,
-                ShowTitle = false,
+              
             };
             _menu.Theme = Theme;
             _menu.SelectedItemChanged += (s, e) =>

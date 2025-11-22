@@ -6,7 +6,7 @@ using System.Linq;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Filled list box with elevation and shadow
+    /// Filled list box with elevation, shadow, and distinct filled background style
     /// </summary>
     internal class FilledListBoxPainter : BaseListBoxPainter
     {
@@ -33,45 +33,76 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Use BeepStyling for Filled Style background, border, and shadow
-            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
+            if (g == null || itemRect.IsEmpty) return;
+
+            // Create rounded path
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 6))
             {
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
-                if (isHovered)
+                if (isSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
+                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                    
+                    // Draw shadow for elevation
+                    var shadowRect = itemRect;
+                    shadowRect.Offset(0, 2);
+                    using (var shadowBrush = new LinearGradientBrush(shadowRect, 
+                        Color.FromArgb(40, Color.Black), 
+                        Color.Transparent, 
+                        90f))
                     {
-                        g.FillPath(hoverBrush, path);
+                        g.FillRectangle(shadowBrush, shadowRect);
+                    }
+
+                    // Filled background with primary color
+                    using (var brush = new SolidBrush(selColor))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Selection border
+                    using (var pen = new Pen(Color.FromArgb(200, selColor), 2f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else if (isHovered)
+                {
+                    // Hover state: lighter fill with shadow
+                    var hoverColor = Color.FromArgb(240, 240, 240);
+                    
+                    using (var shadowBrush = new LinearGradientBrush(itemRect,
+                        Color.FromArgb(20, Color.Black),
+                        Color.Transparent,
+                        90f))
+                    {
+                        g.FillRectangle(shadowBrush, itemRect);
+                    }
+
+                    using (var brush = new SolidBrush(hoverColor))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Hover border
+                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1.5f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else
+                {
+                    // Normal filled style
+                    using (var brush = new SolidBrush(Color.FromArgb(250, 250, 250)))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    using (var pen = new Pen(Color.FromArgb(220, 220, 220), 1f))
+                    {
+                        g.DrawPath(pen, path);
                     }
                 }
             }
-        }
-        
-        private void DrawShadow(Graphics g, Rectangle rect)
-        {
-            var shadowRect = rect;
-            shadowRect.Offset(0, 2);
-            
-            using (var shadowBrush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
-            using (var path = GetRoundedRectPath(shadowRect, 6))
-            {
-                g.FillPath(shadowBrush, path);
-            }
-        }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
         }
         
         public override int GetPreferredItemHeight()

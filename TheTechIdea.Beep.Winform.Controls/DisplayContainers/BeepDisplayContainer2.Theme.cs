@@ -10,89 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     {
         #region Theme Integration
 
-        /// <summary>
-        /// Applies the current theme to the container and tabs.
-        /// Follows BaseControl pattern for consistent theme application.
-        /// </summary>
-        public override void ApplyTheme()
-        {
-            // Call base.ApplyTheme() first for proper theme initialization (like BaseControl)
-            // This sets up _currentTheme and applies basic theme properties
-            base.ApplyTheme();
-            
-            // Update tab painter with current theme and style
-            var controlStyle = ControlStyle;
-            if(_paintHelper==null)
-            {
-                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
-            }
-            else
-            {
-                _paintHelper.ControlStyle = controlStyle;
-                _paintHelper.IsTransparent = IsTransparentBackground;
-            }
-            // Ensure paint helper uses the selected tab style
-            _paintHelper.TabStyle = this.TabStyle;
-           
-            if (_currentTheme != null)
-            {
-                // Apply theme colors to tabs (follows BaseControl pattern)
-                ApplyThemeColorsToTabs();
-                
-                // Apply theme font if UseThemeFont is enabled (like BaseControl)
-                if (UseThemeFont && _currentTheme.LabelFont != null)
-                {
-                    try
-                    {
-                        TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
-                        
-                        // Update layout helper with new font for proper tab sizing
-                        if (_layoutHelper != null)
-                        {
-                            _layoutHelper.UpdateStyle(ControlStyle, Font);
-                        }
-                        
-                        // Recalculate layout with new font metrics
-                        RecalculateLayout();
-                    }
-                    catch
-                    {
-                        // Keep existing font on error
-                    }
-                }
-                
-                // Set background color based on theme and transparency setting
-                if (IsTransparentBackground)
-                {
-                    base.BackColor = Color.Transparent;
-                }
-                else if (IsChild && Parent != null)
-                {
-                    // Follow parent background when IsChild is true (like BaseControl)
-                    base.BackColor = Parent.BackColor;
-                }
-                else
-                {
-                    base.BackColor = _contentBackColor;
-                }
-            }
-            else
-            {
-                // Fallback colors with modern defaults
-                ApplyFallbackColors();
-            }
-            
-            // Invalidate to trigger repaint with new theme
-            Invalidate();
-        }
+      
         
         /// <summary>
         /// Applies theme colors to tab elements
         /// </summary>
         private void ApplyThemeColorsToTabs()
         {
+            // Update paint helper theme
+            if (_paintHelper != null)
+            {
+                _paintHelper.Theme = _currentTheme;
+            }
+
             // Use theme colors if available, otherwise use style defaults
-            if (UseThemeColors)
+            if (UseThemeColors && _currentTheme != null)
             {
                 _tabBackColor = _currentTheme.PanelBackColor;
                 _tabForeColor = _currentTheme.ForeColor;
@@ -113,6 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _borderColor = BeepStyling.GetBorderColor(ControlStyle);
                 _contentBackColor = BeepStyling.GetBackgroundColor(ControlStyle);
             }
+            
+            Invalidate();
         }
         
         /// <summary>

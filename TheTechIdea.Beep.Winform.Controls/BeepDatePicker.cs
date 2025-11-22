@@ -618,11 +618,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Use material helper content rect if available; fallback to DrawingRect
         private Rectangle GetContentRectForDrawing()
         {
-            //if (PainterKind == BaseControlPainterKind.Material )
-            //{
-            //    var r = GetContentRect();
-            //    if (r.Width > 0 && r.Height > 0) return r;
-            //}
+            // For styled painting, use the content rect that accounts for borders/shadows/padding
+            if (UseFormStylePaint && ControlStyle != BeepControlStyle.None)
+            {
+                UpdateDrawingRect();
+                var contentRect = GetContentRect();
+                if (contentRect.Width > 0 && contentRect.Height > 0)
+                    return contentRect;
+            }
+            
+            // Fallback to material content rect
+            if (PainterKind == BaseControlPainterKind.Material)
+            {
+                var r = GetContentRect();
+                if (r.Width > 0 && r.Height > 0) return r;
+            }
+            
+            // Final fallback to drawing rect
             UpdateDrawingRect();
             return DrawingRect;
         }
@@ -947,7 +959,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Calculate minimum dimensions based on content
-                int textPrefH = Math.Max(TextUtils.GetFontHeightSafe(_textFont,this) + 6, 16);
+                int textPrefH = Math.Max(TextUtils.GetFontHeightSafe(_textFont, this) + 6, 16);
                 int buttonWidth = _showDropDown ? Math.Max(_buttonWidth, Math.Max(16, textPrefH)) : 0;
                 
                 // Add padding for comfortable text display
@@ -958,12 +970,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Ensure reasonable minimums
                 Size baseContentMin = new Size(Math.Max(120, baseContentW), Math.Max(20, baseContentH));
 
-                // Apply Material Design calculations if enabled
-                Size effectiveMin = PainterKind == BaseControlPainterKind.Material
-                    ? GetEffectiveMaterialMinimum(baseContentMin)
-                    : new Size(
+                // Apply styling system adjustments
+                Size effectiveMin;
+                
+                if (PainterKind == BaseControlPainterKind.Material)
+                {
+                    // Material Design adds padding/chrome around content
+                    effectiveMin = GetEffectiveMaterialMinimum(baseContentMin);
+                }
+                else if (UseFormStylePaint && ControlStyle != BeepControlStyle.None)
+                {
+                    // BeepStyling system - get border and padding from style
+                    float styleBorderThickness = Beep.Winform.Controls.Styling.BeepStyling.GetBorderThickness(ControlStyle);
+                    int styleBorder = (int)Math.Ceiling(styleBorderThickness);
+                    int stylePadding = Beep.Winform.Controls.Styling.BeepStyling.GetPadding(ControlStyle);
+                    
+                    effectiveMin = new Size(
+                        baseContentMin.Width + (styleBorder + stylePadding + 2) * 2,
+                        baseContentMin.Height + (styleBorder + stylePadding + 2) * 2);
+                }
+                else
+                {
+                    // Classic painting - use border thickness from control
+                    effectiveMin = new Size(
                         baseContentMin.Width + (BorderThickness + 2) * 2,
                         baseContentMin.Height + (BorderThickness + 2) * 2);
+                }
 
                 // Safety clamps
                 effectiveMin.Width = Math.Max(effectiveMin.Width, 120);

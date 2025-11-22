@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -10,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Tabs.Painters;
  
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -24,6 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         // New: toggle showing close buttons on tab headers
         private bool _showCloseButtons = true;
+        private ITabPainter _painter;
+        public IBeepTheme CurrentTheme => _currentTheme;
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -75,6 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Start transition from current style to new
                 StartStyleTransition(_tabStyle, value);
                 _tabStyle = value;
+                UpdatePainter();
                 Invalidate();
             }
         }
@@ -113,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Behavior")]
         [Description("Selects a tab by its TabPage reference.")]
-        public TabPage SelectTab
+        public new TabPage SelectTab
         {
             get => SelectedTab;
             set
@@ -203,6 +208,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private Dictionary<TabStyle, ITabPainter> _painters = new Dictionary<TabStyle, ITabPainter>();
+
         public BeepTabs()
         {
             Alignment = TabAlignment.Top;
@@ -255,6 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             this.AccessibleRole = AccessibleRole.PageTabList;
             this.AccessibleName = "Beep Tabs";
+            UpdatePainter();
         }
 
         /// <summary>
@@ -384,8 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (!headerRegion.IsEmpty)
             {
-                var brush = PaintersFactory.GetSolidBrush(Parent?.BackColor ?? BackColor);
-                e.Graphics.FillRectangle(brush, headerRegion);
+                _painter?.PaintHeaderBackground(e.Graphics, headerRegion);
             }
         }
 
@@ -431,23 +438,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 for (int i = 0; i < TabCount; i++)
                 {
-                    string text = TabPages[i].Text;
-                    SizeF textSize = TextUtils.MeasureText(g,text, font);
+                    SizeF tabSize = _painter.MeasureTab(g, i, font);
                     if (vertical)
                     {
-                        float height = textSize.Width + (GetScaledTextPadding() * 2);
-                        sizes[i] = Math.Max(GetScaledMinTabHeight(), Math.Min(GetScaledMaxTabHeight(), height));
+                        sizes[i] = Math.Max(GetScaledMinTabHeight(), Math.Min(GetScaledMaxTabHeight(), tabSize.Height));
                     }
                     else
                     {
-                        float width = textSize.Width + (GetScaledTextPadding() * 2);
-                        if (ShowCloseButtons)
-                        {
-                            width += GetScaledCloseButtonSize() + (GetScaledCloseButtonPadding() * 2);
-                        }
-                        sizes[i] = Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), width));
+                        sizes[i] = Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), tabSize.Width));
                     }
-                    ////MiscFunctions.SendLog($"Tab {i} size: {sizes[i]} (Text: {text})");
                 }
             }
             return sizes;
@@ -468,8 +467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Top:
                     {
                         Rectangle headerRegion = new Rectangle(0,0, Width, scaledHeaderHeight);
-                        var brush = PaintersFactory.GetSolidBrush(panelColor);
-                        g.FillRectangle(brush, headerRegion);
+                        _painter.PaintHeaderBackground(g, headerRegion);
 
                         float currentX =0;
                         for (int i =0; i < TabCount; i++)
@@ -483,8 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Bottom:
                     {
                         Rectangle headerRegion = new Rectangle(0, ClientSize.Height - scaledHeaderHeight, Width, scaledHeaderHeight);
-                        var brush = PaintersFactory.GetSolidBrush(panelColor);
-                        g.FillRectangle(brush, headerRegion);
+                        _painter.PaintHeaderBackground(g, headerRegion);
 
                         float currentX =0;
                         for (int i =0; i < TabCount; i++)
@@ -498,8 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Left:
                     {
                         Rectangle headerRegion = new Rectangle(0,0, HeaderHeight, Height);
-                        var brush = PaintersFactory.GetSolidBrush(panelColor);
-                        g.FillRectangle(brush, headerRegion);
+                        _painter.PaintHeaderBackground(g, headerRegion);
 
                         float currentY =0;
                         for (int i =0; i < TabCount; i++)
@@ -516,8 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Right:
                     {
                         Rectangle headerRegion = new Rectangle(ClientSize.Width - HeaderHeight,0, HeaderHeight, Height);
-                        var brush = PaintersFactory.GetSolidBrush(panelColor);
-                        g.FillRectangle(brush, headerRegion);
+                        _painter.PaintHeaderBackground(g, headerRegion);
 
                         float currentY =0;
                         for (int i =0; i < TabCount; i++)
@@ -534,235 +529,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private ITabPainter GetPainter(TabStyle style)
+        {
+            if (!_painters.TryGetValue(style, out var painter))
+            {
+                switch (style)
+                {
+                    case TabStyle.Underline: painter = new UnderlineTabPainter(this); break;
+                    case TabStyle.Capsule: painter = new CapsuleTabPainter(this); break;
+                    case TabStyle.Minimal: painter = new MinimalTabPainter(this); break;
+                    case TabStyle.Segmented: painter = new SegmentedTabPainter(this); break;
+                    case TabStyle.Card: painter = new CardTabPainter(this); break;
+                    case TabStyle.Button: painter = new ButtonTabPainter(this); break;
+                    case TabStyle.Classic:
+                    default: painter = new ClassicTabPainter(this); break;
+                }
+                _painters[style] = painter;
+            }
+            return painter;
+        }
+
+        private void UpdatePainter()
+        {
+            _painter = GetPainter(_tabStyle);
+            if (_painter != null)
+            {
+                _painter.Theme = _currentTheme;
+            }
+        }
+
         private void DrawHeaderForTab(Graphics g, RectangleF tabRect, int index, bool vertical)
         {
             bool isSelected = (SelectedIndex == index);
-            Color backgroundColor = isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor;
-            Color textColor = isSelected ? _currentTheme.TabSelectedForeColor : _currentTheme.TabForeColor;
-
+            
             g.SetClip(tabRect, CombineMode.Replace);
 
             // If a style transition is in progress, render both styles cross-fading
             if (_styleTransitionProgress > 0f && _transitionFrom != _transitionTo)
             {
-                DrawHeaderForTabStyle(g, tabRect, index, _transitionFrom, vertical, 1f - _styleTransitionProgress);
-                DrawHeaderForTabStyle(g, tabRect, index, _transitionTo, vertical, _styleTransitionProgress);
+                ITabPainter fromPainter = GetPainter(_transitionFrom);
+                ITabPainter toPainter = GetPainter(_transitionTo);
+                
+                fromPainter.Theme = _currentTheme;
+                toPainter.Theme = _currentTheme;
+
+                fromPainter.PaintTab(g, tabRect, index, isSelected, false, 1f - _styleTransitionProgress);
+                toPainter.PaintTab(g, tabRect, index, isSelected, false, _styleTransitionProgress);
                 g.ResetClip();
                 return;
             }
 
             // otherwise draw the normal style
-            DrawHeaderForTabStyle(g, tabRect, index, _tabStyle, vertical, 1f);
+            _painter.PaintTab(g, tabRect, index, isSelected, false, 1f);
             g.ResetClip();
-            return;
-
-            // Switch drawing style based on TabStyle
-            switch (_tabStyle)
-            {
-                case TabStyle.Classic:
-                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
-                    {
-                        var brush = PaintersFactory.GetSolidBrush(backgroundColor);
-                        g.FillPath(brush, path);
-                    }
-                    break;
-                case TabStyle.Capsule:
-                    {
-                        var radius = (int)Math.Min(tabRect.Height/2, 18);
-                        using (GraphicsPath path = GetRoundedRect(tabRect, radius))
-                        {
-                            var brush = PaintersFactory.GetSolidBrush(isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor);
-                            g.FillPath(brush, path);
-                        }
-                    }
-                    break;
-                case TabStyle.Underline:
-                    // Draw nothing for background; only selected state has underline
-                    break;
-                case TabStyle.Minimal:
-                    // Minimal draws no background
-                    break;
-                case TabStyle.Segmented:
-                    // Draw slightly rounded background for group (per-tab approximation)
-                    using (GraphicsPath path = GetRoundedRect(tabRect, 6))
-                    {
-                        var brush = PaintersFactory.GetSolidBrush(isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor);
-                        g.FillPath(brush, path);
-                    }
-                    break;
-                default:
-                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
-                    {
-                        var brush = PaintersFactory.GetSolidBrush(backgroundColor);
-                        g.FillPath(brush, path);
-                    }
-                    break;
-            }
-
-            string text = TabPages[index].Text;
-            using (Font font = new Font(this.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
-            {
-                var textBrush = PaintersFactory.GetSolidBrush(textColor);
-                if (!vertical)
-                {
-                    SizeF textSize = TextUtils.MeasureText(g,text, font);
-                    PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) /2);
-                    g.DrawString(text, font, textBrush, textPoint);
-                }
-                else
-                {
-                    GraphicsState state = g.Save();
-                    g.TranslateTransform(tabRect.X + tabRect.Width /2, tabRect.Y + tabRect.Height /2);
-                    g.RotateTransform(90);
-                    SizeF textSize = TextUtils.MeasureText(g,text, font);
-                    PointF textPoint = new PointF(-textSize.Width /2, -textSize.Height /2);
-                    g.DrawString(text, font, textBrush, textPoint);
-                    g.Restore(state);
-                }
-            }
-
-            if (ShowCloseButtons)
-            {
-                if (!vertical)
-                    DrawCloseButton(g, tabRect, false);
-                else
-                    DrawCloseButton(g, tabRect, true);
-            }
-
-            g.ResetClip();
-
-            // Underline handled globally for animated styles
         }
 
-        private void PaintUnderline(Graphics g, RectangleF tabRect)
-        {
-            int y = (int)(tabRect.Bottom - 3);
-            var rect = new RectangleF(tabRect.X + 6, y, tabRect.Width - 12, 3);
-            var brush = PaintersFactory.GetSolidBrush(_currentTheme.PrimaryColor);
-            g.FillRectangle(brush, rect);
-        }
-
-        private void DrawHeaderForTabStyle(Graphics g, RectangleF tabRect, int index, TabStyle style, bool vertical, float alpha)
-        {
-            bool isSelected = (SelectedIndex == index);
-            Color baseBack = isSelected ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor;
-            Color baseFore = isSelected ? _currentTheme.TabSelectedForeColor : _currentTheme.TabForeColor;
-            // Apply alpha
-            var backgroundColor = Color.FromArgb((int)(alpha * 255), baseBack.R, baseBack.G, baseBack.B);
-            var textColor = Color.FromArgb((int)(alpha * 255), baseFore.R, baseFore.G, baseFore.B);
-
-            // Background drawing for each style
-            switch (style)
-            {
-                case TabStyle.Classic:
-                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
-                    {
-                        g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
-                    }
-                    break;
-                case TabStyle.Capsule:
-                    {
-                        var radius = (int)Math.Min(tabRect.Height / 2, 18);
-                        using (GraphicsPath path = GetRoundedRect(tabRect, radius))
-                        {
-                            g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
-                        }
-                    }
-                    break;
-                case TabStyle.Underline:
-                    // No background, handled separately
-                    break;
-                case TabStyle.Minimal:
-                    // No background
-                    break;
-                case TabStyle.Segmented:
-                    using (GraphicsPath path = GetRoundedRect(tabRect, 6))
-                    {
-                        g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
-                    }
-                    break;
-                default:
-                    using (GraphicsPath path = GetRoundedRect(tabRect, 4))
-                    {
-                        g.FillPath(PaintersFactory.GetSolidBrush(backgroundColor), path);
-                    }
-                    break;
-            }
-
-            // Draw text with alpha
-            string text = TabPages[index].Text;
-            using (Font font = new Font(this.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
-            {
-                var textBrush = PaintersFactory.GetSolidBrush(textColor);
-                if (!vertical)
-                {
-                    SizeF textSize = TextUtils.MeasureText(g, text, font);
-                    PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) / 2);
-                    g.DrawString(text, font, textBrush, textPoint);
-                }
-                else
-                {
-                    GraphicsState state = g.Save();
-                    g.TranslateTransform(tabRect.X + tabRect.Width / 2, tabRect.Y + tabRect.Height / 2);
-                    g.RotateTransform(90);
-                    SizeF textSize = TextUtils.MeasureText(g, text, font);
-                    PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
-                    g.DrawString(text, font, textBrush, textPoint);
-                    g.Restore(state);
-                }
-            }
-
-            if (ShowCloseButtons)
-            {
-                DrawCloseButton(g, tabRect, vertical);
-            }
-        }
-
-        private void DrawCloseButton(Graphics g, RectangleF tabRect, bool vertical)
-        {
-            RectangleF closeRect = GetCloseButtonRect(tabRect, vertical);
-            closeIcon.DrawingRect = Rectangle.Truncate(closeRect);
-            closeIcon.Draw(g, Rectangle.Truncate(closeRect));
-        }
-
-        private RectangleF GetCloseButtonRect(RectangleF tabRect, bool vertical)
-        {
-            // ✅ Use scaled values consistently
-            int scaledCloseButtonSize = GetScaledCloseButtonSize();
-            int scaledCloseButtonPadding = GetScaledCloseButtonPadding();
-
-            if (vertical)
-            {
-                return new RectangleF(
-                    tabRect.X + (tabRect.Width - scaledCloseButtonSize) / 2,
-                    tabRect.Bottom - scaledCloseButtonSize - scaledCloseButtonPadding,
-                    scaledCloseButtonSize,
-                    scaledCloseButtonSize
-                );
-            }
-            return new RectangleF(
-                tabRect.Right - scaledCloseButtonSize - scaledCloseButtonPadding,
-                tabRect.Top + (tabRect.Height - scaledCloseButtonSize) / 2,
-                scaledCloseButtonSize,
-                scaledCloseButtonSize
-            );
-        }
-
-        private GraphicsPath GetRoundedRect(RectangleF rect, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-            int diameter = radius * 2;
-            RectangleF arc = new RectangleF(rect.Location, new SizeF(diameter, diameter));
-            path.AddArc(arc, 180, 90);
-            arc.X = rect.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = rect.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = rect.Left;
-            path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
 
         private void BeepTabs_DrawItem(object sender, DrawItemEventArgs e)
         {
@@ -1023,6 +844,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             BackColor = _currentTheme.TabBackColor;
             ForeColor = _currentTheme.TabForeColor;
+            if (_painter != null) _painter.Theme = _currentTheme;
             foreach (TabPage page in TabPages)
             {
                 page.BackColor = _currentTheme.TabBackColor;
@@ -1089,7 +911,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], scaledHeaderHeight);
                             if (ShowCloseButtons)
                             {
-                                RectangleF closeRect = GetCloseButtonRect(tabRect, false);
+                                RectangleF closeRect = _painter.GetCloseButtonRect(tabRect, false);
                                 if (closeRect.Contains(clientPoint))
                                 {
                                     string tabText = TabPages[i].Text;
@@ -1118,7 +940,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
                             if (ShowCloseButtons)
                             {
-                                RectangleF closeRect = GetCloseButtonRect(tabRect, true);
+                                RectangleF closeRect = _painter.GetCloseButtonRect(tabRect, true);
                                 string tabText = TabPages[i].Text;
                                ////MiscFunctions.SendLog($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                                 if (closeRect.Contains(clientPoint))
@@ -1192,7 +1014,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], HeaderHeight);
                             RectangleF closeRect = RectangleF.Empty;
                             if (ShowCloseButtons)
-                                closeRect = GetCloseButtonRect(tabRect, false);
+                                closeRect = _painter.GetCloseButtonRect(tabRect, false);
                             if (tabRect.Contains(e.Location) && (!ShowCloseButtons || !closeRect.Contains(e.Location)))
                             {
                                 _draggedTabIndex = i;
@@ -1213,7 +1035,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
                             RectangleF closeRect = RectangleF.Empty;
                             if (ShowCloseButtons)
-                                closeRect = GetCloseButtonRect(tabRect, true);
+                                closeRect = _painter.GetCloseButtonRect(tabRect, true);
                             if (tabRect.Contains(e.Location) && (!ShowCloseButtons || !closeRect.Contains(e.Location)))
                             {
                                 _draggedTabIndex = i;
@@ -1382,6 +1204,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
     public class TabRemovedEventArgs : EventArgs
     {
-        public string TabText { get; set; }
+        public string? TabText { get; set; }
     }
 }

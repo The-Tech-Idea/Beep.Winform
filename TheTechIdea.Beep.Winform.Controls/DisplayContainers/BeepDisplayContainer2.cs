@@ -26,8 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private readonly List<AddinTab> _tabs = new();
         private readonly Dictionary<string, IDM_Addin> _addins = new();
-        private AddinTab _activeTab;
-        private AddinTab _hoveredTab;
+        private AddinTab? _activeTab;
+        private AddinTab? _hoveredTab;
         private ContainerTypeEnum _containerType = ContainerTypeEnum.TabbedPanel;
         private ContainerDisplayMode _displayMode = ContainerDisplayMode.Tabbed;
         private TabPosition _tabPosition = TabPosition.Top;
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private bool _allowTabReordering = true;
         private bool _enableAnimations = true;
         private AnimationSpeed _animationSpeed = AnimationSpeed.Normal;
-        private System.Windows.Forms.Timer _animationTimer;
+        private System.Windows.Forms.Timer? _animationTimer;
         private Rectangle _tabArea;
         private Rectangle _contentArea;
         private int _tabHeight = 36;
@@ -48,9 +48,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private Rectangle _newTabButton;
 
         // Helper classes
-        private TabPaintHelper _paintHelper;
-        private TabLayoutHelper _layoutHelper;
-        private TabAnimationHelper _animationHelper;
+        private TabPaintHelper? _paintHelper;
+        private TabLayoutHelper? _layoutHelper;
+        private TabAnimationHelper? _animationHelper;
 
         // Theme colors
         private Color _tabBackColor;
@@ -62,29 +62,73 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private Color _contentBackColor;
 
         // Tab transition animation
-        private AddinTab _previousTab;
+        private AddinTab? _previousTab;
         
         // Batch update mode to prevent flickering when adding multiple tabs
         private bool _batchMode = false;
         private int _batchUpdateDepth = 0;
 
-        #endregion
+        private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
 
-        #region IDisplayContainer Events
+        /// <summary>
+        /// Gets or sets the visual style of the control.
+        /// Shadows the base property to trigger tab style updates.
+        /// </summary>
+        public new BeepControlStyle ControlStyle
+        {
+            get => base.ControlStyle;
+            set
+            {
+                base.ControlStyle = value;
+                if (_lastControlStyle != value)
+                {
+                    UpdateTabStyleFromControlStyle();
+                    _lastControlStyle = value;
+                    ApplyThemeColorsToTabs();
+                }
+            }
+        }
 
-        public event EventHandler<ContainerEvents> AddinAdded;
-        public event EventHandler<ContainerEvents> AddinRemoved;
-        public event EventHandler<ContainerEvents> AddinMoved;
-        public event EventHandler<ContainerEvents> AddinChanging;
-        public event EventHandler<ContainerEvents> AddinChanged;
-        public event EventHandler<IPassedArgs> PreCallModule;
-        public event EventHandler<IPassedArgs> PreShowItem;
-        public event EventHandler<KeyCombination> KeyPressed;
+        /// <summary>
+        /// Occurs when an addin is added to the container.
+        /// </summary>
+        public event EventHandler<ContainerEvents>? AddinAdded;
+        /// <summary>
+        /// Occurs when an addin is removed from the container.
+        /// </summary>
+        public event EventHandler<ContainerEvents>? AddinRemoved;
+        /// <summary>
+        /// Occurs when an addin is moved within the container.
+        /// </summary>
+        public event EventHandler<ContainerEvents>? AddinMoved;
+        /// <summary>
+        /// Occurs when the active addin is changing.
+        /// </summary>
+        public event EventHandler<ContainerEvents>? AddinChanging;
+        /// <summary>
+        /// Occurs when the active addin has changed.
+        /// </summary>
+        public event EventHandler<ContainerEvents>? AddinChanged;
+        /// <summary>
+        /// Occurs before a module is called.
+        /// </summary>
+        public event EventHandler<IPassedArgs>? PreCallModule;
+        /// <summary>
+        /// Occurs before an item is shown.
+        /// </summary>
+        public event EventHandler<IPassedArgs>? PreShowItem;
+        /// <summary>
+        /// Occurs when a key combination is pressed.
+        /// </summary>
+        public event EventHandler<KeyCombination>? KeyPressed;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BeepDisplayContainer2"/> class.
+        /// </summary>
         public BeepDisplayContainer2():base()
         {
             InitializeComponent();
@@ -159,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             // Initialize theme colors (follows BaseControl pattern)
-            ApplyTheme();
+            ApplyThemeColorsToTabs();
 
             // Calculate initial layout
             RecalculateLayout();
@@ -213,11 +257,126 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             RecalculateLayout();
         }
 
+        private void UpdateTabStyleFromControlStyle()
+        {
+            switch (ControlStyle)
+            {
+                case BeepControlStyle.FigmaCard:
+                case BeepControlStyle.TailwindCard:
+                case BeepControlStyle.DiscordStyle:
+                case BeepControlStyle.StripeDashboard:
+                case BeepControlStyle.NeoBrutalist:
+                    TabStyle = TabStyle.Card;
+                    break;
+                case BeepControlStyle.Minimal:
+                case BeepControlStyle.NotionMinimal:
+                case BeepControlStyle.VercelClean:
+                    TabStyle = TabStyle.Minimal;
+                    break;
+                case BeepControlStyle.GlassAcrylic:
+                case BeepControlStyle.Windows11Mica:
+                case BeepControlStyle.Fluent2:
+                case BeepControlStyle.Material3:
+                    TabStyle = TabStyle.Underline;
+                    break;
+                case BeepControlStyle.PillRail:
+                case BeepControlStyle.ChakraUI:
+                    TabStyle = TabStyle.Capsule;
+                    break;
+                case BeepControlStyle.iOS15:
+                case BeepControlStyle.MacOSBigSur:
+                    TabStyle = TabStyle.Segmented;
+                    break;
+                case BeepControlStyle.Bootstrap:
+                case BeepControlStyle.AntDesign:
+                case BeepControlStyle.Neumorphism:
+                    TabStyle = TabStyle.Button;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Applies the current theme to the container and tabs.
+        /// Follows BaseControl pattern for consistent theme application.
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            // Call base.ApplyTheme() first for proper theme initialization (like BaseControl)
+            // This sets up _currentTheme and applies basic theme properties
+            base.ApplyTheme();
+
+            // Update tab painter with current theme and style
+            var controlStyle = ControlStyle;
+            if (_paintHelper == null)
+            {
+                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
+            }
+            else
+            {
+                _paintHelper.ControlStyle = controlStyle;
+                _paintHelper.IsTransparent = IsTransparentBackground;
+            }
+            // Ensure paint helper uses the selected tab style
+            _paintHelper.TabStyle = this.TabStyle;
+
+            if (_currentTheme != null)
+            {
+                // Apply theme colors to tabs (follows BaseControl pattern)
+                ApplyThemeColorsToTabs();
+
+                // Apply theme font if UseThemeFont is enabled (like BaseControl)
+                if (UseThemeFont && _currentTheme.LabelFont != null)
+                {
+                    try
+                    {
+                        TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
+
+                        // Update layout helper with new font for proper tab sizing
+                        if (_layoutHelper != null)
+                        {
+                            _layoutHelper.UpdateStyle(ControlStyle, Font);
+                        }
+
+                        // Recalculate layout with new font metrics
+                        RecalculateLayout();
+                    }
+                    catch
+                    {
+                        // Keep existing font on error
+                    }
+                }
+
+                // Set background color based on theme and transparency setting
+                if (IsTransparentBackground)
+                {
+                    base.BackColor = Color.Transparent;
+                }
+                else if (IsChild && Parent != null)
+                {
+                    // Follow parent background when IsChild is true (like BaseControl)
+                    base.BackColor = Parent.BackColor;
+                }
+                else
+                {
+                    base.BackColor = _contentBackColor;
+                }
+            }
+            else
+            {
+                // Fallback colors with modern defaults
+                ApplyFallbackColors();
+            }
+
+            // Invalidate to trigger repaint with new theme
+            Invalidate();
+        }
         #endregion
 
         #region Helper Methods
 
-        private AddinTab GetTabAt(Point point)
+        private AddinTab? GetTabAt(Point point)
         {
             return _layoutHelper?.GetTabAt(_tabs, point);
         }
@@ -233,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _animationHelper.StartAnimation(tab, targetProgress);
         }
 
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
             // Only handle hover animations, not transitions (to prevent crashes)
             if (_animationHelper != null)

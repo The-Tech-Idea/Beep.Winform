@@ -8,6 +8,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         Underline,
         Capsule,
         Minimal,
-        Segmented
+        Segmented,
+        Card,
+        Button
     }
 }

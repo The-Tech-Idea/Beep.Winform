@@ -5,7 +5,7 @@ using System.Linq;
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Standard list box painter - default Windows-like Style
+    /// Standard list box painter - default Windows-like Style with enhanced borders and backgrounds
     /// </summary>
     internal class StandardListBoxPainter : BaseListBoxPainter
     {
@@ -37,21 +37,61 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }
         
-        // Enhanced hover effects and selection indicators
+        // Enhanced with border style and gradient background
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            // Use BeepStyling for Standard background, border, and shadow
-            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(itemRect, Style))
-            {
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
+            if (g == null || itemRect.IsEmpty) return;
 
-                // Add hover effect with subtle shadow
-                if (isHovered)
+            // Create rounded rectangle path for modern look
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 4))
+            {
+                // Draw background with gradient based on state
+                if (isSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.LightGray)))
+                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                    using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(itemRect, 
+                        Color.FromArgb(100, selColor.R, selColor.G, selColor.B),
+                        Color.FromArgb(60, selColor.R, selColor.G, selColor.B),
+                        System.Drawing.Drawing2D.LinearGradientMode.Vertical))
                     {
-                        g.FillPath(hoverBrush, path);
+                        g.FillPath(brush, path);
+                    }
+
+                    // Selection border
+                    using (var pen = new System.Drawing.Pen(_theme?.PrimaryColor ?? Color.Blue, 2f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else if (isHovered)
+                {
+                    var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240);
+                    using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(itemRect,
+                        Color.FromArgb(50, hoverColor.R, hoverColor.G, hoverColor.B),
+                        Color.FromArgb(20, hoverColor.R, hoverColor.G, hoverColor.B),
+                        System.Drawing.Drawing2D.LinearGradientMode.Vertical))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Hover border
+                    using (var pen = new System.Drawing.Pen(_theme?.AccentColor ?? Color.LightGray, 1f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else
+                {
+                    // Default background
+                    using (var brush = new System.Drawing.SolidBrush(_theme?.BackgroundColor ?? Color.White))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Default subtle border
+                    using (var pen = new System.Drawing.Pen(Color.FromArgb(200, 200, 200), 0.5f))
+                    {
+                        g.DrawPath(pen, path);
                     }
                 }
             }

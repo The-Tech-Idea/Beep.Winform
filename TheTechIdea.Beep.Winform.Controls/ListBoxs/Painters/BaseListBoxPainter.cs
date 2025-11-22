@@ -44,6 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            // Clear the drawing area with background color
+            using (var clearBrush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
+            {
+                g.FillRectangle(clearBrush, drawingRect);
+            }
             
             // Get layout and items
             var items = _helper.GetVisibleItems();
@@ -158,8 +164,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 bool isHovered = rowRect.Contains(mousePoint);
                 bool isSelected = _owner.IsItemSelected(item);
 
-                // Let concrete painter draw using the row rect
-                DrawItem(g, rowRect, item, isHovered, isSelected);
+                // Save graphics state to apply clipping
+                var graphicsState = g.Save();
+                try
+                {
+                    // Set clipping region to prevent item from drawing outside its bounds
+                    g.SetClip(rowRect, System.Drawing.Drawing2D.CombineMode.Replace);
+
+                    // Let concrete painter draw using the row rect
+                    DrawItem(g, rowRect, item, isHovered, isSelected);
+                }
+                finally
+                {
+                    // Restore graphics state (removes clipping)
+                    g.Restore(graphicsState);
+                }
             }
 
             // Optionally draw 'Page Up / Page Down' hints if the content is taller than the viewport
@@ -311,12 +330,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         /// </summary>
         protected virtual void DrawItemBackgroundEx(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            // Respect existing painter override for background first
-            try
+            if (g == null || itemRect.IsEmpty)
+                return;
+
+            // CRITICAL: Always clear the specific item's background first to prevent overlap artifacts
+            // This ensures that any previous painting in this rect is completely overwritten
+            using (var clearBrush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
             {
-                DrawItemBackground(g, itemRect, isHovered, isSelected);
+                g.FillRectangle(clearBrush, itemRect);
             }
-            catch { /* ignore errors in painter override */ }
+
             // Compute hover progress using owner helper if available
             float hoverProgress = 0f;
             try
@@ -324,9 +347,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 hoverProgress = (_owner != null && item != null) ? _owner.GetHoverProgress(item) : 0f;
             }
             catch { hoverProgress = 0f; }
-
-            // Base background color for overlay calculations
-            var backgroundColor = _theme?.BackgroundColor ?? Color.White;
 
             // If selected, ensure a selection border/overlay is present
             if (isSelected)
@@ -346,6 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
                 }
+                
                 // Focus outline for focused item
                 if (_owner.Focused && _owner.SelectedItem == item)
                 {
@@ -360,19 +381,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (hoverProgress > 0f)
             {
+                // Only apply hover overlay if not selected
                 var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
-                // Instead of replacing painter background, paint a subtle overlay on top to preserve painter's custom drawing
-                var overlayColor = BlendColors(Color.FromArgb(0, 0, 0, 0), hoverColor, hoverProgress);
+                var overlayColor = BlendColors(Color.Transparent, hoverColor, hoverProgress);
                 using (var brush = new SolidBrush(Color.FromArgb((int)(hoverProgress * 60), overlayColor.R, overlayColor.G, overlayColor.B)))
                 {
                     g.FillRectangle(brush, itemRect);
                 }
-                // Return after overlay; we avoid drawing default rectangle to prevent overriding painter-specific backgrounds
-                return;
             }
             
-            // When no special overlay was drawn (selected handled earlier), still allow overriding painters to have drawn backgrounds
-            // and we avoid re-drawing default rectangle to preserve those customizations.
+            // Allow painter-specific background customization via DrawItemBackground override
+            // This is called AFTER base clearing to allow painters to add custom styling
+            DrawItemBackground(g, itemRect, isHovered, isSelected);
         }
 
         /// <summary>

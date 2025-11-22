@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -11,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep ListBox")]
     [Category("Beep Controls")]
     [Description("A modern list box control with advanced styling, painter methodology, and integrated features.")]
-    public partial class BeepListBox : BeepPanel
+    public partial class BeepListBox : BaseControl
     {
         // All implementation is in partial classes:
         // - BeepListBox.Core.cs: Core fields and initialization

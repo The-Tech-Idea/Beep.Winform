@@ -189,9 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShowRightBorder = true;
             _beepListBox.ShowSearch = false;
             _beepListBox.ShowShadow = false;
-            _beepListBox.ShowTitle = false;
-            _beepListBox.ShowTitleLine = false;
-            _beepListBox.ShowTitleLineinFullWidth = true;
+         
             _beepListBox.ShowTopBorder = true;
             _beepListBox.Size = new Size(635, 769);
             _beepListBox.SlideFrom = SlideDirection.Left;
@@ -201,11 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             _beepListBox.TextFont = new Font("Arial", 12F);
             _beepListBox.Theme = "DefaultType";
-            _beepListBox.TitleAlignment = ContentAlignment.TopLeft;
-            _beepListBox.TitleBottomY = 0;
-            _beepListBox.TitleLineColor = Color.Gray;
-            _beepListBox.TitleLineThickness = 2;
-            _beepListBox.TitleText = "List Box";
+           
             _beepListBox.ToolTipText = "";
             _beepListBox.TopoffsetForDrawingRect = 0;
             _beepListBox.TrailingIconPath = "";

@@ -22,16 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _maxListHeight = 100;
         private int _maxListWidth = 100;
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsTitleVisible
-        {
-            get => _beepListBox.ShowTitle;
-            set
-            {
-                _beepListBox.ShowTitle = value;
-            }
-        }
+       
 
 
       
@@ -122,10 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showtitle = value;
-                if (_beepListBox != null)
-                {
-                    _beepListBox.ShowTitle = value;
-                }
+              
                 Invalidate();
             }
         }
@@ -206,8 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ApplyThemeOnImage = false;
             _beepListBox.IsRoundedAffectedByTheme = false;
             _beepListBox.IsRounded = false;
-            _beepListBox.ShowTitle = _showtitle;
-            _beepListBox.ShowTitleLine = false;
+         
             _beepListBox.IsShadowAffectedByTheme = false;
             _beepListBox.ShowShadow = false;
             _beepListBox.IsBorderAffectedByTheme = false;
@@ -399,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_beepListBox.ListItems == null || _beepListBox.ListItems.Count == 0) 
                 return;
 
-            _beepListBox.TitleText = Text;
+         
             CalculateAndSetSize(_beepListBox.ListItems.ToList());
         }
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)
@@ -408,7 +395,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_beepListBox.ListItems.Count == 0) return null;
 
             ShowTitle = showtitle;
-            _beepListBox.TitleText = Title;
+        
 
             SetSizeBasedonItems();
             base.ShowPopup(triggerControl, position);
@@ -423,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_beepListBox.ListItems.Count == 0) return null;
 
             ShowTitle = showtitle;
-            _beepListBox.TitleText = Title;
+          
             SetSizeBasedonItems();
             if (isoffset)
             {

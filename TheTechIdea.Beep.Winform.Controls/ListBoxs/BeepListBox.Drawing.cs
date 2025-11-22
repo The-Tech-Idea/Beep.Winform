@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Use DrawingRect for drawing area
             var drawingRect = DrawingRect;
-            drawingRect.Inflate(-2, -2); // Small padding
+            //drawingRect.Inflate(-2, -2); // Small padding
             
             // Let the list box painter draw everything
             _listBoxPainter.Paint(g, this, drawingRect);

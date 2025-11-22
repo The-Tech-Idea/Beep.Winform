@@ -565,8 +565,76 @@ namespace TheTechIdea.Beep.Winform.Controls
             return true;
         }
 
+        private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
+
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.None)]
+        public new BeepControlStyle ControlStyle
+        {
+            get => base.ControlStyle;
+            set
+            {
+                base.ControlStyle = value;
+                if (_lastControlStyle != value)
+                {
+                    UpdateTabStyleFromControlStyle();
+                    _lastControlStyle = value;
+                }
+            }
+        }
+
+        private void UpdateTabStyleFromControlStyle()
+        {
+            switch (ControlStyle)
+            {
+                case BeepControlStyle.FigmaCard:
+                case BeepControlStyle.TailwindCard:
+                case BeepControlStyle.DiscordStyle:
+                case BeepControlStyle.StripeDashboard:
+                case BeepControlStyle.NeoBrutalist:
+                    TabStyle = TabStyle.Card;
+                    break;
+                case BeepControlStyle.Minimal:
+                case BeepControlStyle.NotionMinimal:
+                case BeepControlStyle.VercelClean:
+                    TabStyle = TabStyle.Minimal;
+                    break;
+                case BeepControlStyle.GlassAcrylic:
+                case BeepControlStyle.Windows11Mica:
+                case BeepControlStyle.Fluent2:
+                case BeepControlStyle.Material3:
+                    TabStyle = TabStyle.Underline;
+                    break;
+                case BeepControlStyle.PillRail:
+                case BeepControlStyle.ChakraUI:
+                    TabStyle = TabStyle.Capsule;
+                    break;
+                case BeepControlStyle.iOS15:
+                case BeepControlStyle.MacOSBigSur:
+                    TabStyle = TabStyle.Segmented;
+                    break;
+                case BeepControlStyle.Bootstrap:
+                case BeepControlStyle.AntDesign:
+                case BeepControlStyle.Neumorphism:
+                    TabStyle = TabStyle.Button;
+                    break;
+                default:
+                    // Keep current or default?
+                    // Maybe don't change if unknown?
+                    break;
+            }
+        }
+
         public override void ApplyTheme()
         {
+            // Check if ControlStyle changed externally (e.g. via global event)
+            if (_lastControlStyle != ControlStyle)
+            {
+                UpdateTabStyleFromControlStyle();
+                _lastControlStyle = ControlStyle;
+            }
+
          //  ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer")
         //    Console.WriteLine("Applying theme to BeepDisplayContainer");
          //   base.ApplyTheme();

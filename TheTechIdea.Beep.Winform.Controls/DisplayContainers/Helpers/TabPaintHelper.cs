@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
     /// </summary>
     internal class TabPaintHelper
     {
-        private readonly IBeepTheme _theme;
+        private IBeepTheme _theme;
         private BeepControlStyle _controlStyle = BeepControlStyle.Modern;
         private bool _isTransparent = false;
         private TabStyle _tabStyle = TabStyle.Capsule; // default for DC2
@@ -54,6 +54,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         {
             get => _isTransparent;
             set => _isTransparent = value;
+        }
+
+        public IBeepTheme Theme
+        {
+            get => _theme;
+            set => _theme = value;
         }
 
         /// <summary>

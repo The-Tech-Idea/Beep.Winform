@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
     public partial class MainFrm : TemplateForm
     {
 
-       
+
 
         public IDMEEditor Editor { get; }
 
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
 
             InitializeComponent();
-          
+
 
             beepService.vis.Container = beepDisplayContainer1;
             beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
@@ -45,6 +45,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
         }
 
-       
+        private void MainFrm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Icons;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -310,14 +312,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         /// </summary>
         public static void DrawDropdownArrow(Graphics g, Rectangle rect, Color color)
         {
-            using var brush = new SolidBrush(color);
-            var points = new Point[]
+            if (rect.IsEmpty) return;
+            try
             {
-                new Point(rect.X + 4, rect.Y + 6),
-                new Point(rect.X + rect.Width / 2, rect.Y + rect.Height - 6),
-                new Point(rect.Right - 4, rect.Y + 6)
-            };
-            g.FillPolygon(brush, points);
+                StyledImagePainter.PaintWithTint(g, rect, SvgsUI.ChevronDown, color, 1f, cornerRadius: 2);
+                return;
+            }
+            catch
+            {
+                using var brush = new SolidBrush(color);
+                var points = new Point[]
+                {
+                    new Point(rect.X + 4, rect.Y + 6),
+                    new Point(rect.X + rect.Width / 2, rect.Y + rect.Height - 6),
+                    new Point(rect.Right - 4, rect.Y + 6)
+                };
+                g.FillPolygon(brush, points);
+            }
         }
 
         /// <summary>
@@ -346,6 +357,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         /// </summary>
         public static void DrawSearchIcon(Graphics g, Rectangle rect, Color color)
         {
+            if (rect.IsEmpty) return;
+            try
+            {
+                // Draw svg search icon using StyledImagePainter and tint color
+                StyledImagePainter.PaintWithTint(g, rect, SvgsUI.Search, color, 1f, cornerRadius: 2);
+                return;
+            }
+            catch { /* fallback to manual drawing below */ }
+
             using var pen = new Pen(color, 2);
             
             // Search circle
@@ -361,6 +381,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         /// </summary>
         public static void DrawCloseIcon(Graphics g, Rectangle rect, Color color)
         {
+            if (rect.IsEmpty) return;
+            try
+            {
+                StyledImagePainter.PaintWithTint(g, rect, SvgsUI.X, color, 1f, cornerRadius: 2);
+                return;
+            }
+            catch { /* fallback to manual drawing below */ }
+
             using var pen = new Pen(color, 2);
             g.DrawLine(pen, rect.X + 2, rect.Y + 2, rect.Right - 2, rect.Bottom - 2);
             g.DrawLine(pen, rect.Right - 2, rect.Y + 2, rect.X + 2, rect.Bottom - 2);

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar
@@ -81,23 +82,25 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             try
             {
-                // Reuse the shared ImagePainter instance
-                _sharedImagePainter.ImagePath = item.ImagePath;
+                // Use StyledImagePainter for consistent, cached, and tintable image drawing
+                // Compute tint color based on theme
+                Color defaultTint = Color.FromArgb(255, 255, 255, 175);
+                Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
 
-                // Apply theme if available
-                if (context.Theme != null)
+                // If the item is selected, prefer primary color as tint
+                if (context.Theme != null && item == context.SelectedItem && context.UseThemeColors)
                 {
-                    _sharedImagePainter.CurrentTheme = context.Theme;
-                    _sharedImagePainter.ApplyThemeOnImage = true;
-                    _sharedImagePainter.ImageEmbededin = ImageEmbededin.SideBar;
+                    iconTint = context.Theme.PrimaryColor;
+                }
+
+                if (context.Theme != null && context.UseThemeColors)
+                {
+                    StyledImagePainter.PaintWithTint(g, iconRect, item.ImagePath, iconTint, 1f, 0);
                 }
                 else
                 {
-                    _sharedImagePainter.ApplyThemeOnImage = false;
+                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
                 }
-
-                // Draw using ImagePainter's DrawImage method
-                _sharedImagePainter.DrawImage(g, iconRect);
             }
             catch (Exception ex)
             {

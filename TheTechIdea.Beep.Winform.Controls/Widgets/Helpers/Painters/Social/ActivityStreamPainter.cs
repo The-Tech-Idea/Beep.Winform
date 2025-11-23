@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
@@ -199,9 +200,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Try to load and draw avatar image
             if (!string.IsNullOrEmpty(avatarPath))
             {
-                _imagePainter.ImagePath = avatarPath;
-                _imagePainter.ClipShape = TheTechIdea.Beep.Vis.Modules.ImageClipShape.Circle;
-                _imagePainter.DrawImage(g, avatarPath, rect);
+                try
+                {
+                    float radius = Math.Min(rect.Width, rect.Height) / 2f;
+                    float cx = rect.X + rect.Width / 2f;
+                    float cy = rect.Y + rect.Height / 2f;
+                    StyledImagePainter.PaintInCircle(g, cx, cy, radius, avatarPath);
+                }
+                catch
+                {
+                    _imagePainter.ImagePath = avatarPath;
+                    _imagePainter.ClipShape = TheTechIdea.Beep.Vis.Modules.ImageClipShape.Circle;
+                    _imagePainter.DrawImage(g, avatarPath, rect);
+                }
             }
             else
             {

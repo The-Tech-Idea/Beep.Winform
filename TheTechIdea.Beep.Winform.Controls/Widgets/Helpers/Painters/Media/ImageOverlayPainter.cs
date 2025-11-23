@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
@@ -76,7 +77,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             {
                 if (ctx.CustomImagePaths != null && ctx.CustomImagePaths.Count > 0)
                 {
-                    _imagePainter.DrawImage(g, ctx.CustomImagePaths[0], imageRect);
+                    var path = ctx.CustomImagePaths[0];
+                    try
+                    {
+                        StyledImagePainter.Paint(g, imageRect, path);
+                    }
+                    catch
+                    {
+                        _imagePainter.DrawImage(g, ctx.CustomImagePaths[0], imageRect);
+                    }
                 }
                 else
                 {

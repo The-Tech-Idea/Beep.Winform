@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -102,12 +103,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 bool photoDrawn = false;
                 if (ctx.CustomImagePaths != null && i < ctx.CustomImagePaths.Count)
                 {
+                    var path = ctx.CustomImagePaths[i];
                     try
                     {
-                        _photoPainter.DrawImage(g, ctx.CustomImagePaths[i], photoRect);
+                        StyledImagePainter.Paint(g, photoRect, path);
                         photoDrawn = true;
                     }
-                    catch { }
+                    catch
+                    {
+                        try { _photoPainter.DrawImage(g, ctx.CustomImagePaths[i], photoRect); photoDrawn = true; } catch { }
+                    }
                 }
 
                 if (!photoDrawn)

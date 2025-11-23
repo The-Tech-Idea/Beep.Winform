@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -120,10 +121,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			{
 				try
 				{
-					_iconPainter.DrawImage(g, ctx.IconPath, rect);
+					// Prefer StyledImagePainter with a white tint on colored backgrounds
+					StyledImagePainter.PaintWithTint(g, rect, ctx.IconPath, Color.White, 1f, cornerRadius: 0);
 					return;
 				}
-				catch { }
+				catch
+				{
+					try { _iconPainter.DrawImage(g, ctx.IconPath, rect); return; } catch { }
+				}
 			}
 			// Placeholder
 			using var iconPen = new Pen(ctx.AccentColor, 3);

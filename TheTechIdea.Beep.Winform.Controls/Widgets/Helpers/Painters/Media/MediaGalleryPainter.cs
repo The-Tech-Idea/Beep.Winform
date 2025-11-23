@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -67,6 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             _imagePainter.ClipShape = Vis.Modules.ImageClipShape.RoundedRect;
             _imagePainter.ScaleMode = Vis.Modules.ImageScaleMode.Fill;
             _imagePainter.CornerRadius = 8;
+            
+            // styled painter does the same but with caching; keep _imagePainter configuration for fallback
 
             for (int i = 0; i < _itemRects.Count; i++)
             {
@@ -74,7 +77,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 bool drawn = false;
                 if (ctx.CustomImagePaths != null && i < ctx.CustomImagePaths.Count)
                 {
-                    try { _imagePainter.DrawImage(g, ctx.CustomImagePaths[i], itemRect); drawn = true; } catch { }
+                    var path = ctx.CustomImagePaths[i];
+                    try
+                    {
+                        StyledImagePainter.Paint(g, itemRect, path);
+                        drawn = true;
+                    }
+                    catch
+                    {
+                        try { _imagePainter.DrawImage(g, ctx.CustomImagePaths[i], itemRect); drawn = true; } catch { }
+                    }
                 }
                 if (!drawn)
                 {

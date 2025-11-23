@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
@@ -161,10 +162,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Draw avatar image or initials
             if (!string.IsNullOrEmpty(contact.AvatarPath))
             {
-                // Load and draw avatar image
-                _imagePainter.ImagePath = contact.AvatarPath;
-                _imagePainter.ClipShape = Vis.Modules.ImageClipShape.Circle;
-                _imagePainter.DrawImage(g, contact.AvatarPath, rect);
+                // Use the StyledImagePainter to paint avatars in circle shape with caching & tint support
+                try
+                {
+                    float radius = Math.Min(rect.Width, rect.Height) / 2f;
+                    float cx = rect.X + rect.Width / 2f;
+                    float cy = rect.Y + rect.Height / 2f;
+                    StyledImagePainter.PaintInCircle(g, cx, cy, radius, contact.AvatarPath);
+                }
+                catch
+                {
+                    // Fallback: previous ImagePainter behavior
+                    _imagePainter.ImagePath = contact.AvatarPath;
+                    _imagePainter.ClipShape = Vis.Modules.ImageClipShape.Circle;
+                    _imagePainter.DrawImage(g, contact.AvatarPath, rect);
+                }
             }
             else
             {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -112,10 +113,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 {
                     try
                     {
-                        _iconPainter.DrawImage(g, customIconPath, iconRect);
+                        // Draw strongly-typed / external SVG icon with tint (white) over colored background
+                        StyledImagePainter.PaintWithTint(g, iconRect, customIconPath, Color.White, 1f, cornerRadius: 2);
                         drawn = true;
                     }
-                    catch { }
+                    catch
+                    {
+                        try { _iconPainter.DrawImage(g, customIconPath, iconRect); drawn = true; } catch { }
+                    }
                 }
                 if (!drawn)
                 {

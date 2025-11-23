@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Stepper Bar")]
     [Description("An interactive step-by-step progress indicator optimized for business workflows with animations and multiple display modes.")]
-    public class BeepStepperBar : BeepControl
+    public partial class BeepStepperBar : BeepControl
     {
         #region Private Fields
         private Orientation orientation = Orientation.Horizontal;

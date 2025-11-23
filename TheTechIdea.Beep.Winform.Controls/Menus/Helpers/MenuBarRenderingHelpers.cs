@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.IconsManagement;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
 {
@@ -168,10 +170,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         public static void DrawMenuItemIcon(Graphics g, Rectangle iconRect, string iconPath, Color color)
         {
             if (g == null || iconRect.IsEmpty || string.IsNullOrEmpty(iconPath)) return;
-
             try
             {
-                // Use ImagePainter for proper image rendering
+                // Prefer the styled image painter that supports caching and tinting
+                try
+                {
+                    var tint = color;
+                    // Use a small corner radius so icons have rounded edges in menus
+                    StyledImagePainter.PaintWithTint(g, iconRect, iconPath, tint, 1f, cornerRadius: 2);
+                    return;
+                }
+                catch
+                {
+                    // If for some reason the styled painter cannot paint, fallback to old behavior
+                }
+
+                // Use ImagePainter for proper image rendering if styled one fails
                 using var imagePainter = new BaseImage.ImagePainter(iconPath);
                 imagePainter.ApplyThemeOnImage = false; // Don't apply theme color by default
                 imagePainter.DrawImage(g, iconRect);
@@ -181,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
                 // Fallback to placeholder if image loading fails
                 using var brush = new SolidBrush(Color.FromArgb(100, color));
                 g.FillRectangle(brush, iconRect);
-                
+
                 using var pen = new Pen(color);
                 g.DrawRectangle(pen, iconRect);
             }
@@ -213,6 +227,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         public static void DrawDropdownIndicator(Graphics g, Rectangle rect, Color color)
         {
             if (g == null || rect.IsEmpty) return;
+            // Prefer using SvgsUI/Chevron glyph to keep icon consistent and tinted
+            try
+            {
+                StyledImagePainter.PaintWithTint(g, rect, SvgsUI.ChevronDown, color, 1f, cornerRadius: 2);
+                return;
+            }
+            catch
+            {
+                // Fallback to the primitive triangle draw
+            }
 
             using var brush = new SolidBrush(color);
             var points = new Point[]

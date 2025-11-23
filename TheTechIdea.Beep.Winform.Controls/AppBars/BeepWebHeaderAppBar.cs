@@ -61,6 +61,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         // Painter
         private IWebHeaderStylePainter _painter;
         private SimpleItem _selectedTab;
+        // Underline animation state
+        private RectangleF _currentUnderlineRect = RectangleF.Empty;
+        private RectangleF _targetUnderlineRect = RectangleF.Empty;
+        private RectangleF _startUnderlineRect = RectangleF.Empty;
+        private bool _isUnderlineAnimating = false;
+        private System.Windows.Forms.Timer _underlineTimer = null;
+        private const int UnderlineAnimationDurationMs = 220; // ms
+        private DateTime _underlineAnimStartedAt = DateTime.MinValue;
 
         #endregion
 
@@ -84,6 +92,29 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             CanBeSelected = false;
             CanBePressed = false;
             CanBeHovered = false;
+
+            // Underline animation timer
+            _underlineTimer = new System.Windows.Forms.Timer();
+            _underlineTimer.Interval = 15; // ~60 fps
+            _underlineTimer.Tick += (s, e) =>
+            {
+                if (!_isUnderlineAnimating)
+                    return;
+
+                var elapsed = (DateTime.Now - _underlineAnimStartedAt).TotalMilliseconds;
+                double t = Math.Min(1.0, elapsed / UnderlineAnimationDurationMs);
+                // Use ease-out cubic easing
+                double tt = 1 - Math.Pow(1 - t, 3);
+
+                _currentUnderlineRect = Lerp(_startUnderlineRect, _targetUnderlineRect, tt);
+                Invalidate();
+
+                if (t >= 1.0)
+                {
+                    _isUnderlineAnimating = false;
+                    _underlineTimer.Stop();
+                }
+            };
         }
 
         #endregion
@@ -244,6 +275,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 {
                     _selectedTabIndex = value;
                     SelectedTab = _tabs[value];
+                    // After selection, animate underline to the selected rect
+                    StartUnderlineAnimationToTab(value);
                 }
             }
         }
@@ -340,6 +373,63 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 _searchText,
                 _tabFont,
                 _buttonFont);
+
+            // Draw sliding indicator overlay if enabled
+            if (_indicatorStyle == TabIndicatorStyle.SlidingUnderline)
+            {
+                if (_currentUnderlineRect.IsEmpty && _selectedTabIndex >= 0)
+                {
+                    var tabsList2 = ConvertTabsForPainter();
+                    var rectInit = _painter.GetTabBounds(_selectedTabIndex, new Rectangle(0, 0, Width, Height), tabsList2);
+                    if (rectInit != Rectangle.Empty)
+                    {
+                        _currentUnderlineRect = new RectangleF(rectInit.Left, rectInit.Bottom - _indicatorThickness, rectInit.Width, _indicatorThickness);
+                    }
+                }
+
+                if (!_currentUnderlineRect.IsEmpty)
+                {
+                using (var pen = new Pen(_currentTheme?.ForeColor ?? Color.Black, _indicatorThickness))
+                using (var brush = new SolidBrush((_currentTheme?.ForeColor ?? Color.Black)))
+                {
+                    var rect = Rectangle.Round(_currentUnderlineRect);
+                    // draw filled underline
+                    e.Graphics.FillRectangle(brush, rect);
+                }
+                }
+            }
+        }
+
+        private void StartUnderlineAnimationToTab(int tabIndex)
+        {
+            if (_painter == null || tabIndex < 0 || tabIndex >= _tabs.Count)
+                return;
+
+            var tabsList = ConvertTabsForPainter();
+            var rect = _painter.GetTabBounds(tabIndex, new Rectangle(0, 0, Width, Height), tabsList);
+            if (rect == Rectangle.Empty)
+                return;
+
+            var target = new RectangleF(rect.Left, rect.Bottom - _indicatorThickness, rect.Width, _indicatorThickness);
+            if (_currentUnderlineRect.IsEmpty)
+            {
+                _currentUnderlineRect = target;
+            }
+            _startUnderlineRect = _currentUnderlineRect;
+            _targetUnderlineRect = target;
+            _underlineAnimStartedAt = DateTime.Now;
+            _isUnderlineAnimating = true;
+            _underlineTimer?.Start();
+        }
+
+        private static RectangleF Lerp(RectangleF a, RectangleF b, double t)
+        {
+            return new RectangleF(
+                (float)(a.Left + (b.Left - a.Left) * t),
+                (float)(a.Top + (b.Top - a.Top) * t),
+                (float)(a.Width + (b.Width - a.Width) * t),
+                (float)(a.Height + (b.Height - a.Height) * t)
+            );
         }
 
         private List<WebHeaderTab> ConvertTabsForPainter()
@@ -596,6 +686,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             {
                 _tabFont?.Dispose();
                 _buttonFont?.Dispose();
+                if (_underlineTimer != null)
+                {
+                    _underlineTimer.Stop();
+                    _underlineTimer.Dispose();
+                    _underlineTimer = null;
+                }
             }
             base.Dispose(disposing);
         }

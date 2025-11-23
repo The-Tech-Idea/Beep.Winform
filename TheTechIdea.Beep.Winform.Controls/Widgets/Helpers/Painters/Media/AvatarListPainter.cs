@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -206,10 +207,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			{
 				try
 				{
-					_avatarPainter.DrawImage(g, ctx.ImagePath, rect);
+					float radius = Math.Min(rect.Width, rect.Height) / 2f;
+					var cx = rect.X + rect.Width / 2f;
+					var cy = rect.Y + rect.Height / 2f;
+					StyledImagePainter.PaintInCircle(g, cx, cy, radius, ctx.ImagePath);
 					avatarDrawn = true;
 				}
-				catch { }
+				catch
+				{
+					try { _avatarPainter.DrawImage(g, ctx.ImagePath, rect); avatarDrawn = true; } catch { }
+				}
 			}
 			
 			// Draw placeholder avatar if no custom image

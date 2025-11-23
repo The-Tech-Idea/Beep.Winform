@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -65,10 +66,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 _imagePainter.ScaleMode = Vis.Modules.ImageScaleMode.Fill;
                 _imagePainter.ClipShape = Vis.Modules.ImageClipShape.RoundedRect;
                 if (!string.IsNullOrEmpty(imagePath))
-                    _imagePainter.ImagePath = imagePath;
+                {
+                    try
+                    {
+                        using var roundedClip = GraphicsExtensions.GetRoundedRectPath(ctx.DrawingRect, (int)ctx.CornerRadius);
+                        g.SetClip(roundedClip);
+                        StyledImagePainter.Paint(g, ctx.DrawingRect, imagePath);
+                        g.ResetClip();
+                    }
+                    catch
+                    {
+                        _imagePainter.ImagePath = imagePath;
+                        _imagePainter.DrawImage(g, ctx.DrawingRect);
+                    }
+                }
                 else
-                    _imagePainter.Image = image;
-                _imagePainter.DrawImage(g, ctx.DrawingRect);
+                {
+                    // Draw directly from Image object
+                    try
+                    {
+                        using var roundedClip = GraphicsExtensions.GetRoundedRectPath(ctx.DrawingRect, (int)ctx.CornerRadius);
+                        g.SetClip(roundedClip);
+                        g.DrawImage(image, ctx.DrawingRect);
+                        g.ResetClip();
+                    }
+                    catch
+                    {
+                        _imagePainter.Image = image;
+                        _imagePainter.DrawImage(g, ctx.DrawingRect);
+                    }
+                }
             }
             else
             {

@@ -4,13 +4,13 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class DiscordStyleSideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
         public override string Name => "DiscordStyle";
 
         public override void Paint(ISideBarPainterContext context)
@@ -66,9 +66,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = item.ImagePath;
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; }
-                    _imagePainter.DrawImage(g, iconRect);
+                    Color defaultTint = Color.FromArgb(185, 187, 190);
+                    Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
+                    if (context.Theme != null && item == context.SelectedItem && context.UseThemeColors) iconTint = Color.White;
+                    if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, iconRect, item.ImagePath, iconTint);
+                    else StyledImagePainter.Paint(g, iconRect, item.ImagePath);
                     x += iconSize + iconPadding;
                 }
                 if (!context.IsCollapsed)
@@ -110,9 +112,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = child.ImagePath;
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; }
-                    _imagePainter.DrawImage(g, iconRect);
+                    Color defaultTint = Color.FromArgb(142, 146, 151);
+                    Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
+                    if (context.Theme != null && child == context.SelectedItem && context.UseThemeColors) iconTint = Color.White;
+                    if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, iconRect, child.ImagePath, iconTint);
+                    else StyledImagePainter.Paint(g, iconRect, child.ImagePath);
                     x += iconSize + iconPadding;
                 }
                 Color textColor = context.UseThemeColors && context.Theme != null ? (child == context.SelectedItem ? Color.White : Color.FromArgb(180, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B)) : (child == context.SelectedItem ? Color.White : Color.FromArgb(142, 146, 151));

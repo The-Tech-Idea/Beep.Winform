@@ -336,20 +336,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         /// </summary>
         public static void DrawCalendarIcon(Graphics g, Rectangle rect, Color color)
         {
-            using var pen = new Pen(color, 1);
-            using var brush = new SolidBrush(color);
-            
-            // Calendar body
-            var calendarRect = Rectangle.Inflate(rect, -2, -2);
-            g.DrawRectangle(pen, calendarRect);
-            
-            // Calendar header
-            var headerRect = new Rectangle(calendarRect.X, calendarRect.Y, calendarRect.Width, 4);
-            g.FillRectangle(brush, headerRect);
-            
-            // Calendar rings
-            g.DrawLine(pen, calendarRect.X + 3, calendarRect.Y - 2, calendarRect.X + 3, calendarRect.Y + 2);
-            g.DrawLine(pen, calendarRect.Right - 3, calendarRect.Y - 2, calendarRect.Right - 3, calendarRect.Y + 2);
+            if (rect.IsEmpty) return;
+            try
+            {
+                StyledImagePainter.PaintWithTint(g, rect, SvgsUI.Calendar, color, 1f, cornerRadius: 2);
+                return;
+            }
+            catch
+            {
+                using var pen = new Pen(color, 1);
+                using var brush = new SolidBrush(color);
+                
+                // Calendar body
+                var calendarRect = Rectangle.Inflate(rect, -2, -2);
+                g.DrawRectangle(pen, calendarRect);
+                
+                // Calendar header
+                var headerRect = new Rectangle(calendarRect.X, calendarRect.Y, calendarRect.Width, 4);
+                g.FillRectangle(brush, headerRect);
+                
+                // Calendar rings
+                g.DrawLine(pen, calendarRect.X + 3, calendarRect.Y - 2, calendarRect.X + 3, calendarRect.Y + 2);
+                g.DrawLine(pen, calendarRect.Right - 3, calendarRect.Y - 2, calendarRect.Right - 3, calendarRect.Y + 2);
+            }
         }
 
         /// <summary>

@@ -77,58 +77,61 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         /// <summary>Figma card design with modern shadows and spacing</summary>
         FigmaCard = 19,
 
+        /// <summary>FinSet style - compact expanded sidebar inspired by FinSet images</summary>
+        FinSet = 20,
+
         /// <summary>Pill-shaped rail navigation with rounded edges</summary>
-        PillRail = 20,
+        PillRail = 21,
 
         /// <summary>Apple design language with rounded corners and shadows</summary>
-        Apple = 21,
+        Apple = 22,
 
         /// <summary>Microsoft Fluent design system (legacy)</summary>
-        Fluent = 22,
+        Fluent = 23,
 
         /// <summary>Material Design (legacy) with paper elevation</summary>
-        Material = 23,
+        Material = 24,
 
         /// <summary>Web framework generic styling</summary>
-        WebFramework = 24,
+        WebFramework = 25,
 
         /// <summary>Effect-based borders with custom animations and visual effects</summary>
-        Effect = 25,
+        Effect = 26,
         
         /// <summary>Terminal/Console Style with monospace font and ASCII characters</summary>
-        Terminal = 26,
+        Terminal = 27,
         
         // NEW ADDITIONS - Form Style Mapping (11 values)
         
         /// <summary>Metro Style with sharp edges, flat design, and bold colors (Windows 8/10)</summary>
-        Metro = 27,
+        Metro = 28,
         
         /// <summary>Microsoft Office ribbon UI inspired with professional gradients</summary>
-        Office = 28,
+        Office = 29,
         
         /// <summary>GNOME/Adwaita aesthetic with flat design and subtle shadows</summary>
-        Gnome = 29,
+        Gnome = 30,
         
         /// <summary>KDE/Breeze with subtle glow and rounded corners</summary>
-        Kde = 30,
+        Kde = 31,
         
         /// <summary>Cinnamon desktop environment with larger spacing</summary>
-        Cinnamon = 31,
+        Cinnamon = 32,
         
         /// <summary>elementary OS Pantheon with clean, minimalist design</summary>
-        Elementary = 32,
+        Elementary = 33,
         
         /// <summary>Neo-brutalist with thick borders, no shadows, and bold colors</summary>
-        NeoBrutalist = 33,
+        NeoBrutalist = 34,
         
         /// <summary>Gaming Style with angular edges, aggressive design, and RGB effects</summary>
-        Gaming = 34,
+        Gaming = 35,
         
         /// <summary>High contrast accessibility mode with WCAG AAA compliance</summary>
-        HighContrast = 35,
+        HighContrast = 36,
         
         /// <summary>Vibrant neon glow with bright saturated colors (distinct from DarkGlow)</summary>
-        Neon = 36,
+        Neon = 37,
         Retro = 37,
         NeonGlow = 38,
 

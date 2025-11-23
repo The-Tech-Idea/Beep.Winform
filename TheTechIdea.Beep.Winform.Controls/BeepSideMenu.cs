@@ -119,10 +119,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _buttonSize = value; }
         }
 
-        private BeepAppBar _beepappbar;
+        private BeepWebHeaderAppBar _beepappbar;
         [Browsable(true)]
         [Category("Appearance")]
-        public BeepAppBar BeepAppBar
+        public BeepWebHeaderAppBar BeepAppBar
         {
             get => _beepappbar;
             set
@@ -607,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  EndMenuCollapseExpand?.Invoke(isCollapsed);
             if (BeepAppBar != null)
             {
-                BeepAppBar.ShowTitle = isCollapsed;
+               // BeepAppBar. = isCollapsed;
                 BeepAppBar.ShowLogo = false;
             }
 
@@ -1081,7 +1081,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Update AppBar if connected
                 if (BeepAppBar != null)
                 {
-                    BeepAppBar.ShowTitle = isCollapsed;
+                    //BeepAppBar.ShowTitle = isCollapsed;
                     BeepAppBar.ShowLogo = false;
                 }
 

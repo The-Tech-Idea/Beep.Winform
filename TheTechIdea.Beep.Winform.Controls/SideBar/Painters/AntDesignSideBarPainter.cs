@@ -9,10 +9,19 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
+    /// <summary>
+    /// AntDesign style painter: Dark sidebar with Ant Design color cues and clear affordances.
+    /// </summary>
     public sealed class AntDesignSideBarPainter : BaseSideBarPainter
     {
+<<<<<<< HEAD
+=======
+        private static readonly ImagePainter _imagePainter = new ImagePainter();
+        /// <summary>Style name identifier</summary>
+>>>>>>> bdb7ce0d65c735a56e2837a4b1bdc571b4d72341
         public override string Name => "AntDesign";
 
+        /// <summary>Paint the entire sidebar for Ant Design style</summary>
         public override void Paint(ISideBarPainterContext context)
         {
             var g = context.Graphics;
@@ -51,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             PaintMenuItems(g, bounds, context, ref currentY);
         }
 
+        /// <summary>Paint the toggle button used in this style</summary>
         public override void PaintToggleButton(Graphics g, Rectangle toggleRect, ISideBarPainterContext context)
         {
             // Ant Design primary blue
@@ -78,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             }
         }
 
+        /// <summary>Paint selection highlight for an item</summary>
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
         {
             // Ant Design primary color with light background
@@ -112,6 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             }
         }
 
+        /// <summary>Paint hover state for an item</summary>
         public override void PaintHover(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
         {
             // Ant Design hover state
@@ -146,6 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
+<<<<<<< HEAD
                     Color defaultTint = Color.FromArgb(255, 255, 255, 175);
                     Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
                     if (context.Theme != null && item == context.SelectedItem && context.UseThemeColors)
@@ -156,6 +169,18 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     else
                         StyledImagePainter.Paint(g, iconRect, item.ImagePath);
 
+=======
+                    _imagePainter.ImagePath = GetIconPath(item, context);
+                    
+                    if (context.Theme != null && context.UseThemeColors) 
+                    { 
+                        _imagePainter.CurrentTheme = context.Theme; 
+                        _imagePainter.ApplyThemeOnImage = true; 
+                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; 
+                    }
+                    
+                    _imagePainter.DrawImage(g, iconRect);
+>>>>>>> bdb7ce0d65c735a56e2837a4b1bdc571b4d72341
                     x += iconSize + iconPadding;
                 }
                 
@@ -252,6 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
+<<<<<<< HEAD
                     Color defaultTint = Color.FromArgb(255, 255, 255, 175);
                     Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
                     if (context.Theme != null && child == context.SelectedItem && context.UseThemeColors)
@@ -262,6 +288,18 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     else
                         StyledImagePainter.Paint(g, iconRect, child.ImagePath);
 
+=======
+                    _imagePainter.ImagePath = GetIconPath(child, context);
+                    
+                    if (context.Theme != null && context.UseThemeColors) 
+                    { 
+                        _imagePainter.CurrentTheme = context.Theme; 
+                        _imagePainter.ApplyThemeOnImage = true; 
+                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; 
+                    }
+                    
+                    _imagePainter.DrawImage(g, iconRect);
+>>>>>>> bdb7ce0d65c735a56e2837a4b1bdc571b4d72341
                     x += iconSize + iconPadding;
                 }
                 

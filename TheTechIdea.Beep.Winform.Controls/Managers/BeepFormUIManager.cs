@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private Form _form;               // host form (runtime or design root)
         private BeepiFormPro _beepiForm;     // strongly-typed reference (if host inherits BeepiForm)
         private BeepSideMenu _beepSideMenu;
-        private BeepAppBar _beepAppBar;
+        private BeepWebHeaderAppBar _beepAppBar;
         private BeepDisplayContainer _displayContainer;
         private BeepMenuBar _beepMenuBar;
         private BeepFunctionsPanel _functionsPanel;
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public string Title
         {
             get => _title;
-            set { _title = value; TryInvoke(() => { if (_beepiForm != null) _beepiForm.Text = value; if (_beepAppBar != null) _beepAppBar.Title = value; if (_beepSideMenu != null) _beepSideMenu.Title = value; }); }
+            set { _title = value; TryInvoke(() => { if (_beepiForm != null) _beepiForm.Text = value; if (_beepAppBar != null) _beepAppBar.Text = value; if (_beepSideMenu != null) _beepSideMenu.Title = value; }); }
         }
 
         private string _logoImage = string.Empty;
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 TryInvoke(() =>
                 {
                     _logoHelper.ImagePath = _logoImage; // this populates svgDocument if SVG
-                    if (_beepAppBar != null) _beepAppBar.LogoImage = _logoImage;
+                    if (_beepAppBar != null) _beepAppBar.LogoImagePath = _logoImage;
                     if (_beepSideMenu != null) _beepSideMenu.LogoImage = _logoImage;
                     if (_beepiForm != null && _logoHelper.svgDocument != null)
                         _beepiForm.Icon = ImageConverters.ConvertSvgToIcon(_logoHelper.svgDocument, 64);
@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             foreach (var c in EnumerateAllChildren(root))
             {
                 if (_beepSideMenu == null && c is BeepSideMenu sm) _beepSideMenu = sm;
-                else if (_beepAppBar == null && c is BeepAppBar ab) _beepAppBar = ab;
+                else if (_beepAppBar == null && c is BeepWebHeaderAppBar ab) _beepAppBar = ab;
                 else if (_displayContainer == null && c is BeepDisplayContainer dc) _displayContainer = dc;
                 else if (_beepMenuBar == null && c is BeepMenuBar mb) _beepMenuBar = mb;
                 else if (_functionsPanel == null && c is BeepFunctionsPanel fp) _functionsPanel = fp;
@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             // Push title/logo immediately
             if (_beepSideMenu != null) { _beepSideMenu.Title = Title; _beepSideMenu.LogoImage = LogoImage; WireSideMenuCollapse(); }
-            if (_beepAppBar != null) { _beepAppBar.Title = Title; _beepAppBar.LogoImage = LogoImage; }
+            if (_beepAppBar != null) { _beepAppBar.Text = Title; _beepAppBar.LogoImagePath = LogoImage; }
         }
 
         private static IEnumerable<Control> EnumerateAllChildren(Control root)
@@ -217,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (e.Control is ContainerControl cc) AttachContainer(cc);
 
             if (_beepSideMenu == null && e.Control is BeepSideMenu sm) { _beepSideMenu = sm; _beepSideMenu.Title = Title; _beepSideMenu.LogoImage = LogoImage; WireSideMenuCollapse(); }
-            if (_beepAppBar == null && e.Control is BeepAppBar ab) { _beepAppBar = ab; _beepAppBar.Title = Title; _beepAppBar.LogoImage = LogoImage; }
+            if (_beepAppBar == null && e.Control is BeepWebHeaderAppBar ab) { _beepAppBar = ab; _beepAppBar.Text = Title; _beepAppBar.LogoImagePath = LogoImage; }
             if (_displayContainer == null && e.Control is BeepDisplayContainer dc) _displayContainer = dc;
             if (_beepMenuBar == null && e.Control is BeepMenuBar mb) _beepMenuBar = mb;
             if (_functionsPanel == null && e.Control is BeepFunctionsPanel fp) _functionsPanel = fp;
@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (_beepAppBar != null)
             {
-                _beepAppBar.ShowTitle = showTitle;
+               // _beepAppBar.Text = showTitle;
                 _beepAppBar.ShowLogo = false;
                 _beepAppBar.ResumeFormLayout();
             }
@@ -364,14 +364,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                     if (_beepAppBar != null)
                     {
-                        _beepAppBar.LogoImage = LogoImage;
-                        _beepAppBar.Title = Title;
+                        _beepAppBar.LogoImagePath = LogoImage;
+                        _beepAppBar.Text = Title;
                     }
                 }
-                else if (control is BeepAppBar appBar)
+                else if (control is BeepWebHeaderAppBar appBar)
                 {
                     _beepAppBar = appBar;
-                    _beepAppBar.Title = Title;
+                    _beepAppBar.Text = Title;
                 }
             }
         }
@@ -380,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (_beepAppBar != null)
             {
-                _beepAppBar.ShowTitle = show;
+                //_beepAppBar.ShowTitle = show;
             }
         }
 
@@ -415,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
         // Public accessors for components (needed by designer and external code)
         [Browsable(true), Category("Components")]
-        public BeepAppBar BeepAppBar
+        public BeepWebHeaderAppBar BeepAppBar
         {
             get => _beepAppBar;
             set
@@ -428,8 +428,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         _beepSideMenu.BeepForm = BeepiForm;
                         _beepSideMenu.BeepAppBar = _beepAppBar;
                     }
-                    _beepAppBar.Title = Title;
-                    _beepAppBar.LogoImage = LogoImage;
+                    _beepAppBar.Text = Title;
+                    _beepAppBar.LogoImagePath = LogoImage;
                 }
             }
         }

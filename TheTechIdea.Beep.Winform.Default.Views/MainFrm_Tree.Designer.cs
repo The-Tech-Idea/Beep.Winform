@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm_Tree));
-            beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.AppBars.BeepAppBar();
+            beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.AppBars.BeepWebHeaderAppBar();
             beepAppTree1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
             beepDisplayContainer1 = new TheTechIdea.Beep.Winform.Controls.BeepDisplayContainer();
             beepMenuAppBar1 = new TheTechIdea.Beep.Winform.Controls.MenuBar.BeepMenuAppBar();
@@ -50,10 +50,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             beepAppBar1.AnimationDuration = 500;
             beepAppBar1.AnimationType = Vis.Modules.DisplayAnimationType.None;
-            beepAppBar1.ApplyThemeButtons = true;
+          
             beepAppBar1.ApplyThemeToChilds = false;
-            beepAppBar1.AutoCompleteMode = AutoCompleteMode.None;
-            beepAppBar1.AutoCompleteSource = AutoCompleteSource.None;
+        
             beepAppBar1.BackColor = Color.FromArgb(33, 150, 243);
             beepAppBar1.BadgeBackColor = Color.Red;
             beepAppBar1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -137,15 +136,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepAppBar1.ParentBackColor = Color.Empty;
             beepAppBar1.ParentControl = null;
-            beepAppBar1.PopupListForm = null;
+        
             beepAppBar1.PressedBackColor = Color.White;
             beepAppBar1.PressedBorderColor = Color.Gray;
             beepAppBar1.PressedForeColor = Color.Gray;
             beepAppBar1.RightoffsetForDrawingRect = 0;
             beepAppBar1.SavedGuidID = null;
             beepAppBar1.SavedID = null;
-            beepAppBar1.SearchBoxPlaceholder = " Search...";
-            beepAppBar1.SearchBoxText = "";
+       
             beepAppBar1.SelectedBackColor = Color.White;
             beepAppBar1.SelectedBorderColor = Color.Empty;
             beepAppBar1.SelectedForeColor = Color.Black;
@@ -155,19 +153,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.ShadowOpacity = 0.5F;
             beepAppBar1.ShowAllBorders = false;
             beepAppBar1.ShowBottomBorder = false;
-            beepAppBar1.ShowCloseIcon = true;
+           
             beepAppBar1.ShowFocusIndicator = false;
             beepAppBar1.ShowLeftBorder = false;
             beepAppBar1.ShowLogo = true;
-            beepAppBar1.ShowMaximizeIcon = true;
-            beepAppBar1.ShowMinimizeIcon = true;
-            beepAppBar1.ShowNotificationIcon = true;
-            beepAppBar1.ShowProfileIcon = true;
+           
             beepAppBar1.ShowRightBorder = false;
             beepAppBar1.ShowSearchBox = true;
             beepAppBar1.ShowShadow = false;
-            beepAppBar1.ShowThemeIcon = true;
-            beepAppBar1.ShowTitle = true;
+          
             beepAppBar1.ShowTopBorder = false;
             beepAppBar1.Size = new Size(798, 40);
             beepAppBar1.SlideFrom = Vis.Modules.SlideDirection.Left;
@@ -180,16 +174,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.Theme = "DefaultType";
             beepAppBar1.ToolTipText = "";
             beepAppBar1.TopoffsetForDrawingRect = 0;
-            beepAppBar1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepAppBar1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepAppBar1.UICustomElevation = 0;
-            beepAppBar1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepAppBar1.UIDisabled = false;
-            beepAppBar1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepAppBar1.UIFullWidth = false;
-            beepAppBar1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepAppBar1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepAppBar1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+          
             beepAppBar1.UseGradientBackground = false;
             beepAppBar1.UseThemeFont = true;
             // 
@@ -615,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
         #endregion
 
-        private BeepAppBar beepAppBar1;
+        private BeepWebHeaderAppBar beepAppBar1;
         private BeepDisplayContainer beepDisplayContainer1;
         private Controls.ITrees.BeepTreeView.BeepAppTree beepAppTree1;
         private Controls.MenuBar.BeepMenuAppBar beepMenuAppBar1;

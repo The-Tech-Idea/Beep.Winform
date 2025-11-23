@@ -299,6 +299,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     BootstrapBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
                 case BeepControlStyle.TailwindCard:
+                case BeepControlStyle.FinSet:
+                    TailwindCardBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.FinSet:
+                    // FinSet uses a similar Tailwind-style card background
                     TailwindCardBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
                 case BeepControlStyle.StripeDashboard:

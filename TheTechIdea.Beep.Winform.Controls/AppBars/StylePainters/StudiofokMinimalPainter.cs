@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
 
             // Draw brand text next to logo
             using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
-            using (var font = new Font("Segoe UI", 10, FontStyle.SemiBold))
+            using (var font = new Font("Segoe UI", 10, FontStyle.Bold))
             using (var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center })
             {
                 g.DrawString("STUDIOFOK", font, brush, new Rectangle(x, bounds.Top, 80, bounds.Height), sf);

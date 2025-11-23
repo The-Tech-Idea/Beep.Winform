@@ -171,6 +171,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _tooltip;
             set => SetProperty(ref _tooltip, value, nameof(ToolTip));
         }
+        private string _badgeText = string.Empty;
+        public string BadgeText
+        {
+            get => _badgeText;
+            set => SetProperty(ref _badgeText, value, nameof(BadgeText));
+        }
+
+        private Color _badgeBackColor = Color.Red;
+        public Color BadgeBackColor
+        {
+            get => _badgeBackColor;
+            set => SetProperty(ref _badgeBackColor, value, nameof(BadgeBackColor));
+        }
+
+        private Color _badgeForeColor = Color.White;
+        public Color BadgeForeColor
+        {
+            get => _badgeForeColor;
+            set => SetProperty(ref _badgeForeColor, value, nameof(BadgeForeColor));
+        }
+
+        private BadgeShape _badgeShape = BadgeShape.Circle;
+        public BadgeShape BadgeShape
+        {
+            get => _badgeShape;
+            set => SetProperty(ref _badgeShape, value, nameof(BadgeShape));
+        }
         private string _shortcuttext = string.Empty;
         public string ShortcutText
         {

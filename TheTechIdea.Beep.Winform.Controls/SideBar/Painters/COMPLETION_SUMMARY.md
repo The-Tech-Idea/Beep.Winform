@@ -28,7 +28,7 @@
 1. **iOS15SideBarPainter** - SF Pro Display, 10px, translucent iOS style
 2. **Material3SideBarPainter** - Roboto, 28px, purple elevated containers
 3. **Fluent2SideBarPainter** - Segoe UI, 4px, blue with left accent bar
-4. **MinimalSideBarPainter** - Arial, 0px, clean white with plus/minus
+4. **MinimalSideBarPainter** - Arial, 0px, clean white with plus/minus (Consolidated into `NotionMinimalSideBarPainter`)
 5. **AntDesignSideBarPainter** - YaHei UI, 2px, dark sidebar with blue
 6. **MaterialYouSideBarPainter** - Roboto, full pill, dynamic theming
 7. **Windows11MicaSideBarPainter** - Segoe UI Variable, 4px, Mica texture

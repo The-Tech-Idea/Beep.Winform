@@ -111,7 +111,7 @@ Color someColor = context.UseThemeColors && context.Theme != null
 - **Hover**: Acrylic overlay
 - **Icons**: Fluent icons, 20px
 
-### 4. MinimalSideBarPainter
+### 4. MinimalSideBarPainter (consolidated into NotionMinimal)
 - **Style**: Ultra-clean, almost invisible
 - **Colors**: Pure black/white, minimal contrast
 - **Selection**: Thin left border only

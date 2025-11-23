@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 {
                     var tab = tabs[i];
                     var textSize = g.MeasureString(tab.Text, tabFont);
-                    var boldTabFont = new Font(tabFont.FontFamily, tabFont.Size + 1, FontStyle.Bold);
+                    var boldTabFont1 = new Font(tabFont.FontFamily, tabFont.Size + 1, FontStyle.Bold);
                     var tabBounds = new Rectangle(
                         x,
                         bounds.Top + (bounds.Height - 34) / 2,

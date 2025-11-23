@@ -43,7 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 BeepControlStyle.Material3 => new Painters.Material3SideBarPainter(),
                 BeepControlStyle.iOS15 => new Painters.iOS15SideBarPainter(),
                 BeepControlStyle.Fluent2 => new Painters.Fluent2SideBarPainter(),
-                BeepControlStyle.Minimal => new Painters.MinimalSideBarPainter(),
+
+                // Consolidate Minimal into NotionMinimal to reduce duplication
+                BeepControlStyle.Minimal => new Painters.NotionMinimalSideBarPainter(),
                 BeepControlStyle.AntDesign => new Painters.AntDesignSideBarPainter(),
                 BeepControlStyle.MaterialYou => new Painters.MaterialYouSideBarPainter(),
                 BeepControlStyle.Windows11Mica => new Painters.Windows11MicaSideBarPainter(),
@@ -56,7 +58,12 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 BeepControlStyle.DarkGlow => new Painters.DarkGlowSideBarPainter(),
                 BeepControlStyle.DiscordStyle => new Painters.DiscordStyleSideBarPainter(),
                 BeepControlStyle.GradientModern => new Painters.GradientModernSideBarPainter(),
-                _ => new Painters.Material3SideBarPainter()
+
+                // Newly added painters
+                BeepControlStyle.FinSet => new Painters.FinSetSideBarPainter(),
+                BeepControlStyle.PillRail => new Painters.PillRailSideBarPainter(),
+
+                _ => new Painters.Material3SideBarPainter(),
             };
 
             _painterContext = new SideBarPainterContextAdapter(this);
@@ -98,6 +105,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             public bool EnableRailShadow => _sideBar.EnableRailShadow;
             public bool IsEnabled => _sideBar.Enabled;
             public bool ShowToggleButton => _sideBar._showToggleButton;
+            public string DefaultImagePath => _sideBar.DefaultItemImagePath;
+            public TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle ControlStyle => _sideBar.Style;
         }
         #endregion
     }

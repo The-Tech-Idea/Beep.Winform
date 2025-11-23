@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class Form2
     {
@@ -1296,6 +1298,6 @@
         private Controls.Buttons.BeepChevronButton beepChevronButton1;
         private Controls.BeepComboBox beepComboBox1;
         private Controls.BeepListBox beepListBox1;
-        private Controls.ComboBoxes.BeepDropDownCheckBoxSelect beepDropDownCheckBoxSelect1;
+        private BeepDropDownCheckBoxSelect beepDropDownCheckBoxSelect1;
     }
 }

@@ -8,11 +8,18 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
+    /// <summary>
+    /// Tailwind card style painter; uses Tailwind color tokens and card-shaped selections
+    /// </summary>
     public sealed class TailwindCardSideBarPainter : BaseSideBarPainter
     {
         private static readonly ImagePainter _imagePainter = new ImagePainter();
+        /// <summary>Style name identifier</summary>
         public override string Name => "TailwindCard";
 
+        /// <summary>
+        /// Paints the entire sidebar area using Tailwind card visual style.
+        /// </summary>
         public override void Paint(ISideBarPainterContext context)
         {
             var g = context.Graphics;
@@ -51,6 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             PaintMenuItems(g, bounds, context, ref currentY);
         }
 
+        /// <summary>Paint the toggle button used in the sidebar top area</summary>
         public override void PaintToggleButton(Graphics g, Rectangle toggleRect, ISideBarPainterContext context)
         {
             // Tailwind blue-600
@@ -90,6 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             }
         }
 
+        /// <summary>Paint item selection background and highlight</summary>
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
         {
             // Tailwind card-Style selection with shadow
@@ -136,6 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             }
         }
 
+        /// <summary>Paint item hover state</summary>
         public override void PaintHover(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
         {
             // Tailwind hover state - slate-100
@@ -171,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = item.ImagePath;
+                    _imagePainter.ImagePath = GetIconPath(item, context);
                     
                     if (context.Theme != null && context.UseThemeColors) 
                     { 
@@ -277,7 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = child.ImagePath;
+                    _imagePainter.ImagePath = GetIconPath(child, context);
                     
                     if (context.Theme != null && context.UseThemeColors) 
                     { 

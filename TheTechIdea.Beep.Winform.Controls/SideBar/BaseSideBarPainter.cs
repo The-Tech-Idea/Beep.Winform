@@ -82,7 +82,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             try
             {
                 // Reuse the shared ImagePainter instance
-                _sharedImagePainter.ImagePath = item.ImagePath;
+                string iconPath = GetIconPath(item, context);
+                _sharedImagePainter.ImagePath = iconPath;
 
                 // Apply theme if available
                 if (context.Theme != null)
@@ -107,6 +108,102 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 {
                     g.DrawRectangle(pen, iconRect);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Get effective icon path for an item, falling back to context.DefaultImagePath if item.ImagePath is empty.
+        /// </summary>
+        protected virtual string GetIconPath(SimpleItem item, ISideBarPainterContext context)
+        {
+            // 1) Explicit: item.ImagePath
+            if (!string.IsNullOrEmpty(item?.ImagePath)) return item.ImagePath;
+
+            // 2) Per-item heuristic: check MenuID or Name and map to known svgs
+            var heur = TryGetHeuristicIconByMenuOrName(item);
+            if (!string.IsNullOrEmpty(heur)) return heur;
+
+            // 3) Per-style heuristic: choose default icon depending on ControlStyle
+            if (context != null)
+            {
+                var style = context.ControlStyle;
+                var styleIcon = GetStyleDefaultIcon(style);
+                if (!string.IsNullOrEmpty(styleIcon)) return styleIcon;
+            }
+
+            // 4) Global default from context
+            if (context?.DefaultImagePath != null && !string.IsNullOrEmpty(context.DefaultImagePath)) return context.DefaultImagePath;
+
+            // 5) Fallback to empty
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Map some common names or menu IDs to sensible default icons
+        /// This is intentionally simple — add more mappings as needed.
+        /// </summary>
+        protected virtual string TryGetHeuristicIconByMenuOrName(SimpleItem item)
+        {
+            if (item == null) return null;
+            string key = (item.MenuID ?? item.Name ?? item.Text ?? string.Empty).ToLowerInvariant();
+            if (string.IsNullOrEmpty(key)) return null;
+
+            switch (key)
+            {
+                case string k when k.Contains("dashboard") || k.Contains("home"):
+                    return TheTechIdea.Beep.Icons.Svgs.NavDashboard; // default dashboard
+                case string k when k.Contains("settings") || k.Contains("gear") || k.Contains("config"):
+                    return TheTechIdea.Beep.Icons.Svgs.Settings;
+                case string k when k.Contains("inbox") || k.Contains("mail") || k.Contains("messages"):
+                    return TheTechIdea.Beep.Icons.Svgs.Mail;
+                case string k when k.Contains("calendar"):
+                    return TheTechIdea.Beep.Icons.Svgs.Calendar;
+                case string k when k.Contains("search") || k.Contains("find"):
+                    return TheTechIdea.Beep.Icons.Svgs.Search;
+                case string k when k.Contains("users") || k.Contains("members") || k.Contains("team"):
+                    return TheTechIdea.Beep.Icons.Svgs.Person;
+                case string k when k.Contains("tasks") || k.Contains("todo"):
+                    return TheTechIdea.Beep.Icons.Svgs.Check;
+                case string k when k.Contains("reports") || k.Contains("analytics"):
+                    return TheTechIdea.Beep.Icons.Svgs.NavDashboard;
+                case string k when k.Contains("notification") || k.Contains("notifications") || k.Contains("bell"):
+                    return TheTechIdea.Beep.Icons.SvgsUI.Bell;
+                case string k when k.Contains("bill") || k.Contains("billing") || k.Contains("payment") || k.Contains("invoice"):
+                    return TheTechIdea.Beep.Icons.SvgsUI.CreditCard;
+                case string k when k.Contains("notifications") || k.Contains("alerts") || k.Contains("alarms"):
+                    return TheTechIdea.Beep.Icons.Svgs.InfoAlarm;
+                case string k when k.Contains("help") || k.Contains("support") || k.Contains("faq"):
+                    return TheTechIdea.Beep.Icons.SvgsUI.HelpCircle;
+                default:
+                    break;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns a default icon for the entire painter style (e.g. PillRail uses small round icons)
+        /// </summary>
+        protected virtual string GetStyleDefaultIcon(TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle style)
+        {
+            switch (style)
+            {
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.PillRail:
+                    return TheTechIdea.Beep.Icons.Svgs.NavDashboard; // placeholder for small nav style
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.NotionMinimal:
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Minimal:
+                    return TheTechIdea.Beep.Icons.Svgs.Menu; // ultra minimal
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.FinSet:
+                    return TheTechIdea.Beep.Icons.Svgs.NavDashboard; // FinSet prefers more detailed icons
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.AntDesign:
+                    return TheTechIdea.Beep.Icons.Svgs.NavDashboard;
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.StripeDashboard:
+                    return TheTechIdea.Beep.Icons.Svgs.NavDashboard;
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.DarkGlow:
+                    return TheTechIdea.Beep.Icons.Svgs.Zap;
+                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.DiscordStyle:
+                    return TheTechIdea.Beep.Icons.Svgs.NavUser;
+                default:
+                    return TheTechIdea.Beep.Icons.Svgs.Menu;
             }
         }
 

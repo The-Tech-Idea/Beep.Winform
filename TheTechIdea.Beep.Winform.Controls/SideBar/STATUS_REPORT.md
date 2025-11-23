@@ -89,11 +89,11 @@ using (var brush = new SolidBrush(textColor))
 - ✅ BeepSideBar.Accordion.cs
 - ✅ iOS15SideBarPainter.cs
 
-### Remaining: 15 Painters (Need Complete Rewrite)
+### Remaining: 14 Painters (Need Complete Rewrite)
 Each painter needs ~200-300 lines following iOS15 pattern:
 1. ⏳ Material3SideBarPainter.cs (was corrupted, deleted)
 2. ⏳ Fluent2SideBarPainter.cs (was corrupted, deleted)
-3. ⏳ MinimalSideBarPainter.cs (was corrupted, deleted)
+3. ✅ MinimalSideBarPainter.cs — Consolidated to NotionMinimal (removed)
 4. ⏳ AntDesignSideBarPainter.cs (needs rewrite)
 5. ⏳ MaterialYouSideBarPainter.cs (needs creation)
 6. ⏳ Windows11MicaSideBarPainter.cs (needs creation)

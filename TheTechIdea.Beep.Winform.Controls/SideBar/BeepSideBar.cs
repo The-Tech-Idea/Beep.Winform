@@ -193,6 +193,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         [DefaultValue(10)]
         public int ChromeCornerRadius { get; set; } = 10;
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Default icon path for items without an explicit ImagePath. If null no fallback is used.")]
+        public string DefaultItemImagePath { get; set; } = TheTechIdea.Beep.Icons.Svgs.Menu;
+
         [Browsable(false)]
         public int MenuItemHeight => _itemHeight;
         #endregion

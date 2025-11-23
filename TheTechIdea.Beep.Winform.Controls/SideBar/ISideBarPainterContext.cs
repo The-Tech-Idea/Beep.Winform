@@ -44,5 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         // Interaction
         bool IsEnabled { get; }
         bool ShowToggleButton { get; }
+        // Default icon path to use when item has no ImagePath set
+        string DefaultImagePath { get; }
+        // Current control style (allows painters to adjust fallback icons per style)
+        TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle ControlStyle { get; }
     }
 }

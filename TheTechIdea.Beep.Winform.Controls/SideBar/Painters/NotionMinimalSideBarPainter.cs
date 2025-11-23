@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = item.ImagePath;
+                    _imagePainter.ImagePath = GetIconPath(item, context);
                     
                     if (context.Theme != null && context.UseThemeColors) 
                     { 
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = child.ImagePath;
+                    _imagePainter.ImagePath = GetIconPath(child, context);
                     
                     if (context.Theme != null && context.UseThemeColors) 
                     { 

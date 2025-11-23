@@ -59,7 +59,7 @@ Each painter MUST have unique:
 1. ✅ iOS15SideBarPainter.cs - SF Pro, 10px radius, iOS blue #007AFF, translucent
 2. ✅ Material3SideBarPainter.cs - Roboto, 28px radius, purple #6750A4, elevated
 3. ✅ Fluent2SideBarPainter.cs - Segoe UI, 4px radius, blue #0078D4, left accent bar
-4. ✅ MinimalSideBarPainter.cs - Arial, 0px radius, white, plus/minus, no connectors
+4. ✅ ~~MinimalSideBarPainter.cs~~ - Removed/Consolidated (use `NotionMinimalSideBarPainter.cs`)
 5. ✅ AntDesignSideBarPainter.cs - YaHei UI, 2px radius, dark #001529, blue #1890FF
 6. ✅ MaterialYouSideBarPainter.cs - Roboto, full pill, dynamic theming, purple
 7. ✅ Windows11MicaSideBarPainter.cs - Segoe UI Variable, 4px, Mica texture effect
@@ -106,7 +106,7 @@ SideBar/
     ├── iOS15SideBarPainter.cs ✅
     ├── Material3SideBarPainter.cs ✅
     ├── Fluent2SideBarPainter.cs ✅
-    ├── MinimalSideBarPainter.cs ✅
+    ├── MinimalSideBarPainter.cs ✅ (removed / consolidated)
     ├── AntDesignSideBarPainter.cs ✅
     ├── MaterialYouSideBarPainter.cs ✅
     ├── Windows11MicaSideBarPainter.cs ✅

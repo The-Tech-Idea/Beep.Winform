@@ -23,7 +23,7 @@
   - Draws everything itself ✅
   - Distinct iOS 15 visual style ✅
 
-- ⚠️ **15 Other Painters** - Need complete rewrite
+- ⚠️ **14 Other Painters** - Need complete rewrite
   - All currently call base.PaintMenuItem (WRONG)
   - Need to use ImagePainter
   - Need proper UseThemeColors implementation
@@ -58,12 +58,12 @@ public override void Paint(ISideBarPainterContext context)
 
 ## 📋 REMAINING WORK
 
-### Phase 1: Create 15 Painters (Priority: HIGH)
+### Phase 1: Create 14 Painters (Priority: HIGH)
 Each painter needs ~200-300 lines of custom drawing code:
 
 1. **Material3SideBarPainter** - Material You design
 2. **Fluent2SideBarPainter** - Microsoft Fluent
-3. **MinimalSideBarPainter** - Ultra-clean minimal
+3. **MinimalSideBarPainter** - Ultra-clean minimal (Consolidated into `NotionMinimalSideBarPainter`)
 4. **AntDesignSideBarPainter** - Enterprise Ant Design
 5. **MaterialYouSideBarPainter** - Dynamic Material You
 6. **Windows11MicaSideBarPainter** - Windows 11 Mica
@@ -123,11 +123,11 @@ Create a PowerShell/C# script that generates painters from template with style p
 
 ## 📝 FILES TO CREATE/FIX
 
-### Delete Corrupted Files:
+### Delete Corrupted Files / Cleanups (Performed):
 ```powershell
 Remove-Item "Material3SideBarPainter.cs" -Force
 Remove-Item "Fluent2SideBarPainter.cs" -Force
-Remove-Item "MinimalSideBarPainter.cs" -Force
+Remove-Item "MinimalSideBarPainter.cs" -Force  # already cleaned/converted to deprecation note
 # Check if AntDesignSideBarPainter.cs is corrupted too
 ```
 
@@ -190,6 +190,13 @@ Each painter must be immediately recognizable:
 
 ---
 
-**STATUS**: Infrastructure complete, 1 of 16 painters done correctly, 15 remaining to create.
+**STATUS**: Infrastructure complete, 1 of 16 painters done correctly, 14 remaining to create.
+
+### Recent Additions (✅ Done)
+- ✅ `FinSetSideBarPainter.cs` — new FinSet style painter implemented
+- ✅ `PillRailSideBarPainter.cs` — new PillRail style painter implemented
+- ✅ Default icon heuristics implemented in `BaseSideBarPainter.GetIconPath` (menuId/Name/Text heuristics)
+- ✅ `DefaultItemImagePath` added to `BeepSideBar` and exposed in `ISideBarPainterContext`
+- ✅ `MinimalSideBarPainter` consolidated into `NotionMinimalSideBarPainter` and removed from the repo
 
 **READY FOR**: Systematic creation of remaining 15 painters following iOS15 pattern.

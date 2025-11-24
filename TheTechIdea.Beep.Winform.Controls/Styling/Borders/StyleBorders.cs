@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Nordic => 8,
                 BeepControlStyle.OneDark => 6,
                 BeepControlStyle.Paper => 8,
-                BeepControlStyle.Retro => 0,
+
                 BeepControlStyle.Solarized => 4,
                 BeepControlStyle.Terminal => 0,
                 BeepControlStyle.Tokyo => 8,
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Nordic => 1.0f,
                 BeepControlStyle.OneDark => 1.0f,
                 BeepControlStyle.Paper => 1.0f,
-                BeepControlStyle.Retro => 2.0f,
+              
                 BeepControlStyle.Solarized => 1.0f,
                 BeepControlStyle.Terminal => 2.0f,
                 BeepControlStyle.Tokyo => 2.0f,
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Nordic => true,
                 BeepControlStyle.OneDark => true,
                 BeepControlStyle.Paper => true,
-                BeepControlStyle.Retro => true,
+                
                 BeepControlStyle.Solarized => true,
                 BeepControlStyle.Terminal => true,
                 BeepControlStyle.Tokyo => true,

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // Tab Fonts & Colors
-//<<<<<<< HEAD
         public TypographyStyle  TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
         public TypographyStyle  TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
         public TypographyStyle  TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // Calendar Fonts & Colors
-//<<<<<<< HEAD
         public TypographyStyle  CalendarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Bold);
         public Color CalendarTitleForColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark Grey 900
 

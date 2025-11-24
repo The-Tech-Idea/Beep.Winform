@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Card Colors & Fonts
-//<<<<<<< HEAD
         public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.WhiteSmoke;
         public Color CardBackColor { get; set; } = Color.FromArgb(40, 40, 40);

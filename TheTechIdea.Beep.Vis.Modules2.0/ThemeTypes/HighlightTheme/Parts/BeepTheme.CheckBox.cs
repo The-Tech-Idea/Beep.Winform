@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
         public Color CheckBoxBackColor { get; set; } = Color.White;
         public Color CheckBoxForeColor { get; set; } = Color.Black;
         public Color CheckBoxBorderColor { get; set; } = Color.DodgerBlue;

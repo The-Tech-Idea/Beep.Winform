@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // ProgressBar properties
-//<<<<<<< HEAD
         public Color ProgressBarBackColor { get; set; } = Color.FromArgb(230, 230, 250);
         public Color ProgressBarForeColor { get; set; } = Color.FromArgb(0, 122, 204);
         public Color ProgressBarBorderColor { get; set; } = Color.FromArgb(180, 180, 200);

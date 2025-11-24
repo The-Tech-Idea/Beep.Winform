@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     {
                         _imagePainter.CurrentTheme = context.Theme;
                         _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = BaseImage.ImageEmbededin.SideBar;
+                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
                     }
                     _imagePainter.DrawImage(g, iconRect);
                     x += iconSize + iconPadding;

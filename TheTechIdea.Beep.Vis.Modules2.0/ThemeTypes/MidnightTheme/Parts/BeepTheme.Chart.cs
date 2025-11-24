@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Chart Fonts & Colors
-//<<<<<<< HEAD
         public TypographyStyle  ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16f, FontStyle.Bold);
         public TypographyStyle  ChartSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Italic);
         public Color ChartBackColor { get; set; } = Color.FromArgb(30, 30, 30);

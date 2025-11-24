@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Card Colors & Fonts
-//<<<<<<< HEAD
         public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.White;
         public Color CardBackColor { get; set; } = Color.Black;

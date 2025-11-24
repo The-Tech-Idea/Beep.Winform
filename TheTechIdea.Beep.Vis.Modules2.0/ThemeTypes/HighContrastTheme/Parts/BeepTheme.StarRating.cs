@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Star Rating Fonts & Colors
-//<<<<<<< HEAD
         public Color StarRatingForeColor { get; set; } = Color.White;
         public Color StarRatingBackColor { get; set; } = Color.Black;
         public Color StarRatingBorderColor { get; set; } = Color.White;

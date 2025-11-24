@@ -9,12 +9,13 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            // Draw flat background with slight top border
-            using (var b = new SolidBrush(Color.FromArgb(250, 250, 250)))
+            // Draw flat background with slight top border (theme-driven)
+            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(250, 250, 250) : context.BarBackColor))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
-            using (var p = new Pen(Color.FromArgb(220, 220, 220)))
+            var borderColor = context.NavigationBorderColor == Color.Empty ? (context.BarHoverBackColor == Color.Empty ? Color.FromArgb(220, 220, 220) : context.BarHoverBackColor) : context.NavigationBorderColor;
+            using (var p = new Pen(borderColor))
             {
                 context.Graphics.DrawLine(p, context.Bounds.Left, context.Bounds.Top, context.Bounds.Right, context.Bounds.Top);
             }

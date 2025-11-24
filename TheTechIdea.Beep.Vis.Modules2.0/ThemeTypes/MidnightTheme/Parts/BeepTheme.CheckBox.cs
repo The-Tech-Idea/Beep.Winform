@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
+        
         public Color CheckBoxBackColor { get; set; } = Color.FromArgb(40, 40, 40);
         public Color CheckBoxForeColor { get; set; } = Color.WhiteSmoke;
         public Color CheckBoxBorderColor { get; set; } = Color.Gray;

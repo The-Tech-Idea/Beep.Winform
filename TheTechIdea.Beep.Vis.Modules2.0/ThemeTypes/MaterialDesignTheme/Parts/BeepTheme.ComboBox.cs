@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // ComboBox Colors and Fonts
-//<<<<<<< HEAD
         public Color ComboBoxBackColor { get; set; } = Color.White;
         public Color ComboBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 800
         public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(189, 189, 189); // Grey 400

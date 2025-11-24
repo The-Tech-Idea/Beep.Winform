@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
         public Color CheckBoxBackColor { get; set; } = Color.FromArgb(245, 250, 255);
         public Color CheckBoxForeColor { get; set; } = Color.Black;
         public Color CheckBoxBorderColor { get; set; } = Color.FromArgb(180, 200, 220);

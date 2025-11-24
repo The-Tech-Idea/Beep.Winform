@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
         public Color CheckBoxBackColor { get; set; } = Color.FromArgb(20, 20, 40); // Deep space background
         public Color CheckBoxForeColor { get; set; } = Color.FromArgb(200, 200, 255); // Light lavender text
         public Color CheckBoxBorderColor { get; set; } = Color.FromArgb(70, 70, 120); // Medium blue-purple

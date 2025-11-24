@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Elementary => new ElementaryBackgroundPainterWrapper(),
                 BeepControlStyle.Gaming => new GamingBackgroundPainterWrapper(),
                 BeepControlStyle.Neon => new NeonBackgroundPainterWrapper(),
-                BeepControlStyle.Retro => new RetroBackgroundPainterWrapper(),
+              
                 BeepControlStyle.Terminal => new TerminalBackgroundPainterWrapper(),
                 BeepControlStyle.ArcLinux => new ArcLinuxBackgroundPainterWrapper(),
                 BeepControlStyle.Brutalist => new BrutalistBackgroundPainterWrapper(),

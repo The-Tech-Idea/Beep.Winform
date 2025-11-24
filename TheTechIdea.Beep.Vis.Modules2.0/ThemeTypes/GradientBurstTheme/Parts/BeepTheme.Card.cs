@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // Card Colors & Fonts
-//<<<<<<< HEAD
         public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color CardBackColor { get; set; } = Color.White;

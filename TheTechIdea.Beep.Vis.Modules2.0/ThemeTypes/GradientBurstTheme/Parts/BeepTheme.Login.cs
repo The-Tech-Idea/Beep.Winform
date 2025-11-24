@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // Login Popover Colors
-//<<<<<<< HEAD
         public Color LoginPopoverBackgroundColor { get; set; } = Color.FromArgb(255, 250, 250, 250); // Soft white
         public Color LoginTitleColor { get; set; } = Color.FromArgb(255, 30, 30, 30); // Deep charcoal
         public TypographyStyle  LoginTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16, FontStyle.Bold);

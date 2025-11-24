@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // Calendar Fonts & Colors
-//<<<<<<< HEAD
         public TypographyStyle  CalendarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
         public Color CalendarTitleForColor { get; set; } = Color.FromArgb(33, 33, 33);
 

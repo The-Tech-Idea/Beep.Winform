@@ -11,6 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class GradientModernSideBarPainter : BaseSideBarPainter
     {
+        private static readonly ImagePainter _imagePainter = new ImagePainter();
         public override string Name => "GradientModern";
 
         public override void Paint(ISideBarPainterContext context)
@@ -110,7 +111,13 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
         private void PaintMenuItems(Graphics g, Rectangle bounds, ISideBarPainterContext context, ref int currentY)
         {
             if (context.Items == null || context.Items.Count == 0) return;
-            int padding = 12, iconSize = 22, iconPadding = 14;
+            int padding = 12;
+            int iconSize = GetTopLevelIconSize(context);
+            int childIconSize = GetChildIconSize(context);
+            int expandIconSize = GetExpandIconSize(context);
+            int childExpandIconSize = GetChildExpandIconSize(context);
+            int iconPadding = GetIconPadding(context);
+         
             
             foreach (var item in context.Items)
             {
@@ -122,17 +129,10 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-<<<<<<< HEAD
-                    Color defaultTint = Color.White;
-                    Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
-                    if (context.Theme != null && item == context.SelectedItem && context.UseThemeColors) iconTint = Color.FromArgb(139, 92, 246);
-                    if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, iconRect, item.ImagePath, iconTint);
-                    else StyledImagePainter.Paint(g, iconRect, item.ImagePath);
-=======
                     _imagePainter.ImagePath = GetIconPath(item, context);
                     if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; }
+                    else _imagePainter.ApplyThemeOnImage = false;
                     _imagePainter.DrawImage(g, iconRect);
->>>>>>> bdb7ce0d65c735a56e2837a4b1bdc571b4d72341
                     x += iconSize + iconPadding;
                 }
                 
@@ -145,22 +145,42 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     using (var font = new Font("Inter", 14f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular)) 
                     using (var brush = new SolidBrush(textColor))
                     {
-                        Rectangle textRect = new Rectangle(x, itemRect.Y, itemRect.Right - x - 12, itemRect.Height);
+                        Rectangle textRect = new Rectangle(x, itemRect.Y, itemRect.Right - x - expandIconSize - 12, itemRect.Height);
                         g.DrawString(item.Text, font, brush, textRect, new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter });
                     }
                 }
                 
                 if (item.Children != null && item.Children.Count > 0 && !context.IsCollapsed)
                 {
-                    Rectangle expandRect = new Rectangle(itemRect.Right - 24, itemRect.Y + (itemRect.Height - 16) / 2, 16, 16);
+                    Rectangle expandRect = new Rectangle(itemRect.Right - expandIconSize - 8, itemRect.Y + (itemRect.Height - expandIconSize) / 2, expandIconSize, expandIconSize);
                     bool isExpanded = context.ExpandedState.ContainsKey(item) && context.ExpandedState[item];
                     Color chevronColor = item == context.SelectedItem ? Color.FromArgb(139, 92, 246) : Color.White;
-                    
-                    using (var pen = new Pen(chevronColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                    if (context.UseExpandCollapseIcon && !string.IsNullOrEmpty(context.ExpandIconPath) && !string.IsNullOrEmpty(context.CollapseIconPath))
                     {
-                        int cx = expandRect.X + expandRect.Width / 2, cy = expandRect.Y + expandRect.Height / 2;
-                        if (isExpanded) { g.DrawLine(pen, cx - 5, cy - 2, cx, cy + 3); g.DrawLine(pen, cx, cy + 3, cx + 5, cy - 2); }
-                        else { g.DrawLine(pen, cx - 2, cy - 5, cx + 3, cy); g.DrawLine(pen, cx + 3, cy, cx - 2, cy + 5); }
+                        var iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
+                        try
+                        {
+                            if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, expandRect, iconPath, chevronColor);
+                            else StyledImagePainter.Paint(g, expandRect, iconPath);
+                        }
+                        catch
+                        {
+                            using (var pen = new Pen(chevronColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                            {
+                                int cx = expandRect.X + expandRect.Width / 2, cy = expandRect.Y + expandRect.Height / 2;
+                                if (isExpanded) { g.DrawLine(pen, cx - 5, cy - 2, cx, cy + 3); g.DrawLine(pen, cx, cy + 3, cx + 5, cy - 2); }
+                                else { g.DrawLine(pen, cx - 2, cy - 5, cx + 3, cy); g.DrawLine(pen, cx + 3, cy, cx - 2, cy + 5); }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (var pen = new Pen(chevronColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                        {
+                            int cx = expandRect.X + expandRect.Width / 2, cy = expandRect.Y + expandRect.Height / 2;
+                            if (isExpanded) { g.DrawLine(pen, cx - 5, cy - 2, cx, cy + 3); g.DrawLine(pen, cx, cy + 3, cx + 5, cy - 2); }
+                            else { g.DrawLine(pen, cx - 2, cy - 5, cx + 3, cy); g.DrawLine(pen, cx + 3, cy, cx - 2, cy + 5); }
+                        }
                     }
                 }
                 
@@ -171,8 +191,13 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 
         private void PaintChildItems(Graphics g, Rectangle bounds, ISideBarPainterContext context, SimpleItem parentItem, ref int currentY, int indentLevel)
         {
+           
+            int childIconSize = GetChildIconSize(context);
+            int expandIconSize = GetExpandIconSize(context);
+            int childExpandIconSize = GetChildExpandIconSize(context);
+            int iconPadding = GetIconPadding(context);
             if (parentItem.Children == null || parentItem.Children.Count == 0 || context.IsCollapsed) return;
-            int padding = 8, indent = context.IndentationWidth * indentLevel, iconSize = 18, iconPadding = 12;
+            int padding = 8, indent = context.IndentationWidth * indentLevel, iconSize = childIconSize;
             
             foreach (var child in parentItem.Children.Cast<SimpleItem>())
             {
@@ -187,24 +212,16 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-<<<<<<< HEAD
-                    Color defaultTint = Color.FromArgb(240, 240, 240);
-                    Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
-                    if (context.Theme != null && child == context.SelectedItem && context.UseThemeColors) iconTint = Color.FromArgb(139, 92, 246);
-                    if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, iconRect, child.ImagePath, iconTint);
-                    else StyledImagePainter.Paint(g, iconRect, child.ImagePath);
-=======
                     _imagePainter.ImagePath = GetIconPath(child, context);
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; }
+                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; } else _imagePainter.ApplyThemeOnImage = false;
                     _imagePainter.DrawImage(g, iconRect);
->>>>>>> bdb7ce0d65c735a56e2837a4b1bdc571b4d72341
                     x += iconSize + iconPadding;
                 }
                 
                 Color textColor = child == context.SelectedItem ? Color.FromArgb(139, 92, 246) : Color.FromArgb(240, 240, 240);
                 using (var font = new Font("Inter", 12f, FontStyle.Regular)) using (var brush = new SolidBrush(textColor))
                 {
-                    Rectangle textRect = new Rectangle(x, childRect.Y, childRect.Right - x - 8, childRect.Height);
+                    Rectangle textRect = new Rectangle(x, childRect.Y, Math.Max(0, childRect.Right - x - childExpandIconSize - 12), childRect.Height);
                     g.DrawString(child.Text, font, brush, textRect, new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter });
                 }
                 

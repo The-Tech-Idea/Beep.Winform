@@ -113,6 +113,8 @@ namespace WinformSampleApp
                 DefaultItemImagePath = Svgs.Menu,
                 Style = TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.FinSet
             };
+            sideBar.ExpandIconPath = TheTechIdea.Beep.Icons.Svgs.NavAngleSmallDown;
+            sideBar.CollapseIconPath = TheTechIdea.Beep.Icons.Svgs.NavAngleSmallUp;
 
             var sideBarRail = new BeepSideBar
             {
@@ -122,6 +124,8 @@ namespace WinformSampleApp
                 DefaultItemImagePath = Svgs.Menu,
                 Style = TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.PillRail
             };
+            sideBarRail.ExpandIconPath = TheTechIdea.Beep.Icons.Svgs.NavAngleSmallDown;
+            sideBarRail.CollapseIconPath = TheTechIdea.Beep.Icons.Svgs.NavAngleSmallUp;
 
             sideBar.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Dashboard", ImagePath = Svgs.NavDashboard });
             sideBar.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Inbox" }); // no ImagePath -> should use DefaultItemImagePath
@@ -130,6 +134,53 @@ namespace WinformSampleApp
             sideBarRail.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Inbox" });
             sideBarRail.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Search", ImagePath = Svgs.Search });
             Controls.Add(sideBar);
+            // Wire our expansion changed event to show a simple status with the last expanded item
+            var expansionLabel = new Label { AutoSize = true, Text = "(no change yet)" };
+            sideBar.ItemExpansionChanged += (s, args) =>
+            {
+                expansionLabel.Text = $"{args.Item.Text} is {(args.IsExpanded ? "expanded" : "collapsed")}";
+            };
+
+            // Add a small before/after event demo: show and optionally cancel expansions
+            var beforeLabel = new Label { AutoSize = true, Text = "(no before event yet)" };
+            var cancelInboxChk = new CheckBox { Text = "Cancel expansion for 'Inbox'" };
+            sideBar.ItemExpansionChanging += (s, args) =>
+            {
+                beforeLabel.Text = $"Before: {args.Item.Text} -> {args.NewIsExpanded}";
+                if (cancelInboxChk.Checked && args.Item.Text == "Inbox")
+                {
+                    args.Cancel = true;
+                }
+            };
+            panel.Controls.Add(beforeLabel);
+            panel.Controls.Add(cancelInboxChk);
+
+            // Add optional CheckBox to toggle click-to-expand behavior
+            var clickTogglesChk = new CheckBox { Text = "Click toggles expansion" };
+            clickTogglesChk.CheckedChanged += (_, __) => { sideBar.ClickTogglesExpansion = clickTogglesChk.Checked; sideBarRail.ClickTogglesExpansion = clickTogglesChk.Checked; };
+            panel.Controls.Add(clickTogglesChk);
+
+            // Click-mode selector: ToggleThenSelect / SelectThenToggle / ToggleOnly
+            var clickModeCombo = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            clickModeCombo.Items.AddRange(Enum.GetNames(typeof(TheTechIdea.Beep.Winform.Controls.SideBar.ClickTogglesExpansionMode)));
+            clickModeCombo.SelectedIndexChanged += (_, __) =>
+            {
+                if (Enum.TryParse<TheTechIdea.Beep.Winform.Controls.SideBar.ClickTogglesExpansionMode>(clickModeCombo.SelectedItem?.ToString(), out var mode))
+                {
+                    sideBar.ClickTogglesExpansionMode = mode;
+                    sideBarRail.ClickTogglesExpansionMode = mode;
+                }
+            };
+            clickModeCombo.SelectedItem = TheTechIdea.Beep.Winform.Controls.SideBar.ClickTogglesExpansionMode.ToggleThenSelect.ToString();
+            panel.Controls.Add(new Label { Text = "Click Expansion Mode:" });
+            panel.Controls.Add(clickModeCombo);
+
+            // Expand/collapse icon usage
+            var useIconsChk = new CheckBox { Text = "Use expand/collapse icons" };
+            useIconsChk.CheckedChanged += (_, __) => { sideBar.UseExpandCollapseIcon = useIconsChk.Checked; sideBarRail.UseExpandCollapseIcon = useIconsChk.Checked; };
+            panel.Controls.Add(useIconsChk);
+
+            panel.Controls.Add(expansionLabel);
             Controls.Add(sideBarRail);
             panel.Controls.AddRange(new Control[] { new Label{ Text = "Style:" }, _styleCombo, new Label{ Text = "Backdrop:" }, _backdropCombo, _acrylicChk, _micaChk, _darkRibbon, _addPageBtn, _addCtxGroupBtn, _toggleCtxBtn, _saveQA, _loadQA, _loadPreset });
 
@@ -154,11 +205,59 @@ namespace WinformSampleApp
                 if (Enum.TryParse<BottomBarStyle>(_bottomBarStyleCombo.SelectedItem?.ToString(), out var s))
                 {
                     bottomBar.BarStyle = s;
+                    // Apply friendly presets per style
+                    switch (s)
+                    {
+                        case BottomBarStyle.MovableNotch:
+                            bottomBar.MovableNotchDepth = 30f;
+                            bottomBar.MovableNotchWidthFactor = 1.25f;
+                            bottomBar.CTAShadowYOffset = 10;
+                            bottomBar.AccentColor = Color.FromArgb(24, 219, 125); // bright green-ish
+                            break;
+                        case BottomBarStyle.OutlineFloatingCTA:
+                            bottomBar.OutlineRingStrokeWidth = 8;
+                            bottomBar.OutlineHaloAlpha = 100;
+                            bottomBar.OutlineInnerAlpha = 20;
+                            bottomBar.OutlineHaloScale = 1.45f;
+                            bottomBar.CTAShadowYOffset = 10;
+                            bottomBar.AccentColor = Color.FromArgb(24, 219, 125);
+                            break;
+                        default:
+                            // reset for other styles to defaults
+                            bottomBar.MovableNotchDepth = 22f;
+                            bottomBar.MovableNotchWidthFactor = 1.15f;
+                            bottomBar.CTAShadowYOffset = 8;
+                            bottomBar.OutlineRingStrokeWidth = 4;
+                            bottomBar.OutlineHaloAlpha = 36;
+                            bottomBar.OutlineInnerAlpha = 12;
+                            bottomBar.OutlineHaloScale = 1.4f;
+                            bottomBar.AccentColor = Color.FromArgb(96, 80, 255);
+                            break;
+                    }
                 }
             };
             _bottomBarStyleCombo.SelectedItem = BottomBarStyle.Classic.ToString();
             panel.Controls.Add(new Label{ Text = "BottomBar Style:" });
             panel.Controls.Add(_bottomBarStyleCombo);
+            // Add micro-tune controls for new painters
+            var notchDepthLabel = new Label { Text = "Notch Depth:" };
+            var notchDepthUp = new NumericUpDown { Minimum = 0, Maximum = 64, DecimalPlaces = 0, Value = 22, Increment = 1 };
+            notchDepthUp.ValueChanged += (_, __) => { bottomBar.MovableNotchDepth = (float)notchDepthUp.Value; };
+            panel.Controls.Add(notchDepthLabel);
+            panel.Controls.Add(notchDepthUp);
+            var notchWidthLabel = new Label { Text = "Notch Width Factor:" };
+            var notchWidthUp = new NumericUpDown { Minimum = 10, Maximum = 200, DecimalPlaces = 2, Value = 115, Increment = 5 }; // stored as percent
+            notchWidthUp.ValueChanged += (_, __) => { bottomBar.MovableNotchWidthFactor = ((float)notchWidthUp.Value) / 100f; };
+            panel.Controls.Add(notchWidthLabel);
+            panel.Controls.Add(notchWidthUp);
+            var outlineRingLabel = new Label { Text = "Ring Stroke" };
+            var outlineRingUp = new NumericUpDown { Minimum = 1, Maximum = 16, DecimalPlaces = 0, Value = 4, Increment = 1 };
+            outlineRingUp.ValueChanged += (_, __) => { bottomBar.OutlineRingStrokeWidth = (int)outlineRingUp.Value; };
+            panel.Controls.Add(outlineRingLabel);
+            panel.Controls.Add(outlineRingUp);
+            var outlineCheck = new CheckBox { Text = "Movable Notch Outline CTA" };
+            outlineCheck.CheckedChanged += (_, __) => { bottomBar.MovableNotchOutlineCTA = outlineCheck.Checked; };
+            panel.Controls.Add(outlineCheck);
             
             // BottomBar demo
             var bottomBar = new BottomBar
@@ -171,6 +270,7 @@ namespace WinformSampleApp
             bottomBar.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Home", ImagePath = Svgs.NavDashboard });
             bottomBar.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Search", ImagePath = Svgs.Search });
             bottomBar.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Add", ImagePath = Svgs.Add });
+            bottomBar.CTAIndex = 2;
             bottomBar.Items.Add(new TheTechIdea.Beep.Winform.Controls.Models.SimpleItem { Text = "Profile", ImagePath = Svgs.User });
             bottomBar.ItemClicked += item => MessageBox.Show($"Clicked {item.Text}");
             Controls.Add(bottomBar);

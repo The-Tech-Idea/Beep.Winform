@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // Textbox colors and Fonts
-//<<<<<<< HEAD
         public Color TextBoxBackColor { get; set; } = Color.White;
         public Color TextBoxForeColor { get; set; } = Color.Black;
         public Color TextBoxBorderColor { get; set; } = Color.Gray;

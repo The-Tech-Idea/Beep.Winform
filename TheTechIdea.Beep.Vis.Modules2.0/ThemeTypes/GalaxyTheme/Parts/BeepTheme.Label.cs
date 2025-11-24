@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // Label Colors and Fonts
-//<<<<<<< HEAD
         public Color LabelBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color LabelForeColor { get; set; } = Color.White;
         public Color LabelBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33); // Subtle border

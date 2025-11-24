@@ -44,6 +44,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         // Interaction
         bool IsEnabled { get; }
         bool ShowToggleButton { get; }
+        // Use expand/collapse icons instead of lines
+        bool UseExpandCollapseIcon { get; }
+        // Optional expand/collapse icon paths (svg resource paths or file paths)
+        string ExpandIconPath { get; }
+        string CollapseIconPath { get; }
         // Default icon path to use when item has no ImagePath set
         string DefaultImagePath { get; }
         // Current control style (allows painters to adjust fallback icons per style)

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
         public Color CheckBoxBackColor { get; set; } = Color.Black;
         public Color CheckBoxForeColor { get; set; } = Color.White;
         public Color CheckBoxBorderColor { get; set; } = Color.White;

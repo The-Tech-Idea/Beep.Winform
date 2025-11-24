@@ -7,7 +7,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Login Popover Colors
         public Color LoginPopoverBackgroundColor { get; set; } = Color.White;
         public Color LoginTitleColor { get; set; } = Color.Black;
-//<<<<<<< HEAD
         public TypographyStyle  LoginTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16F, FontStyle.Bold);
         public Color LoginSubtitleColor { get; set; } = Color.DarkBlue;
         public TypographyStyle  LoginSubtitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);

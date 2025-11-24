@@ -105,6 +105,9 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             public bool EnableRailShadow => _sideBar.EnableRailShadow;
             public bool IsEnabled => _sideBar.Enabled;
             public bool ShowToggleButton => _sideBar._showToggleButton;
+            public bool UseExpandCollapseIcon => _sideBar.UseExpandCollapseIcon;
+            public string ExpandIconPath => _sideBar.ExpandIconPath;
+            public string CollapseIconPath => _sideBar.CollapseIconPath;
             public string DefaultImagePath => _sideBar.DefaultItemImagePath;
             public TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle ControlStyle => _sideBar.Style;
         }

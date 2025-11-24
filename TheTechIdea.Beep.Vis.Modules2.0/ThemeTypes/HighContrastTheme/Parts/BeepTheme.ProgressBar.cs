@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // ProgressBar properties
-//<<<<<<< HEAD
         public Color ProgressBarBackColor { get; set; } = Color.Black;
         public Color ProgressBarForeColor { get; set; } = Color.White;
         public Color ProgressBarBorderColor { get; set; } = Color.White;

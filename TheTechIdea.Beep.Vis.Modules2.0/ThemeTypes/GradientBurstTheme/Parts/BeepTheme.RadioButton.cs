@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // RadioButton properties
-//<<<<<<< HEAD
         public Color RadioButtonBackColor { get; set; } = Color.White;
         public Color RadioButtonForeColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color RadioButtonBorderColor { get; set; } = Color.FromArgb(160, 160, 160);

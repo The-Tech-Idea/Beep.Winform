@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Company Colors
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.White;
-//<<<<<<< HEAD
         public Color CompanyTitleColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 900
         public TypographyStyle  CompanyTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
         public Color CompanySubtitleColor { get; set; } = Color.FromArgb(117, 117, 117); // Grey 600

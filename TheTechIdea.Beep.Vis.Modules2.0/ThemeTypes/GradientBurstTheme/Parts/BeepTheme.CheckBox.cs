@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
         public Color CheckBoxBackColor { get; set; } = Color.White;
         public Color CheckBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color CheckBoxBorderColor { get; set; } = Color.FromArgb(120, 144, 156); // Blue Gray

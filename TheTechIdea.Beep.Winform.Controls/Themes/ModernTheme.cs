@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -18,15 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     /// </summary>
     public class ModernTheme : IBeepTheme
     {
-        // =========================
         // Identity
-        // =========================
         public string ThemeName { get; } = "ModernTheme";
         public string ThemeGuid { get; set; } = Guid.NewGuid().ToString();
 
-        // =========================
         // AppBar / Caption
-        // =========================
         public Color AppBarBackColor { get; set; }
         public Color AppBarForeColor { get; set; }
         public Color AppBarButtonForeColor { get; set; }
@@ -776,12 +772,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         public TypographyStyle LabelMedium { get; set; }
         public TypographyStyle LabelSmall { get; set; }
 
-        // =========================
         // Constructor
-        // =========================
-        // =========================
         // Constructor
-        // =========================
         public ModernTheme()
         {
             // Base palette tuned for a bright, modern look
@@ -1484,9 +1476,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             FillColorDefaultsByConvention();
         }
 
-        // =========================
         // Utility Methods (IBeepTheme)
-        // =========================
         public TypographyStyle GetAnswerFont() => BodyMedium ?? BodyStyle ?? TS(13, FontStyle.Regular, 400, ForeColor, true);
         public TypographyStyle GetBlockHeaderFont() => TitleSmall ?? TitleStyle ?? TS(18, FontStyle.Bold, 600, ForeColor, true);
         public TypographyStyle GetBlockTextFont() => BodyMedium ?? BodyStyle ?? TS(12, FontStyle.Regular, 400, ForeColor, true);
@@ -1504,9 +1494,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             }
         }
 
-        // =========================
         // Helpers
-        // =========================
         private static Color C(int r, int g, int b) => Color.FromArgb(255, r, g, b);
 
         private static Color Blend(Color a, Color b, double t)

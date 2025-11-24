@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Dialog Button Colors and Fonts
-//<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color DialogForeColor { get; set; } = Color.WhiteSmoke;
         public TypographyStyle  DialogYesButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);

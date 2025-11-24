@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Login Popover Colors
-//<<<<<<< HEAD
         public Color LoginPopoverBackgroundColor { get; set; } = Color.Black;
         public Color LoginTitleColor { get; set; } = Color.White;
         public TypographyStyle  LoginTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16, FontStyle.Bold);

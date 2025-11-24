@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Star Rating Fonts & Colors
-//<<<<<<< HEAD
         public Color StarRatingForeColor { get; set; } = Color.Gray;
         public Color StarRatingBackColor { get; set; } = Color.WhiteSmoke;
         public Color StarRatingBorderColor { get; set; } = Color.LightGray;

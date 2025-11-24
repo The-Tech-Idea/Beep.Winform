@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Star Rating Fonts & Colors
-//<<<<<<< HEAD
         public Color StarRatingForeColor { get; set; } = Color.LightGray;
         public Color StarRatingBackColor { get; set; } = Color.FromArgb(30, 30, 40);
         public Color StarRatingBorderColor { get; set; } = Color.DarkGray;

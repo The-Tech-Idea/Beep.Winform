@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            using (var b = new SolidBrush(Color.FromArgb(250, 250, 250)))
+            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(250, 250, 250) : context.BarBackColor))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
@@ -24,6 +24,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 {
                     // Draw expanded rounded pill containing icon and label
                     var pillRect = new Rectangle(r.Left - 6, r.Top + 6, r.Width + 12, r.Height - 12);
+                    // if animated indicator is present use it to drive position/width
+                    try
+                    {
+                        if (context.AnimatedIndicatorWidth > 0)
+                        {
+                            float pulse = 1.0f + 0.02f * context.AnimationPhase; // slight expansion
+                            int width = (int)((int)context.AnimatedIndicatorWidth + 12);
+                            int w = Math.Max(8, (int)(width * pulse));
+                            int x = (int)context.AnimatedIndicatorX - 6 - (w - width) / 2;
+                            pillRect = new Rectangle(x, r.Top + 6, w, r.Height - 12);
+                        }
+                    }
+                    catch { }
                     int radius = pillRect.Height / 2;
                     using (var gp = new GraphicsPath())
                     {
@@ -41,7 +54,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                             context.Graphics.FillPath(br, gp);
                         }
                         // optional stroke
-                        using (var pen = new Pen(Color.FromArgb(40, Color.Black), 1f))
+                        var penBase = context.NavigationBorderColor == Color.Empty ? (context.BarForeColor == Color.Empty ? Color.Black : context.BarForeColor) : context.NavigationBorderColor;
+                        var pillStrokeColor = Color.FromArgb(40, penBase.R, penBase.G, penBase.B);
+                        using (var pen = new Pen(pillStrokeColor, 1f))
                         {
                             context.Graphics.DrawPath(pen, gp);
                         }
@@ -55,16 +70,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     var hoverRect = new Rectangle(r.Left + 6, r.Top + 8, r.Width - 12, r.Height - 16);
                     int radius = hoverRect.Height / 2;
                     using (var gp = new GraphicsPath())
-                    using (var br = new SolidBrush(Color.FromArgb(18, Color.Black)))
                     {
-                        gp.AddArc(hoverRect.Left, hoverRect.Top, radius * 2, radius * 2, 180, 90);
-                        gp.AddArc(hoverRect.Right - radius * 2, hoverRect.Top, radius * 2, radius * 2, 270, 90);
-                        gp.AddArc(hoverRect.Right - radius * 2, hoverRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
-                        gp.AddArc(hoverRect.Left, hoverRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
-                        gp.CloseFigure();
-                        context.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                        context.Graphics.FillPath(br, gp);
-                        context.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
+                        var hoverBrushColor = context.BarHoverBackColor == Color.Empty ? (context.BarForeColor == Color.Empty ? Color.FromArgb(18, Color.Black) : Color.FromArgb(18, context.BarForeColor)) : Color.FromArgb(18, context.BarHoverBackColor);
+                        using (var br = new SolidBrush(hoverBrushColor))
+                        {
+                            gp.AddArc(hoverRect.Left, hoverRect.Top, radius * 2, radius * 2, 180, 90);
+                            gp.AddArc(hoverRect.Right - radius * 2, hoverRect.Top, radius * 2, radius * 2, 270, 90);
+                            gp.AddArc(hoverRect.Right - radius * 2, hoverRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+                            gp.AddArc(hoverRect.Left, hoverRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+                            gp.CloseFigure();
+                            context.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                            context.Graphics.FillPath(br, gp);
+                            context.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
+                        }
                     }
                 }
                 // For the selected pill, we render icon + label inside the pill differently
@@ -94,13 +112,22 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         {
             // Use a left-aligned icon + label inside the pill rectangle (expanded managed earlier)
             var pillRect = new Rectangle(rect.Left - 6, rect.Top + 6, rect.Width + 12, rect.Height - 12);
+            // override with animated indicator if present
+            try
+            {
+                if (context.AnimatedIndicatorWidth > 0)
+                {
+                    pillRect = new Rectangle((int)context.AnimatedIndicatorX - 6, rect.Top + 6, (int)context.AnimatedIndicatorWidth + 12, rect.Height - 12);
+                }
+            }
+            catch { }
             int iconSize = Math.Min(22, rect.Height - 12);
             var iconRect = new Rectangle(pillRect.Left + 12, pillRect.Top + (pillRect.Height - iconSize) / 2, iconSize, iconSize);
 
             context.ImagePainter.ImagePath = string.IsNullOrEmpty(item.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-            context.ImagePainter.ImageEmbededin = BaseImage.ImageEmbededin.Button;
+            context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
             var prevFill = context.ImagePainter.FillColor;
-            context.ImagePainter.FillColor = Color.White;
+            context.ImagePainter.FillColor = context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor;
             // white icon in pill
             var prevTheme = context.ImagePainter.ApplyThemeOnImage;
             context.ImagePainter.ApplyThemeOnImage = false;
@@ -110,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
             // draw label to the right
             using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
-            using (var brush = new SolidBrush(Color.White))
+            using (var brush = new SolidBrush(context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor))
             {
                 var textRect = new Rectangle(iconRect.Right + 8, pillRect.Top, pillRect.Right - (iconRect.Right + 12), pillRect.Height);
                 var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };

@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 {
                     try
                     {
-                        using var roundedClip = GraphicsExtensions.GetRoundedRectPath(ctx.DrawingRect, (int)ctx.CornerRadius);
+                        using var roundedClip = PathPainterHelpers.CreateRoundedRectangle(ctx.DrawingRect, (int)ctx.CornerRadius);
                         g.SetClip(roundedClip);
                         StyledImagePainter.Paint(g, ctx.DrawingRect, imagePath);
                         g.ResetClip();
@@ -85,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     // Draw directly from Image object
                     try
                     {
-                        using var roundedClip = GraphicsExtensions.GetRoundedRectPath(ctx.DrawingRect, (int)ctx.CornerRadius);
+                        using var roundedClip = PathPainterHelpers.CreateRoundedRectangle(ctx.DrawingRect, (int)ctx.CornerRadius);
                         g.SetClip(roundedClip);
                         g.DrawImage(image, ctx.DrawingRect);
                         g.ResetClip();

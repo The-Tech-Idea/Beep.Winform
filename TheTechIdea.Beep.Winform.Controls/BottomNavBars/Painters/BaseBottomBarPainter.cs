@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         {
             if (context.Graphics == null) return;
             // Draw background
-            using (var b = new SolidBrush(context.ImagePainter == null ? Color.White : Color.White))
+            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.White : context.BarBackColor))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
@@ -48,8 +48,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
             catch { }
             using (var brush = new SolidBrush(Color.FromArgb(40, context.AccentColor)))
+            using (var gp = new System.Drawing.Drawing2D.GraphicsPath())
             {
-                context.Graphics.FillRectangle(brush, indicator);
+                int radius = (int)Math.Round(indicator.Height / 2f);
+                var rect = Rectangle.Round(indicator);
+                // Draw rounded pill-like indicator
+                gp.AddArc(rect.Left, rect.Top, radius * 2, radius * 2, 180, 90);
+                gp.AddArc(rect.Right - radius * 2, rect.Top, radius * 2, radius * 2, 270, 90);
+                gp.AddArc(rect.Right - radius * 2, rect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+                gp.AddArc(rect.Left, rect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+                gp.CloseFigure();
+                context.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                context.Graphics.FillPath(brush, gp);
+                context.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
             }
 
             // Draw items
@@ -66,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             // draw icon
             var iconRect = new Rectangle(rect.Left + (rect.Width - 24) / 2, rect.Top + 4, 24, 24);
             context.ImagePainter.ImagePath = string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-            context.ImagePainter.ImageEmbededin = BaseImage.ImageEmbededin.Button;
+            context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
             context.ImagePainter.DrawImage(g, iconRect);
 
             // draw badge if present
@@ -93,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         }
                         else if (item.BadgeShape == BadgeShape.RoundedRectangle)
                         {
-                            using (var path = CreateRoundedPath(badgeRect, badgeH / 2))
+                            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, badgeH / 2))
                             {
                                 g.FillPath(brush, path);
                             }
@@ -115,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             bool isSelected = context.SelectedIndex >= 0 && context.SelectedIndex < context.Items.Count && context.Items[context.SelectedIndex] == item;
             bool isHovered = context.HoverIndex >= 0 && context.HoverIndex < context.Items.Count && context.Items[context.HoverIndex] == item;
             using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(isSelected ? context.AccentColor : (isHovered ? Color.Black : Color.FromArgb(110, 110, 110))))
+            using (var brush = new SolidBrush(isSelected ? context.AccentColor : (isHovered ? context.BarHoverForeColor : context.BarForeColor)))
             {
                 var textRect = new Rectangle(rect.Left + 2, iconRect.Bottom + 2, rect.Width - 4, rect.Height - iconRect.Height - 6);
                 var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };

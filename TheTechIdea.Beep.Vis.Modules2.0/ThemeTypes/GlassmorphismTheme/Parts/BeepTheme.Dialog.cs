@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Dialog Button Colors and Fonts
-//<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.FromArgb(245, 250, 255);
         public Color DialogForeColor { get; set; } = Color.Black;
 

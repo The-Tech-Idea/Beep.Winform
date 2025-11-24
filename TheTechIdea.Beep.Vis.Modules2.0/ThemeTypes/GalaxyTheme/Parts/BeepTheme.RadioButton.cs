@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // RadioButton properties
-//<<<<<<< HEAD
         public Color RadioButtonBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color RadioButtonForeColor { get; set; } = Color.White;
         public Color RadioButtonBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33); // Subtle border

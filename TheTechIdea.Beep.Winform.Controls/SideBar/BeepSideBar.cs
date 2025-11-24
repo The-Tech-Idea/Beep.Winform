@@ -10,6 +10,12 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar
 {
+    public enum ClickTogglesExpansionMode
+    {
+        ToggleThenSelect,
+        SelectThenToggle,
+        ToggleOnly
+    }
     /// <summary>
     /// BeepSideBar - Modern painter-based sidebar control
     /// Clean implementation using the painter architecture
@@ -33,6 +39,41 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
 
         #region Events
         public event Action<SimpleItem> ItemClicked;
+        /// <summary>
+        /// Event arguments for <see cref="ItemExpansionChanged"/>
+        /// </summary>
+        public class ExpansionChangedEventArgs : EventArgs
+        {
+            public SimpleItem Item { get; }
+            public bool IsExpanded { get; }
+
+            public ExpansionChangedEventArgs(SimpleItem item, bool isExpanded)
+            {
+                Item = item;
+                IsExpanded = isExpanded;
+            }
+        }
+
+        public class ItemExpansionChangingEventArgs : System.ComponentModel.CancelEventArgs
+        {
+            public SimpleItem Item { get; }
+            public bool NewIsExpanded { get; }
+            public ItemExpansionChangingEventArgs(SimpleItem item, bool newIsExpanded)
+            {
+                Item = item;
+                NewIsExpanded = newIsExpanded;
+            }
+        }
+
+        /// <summary>
+        /// Raised when a menu item expansion state changes (either by user interaction
+        /// or programmatically via the SimpleItem.IsExpanded property).
+        /// </summary>
+        public event EventHandler<ExpansionChangedEventArgs> ItemExpansionChanged;
+        /// <summary>
+        /// Raised before an item's expansion state is changed. Handlers can set Cancel=true on the event args to prevent the change.
+        /// </summary>
+        public event EventHandler<ItemExpansionChangingEventArgs> ItemExpansionChanging;
         public event Action<bool> CollapseStateChanged;
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
@@ -198,9 +239,49 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         [Description("Default icon path for items without an explicit ImagePath. If null no fallback is used.")]
         public string DefaultItemImagePath { get; set; } = TheTechIdea.Beep.Icons.Svgs.Menu;
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When true, the painter will use an icon (ExpandIconPath/CollapseIconPath) instead of drawing a plus/minus manually.")]
+        [DefaultValue(false)]
+        public bool UseExpandCollapseIcon { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("SVG path or image path for the Expand (collapsed -> show children) icon.")]
+        public string ExpandIconPath { get; set; }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("SVG path or image path for the Collapse (expanded -> hide children) icon.")]
+        public string CollapseIconPath { get; set; }
+
         [Browsable(false)]
         public int MenuItemHeight => _itemHeight;
         #endregion
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, clicking the menu item will toggle expand/collapse for items with children instead of selecting the item.")]
+        [DefaultValue(false)]
+        public bool ClickTogglesExpansion { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("How clicks should behave when toggling expansion for items with children.")]
+        [DefaultValue(ClickTogglesExpansionMode.ToggleThenSelect)]
+        public ClickTogglesExpansionMode ClickTogglesExpansionMode { get; set; } = ClickTogglesExpansionMode.ToggleThenSelect;
+
+        protected virtual void OnItemExpansionChanged(SimpleItem item, bool isExpanded)
+        {
+            ItemExpansionChanged?.Invoke(this, new ExpansionChangedEventArgs(item, isExpanded));
+        }
+
+        protected virtual bool OnItemExpansionChanging(SimpleItem item, bool newIsExpanded)
+        {
+            var args = new ItemExpansionChangingEventArgs(item, newIsExpanded);
+            ItemExpansionChanging?.Invoke(this, args);
+            return !args.Cancel;
+        }
 
         #region Protected Methods
         protected override void OnResize(EventArgs e)

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Login Popover Colors
-//<<<<<<< HEAD
         public Color LoginPopoverBackgroundColor { get; set; } = Color.FromArgb(25, 25, 25);
         public Color LoginTitleColor { get; set; } = Color.White;
         public TypographyStyle  LoginTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 18f, FontStyle.Bold);

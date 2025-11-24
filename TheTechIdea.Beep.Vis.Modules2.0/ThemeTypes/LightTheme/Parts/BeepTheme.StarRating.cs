@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class LightTheme
     {
         // Star Rating Fonts & Colors
-//<<<<<<< HEAD
         public Color StarRatingForeColor { get; set; } = Color.Goldenrod;
         public Color StarRatingBackColor { get; set; } =Color.White;
         public Color StarRatingBorderColor { get; set; } = Color.DarkGoldenrod;

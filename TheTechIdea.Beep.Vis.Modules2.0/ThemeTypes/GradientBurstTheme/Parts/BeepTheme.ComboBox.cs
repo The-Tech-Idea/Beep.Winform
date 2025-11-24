@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // ComboBox Colors and Fonts
-//<<<<<<< HEAD
         public Color ComboBoxBackColor { get; set; } = Color.White;
         public Color ComboBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(120, 144, 156); // Blue Gray

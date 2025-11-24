@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // RadioButton properties
-//<<<<<<< HEAD
         public Color RadioButtonBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color RadioButtonForeColor { get; set; } = Color.LightGray;
         public Color RadioButtonBorderColor { get; set; } = Color.Gray;

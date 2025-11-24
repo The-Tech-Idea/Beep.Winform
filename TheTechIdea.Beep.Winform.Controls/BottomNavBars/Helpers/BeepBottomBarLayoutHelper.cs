@@ -61,6 +61,29 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
                 left += itemWidths[i];
             }
 
+            // If CTA is present, attempt to center it within the overall bounds by shifting items
+            if (ctaIndex >= 0 && ctaIndex < _cachedItemRects.Count)
+            {
+                var ctaRect = _cachedItemRects[ctaIndex];
+                int totalInnerWidth = _cachedItemRects.Count > 0 ? (_cachedItemRects[_cachedItemRects.Count - 1].Right - _cachedItemRects[0].Left) : 0;
+                int desiredCenter = _bounds.Left + width / 2 + padding;
+                int currentCenter = ctaRect.Left + ctaRect.Width / 2;
+                int delta = desiredCenter - currentCenter;
+                // clamp shifts so we don't overscroll boundaries
+                int minShift = _bounds.Left + padding - _cachedItemRects[0].Left;
+                int maxShift = (_bounds.Right - padding) - _cachedItemRects[_cachedItemRects.Count - 1].Right;
+                int allowedDelta = Math.Min(maxShift, Math.Max(minShift, delta));
+                if (allowedDelta != 0)
+                {
+                    for (int i = 0; i < _cachedItemRects.Count; i++)
+                    {
+                        var rr = _cachedItemRects[i];
+                        rr.Offset(allowedDelta, 0);
+                        _cachedItemRects[i] = rr;
+                    }
+                }
+            }
+
             // default indicator width is item width - 16
             _cachedIndicatorRect = new Rectangle(_cachedItemRects[0].Left + 8, _cachedItemRects[0].Top + 6, _cachedItemRects[0].Width - 16, _cachedItemRects[0].Height - 12);
             // If CTA index is used, set indicator to that element's rect by default

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // Tree Fonts & Colors
-//<<<<<<< HEAD
         public TypographyStyle  TreeTitleFont { get; set; }
         public TypographyStyle  TreeNodeSelectedFont { get; set; }
         public TypographyStyle  TreeNodeUnSelectedFont { get; set; }

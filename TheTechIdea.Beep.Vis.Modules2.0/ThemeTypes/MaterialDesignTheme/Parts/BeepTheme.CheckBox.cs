@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // CheckBox properties
-//<<<<<<< HEAD
         public Color CheckBoxBackColor { get; set; } = Color.White;
         public Color CheckBoxForeColor { get; set; } = Color.FromArgb(66, 66, 66); // Grey 800
         public Color CheckBoxBorderColor { get; set; } = Color.FromArgb(189, 189, 189); // Grey 400

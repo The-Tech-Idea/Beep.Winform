@@ -82,31 +82,22 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             try
             {
-<<<<<<< HEAD
-                // Use StyledImagePainter for consistent, cached, and tintable image drawing
-                // Compute tint color based on theme
-                Color defaultTint = Color.FromArgb(255, 255, 255, 175);
-                Color iconTint = GetEffectiveColor(context, context.Theme?.SideMenuForeColor ?? defaultTint, defaultTint);
-=======
                 // Reuse the shared ImagePainter instance
                 string iconPath = GetIconPath(item, context);
                 _sharedImagePainter.ImagePath = iconPath;
->>>>>>> bdb7ce0d65c735a56e2837a4b1bdc571b4d72341
-
-                // If the item is selected, prefer primary color as tint
-                if (context.Theme != null && item == context.SelectedItem && context.UseThemeColors)
-                {
-                    iconTint = context.Theme.PrimaryColor;
-                }
 
                 if (context.Theme != null && context.UseThemeColors)
                 {
-                    StyledImagePainter.PaintWithTint(g, iconRect, item.ImagePath, iconTint, 1f, 0);
+                    _sharedImagePainter.CurrentTheme = context.Theme;
+                    _sharedImagePainter.ApplyThemeOnImage = true;
+                    _sharedImagePainter.ImageEmbededin = ImageEmbededin.SideBar;
                 }
                 else
                 {
-                    StyledImagePainter.Paint(g, iconRect, item.ImagePath);
+                    _sharedImagePainter.ApplyThemeOnImage = false;
                 }
+
+                _sharedImagePainter.DrawImage(g, iconRect);
             }
             catch (Exception ex)
             {
@@ -206,8 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                     return TheTechIdea.Beep.Icons.Svgs.NavDashboard;
                 case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.StripeDashboard:
                     return TheTechIdea.Beep.Icons.Svgs.NavDashboard;
-                case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.DarkGlow:
-                    return TheTechIdea.Beep.Icons.Svgs.Zap;
+          
                 case TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.DiscordStyle:
                     return TheTechIdea.Beep.Icons.Svgs.NavUser;
                 default:
@@ -434,6 +424,35 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             }
 
             return new Size(Math.Max(width, 200), Math.Max(height, 44));
+        }
+
+        /// <summary>
+        /// Helper methods for consistent sizing and spacing across SideBar painters
+        /// Ensures parity across painters by computing sizes based on context heights.
+        /// </summary>
+        protected int GetTopLevelIconSize(ISideBarPainterContext context)
+        {
+            return Math.Max(12, Math.Min(24, context.ItemHeight - 8));
+        }
+
+        protected int GetChildIconSize(ISideBarPainterContext context)
+        {
+            return Math.Max(10, Math.Min(20, context.ChildItemHeight - 6));
+        }
+
+        protected int GetExpandIconSize(ISideBarPainterContext context)
+        {
+            return Math.Max(12, Math.Min(18, context.ItemHeight - 8));
+        }
+
+        protected int GetChildExpandIconSize(ISideBarPainterContext context)
+        {
+            return Math.Max(10, Math.Min(16, context.ChildItemHeight - 6));
+        }
+
+        protected int GetIconPadding(ISideBarPainterContext context)
+        {
+            return 12;
         }
     }
 }

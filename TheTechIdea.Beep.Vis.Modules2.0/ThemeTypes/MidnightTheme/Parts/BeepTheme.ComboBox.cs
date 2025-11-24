@@ -5,10 +5,10 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // ComboBox Colors and Fonts
-//<<<<<<< HEAD
         public Color ComboBoxBackColor { get; set; } = Color.FromArgb(40, 40, 40); // Dark gray background
         public Color ComboBoxForeColor { get; set; } = Color.WhiteSmoke;            // Light text
         public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(70, 70, 70); // Slightly lighter border
+        
         public Color ComboBoxHoverBackColor { get; set; } = Color.FromArgb(60, 60, 60); // Hover dark gray
         public Color ComboBoxHoverForeColor { get; set; } = Color.White;            // Hover text white
         public Color ComboBoxHoverBorderColor { get; set; } = Color.FromArgb(120, 120, 120); // Hover border light gray

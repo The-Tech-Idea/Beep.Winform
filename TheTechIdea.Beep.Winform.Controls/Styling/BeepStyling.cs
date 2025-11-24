@@ -302,10 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case BeepControlStyle.FinSet:
                     TailwindCardBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
-                case BeepControlStyle.FinSet:
-                    // FinSet uses a similar Tailwind-style card background
-                    TailwindCardBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
-                    break;
+             
                 case BeepControlStyle.StripeDashboard:
                     StripeDashboardBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
@@ -769,7 +766,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 2));
                     break;
                 
-                case BeepControlStyle.Neon:
+               
                 case BeepControlStyle.NeonGlow:
                     // Neon styles use slightly irregular edges for glow effect
                     path = PathPainterHelpers.CreateCyberpunkPath(bounds);

@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BeepControlStyle.Nordic => new NordicBorderPainterWrapper(),
                 BeepControlStyle.OneDark => new OneDarkBorderPainterWrapper(),
                 BeepControlStyle.Paper => new PaperBorderPainterWrapper(),
-                BeepControlStyle.Retro => new RetroBorderPainterWrapper(),
+          
                 BeepControlStyle.Solarized => new SolarizedBorderPainterWrapper(),
                 BeepControlStyle.Terminal => new TerminalBorderPainterWrapper(),
                 BeepControlStyle.Tokyo => new TokyoBorderPainterWrapper(),

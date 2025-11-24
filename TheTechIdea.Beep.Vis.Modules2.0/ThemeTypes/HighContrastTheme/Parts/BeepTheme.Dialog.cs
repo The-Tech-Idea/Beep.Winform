@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Dialog Button Colors and Fonts
-//<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.Black;
         public Color DialogForeColor { get; set; } = Color.White;
 

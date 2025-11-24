@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Nordic => true,
                 BeepControlStyle.OneDark => true,
                 BeepControlStyle.Paper => true,
-                BeepControlStyle.Retro => true,
+               
                 BeepControlStyle.Solarized => true,
                 BeepControlStyle.Terminal => false,
                 BeepControlStyle.Tokyo => true,
@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Nordic => 10,
                 BeepControlStyle.OneDark => 10,
                 BeepControlStyle.Paper => 12,
-                BeepControlStyle.Retro => 4,
+               
                 BeepControlStyle.Solarized => 7,
                 BeepControlStyle.Terminal => 0,
                 BeepControlStyle.Tokyo => 14,
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Nordic => 4,
                 BeepControlStyle.OneDark => 4,
                 BeepControlStyle.Paper => 6,
-                BeepControlStyle.Retro => 4,
+              
                 BeepControlStyle.Solarized => 3,
                 BeepControlStyle.Terminal => 0,
                 BeepControlStyle.Tokyo => 7,
@@ -284,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Nordic => Color.FromArgb(50, 163, 177, 198),
                 BeepControlStyle.OneDark => Color.FromArgb(90, 0, 0, 0),
                 BeepControlStyle.Paper => Color.FromArgb(70, 0, 0, 0),
-                BeepControlStyle.Retro => Color.FromArgb(110, 0, 0, 0),
+               
                 BeepControlStyle.Solarized => Color.FromArgb(80, 0, 43, 54),
                 BeepControlStyle.Tokyo => Color.FromArgb(130, 122, 162, 247),
                 BeepControlStyle.Ubuntu => Color.FromArgb(120, 233, 84, 32),

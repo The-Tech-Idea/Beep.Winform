@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // RadioButton properties
-//<<<<<<< HEAD
         public Color RadioButtonBackColor { get; set; } = Color.Black;
         public Color RadioButtonForeColor { get; set; } = Color.White;
         public Color RadioButtonBorderColor { get; set; } = Color.White;

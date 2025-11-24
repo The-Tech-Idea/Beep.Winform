@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Company Colors
-//<<<<<<< HEAD
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.FromArgb(30, 30, 30); // Dark background
         public Color CompanyTitleColor { get; set; } = Color.WhiteSmoke; // Light text
         public TypographyStyle  CompanyTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);

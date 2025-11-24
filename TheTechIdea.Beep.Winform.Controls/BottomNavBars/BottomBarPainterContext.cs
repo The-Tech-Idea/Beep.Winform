@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 {
@@ -25,5 +26,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         public Action<int, MouseButtons> OnItemClicked { get; set; }
         public float AnimatedIndicatorX { get; set; }
         public float AnimatedIndicatorWidth { get; set; }
+        // Theme-driven color tokens for painters
+        public Color BarBackColor { get; set; }
+        public Color BarForeColor { get; set; }
+        public Color BarHoverBackColor { get; set; }
+        public Color BarHoverForeColor { get; set; }
+        public Color BadgeBackColor { get; set; }
+        public Color BadgeForeColor { get; set; }
+        public Color OnAccentColor { get; set; }
+        public Color NavigationBorderColor { get; set; }
+        public Color NavigationShadowColor { get; set; }
+        public int CTAShadowYOffset { get; set; }
     }
 }

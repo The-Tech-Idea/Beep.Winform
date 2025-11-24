@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // Dialog Button Colors and Fonts
-//<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.White;
         public Color DialogForeColor { get; set; } = Color.Black;
 

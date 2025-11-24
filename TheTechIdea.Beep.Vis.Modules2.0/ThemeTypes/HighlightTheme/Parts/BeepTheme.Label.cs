@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // Label Colors and Fonts
-//<<<<<<< HEAD
         public Color LabelBackColor { get; set; } = Color.White;
         public Color LabelForeColor { get; set; } = Color.Black;
         public Color LabelBorderColor { get; set; } = Color.FromArgb(255, 220, 160);

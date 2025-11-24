@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // Star Rating Fonts & Colors
-//<<<<<<< HEAD
         public Color StarRatingForeColor { get; set; } = Color.Gold;
         public Color StarRatingBackColor { get; set; } = Color.White;
         public Color StarRatingBorderColor { get; set; } = Color.Gray;

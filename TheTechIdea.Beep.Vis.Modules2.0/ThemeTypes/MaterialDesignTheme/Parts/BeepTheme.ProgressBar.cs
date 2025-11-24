@@ -4,7 +4,6 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-//<<<<<<< HEAD
         // ProgressBar properties with defaults
         public Color ProgressBarBackColor { get; set; } = Color.FromArgb(238, 238, 238); // Light grey background
         public Color ProgressBarForeColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue primary foreground

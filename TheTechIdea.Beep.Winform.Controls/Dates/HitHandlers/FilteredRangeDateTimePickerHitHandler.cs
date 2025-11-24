@@ -19,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
         {
             var result = new DateTimePickerHitTestResult();
             
-            // ========== SECTION 1: SIDEBAR FILTER BUTTONS ==========
             if (layout.FilterButtonRects != null)
             {
                 // Keys must match the HandleClick switch statement
@@ -39,7 +38,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
                 }
             }
             
-            // ========== SECTION 2: LEFT CALENDAR DAY CELLS ==========
             if (layout.LeftDayCellRects != null)
             {
                 DateTime leftMonth = displayMonth;
@@ -68,7 +66,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
                 }
             }
             
-            // ========== SECTION 3: RIGHT CALENDAR DAY CELLS ==========
             if (layout.RightDayCellRects != null)
             {
                 DateTime rightMonth = displayMonth.AddMonths(1);
@@ -97,7 +94,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
                 }
             }
             
-            // ========== SECTION 4: TIME SPINNER BUTTONS ==========
             // Start (From) Hour Spinner
             if (layout.TimeHourUpRect != Rectangle.Empty && layout.TimeHourUpRect.Contains(location))
             {
@@ -166,7 +162,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
                 return result;
             }
             
-            // ========== SECTION 5: ACTION BUTTONS ==========
             if (layout.ResetButtonRect != Rectangle.Empty && layout.ResetButtonRect.Contains(location))
             {
                 result.IsHit = true;
@@ -183,7 +178,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers
                 return result;
             }
             
-            // ========== SECTION 6: YEAR DROPDOWNS ==========
             if (layout.LeftYearDropdownRect != Rectangle.Empty && layout.LeftYearDropdownRect.Contains(location))
             {
                 result.IsHit = true;

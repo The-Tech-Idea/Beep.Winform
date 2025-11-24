@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Nordic => new NordicShadowPainterWrapper(),
                 BeepControlStyle.OneDark => new OneDarkShadowPainterWrapper(),
                 BeepControlStyle.Paper => new PaperShadowPainterWrapper(),
-                BeepControlStyle.Retro => new RetroShadowPainterWrapper(),
+              
                 BeepControlStyle.Solarized => new SolarizedShadowPainterWrapper(),
                 BeepControlStyle.Terminal => new TerminalShadowPainterWrapper(),
                 BeepControlStyle.Tokyo => new TokyoShadowPainterWrapper(),

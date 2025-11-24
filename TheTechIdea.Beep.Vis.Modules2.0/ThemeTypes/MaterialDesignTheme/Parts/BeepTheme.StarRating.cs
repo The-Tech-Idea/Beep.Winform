@@ -4,7 +4,6 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-//<<<<<<< HEAD
         // Star Rating Fonts & Colors with Material Design defaults
         public Color StarRatingForeColor { get; set; } = Color.FromArgb(117, 117, 117); // Grey 600
         public Color StarRatingBackColor { get; set; } =Color.FromArgb(33, 150, 243);

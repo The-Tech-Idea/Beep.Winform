@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class LightTheme
     {
         // Dashboard Colors & Fonts
-//<<<<<<< HEAD
         public TypographyStyle  DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 18F, FontStyle.Bold);
         public TypographyStyle  DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Regular);
         public Color DashboardBackColor { get; set; } = Color.WhiteSmoke;

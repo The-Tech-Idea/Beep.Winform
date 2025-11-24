@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Textbox colors and Fonts
-//<<<<<<< HEAD
         public Color TextBoxBackColor { get; set; } = Color.Black;
         public Color TextBoxForeColor { get; set; } = Color.White;
         public Color TextBoxBorderColor { get; set; } = Color.White;

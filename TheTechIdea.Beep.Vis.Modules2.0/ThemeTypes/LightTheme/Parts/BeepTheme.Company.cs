@@ -7,7 +7,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Company Colors
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.White;
         public Color CompanyTitleColor { get; set; } = Color.Black;
-//<<<<<<< HEAD
         public TypographyStyle  CompanyTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
         public Color CompanySubtitleColor { get; set; } = Color.DarkBlue;
         public TypographyStyle  CompanySubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // ProgressBar properties
-//<<<<<<< HEAD
         public Color ProgressBarBackColor { get; set; } = Color.FromArgb(245, 250, 255);
         public Color ProgressBarForeColor { get; set; } = Color.SteelBlue;
         public Color ProgressBarBorderColor { get; set; } = Color.FromArgb(180, 200, 220);

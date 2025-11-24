@@ -5,10 +5,10 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // Button Colors and Styles
-//<<<<<<< HEAD
         public TypographyStyle  ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
         public TypographyStyle  ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
         public TypographyStyle  ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
+        
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(30, 136, 229); // Blue 600
         public Color ButtonHoverForeColor { get; set; } = Color.White;

@@ -87,7 +87,28 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             var clickedItem = GetItemAtPoint(e.Location);
             if (clickedItem != null)
             {
-                OnItemClicked(clickedItem);
+                if (ClickTogglesExpansion && clickedItem.Children != null && clickedItem.Children.Count > 0)
+                {
+                    switch (ClickTogglesExpansionMode)
+                    {
+                        case ClickTogglesExpansionMode.ToggleThenSelect:
+                            ToggleItemExpansion(clickedItem);
+                            OnItemClicked(clickedItem);
+                            break;
+                        case ClickTogglesExpansionMode.SelectThenToggle:
+                            OnItemClicked(clickedItem);
+                            ToggleItemExpansion(clickedItem);
+                            break;
+                        case ClickTogglesExpansionMode.ToggleOnly:
+                        default:
+                            ToggleItemExpansion(clickedItem);
+                            break;
+                    }
+                }
+                else
+                {
+                    OnItemClicked(clickedItem);
+                }
             }
         }
         #endregion
@@ -118,7 +139,28 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                     {
                         if (_selectedItem.Children != null && _selectedItem.Children.Count > 0)
                         {
-                            ToggleItemExpansion(_selectedItem);
+                            if (ClickTogglesExpansion)
+                            {
+                                switch (ClickTogglesExpansionMode)
+                                {
+                                    case ClickTogglesExpansionMode.ToggleThenSelect:
+                                        ToggleItemExpansion(_selectedItem);
+                                        OnItemClicked(_selectedItem);
+                                        break;
+                                    case ClickTogglesExpansionMode.SelectThenToggle:
+                                        OnItemClicked(_selectedItem);
+                                        ToggleItemExpansion(_selectedItem);
+                                        break;
+                                    case ClickTogglesExpansionMode.ToggleOnly:
+                                    default:
+                                        ToggleItemExpansion(_selectedItem);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                ToggleItemExpansion(_selectedItem);
+                            }
                         }
                         else
                         {

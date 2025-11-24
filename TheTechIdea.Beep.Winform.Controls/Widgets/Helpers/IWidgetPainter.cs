@@ -69,9 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string ImagePath { get;  set; }
         public string? IconPath { get; internal set; }
 
-        // ===========================================
         // NAVIGATION PROPERTIES
-        // ===========================================
         public List<object> NavigationItems { get; set; } = new List<object>(); // Can be List<string> or List<NavigationItem>
         public List<(string, List<string>)>? NavigationGroups { get; set; }
         public List<object> QuickActions { get; set; } = new List<object>();
@@ -85,9 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool ShowPageInfo { get; set; }
         public bool ShowTabSeparators { get; set; }
 
-        // ===========================================
         // SOCIAL/COMMUNICATION PROPERTIES
-        // ===========================================
         public List<object> ChatMessages { get; set; } = new List<object>(); // List<ChatMessage> or List<Dictionary<string, object>>
         public int MessageCount { get; set; }
         public int UnreadCount { get; set; }
@@ -111,9 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public Color StatusColor { get; set; } = Color.Gray;
         public bool IsVerticalLayout { get; set; }
 
-        // ===========================================
         // NOTIFICATION/ALERT PROPERTIES
-        // ===========================================
         public string Message { get; set; } = "";
         public string Timestamp { get; set; } = "";
         public string NotificationType { get; set; } = "info"; // "info", "warning", "error", "success"
@@ -127,18 +121,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public float Progress { get; set; }
         public List<object>? NotificationMessages { get; set; } // List of notification message objects
 
-        // ===========================================
         // MEDIA/DISPLAY PROPERTIES
-        // ===========================================
         public Image? Image { get; set; }
         public bool ShowImageOverlay { get; set; }
         public bool ShowBadge { get; set; }
         public string OverlayText { get; set; } = "";
         public List<object>? MediaItems { get; set; } // List of media items (avatars, images, etc.)
 
-        // ===========================================
         // LOCATION/MAP PROPERTIES
-        // ===========================================
         public string Address { get; set; } = "Unknown Location";
         public string City { get; set; } = "";
         public string Region { get; set; } = "";
@@ -151,15 +141,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public List<object>? MapRoutes { get; set; } // List of route objects
         public Color RouteColor { get; set; } = Color.Blue;
 
-        // ===========================================
         // METRIC PROPERTIES
-        // ===========================================
         public string MetricType { get; set; } = "";
         public bool ShowPercentage { get; set; }
 
-        // ===========================================
         // LIST/ITEM PROPERTIES
-        // ===========================================
         public List<Dictionary<string, object>> ListItems { get; set; } = new List<Dictionary<string, object>>();
         public int PageIndex { get; set; } = 0;
         public int PageSize { get; set; } = 10;
@@ -168,9 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string EmptyText { get; set; } = "No data to display";
         public Dictionary<int, string>? StatusOverrides { get; set; } // Status override mapping
 
-        // ===========================================
         // FINANCE PROPERTIES
-        // ===========================================
         public decimal? PrimaryValue { get; set; }
         public decimal? SecondaryValue { get; set; }
         public string CurrencySymbol { get; set; } = "$";
@@ -269,9 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public int ActiveTabIndex { get; set; } = -1;
         public List<TreeNodeItem>? TreeItems { get; set; }
 
-        // ===========================================
         // INTERACTION/STATE PROPERTIES (Event Results)
-        // ===========================================
         public bool HeaderIconClicked { get; set; }
         public bool HeaderClicked { get; set; }
         public int SelectedMessageIndex { get; set; } = -1;

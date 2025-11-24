@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // Textbox colors and Fonts
-//<<<<<<< HEAD
         public Color TextBoxBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color TextBoxForeColor { get; set; } = Color.White;
         public Color TextBoxBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33); // Subtle border

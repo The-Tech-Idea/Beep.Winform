@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // Label Colors and Fonts
-//<<<<<<< HEAD
         public Color LabelBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color LabelForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark Grey 900
         public Color LabelBorderColor { get; set; } = Color.FromArgb(189, 189, 189); // Grey 400

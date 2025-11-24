@@ -4,7 +4,6 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-//<<<<<<< HEAD
         // Textbox colors and Fonts with Material Design defaults
         public Color TextBoxBackColor { get; set; } = Color.White;
         public Color TextBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 900

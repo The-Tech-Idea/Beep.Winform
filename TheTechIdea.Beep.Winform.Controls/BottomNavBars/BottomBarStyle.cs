@@ -8,5 +8,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         Pill = 3,
         Diamond = 4,
         NotionMinimal = 5
+        , MovableNotch = 6
+        , OutlineFloatingCTA = 7
+        , SegmentedTrack = 8
+        , GlassAcrylic = 9
     }
 }

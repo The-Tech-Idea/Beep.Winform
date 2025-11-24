@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Label Colors and Fonts
-//<<<<<<< HEAD
         public Color LabelBackColor { get; set; } = Color.Black;
         public Color LabelForeColor { get; set; } = Color.White;
         public Color LabelBorderColor { get; set; } = Color.White;

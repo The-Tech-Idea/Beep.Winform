@@ -6,7 +6,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // ComboBox Colors and Fonts
-//<<<<<<< HEAD
         public Color ComboBoxBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor (#1F1939)
         public Color ComboBoxForeColor { get; set; } = Color.FromArgb(0xC8, 0xC8, 0xC8); // OnBackgroundColor
         public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(0x1A, 0x1A, 0x2E); // PrimaryColor (#1A1A2E)

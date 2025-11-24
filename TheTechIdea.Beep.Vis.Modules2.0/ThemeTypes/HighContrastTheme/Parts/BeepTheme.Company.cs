@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Company Colors
-//<<<<<<< HEAD
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.Black;
         public Color CompanyTitleColor { get; set; } = Color.White;
         public TypographyStyle  CompanyTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);

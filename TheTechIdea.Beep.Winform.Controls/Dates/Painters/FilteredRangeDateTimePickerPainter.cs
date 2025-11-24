@@ -724,7 +724,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             int padding = 12;
             int sidebarWidth = (int)(bounds.Width * 0.25f); // 25% for sidebar
             
-            // ========== SECTION 1: SIDEBAR ==========
             layout.SidebarRect = new Rectangle(bounds.X, bounds.Y, sidebarWidth, bounds.Height);
             
             int sidebarPadding = 16;
@@ -757,7 +756,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 currentY += buttonHeight + buttonGap;
             }
             
-            // ========== SECTION 2: MAIN CONTENT AREA ==========
             int mainX = bounds.X + sidebarWidth + padding;
             int mainWidth = bounds.Width - sidebarWidth - padding * 2;
             
@@ -765,7 +763,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             
             currentY = layout.MainContentRect.Y + padding;
             
-            // ========== SECTION 3: DUAL CALENDAR CONTAINER ==========
             int calendarHeight = (int)(bounds.Height * 0.55f);
             layout.DualCalendarContainerRect = new Rectangle(
                 mainX,
@@ -892,7 +889,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 }
             }
             
-            // ========== SECTION 4: TIME PICKER ROW WITH SPINNERS ==========
             currentY = layout.DualCalendarContainerRect.Bottom + padding * 2;
             int timeRowHeight = 70; // Increased for spinners
             
@@ -952,7 +948,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             layout.EndTimeMinuteUpRect = new Rectangle(layout.EndTimeMinuteRect.X, layout.EndTimeMinuteRect.Y, spinnerWidth, 16);
             layout.EndTimeMinuteDownRect = new Rectangle(layout.EndTimeMinuteRect.X, layout.EndTimeMinuteRect.Bottom - 16, spinnerWidth, 16);
             
-            // ========== SECTION 5: ACTION BUTTONS ROW ==========
             currentY = layout.TimePickerRowRect.Bottom + padding * 2;
             int actionRowHeight = 44;
             

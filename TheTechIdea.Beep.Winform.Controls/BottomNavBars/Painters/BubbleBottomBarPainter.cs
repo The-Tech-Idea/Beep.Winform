@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            using (var b = new SolidBrush(Color.FromArgb(250, 250, 250)))
+            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(250, 250, 250) : context.BarBackColor))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
@@ -23,7 +23,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 // Draw bubble when selected
                 if (i == context.SelectedIndex)
                 {
-                    var bubble = new Rectangle(r.Left + 6, r.Top + 4, r.Width - 12, r.Height - 8);
+                    // derive bubble from animated indicator if present
+                    Rectangle bubble;
+                    if (context.AnimatedIndicatorWidth > 0f)
+                    {
+                        bubble = new Rectangle((int)context.AnimatedIndicatorX + 6, r.Top + 4, (int)context.AnimatedIndicatorWidth - 12, r.Height - 8);
+                    }
+                    else
+                    {
+                        bubble = new Rectangle(r.Left + 6, r.Top + 4, r.Width - 12, r.Height - 8);
+                    }
                     // apply minor scale on selection using animation phase
                     float scale = 1.0f + 0.08f * context.AnimationPhase;
                     int w = (int)(bubble.Width * scale);
@@ -39,7 +48,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         context.Graphics.FillPath(brush, gp);
                         context.Graphics.SmoothingMode = SmoothingMode.Default;
                     }
-                }
 
                     // For selected item, tint icon to accent color
                     var prevFill = context.ImagePainter.FillColor;
@@ -52,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 {
                     var item = context.Items[i];
                     PaintMenuItem(context.Graphics, item, r, context);
+                }
             }
         }
 

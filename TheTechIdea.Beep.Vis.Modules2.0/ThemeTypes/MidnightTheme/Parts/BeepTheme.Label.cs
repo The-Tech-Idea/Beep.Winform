@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Label Colors and Fonts
-//<<<<<<< HEAD
         public Color LabelBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color LabelForeColor { get; set; } = Color.WhiteSmoke;
         public Color LabelBorderColor { get; set; } = Color.FromArgb(70, 70, 70);

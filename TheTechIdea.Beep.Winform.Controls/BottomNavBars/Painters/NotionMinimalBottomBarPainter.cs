@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            using (var b = new SolidBrush(Color.FromArgb(255, 255, 255)))
+            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(255, 255, 255) : context.BarBackColor))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 var item = context.Items[i];
                 var iconRect = new Rectangle(r.Left + (r.Width - 20) / 2, r.Top + (r.Height - 20) / 2, 20, 20);
                 context.ImagePainter.ImagePath = string.IsNullOrEmpty(item.ImagePath) ? context.DefaultImagePath : item.ImagePath;
-                context.ImagePainter.ImageEmbededin = BaseImage.ImageEmbededin.Button;
+                context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
                 context.ImagePainter.DrawImage(context.Graphics, iconRect);
 
                 // Selected indicator is a subtle top border

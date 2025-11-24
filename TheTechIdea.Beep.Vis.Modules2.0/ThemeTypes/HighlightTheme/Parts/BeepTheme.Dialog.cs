@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // Dialog Button Colors and Fonts
-//<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.White;
         public Color DialogForeColor { get; set; } = Color.Black;
         public TypographyStyle  DialogYesButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);

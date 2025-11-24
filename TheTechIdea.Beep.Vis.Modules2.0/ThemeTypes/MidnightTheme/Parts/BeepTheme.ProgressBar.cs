@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // ProgressBar properties
-//<<<<<<< HEAD
         public Color ProgressBarBackColor { get; set; } = Color.FromArgb(40, 40, 40);
         public Color ProgressBarForeColor { get; set; } = Color.LightGray;
         public Color ProgressBarBorderColor { get; set; } = Color.Gray;

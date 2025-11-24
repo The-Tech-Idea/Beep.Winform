@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            using (var b = new SolidBrush(Color.FromArgb(250, 250, 250)))
+            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(250, 250, 250) : context.BarBackColor))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }

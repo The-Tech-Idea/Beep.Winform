@@ -4,7 +4,6 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-//<<<<<<< HEAD
         // RadioButton properties with default Material Design values
         public Color RadioButtonBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color RadioButtonForeColor { get; set; } = Color.FromArgb(66, 66, 66); // Dark Gray text

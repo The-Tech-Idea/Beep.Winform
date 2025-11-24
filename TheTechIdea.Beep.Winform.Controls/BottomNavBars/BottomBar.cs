@@ -90,6 +90,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                     _bottomBarPainter = new DiamondBottomBarPainter(); break;
                 case BottomBarStyle.NotionMinimal:
                     _bottomBarPainter = new NotionMinimalBottomBarPainter(); break;
+                case BottomBarStyle.MovableNotch:
+                    _bottomBarPainter = new MovableNotchBottomBarPainter(); break;
+                case BottomBarStyle.OutlineFloatingCTA:
+                    _bottomBarPainter = new OutlineFloatingCTABottomBarPainter(); break;
+                case BottomBarStyle.SegmentedTrack:
+                    _bottomBarPainter = new SegmentedTrackBottomBarPainter(); break;
+                case BottomBarStyle.GlassAcrylic:
+                    _bottomBarPainter = new GlassAcrylicBottomBarPainter(); break;
                 default:
                     _bottomBarPainter = new ClassicBottomBarPainter(); break;
             }
@@ -107,8 +115,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             double progress = Math.Min(1.0, elapsed / _animationDuration);
             double eased = 1 - Math.Pow(1 - progress, 3);
             // interpolate from start to target using eased progress
-            _indicatorX = _indicatorStartX + (float)(_indicatorTargetX - _indicatorStartX) * (float)eased;
-            _indicatorWidth = _indicatorStartWidth + (float)(_indicatorTargetWidth - _indicatorStartWidth) * (float)eased;
+            // optionally use a slightly snappier easing curve (ease out quint)
+            var eased2 = 1 - Math.Pow(1 - progress, 4);
+            _indicatorX = _indicatorStartX + (float)(_indicatorTargetX - _indicatorStartX) * (float)eased2;
+            _indicatorWidth = _indicatorStartWidth + (float)(_indicatorTargetWidth - _indicatorStartWidth) * (float)eased2;
             Invalidate();
             if (progress >= 1.0)
             {
@@ -207,6 +217,65 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         [Category("Behavior")]
         [DefaultValue(1.25f)]
         public float SelectedWidthFactor { get => _layoutHelper.SelectedWidthFactor; set => _layoutHelper.SelectedWidthFactor = Math.Max(1.0f, value); }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(1.05f)]
+        public float FloatingCTANotchRadiusFactor { get; set; } = 1.05f;
+
+        // Movable notch tuning
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(22f)]
+        public float MovableNotchDepth { get; set; } = 22f;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(1.15f)]
+        public float MovableNotchWidthFactor { get; set; } = 1.15f;
+
+        // Outline CTA tuning
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(4)]
+        public int OutlineRingStrokeWidth { get; set; } = 4;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(36)]
+        public int OutlineHaloAlpha { get; set; } = 36;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(12)]
+        public int OutlineInnerAlpha { get; set; } = 12;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(1.4f)]
+        public float OutlineHaloScale { get; set; } = 1.4f;
+
+        // Segmented track tuning
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(6)]
+        public int SegmentedTrackHeight { get; set; } = 6;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(40)]
+        public int SegmentedIndicatorWidth { get; set; } = 40;
+
+        // Glass Acrylic tuning
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(0.6f)]
+        public float GlassAcrylicOpacity { get; set; } = 0.6f;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(8)]
+        public int CTAShadowYOffset { get; set; } = 8;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(false)]
+        public bool MovableNotchOutlineCTA { get; set; } = false;
         #endregion
 
         #region Events
@@ -248,16 +317,68 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 }
             };
             ctx.LayoutHelper = _layoutHelper;
+            // Populate theme-driven color tokens into painter context
+            if (_currentTheme != null)
+            {
+                ctx.BarBackColor = _currentTheme.NavigationBackColor != Color.Empty ? _currentTheme.NavigationBackColor : _currentTheme.SurfaceColor;
+                ctx.BarForeColor = _currentTheme.NavigationForeColor != Color.Empty ? _currentTheme.NavigationForeColor : _currentTheme.ForeColor;
+                ctx.BarHoverBackColor = _currentTheme.NavigationHoverBackColor != Color.Empty ? _currentTheme.NavigationHoverBackColor : _currentTheme.PanelBackColor;
+                ctx.BarHoverForeColor = _currentTheme.NavigationHoverForeColor != Color.Empty ? _currentTheme.NavigationHoverForeColor : _currentTheme.ForeColor;
+                ctx.BadgeBackColor = _currentTheme.BadgeBackColor;
+                ctx.BadgeForeColor = _currentTheme.BadgeForeColor;
+                ctx.OnAccentColor = _currentTheme.OnPrimaryColor;
+                // Derive navigation border and shadow colors from existing theme tokens
+                ctx.NavigationBorderColor = _currentTheme.BorderColor != Color.Empty ? _currentTheme.BorderColor : _currentTheme.ActiveBorderColor;
+                // Prefer NavigationHoverBackColor as the semantic base color for shadows when available
+                var shadowBase = _currentTheme.NavigationHoverBackColor != Color.Empty ? _currentTheme.NavigationHoverBackColor : (_currentTheme.BorderColor != Color.Empty ? _currentTheme.BorderColor : Color.Black);
+                // Use a slightly stronger alpha to better mimic a soft shadow; painters may use this directly or build layered shadows
+                ctx.NavigationShadowColor = Color.FromArgb(100, shadowBase.R, shadowBase.G, shadowBase.B);
+            }
             // precompute layout with selected item included for reflow
-            _layoutHelper.CtaWidthFactor = 1.6f; // default; can be exposed as property
-            _layoutHelper.SelectedWidthFactor = 1.25f; // default expansion for selected pill
+            _layoutHelper.CtaWidthFactor = CTAWidthFactor;
+            _layoutHelper.SelectedWidthFactor = SelectedWidthFactor;
             _layoutHelper.EnsureLayout(ctx.Bounds, ctx.Items, ctx.CTAIndex, ctx.SelectedIndex);
+            // Allow painters to read control properties (floating CTA notch etc.)
+            if (_bottomBarPainter is TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters.FloatingCTABottomBarPainter fcPainter)
+            {
+                fcPainter.NotchRadiusFactor = FloatingCTANotchRadiusFactor;
+            }
+            if (_bottomBarPainter is TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters.MovableNotchBottomBarPainter mnPainter)
+            {
+                mnPainter.NotchDepth = MovableNotchDepth;
+                mnPainter.NotchWidthFactor = MovableNotchWidthFactor;
+                mnPainter.NotchRadiusFactor = FloatingCTANotchRadiusFactor;
+                mnPainter.OutlineCTA = MovableNotchOutlineCTA;
+                mnPainter.OutlineStroke = OutlineRingStrokeWidth;
+            }
+            if (_bottomBarPainter is TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters.OutlineFloatingCTABottomBarPainter ofcPainter)
+            {
+                ofcPainter.RingStrokeWidth = OutlineRingStrokeWidth;
+                ofcPainter.HaloAlpha = OutlineHaloAlpha;
+                ofcPainter.InnerAlpha = OutlineInnerAlpha;
+                ofcPainter.HaloScale = OutlineHaloScale;
+            }
+            if (_bottomBarPainter is TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters.SegmentedTrackBottomBarPainter segPainter)
+            {
+                segPainter.TrackHeight = SegmentedTrackHeight;
+                segPainter.IndicatorWidth = SegmentedIndicatorWidth;
+            }
+            if (_bottomBarPainter is TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters.GlassAcrylicBottomBarPainter gPainter)
+            {
+                gPainter.AcrylicOpacity = GlassAcrylicOpacity;
+            }
             // derive an animation phase for pulsing/hover effects -> 0..1
             double seconds = _tickerMs / 1000.0;
             ctx.AnimationPhase = (float)((Math.Sin(seconds * 2 * Math.PI * 0.9) + 1.0) / 2.0);
             // Set the current theme on the ImagePainter so it can recolor icons where applicable
             ctx.ImagePainter.CurrentTheme = _currentTheme;
             ctx.ImagePainter.ApplyThemeOnImage = true;
+            ctx.CTAShadowYOffset = CTAShadowYOffset;
+            // Also set default accent to theme value if not explicitly set
+            if (_currentTheme != null && AccentColor == Color.FromArgb(96, 80, 255))
+            {
+                AccentColor = _currentTheme.AccentColor;
+            }
 
             _bottomBarPainter?.CalculateLayout(ctx);
             // Ensure hit helper is updated with computed rectangles
@@ -399,6 +520,34 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             }
             base.Dispose(disposing);
         }
+        /// <summary>
+        /// Applies the current theme tokens to the BottomBar control and its painters
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            try
+            {
+                if (_currentTheme == null) return;
+                // Set bar background/fore using Navigation tokens if available
+                BackColor = _currentTheme.NavigationBackColor != Color.Empty ? _currentTheme.NavigationBackColor : _currentTheme.SurfaceColor;
+                ForeColor = _currentTheme.NavigationForeColor != Color.Empty ? _currentTheme.NavigationForeColor : _currentTheme.ForeColor;
+                // Accent color default from theme
+                AccentColor = _currentTheme.AccentColor;
+                // Badge colors
+                foreach (var item in Items)
+                {
+                    // Do not override per-item custom badge colors if set
+                    if (item.BadgeBackColor == Color.Empty) item.BadgeBackColor = _currentTheme.BadgeBackColor;
+                    if (item.BadgeForeColor == Color.Empty) item.BadgeForeColor = _currentTheme.BadgeForeColor;
+                }
+                // Update ImagePainter's theme if available
+                _imagePainter.CurrentTheme = _currentTheme;
+                _imagePainter.ApplyThemeOnImage = true;
+                Invalidate();
+            }
+            catch { }
+        }
         #endregion
 
         #region Helpers
@@ -431,7 +580,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
             // Draw label
             using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(Color.FromArgb(110, 110, 110)))
+            using (var brush = new SolidBrush(_currentTheme == null ? Color.FromArgb(110, 110, 110) : _currentTheme.NavigationForeColor))
             {
                 var textRect = new Rectangle(itemRect.Left + 4, iconRect.Bottom + 2, itemRect.Width - 8, textHeight);
                 StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };

@@ -5,7 +5,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // ComboBox Colors and Fonts
-//<<<<<<< HEAD
         public Color ComboBoxBackColor { get; set; } = Color.Black;
         public Color ComboBoxForeColor { get; set; } = Color.White;
         public Color ComboBoxBorderColor { get; set; } = Color.White;

@@ -786,27 +786,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             var gray200 = C(38, 38, 38);
             var gray300 = C(64, 64, 64);
 
-            PrimaryColor = softGreen;
-            SecondaryColor = neonGreen;
+            // Core palette (simplified)
+            PrimaryColor = neonGreen;
+            SecondaryColor = softGreen;
             AccentColor = neonGreen;
             BackgroundColor = deepBlack;
             SurfaceColor = panelBlack;
-            ForeColor = softGreen;
-            OnPrimaryColor = softGreen;  // Bright green for consistency
+            ErrorColor = C(255, 80, 80);
+            WarningColor = C(255, 220, 120);
+            SuccessColor = softGreen;
+            OnPrimaryColor = softGreen;
             OnBackgroundColor = softGreen;
+
 
             ErrorColor = C(255, 80, 80);
             WarningColor = C(255, 255, 80);
             SuccessColor = softGreen;
 
             BorderColor = lineGreen;
-            ActiveBorderColor = lineGreen;
-            InactiveBorderColor = C(64, 90, 70);  // Dim green instead of gray
+         
 
-            DisabledBackColor = gray200;
-            DisabledForeColor = C(90, 140, 110);
-            DisabledBorderColor = C(64, 90, 70);  // Dim green instead of gray
+            // Core colors
+            ForeColor = softGreen;
+            BackColor = deepBlack;
+            PanelBackColor = panelBlack;
+            PanelGradiantStartColor = panelBlack;
+            PanelGradiantEndColor = panelBlack;
+            PanelGradiantMiddleColor = panelBlack;
+            PanelGradiantDirection = LinearGradientMode.Vertical;
 
+            DisabledBackColor = C(12, 12, 12);
+            DisabledForeColor = C(80, 120, 80);
+            DisabledBorderColor = lineGreen;
+            BorderColor = lineGreen;
+            ActiveBorderColor = neonGreen;
+            InactiveBorderColor = lineGreen;
             // --- AppBar / Caption (matches TerminalFormPainter)
             AppBarBackColor = deepBlack;
             AppBarForeColor = softGreen;

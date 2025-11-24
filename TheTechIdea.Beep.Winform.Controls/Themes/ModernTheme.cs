@@ -804,13 +804,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             var BodySmall = TS(12, FontStyle.Regular, 400, black);
 
             // Core palette
+            // Core palette
             PrimaryColor = blueAccent;
             SecondaryColor = greenAccent;
             AccentColor = blueAccent;
             BackgroundColor = canvas;
             SurfaceColor = white;
             ErrorColor = redAccent;
-            WarningColor = C(255, 193, 7); // Amber
+            WarningColor = C(255, 193, 7);   // Amber
             SuccessColor = greenAccent;
             OnPrimaryColor = white;
             OnBackgroundColor = black;
@@ -832,6 +833,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             PanelGradiantEndColor = lightGray;
             PanelGradiantMiddleColor = white;
             PanelGradiantDirection = LinearGradientMode.Vertical;
+
             DisabledBackColor = C(244, 246, 252);
             DisabledForeColor = darkGray;
             DisabledBorderColor = midGray;

@@ -19,6 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private Rectangle _drawingRect;
         private Rectangle _borderRect;
         private Rectangle _contentRect;
+        private int _reserveTop;
+        private int _reserveBottom;
 
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _borderRect;
@@ -109,10 +111,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             // Reserve space for label and helper when not material
             // IMPORTANT: Also ensure content height can accommodate the control's text font
+            int reserveTop = 0;
+            int reserveBottom = 0;
             try
             {
-                int reserveTop = 0;
-                int reserveBottom = 0;
                 using var g = owner.CreateGraphics();
 
                 if (!string.IsNullOrEmpty(owner.LabelText))
@@ -134,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
                 // Calculate minimum height needed for main control text
                 int mainTextHeight = 0;
-               
+              
                     var textSize = TextRenderer.MeasureText(g, "Ag", owner.TextFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                     mainTextHeight = textSize.Height;
                 
@@ -180,12 +182,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
             catch { /* best-effort */ }
 
+            // Store reserves for use in Paint method
+            _reserveTop = reserveTop;
+            _reserveBottom = reserveBottom;
+
             // Border rectangle with rounded corner consideration
+            // IMPORTANT: Border rect should account for label above and helper below
             var borderRect = new Rectangle(
                 shadow,
-                shadow,
+                shadow + reserveTop,
                 Math.Max(0, owner.Width - (shadow) * 2),
-                Math.Max(0, owner.Height - (shadow) * 2)
+                Math.Max(0, owner.Height - (shadow) * 2 - reserveTop - reserveBottom)
             );
             
             // Adjust border rect for rounded corners
@@ -223,23 +230,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 contentRect = icons.AdjustedContentRect;
             }
 
-            _drawingRect = inner;    // inner rectangle equivalent for derived controls to use
+            // The drawing rect should be aligned with the border rect for consistent background fill
+            // It should NOT include the label/helper reserved space
+            Rectangle drawingRect = new Rectangle(
+                borderRect.X,
+                borderRect.Y,
+                borderRect.Width,
+                borderRect.Height
+            );
+
+            _drawingRect = drawingRect;   // Use borderRect-aligned rect for background
             _borderRect = borderRect;
             _contentRect = contentRect;
         }
 
         public void Paint(Graphics g, Base.BaseControl owner)
         {
-            if (g == null || owner == null) return; 
-
+            if (g == null || owner == null) return;
+            UpdateLayout(owner);
             // Background (classic)
-            if (owner.UseFormStylePaint)
+            if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
-               
-              //  GraphicsPath path=DrawingRect.ToGraphicsPath();
-                GraphicsPath  path=BeepStyling.CreateStylePath(owner.ClientRectangle);
+                // Use the already-calculated border rect which accounts for label/helper space
+                GraphicsPath path = BeepStyling.CreateStylePath(_borderRect);
                 
+                // Paint the styled control only in the border area
                 BeepStyling.PaintControl(g, path, owner.ControlStyle, owner._currentTheme, false, GetEffectiveState(owner), owner.IsTransparentBackground);
+                
+                // Clean up path
+                path?.Dispose();
             }
             else
             {
@@ -269,13 +288,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     }
                 }
             }
-        
 
-           
-
-           
-
-            // Material-like label/helper positioning for classic too
+            // Draw label and helper text (always, regardless of styling mode)
             DrawLabelAndHelperNonMaterial(g, owner);
 
             // Draw icons if any
@@ -483,14 +497,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
         private void DrawLabelAndHelperNonMaterial(Graphics g, Base.BaseControl owner)
         {
+            if (g == null || owner == null) return;
+
+            // DEBUG: Verify border rect values
+            System.Diagnostics.Debug.WriteLine($"BorderRect: X={_borderRect.X}, Y={_borderRect.Y}, W={_borderRect.Width}, H={_borderRect.Height}");
+            System.Diagnostics.Debug.WriteLine($"ReserveTop={_reserveTop}, ReserveBottom={_reserveBottom}");
+
             // Draw label text just above the top border
             if (!string.IsNullOrEmpty(owner.LabelText))
             {
                 float labelSize = Math.Max(8f, owner.Font.Size - 1f);
                 using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
                 var labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                var labelRect = new Rectangle(_borderRect.Left + 6, Math.Max(0, _borderRect.Top - labelHeight - 2), Math.Max(10, _borderRect.Width - 12), labelHeight);
-                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? (owner.ForeColor) : owner.ErrorColor;
+                
+                // Label should be positioned at: borderRect.Top - reserveTop
+                // This puts it in the space reserved above the border
+                int labelTop = Math.Max(0, _borderRect.Top - _reserveTop);
+                
+                var labelRect = new Rectangle(
+                    _borderRect.Left + 6, 
+                    labelTop, 
+                    Math.Max(10, _borderRect.Width - 12), 
+                    _reserveTop > 0 ? _reserveTop : labelHeight
+                );
+                
+                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? owner.ForeColor : owner.ErrorColor;
+                
+                System.Diagnostics.Debug.WriteLine($"Drawing label at: {labelRect}");
                 TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
@@ -501,8 +534,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 float supSize = Math.Max(8f, owner.Font.Size - 1f);
                 using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
                 var supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                var supportRect = new Rectangle(_borderRect.Left + 6, _borderRect.Bottom + 2, Math.Max(10, _borderRect.Width - 12), supportHeight);
-                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : (owner.ForeColor);
+                
+                int supportTop = _borderRect.Bottom + 2;
+                
+                var supportRect = new Rectangle(
+                    _borderRect.Left + 6, 
+                    supportTop, 
+                    Math.Max(10, _borderRect.Width - 12), 
+                    supportHeight
+                );
+                
+                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
+                
+                System.Diagnostics.Debug.WriteLine($"Drawing helper at: {supportRect}");
                 TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
         }

@@ -709,7 +709,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             {
                 var font = new Font(family, size, style);
                 // Test that the font is fully accessible by accessing safe properties
-                // DO NOT access font.Height as it can throw for certain fonts
+                // DO NOT access font.Height as it can.throw for certain fonts
                 var _ = font.Size;
                 var __ = font.Name;
                 var ___ = font.FontFamily;
@@ -847,27 +847,19 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             lock (fontCacheLock)
             {
                 // Try to get from cache
-                if (fontCache.TryGetValue(cacheKey, out var weakRef))
+                if (fontCache.TryGetValue(cacheKey, out var cachedFont))
                 {
-                    if (weakRef.TryGetTarget(out var cachedFont))
+                    // Validate the cached font is still usable
+                    try
                     {
-                        // Validate the font is still usable
-                        try
-                        {
-                            // Test if font is valid by accessing properties
-                            var _ = cachedFont.Size;
-                            var __ = cachedFont.Name;
-                            return cachedFont;
-                        }
-                        catch
-                        {
-                            // Font is disposed or invalid, remove from cache
-                            fontCache.Remove(cacheKey);
-                        }
+                        // Test if font is valid by accessing properties
+                        var _ = cachedFont.Size;
+                        var __ = cachedFont.Name;
+                        return cachedFont;
                     }
-                    else
+                    catch
                     {
-                        // WeakReference lost the font, remove from cache
+                        // Font is disposed or invalid, remove from cache
                         fontCache.Remove(cacheKey);
                     }
                 }
@@ -883,7 +875,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                         {
                             var _ = newFont.Size; // Test if valid
                             var __ = newFont.Name; // Test if valid
-                            fontCache[cacheKey] = new WeakReference<Font>(newFont);
+                            fontCache[cacheKey] = newFont;
                             return newFont;
                         }
                         catch

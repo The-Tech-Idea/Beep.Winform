@@ -556,7 +556,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             InitializeComponents();
             SetStyle(ControlStyles.StandardDoubleClick, true);
-
+            UseThemeColors = true;
             longPressTimer = new Timer { Interval = LongPressThreshold };
             longPressTimer.Tick += (s, e) =>
             {
@@ -571,12 +571,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = true;
             CanBeFocused = true;
 
-            // Enable material Style for modern button appearance, but keep it compact
-            //EnableMaterialStyle = true;
-          
-            ButtonAutoSizeForMaterial = false; // Default to false to prevent large buttons
-            MaterialPreserveContentArea = true; // Preserve content area instead of expanding
-
+      
             // Apply size compensation when handle is created if explicitly enabled
             HandleCreated += (s, e) => {
               
@@ -752,7 +747,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DisabledForeColor = _currentTheme.DisabledForeColor;
             FocusBackColor = _currentTheme.ButtonSelectedBackColor;
             FocusForeColor = _currentTheme.ButtonSelectedForeColor;
-ForeColor = _currentTheme.ButtonForeColor;
+            ForeColor = _currentTheme.ButtonForeColor;
             // Apply border colors
             BorderColor = _currentTheme.ButtonBorderColor;
 
@@ -843,7 +838,7 @@ ForeColor = _currentTheme.ButtonForeColor;
             UpdateDrawingRect();
             contentRect = DrawingRect;
             contentRect.Inflate(-2, -2);
-            DrawStateOverlays(g);   // <— subtle hover/press glaze
+          DrawStateOverlays(g);   // <— subtle hover/press glaze
             DrawImageAndText(g);
             DrawSplashEffect(g);    // ripple on top
 
@@ -910,20 +905,20 @@ ForeColor = _currentTheme.ButtonForeColor;
 
             // Only apply overlay if we have a valid state
             if (alpha > 0)
-            using (SolidBrush overlayBrush = new SolidBrush(Color.FromArgb(alpha, overlayColor)))
-            {
-                if (IsRounded && BorderRadius > 0)
+                using (SolidBrush overlayBrush = new SolidBrush(Color.FromArgb(alpha, overlayColor)))
                 {
-                    using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(contentRect, BorderRadius))
+                    if (IsRounded && BorderRadius > 0)
                     {
-                        g.FillPath(overlayBrush, path);
+                        using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(contentRect, BorderRadius))
+                        {
+                            g.FillPath(overlayBrush, path);
+                        }
+                    }
+                    else
+                    {
+                        g.FillRectangle(overlayBrush, contentRect);
                     }
                 }
-                else
-                {
-                    g.FillRectangle(overlayBrush, contentRect);
-                }
-            }
         }
       
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)

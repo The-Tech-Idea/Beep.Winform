@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class MacOSBigSurSideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
+        // Use the cached BeepImage via context.GetCachedIcon
         public override string Name => "MacOSBigSur";
 
         public override void Paint(ISideBarPainterContext context)
@@ -74,16 +74,10 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             }
             
             Color iconColor = Color.White;
-            using (var pen = new Pen(iconColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-            {
-                int centerX = toggleRect.X + toggleRect.Width / 2;
-                int centerY = toggleRect.Y + toggleRect.Height / 2;
-                int lineWidth = 16;
-                
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY - 5, centerX + lineWidth / 2, centerY - 5);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY, centerX + lineWidth / 2, centerY);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY + 5, centerX + lineWidth / 2, centerY + 5);
-            }
+            int iconW = Math.Min(22, Math.Max(12, toggleRect.Width - 12));
+            int iconH = Math.Min(14, Math.Max(10, toggleRect.Height - 8));
+            var iconRect = new Rectangle(toggleRect.X + (toggleRect.Width - iconW) / 2, toggleRect.Y + (toggleRect.Height - iconH) / 2, iconW, iconH);
+            DrawHamburgerIcon(g, iconRect, iconColor);
         }
 
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
@@ -151,9 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; } else _imagePainter.ApplyThemeOnImage = false;
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 
@@ -164,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         ? (item == context.SelectedItem ? Color.White : context.Theme.SideMenuForeColor)
                         : (item == context.SelectedItem ? Color.White : Color.FromArgb(51, 51, 51));
                     
-                    using (var font = new Font("SF Pro Display", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular)) 
+                    var font = BeepFontManager.GetCachedFont("SF Pro Display", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular); 
                     using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, Math.Max(0, itemRect.Right - x - expandIconSize - 12), itemRect.Height);
@@ -284,13 +276,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     g.DrawLine(pen, lineX, childRect.Y + childRect.Height / 2, childRect.X, childRect.Y + childRect.Height / 2);
                 }
                 
-                // Draw icon using ImagePainter
+                // Draw icon using cached BeepImage via base helper
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(child, context);
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; } else _imagePainter.ApplyThemeOnImage = false;
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, child, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 
@@ -299,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     ? (child == context.SelectedItem ? Color.White : Color.FromArgb(190, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B))
                     : (child == context.SelectedItem ? Color.White : Color.FromArgb(99, 99, 102));
                 
-                using (var font = new Font("SF Pro Text", 11.5f, FontStyle.Regular)) 
+                var font = BeepFontManager.GetCachedFont("SF Pro Text", 11.5f, FontStyle.Regular); 
                 using (var brush = new SolidBrush(textColor))
                 {
                     Rectangle textRect = new Rectangle(x, childRect.Y, Math.Max(0, childRect.Right - x - childExpandIconSize - 12), childRect.Height);

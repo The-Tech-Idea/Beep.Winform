@@ -233,14 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.LinkedProperty = null;
             cmbFilterCol1.Location = new Point(123, 10);
             cmbFilterCol1.Margin = new Padding(3, 0, 3, 6);
-            cmbFilterCol1.MaterialBorderRadius = 4;
-            cmbFilterCol1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            cmbFilterCol1.MaterialCustomPadding = new Padding(0);
-            cmbFilterCol1.MaterialFillColor = Color.White;
-            cmbFilterCol1.MaterialIconPadding = 8;
-            cmbFilterCol1.MaterialIconSize = 20;
-            cmbFilterCol1.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            cmbFilterCol1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+          
             cmbFilterCol1.MaxHitListDrawPerFrame = 0;
             cmbFilterCol1.MinimumSize = new Size(150, 56);
             cmbFilterCol1.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -408,14 +401,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.LinkedProperty = null;
             cmbFilterVal1.Location = new Point(123, 72);
             cmbFilterVal1.Margin = new Padding(3, 0, 3, 6);
-            cmbFilterVal1.MaterialBorderRadius = 4;
-            cmbFilterVal1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            cmbFilterVal1.MaterialCustomPadding = new Padding(0);
-            cmbFilterVal1.MaterialFillColor = Color.White;
-            cmbFilterVal1.MaterialIconPadding = 8;
-            cmbFilterVal1.MaterialIconSize = 20;
-            cmbFilterVal1.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            cmbFilterVal1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+           
             cmbFilterVal1.MaxHitListDrawPerFrame = 0;
             cmbFilterVal1.MinimumSize = new Size(150, 56);
             cmbFilterVal1.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -583,14 +569,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.LinkedProperty = null;
             cmbFilterCol2.Location = new Point(123, 134);
             cmbFilterCol2.Margin = new Padding(3, 0, 3, 6);
-            cmbFilterCol2.MaterialBorderRadius = 4;
-            cmbFilterCol2.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            cmbFilterCol2.MaterialCustomPadding = new Padding(0);
-            cmbFilterCol2.MaterialFillColor = Color.White;
-            cmbFilterCol2.MaterialIconPadding = 8;
-            cmbFilterCol2.MaterialIconSize = 20;
-            cmbFilterCol2.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            cmbFilterCol2.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+          
             cmbFilterCol2.MaxHitListDrawPerFrame = 0;
             cmbFilterCol2.MinimumSize = new Size(150, 56);
             cmbFilterCol2.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -758,14 +737,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.LinkedProperty = null;
             cmbFilterVal2.Location = new Point(123, 196);
             cmbFilterVal2.Margin = new Padding(3, 0, 3, 6);
-            cmbFilterVal2.MaterialBorderRadius = 4;
-            cmbFilterVal2.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            cmbFilterVal2.MaterialCustomPadding = new Padding(0);
-            cmbFilterVal2.MaterialFillColor = Color.White;
-            cmbFilterVal2.MaterialIconPadding = 8;
-            cmbFilterVal2.MaterialIconSize = 20;
-            cmbFilterVal2.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            cmbFilterVal2.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+           
             cmbFilterVal2.MaxHitListDrawPerFrame = 0;
             cmbFilterVal2.MinimumSize = new Size(150, 56);
             cmbFilterVal2.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -933,14 +905,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.LinkedProperty = null;
             cmbGroupBy.Location = new Point(123, 258);
             cmbGroupBy.Margin = new Padding(3, 0, 3, 6);
-            cmbGroupBy.MaterialBorderRadius = 4;
-            cmbGroupBy.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            cmbGroupBy.MaterialCustomPadding = new Padding(0);
-            cmbGroupBy.MaterialFillColor = Color.White;
-            cmbGroupBy.MaterialIconPadding = 8;
-            cmbGroupBy.MaterialIconSize = 20;
-            cmbGroupBy.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            cmbGroupBy.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+          
             cmbGroupBy.MaxHitListDrawPerFrame = 0;
             cmbGroupBy.MinimumSize = new Size(150, 56);
             cmbGroupBy.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -1108,14 +1073,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.LinkedProperty = null;
             cmbOrderBy.Location = new Point(123, 320);
             cmbOrderBy.Margin = new Padding(3, 0, 3, 6);
-            cmbOrderBy.MaterialBorderRadius = 4;
-            cmbOrderBy.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            cmbOrderBy.MaterialCustomPadding = new Padding(0);
-            cmbOrderBy.MaterialFillColor = Color.White;
-            cmbOrderBy.MaterialIconPadding = 8;
-            cmbOrderBy.MaterialIconSize = 20;
-            cmbOrderBy.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            cmbOrderBy.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+           
             cmbOrderBy.MaxHitListDrawPerFrame = 0;
             cmbOrderBy.MinimumSize = new Size(150, 56);
             cmbOrderBy.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -1417,15 +1375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             chkShowHeaders.LinkedProperty = null;
             chkShowHeaders.Location = new Point(123, 420);
             chkShowHeaders.Margin = new Padding(3, 0, 3, 6);
-            chkShowHeaders.MaterialBorderRadius = 4;
-            chkShowHeaders.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            chkShowHeaders.MaterialCustomPadding = new Padding(0);
-            chkShowHeaders.MaterialFillColor = Color.FromArgb(238, 234, 240);
-            chkShowHeaders.MaterialIconPadding = 8;
-            chkShowHeaders.MaterialIconSize = 20;
-            chkShowHeaders.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            chkShowHeaders.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            chkShowHeaders.MaterialVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
+          
             chkShowHeaders.MaxHitListDrawPerFrame = 0;
             chkShowHeaders.MinimumSize = new Size(177, 56);
             chkShowHeaders.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -1641,14 +1591,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.LinkedProperty = null;
             btnExport.Location = new Point(3, 3);
             btnExport.Margin = new Padding(3, 3, 6, 3);
-            btnExport.MaterialBorderRadius = 4;
-            btnExport.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            btnExport.MaterialCustomPadding = new Padding(0);
-            btnExport.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            btnExport.MaterialIconPadding = 8;
-            btnExport.MaterialIconSize = 20;
-            btnExport.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            btnExport.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+           
             btnExport.MaxHitListDrawPerFrame = 0;
             btnExport.MaxImageSize = new Size(32, 25);
             btnExport.MinimumSize = new Size(120, 44);
@@ -1835,14 +1778,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.LinkedProperty = null;
             btnApply.Location = new Point(132, 3);
             btnApply.Margin = new Padding(3, 3, 6, 3);
-            btnApply.MaterialBorderRadius = 4;
-            btnApply.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            btnApply.MaterialCustomPadding = new Padding(0);
-            btnApply.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            btnApply.MaterialIconPadding = 8;
-            btnApply.MaterialIconSize = 20;
-            btnApply.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            btnApply.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+           
+          
             btnApply.MaxHitListDrawPerFrame = 0;
             btnApply.MaxImageSize = new Size(32, 25);
             btnApply.MinimumSize = new Size(120, 44);
@@ -2029,14 +1966,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.LinkedProperty = null;
             btnReset.Location = new Point(3, 53);
             btnReset.Margin = new Padding(3, 3, 6, 3);
-            btnReset.MaterialBorderRadius = 4;
-            btnReset.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            btnReset.MaterialCustomPadding = new Padding(0);
-            btnReset.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            btnReset.MaterialIconPadding = 8;
-            btnReset.MaterialIconSize = 20;
-            btnReset.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            btnReset.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+          
             btnReset.MaxHitListDrawPerFrame = 0;
             btnReset.MaxImageSize = new Size(32, 25);
             btnReset.MinimumSize = new Size(120, 44);
@@ -2223,14 +2153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.LinkedProperty = null;
             btnClose.Location = new Point(132, 53);
             btnClose.Margin = new Padding(3, 3, 6, 3);
-            btnClose.MaterialBorderRadius = 4;
-            btnClose.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            btnClose.MaterialCustomPadding = new Padding(0);
-            btnClose.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            btnClose.MaterialIconPadding = 8;
-            btnClose.MaterialIconSize = 20;
-            btnClose.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            btnClose.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+         
             btnClose.MaxHitListDrawPerFrame = 0;
             btnClose.MaxImageSize = new Size(32, 25);
             btnClose.MinimumSize = new Size(120, 44);

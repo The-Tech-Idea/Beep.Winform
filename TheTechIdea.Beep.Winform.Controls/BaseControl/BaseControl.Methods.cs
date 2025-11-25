@@ -36,12 +36,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     return;
                 }
                 
-                // Auto defaults to Classic
-                if (desired == BaseControlPainterKind.Classic)
-                {
-                    desired = BaseControlPainterKind.Classic;
-                }
-
                 bool needsNew = _painter == null;
                 if (!needsNew)
                 {
@@ -49,8 +43,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     needsNew = desired switch
                     {
                         BaseControlPainterKind.Classic => _painter is not ClassicBaseControlPainter,
-                        BaseControlPainterKind.Material => _painter is not MaterialBaseControlPainter,
-                      
                         _ => _painter is null
                     };
                 }
@@ -60,8 +52,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     _painter = desired switch
                     {
                         BaseControlPainterKind.Classic => new ClassicBaseControlPainter(),
-                        BaseControlPainterKind.Material => new MaterialBaseControlPainter(),
-                       
                         _ => new ClassicBaseControlPainter()
                     };
                 }
@@ -78,10 +68,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 case BaseControlPainterKind.Classic:
                     _painter = new ClassicBaseControlPainter();
                     break;
-                case BaseControlPainterKind.Material:
-                    _painter = new MaterialBaseControlPainter();
-                    break;
-             
                 default:
                     // Auto defaults to Classic painter
                     _painter = new ClassicBaseControlPainter();
@@ -530,113 +516,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             EnsurePainter();
 
-            // Let the active painter decide first
-            if (_painter != null)
+            // Let the active painter decide first (Classic only)
+            try
             {
+                Size? painterSize = _painter?.GetPreferredSize(this, proposedSize);
+                if (painterSize.HasValue && !painterSize.Value.IsEmpty)
+                    return painterSize.Value;
+            }
+            catch { /* ignore painter failures and fall through */ }
+
+            // Measure main content using the current text and font
+            Size textSize;
+            var textToMeasure = string.IsNullOrEmpty(Text) ? "Ag" : Text;
+            try
+            {
+                textSize = TextRenderer.MeasureText(textToMeasure, TextFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            }
+            catch
+            {
+                textSize = new Size(Math.Max(60, TextFont.Height * 2), TextFont.Height);
+            }
+
+            // Measure label
+            int labelWidth = 0, labelHeight = 0;
+            if (LabelTextOn && !string.IsNullOrEmpty(LabelText))
+            {
+                float labelSize = Math.Max(8f, Font.Size - 1f);
                 try
                 {
-                    var painterSize = _painter.GetPreferredSize(this, proposedSize);
-                    if (!painterSize.IsEmpty)
-                        return painterSize;
+                    using var lf = new Font(Font.FontFamily, labelSize, FontStyle.Regular);
+                    var lbl = TextRenderer.MeasureText(LabelText, lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    labelWidth = lbl.Width;
+                    labelHeight = lbl.Height;
                 }
-                catch { /* fallback to existing logic */ }
-            }
-
-            // When not using form style paint, do not inflate size; keep current or proposed
-            if (!UseFormStylePaint)
-            {
-                int width = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
-                int height = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
-                return new Size(width, height);
-            }
-
-            // When using form style painting, compute based on style chrome + padding
-            if (UseFormStylePaint)
-            {
-                // Treat current size (or proposed) as content size baseline
-                int baseW = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
-                int baseH = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
-
-                // style border/shadow
-                float styleBorder = StyleBorders.GetBorderWidth(ControlStyle);
-                 int border1 = (int)Math.Ceiling(styleBorder) * 2; // both sides
-                int shadow = 0;
-                if (StyleShadows.HasShadow(ControlStyle))
+                catch
                 {
-                    shadow = Math.Max(0, StyleShadows.GetShadowBlur(ControlStyle)); // approx both sides
+                    labelHeight = (int)Math.Ceiling(labelSize);
                 }
+            }
 
-                var pad1 = Padding;
-                int padW = pad1.Horizontal;
-                int padH = pad1 .Vertical;
-
-                // add optional label/helper space like classic painter does
-                int extraTop = 0;
-                int extraBottom = 0;
+            // Measure helper/error text (prioritize error)
+            int supportWidth = 0, supportHeight = 0;
+            string supporting = HasError && !string.IsNullOrEmpty(ErrorText)
+                ? ErrorText
+                : (HelperTextOn ? HelperText : string.Empty);
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                float supSize = Math.Max(8f, Font.Size - 1f);
                 try
                 {
-                    using var g = CreateGraphics();
-                    if (!string.IsNullOrEmpty(LabelText))
-                    {
-                        int lblH = TextRenderer.MeasureText(g, "Ag", Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        extraTop = lblH + 2;
-                    }
-                    string supporting = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
-                    if (!string.IsNullOrEmpty(supporting))
-                    {
-                        using var supportFont = new Font(Font.FontFamily, Math.Max(8f, Font.Size - 1f));
-                        int supH = TextRenderer.MeasureText(g, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        extraBottom = supH + 4;
-                    }
+                    using var sf = new Font(Font.FontFamily, supSize, FontStyle.Regular);
+                    var sup = TextRenderer.MeasureText(supporting, sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    supportWidth = sup.Width;
+                    supportHeight = sup.Height;
                 }
-                catch { }
-
-                int width = baseW + padW + border1   + shadow;
-                int height = baseH + padH + border1 + shadow + extraTop + extraBottom;
-                return new Size(width, height);
-            }
-
-            if (PainterKind== BaseControlPainterKind.Material)
-            {
-                int width = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
-                int height = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
-
-                int baseMin = GetMaterialMinimumHeight();
-
-                int extraTop = 0;
-                int extraBottom = 0;
-                try
+                catch
                 {
-                    using var g = CreateGraphics();
-                    if (!string.IsNullOrEmpty(LabelText))
-                    {
-                        int lblH = TextRenderer.MeasureText(g, "Ag", Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        extraTop = Math.Max(10, (int)Math.Ceiling(lblH * 0.75)) + 2;
-                    }
-                    string supporting = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
-                    if (!string.IsNullOrEmpty(supporting))
-                    {
-                        using var supportFont = new Font(Font.FontFamily, Math.Max(8f, Font.Size - 1f));
-                        int supH = TextRenderer.MeasureText(g, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        extraBottom = supH + 4;
-                    }
+                    supportHeight = (int)Math.Ceiling(supSize);
                 }
-                catch { }
-
-                int requiredH = baseMin + extraTop + extraBottom;
-                var effects = GetMaterialEffectsSpace();
-                requiredH += effects.Height;
-                requiredH = Math.Max(requiredH, Height);
-
-                return new Size(Math.Max(Width, width), requiredH);
             }
 
-            // Classic fallback: make a conservative estimate using padding and borders
-            int border = ShowAllBorders ? BorderThickness * 2 : 0;
+            // Icon contribution
+            int iconWidth = 0, iconHeight = 0;
+            bool hasLeading = !string.IsNullOrEmpty(LeadingIconPath) || !string.IsNullOrEmpty(LeadingImagePath);
+            bool hasTrailing = !string.IsNullOrEmpty(TrailingIconPath) || !string.IsNullOrEmpty(TrailingImagePath) || ShowClearButton;
+            if (hasLeading)
+            {
+                iconWidth += IconSize + (IconPadding * 2) + 8;
+                iconHeight = Math.Max(iconHeight, IconSize);
+            }
+            if (hasTrailing)
+            {
+                iconWidth += IconSize + (IconPadding * 2) + 8;
+                iconHeight = Math.Max(iconHeight, IconSize);
+            }
+
+            int border = 0;
+            if (ShowAllBorders || (BorderThickness > 0 && (ShowTopBorder || ShowBottomBorder || ShowLeftBorder || ShowRightBorder)))
+                border = BorderThickness * 2;
+            int shadow = ShowShadow ? ShadowOffset * 2 : 0;
             var pad = Padding;
-            int minW = Math.Max(Width, pad.Horizontal + border + Math.Max(60, Font.Height * 3));
-            int minH = Math.Max(Height, pad.Vertical + border + Math.Max(24, Font.Height + 8));
-            return new Size(minW, minH);
+
+            int contentWidth = textSize.Width + iconWidth;
+            int contentHeight = Math.Max(textSize.Height, iconHeight);
+
+            int width = contentWidth + pad.Horizontal + border + shadow;
+            width = Math.Max(width, labelWidth + pad.Horizontal + border + shadow);
+            width = Math.Max(width, supportWidth + pad.Horizontal + border + shadow);
+
+            int height = contentHeight + pad.Vertical + border + shadow;
+            if (labelHeight > 0) height += labelHeight + 2;
+            if (supportHeight > 0) height += supportHeight + 2;
+
+            // Respect proposed size when provided; otherwise don't shrink current size
+            width = proposedSize.Width > 0 ? Math.Max(width, proposedSize.Width) : Math.Max(width, Width);
+            height = proposedSize.Height > 0 ? Math.Max(height, proposedSize.Height) : Math.Max(height, Height);
+
+            width = Math.Max(60, width);
+            height = Math.Max(TextFont.Height + pad.Vertical + border, height);
+
+            return new Size(width, height);
         }
 
         /// <summary>
@@ -688,39 +667,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <param name="fillColor">Color to fill with</param>
         protected virtual void PaintInnerShapeUsingPath(Graphics g, GraphicsPath innerShape, Color fillColor)
         {
-            // For Material Design, respect variant-specific fill rules
-            if (PainterKind== BaseControlPainterKind.Material)
+            if (innerShape == null || innerShape.PointCount == 0)
+                return;
+
+            // Standard fill for classic rendering
+            if (fillColor.A == 0)
+                return;
+
+            using (Brush backBrush = new SolidBrush(fillColor))
             {
-                bool shouldShowFill = MaterialVariant == MaterialTextFieldVariant.Filled || MaterialShowFill;
-                
-                if (shouldShowFill)
-                {
-                    // Use Material fill color if specified, otherwise use the provided fillColor
-                    Color materialFillColor = MaterialShowFill ? MaterialFillColor : fillColor;
-                    using (Brush backBrush = new SolidBrush(materialFillColor))
-                    {
-                        g.FillPath(backBrush, innerShape);
-                    }
-                }
-                else
-                {
-                    // For Outlined and Standard variants, only fill if color is different from parent
-                    if (fillColor != Color.Transparent && fillColor != Parent?.BackColor)
-                    {
-                        using (Brush backBrush = new SolidBrush(fillColor))
-                        {
-                            g.FillPath(backBrush, innerShape);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Standard controls - always fill the shape
-                using (Brush backBrush = new SolidBrush(fillColor))
-                {
-                    g.FillPath(backBrush, innerShape);
-                }
+                g.FillPath(backBrush, innerShape);
             }
         }
 
@@ -795,17 +751,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         protected virtual void OnMaterialPropertyChanged()
         {
-            if (PainterKind== BaseControlPainterKind.Material && MaterialAutoSizeCompensation && !_isInitializing)
-            {
-                ApplyMaterialSizeCompensation();
-            }
-
-            // Keep painter strategy in sync if painter auto-select is used
-            if (_painter != null)
-            {
-                // Auto-switch painter when Material toggle changes
-                _painter = PainterKind == BaseControlPainterKind.Material ? new MaterialBaseControlPainter() : new ClassicBaseControlPainter();
-            }
+            // Material painter removed; keep painter consistent with classic path.
+            if (_painter == null && PainterKind != BaseControlPainterKind.None)
+                _painter = new ClassicBaseControlPainter();
         }
 
         /// <summary>
@@ -830,33 +778,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 _drawingRect = newRect;
             }
-        }
-
-        /// <summary>
-        /// Applies Material Design size compensation - can be overridden by derived controls
-        /// </summary>
-        public virtual void ApplyMaterialSizeCompensation()
-        {
-            if (PainterKind != BaseControlPainterKind.Material || !MaterialAutoSizeCompensation)
-                return;
-
-            // Calculate current text size if we have content
-            Size textSize = Size.Empty;
-            if (!string.IsNullOrEmpty(Text))
-            {
-                // Use TextRenderer to measure without creating a Graphics
-                var measuredSize = System.Windows.Forms.TextRenderer.MeasureText(Text, Font);
-                textSize = measuredSize;
-            }
-            
-            // Use a reasonable default content size if no text
-            if (textSize.IsEmpty)
-            {
-                textSize = new Size(100, 20);
-            }
-            
-            // Apply Material size compensation
-            AdjustSizeForMaterial(textSize, true);
         }
         #endregion
 
@@ -927,69 +848,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        #region Material Design Size Calculation Methods
-        
+        #region Material compatibility helpers
         /// <summary>
-        /// Gets the padding requirements for the current Material Design variant
+        /// Returns padding to use for material-like sizing. With material painter removed, this defers to current Padding.
         /// </summary>
-        /// <returns>Padding structure with Material Design spacing requirements</returns>
-        public virtual Padding GetMaterialStylePadding()
-        {
-            if (PainterKind != BaseControlPainterKind.Material)
-                return Padding.Empty;
-
-            // Material Design padding based on variant
-            switch (MaterialVariant)
-            {
-                case MaterialTextFieldVariant.Outlined:
-                    return new Padding(16, 8, 16, 8);
-                case MaterialTextFieldVariant.Filled:
-                    return new Padding(16, 12, 16, 12);
-                case MaterialTextFieldVariant.Standard:
-                    return new Padding(0, 8, 0, 8);
-                default:
-                    return new Padding(16, 8, 16, 8);
-            }
-        }
+        public virtual Padding GetMaterialStylePadding() => Padding;
 
         /// <summary>
-        /// Gets the additional space required for Material Design focus indicators and elevation
+        /// Placeholder for material effects spacing (focus/elevation). Classic mode returns empty.
         /// </summary>
-        /// <returns>Size of additional space needed for focus and elevation effects</returns>
-        public virtual Size GetMaterialEffectsSpace()
-        {
-            if (PainterKind != BaseControlPainterKind.Material)
-                return Size.Empty;
-            int focusSpace = 4; // 2px on each side for focus ring
-            // Elevation applies on both sides; use 2x to reflect left+right / top+bottom
-            int elevationSpace = MaterialUseElevation ? Math.Min(MaterialElevationLevel, 5) * 2 : 0;
-
-            return new Size(focusSpace + elevationSpace, focusSpace + elevationSpace);
-        }
+        public virtual Size GetMaterialEffectsSpace() => Size.Empty;
 
         /// <summary>
-        /// Gets the space required for Material Design icons
+        /// Computes the space taken by leading/trailing icons.
         /// </summary>
-        /// <returns>Size of space needed for leading and trailing icons</returns>
         public virtual Size GetMaterialIconSpace()
         {
-            if (PainterKind !=  BaseControlPainterKind.Material)
-                return Size.Empty;
-
             int totalIconWidth = 0;
             int iconHeight = 0;
 
-            // Calculate leading icon space
             if (!string.IsNullOrEmpty(LeadingIconPath) || !string.IsNullOrEmpty(LeadingImagePath))
             {
-                totalIconWidth += IconSize + (IconPadding * 2) + 8; // icon + padding + margin
+                totalIconWidth += IconSize + (IconPadding * 2) + 8;
                 iconHeight = Math.Max(iconHeight, IconSize);
             }
 
-            // Calculate trailing icon space
             if (!string.IsNullOrEmpty(TrailingIconPath) || !string.IsNullOrEmpty(TrailingImagePath) || ShowClearButton)
             {
-                totalIconWidth += IconSize + (IconPadding * 2) + 8; // icon + padding + margin
+                totalIconWidth += IconSize + (IconPadding * 2) + 8;
                 iconHeight = Math.Max(iconHeight, IconSize);
             }
 
@@ -997,203 +883,92 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         /// <summary>
-        /// Calculates the minimum size required for Material Design styling
+        /// Returns a conservative minimum size using classic padding/borders but keeping icon space.
         /// </summary>
-        /// <param name="baseContentSize">The base content size (e.g., text size)</param>
-        /// <returns>Minimum size that accommodates Material Design requirements</returns>
         public virtual Size CalculateMinimumSizeForMaterial(Size baseContentSize)
         {
-            if (PainterKind != BaseControlPainterKind.Material)
-                
-            return baseContentSize;
+            var icons = GetMaterialIconSpace();
+            int border = (ShowAllBorders || (BorderThickness > 0 && (ShowTopBorder || ShowBottomBorder || ShowLeftBorder || ShowRightBorder)))
+                ? BorderThickness * 2
+                : 0;
+            var pad = Padding;
 
-            if (MaterialPreserveContentArea)
-            {
-                // Alternative approach: Keep content area the same, adjust only internal layout
-                return CalculateSizePreservingContentArea(baseContentSize);
-            }
-            else
-            {
-                // Standard Material Design approach: Follow Material Design size specifications
-                return CalculateStandardMaterialSize(baseContentSize);
-            }
+            int width = baseContentSize.Width + icons.Width + pad.Horizontal + border;
+            int height = Math.Max(baseContentSize.Height, icons.Height) + pad.Vertical + border;
+
+            width = Math.Max(width, GetMaterialMinimumWidth());
+            height = Math.Max(height, GetMaterialMinimumHeight());
+
+            return new Size(width, height);
         }
 
         /// <summary>
-        /// Calculates size while preserving the original content area dimensions
+        /// Returns the best-effort content rectangle. Falls back to the current drawing rect when painter is classic.
         /// </summary>
-        protected virtual Size CalculateSizePreservingContentArea(Size baseContentSize)
-        {
-            // In this mode, we keep the overall control size the same as non-Material
-            // but internally adjust how we draw the content within the available space
-            
-            // Add minimal adjustments for essential Material elements only
-            var iconSpace = GetMaterialIconSpace();
-            var minEffects = new Size(4, 4); // Minimal space for focus indicators
-            
-            return new Size(
-                Math.Max(baseContentSize.Width + iconSpace.Width + minEffects.Width, 120),
-                Math.Max(baseContentSize.Height + minEffects.Height, 24)
-            );
-        }
-
-        /// <summary>
-        /// Calculates size following standard Material Design specifications
-        /// </summary>
-        protected virtual Size CalculateStandardMaterialSize(Size baseContentSize)
-        {
-            // Original implementation - follows Material Design specs
-            var materialPadding = GetMaterialStylePadding();
-            var effectsSpace = GetMaterialEffectsSpace();
-            var iconSpace = GetMaterialIconSpace();
-
-            int requiredWidth = baseContentSize.Width + 
-                              materialPadding.Horizontal + 
-                              effectsSpace.Width + 
-                              iconSpace.Width;
-
-            int requiredHeight = Math.Max(
-                baseContentSize.Height + materialPadding.Vertical + effectsSpace.Height,
-                iconSpace.Height + materialPadding.Vertical + effectsSpace.Height
-            );
-
-            // Apply minimum Material Design dimensions
-            requiredWidth = Math.Max(requiredWidth, GetMaterialMinimumWidth());
-            requiredHeight = Math.Max(requiredHeight, GetMaterialMinimumHeight());
-
-            return new Size(requiredWidth, requiredHeight);
-        }
-
-        /// <summary>
-        /// Gets the minimum width for Material Design controls
-        /// </summary>
-        /// <returns>Minimum width in pixels</returns>
-        protected virtual int GetMaterialMinimumWidth()
-        {
-            // Material Design minimum widths based on component type
-            return 120; // Base minimum, can be overridden by derived controls
-        }
-
-        /// <summary>
-        /// Gets the minimum height for Material Design controls
-        /// </summary>
-        /// <returns>Minimum height in pixels</returns>
-        protected virtual int GetMaterialMinimumHeight()
-        {
-            // Material Design minimum heights based on variant
-            switch (MaterialVariant)
-            {
-                case MaterialTextFieldVariant.Outlined:
-                    return 56; // Standard Material outlined field height
-                case MaterialTextFieldVariant.Filled:
-                    return 56; // Standard Material filled field height
-                case MaterialTextFieldVariant.Standard:
-                    return 48; // Standard Material standard field height
-                default:
-                    return 56;
-            }
-        }
-
-        /// <summary>
-        /// Gets the effective content rectangle accounting for Material Design spacing
-        /// </summary>
-        /// <returns>Rectangle available for content after Material Design spacing is applied</returns>
         public virtual Rectangle GetMaterialContentRectangle()
         {
-            if (PainterKind != BaseControlPainterKind.Material)
-               
-            return ClientRectangle;
+            EnsurePainter();
+            _painter?.UpdateLayout(this);
 
-            // Use painter-provided rects when available
-            if (_painter != null)
-            {
-                var rect = _painter.ContentRect;
-                if (!rect.IsEmpty)
-                    return rect;
-                rect = _painter.DrawingRect;
-                if (!rect.IsEmpty)
-                    return rect;
-            }
+            if (_painter != null && !_painter.ContentRect.IsEmpty)
+                return _painter.ContentRect;
 
-            // Fallback calculation if painter is not set yet
-            var padding = GetMaterialStylePadding();
-            var effects = GetMaterialEffectsSpace();
-            var icons = GetMaterialIconSpace();
+            if (_painter != null && !_painter.DrawingRect.IsEmpty)
+                return _painter.DrawingRect;
 
-            return new Rectangle(
-                padding.Left + effects.Width / 2 + (icons.Width > 0 ? IconSize + IconPadding : 0),
-                padding.Top + effects.Height / 2,
-                Math.Max(0, Width - padding.Horizontal - effects.Width - icons.Width),
-                Math.Max(0, Height - padding.Vertical - effects.Height)
-            );
+            return DrawingRect;
         }
 
         /// <summary>
-        /// Adjusts control size to accommodate Material Design requirements
+        /// Adjusts control size using classic measurements; kept for compatibility with derived controls.
         /// </summary>
-        /// <param name="baseContentSize">The base content size that needs to be accommodated</param>
-        /// <param name="respectMaximumSize">Whether to respect any maximum size constraints</param>
         public virtual void AdjustSizeForMaterial(Size baseContentSize, bool respectMaximumSize = true)
         {
-            if (PainterKind != BaseControlPainterKind.Material)
-               
-            return;
-
             var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
-            
-            // DPI scaling is handled automatically by the framework in .NET 8/9+
-            // No manual scaling needed here
 
-            // Respect maximum size constraints if specified
             if (respectMaximumSize && MaximumSize != Size.Empty)
             {
                 requiredSize.Width = Math.Min(requiredSize.Width, MaximumSize.Width);
                 requiredSize.Height = Math.Min(requiredSize.Height, MaximumSize.Height);
             }
 
-            // Always raise MinimumSize to the required Material size (never shrink an explicit larger MinimumSize)
-            if (MinimumSize != Size.Empty)
-            {
-                MinimumSize = new Size(
-                    Math.Max(MinimumSize.Width, requiredSize.Width),
-                    Math.Max(MinimumSize.Height, requiredSize.Height)
-                );
-            }
-            else
+            if (MinimumSize == Size.Empty)
             {
                 MinimumSize = requiredSize;
             }
+            else
+            {
+                MinimumSize = new Size(
+                    Math.Max(MinimumSize.Width, requiredSize.Width),
+                    Math.Max(MinimumSize.Height, requiredSize.Height));
+            }
 
-            // Update control size if it's smaller than required
             if (Width < requiredSize.Width || Height < requiredSize.Height)
             {
                 Size = new Size(
                     Math.Max(Width, requiredSize.Width),
-                    Math.Max(Height, requiredSize.Height)
-                );
+                    Math.Max(Height, requiredSize.Height));
             }
         }
 
         /// <summary>
-        /// Utility for derived controls: given your base content minimum (e.g., 300x30),
-        /// returns the effective minimum including Material padding and effects.
+        /// Base material-like minimum width.
         /// </summary>
-        /// <param name="baseContentMinimum">The intrinsic minimum of the control's content.</param>
-        /// <returns>Minimum size including Material padding, effects and icons (DPI scaling handled by framework).</returns>
+        protected virtual int GetMaterialMinimumWidth() => 120;
+
+        /// <summary>
+        /// Base material-like minimum height.
+        /// </summary>
+        protected virtual int GetMaterialMinimumHeight() => 48;
+
+        /// <summary>
+        /// Utility for derived controls: returns a minimum size including icon/padding allowances.
+        /// </summary>
         protected Size GetEffectiveMaterialMinimum(Size baseContentMinimum)
         {
-            if (PainterKind != BaseControlPainterKind.Material)
-              
-            return baseContentMinimum;
-
-            var min = CalculateMinimumSizeForMaterial(baseContentMinimum);
-            // DPI scaling is handled automatically by the framework in .NET 8/9+
-            return min;
+            return CalculateMinimumSizeForMaterial(baseContentMinimum);
         }
-
-
         #endregion
-    
-     
+
     }
 }

@@ -14,7 +14,6 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
     /// </summary>
     public sealed class PillRailSideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
         public override string Name => "PillRail";
 
         public override void Paint(ISideBarPainterContext context)
@@ -98,18 +97,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     }
                 }
 
-                // Draw the icon using ImagePainter
+                // Draw the icon using cached approach
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(itemRect.X + (itemRect.Width - iconSize) / 2, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    if (context.Theme != null && context.UseThemeColors)
-                    {
-                        _imagePainter.CurrentTheme = context.Theme;
-                        _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
-                    }
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                 }
 
                 currentY += context.ItemHeight + 6;

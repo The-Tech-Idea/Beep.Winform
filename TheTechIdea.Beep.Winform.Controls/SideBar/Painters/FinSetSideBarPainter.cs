@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
     /// </summary>
     public sealed class FinSetSideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
+        // Use the centralized cached BeepImage via context.GetCachedIcon
         public override string Name => "FinSet";
 
         public override void Paint(ISideBarPainterContext context)
@@ -111,14 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    if (context.Theme != null && context.UseThemeColors)
-                    {
-                        _imagePainter.CurrentTheme = context.Theme;
-                        _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
-                    }
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                     x += iconSize + iconPadding;
                 }
 
@@ -126,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!context.IsCollapsed)
                 {
                     Color textColor = context.UseThemeColors && context.Theme != null ? context.Theme.SideMenuForeColor : Color.FromArgb(16, 24, 32);
-                    using (var font = new Font("Inter", 14f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular))
+                    var font = BeepFontManager.GetCachedFont("Inter", 14f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular);
                     using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, itemRect.Right - x - 8, itemRect.Height);

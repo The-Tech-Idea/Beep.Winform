@@ -1578,12 +1578,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.LinkedProperty = null;
             beepSimpleGrid1.Location = new Point(5, 152);
             beepSimpleGrid1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepSimpleGrid1.MaterialCustomPadding = new Padding(0);
-            beepSimpleGrid1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepSimpleGrid1.MaterialIconPadding = 8;
-            beepSimpleGrid1.MaterialIconSize = 20;
-            beepSimpleGrid1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepSimpleGrid1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
           
             beepSimpleGrid1.ModernGradientType = ModernGradientType.Subtle;
@@ -1781,15 +1775,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.LinkedProperty = null;
             beepLabel2.Location = new Point(263, 89);
             beepLabel2.Margin = new Padding(0);
-            beepLabel2.MaterialBorderRadius = 4;
-            beepLabel2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepLabel2.MaterialCustomPadding = new Padding(0);
-            beepLabel2.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepLabel2.MaterialIconPadding = 8;
-            beepLabel2.MaterialIconSize = 20;
-            beepLabel2.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepLabel2.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepLabel2.MaterialVariant = MaterialTextFieldVariant.Standard;
+          
             beepLabel2.MaxHitListDrawPerFrame = 0;
             beepLabel2.MaxImageSize = new Size(16, 16);
          
@@ -1966,15 +1952,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.LinkedProperty = null;
             beepLabel1.Location = new Point(263, 41);
             beepLabel1.Margin = new Padding(0);
-            beepLabel1.MaterialBorderRadius = 4;
-            beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepLabel1.MaterialCustomPadding = new Padding(0);
-            beepLabel1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepLabel1.MaterialIconPadding = 8;
-            beepLabel1.MaterialIconSize = 20;
-            beepLabel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepLabel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
+           
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
            
@@ -2163,12 +2141,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.LinkedProperty = null;
             DatasourcebeepComboBox.Location = new Point(390, 41);
             DatasourcebeepComboBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            DatasourcebeepComboBox.MaterialCustomPadding = new Padding(0);
-            DatasourcebeepComboBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            DatasourcebeepComboBox.MaterialIconPadding = 8;
-            DatasourcebeepComboBox.MaterialIconSize = 20;
-            DatasourcebeepComboBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            DatasourcebeepComboBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             DatasourcebeepComboBox.MaxHitListDrawPerFrame = 0;
          
             DatasourcebeepComboBox.ModernGradientType = ModernGradientType.None;
@@ -2350,12 +2322,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.LinkedProperty = null;
             EntitiesbeepComboBox.Location = new Point(390, 89);
             EntitiesbeepComboBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            EntitiesbeepComboBox.MaterialCustomPadding = new Padding(0);
-            EntitiesbeepComboBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            EntitiesbeepComboBox.MaterialIconPadding = 8;
-            EntitiesbeepComboBox.MaterialIconSize = 20;
-            EntitiesbeepComboBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            EntitiesbeepComboBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             EntitiesbeepComboBox.MaxHitListDrawPerFrame = 0;
            
             EntitiesbeepComboBox.ModernGradientType = ModernGradientType.None;
@@ -2534,13 +2500,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Location = new Point(602, 88);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepButton1.MaterialCustomPadding = new Padding(0);
-            beepButton1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepButton1.MaterialIconPadding = 8;
-            beepButton1.MaterialIconSize = 20;
-            beepButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepButton1.MaterialPreserveContentArea = true;
-            beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
           
@@ -2724,12 +2684,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.Location = new Point(54, 24);
             beepImage1.ManualRotationAngle = 0F;
             beepImage1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepImage1.MaterialCustomPadding = new Padding(0);
-            beepImage1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepImage1.MaterialIconPadding = 8;
-            beepImage1.MaterialIconSize = 20;
-            beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepImage1.MaxHitListDrawPerFrame = 0;
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;

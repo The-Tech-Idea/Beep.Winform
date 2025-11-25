@@ -14,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         private int _targetWidth;
         private DateTime _animationStartTime;
         private int _animationDuration = 300; // milliseconds
+        private bool _enableAnimation = false;
         #endregion
 
         #region Animation Properties
@@ -53,6 +54,16 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             get => _animationDuration;
             set => _animationDuration = Math.Max(50, value);
         }
+
+        [System.ComponentModel.Browsable(true)]
+        [System.ComponentModel.Category("Animation")]
+        [System.ComponentModel.Description("Enable or disable collapse/expand animation.")]
+        [System.ComponentModel.DefaultValue(false)]
+        public bool EnableAnimation
+        {
+            get => _enableAnimation;
+            set => _enableAnimation = value;
+        }
         #endregion
 
         #region Animation Methods
@@ -79,6 +90,16 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         /// </summary>
         private void StartAnimation(bool collapsing)
         {
+            // Skip animation entirely if disabled or design-time or no handle yet
+            if (!_enableAnimation || DesignMode || !IsHandleCreated)
+            {
+                _isCollapsed = collapsing;
+                Width = collapsing ? _collapsedWidth : _expandedWidth;
+                RefreshHitAreas();
+                Invalidate();
+                return;
+            }
+
             if (_animationTimer == null)
             {
                 InitializeAnimation();

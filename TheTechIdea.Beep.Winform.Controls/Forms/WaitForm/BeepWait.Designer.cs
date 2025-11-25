@@ -158,15 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.LinkedProperty = null;
             Title.Location = new Point(4, 4);
             Title.Margin = new Padding(0);
-            Title.MaterialBorderRadius = 4;
-            Title.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            Title.MaterialCustomPadding = new Padding(0);
-            Title.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            Title.MaterialIconPadding = 8;
-            Title.MaterialIconSize = 20;
-            Title.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            Title.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            Title.MaterialVariant = MaterialTextFieldVariant.Standard;
+          
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
             Title.MinimumSize = new Size(86, 38);
@@ -342,15 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.LinkedProperty = null;
             beepLabel1.Location = new Point(272, 435);
             beepLabel1.Margin = new Padding(0);
-            beepLabel1.MaterialBorderRadius = 4;
-            beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepLabel1.MaterialCustomPadding = new Padding(0);
-            beepLabel1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepLabel1.MaterialIconPadding = 8;
-            beepLabel1.MaterialIconSize = 20;
-            beepLabel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepLabel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
+          
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(32, 32);
             beepLabel1.MinimumSize = new Size(120, 38);
@@ -534,16 +518,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.LinkedProperty = null;
             messege.Location = new Point(14, 161);
             messege.Margin = new Padding(2, 1, 2, 1);
-            messege.MaterialBorderRadius = 4;
-            messege.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            messege.MaterialCustomPadding = new Padding(0);
-            messege.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            messege.MaterialIconPadding = 8;
-            messege.MaterialIconSize = 20;
-            messege.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            messege.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            messege.MaterialVariant = MaterialTextFieldVariant.Standard;
-            messege.MaxHitListDrawPerFrame = 0;
+        
+       
             messege.MaxImageSize = new Size(20, 20);
             messege.MinimumSize = new Size(65, 22);
             messege.ModernGradientType = ModernGradientType.None;
@@ -737,12 +713,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Location = new Point(304, 57);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            _spinnerImage.MaterialCustomPadding = new Padding(0);
-            _spinnerImage.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            _spinnerImage.MaterialIconPadding = 8;
-            _spinnerImage.MaterialIconSize = 20;
-            _spinnerImage.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            _spinnerImage.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+           
             _spinnerImage.MaxHitListDrawPerFrame = 0;
             _spinnerImage.MinimumSize = new Size(9, 8);
             _spinnerImage.ModernGradientType = ModernGradientType.Subtle;
@@ -924,12 +895,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.Location = new Point(0, 0);
             beepImage1.ManualRotationAngle = 0F;
             beepImage1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepImage1.MaterialCustomPadding = new Padding(0);
-            beepImage1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepImage1.MaterialIconPadding = 8;
-            beepImage1.MaterialIconSize = 20;
-            beepImage1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepImage1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+         
             beepImage1.MaxHitListDrawPerFrame = 0;
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;

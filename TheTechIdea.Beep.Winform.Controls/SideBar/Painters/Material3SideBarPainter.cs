@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class Material3SideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
+        // Use StyledImagePainter for caching/tinting and better performance
         public override string Name => "Material3";
 
         public override void Paint(ISideBarPainterContext context)
@@ -59,24 +59,24 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 ? context.Theme.PrimaryColor 
                 : Color.FromArgb(103, 80, 164);
             
-            using (var path = CreateRoundedPath(toggleRect, 28)) 
-            using (var brush = new SolidBrush(buttonColor)) 
-            { 
-                g.FillPath(brush, path); 
-            }
+            //using (var path = CreateRoundedPath(toggleRect, 28)) 
+            //using (var brush = new SolidBrush(buttonColor)) 
+            //{ 
+            //    g.FillPath(brush, path); 
+            //}
             
-            // Material 3 on-primary color
+            // Hamburger icon using embedded SVG for crisp rendering
+            string hamburger = TheTechIdea.Beep.Icons.Svgs.Menu;
+            int iconSize = Math.Min(toggleRect.Height - 12, 22);
+            var iconRect = new Rectangle(
+                toggleRect.X + (toggleRect.Width - iconSize) / 2,
+                toggleRect.Y + (toggleRect.Height - iconSize) / 2,
+                iconSize,
+                iconSize);
+
+            // Use white hamburger icon for contrast on Material primary toggle
             Color iconColor = Color.White;
-            using (var pen = new Pen(iconColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-            {
-                int centerX = toggleRect.X + toggleRect.Width / 2;
-                int centerY = toggleRect.Y + toggleRect.Height / 2;
-                int lineWidth = 16;
-                
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY - 5, centerX + lineWidth / 2, centerY - 5);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY, centerX + lineWidth / 2, centerY);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY + 5, centerX + lineWidth / 2, centerY + 5);
-            }
+            DrawHamburgerIcon(g, iconRect, iconColor);
         }
 
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
@@ -131,16 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    
-                    if (context.Theme != null && context.UseThemeColors) 
-                    { 
-                        _imagePainter.CurrentTheme = context.Theme; 
-                        _imagePainter.ApplyThemeOnImage = true; 
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; 
-                    }
-                    
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 
@@ -152,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         ? (item == context.SelectedItem ? Color.FromArgb(73, 69, 79) : context.Theme.SideMenuForeColor)
                         : (item == context.SelectedItem ? Color.FromArgb(73, 69, 79) : Color.FromArgb(28, 27, 31));
                     
-                    using (var font = new Font("Roboto", 14f, FontStyle.Bold)) 
+                    var font = BeepFontManager.GetCachedFont("Roboto", 14f, FontStyle.Bold);
                     using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, Math.Max(0, itemRect.Right - x - expandIconSize - 12), itemRect.Height);
@@ -275,16 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(child, context);
-                    
-                    if (context.Theme != null && context.UseThemeColors) 
-                    { 
-                        _imagePainter.CurrentTheme = context.Theme; 
-                        _imagePainter.ApplyThemeOnImage = true; 
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; 
-                    }
-                    
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, child, iconRect, context);
                     x += childIconSize + iconPadding;
                 }
                 
@@ -293,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     ? (child == context.SelectedItem ? Color.FromArgb(73, 69, 79) : Color.FromArgb(180, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B))
                     : (child == context.SelectedItem ? Color.FromArgb(73, 69, 79) : Color.FromArgb(99, 91, 103));
                 
-                using (var font = new Font("Roboto", 12f, FontStyle.Regular)) 
+                var font = BeepFontManager.GetCachedFont("Roboto", 12f, FontStyle.Regular); 
                 using (var brush = new SolidBrush(textColor))
                 {
                     Rectangle textRect = new Rectangle(x, childRect.Y, Math.Max(0, childRect.Right - x - childExpandIconSize - 12), childRect.Height);

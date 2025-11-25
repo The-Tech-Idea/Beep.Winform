@@ -25,7 +25,7 @@ BaseControl/
     ??? Painters/
     ?   ??? IBaseControlPainter.cs     # Painter interface
     ?   ??? ClassicBaseControlPainter.cs
-    ?   ??? MaterialBaseControlPainter.cs
+    ?   (removed) MaterialBaseControlPainter.cs
     ?   ??? CardBaseControlPainter.cs
     ?   ??? NeoBrutalistBaseControlPainter.cs
     ?   ??? ReadingCardBaseControlPainter.cs
@@ -315,7 +315,7 @@ When using the Material painter, additional properties become available:
 ### Material Properties
 ```csharp
 // Variants
-MaterialTextFieldVariant MaterialVariant { get; set; }  // Outlined, Filled, Standard
+MaterialTextFieldVariant// MaterialVariant { get; set; }  // Outlined, Filled, Standard
 
 // Visual styling
 int MaterialBorderRadius { get; set; }                  // Border radius
@@ -454,10 +454,10 @@ var control = new BaseControl
 var materialControl = new BaseControl
 {
     PainterKind = BaseControlPainterKind.Material,
-    MaterialVariant = MaterialTextFieldVariant.Outlined,
+   // MaterialVariant = MaterialTextFieldVariant.Outlined,
     LabelText = "Email Address",
     HelperText = "Enter your email",
-    MaterialBorderRadius = 8,
+    // MaterialBorderRadius = 8,
     MaterialElevationLevel = 1,
     LeadingIconPath = "email-icon.svg",
     Size = new Size(300, 60)

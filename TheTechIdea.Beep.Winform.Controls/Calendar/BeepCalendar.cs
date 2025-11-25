@@ -210,8 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true,
                 Theme = Theme,
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+               // MaterialVariant = MaterialTextFieldVariant.Outlined,
+                // MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
                 ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
@@ -221,8 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _prevButton.Click += (s, e) => NavigatePrevious();
             _prevButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+                
             };
 
             _nextButton = new BeepButton
@@ -231,10 +230,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true,
                 Theme = Theme,
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+               
                 AutoSizeContent = true,  // Enable content-based auto-sizing
-                ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
+              
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
                 MaterialPreserveContentArea = false, // Use full Material Design sizing
                 Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -242,8 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _nextButton.Click += (s, e) => NavigateNext();
             _nextButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+               
             };
 
             _todayButton = new BeepButton
@@ -252,10 +249,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true,
                 Theme = Theme,
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+             
                 AutoSizeContent = true,  // Enable content-based auto-sizing
-                ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
+            
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
                 MaterialPreserveContentArea = false, // Use full Material Design sizing
                 Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -263,8 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _todayButton.Click += (s, e) => NavigateToday();
             _todayButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+              
             };
 
             // View mode buttons with proper auto-sizing
@@ -274,8 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true, 
                 Theme = Theme, 
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+              
                 AutoSizeContent = true,  // Enable content-based auto-sizing
                 ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
@@ -284,8 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             };
             _monthViewButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+               
             };
             
             _weekViewButton = new BeepButton 
@@ -294,8 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true, 
                 Theme = Theme, 
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+             
                 AutoSizeContent = true,  // Enable content-based auto-sizing
                 ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
@@ -304,8 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             };
             _weekViewButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+              
             };
             
             _dayViewButton = new BeepButton 
@@ -314,8 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true, 
                 Theme = Theme, 
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+               
                 AutoSizeContent = true,  // Enable content-based auto-sizing
                 ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
@@ -324,8 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             };
             _dayViewButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+               
             };
             
             _listViewButton = new BeepButton 
@@ -334,8 +323,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true, 
                 Theme = Theme, 
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+               // MaterialVariant = MaterialTextFieldVariant.Outlined,
+                // MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
                 ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
@@ -344,8 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             };
             _listViewButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+              
             };
 
             _monthViewButton.Click += (s, e) => ViewMode = CalendarViewMode.Month;
@@ -360,19 +348,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true,
                 Theme = Theme,
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+              
                 AutoSizeContent = true,  // Enable content-based auto-sizing
-                ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
-                ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
-                MaterialPreserveContentArea = false, // Use full Material Design sizing
+      
                 Anchor = AnchorStyles.Top | AnchorStyles.Left
             };
             _createEventButton.Click += (s, e) => OnCreateEventRequested(_selectedDate);
             _createEventButton.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                    button.ApplyMaterialSizeCompensation();
+                
             };
 
             // Add all controls
@@ -1194,16 +1178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             BackColor = _currentTheme.CalendarBackColor;
             ForeColor = _currentTheme.CalendarForeColor;
 
-            // Apply Material Design theme colors if enabled
-            if (PainterKind == BaseControlPainterKind.Material)
-            {
-                MaterialOutlineColor = _currentTheme.CalendarBorderColor;
-                MaterialPrimaryColor = _currentTheme.CalendarSelectedDateBackColor;
-                MaterialFillColor = _currentTheme.CalendarBackColor;
-                if (_currentTheme.ErrorColor != Color.Empty)
-                    ErrorColor = _currentTheme.ErrorColor;
-            }
-
+          
             // Apply fonts if they exist in the theme and UseThemeFont is enabled
             if (UseThemeFont)
             {

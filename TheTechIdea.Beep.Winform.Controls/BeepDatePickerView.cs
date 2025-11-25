@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Constructor
         public BeepDatePickerView()
         {
-            MaterialUseVariantPadding = true;
+          
             InitializeModernCalendar();
         }
 

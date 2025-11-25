@@ -309,16 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.LinkedProperty = null;
             _titleLabel.Location = new Point(129, 24);
             _titleLabel.Margin = new Padding(0);
-            _titleLabel.MaterialBorderRadius = 4;
-            _titleLabel.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            _titleLabel.MaterialCustomPadding = new Padding(0);
-            _titleLabel.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            _titleLabel.MaterialIconPadding = 8;
-            _titleLabel.MaterialIconSize = 20;
-            _titleLabel.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            _titleLabel.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            _titleLabel.MaterialVariant = MaterialTextFieldVariant.Standard;
-            _titleLabel.MaxHitListDrawPerFrame = 0;
+            
             _titleLabel.MaxImageSize = new Size(16, 16);
             _titleLabel.MinimumSize = new Size(152, 40);
             _titleLabel.ModernGradientType = ModernGradientType.None;

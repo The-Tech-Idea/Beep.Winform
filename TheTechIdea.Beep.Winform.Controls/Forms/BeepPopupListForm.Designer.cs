@@ -145,12 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.LinkedProperty = null;
             _beepListBox.Location = new Point(1, 1);
             _beepListBox.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
-            _beepListBox.MaterialCustomPadding = new Padding(0);
-            _beepListBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            _beepListBox.MaterialIconPadding = 8;
-            _beepListBox.MaterialIconSize = 20;
-            _beepListBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            _beepListBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            
             _beepListBox.MaxHitListDrawPerFrame = 0;
             _beepListBox.MenuItemHeight = 20;
             _beepListBox.MinimumSize = new Size(136, 56);

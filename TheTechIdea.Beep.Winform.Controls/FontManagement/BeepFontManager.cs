@@ -227,6 +227,23 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 style.FontWeight >= FontWeight.Bold ? FontStyle.Bold : FontStyle.Regular);
         }
 
+        /// <summary>
+        /// Gets a cached font to avoid per-paint allocations in painters.
+        /// Use this in OnPaint methods instead of 'new Font(...)'
+        /// </summary>
+        public static Font GetCachedFont(string fontName, float size, FontStyle style = FontStyle.Regular)
+        {
+            return FontListHelper.GetCachedFont(fontName, size, style);
+        }
+
+        /// <summary>
+        /// Clears the font cache (call on theme change or cleanup)
+        /// </summary>
+        public static void ClearFontCache()
+        {
+            FontListHelper.ClearFontCache();
+        }
+
         public static float GetFontWeightMultiplier(FontWeight weight)
         {
             return (float)weight / 1000f;

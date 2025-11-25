@@ -83,7 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             InitializeComponent();
             InitializePainter();
-            InitializeAnimation();
+           // InitializeAnimation();
+            EnableAnimation = false; // safer default to avoid designer-time jitter
             
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
@@ -196,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             get => _itemHeight;
             set
             {
-                _itemHeight = value;
+                _itemHeight = Math.Max(24, value);
                 RefreshHitAreas();
                 Invalidate();
             }
@@ -242,18 +243,18 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         [Browsable(true)]
         [Category("Appearance")]
         [Description("When true, the painter will use an icon (ExpandIconPath/CollapseIconPath) instead of drawing a plus/minus manually.")]
-        [DefaultValue(false)]
-        public bool UseExpandCollapseIcon { get; set; } = false;
+        [DefaultValue(true)]
+        public bool UseExpandCollapseIcon { get; set; } = true;
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("SVG path or image path for the Expand (collapsed -> show children) icon.")]
-        public string ExpandIconPath { get; set; }
+        public string ExpandIconPath { get; set; } = TheTechIdea.Beep.Icons.Svgs.AngleSmallRight;
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("SVG path or image path for the Collapse (expanded -> hide children) icon.")]
-        public string CollapseIconPath { get; set; }
+        public string CollapseIconPath { get; set; } = TheTechIdea.Beep.Icons.Svgs.AngleSmallDown;
 
         [Browsable(false)]
         public int MenuItemHeight => _itemHeight;
@@ -287,12 +288,49 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            RefreshHitAreas();
+           // RefreshHitAreas();
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            // icon caching handled by StyledImagePainter and global caches; no per-control refresh required
+            Invalidate();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            // Warmup commonly used icons to avoid blocking on first paint
+            try
+            {
+                // Avoid starting background tasks in design mode which can interfere with the designer
+                if (!DesignMode)
+                {
+                    var sizes = new int[] { 16, 20, 24, 32 };
+                    // Pre-render the default icons: hamburger, expand and collapse icons
+                    if (!string.IsNullOrEmpty(DefaultItemImagePath))
+                        TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(DefaultItemImagePath, AccentColor, 1f, sizes);
+
+                    if (!string.IsNullOrEmpty(ExpandIconPath))
+                        TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(ExpandIconPath, AccentColor, 1f, sizes);
+
+                    if (!string.IsNullOrEmpty(CollapseIconPath))
+                        TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(CollapseIconPath, AccentColor, 1f, sizes);
+
+                    // Hamburger icon (menu) used by some painters
+                    TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(TheTechIdea.Beep.Icons.Svgs.Menu, AccentColor, 1f, sizes);
+                }
+            }
+            catch
+            {
+                // Ignore schedule errors - non-critical
+            }
         }
 
         protected virtual void OnItemClicked(SimpleItem item)
@@ -303,12 +341,16 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         #endregion
 
         #region Private Methods
+        // Image caching is handled by StyledImagePainter now; remove per-control cache
         private void Items_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
         {
             RecalculateItemSizes();
             RefreshHitAreas();
             Invalidate();
         }
+
+
+
 
         /// <summary>
         /// Calculate required item sizes based on text and icon content to avoid clipping
@@ -318,6 +360,13 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             if (_items == null || _items.Count == 0)
                 return;
+
+            // Avoid heavy measuring when handle is not ready (design-time drop scenarios)
+            if (!IsHandleCreated)
+            {
+                _itemHeight = Math.Max(_itemHeight, 44);
+                return;
+            }
 
             using (var g = CreateGraphics())
             {
@@ -337,12 +386,10 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                     Size textSize = Size.Empty;
                     if (hasText)
                     {
-                        using (var font = new Font("Segoe UI", 10f, FontStyle.Regular))
-                        {
-                            textSize = TextRenderer.MeasureText(g, item.Text, font,
-                                new Size(int.MaxValue, int.MaxValue),
-                                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
-                        }
+                        var font = BeepFontManager.GetCachedFont("Segoe UI", 10f, FontStyle.Regular);
+                        textSize = TextRenderer.MeasureText(g, item.Text, font,
+                            new Size(int.MaxValue, int.MaxValue),
+                            TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                     }
 
                     // Sidebar is always vertical: icon left, text right

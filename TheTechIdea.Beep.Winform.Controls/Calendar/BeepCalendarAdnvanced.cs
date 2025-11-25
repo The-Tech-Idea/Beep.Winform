@@ -200,8 +200,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Theme = Theme, 
                 Anchor = AnchorStyles.Top | AnchorStyles.Left,
                 //EnableMaterialStyle = true,
-                MaterialVariant = MaterialTextFieldVariant.Outlined,
-                MaterialBorderRadius = 4,
+               // MaterialVariant = MaterialTextFieldVariant.Outlined,
+                // MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
                 ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
                 ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
@@ -212,10 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             // Force Material Design size compensation after button creation
             b.HandleCreated += (s, e) => {
                 var button = s as BeepButton;
-                if (button != null && button.ButtonAutoSizeForMaterial)
-                {
-                    button.ApplyMaterialSizeCompensation();
-                }
+              
             };
             
             return b;
@@ -313,15 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             BackColor = _currentTheme.CalendarBackColor;
             ForeColor = _currentTheme.CalendarForeColor;
             
-            // Apply Material Design theme colors
-            if (PainterKind == BaseControlPainterKind.Material)
-            {
-                MaterialOutlineColor = _currentTheme.CalendarBorderColor;
-                MaterialPrimaryColor = _currentTheme.CalendarSelectedDateBackColor;
-                MaterialFillColor = _currentTheme.CalendarBackColor;
-                if (_currentTheme.ErrorColor != Color.Empty)
-                    ErrorColor = _currentTheme.ErrorColor;
-            }
+         
             
             if (UseThemeFont)
             {

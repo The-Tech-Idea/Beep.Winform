@@ -23,20 +23,20 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             base.DrawContent(g);
 
+            // Ensure painter initialized
             if (_currentPainter == null)
             {
                 InitializePainter();
             }
+
+            // When using theme, keep background in sync
             if (UseThemeColors && _currentTheme != null)
             {
                 BackColor = _currentTheme.SideMenuBackColor;
-                g.Clear(BackColor);
             }
-            else
-            {
-                // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
-            }
+
+            // Always ensure background is painted once per pass
+            BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
 
             _currentGraphics = g;
 
@@ -45,15 +45,44 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
+            // Design-time: avoid calling full painters which may read files or do heavy work.
+            if (DesignMode)
+            {
+                // Fast placeholder rendering for Visual Studio Designer to prevent IDE freeze
+                PaintBackgroundPerStyle(g);
+                // Optionally draw a lightweight mock list to help the designer visualize the control
+                var font = BeepFontManager.GetCachedFont("Segoe UI", 9f);
+                using (var pen = new Pen(Color.FromArgb(80, Color.Gray), 1f))
+                using (var brush = new SolidBrush(Color.FromArgb(100, Color.Gray)))
+                {
+                    int y = DrawingRect.Top + 12;
+                    for (int i = 0; i < Math.Min(4, Math.Max(1, Items?.Count ?? 0)); i++)
+                    {
+                        g.DrawRectangle(pen, DrawingRect.Left + 12, y, DrawingRect.Width - 24, Math.Max(22, ItemHeight - 12));
+                        g.DrawString("Item", font, brush, DrawingRect.Left + 20, y + 2);
+                        y += ItemHeight + 4;
+                    }
+                }
+                return; // Skip full painter work in designer
+            }
+
+            // Runtime: measured painter call with safety guard
             try
             {
-                // Let the painter handle all rendering
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 _currentPainter?.Paint(_painterContext);
+                sw.Stop();
+                // If a painter takes too long, log a warning - helps find bad painters
+                const int warningMs = 300; // arbitrary threshold for noticing slow paints
+                if (sw.ElapsedMilliseconds > warningMs)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Warning: SideBar painter {(_currentPainter?.Name ?? "unknown")} took {sw.ElapsedMilliseconds}ms to paint.");
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"BeepSideBar Paint Error: {ex.Message}");
-                // Fallback to basic rendering
+                // Fallback to basic rendering in case painters fail
                 using (var brush = new SolidBrush(BackColor))
                 {
                     g.FillRectangle(brush, DrawingRect);

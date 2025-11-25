@@ -568,9 +568,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             if (g == null || _painter == null) return;
 
-            // Skip for Material painter (handled inside its painter)
-            if (_painter is MaterialBaseControlPainter) return;
-
             // Nothing to draw
             bool hasLabel = !string.IsNullOrEmpty(LabelText);
             bool hasSupporting = !string.IsNullOrEmpty(ErrorText) || !string.IsNullOrEmpty(HelperText);

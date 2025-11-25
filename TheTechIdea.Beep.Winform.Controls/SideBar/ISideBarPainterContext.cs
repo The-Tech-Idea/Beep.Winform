@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         Rectangle DrawingRect { get; }
 
         // MenuStyle and colors
+        string ThemeName { get; }
         IBeepTheme Theme { get; }
         bool UseThemeColors { get; }
         Color AccentColor { get; }
@@ -51,6 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         string CollapseIconPath { get; }
         // Default icon path to use when item has no ImagePath set
         string DefaultImagePath { get; }
+        // Caching and image painting are handled via StyledImagePainter now; no GetCachedIcon required
         // Current control style (allows painters to adjust fallback icons per style)
         TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle ControlStyle { get; }
     }

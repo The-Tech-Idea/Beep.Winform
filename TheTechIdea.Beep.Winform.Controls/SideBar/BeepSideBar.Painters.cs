@@ -86,7 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             public Graphics Graphics => _sideBar._currentGraphics;
             public Rectangle Bounds => _sideBar.ClientRectangle;
             public Rectangle DrawingRect => _sideBar.DrawingRect;
-            public Vis.Modules.IBeepTheme Theme => _sideBar._currentTheme;
+            public string ThemeName => _sideBar.Theme;
+            public IBeepTheme Theme => _sideBar._currentTheme;
             public bool UseThemeColors => _sideBar.UseThemeColors;
             public Color AccentColor => _sideBar.AccentColor;
             public Color BackColor => _sideBar.BackColor;

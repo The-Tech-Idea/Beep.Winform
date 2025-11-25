@@ -63,9 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private bool _isInitializing = true;
         protected ToolTip _toolTip;
 
-        // Material Design size compensation fields
-        private bool _materialAutoSizeCompensation = true;
-
         // Cached parent background for transparent controls (avoid BitBlt feedback loop)
         private Bitmap _cachedParentBackground = null;
         private bool _parentBackgroundCacheValid = false;

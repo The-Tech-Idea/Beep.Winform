@@ -174,14 +174,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepPanel1.LeftoffsetForDrawingRect = 0;
             beepPanel1.LinkedProperty = null;
             beepPanel1.Location = new Point(0, 0);
-            beepPanel1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepPanel1.MaterialCustomPadding = new Padding(0);
-            beepPanel1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepPanel1.MaterialIconPadding = 8;
-            beepPanel1.MaterialIconSize = 20;
-            beepPanel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepPanel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepPanel1.MaterialUseVariantPadding = false;
+         
             beepPanel1.MaxHitListDrawPerFrame = 0;
             beepPanel1.MinimumSize = new Size(161, 56);
             beepPanel1.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -394,12 +387,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionNamebeepTextBox.LinkedProperty = null;
             ConnectionNamebeepTextBox.Location = new Point(105, 85);
             ConnectionNamebeepTextBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            ConnectionNamebeepTextBox.MaterialCustomPadding = new Padding(0);
-            ConnectionNamebeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            ConnectionNamebeepTextBox.MaterialIconPadding = 8;
-            ConnectionNamebeepTextBox.MaterialIconSize = 20;
-            ConnectionNamebeepTextBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            ConnectionNamebeepTextBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             ConnectionNamebeepTextBox.MaxHitListDrawPerFrame = 0;
             ConnectionNamebeepTextBox.MaxImageSize = new Size(20, 20);
             ConnectionNamebeepTextBox.MinimumSize = new Size(0, 22);
@@ -572,14 +559,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.LeftoffsetForDrawingRect = 0;
             DriverbeepComboBox.LinkedProperty = null;
             DriverbeepComboBox.Location = new Point(120, 140);
-            DriverbeepComboBox.MaterialBorderRadius = 4;
-            DriverbeepComboBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            DriverbeepComboBox.MaterialCustomPadding = new Padding(0);
-            DriverbeepComboBox.MaterialFillColor = Color.White;
-            DriverbeepComboBox.MaterialIconPadding = 8;
-            DriverbeepComboBox.MaterialIconSize = 20;
-            DriverbeepComboBox.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            DriverbeepComboBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+         
             DriverbeepComboBox.MaxHitListDrawPerFrame = 0;
             DriverbeepComboBox.MinimumSize = new Size(150, 56);
             DriverbeepComboBox.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -749,12 +729,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionStringbeepTextBox.LinkedProperty = null;
             ConnectionStringbeepTextBox.Location = new Point(120, 277);
             ConnectionStringbeepTextBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            ConnectionStringbeepTextBox.MaterialCustomPadding = new Padding(0);
-            ConnectionStringbeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            ConnectionStringbeepTextBox.MaterialIconPadding = 8;
-            ConnectionStringbeepTextBox.MaterialIconSize = 20;
-            ConnectionStringbeepTextBox.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            ConnectionStringbeepTextBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             ConnectionStringbeepTextBox.MaxHitListDrawPerFrame = 0;
             ConnectionStringbeepTextBox.MaxImageSize = new Size(20, 20);
             ConnectionStringbeepTextBox.MinimumSize = new Size(0, 22);
@@ -927,14 +901,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox.LeftoffsetForDrawingRect = 0;
             DriverVersionbeepComboBox.LinkedProperty = null;
             DriverVersionbeepComboBox.Location = new Point(120, 215);
-            DriverVersionbeepComboBox.MaterialBorderRadius = 4;
-            DriverVersionbeepComboBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            DriverVersionbeepComboBox.MaterialCustomPadding = new Padding(0);
-            DriverVersionbeepComboBox.MaterialFillColor = Color.White;
-            DriverVersionbeepComboBox.MaterialIconPadding = 8;
-            DriverVersionbeepComboBox.MaterialIconSize = 20;
-            DriverVersionbeepComboBox.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            DriverVersionbeepComboBox.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            
+         
             DriverVersionbeepComboBox.MaxHitListDrawPerFrame = 0;
             DriverVersionbeepComboBox.MinimumSize = new Size(150, 56);
             DriverVersionbeepComboBox.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -1111,13 +1079,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CancelbeepButton.Location = new Point(90, 652);
             CancelbeepButton.Margin = new Padding(0);
             CancelbeepButton.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            CancelbeepButton.MaterialCustomPadding = new Padding(0);
-            CancelbeepButton.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            CancelbeepButton.MaterialIconPadding = 8;
-            CancelbeepButton.MaterialIconSize = 20;
-            CancelbeepButton.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             CancelbeepButton.MaterialPreserveContentArea = true;
-            CancelbeepButton.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             CancelbeepButton.MaxHitListDrawPerFrame = 0;
             CancelbeepButton.MaxImageSize = new Size(32, 32);
             CancelbeepButton.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -1303,13 +1265,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             SavebeepButton.Location = new Point(400, 652);
             SavebeepButton.Margin = new Padding(0);
             SavebeepButton.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            SavebeepButton.MaterialCustomPadding = new Padding(0);
-            SavebeepButton.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            SavebeepButton.MaterialIconPadding = 8;
-            SavebeepButton.MaterialIconSize = 20;
-            SavebeepButton.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             SavebeepButton.MaterialPreserveContentArea = true;
-            SavebeepButton.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             SavebeepButton.MaxHitListDrawPerFrame = 0;
             SavebeepButton.MaxImageSize = new Size(32, 32);
             SavebeepButton.ModernGradientType = Vis.Modules.ModernGradientType.None;

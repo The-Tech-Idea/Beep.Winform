@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
 {
@@ -166,13 +166,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.Location = new Point(163, 117);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepButton1.MaterialCustomPadding = new Padding(0);
-            beepButton1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepButton1.MaterialIconPadding = 8;
-            beepButton1.MaterialIconSize = 20;
-            beepButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepButton1.MaterialPreserveContentArea = true;
-            beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
             beepButton1.ModernGradientType = ModernGradientType.None;
@@ -348,12 +342,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePicker1.LinkedProperty = null;
             beepDatePicker1.Location = new Point(376, 109);
             beepDatePicker1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDatePicker1.MaterialCustomPadding = new Padding(0);
-            beepDatePicker1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepDatePicker1.MaterialIconPadding = 8;
-            beepDatePicker1.MaterialIconSize = 20;
-            beepDatePicker1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepDatePicker1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDatePicker1.MaxDate = null;
             beepDatePicker1.MaxHitListDrawPerFrame = 0;
             beepDatePicker1.MinDate = null;
@@ -525,12 +513,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePickerView1.LinkedProperty = null;
             beepDatePickerView1.Location = new Point(524, 210);
             beepDatePickerView1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDatePickerView1.MaterialCustomPadding = new Padding(0);
-            beepDatePickerView1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepDatePickerView1.MaterialIconPadding = 8;
-            beepDatePickerView1.MaterialIconSize = 20;
-            beepDatePickerView1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepDatePickerView1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDatePickerView1.MaxHitListDrawPerFrame = 0;
             beepDatePickerView1.MinimumSize = new Size(280, 434);
             beepDatePickerView1.ModernGradientType = ModernGradientType.None;
@@ -712,12 +694,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.LinkedProperty = null;
             beepComboBox1.Location = new Point(294, 210);
             beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepComboBox1.MaterialCustomPadding = new Padding(0);
-            beepComboBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepComboBox1.MaterialIconPadding = 8;
-            beepComboBox1.MaterialIconSize = 20;
-            beepComboBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
             beepComboBox1.ModernGradientType = ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
@@ -880,12 +856,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepChevronButton1.LinkedProperty = null;
             beepChevronButton1.Location = new Point(600, 117);
             beepChevronButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepChevronButton1.MaterialCustomPadding = new Padding(0);
-            beepChevronButton1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepChevronButton1.MaterialIconPadding = 8;
-            beepChevronButton1.MaterialIconSize = 20;
-            beepChevronButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepChevronButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepChevronButton1.MaxHitListDrawPerFrame = 0;
             beepChevronButton1.ModernGradientType = ModernGradientType.None;
             beepChevronButton1.Name = "beepChevronButton1";
@@ -1047,12 +1017,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.ListItems.Add((SimpleItem)resources.GetObject("beepListBox1.ListItems2"));
             beepListBox1.Location = new Point(89, 295);
             beepListBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepListBox1.MaterialCustomPadding = new Padding(0);
-            beepListBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepListBox1.MaterialIconPadding = 8;
-            beepListBox1.MaterialIconSize = 20;
-            beepListBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepListBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepListBox1.MaxHitListDrawPerFrame = 0;
             beepListBox1.ModernGradientType = ModernGradientType.None;
             beepListBox1.MultiSelect = false;
@@ -1211,12 +1175,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDropDownCheckBoxSelect1.LinkedProperty = null;
             beepDropDownCheckBoxSelect1.Location = new Point(74, 220);
             beepDropDownCheckBoxSelect1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDropDownCheckBoxSelect1.MaterialCustomPadding = new Padding(0);
-            beepDropDownCheckBoxSelect1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepDropDownCheckBoxSelect1.MaterialIconPadding = 8;
-            beepDropDownCheckBoxSelect1.MaterialIconSize = 20;
-            beepDropDownCheckBoxSelect1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepDropDownCheckBoxSelect1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepDropDownCheckBoxSelect1.MaxHitListDrawPerFrame = 0;
             beepDropDownCheckBoxSelect1.MaxSelection = 0;
             beepDropDownCheckBoxSelect1.ModernGradientType = ModernGradientType.None;

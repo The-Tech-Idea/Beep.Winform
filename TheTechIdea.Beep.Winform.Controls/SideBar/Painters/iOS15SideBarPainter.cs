@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class iOS15SideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
+        // Use the BeepSideBar cache via context.GetCachedIcon
         public override string Name => "iOS15";
 
         public override void Paint(ISideBarPainterContext context)
@@ -32,13 +32,10 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             Color buttonColor = context.UseThemeColors && context.Theme != null ? context.Theme.PrimaryColor : Color.FromArgb(0, 122, 255);
             using (var path = CreateRoundedPath(toggleRect, 10)) using (var brush = new SolidBrush(buttonColor)) { g.FillPath(brush, path); }
             Color iconColor = Color.White;
-            using (var pen = new Pen(iconColor, 2.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-            {
-                int centerX = toggleRect.X + toggleRect.Width / 2, centerY = toggleRect.Y + toggleRect.Height / 2, lineWidth = 18;
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY - 6, centerX + lineWidth / 2, centerY - 6);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY, centerX + lineWidth / 2, centerY);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY + 6, centerX + lineWidth / 2, centerY + 6);
-            }
+            int iconW = Math.Min(22, Math.Max(12, toggleRect.Width - 12));
+            int iconH = Math.Min(14, Math.Max(10, toggleRect.Height - 8));
+            var iconRect = new Rectangle(toggleRect.X + (toggleRect.Width - iconW) / 2, toggleRect.Y + (toggleRect.Height - iconH) / 2, iconW, iconH);
+            DrawHamburgerIcon(g, iconRect, iconColor);
         }
 
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
@@ -71,15 +68,14 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; } else _imagePainter.ApplyThemeOnImage = false;
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 if (!context.IsCollapsed)
                 {
                     Color textColor = context.UseThemeColors && context.Theme != null ? (item == context.SelectedItem ? Color.White : context.Theme.SideMenuForeColor) : (item == context.SelectedItem ? Color.White : Color.FromArgb(60, 60, 67));
-                    using (var font = new Font("SF Pro Display", 13f, FontStyle.Regular)) using (var brush = new SolidBrush(textColor))
+                    var font = BeepFontManager.GetCachedFont("SF Pro Display", 13f, FontStyle.Regular);
+                    using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, Math.Max(0, itemRect.Right - x - expandIconSize - 12), itemRect.Height);
                         StringFormat format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
@@ -96,8 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         var iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
                         try
                         {
-                            if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, expandRect, iconPath, chevronColor);
-                            else StyledImagePainter.Paint(g, expandRect, iconPath);
+                            PaintSvgWithFallback(g, expandRect, iconPath, context.Theme != null && context.UseThemeColors ? chevronColor : (Color?)null, true, context);
                         }
                         catch
                         {
@@ -144,13 +139,12 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(child, context);
-                    if (context.Theme != null && context.UseThemeColors) { _imagePainter.CurrentTheme = context.Theme; _imagePainter.ApplyThemeOnImage = true; _imagePainter.ImageEmbededin = ImageEmbededin.SideBar; } else _imagePainter.ApplyThemeOnImage = false;
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, child, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 Color textColor = context.UseThemeColors && context.Theme != null ? (child == context.SelectedItem ? Color.White : Color.FromArgb(200, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B)) : (child == context.SelectedItem ? Color.White : Color.FromArgb(142, 142, 147));
-                using (var font = new Font("SF Pro Text", 11.5f, FontStyle.Regular)) using (var brush = new SolidBrush(textColor))
+                var font = BeepFontManager.GetCachedFont("SF Pro Text", 11.5f, FontStyle.Regular);
+                using (var brush = new SolidBrush(textColor))
                 {
                     Rectangle textRect = new Rectangle(x, childRect.Y, Math.Max(0, childRect.Right - x - childExpandIconSize - 12), childRect.Height);
                     StringFormat format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
@@ -166,8 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         var iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
                         try
                         {
-                            if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, expandRect, iconPath, chevronColor);
-                            else StyledImagePainter.Paint(g, expandRect, iconPath);
+                            PaintSvgWithFallback(g, expandRect, iconPath, context.Theme != null && context.UseThemeColors ? chevronColor : (Color?)null, true, context);
                         }
                         catch
                         {

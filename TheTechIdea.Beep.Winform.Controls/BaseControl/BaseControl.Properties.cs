@@ -363,44 +363,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Direct Appearance Properties (Previously Delegated)
         /// <summary>
-        /// Property to enable automatic size compensation for Material Design
-        /// </summary>
-        [Browsable(false)] // Hidden - use StylePreset instead
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Category("Material Design")]
-        [Description("Automatically adjusts control size to accommodate Material Design spacing requirements")]
-        [DefaultValue(true)]
-        public bool MaterialAutoSizeCompensation
-        {
-            get => _materialAutoSizeCompensation;
-            set
-            {
-                if (_materialAutoSizeCompensation != value)
-                {
-                    _materialAutoSizeCompensation = value;
-
-                    // Trigger immediate compensation when enabled and using Material painter
-                    if (value && PainterKind == BaseControlPainterKind.Material && !_isInitializing)
-                    {
-                        ApplyMaterialSizeCompensation();
-                    }
-
-                    // Trigger property changed handler
-                    OnMaterialPropertyChanged();
-
-                    // Update layout if material helper exists
-                    UpdateMaterialLayout();
-
-                    Invalidate();
-                }
-            }
-        }
-        // Need to have private value for each property to and rewrite each property to have invalidate() call
-        /// <summary>
         /// Alternative sizing mode for Material Design - preserves content area instead of following Material specs
         /// </summary>
-        [Browsable(true)] // Hidden - use StylePreset instead
+        [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Category("Material Design")]
         [Description("When enabled, preserves the original content area size instead of following Material Design size specifications")]
         [DefaultValue(false)]
@@ -640,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         private float _glassmorphismOpacity = 0.1f;
 
-        // Material UI - Hide specific Material Design properties to avoid conflicts with StylePreset
+        // Material UI - kept for compatibility (material painter removed)
         [Browsable(false)] // Hidden - use StylePreset instead 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public MaterialTextFieldVariant MaterialBorderVariant
@@ -755,20 +722,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public SlideDirection SlideFrom { get => _effects.SlideFrom; set { _effects.SlideFrom = value; Invalidate(); } }
 
         #region Material Design Properties
-
-        public enum MaterialOutsideBackgroundMode
-        {
-            ControlBackColor,
-            ParentBackColor,
-            Transparent
-        }
-
-        [Browsable(false)] // Hidden - use StylePreset instead
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Category("Material Design")]
-        [Description("Determines how the area outside the material field is painted when Material ProgressBarStyle is enabled.")]
-        [DefaultValue(MaterialOutsideBackgroundMode.ParentBackColor)]
-        public MaterialOutsideBackgroundMode MaterialOutsideBackground { get; set; } = MaterialOutsideBackgroundMode.ParentBackColor;
         // Additional BeepControl parity properties
         private bool _canBeSelected = true;
         [Browsable(true)]

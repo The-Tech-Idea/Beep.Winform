@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class MinimalSideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
+        // We rely on BaseSideBarPainter.PaintMenuItemIcon which uses the cached BeepImage approach
         public override string Name => "Minimal";
 
         public override void Paint(ISideBarPainterContext context)
@@ -64,18 +64,12 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 g.FillRectangle(brush, toggleRect); 
             }
             
-            // White icon
+            // White icon - use shared DrawHamburgerIcon for consistent motif and fallback
             Color iconColor = Color.White;
-            using (var pen = new Pen(iconColor, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-            {
-                int centerX = toggleRect.X + toggleRect.Width / 2;
-                int centerY = toggleRect.Y + toggleRect.Height / 2;
-                int lineWidth = 14;
-                
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY - 4, centerX + lineWidth / 2, centerY - 4);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY, centerX + lineWidth / 2, centerY);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY + 4, centerX + lineWidth / 2, centerY + 4);
-            }
+            int iconW = Math.Min(22, Math.Max(12, toggleRect.Width - 12));
+            int iconH = Math.Min(14, Math.Max(10, toggleRect.Height - 8));
+            var iconRect = new Rectangle(toggleRect.X + (toggleRect.Width - iconW) / 2, toggleRect.Y + (toggleRect.Height - iconH) / 2, iconW, iconH);
+            DrawHamburgerIcon(g, iconRect, iconColor);
         }
 
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
@@ -107,85 +101,72 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
         private void PaintMenuItems(Graphics g, Rectangle bounds, ISideBarPainterContext context, ref int currentY)
         {
             if (context.Items == null || context.Items.Count == 0) return;
-            
+
             int padding = 20;
             int iconSize = GetTopLevelIconSize(context);
             int childIconSize = GetChildIconSize(context);
             int expandIconSize = GetExpandIconSize(context);
             int childExpandIconSize = GetChildExpandIconSize(context);
             int iconPadding = GetIconPadding(context);
-            
+
             foreach (var item in context.Items)
             {
                 Rectangle itemRect = new Rectangle(bounds.Left + padding, currentY, bounds.Width - padding * 2, context.ItemHeight);
-                
+
                 if (item == context.HoveredItem) PaintHover(g, itemRect, context);
                 if (item == context.SelectedItem) PaintSelection(g, itemRect, context);
-                
+
                 int x = itemRect.X;
-                
-                // Draw icon using ImagePainter
+
+                // Draw icon using cached BeepImage via the base painter helper
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    // Use shared ImagePainter for icons (reuses resources and respects theme embedding)
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    if (context.Theme != null && context.UseThemeColors)
-                    {
-                        _imagePainter.CurrentTheme = context.Theme;
-                        _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
-                    }
-                    else
-                    {
-                        _imagePainter.ApplyThemeOnImage = false;
-                    }
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                     x += iconSize + iconPadding;
                 }
-                
+
                 // Draw text - minimal sans-serif
                 if (!context.IsCollapsed)
                 {
-                    Color textColor = context.UseThemeColors && context.Theme != null 
+                    Color textColor = context.UseThemeColors && context.Theme != null
                         ? (item == context.SelectedItem ? Color.Black : context.Theme.SideMenuForeColor)
                         : (item == context.SelectedItem ? Color.Black : Color.FromArgb(100, 100, 100));
-                    
-                    using (var font = new Font("Arial", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular)) 
+
+                    var font = BeepFontManager.GetCachedFont("Arial", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular);
                     using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, Math.Max(0, itemRect.Right - x - expandIconSize - 12), itemRect.Height);
-                        StringFormat format = new StringFormat 
-                        { 
-                            Alignment = StringAlignment.Near, 
-                            LineAlignment = StringAlignment.Center, 
-                            Trimming = StringTrimming.EllipsisCharacter 
+                        StringFormat format = new StringFormat
+                        {
+                            Alignment = StringAlignment.Near,
+                            LineAlignment = StringAlignment.Center,
+                            Trimming = StringTrimming.EllipsisCharacter
                         };
-                        
+
                         g.DrawString(item.Text, font, brush, textRect, format);
                     }
                 }
-                
+
                 // Draw expand/collapse - simple plus/minus
                 if (item.Children != null && item.Children.Count > 0 && !context.IsCollapsed)
                 {
                     Rectangle expandRect = new Rectangle(itemRect.Right - expandIconSize - 8, itemRect.Y + (itemRect.Height - expandIconSize) / 2, expandIconSize, expandIconSize);
                     bool isExpanded = context.ExpandedState.ContainsKey(item) && context.ExpandedState[item];
-                    
-                    Color iconColor = context.UseThemeColors && context.Theme != null 
-                        ? context.Theme.SideMenuForeColor 
+
+                    Color iconColor = context.UseThemeColors && context.Theme != null
+                        ? context.Theme.SideMenuForeColor
                         : Color.FromArgb(150, 150, 150);
-                    
+
                     if (context.UseExpandCollapseIcon && !string.IsNullOrEmpty(context.ExpandIconPath) && !string.IsNullOrEmpty(context.CollapseIconPath))
                     {
                         // Use an image or svg icon if provided
                         var iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
-                        try
-                        {
-                            if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, expandRect, iconPath, iconColor);
-                            else StyledImagePainter.Paint(g, expandRect, iconPath);
-                        }
-                        catch
+                        // Use helper to centralize try/catch and fallback drawing
+                        PaintSvgWithFallback(g, expandRect, iconPath, context.Theme != null && context.UseThemeColors ? iconColor : (Color?)null, true);
+
+                        // previous try/catch block preserved as fallback if the helper isn't appropriate
+                        if (false)
                         {
                             // Fallback to line-based drawing if the icon fails to render
                             using (var pen = new Pen(iconColor, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
@@ -199,32 +180,32 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        using (var pen = new Pen(iconColor, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                        else
                         {
-                            int cx = expandRect.X + expandRect.Width / 2;
-                            int cy = expandRect.Y + expandRect.Height / 2;
-                            
-                            // Horizontal line (always)
-                            g.DrawLine(pen, cx - 5, cy, cx + 5, cy);
-                            
-                            // Vertical line (only when collapsed - making a plus)
-                            if (!isExpanded) 
-                            { 
-                                g.DrawLine(pen, cx, cy - 5, cx, cy + 5);
+                            using (var pen = new Pen(iconColor, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                            {
+                                int cx = expandRect.X + expandRect.Width / 2;
+                                int cy = expandRect.Y + expandRect.Height / 2;
+
+                                // Horizontal line (always)
+                                g.DrawLine(pen, cx - 5, cy, cx + 5, cy);
+
+                                // Vertical line (only when collapsed - making a plus)
+                                if (!isExpanded)
+                                {
+                                    g.DrawLine(pen, cx, cy - 5, cx, cy + 5);
+                                }
                             }
                         }
                     }
-                }
-                
-                currentY += context.ItemHeight + 8;
-                
-                if (item.Children != null && item.Children.Count > 0 && 
-                    context.ExpandedState.ContainsKey(item) && context.ExpandedState[item]) 
-                { 
-                    PaintChildItems(g, bounds, context, item, ref currentY, 1); 
+
+                    currentY += context.ItemHeight + 8;
+
+                    if (item.Children != null && item.Children.Count > 0 &&
+                        context.ExpandedState.ContainsKey(item) && context.ExpandedState[item])
+                    {
+                        PaintChildItems(g, bounds, context, item, ref currentY, 1);
+                    }
                 }
             }
         }
@@ -252,22 +233,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 
                 // No connector lines in minimal Style - clean
                 
-                // Draw icon using ImagePainter
+                // Draw icon using cached BeepImage via the base painter helper
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(child, context);
-                    if (context.Theme != null && context.UseThemeColors)
-                    {
-                        _imagePainter.CurrentTheme = context.Theme;
-                        _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
-                    }
-                    else
-                    {
-                        _imagePainter.ApplyThemeOnImage = false;
-                    }
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, child, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 
@@ -276,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     ? (child == context.SelectedItem ? Color.Black : Color.FromArgb(180, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B))
                     : (child == context.SelectedItem ? Color.Black : Color.FromArgb(120, 120, 120));
                 
-                using (var font = new Font("Arial", 11f, FontStyle.Regular)) 
+                var font = BeepFontManager.GetCachedFont("Arial", 11f, FontStyle.Regular); 
                 using (var brush = new SolidBrush(textColor))
                 {
                     Rectangle textRect = new Rectangle(x, childRect.Y, Math.Max(0, childRect.Right - x - childExpandIconSize - 12), childRect.Height);
@@ -303,12 +273,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     if (context.UseExpandCollapseIcon && !string.IsNullOrEmpty(context.ExpandIconPath) && !string.IsNullOrEmpty(context.CollapseIconPath))
                     {
                         var iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
-                        try
-                        {
-                            if (context.Theme != null && context.UseThemeColors) StyledImagePainter.PaintWithTint(g, expandRect, iconPath, iconColor);
-                            else StyledImagePainter.Paint(g, expandRect, iconPath);
-                        }
-                        catch
+                        PaintSvgWithFallback(g, expandRect, iconPath, context.Theme != null && context.UseThemeColors ? iconColor : (Color?)null, true);
+                        if (false)
                         {
                             using (var pen = new Pen(iconColor, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
                             {

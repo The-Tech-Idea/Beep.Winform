@@ -283,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Enable Material Design styling
             //EnableMaterialStyle = true;
             //MaterialVariant = MaterialTextFieldVariant.Outlined;
-            //MaterialBorderRadius = 4; // Reduced from 8
+            //// MaterialBorderRadius = 4; // Reduced from 8
             LabelText = string.Empty; // Default floating label
             HelperText = string.Empty; // No default helper text
 
@@ -770,8 +770,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply Material Design theme colors if enabled
             if (PainterKind == BaseControlPainterKind.Material)
             {
-                MaterialOutlineColor = _currentTheme.ComboBoxBorderColor;
-                MaterialPrimaryColor = _currentTheme.ComboBoxSelectedBorderColor;
+               // MaterialOutlineColor = _currentTheme.ComboBoxBorderColor;
+               // MaterialPrimaryColor = _currentTheme.ComboBoxSelectedBorderColor;
                 MaterialFillColor = _currentTheme.ComboBoxBackColor;
                 ErrorColor = _currentTheme.ErrorColor;
             }

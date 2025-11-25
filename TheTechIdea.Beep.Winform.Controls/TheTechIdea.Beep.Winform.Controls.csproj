@@ -70,6 +70,70 @@
 	  <EmbeddedResource Include="GFX\SVG\NAV\*.*" />
 	  <EmbeddedResource Include="GFX\SVG\*.*" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="GFX\Shapes\001-semicircle-2.svg" />
+    <None Remove="GFX\Shapes\002-triangle-1.svg" />
+    <None Remove="GFX\Shapes\003-square-1.svg" />
+    <None Remove="GFX\Shapes\004-hexagon-1.svg" />
+    <None Remove="GFX\Shapes\005-star-4.svg" />
+    <None Remove="GFX\Shapes\006-trapezium.svg" />
+    <None Remove="GFX\Shapes\007-rhombus-2.svg" />
+    <None Remove="GFX\Shapes\008-octagon-3.svg" />
+    <None Remove="GFX\Shapes\009-triangle.svg" />
+    <None Remove="GFX\Shapes\010-square.svg" />
+    <None Remove="GFX\Shapes\011-hexagon.svg" />
+    <None Remove="GFX\Shapes\012-star-3.svg" />
+    <None Remove="GFX\Shapes\013-octagon-2.svg" />
+    <None Remove="GFX\Shapes\014-ennegon-1.svg" />
+    <None Remove="GFX\Shapes\015-pentagon-1.svg" />
+    <None Remove="GFX\Shapes\016-star-2.svg" />
+    <None Remove="GFX\Shapes\017-octagon-1.svg" />
+    <None Remove="GFX\Shapes\018-asterisk.svg" />
+    <None Remove="GFX\Shapes\019-rhombus-1.svg" />
+    <None Remove="GFX\Shapes\020-oval-1.svg" />
+    <None Remove="GFX\Shapes\021-oval.svg" />
+    <None Remove="GFX\Shapes\022-ennegon.svg" />
+    <None Remove="GFX\Shapes\023-semicircle-1.svg" />
+    <None Remove="GFX\Shapes\024-semicircle.svg" />
+    <None Remove="GFX\Shapes\025-pentagon.svg" />
+    <None Remove="GFX\Shapes\026-star-1.svg" />
+    <None Remove="GFX\Shapes\027-octagon.svg" />
+    <None Remove="GFX\Shapes\028-star.svg" />
+    <None Remove="GFX\Shapes\029-rhombus.svg" />
+    <None Remove="GFX\Shapes\030-circle.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GFX\Shapes\001-semicircle-2.svg" />
+    <EmbeddedResource Include="GFX\Shapes\002-triangle-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\003-square-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\004-hexagon-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\005-star-4.svg" />
+    <EmbeddedResource Include="GFX\Shapes\006-trapezium.svg" />
+    <EmbeddedResource Include="GFX\Shapes\007-rhombus-2.svg" />
+    <EmbeddedResource Include="GFX\Shapes\008-octagon-3.svg" />
+    <EmbeddedResource Include="GFX\Shapes\009-triangle.svg" />
+    <EmbeddedResource Include="GFX\Shapes\010-square.svg" />
+    <EmbeddedResource Include="GFX\Shapes\011-hexagon.svg" />
+    <EmbeddedResource Include="GFX\Shapes\012-star-3.svg" />
+    <EmbeddedResource Include="GFX\Shapes\013-octagon-2.svg" />
+    <EmbeddedResource Include="GFX\Shapes\014-ennegon-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\015-pentagon-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\016-star-2.svg" />
+    <EmbeddedResource Include="GFX\Shapes\017-octagon-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\018-asterisk.svg" />
+    <EmbeddedResource Include="GFX\Shapes\019-rhombus-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\020-oval-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\021-oval.svg" />
+    <EmbeddedResource Include="GFX\Shapes\022-ennegon.svg" />
+    <EmbeddedResource Include="GFX\Shapes\023-semicircle-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\024-semicircle.svg" />
+    <EmbeddedResource Include="GFX\Shapes\025-pentagon.svg" />
+    <EmbeddedResource Include="GFX\Shapes\026-star-1.svg" />
+    <EmbeddedResource Include="GFX\Shapes\027-octagon.svg" />
+    <EmbeddedResource Include="GFX\Shapes\028-star.svg" />
+    <EmbeddedResource Include="GFX\Shapes\029-rhombus.svg" />
+    <EmbeddedResource Include="GFX\Shapes\030-circle.svg" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="BeepFieldFilter.cs">

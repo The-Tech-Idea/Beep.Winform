@@ -579,10 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply size compensation when handle is created if explicitly enabled
             HandleCreated += (s, e) => {
-                if (PainterKind == BaseControlPainterKind.Material && ButtonAutoSizeForMaterial && !ButtonPreventAutoExpansion)
-                {
-                    ApplyMaterialSizeCompensation();
-                }
+              
             };
             // honor BaseControl scaling setting (do not force disable here)
 
@@ -712,11 +709,7 @@ namespace TheTechIdea.Beep.Winform.Controls
      //       base.OnFontChanged(e);
             _textFont = Font;
             
-            // Apply Material Design size compensation if enabled
-            if (PainterKind== BaseControlPainterKind.Material && ButtonAutoSizeForMaterial)
-            {
-                ApplyMaterialSizeCompensation();
-            }
+        
             
           // // Console.WriteLine("Font Changed");
             if (AutoSize)
@@ -1543,7 +1536,7 @@ ForeColor = _currentTheme.ButtonForeColor;
             ButtonAutoSizeForMaterial = true;
             ButtonPreventAutoExpansion = false;
             
-            ApplyMaterialSizeCompensation();
+          
             
             // Restore original settings
             ButtonAutoSizeForMaterial = originalAutoSize;
@@ -1564,72 +1557,9 @@ ForeColor = _currentTheme.ButtonForeColor;
         }
 
         /// <summary>
-        /// Override the base Material size compensation to handle Button-specific logic
-        /// </summary>
-        public override void ApplyMaterialSizeCompensation()
-        {
-            if (PainterKind != BaseControlPainterKind.Material || !ButtonAutoSizeForMaterial || ButtonPreventAutoExpansion)
-                return;
+      
 
-            // Use fixed base size to prevent unwanted expansion for image-only buttons
-            Size baseContentSize;
-            
-            if ((string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true)
-            {
-                // For image-only buttons, use actual image size
-                Size imageSize = beepImage.GetImageSize();
-                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-                {
-                    float scaleFactor = Math.Min(
-                        (float)_maxImageSize.Width / imageSize.Width,
-                        (float)_maxImageSize.Height / imageSize.Height);
-                    imageSize = new Size(
-                        (int)(imageSize.Width * scaleFactor),
-                        (int)(imageSize.Height * scaleFactor));
-                }
-                baseContentSize = new Size(imageSize.Width + 8, imageSize.Height + 8);
-            }
-            else if (!string.IsNullOrEmpty(Text))
-            {
-                var measuredSize = TextUtils.MeasureText(Text, _textFont ?? Font);
-                baseContentSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
-            }
-            else
-            {
-                // Default minimum size for empty buttons
-                baseContentSize = new Size(48, 24);
-            }
-
-            // Apply Material size compensation using base method
-            AdjustSizeForMaterial(baseContentSize, true);
-        }
-
-        /// <summary>
-        /// Gets current Material Design size information for debugging
-        /// </summary>
-        public string GetMaterialSizeInfo()
-        {
-            if (PainterKind != BaseControlPainterKind.Material)
-                return "Material Design is disabled";
-                
-            var padding = GetMaterialStylePadding();
-            var effects = GetMaterialEffectsSpace();
-            var icons = GetMaterialIconSpace();
-            var minSize = CalculateMinimumSizeForMaterial(new Size(100, 32));
-            
-            return "Material Info:\n" +
-                   $"Current Size: {Width}x{Height}\n" +
-                   $"Variant: {MaterialVariant}\n" +
-                   $"Padding: {padding}\n" +
-                   $"Effects Space: {effects}\n" +
-                   $"Icon Space: {icons}\n" +
-                   $"Calculated Min Size: {minSize}\n" +
-                   $"Auto Size Enabled: {ButtonAutoSizeForMaterial}\n" +
-                   $"Prevent Auto Expansion: {ButtonPreventAutoExpansion}\n" +
-                   $"Has Image: {beepImage?.HasImage}\n" +
-                   $"TextImageRelation: {TextImageRelation}\n" +
-                   $"ButtonType: {ButtonType}";
-        }
+      
         
         #endregion "Material Design Support"
     }

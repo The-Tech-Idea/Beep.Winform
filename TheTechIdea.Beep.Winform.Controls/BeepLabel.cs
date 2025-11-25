@@ -344,72 +344,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => HasError = value;
         }
 
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Automatically adjust size when Material Design styling is enabled.")]
-        [DefaultValue(true)]
-        public bool LabelAutoSizeForMaterial { get; set; } = true;
+    
 
-        /// <summary>
-        /// Override the base Material size compensation to handle Label-specific logic
-        /// </summary>
-        public override void ApplyMaterialSizeCompensation()
-        {
-            if (PainterKind != BaseControlPainterKind.Material || !LabelAutoSizeForMaterial)
-                return;
-
-            Console.WriteLine($"BeepLabel: Applying Material size compensation. Current size: {Width}x{Height}");
-
-            // Calculate current text size if we have content
-            Size textSize = Size.Empty;
-            if (!string.IsNullOrEmpty(Text))
-            {
-                var font = _textFont ?? Font;
-                var measuredSize = System.Windows.Forms.TextRenderer.MeasureText(Text, font);
-                textSize = measuredSize;
-            }
-
-            // Add subheader text size if present
-            if (!string.IsNullOrEmpty(SubHeaderText))
-            {
-                var subFont = SubHeaderFont ?? Font;
-                var subHeaderMeasuredSize = System.Windows.Forms.TextRenderer.MeasureText(SubHeaderText, subFont);
-                textSize.Width = Math.Max(textSize.Width, subHeaderMeasuredSize.Width);
-                textSize.Height += subHeaderMeasuredSize.Height;
-            }
-
-            // Use a reasonable default content size if no text
-            if (textSize.IsEmpty)
-            {
-                textSize = new Size(100, 20);
-            }
-
-            Console.WriteLine($"BeepLabel: Base content size: {textSize}");
-            Console.WriteLine($"BeepLabel: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
-
-            // Apply Material size compensation using base method
-            AdjustSizeForMaterial(textSize, true);
-
-            Console.WriteLine($"BeepLabel: Final size after compensation: {Width}x{Height}");
-        }
-        /// <summary>
-        /// Override to provide label specific minimum dimensions
-        /// </summary>
-        /// <returns>Minimum height for Material Design label</returns>
-        protected override int GetMaterialMinimumHeight()
-        {
-            // Label specific Material Design heights
-            // Labels are more flexible and don't have strict height requirements like input controls
-            switch (MaterialVariant)
-            {
-                case MaterialTextFieldVariant.Outlined:
-                case MaterialTextFieldVariant.Filled:
-                case MaterialTextFieldVariant.Standard:
-                    return 32; // Minimum for readable text with some padding
-                default:
-                    return 32;
-            }
-        }
+     
         // Compute and enforce a DatePicker-like minimum size
         private void UpdateMinimumSize()
         {
@@ -523,15 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             BoundProperty = "Text";
 
-            // Apply Material Design size compensation if enabled
-            if (PainterKind == BaseControlPainterKind.Material && LabelAutoSizeForMaterial)
-            {
-                // Apply size compensation when handle is created
-                this.HandleCreated += (s, e) =>
-                {
-                    ApplyMaterialSizeCompensation();
-                };
-            }
+         
         }
 
         protected override void InitLayout()
@@ -546,10 +475,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnFontChanged(e);
             _textFont = Font;
 
-            if (PainterKind == BaseControlPainterKind.Material && LabelAutoSizeForMaterial)
-            {
-                ApplyMaterialSizeCompensation();
-            }
+           
 
             UpdateMinimumSize();
 
@@ -1185,49 +1111,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region "Material Design Support"
 
-        /// <summary>
-        /// Manually triggers Material Design size compensation for testing/debugging
-        /// </summary>
-        public void ForceMaterialSizeCompensation()
-        {
-            Console.WriteLine($"BeepLabel: Force compensation called. EnableMaterialStyle: {PainterKind}, AutoSize: {LabelAutoSizeForMaterial}");
+       
 
-            // Temporarily enable auto size if needed
-            bool originalAutoSize = LabelAutoSizeForMaterial;
-            LabelAutoSizeForMaterial = true;
-
-            ApplyMaterialSizeCompensation();
-
-            // Restore original setting
-            LabelAutoSizeForMaterial = originalAutoSize;
-
-
-            Invalidate();
-        }
-
-        /// <summary>
-        /// Gets current Material Design size information for debugging
-        /// </summary>
-        public string GetMaterialSizeInfo()
-        {
-            if (PainterKind != BaseControlPainterKind.Material)
-                return "Material Design is disabled";
-
-            var padding = GetMaterialStylePadding();
-            var effects = GetMaterialEffectsSpace();
-            var icons = GetMaterialIconSpace();
-            var minSize = CalculateMinimumSizeForMaterial(new Size(100, 20));
-
-            return $"Material Info:\n" +
-                   $"Current Size: {Width}x{Height}\n" +
-                   $"Variant: {MaterialVariant}\n" +
-                   $"Padding: {padding}\n" +
-                   $"Effects Space: {effects}\n" +
-                   $"Icon Space: {icons}\n" +
-                   $"Calculated Min Size: {minSize}\n" +
-                   $"Auto Size Enabled: {LabelAutoSizeForMaterial}\n" +
-                   $"Has SubHeader: {!string.IsNullOrEmpty(SubHeaderText)}";
-        }
 
         #endregion "Material Design Support"
     }

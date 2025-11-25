@@ -152,11 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _inputText = SelectedDate;
                 UpdateMinimumSize(); // Recalculate size when format changes
                 
-                // Apply size compensation if Material Design is enabled
-                if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial)
-                {
-                    ApplyMaterialSizeCompensation();
-                }
+            
                 
                 if (_autoSize)
                 {
@@ -182,12 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _inputText = SelectedDate;
                     UpdateMinimumSize(); // Recalculate size when custom format changes
                     
-                    // Apply size compensation if Material Design is enabled
-                    if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial)
-                    {
-                        ApplyMaterialSizeCompensation();
-                    }
-                    
+                   
                     if (_autoSize)
                     {
                         Size pref = GetPreferredSize(Size.Empty);
@@ -210,12 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _inputText = SelectedDate;
                 UpdateMinimumSize(); // Recalculate size when culture changes
                 
-                // Apply size compensation if Material Design is enabled
-                if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial)
-                {
-                    ApplyMaterialSizeCompensation();
-                }
-                
+               
                 if (_autoSize)
                 {
                     Size pref = GetPreferredSize(Size.Empty);
@@ -472,45 +458,45 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ClearValidationError() { ToolTipText = ""; ApplyTheme(); }
         #endregion
 
-        #region Material sizing and overrides
-        public override void ApplyMaterialSizeCompensation()
-        {
-            if (PainterKind != BaseControlPainterKind.Material || !DatePickerAutoSizeForMaterial) return;
+        //#region Material sizing and overrides
+        //public override void ApplyMaterialSizeCompensation()
+        //{
+        //    if (PainterKind != BaseControlPainterKind.Material || !DatePickerAutoSizeForMaterial) return;
             
-            // Use TextRenderer to measure without creating a Graphics
-            Size contentSize;
-            // Use the same sample text logic as UpdateMinimumSize for consistency
-            string sample = GetSampleTextForFormat(GetCurrentFormat());
-            if (string.IsNullOrEmpty(sample)) 
-                sample = GetPlaceholderText();
+        //    // Use TextRenderer to measure without creating a Graphics
+        //    Size contentSize;
+        //    // Use the same sample text logic as UpdateMinimumSize for consistency
+        //    string sample = GetSampleTextForFormat(GetCurrentFormat());
+        //    if (string.IsNullOrEmpty(sample)) 
+        //        sample = GetPlaceholderText();
 
-            var measured = System.Windows.Forms.TextRenderer.MeasureText(sample + "  ", _textFont);
+        //    var measured = System.Windows.Forms.TextRenderer.MeasureText(sample + "  ", _textFont);
 
-            // Include dropdown button space in the calculation
-            int buttonSpace = _showDropDown ? _buttonWidth + (_padding * 2) : 0;
+        //    // Include dropdown button space in the calculation
+        //    int buttonSpace = _showDropDown ? _buttonWidth + (_padding * 2) : 0;
 
-            contentSize = new Size(measured.Width + buttonSpace, measured.Height);
+        //    contentSize = new Size(measured.Width + buttonSpace, measured.Height);
             
-            AdjustSizeForMaterial(contentSize, true);
-        }
+        //    AdjustSizeForMaterial(contentSize, true);
+        //}
         
-        protected override int GetMaterialMinimumHeight()
-        {
-            return MaterialVariant switch
-            {
-                MaterialTextFieldVariant.Standard => 40,
-                _ => 56
-            };
-        }
+        //protected override int GetMaterialMinimumHeight()
+        //{
+        //    return// MaterialVariant switch
+        //    {
+        //        MaterialTextFieldVariant.Standard => 40,
+        //        _ => 56
+        //    };
+        //}
         
-        public override Size GetMaterialIconSpace()
-        {
-            var baseIcons = base.GetMaterialIconSpace();
-            if (!_showDropDown) return baseIcons;
-            int trailing = _buttonWidth + (_padding * 2);
-            return new Size(baseIcons.Width + trailing, baseIcons.Height);
-        }
-        #endregion
+        //public override Size GetMaterialIconSpace()
+        //{
+        //    var baseIcons = base.GetMaterialIconSpace();
+        //    if (!_showDropDown) return baseIcons;
+        //    int trailing = _buttonWidth + (_padding * 2);
+        //    return new Size(baseIcons.Width + trailing, baseIcons.Height);
+        //}
+       // #endregion
 
         #region Events and input
         protected override void OnResize(EventArgs e)
@@ -526,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = this.Font;
-            if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial) ApplyMaterialSizeCompensation();
+           
             UpdateMinimumSize();
             Invalidate();
         }

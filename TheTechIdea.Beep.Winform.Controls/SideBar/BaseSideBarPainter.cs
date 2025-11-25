@@ -82,22 +82,18 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             try
             {
-                // Reuse the shared ImagePainter instance
                 string iconPath = GetIconPath(item, context);
-                _sharedImagePainter.ImagePath = iconPath;
-
-                if (context.Theme != null && context.UseThemeColors)
+                if (!string.IsNullOrEmpty(iconPath))
                 {
-                    _sharedImagePainter.CurrentTheme = context.Theme;
-                    _sharedImagePainter.ApplyThemeOnImage = true;
-                    _sharedImagePainter.ImageEmbededin = ImageEmbededin.SideBar;
+                    if (context.Theme != null && context.UseThemeColors)
+                    {
+                        StyledImagePainter.PaintWithTint(g, iconRect, iconPath, context.Theme.SideMenuForeColor);
+                    }
+                    else
+                    {
+                        StyledImagePainter.Paint(g, iconRect, iconPath);
+                    }
                 }
-                else
-                {
-                    _sharedImagePainter.ApplyThemeOnImage = false;
-                }
-
-                _sharedImagePainter.DrawImage(g, iconRect);
             }
             catch (Exception ex)
             {
@@ -153,6 +149,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                     return TheTechIdea.Beep.Icons.Svgs.NavDashboard; // default dashboard
                 case string k when k.Contains("settings") || k.Contains("gear") || k.Contains("config"):
                     return TheTechIdea.Beep.Icons.Svgs.Settings;
+                case string k when k.Contains("profile") || k.Contains("avatar"):
+                    return TheTechIdea.Beep.Icons.Svgs.Cat; // playful default profile/avatar icon
                 case string k when k.Contains("inbox") || k.Contains("mail") || k.Contains("messages"):
                     return TheTechIdea.Beep.Icons.Svgs.Mail;
                 case string k when k.Contains("calendar"):
@@ -227,10 +225,10 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 textColor = item.IsEnabled ? Color.FromArgb(240, 240, 240) : Color.Gray;
             }
 
-            // Use theme font if available
+            // Use theme font if available (cached)
             Font textFont = context.Theme != null ?
                BeepThemesManager.ToFont(context.Theme.GetAnswerFont()) :
-                new Font("Segoe UI", 9f);
+                BeepFontManager.GetCachedFont("Segoe UI", 9f);
 
             // Use TextRenderer for better quality
             var textFormat = System.Windows.Forms.TextFormatFlags.Left |
@@ -264,15 +262,15 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 textColor = childItem.IsEnabled ? Color.FromArgb(220, 220, 220) : Color.Gray;
             }
 
-            // Use smaller font for children
+            // Use smaller font for children (cached)
             Font textFont = context.Theme != null ?
                 BeepThemesManager.ToFont(context.Theme.GetAnswerFont()) :
-                new Font("Segoe UI", 8.5f);
+                BeepFontManager.GetCachedFont("Segoe UI", 8.5f);
 
             // Make it slightly smaller
             if (textFont.Size > 7)
             {
-                textFont = new Font(textFont.FontFamily, textFont.Size - 0.5f, textFont.Style);
+                textFont = BeepFontManager.GetCachedFont(textFont.FontFamily.Name, textFont.Size - 0.5f, textFont.Style);
             }
 
             // Use TextRenderer for better quality
@@ -364,6 +362,45 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         }
 
         /// <summary>
+        /// Paints an SVG given a path and optional tint, catching exceptions and falling back to a simple chevron.
+        /// This centralizes try/catch so that painters don't cause unhandled exceptions that could freeze the UI.
+        /// </summary>
+        protected void PaintSvgWithFallback(Graphics g, Rectangle rect, string svgPath, Color? tint, bool isChevronDown = false, ISideBarPainterContext context = null)
+        {
+            try
+            {
+                // Prefer StyledImagePainter (it handles caching internally)
+                if (!string.IsNullOrEmpty(svgPath))
+                {
+                    if (tint.HasValue)
+                        StyledImagePainter.PaintWithTint(g, rect, svgPath, tint.Value);
+                    else
+                        StyledImagePainter.Paint(g, rect, svgPath);
+                    return;
+                }
+                return;
+            }
+            catch
+            {
+                // fallback: chevron-like drawing
+                using (var pen = new Pen(Color.Gray, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    int cx = rect.X + rect.Width / 2, cy = rect.Y + rect.Height / 2;
+                    if (isChevronDown)
+                    {
+                        g.DrawLine(pen, cx - 3, cy - 1, cx, cy + 2);
+                        g.DrawLine(pen, cx, cy + 2, cx + 3, cy - 1);
+                    }
+                    else
+                    {
+                        g.DrawLine(pen, cx - 2, cy - 2, cx + 2, cy);
+                        g.DrawLine(pen, cx + 2, cy, cx - 2, cy + 2);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Helper method to get effective color based on UseThemeColors setting
         /// </summary>
         protected Color GetEffectiveColor(ISideBarPainterContext context, Color themeColor, Color fallbackColor)
@@ -389,16 +426,14 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 return new Size(200, 44); // Default minimum
 
             Size textSize = Size.Empty;
-
+        
             if (hasText)
             {
-                using (var font = new Font(fontFamily, fontSize, FontStyle.Regular))
-                {
-                    textSize = System.Windows.Forms.TextRenderer.MeasureText(g, item.Text, font,
-                        new Size(int.MaxValue, int.MaxValue),
-                        System.Windows.Forms.TextFormatFlags.NoPadding |
-                        System.Windows.Forms.TextFormatFlags.SingleLine);
-                }
+                var font = BeepFontManager.GetCachedFont(fontFamily, fontSize, FontStyle.Regular);
+                textSize = System.Windows.Forms.TextRenderer.MeasureText(g, item.Text, font,
+                    new Size(int.MaxValue, int.MaxValue),
+                    System.Windows.Forms.TextFormatFlags.NoPadding |
+                    System.Windows.Forms.TextFormatFlags.SingleLine);
             }
 
             // Sidebar: icon left, text right, side by side
@@ -453,6 +488,38 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         protected int GetIconPadding(ISideBarPainterContext context)
         {
             return 12;
+        }
+
+        /// <summary>
+        /// Draw a crisp hamburger (menu) icon using StyledImagePainter if available
+        /// Falls back to 3 rounded bars if embedded SVG can't be used
+        /// </summary>
+        protected void DrawHamburgerIcon(Graphics g, Rectangle iconRect, Color color)
+        {
+            string svg = TheTechIdea.Beep.Icons.Svgs.Menu;
+            try
+            {
+                if (!string.IsNullOrEmpty(svg))
+                {
+                    StyledImagePainter.PaintWithTint(g, iconRect, svg, color);
+                    return;
+                }
+            }
+            catch { }
+
+            // fallback: 3 filled rounded rectangles
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            int barHeight = Math.Max(2, iconRect.Height / 8);
+            int gap = barHeight * 2;
+            int w = iconRect.Width - 6; // slight inset
+            int x = iconRect.X + 3;
+            int y = iconRect.Y + (iconRect.Height - (3 * barHeight + 2 * gap)) / 2;
+            using (var brush = new SolidBrush(color))
+            {
+                g.FillRectangle(brush, new Rectangle(x, y, w, barHeight));
+                g.FillRectangle(brush, new Rectangle(x, y + barHeight + gap, w, barHeight));
+                g.FillRectangle(brush, new Rectangle(x, y + 2 * (barHeight + gap), w, barHeight));
+            }
         }
     }
 }

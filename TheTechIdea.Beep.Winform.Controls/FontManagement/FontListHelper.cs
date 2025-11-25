@@ -42,9 +42,38 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
         }
 
-        // Cache created fonts to reduce allocations - but track if they're still valid
-        private static readonly Dictionary<string, WeakReference<Font>> fontCache = new(StringComparer.OrdinalIgnoreCase);
+        // Strong font cache - fonts live for app lifetime to avoid allocation spam in painters
+        private static readonly Dictionary<string, Font> fontCache = new(StringComparer.OrdinalIgnoreCase);
         private static readonly object fontCacheLock = new object();
+
+        /// <summary>
+        /// Gets a cached font for common painter scenarios (avoids per-paint allocation)
+        /// </summary>
+        public static Font GetCachedFont(string fontName, float size, FontStyle style = FontStyle.Regular)
+        {
+            string key = $"{fontName}|{size}|{(int)style}";
+            lock (fontCacheLock)
+            {
+                if (fontCache.TryGetValue(key, out var cached))
+                    return cached;
+                
+                var font = GetFont(fontName, size, style);
+                if (font != null)
+                    fontCache[key] = font;
+                return font;
+            }
+        }
+
+        /// <summary>
+        /// Clears the font cache (use sparingly - only on theme changes or cleanup)
+        /// </summary>
+        public static void ClearFontCache()
+        {
+            lock (fontCacheLock)
+            {
+                fontCache.Clear();
+            }
+        }
 
         #region "System Font Discovery"
         /// <summary>

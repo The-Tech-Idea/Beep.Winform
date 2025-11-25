@@ -11,7 +11,6 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
     public sealed class Windows11MicaSideBarPainter : BaseSideBarPainter
     {
-        private static readonly ImagePainter _imagePainter = new ImagePainter();
         public override string Name => "Windows11Mica";
 
         public override void Paint(ISideBarPainterContext context)
@@ -79,16 +78,10 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
             }
             
             Color iconColor = Color.White;
-            using (var pen = new Pen(iconColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-            {
-                int centerX = toggleRect.X + toggleRect.Width / 2;
-                int centerY = toggleRect.Y + toggleRect.Height / 2;
-                int lineWidth = 16;
-                
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY - 5, centerX + lineWidth / 2, centerY - 5);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY, centerX + lineWidth / 2, centerY);
-                g.DrawLine(pen, centerX - lineWidth / 2, centerY + 5, centerX + lineWidth / 2, centerY + 5);
-            }
+            int iconW = Math.Min(22, Math.Max(12, toggleRect.Width - 12));
+            int iconH = Math.Min(14, Math.Max(10, toggleRect.Height - 8));
+            var iconRect = new Rectangle(toggleRect.X + (toggleRect.Width - iconW) / 2, toggleRect.Y + (toggleRect.Height - iconH) / 2, iconW, iconH);
+            DrawHamburgerIcon(g, iconRect, iconColor);
         }
 
         public override void PaintSelection(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
@@ -155,15 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(item, context);
-                    if (context.Theme != null && context.UseThemeColors)
-                    {
-                        _imagePainter.CurrentTheme = context.Theme;
-                        _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
-                    }
-                    else _imagePainter.ApplyThemeOnImage = false;
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, item, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 
@@ -174,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         ? (item == context.SelectedItem ? Color.FromArgb(0, 120, 212) : context.Theme.SideMenuForeColor)
                         : (item == context.SelectedItem ? Color.FromArgb(0, 120, 212) : Color.FromArgb(32, 32, 32));
                     
-                    using (var font = new Font("Segoe UI Variable", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular)) 
+                    var font = BeepFontManager.GetCachedFont("Segoe UI Variable", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular); 
                     using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, Math.Max(0, itemRect.Right - x - expandIconSize - 12), itemRect.Height);
@@ -204,10 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         var iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
                         try
                         {
-                            if (context.Theme != null && context.UseThemeColors)
-                                StyledImagePainter.PaintWithTint(g, expandRect, iconPath, chevronColor);
-                            else
-                                StyledImagePainter.Paint(g, expandRect, iconPath);
+                            PaintSvgWithFallback(g, expandRect, iconPath, context.Theme != null && context.UseThemeColors ? chevronColor : (Color?)null, true, context);
                         }
                         catch
                         {
@@ -293,15 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (!string.IsNullOrEmpty(child.ImagePath))
                 {
                     Rectangle iconRect = new Rectangle(x, childRect.Y + (childRect.Height - iconSize) / 2, iconSize, iconSize);
-                    _imagePainter.ImagePath = GetIconPath(child, context);
-                    if (context.Theme != null && context.UseThemeColors)
-                    {
-                        _imagePainter.CurrentTheme = context.Theme;
-                        _imagePainter.ApplyThemeOnImage = true;
-                        _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
-                    }
-                    else _imagePainter.ApplyThemeOnImage = false;
-                    _imagePainter.DrawImage(g, iconRect);
+                    PaintMenuItemIcon(g, child, iconRect, context);
                     x += iconSize + iconPadding;
                 }
                 
@@ -310,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     ? (child == context.SelectedItem ? Color.FromArgb(0, 120, 212) : Color.FromArgb(200, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B))
                     : (child == context.SelectedItem ? Color.FromArgb(0, 120, 212) : Color.FromArgb(100, 100, 100));
                 
-                using (var font = new Font("Segoe UI Variable", 12f, FontStyle.Regular)) 
+                var font = BeepFontManager.GetCachedFont("Segoe UI Variable", 12f, FontStyle.Regular); 
                 using (var brush = new SolidBrush(textColor))
                 {
                     Rectangle textRect = new Rectangle(x, childRect.Y, Math.Max(0, childRect.Right - x - childExpandIconSize - 12), childRect.Height);

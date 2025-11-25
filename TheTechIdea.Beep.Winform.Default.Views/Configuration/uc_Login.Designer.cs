@@ -157,15 +157,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.LinkedProperty = null;
             beepLabel1.Location = new Point(240, 0);
             beepLabel1.Margin = new Padding(0);
-            beepLabel1.MaterialBorderRadius = 4;
-            beepLabel1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepLabel1.MaterialCustomPadding = new Padding(0);
-            beepLabel1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepLabel1.MaterialIconPadding = 8;
-            beepLabel1.MaterialIconSize = 20;
-            beepLabel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepLabel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepLabel1.MaterialVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
+           
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
             beepLabel1.MinimumSize = new Size(177, 56);
@@ -493,12 +485,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.Location = new Point(240, 360);
             CancelbeepButton.Margin = new Padding(0);
             CancelbeepButton.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            CancelbeepButton.MaterialCustomPadding = new Padding(0);
-            CancelbeepButton.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            CancelbeepButton.MaterialIconPadding = 8;
-            CancelbeepButton.MaterialIconSize = 20;
-            CancelbeepButton.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            CancelbeepButton.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             CancelbeepButton.MaxHitListDrawPerFrame = 0;
             CancelbeepButton.MaxImageSize = new Size(32, 32);
             CancelbeepButton.MinimumSize = new Size(96, 40);

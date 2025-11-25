@@ -163,14 +163,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
             beepComboBox1.Location = new Point(402, 659);
-            beepComboBox1.MaterialBorderRadius = 6;
+          
             beepComboBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            beepComboBox1.MaterialCustomPadding = new Padding(0);
-            beepComboBox1.MaterialFillColor = Color.White;
-            beepComboBox1.MaterialIconPadding = 8;
-            beepComboBox1.MaterialIconSize = 20;
-            beepComboBox1.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
-            beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
           
             beepComboBox1.MinimumSize = new Size(90, 28);
@@ -330,12 +324,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepCheckBoxBool1.LinkedProperty = null;
             beepCheckBoxBool1.Location = new Point(386, 554);
             beepCheckBoxBool1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            beepCheckBoxBool1.MaterialCustomPadding = new Padding(0);
-            beepCheckBoxBool1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepCheckBoxBool1.MaterialIconPadding = 8;
-            beepCheckBoxBool1.MaterialIconSize = 20;
-            beepCheckBoxBool1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepCheckBoxBool1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepCheckBoxBool1.MaxHitListDrawPerFrame = 0;
        
             beepCheckBoxBool1.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -639,12 +627,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepListBox1.LinkedProperty = null;
             beepListBox1.Location = new Point(21, 340);
             beepListBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepListBox1.MaterialCustomPadding = new Padding(0);
-            beepListBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepListBox1.MaterialIconPadding = 8;
-            beepListBox1.MaterialIconSize = 20;
-            beepListBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepListBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepListBox1.MaxHitListDrawPerFrame = 0;
             beepListBox1.MenuItemHeight = 24;
           
@@ -822,13 +804,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepButton1.Location = new Point(414, 771);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            beepButton1.MaterialCustomPadding = new Padding(0);
-            beepButton1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepButton1.MaterialIconPadding = 8;
-            beepButton1.MaterialIconSize = 20;
-            beepButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepButton1.MaterialPreserveContentArea = true;
-            beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 27);
           
@@ -1002,12 +978,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepCard1.LinkedProperty = null;
             beepCard1.Location = new Point(935, 265);
             beepCard1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepCard1.MaterialCustomPadding = new Padding(0);
-            beepCard1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepCard1.MaterialIconPadding = 8;
-            beepCard1.MaterialIconSize = 20;
-            beepCard1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepCard1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepCard1.MaxHitListDrawPerFrame = 0;
           
            
@@ -1186,14 +1156,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepTextBox1.LineNumberForeColor = Color.Gray;
             beepTextBox1.LinkedProperty = null;
             beepTextBox1.Location = new Point(362, 351);
-            beepTextBox1.MaterialBorderRadius = 6;
-            beepTextBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
-            beepTextBox1.MaterialCustomPadding = new Padding(0);
-            beepTextBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepTextBox1.MaterialIconPadding = 8;
-            beepTextBox1.MaterialIconSize = 20;
-            beepTextBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepTextBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            
             beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(20, 20);
            
@@ -1371,12 +1334,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepNavBar1.LinkedProperty = null;
             beepNavBar1.Location = new Point(193, 43);
             beepNavBar1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepNavBar1.MaterialCustomPadding = new Padding(0);
-            beepNavBar1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepNavBar1.MaterialIconPadding = 8;
-            beepNavBar1.MaterialIconSize = 20;
-            beepNavBar1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepNavBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepNavBar1.MaxHitListDrawPerFrame = 0;
            
             beepNavBar1.ModernGradientType = Vis.Modules.ModernGradientType.None;
@@ -1534,12 +1491,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepSideBar1.LinkedProperty = null;
             beepSideBar1.Location = new Point(3, 43);
             beepSideBar1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepSideBar1.MaterialCustomPadding = new Padding(0);
-            beepSideBar1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepSideBar1.MaterialIconPadding = 8;
-            beepSideBar1.MaterialIconSize = 20;
-            beepSideBar1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepSideBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepSideBar1.MaxHitListDrawPerFrame = 0;
            
             beepSideBar1.ModernGradientType = Vis.Modules.ModernGradientType.None;

@@ -36,13 +36,13 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             base.OnMouseMove(e);
 
             _lastMousePosition = e.Location;
-            SimpleItem previousHovered = _hoveredItem;
+             SimpleItem previousHovered = _hoveredItem;
             _hoveredItem = GetItemAtPoint(e.Location);
 
-            if (_hoveredItem != previousHovered)
-            {
-                Invalidate();
-            }
+            //if (_hoveredItem != previousHovered)
+            //{
+            //    Invalidate();
+            //}
 
             // Update cursor
             Cursor = _hoveredItem != null ? Cursors.Hand : Cursors.Default;
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             if (_hoveredItem != null)
             {
                 _hoveredItem = null;
-                Invalidate();
+               // Invalidate();
             }
 
             Cursor = Cursors.Default;

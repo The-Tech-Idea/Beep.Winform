@@ -164,15 +164,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.LinkedProperty = null;
             beepLabel1.Location = new Point(414, 17);
             beepLabel1.Margin = new Padding(0);
-            beepLabel1.MaterialBorderRadius = 4;
-            beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepLabel1.MaterialCustomPadding = new Padding(0);
-            beepLabel1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepLabel1.MaterialIconPadding = 8;
-            beepLabel1.MaterialIconSize = 20;
-            beepLabel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepLabel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
+          
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(48, 48);
             beepLabel1.MinimumSize = new Size(182, 56);
@@ -347,14 +339,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.LineNumberForeColor = Color.Gray;
             beepTextBox1.LinkedProperty = null;
             beepTextBox1.Location = new Point(90, 95);
-            beepTextBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepTextBox1.MaterialCustomPadding = new Padding(0);
-            beepTextBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepTextBox1.MaterialIconPadding = 8;
-            beepTextBox1.MaterialIconSize = 20;
-            beepTextBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepTextBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepTextBox1.MaterialVariant = MaterialTextFieldVariant.Standard;
+          
             beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(16, 16);
             beepTextBox1.MinimumSize = new Size(0, 28);

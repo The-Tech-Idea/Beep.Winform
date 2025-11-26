@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Holographic AppBar - futuristic gradient
-            this.AppBarBackColor = Color.FromArgb(25, 20, 35);  // Very dark purple
-            this.AppBarForeColor = Color.FromArgb(200, 150, 255);  // Light purple text
-            this.AppBarButtonForeColor = Color.FromArgb(122, 252, 255);  // Cyan buttons
-            this.AppBarButtonBackColor = Color.FromArgb(25, 20, 35);
-            this.AppBarTextBoxBackColor = Color.FromArgb(40, 30, 60);
-            this.AppBarTextBoxForeColor = Color.FromArgb(200, 150, 255);
-            this.AppBarLabelForeColor = Color.FromArgb(200, 150, 255);
-            this.AppBarLabelBackColor = Color.FromArgb(25, 20, 35);
-            this.AppBarTitleForeColor = Color.FromArgb(200, 150, 255);
-            this.AppBarTitleBackColor = Color.FromArgb(25, 20, 35);
-            this.AppBarSubTitleForeColor = Color.FromArgb(150, 100, 200);  // Medium purple
-            this.AppBarSubTitleBackColor = Color.FromArgb(25, 20, 35);
+            this.AppBarBackColor = BackgroundColor;  // Very dark purple
+            this.AppBarForeColor = ForeColor;  // Light purple text
+            this.AppBarButtonForeColor = SecondaryColor;  // Cyan buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
+            this.AppBarSubTitleForeColor = AccentColor;  // Medium purple
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - cyan
             this.AppBarCloseButtonColor = Color.FromArgb(150, 200, 255);  // Cyan

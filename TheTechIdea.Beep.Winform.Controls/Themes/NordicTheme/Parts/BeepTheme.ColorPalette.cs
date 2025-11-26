@@ -14,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Aligned with FormStyle.Nordic: Background #F2F5F8, icy blue accent
             this.ForeColor = Color.FromArgb(60, 60, 60);  // Dark gray text
             this.BackColor = Color.FromArgb(242, 245, 248);  // Light gray-blue (#F2F5F8)
+            this.BackgroundColor = Color.FromArgb(242, 245, 248);
+            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // White
             this.PanelBackColor = Color.FromArgb(242, 245, 248);
             this.PanelGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.03);
             this.PanelGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.04);
@@ -29,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(136, 192, 208);  // Icy blue
             this.SecondaryColor = Color.FromArgb(100, 100, 100);  // Medium gray
             this.AccentColor = Color.FromArgb(216, 122, 52);  // Orange
-            this.BackgroundColor = Color.FromArgb(242, 245, 248);
-            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // White
             
             // Status colors
             this.ErrorColor = Color.FromArgb(220, 38, 38);  // Red

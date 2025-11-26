@@ -11,16 +11,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Nord AppBar - Arctic-inspired dark theme
-            this.AppBarBackColor = Color.FromArgb(46, 52, 64);  // Dark blue-gray
-            this.AppBarForeColor = Color.FromArgb(216, 222, 233);  // Light gray-blue text
-            this.AppBarButtonForeColor = Color.FromArgb(136, 192, 208);  // Nord cyan buttons
-            this.AppBarButtonBackColor = Color.FromArgb(46, 52, 64);
-            this.AppBarTextBoxBackColor = Color.FromArgb(59, 66, 82);
-            this.AppBarTextBoxForeColor = Color.FromArgb(216, 222, 233);
-            this.AppBarLabelForeColor = Color.FromArgb(216, 222, 233);
-            this.AppBarLabelBackColor = Color.FromArgb(46, 52, 64);
-            this.AppBarTitleForeColor = Color.FromArgb(216, 222, 233);
-            this.AppBarTitleBackColor = Color.FromArgb(46, 52, 64);
+            this.AppBarBackColor = BackgroundColor;  // Dark blue-gray
+            this.AppBarForeColor = ForeColor;  // Light gray-blue text
+            this.AppBarButtonForeColor = PrimaryColor;  // Nord cyan buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(129, 161, 193);  // #81A1C1 dimmed blue
             this.AppBarSubTitleBackColor = Color.FromArgb(46, 52, 64);
             

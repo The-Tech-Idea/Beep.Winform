@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Nordic AppBar - Scandinavian minimalist design
-            this.AppBarBackColor = Color.FromArgb(252, 252, 252);  // Light gray
-            this.AppBarForeColor = Color.FromArgb(60, 60, 60);  // Dark gray text
-            this.AppBarButtonForeColor = Color.FromArgb(60, 60, 60);  // Dark gray buttons
-            this.AppBarButtonBackColor = Color.FromArgb(252, 252, 252);
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(60, 60, 60);
-            this.AppBarLabelForeColor = Color.FromArgb(60, 60, 60);
-            this.AppBarLabelBackColor = Color.FromArgb(252, 252, 252);
-            this.AppBarTitleForeColor = Color.FromArgb(60, 60, 60);
-            this.AppBarTitleBackColor = Color.FromArgb(252, 252, 252);
+            this.AppBarBackColor = SurfaceColor;  // Light gray
+            this.AppBarForeColor = ForeColor;  // Dark gray text
+            this.AppBarButtonForeColor = PrimaryColor;  // Dark gray buttons
+            this.AppBarButtonBackColor = SurfaceColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = SurfaceColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = SurfaceColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(140, 140, 140);  // Medium gray
-            this.AppBarSubTitleBackColor = Color.FromArgb(252, 252, 252);
+            this.AppBarSubTitleBackColor = SurfaceColor;
             
             // System buttons - dark colors
             this.AppBarCloseButtonColor = Color.FromArgb(100, 100, 100);  // Dark gray

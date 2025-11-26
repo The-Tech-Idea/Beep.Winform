@@ -29,8 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(251, 73, 52);  // Red (#FB4934)
             this.SecondaryColor = Color.FromArgb(142, 192, 124);  // Green (#8EC07C)
             this.AccentColor = Color.FromArgb(254, 128, 25);  // Orange (#FE8019)
-            this.BackgroundColor = Color.FromArgb(40, 40, 40);  // #282828
-            this.SurfaceColor = Color.FromArgb(60, 56, 54);  // #3C3836
+            this.BackgroundColor = Color.FromArgb(60, 56, 54);  // #3C3836
+            this.SurfaceColor = Color.FromArgb(40, 40, 40);  // #282828
             
             // Warm status colors
             this.ErrorColor = Color.FromArgb(251, 73, 52);  // Red (#FB4934)

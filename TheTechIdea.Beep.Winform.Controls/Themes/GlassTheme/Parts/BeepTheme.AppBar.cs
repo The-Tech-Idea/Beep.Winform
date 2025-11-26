@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Glass AppBar - frosted glass aesthetic
-            this.AppBarBackColor = Color.FromArgb(236, 244, 255);  // Light blue
-            this.AppBarForeColor = Color.FromArgb(17, 24, 39);  // Dark gray text
-            this.AppBarButtonForeColor = Color.FromArgb(99, 102, 241);  // Indigo buttons
-            this.AppBarButtonBackColor = Color.FromArgb(236, 244, 255);
-            this.AppBarTextBoxBackColor = Color.FromArgb(250, 252, 255);  // Almost white
-            this.AppBarTextBoxForeColor = Color.FromArgb(17, 24, 39);
-            this.AppBarLabelForeColor = Color.FromArgb(17, 24, 39);
-            this.AppBarLabelBackColor = Color.FromArgb(236, 244, 255);
-            this.AppBarTitleForeColor = Color.FromArgb(17, 24, 39);
-            this.AppBarTitleBackColor = Color.FromArgb(236, 244, 255);
+            this.AppBarBackColor = BackgroundColor;  // Light blue
+            this.AppBarForeColor = ForeColor;  // Dark gray text
+            this.AppBarButtonForeColor = PrimaryColor;  // Indigo buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // Almost white
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(100, 115, 140);  // Medium gray
-            this.AppBarSubTitleBackColor = Color.FromArgb(236, 244, 255);
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - standard colors
             this.AppBarCloseButtonColor = Color.FromArgb(0, 0, 0);

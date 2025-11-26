@@ -11,16 +11,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Solarized AppBar - scientifically crafted color palette
-            this.AppBarBackColor = Color.FromArgb(7, 54, 66);  // #073642 caption
-            this.AppBarForeColor = Color.FromArgb(238, 232, 213);  // Light beige text
-            this.AppBarButtonForeColor = Color.FromArgb(42, 161, 152);  // Cyan buttons
-            this.AppBarButtonBackColor = Color.FromArgb(7, 54, 66);
-            this.AppBarTextBoxBackColor = Color.FromArgb(0, 43, 54);
-            this.AppBarTextBoxForeColor = Color.FromArgb(238, 232, 213);
-            this.AppBarLabelForeColor = Color.FromArgb(238, 232, 213);
-            this.AppBarLabelBackColor = Color.FromArgb(7, 54, 66);
-            this.AppBarTitleForeColor = Color.FromArgb(238, 232, 213);
-            this.AppBarTitleBackColor = Color.FromArgb(7, 54, 66);
+            this.AppBarBackColor = BackgroundColor;  // #073642 caption
+            this.AppBarForeColor = ForeColor;  // Light beige text
+            this.AppBarButtonForeColor = SecondaryColor;  // Cyan buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(101, 123, 131);  // #657B83 dimmed blue
             this.AppBarSubTitleBackColor = Color.FromArgb(7, 54, 66);
             

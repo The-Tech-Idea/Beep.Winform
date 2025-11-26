@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Brutalist AppBar - white background with black text
-            this.AppBarBackColor = Color.FromArgb(255, 255, 255);  // Pure white
-            this.AppBarForeColor = Color.FromArgb(0, 0, 0);  // Black text
-            this.AppBarButtonForeColor = Color.FromArgb(0, 0, 0);  // Black buttons
-            this.AppBarButtonBackColor = Color.FromArgb(255, 255, 255);  // White button background
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(0, 0, 0);  // Black text
-            this.AppBarLabelForeColor = Color.FromArgb(0, 0, 0);  // Black labels
-            this.AppBarLabelBackColor = Color.FromArgb(255, 255, 255);  // White label background
-            this.AppBarTitleForeColor = Color.FromArgb(0, 0, 0);  // Black title
-            this.AppBarTitleBackColor = Color.FromArgb(255, 255, 255);  // White title background
-            this.AppBarSubTitleForeColor = Color.FromArgb(0, 0, 0);  // Black subtitle
-            this.AppBarSubTitleBackColor = Color.FromArgb(255, 255, 255);  // White subtitle background
+            this.AppBarBackColor = BackgroundColor;  // Pure white
+            this.AppBarForeColor = ForeColor;  // Black text
+            this.AppBarButtonForeColor = ForeColor;  // Black buttons
+            this.AppBarButtonBackColor = SurfaceColor;  // White button background
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;  // Black text
+            this.AppBarLabelForeColor = ForeColor;  // Black labels
+            this.AppBarLabelBackColor = BackgroundColor;  // White label background
+            this.AppBarTitleForeColor = ForeColor;  // Black title
+            this.AppBarTitleBackColor = BackgroundColor;  // White title background
+            this.AppBarSubTitleForeColor = ForeColor;  // Black subtitle
+            this.AppBarSubTitleBackColor = BackgroundColor;  // White subtitle background
             
             // System buttons - black for brutalist aesthetic
             this.AppBarCloseButtonColor = Color.FromArgb(0, 0, 0);

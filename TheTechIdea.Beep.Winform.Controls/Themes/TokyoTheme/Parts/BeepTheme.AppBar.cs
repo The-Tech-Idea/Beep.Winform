@@ -11,16 +11,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Tokyo Night AppBar - inspired by Tokyo Night VSCode theme
-            this.AppBarBackColor = Color.FromArgb(36, 40, 59);  // #24283B caption
-            this.AppBarForeColor = Color.FromArgb(169, 177, 214);  // Light purple-blue text
-            this.AppBarButtonForeColor = Color.FromArgb(122, 162, 247);  // Tokyo cyan buttons
-            this.AppBarButtonBackColor = Color.FromArgb(36, 40, 59);
-            this.AppBarTextBoxBackColor = Color.FromArgb(26, 27, 38);
-            this.AppBarTextBoxForeColor = Color.FromArgb(169, 177, 214);
-            this.AppBarLabelForeColor = Color.FromArgb(169, 177, 214);
-            this.AppBarLabelBackColor = Color.FromArgb(36, 40, 59);
-            this.AppBarTitleForeColor = Color.FromArgb(169, 177, 214);
-            this.AppBarTitleBackColor = Color.FromArgb(36, 40, 59);
+            this.AppBarBackColor = BackgroundColor;  // #24283B caption
+            this.AppBarForeColor = ForeColor;  // Light purple-blue text
+            this.AppBarButtonForeColor = PrimaryColor;  // Tokyo cyan buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(65, 72, 104);  // #414868 dimmed purple
             this.AppBarSubTitleBackColor = Color.FromArgb(36, 40, 59);
             

@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.TabHoverBackColor = SurfaceColor;
             this.TabHoverForeColor = ForeColor;
             this.TabSelectedBackColor = SurfaceColor;
-            this.TabSelectedForeColor = ForeColor;
+            this.TabSelectedForeColor = OnPrimaryColor;
             this.TabSelectedBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
             this.TabHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
         }

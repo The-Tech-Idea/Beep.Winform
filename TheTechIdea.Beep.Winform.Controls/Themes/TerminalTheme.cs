@@ -793,18 +793,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             BackgroundColor = deepBlack;
             SurfaceColor = panelBlack;
             ErrorColor = C(255, 80, 80);
-            WarningColor = C(255, 220, 120);
+            WarningColor = C(255, 255, 80);
             SuccessColor = softGreen;
             OnPrimaryColor = softGreen;
             OnBackgroundColor = softGreen;
 
-
-            ErrorColor = C(255, 80, 80);
-            WarningColor = C(255, 255, 80);
-            SuccessColor = softGreen;
-
             BorderColor = lineGreen;
-         
 
             // Core colors
             ForeColor = softGreen;

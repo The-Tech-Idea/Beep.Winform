@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ErrorColor = Color.FromArgb(255,69,58);
             this.WarningColor = Color.FromArgb(255,159,10);
             this.SuccessColor = Color.FromArgb(48,209,88);
-            this.OnPrimaryColor = Color.FromArgb(0,122,255);
+            this.OnPrimaryColor = Color.FromArgb(255,255,255);  // White text on blue primary
             this.OnBackgroundColor = ForeColor;
             this.FocusIndicatorColor = Color.FromArgb(250,250,252);
         }

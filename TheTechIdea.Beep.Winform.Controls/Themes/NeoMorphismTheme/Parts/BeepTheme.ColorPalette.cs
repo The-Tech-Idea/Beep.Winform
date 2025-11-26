@@ -14,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Aligned with FormStyle.NeoMorphism: Background #F0F0F5, Text #32323C
             this.ForeColor = Color.FromArgb(50, 50, 60);  // Dark gray-blue (#32323C)
             this.BackColor = Color.FromArgb(240, 240, 245);  // Light gray-blue (#F0F0F5)
+            this.BackgroundColor = Color.FromArgb(240, 240, 245);
+            this.SurfaceColor = Color.FromArgb(244, 247, 250);  // Slightly lighter
             this.PanelBackColor = Color.FromArgb(240, 240, 245);
             this.PanelGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.06);
             this.PanelGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.07);
@@ -29,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(76, 110, 245);  // Blue
             this.SecondaryColor = Color.FromArgb(129, 140, 248);  // Lighter blue
             this.AccentColor = Color.FromArgb(255, 173, 94);  // Orange
-            this.BackgroundColor = Color.FromArgb(240, 240, 245);
-            this.SurfaceColor = Color.FromArgb(244, 247, 250);  // Slightly lighter
             
             // Status colors
             this.ErrorColor = Color.FromArgb(231, 76, 60);  // Red

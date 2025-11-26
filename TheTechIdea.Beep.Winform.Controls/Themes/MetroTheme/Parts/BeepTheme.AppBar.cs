@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Metro AppBar - Windows Metro design
-            this.AppBarBackColor = Color.FromArgb(0, 120, 215);  // Metro blue caption
-            this.AppBarForeColor = Color.FromArgb(255, 255, 255);  // White text
-            this.AppBarButtonForeColor = Color.FromArgb(255, 255, 255);  // White buttons
-            this.AppBarButtonBackColor = Color.FromArgb(0, 120, 215);
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(32, 31, 30);
-            this.AppBarLabelForeColor = Color.FromArgb(255, 255, 255);
-            this.AppBarLabelBackColor = Color.FromArgb(0, 120, 215);
-            this.AppBarTitleForeColor = Color.FromArgb(255, 255, 255);
-            this.AppBarTitleBackColor = Color.FromArgb(0, 120, 215);
+            this.AppBarBackColor = PrimaryColor;  // Metro blue caption
+            this.AppBarForeColor = OnPrimaryColor;  // White text
+            this.AppBarButtonForeColor = OnPrimaryColor;  // White buttons
+            this.AppBarButtonBackColor = PrimaryColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = OnPrimaryColor;
+            this.AppBarLabelBackColor = PrimaryColor;
+            this.AppBarTitleForeColor = OnPrimaryColor;
+            this.AppBarTitleBackColor = PrimaryColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(240, 240, 240);  // Light gray subtitle
-            this.AppBarSubTitleBackColor = Color.FromArgb(0, 120, 215);
+            this.AppBarSubTitleBackColor = PrimaryColor;
             
             // System buttons - white for Metro
             this.AppBarCloseButtonColor = Color.FromArgb(255, 255, 255);  // White

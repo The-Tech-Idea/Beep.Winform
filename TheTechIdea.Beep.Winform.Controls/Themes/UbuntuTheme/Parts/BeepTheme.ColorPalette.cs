@@ -14,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Aligned with FormStyle.Ubuntu: Background gradient #E95420 → #7F2A81, orange accent
             this.ForeColor = Color.FromArgb(44, 44, 44);  // Dark grey text
             this.BackColor = Color.FromArgb(242, 242, 245);  // Light grey background
+            this.BackgroundColor = Color.FromArgb(242, 242, 245);
+            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // White
             this.PanelBackColor = Color.FromArgb(242, 242, 245);
             this.PanelGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.02);
             this.PanelGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.04);
@@ -29,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(233, 84, 32);  // Ubuntu orange (#E95420)
             this.SecondaryColor = Color.FromArgb(119, 33, 111);  // Ubuntu purple (#77216F / #7F2A81)
             this.AccentColor = Color.FromArgb(244, 197, 66);  // Ubuntu yellow
-            this.BackgroundColor = Color.FromArgb(242, 242, 245);
-            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // White
             
             // Ubuntu status colors
             this.ErrorColor = Color.FromArgb(192, 28, 40);  // Ubuntu red

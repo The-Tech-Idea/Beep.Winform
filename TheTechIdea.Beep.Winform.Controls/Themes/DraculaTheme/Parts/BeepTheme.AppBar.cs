@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Dracula AppBar - dark with cream text
-            this.AppBarBackColor = Color.FromArgb(40, 42, 54);  // Dark background
-            this.AppBarForeColor = Color.FromArgb(248, 248, 242);  // Cream text
-            this.AppBarButtonForeColor = Color.FromArgb(189, 147, 249);  // Purple buttons
-            this.AppBarButtonBackColor = Color.FromArgb(40, 42, 54);
-            this.AppBarTextBoxBackColor = Color.FromArgb(68, 71, 90);
-            this.AppBarTextBoxForeColor = Color.FromArgb(248, 248, 242);
-            this.AppBarLabelForeColor = Color.FromArgb(248, 248, 242);
-            this.AppBarLabelBackColor = Color.FromArgb(40, 42, 54);
-            this.AppBarTitleForeColor = Color.FromArgb(248, 248, 242);
-            this.AppBarTitleBackColor = Color.FromArgb(40, 42, 54);
-            this.AppBarSubTitleForeColor = Color.FromArgb(139, 233, 253);  // Cyan subtitle
-            this.AppBarSubTitleBackColor = Color.FromArgb(40, 42, 54);
+            this.AppBarBackColor = BackgroundColor;  // Dark background
+            this.AppBarForeColor = ForeColor;  // Cream text
+            this.AppBarButtonForeColor = PrimaryColor;  // Purple buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
+            this.AppBarSubTitleForeColor = AccentColor;  // Cyan subtitle
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - purple/pink
             this.AppBarCloseButtonColor = Color.FromArgb(255, 85, 85);  // Red
@@ -31,8 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "JetBrains Mono", FontSize = 13.5f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.15f };
-            this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "JetBrains Mono", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.AppBarTextStyle = new TypographyStyle { FontFamily = "JetBrains Mono", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
+            this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "JetBrains Mono", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = AppBarSubTitleForeColor, LineHeight = 1.5f };
+            this.AppBarTextStyle = new TypographyStyle { FontFamily = "JetBrains Mono", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = AppBarForeColor, LineHeight = 1.5f };
             
             // Purple gradient
             this.AppBarGradiantStartColor = Color.FromArgb(68, 71, 90);

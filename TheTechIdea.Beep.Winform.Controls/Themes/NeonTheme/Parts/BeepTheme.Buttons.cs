@@ -12,34 +12,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Neon buttons - vibrant neon aesthetic
             // Default: Dark navy background with cyan text
-            this.ButtonBackColor = Color.FromArgb(15, 15, 25);  // Deep navy
-            this.ButtonForeColor = Color.FromArgb(0, 255, 255);  // Cyan text
-            this.ButtonBorderColor = Color.FromArgb(0, 255, 255);  // Cyan glow
+            this.ButtonBackColor = BackgroundColor;  // Deep navy
+            this.ButtonForeColor = ForeColor;  // Cyan text
+            this.ButtonBorderColor = BorderColor;  // Cyan glow
             
             // Hover: Slightly lighter with brighter cyan
             this.ButtonHoverBackColor = Color.FromArgb(25, 25, 40);
             this.ButtonHoverForeColor = Color.FromArgb(100, 255, 255);  // Brighter cyan
-            this.ButtonHoverBorderColor = Color.FromArgb(0, 255, 200);  // Cyan border
+            this.ButtonHoverBorderColor = ActiveBorderColor;  // Cyan border
             
             // Selected: Cyan background
-            this.ButtonSelectedBackColor = Color.FromArgb(0, 255, 255);  // Cyan
-            this.ButtonSelectedForeColor = Color.FromArgb(15, 15, 25);  // Dark text on cyan
-            this.ButtonSelectedBorderColor = Color.FromArgb(0, 255, 255);
+            this.ButtonSelectedBackColor = PrimaryColor;  // Cyan
+            this.ButtonSelectedForeColor = OnPrimaryColor;  // Dark text on cyan
+            this.ButtonSelectedBorderColor = PrimaryColor;
             
             // Selected hover: Lighter cyan
             this.ButtonSelectedHoverBackColor = Color.FromArgb(100, 255, 255);
-            this.ButtonSelectedHoverForeColor = Color.FromArgb(15, 15, 25);
+            this.ButtonSelectedHoverForeColor = OnPrimaryColor;
             this.ButtonSelectedHoverBorderColor = Color.FromArgb(100, 255, 255);
             
             // Pressed: Darker navy
             this.ButtonPressedBackColor = Color.FromArgb(10, 12, 20);
-            this.ButtonPressedForeColor = Color.FromArgb(0, 255, 255);
-            this.ButtonPressedBorderColor = Color.FromArgb(0, 255, 255);
+            this.ButtonPressedForeColor = ForeColor;
+            this.ButtonPressedBorderColor = BorderColor;
             
             // Error button: Pink-red background with dark text
-            this.ButtonErrorBackColor = Color.FromArgb(255, 64, 160);  // Pink
-            this.ButtonErrorForeColor = Color.FromArgb(255, 255, 255);  // White text on pink
-            this.ButtonErrorBorderColor = Color.FromArgb(255, 100, 200);
+            this.ButtonErrorBackColor = ErrorColor;  // Pink
+            this.ButtonErrorForeColor = OnPrimaryColor;  // White text on pink
+            this.ButtonErrorBorderColor = ErrorColor;
         }
     }
 }

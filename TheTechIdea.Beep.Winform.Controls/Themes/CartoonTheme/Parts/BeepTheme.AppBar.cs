@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Cartoon AppBar - playful pink background with purple text
-            this.AppBarBackColor = Color.FromArgb(255, 240, 255);  // Pink-tinted background
-            this.AppBarForeColor = Color.FromArgb(80, 0, 120);  // Purple text
-            this.AppBarButtonForeColor = Color.FromArgb(80, 0, 120);  // Purple buttons
-            this.AppBarButtonBackColor = Color.FromArgb(255, 240, 255);
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(80, 0, 120);
-            this.AppBarLabelForeColor = Color.FromArgb(80, 0, 120);
-            this.AppBarLabelBackColor = Color.FromArgb(255, 240, 255);
-            this.AppBarTitleForeColor = Color.FromArgb(80, 0, 120);
-            this.AppBarTitleBackColor = Color.FromArgb(255, 240, 255);
+            this.AppBarBackColor = BackColor;
+            this.AppBarForeColor = ForeColor;
+            this.AppBarButtonForeColor = ForeColor;
+            this.AppBarButtonBackColor = BackColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(120, 60, 160);  // Lighter purple
-            this.AppBarSubTitleBackColor = Color.FromArgb(255, 240, 255);
+            this.AppBarSubTitleBackColor = BackColor;
             
             // Playful system buttons - bright colors
             this.AppBarCloseButtonColor = Color.FromArgb(255, 69, 180);  // Pink

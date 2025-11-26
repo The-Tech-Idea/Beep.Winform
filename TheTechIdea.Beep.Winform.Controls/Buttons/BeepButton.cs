@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;
  
@@ -40,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const float SplashSpeed = 0.05f;     // Increase in progress per tick (adjust as needed)
         private const float MaxSplashRadius = 150f;  // Maximum radius for the splash effect
 
-        private BeepImage beepImage;
+        private string _imagePath = string.Empty;
         private int borderSize = 1;
 
         private Color borderColor = Color.Black;
@@ -236,7 +237,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _imageEmbededin = value;
-                beepImage.ImageEmbededin = value;
                 Invalidate();
             }
         }
@@ -284,16 +284,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
-                beepImage.ApplyThemeOnImage = value;
                 if (value)
                 {
-
-                    if (ApplyThemeOnImage)
-                    {
-                        tmpfillcolor = beepImage.FillColor;
-                        tmpstrokecolor = beepImage.StrokeColor;
-                        beepImage.Theme = Theme;
-                    }
+                    tmpfillcolor = Color.Empty;
+                    tmpstrokecolor = Color.Empty;
                 }
                 Invalidate();
             }
@@ -316,23 +310,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
-            get => beepImage?.ImagePath;
+            get => _imagePath;
             set
             {
-               
-                if (beepImage != null)
-                {
-                    beepImage.ImagePath = value;
-                    beepImage.ScaleMode = ImageScaleMode.KeepAspectRatio;
-                    if (ApplyThemeOnImage)
-                    {
-                        beepImage.Theme = Theme;
-                        beepImage.ApplyThemeToSvg();
-                        beepImage.ApplyTheme();
-                    }
-                    Invalidate(); // Repaint when the image changes
-                                  // UpdateSize();
-                }
+                _imagePath = value ?? string.Empty;
+                Invalidate();
             }
         }
         // Expose alignment and relation as properties (needed by designer and drawing)
@@ -362,18 +344,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         public Image Image
         {
-            get => beepImage.Image;
+            get => null;
             set
             {
-                beepImage.Image = value;
-
+                if (value != null && value.Tag is string path)
+                {
+                    ImagePath = path;
+                }
                 ApplyTheme();
-                Invalidate();  // Trigger repaint
+                Invalidate();
             }
         }
         private bool IsImageOnly =>
     (string.IsNullOrEmpty(Text) || _hideText) &&
-     !string.IsNullOrEmpty(beepImage?.ImagePath) ;
+     !string.IsNullOrEmpty(_imagePath);
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -485,13 +469,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Material Design")]
         [Description("Automatically adjust size when Material Design styling is enabled.")]
         [DefaultValue(false)]
-        public bool ButtonAutoSizeForMaterial { get; set; } = false;
+        public bool ButtonAutoSizeForMaterial { get; set;}= false;
 
         [Browsable(true)]
         [Category("Layout")]
         [Description("Prevents automatic width/height expansion for Material Design. Default is true.")]
         [DefaultValue(true)]
-        public bool ButtonPreventAutoExpansion { get; set; } = true;
+        public bool ButtonPreventAutoExpansion { get; set; }= true;
 
         /// <summary>
         /// Override to provide button specific minimum dimensions
@@ -500,19 +484,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override int GetMaterialMinimumHeight()
         {
             // If this is an image-only button (no text), allow much smaller height
-            if ((string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true)
+            if ((string.IsNullOrEmpty(Text) || HideText) && !string.IsNullOrEmpty(_imagePath))
             {
-                Size imageSize = beepImage.GetImageSize();
-                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-                {
-                    float scaleFactor = Math.Min(
-                        (float)_maxImageSize.Width / imageSize.Width,
-                        (float)_maxImageSize.Height / imageSize.Height);
-                    imageSize = new Size(
-                        (int)(imageSize.Width * scaleFactor),
-                        (int)(imageSize.Height * scaleFactor));
-                }
-                return Math.Max(ButtonMinSize.Height, imageSize.Height + 8);
+                return Math.Max(ButtonMinSize.Height, _maxImageSize.Height + 8);
             }
 
             // Keep buttons compact; base spec sizes are large for touch. Use compact heights.
@@ -526,19 +500,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override int GetMaterialMinimumWidth()
         {
             // Image-only compact width
-            if ((string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true)
+            if ((string.IsNullOrEmpty(Text) || HideText) && !string.IsNullOrEmpty(_imagePath))
             {
-                Size imageSize = beepImage.GetImageSize();
-                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-                {
-                    float scaleFactor = Math.Min(
-                        (float)_maxImageSize.Width / imageSize.Width,
-                        (float)_maxImageSize.Height / imageSize.Height);
-                    imageSize = new Size(
-                        (int)(imageSize.Width * scaleFactor),
-                        (int)(imageSize.Height * scaleFactor));
-                }
-                return Math.Max(ButtonMinSize.Width, imageSize.Width + 8);
+                return Math.Max(ButtonMinSize.Width, _maxImageSize.Width + 8);
             }
 
             // Compact width for text buttons
@@ -594,23 +558,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeComponents()
         {
 
-            beepImage = new BeepImage
-            {
-                IsChild = true,
-                Dock = DockStyle.None, // We'll manually position it
-                Margin = new Padding(0),
-                Location = new Point(0, 0), // Set initial position (will adjust in layout)
-                Size = _maxImageSize // Set the size based on the max image size
-            };
-            beepImage.ImageEmbededin= ImageEmbededin.Button;
-            // Mouse events for image
-            beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
-         
             ShowAllBorders = false;
-            //  InitListbox();
-            //  Controls.Add(beepImage);
         }
         protected override Size DefaultSize => new Size(100, 36);
         #endregion "Constructor"
@@ -776,15 +726,9 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  SafeApplyFont(TextFont ?? _textFont);
             
             // Apply theme to child image control
-            if (beepImage != null)
+            if (!string.IsNullOrEmpty(_imagePath))
             {
-                beepImage.BackColor = BackColor;
-                beepImage.Theme = Theme;
-                beepImage.IsChild = true;
-                beepImage.ParentBackColor = BackColor;
-
-                // Apply SVG theming if configured
-                beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
+                // Image theming will be applied via StyledImagePainter during drawing
             }
 
             // Apply SVG theming if enabled
@@ -802,22 +746,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ApplyThemeToSvg()
         {
 
-            if (beepImage != null) // Safely apply theme to beepImage
+            // Image theming is now handled by StyledImagePainter during Paint
+            if (_applyThemeOnImage && !string.IsNullOrEmpty(_imagePath))
             {
-                beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
-                if (ApplyThemeOnImage)
-                {
-                 if(ImageEmbededin== ImageEmbededin.Button)
-                    {
-                        beepImage.Theme = Theme;
-                    }
-                   
-                    beepImage.ApplyThemeToSvg();
-                }
-
+                Invalidate();
             }
-
-
         }
         #endregion "Theme"
         #region "Paint"
@@ -1074,21 +1007,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textSize = TextRenderer.MeasureText(Text, _textFont ?? Font);
             }
 
-            // Get image size if available
-            if (beepImage?.HasImage == true)
+            // Get image size if available (using MaxImageSize as reference)
+            if (!string.IsNullOrEmpty(_imagePath))
             {
-                imageSize = beepImage.GetImageSize();
-
-                // Scale the image to respect MaxImageSize if needed
-                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-                {
-                    float scaleFactor = Math.Min(
-                        (float)_maxImageSize.Width / imageSize.Width,
-                        (float)_maxImageSize.Height / imageSize.Height);
-                    imageSize = new Size(
-                        (int)(imageSize.Width * scaleFactor),
-                        (int)(imageSize.Height * scaleFactor));
-                }
+                imageSize = _maxImageSize;
             }
 
             // If no content, return a minimal default size
@@ -1246,6 +1168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseDown(e);
            
+
             isLongPressTriggered = false;
             longPressTimer.Start();
             
@@ -1377,7 +1300,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (PainterKind != BaseControlPainterKind.Material)
             {
                 // Image-only? keep the floor at ButtonMinSize; otherwise no clamp.
-                bool imageOnly = (string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true;
+                bool imageOnly = (string.IsNullOrEmpty(Text) || HideText) && !string.IsNullOrEmpty(_imagePath);
                 MinimumSize = imageOnly ? ButtonMinSize : Size.Empty;
             }
             if (IsImageOnly)
@@ -1430,24 +1353,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Framework handles DPI scaling automatically - use font directly
             Font scaledFont = _textFont;
 
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+            Size imageSize = !string.IsNullOrEmpty(_imagePath) ? _maxImageSize : Size.Empty;
 
-            // Update image size to fit new size of control
-            if (beepImage != null)
-            {
-                if (_maxImageSize.Height > Height)
-                {
-                    beepImage.Height = Height - 4;
-                    _maxImageSize.Height = Height - 4;
-                }
-                if (_maxImageSize.Width > Width)
-                {
-                    beepImage.Width = Width - 4;
-                    _maxImageSize.Width = Width - 4;
-                }
-            }
-
-            // Limit image size to MaxImageSize
+            // Limit image size to MaxImageSize (already done, but kept for consistency)
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
@@ -1464,49 +1372,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rectangle imageRect, textRect;
             CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
 
-            // Draw the image if available
-            if (beepImage != null && beepImage.HasImage)
+            // Draw the image if available using StyledImagePainter
+            if (!string.IsNullOrEmpty(_imagePath))
             {
-                if (beepImage.Size.Width > Size.Width || beepImage.Size.Height > Size.Height)
+                try
                 {
-                    imageSize = Size;
-                }
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = imageRect.Size;
-                if ( ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.ApplyTheme();
-                }
-                beepImage.DrawImage(g, imageRect);
+                    StyledImagePainter.Paint(g, imageRect, _imagePath);
 
-                if (beepImageHitTest == null)
-                {
-                    beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
+                    if (beepImageHitTest == null)
                     {
-                        Name = "BeepImageRect",
-                        ActionName = "ImageClicked",
-                        HitAction = () =>
+                        beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
                         {
-                            // Raise your ImageClicked event
-                            var ev = new BeepEventDataArgs("ImageClicked", this);
-                            ImageClicked?.Invoke(this, ev);
-                        }
-                    };
-                }
-                else
-                {
-                    beepImageHitTest.TargetRect = imageRect;
-                }
+                            Name = "BeepImageRect",
+                            ActionName = "ImageClicked",
+                            HitAction = () =>
+                            {
+                                // Raise your ImageClicked event
+                                var ev = new BeepEventDataArgs("ImageClicked", this);
+                                ImageClicked?.Invoke(this, ev);
+                            }
+                        };
+                    }
+                    else
+                    {
+                        beepImageHitTest.TargetRect = imageRect;
+                    }
 
-                AddHitTest(beepImageHitTest);
+                    AddHitTest(beepImageHitTest);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error drawing image: {ex.Message}");
+                }
             }
 
             // Draw text if available and not hidden
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-
 
                     // For better text rendering on modern buttons
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

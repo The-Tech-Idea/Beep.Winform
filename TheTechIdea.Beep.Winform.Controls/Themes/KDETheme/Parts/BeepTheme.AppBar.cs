@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // KDE AppBar - clean Linux design
-            this.AppBarBackColor = Color.FromArgb(252, 252, 252);  // Light gray
-            this.AppBarForeColor = Color.FromArgb(35, 38, 41);  // Dark gray text
-            this.AppBarButtonForeColor = Color.FromArgb(61, 174, 233);  // KDE blue buttons
-            this.AppBarButtonBackColor = Color.FromArgb(252, 252, 252);
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(33, 37, 41);
-            this.AppBarLabelForeColor = Color.FromArgb(35, 38, 41);
-            this.AppBarLabelBackColor = Color.FromArgb(252, 252, 252);
-            this.AppBarTitleForeColor = Color.FromArgb(35, 38, 41);
-            this.AppBarTitleBackColor = Color.FromArgb(252, 252, 252);
+            this.AppBarBackColor = BackgroundColor;  // Light gray
+            this.AppBarForeColor = ForeColor;  // Dark gray text
+            this.AppBarButtonForeColor = PrimaryColor;  // KDE blue buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(127, 140, 141);  // Medium gray
-            this.AppBarSubTitleBackColor = Color.FromArgb(252, 252, 252);
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - dark colors
             this.AppBarCloseButtonColor = Color.FromArgb(0, 0, 0);

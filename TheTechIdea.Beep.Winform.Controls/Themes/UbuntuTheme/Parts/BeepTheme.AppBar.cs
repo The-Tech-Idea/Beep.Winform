@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Ubuntu AppBar - Ubuntu Linux desktop aesthetic
-            this.AppBarBackColor = Color.White;  // Pure white
-            this.AppBarForeColor = Color.FromArgb(44, 44, 44);  // Dark grey text
-            this.AppBarButtonForeColor = Color.FromArgb(233, 84, 32);  // Ubuntu orange buttons
-            this.AppBarButtonBackColor = Color.White;
-            this.AppBarTextBoxBackColor = Color.White;  // Pure white
-            this.AppBarTextBoxForeColor = Color.FromArgb(44, 44, 44);
-            this.AppBarLabelForeColor = Color.FromArgb(44, 44, 44);
-            this.AppBarLabelBackColor = Color.White;
-            this.AppBarTitleForeColor = Color.FromArgb(44, 44, 44);
-            this.AppBarTitleBackColor = Color.White;
+            this.AppBarBackColor = BackgroundColor;  // Pure white
+            this.AppBarForeColor = ForeColor;  // Dark grey text
+            this.AppBarButtonForeColor = PrimaryColor;  // Ubuntu orange buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // Pure white
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(120, 120, 120);  // Medium grey subtitle
-            this.AppBarSubTitleBackColor = Color.White;
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - dark colors
             this.AppBarCloseButtonColor = Color.FromArgb(44, 44, 44);  // Dark grey

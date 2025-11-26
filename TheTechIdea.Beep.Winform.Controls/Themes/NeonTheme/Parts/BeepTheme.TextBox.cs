@@ -10,24 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyTextBox()
         {
-            this.TextBoxBackColor = Color.FromArgb(10,12,20);
-            this.TextBoxForeColor = Color.FromArgb(235,245,255);
-            this.TextBoxBorderColor = Color.FromArgb(60,70,100);
-            this.TextBoxHoverBorderColor = Color.FromArgb(60,70,100);
-            this.TextBoxHoverBackColor = Color.FromArgb(10,12,20);
-            this.TextBoxHoverForeColor = Color.FromArgb(235,245,255);
-            this.TextBoxSelectedBorderColor = Color.FromArgb(60,70,100);
-            this.TextBoxSelectedBackColor = Color.FromArgb(10,12,20);
-            this.TextBoxSelectedForeColor = Color.FromArgb(235,245,255);
-            this.TextBoxPlaceholderColor = Color.FromArgb(10,12,20);
-            this.TextBoxErrorBorderColor = Color.FromArgb(60,70,100);
-            this.TextBoxErrorBackColor = Color.FromArgb(10,12,20);
-            this.TextBoxErrorForeColor = Color.FromArgb(235,245,255);
-            this.TextBoxErrorTextColor = Color.FromArgb(235,245,255);
-            this.TextBoxErrorPlaceholderColor = Color.FromArgb(10,12,20);
-            this.TextBoxErrorTextBoxColor = Color.FromArgb(10,12,20);
-            this.TextBoxErrorTextBoxBorderColor = Color.FromArgb(60,70,100);
-            this.TextBoxErrorTextBoxHoverColor = Color.FromArgb(10,12,20);
+            this.TextBoxBackColor = BackgroundColor;
+            this.TextBoxForeColor = ForeColor;
+            this.TextBoxBorderColor = BorderColor;
+            this.TextBoxHoverBorderColor = ActiveBorderColor;
+            this.TextBoxHoverBackColor = SurfaceColor;
+            this.TextBoxHoverForeColor = ForeColor;
+            this.TextBoxSelectedBorderColor = ActiveBorderColor;
+            this.TextBoxSelectedBackColor = SurfaceColor;
+            this.TextBoxSelectedForeColor = ForeColor;
+            this.TextBoxPlaceholderColor = Color.FromArgb(120, 200, 220);
+            this.TextBoxErrorBorderColor = ErrorColor;
+            this.TextBoxErrorBackColor = BackgroundColor;
+            this.TextBoxErrorForeColor = OnPrimaryColor;
+            this.TextBoxErrorTextColor = OnPrimaryColor;
+            this.TextBoxErrorPlaceholderColor = ErrorColor;
+            this.TextBoxErrorTextBoxColor = BackgroundColor;
+            this.TextBoxErrorTextBoxBorderColor = ErrorColor;
+            this.TextBoxErrorTextBoxHoverColor = BackgroundColor;
         }
     }
 }

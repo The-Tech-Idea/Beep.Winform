@@ -11,16 +11,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // One Dark AppBar - popular dark theme
-            this.AppBarBackColor = Color.FromArgb(40, 44, 52);  // Dark background
-            this.AppBarForeColor = Color.FromArgb(171, 178, 191);  // Warm grey text
-            this.AppBarButtonForeColor = Color.FromArgb(97, 175, 239);  // One Dark blue buttons
-            this.AppBarButtonBackColor = Color.FromArgb(40, 44, 52);
-            this.AppBarTextBoxBackColor = Color.FromArgb(33, 37, 43);
-            this.AppBarTextBoxForeColor = Color.FromArgb(171, 178, 191);
-            this.AppBarLabelForeColor = Color.FromArgb(171, 178, 191);
-            this.AppBarLabelBackColor = Color.FromArgb(40, 44, 52);
-            this.AppBarTitleForeColor = Color.FromArgb(171, 178, 191);
-            this.AppBarTitleBackColor = Color.FromArgb(40, 44, 52);
+            this.AppBarBackColor = BackgroundColor;  // Dark background
+            this.AppBarForeColor = ForeColor;  // Warm grey text
+            this.AppBarButtonForeColor = PrimaryColor;  // One Dark blue buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(92, 99, 112);  // #5C6370 dimmed grey
             this.AppBarSubTitleBackColor = Color.FromArgb(40, 44, 52);
             

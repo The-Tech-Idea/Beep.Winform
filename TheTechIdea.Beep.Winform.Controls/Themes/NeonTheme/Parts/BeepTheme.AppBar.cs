@@ -11,16 +11,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Neon AppBar - vibrant neon aesthetic
-            this.AppBarBackColor = Color.FromArgb(20, 20, 35);  // Dark navy caption
-            this.AppBarForeColor = Color.FromArgb(0, 255, 255);  // Cyan text (#00FFFF)
-            this.AppBarButtonForeColor = Color.FromArgb(0, 255, 200);  // Cyan buttons
-            this.AppBarButtonBackColor = Color.FromArgb(20, 20, 35);
-            this.AppBarTextBoxBackColor = Color.FromArgb(30, 30, 45);
-            this.AppBarTextBoxForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarLabelForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarLabelBackColor = Color.FromArgb(20, 20, 35);
-            this.AppBarTitleForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarTitleBackColor = Color.FromArgb(20, 20, 35);
+            this.AppBarBackColor = BackgroundColor;  // Dark navy caption
+            this.AppBarForeColor = ForeColor;  // Cyan text (#00FFFF)
+            this.AppBarButtonForeColor = SecondaryColor;  // Cyan buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(80, 180, 200);  // Dimmed cyan subtitle
             this.AppBarSubTitleBackColor = Color.FromArgb(20, 20, 35);
             

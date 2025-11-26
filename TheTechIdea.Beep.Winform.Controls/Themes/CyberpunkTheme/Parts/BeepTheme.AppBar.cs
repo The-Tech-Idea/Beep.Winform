@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // Cyberpunk AppBar - dark with neon cyan
-            this.AppBarBackColor = Color.FromArgb(10, 10, 20);  // Dark background
-            this.AppBarForeColor = Color.FromArgb(0, 255, 255);  // Cyan text
-            this.AppBarButtonForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarButtonBackColor = Color.FromArgb(10, 10, 20);
-            this.AppBarTextBoxBackColor = Color.FromArgb(20, 20, 40);
-            this.AppBarTextBoxForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarLabelForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarLabelBackColor = Color.FromArgb(10, 10, 20);
-            this.AppBarTitleForeColor = Color.FromArgb(0, 255, 255);
-            this.AppBarTitleBackColor = Color.FromArgb(10, 10, 20);
+            this.AppBarBackColor = BackgroundColor;  // Dark background
+            this.AppBarForeColor = ForeColor;  // Cyan text
+            this.AppBarButtonForeColor = ForeColor;
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(100, 200, 200);  // Lighter cyan
-            this.AppBarSubTitleBackColor = Color.FromArgb(10, 10, 20);
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // Neon system buttons - cyan
             this.AppBarCloseButtonColor = Color.FromArgb(0, 255, 255);
@@ -31,8 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             
             // Futuristic typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Rajdhani", FontSize = 13.5f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.1f, LetterSpacing = 0.04f };
-            this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "Rajdhani", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
-            this.AppBarTextStyle = new TypographyStyle { FontFamily = "Rajdhani", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
+            this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "Rajdhani", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = AppBarSubTitleForeColor, LineHeight = 1.45f };
+            this.AppBarTextStyle = new TypographyStyle { FontFamily = "Rajdhani", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = AppBarForeColor, LineHeight = 1.45f };
             
             // Dark gradient
             this.AppBarGradiantStartColor = Color.FromArgb(10, 10, 20);

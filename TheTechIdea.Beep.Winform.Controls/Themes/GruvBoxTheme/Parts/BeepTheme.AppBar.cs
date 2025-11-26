@@ -11,16 +11,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // GruvBox AppBar - warm retro aesthetic
-            this.AppBarBackColor = Color.FromArgb(40, 40, 40);  // Dark gray
-            this.AppBarForeColor = Color.FromArgb(235, 219, 178);  // Beige text
-            this.AppBarButtonForeColor = Color.FromArgb(254, 128, 25);  // Orange buttons
-            this.AppBarButtonBackColor = Color.FromArgb(40, 40, 40);
-            this.AppBarTextBoxBackColor = Color.FromArgb(60, 56, 54);
-            this.AppBarTextBoxForeColor = Color.FromArgb(235, 219, 178);
-            this.AppBarLabelForeColor = Color.FromArgb(235, 219, 178);
-            this.AppBarLabelBackColor = Color.FromArgb(40, 40, 40);
-            this.AppBarTitleForeColor = Color.FromArgb(235, 219, 178);
-            this.AppBarTitleBackColor = Color.FromArgb(40, 40, 40);
+            this.AppBarBackColor = BackgroundColor;  // Dark gray
+            this.AppBarForeColor = ForeColor;  // Beige text
+            this.AppBarButtonForeColor = AccentColor;  // Orange buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(146, 131, 116);  // #928374 muted brown
             this.AppBarSubTitleBackColor = Color.FromArgb(40, 40, 40);
             

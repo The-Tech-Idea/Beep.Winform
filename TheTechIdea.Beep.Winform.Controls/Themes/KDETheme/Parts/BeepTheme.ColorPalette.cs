@@ -12,6 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             this.ForeColor = Color.FromArgb(33,37,41);
             this.BackColor = Color.FromArgb(248,249,250);
+            this.BackgroundColor = Color.FromArgb(248,249,250);
+            this.SurfaceColor = Color.FromArgb(255,255,255);
             this.PanelBackColor = Color.FromArgb(248,249,250);
             this.PanelGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.02);
             this.PanelGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.04);
@@ -23,8 +25,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(61,174,233);
             this.SecondaryColor = Color.FromArgb(41,128,185);
             this.AccentColor = Color.FromArgb(0,188,212);
-            this.BackgroundColor = Color.FromArgb(248,249,250);
-            this.SurfaceColor = Color.FromArgb(255,255,255);
             this.ErrorColor = Color.FromArgb(220,53,69);
             this.WarningColor = Color.FromArgb(255,193,7);
             this.SuccessColor = Color.FromArgb(46,204,113);

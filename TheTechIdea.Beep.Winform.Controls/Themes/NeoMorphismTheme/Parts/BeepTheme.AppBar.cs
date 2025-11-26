@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // NeoMorphism AppBar - soft neomorphic design
-            this.AppBarBackColor = Color.FromArgb(240, 240, 245);  // Light gray-blue
-            this.AppBarForeColor = Color.FromArgb(50, 50, 60);  // Dark gray text
-            this.AppBarButtonForeColor = Color.FromArgb(80, 80, 90);  // Dark gray buttons
-            this.AppBarButtonBackColor = Color.FromArgb(240, 240, 245);
-            this.AppBarTextBoxBackColor = Color.FromArgb(244, 247, 250);  // Slightly lighter
-            this.AppBarTextBoxForeColor = Color.FromArgb(50, 50, 60);
-            this.AppBarLabelForeColor = Color.FromArgb(50, 50, 60);
-            this.AppBarLabelBackColor = Color.FromArgb(240, 240, 245);
-            this.AppBarTitleForeColor = Color.FromArgb(50, 50, 60);
-            this.AppBarTitleBackColor = Color.FromArgb(240, 240, 245);
+            this.AppBarBackColor = BackgroundColor;  // Light gray-blue
+            this.AppBarForeColor = ForeColor;  // Dark gray text
+            this.AppBarButtonForeColor = PrimaryColor;  // Dark gray buttons
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // Slightly lighter
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(130, 130, 140);  // Medium gray
-            this.AppBarSubTitleBackColor = Color.FromArgb(240, 240, 245);
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - dark colors
             this.AppBarCloseButtonColor = Color.FromArgb(80, 80, 90);  // Dark gray

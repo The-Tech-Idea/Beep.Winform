@@ -11,18 +11,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // GNOME AppBar - clean light theme
-            this.AppBarBackColor = Color.FromArgb(245, 245, 245);  // Light gray (#F5F5F5)
-            this.AppBarForeColor = Color.FromArgb(0, 0, 0);  // Black text
-            this.AppBarButtonForeColor = Color.FromArgb(50, 50, 50);  // Dark gray buttons
-            this.AppBarButtonBackColor = Color.FromArgb(245, 245, 245);
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarLabelForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarLabelBackColor = Color.FromArgb(245, 245, 245);
-            this.AppBarTitleForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarTitleBackColor = Color.FromArgb(245, 245, 245);
+            this.AppBarBackColor = SurfaceColor;  // Light gray (#F5F5F5)
+            this.AppBarForeColor = ForeColor;  // Dark text
+            this.AppBarButtonForeColor = PrimaryColor;  // Dark gray/primary buttons
+            this.AppBarButtonBackColor = SurfaceColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = SurfaceColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = SurfaceColor;
             this.AppBarSubTitleForeColor = Color.FromArgb(120, 120, 120);  // Medium gray
-            this.AppBarSubTitleBackColor = Color.FromArgb(245, 245, 245);
+            this.AppBarSubTitleBackColor = SurfaceColor;
             
             // System buttons - dark for GNOME
             this.AppBarCloseButtonColor = Color.FromArgb(50, 50, 50);  // Dark gray

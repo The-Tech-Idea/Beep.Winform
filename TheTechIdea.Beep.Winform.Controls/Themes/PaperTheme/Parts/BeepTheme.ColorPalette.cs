@@ -14,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Aligned with FormStyle.Paper: Background #FAFAF8, white highlight, clean aesthetic
             this.ForeColor = Color.FromArgb(33, 33, 33);  // Dark grey text
             this.BackColor = Color.FromArgb(250, 250, 250);  // Light paper (#FAFAF8)
+            this.BackgroundColor = Color.FromArgb(250, 250, 250);
+            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // Pure white
             this.PanelBackColor = Color.FromArgb(250, 250, 250);
             this.PanelGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.02);
             this.PanelGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.03);
@@ -29,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(33, 150, 243);  // Material blue (#2196F3)
             this.SecondaryColor = Color.FromArgb(0, 150, 136);  // Teal
             this.AccentColor = Color.FromArgb(255, 193, 7);  // Amber
-            this.BackgroundColor = Color.FromArgb(250, 250, 250);
-            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // Pure white
             
             // Material status colors
             this.ErrorColor = Color.FromArgb(244, 67, 54);  // Red

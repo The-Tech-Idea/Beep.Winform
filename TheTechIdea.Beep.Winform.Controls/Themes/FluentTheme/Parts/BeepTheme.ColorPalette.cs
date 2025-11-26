@@ -14,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Aligned with FormStyle.Fluent: Light, modern, clean
             this.ForeColor = Color.FromArgb(32, 32, 32);  // Dark gray text
             this.BackColor = Color.FromArgb(245, 246, 248);  // Light gray-blue (#F5F6F8)
+            this.BackgroundColor = Color.FromArgb(245, 246, 248);
+            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // Pure white
             this.PanelBackColor = Color.FromArgb(245, 246, 248);
             this.PanelGradiantStartColor = Color.FromArgb(245, 246, 248);
             this.PanelGradiantEndColor = Color.FromArgb(235, 237, 240);
@@ -29,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PrimaryColor = Color.FromArgb(0, 120, 215);  // Fluent blue
             this.SecondaryColor = Color.FromArgb(0, 153, 188);  // Cyan
             this.AccentColor = Color.FromArgb(255, 185, 0);  // Yellow/orange
-            this.BackgroundColor = Color.FromArgb(245, 246, 248);
-            this.SurfaceColor = Color.FromArgb(255, 255, 255);  // Pure white
             
             // Fluent status colors
             this.ErrorColor = Color.FromArgb(196, 30, 58);  // Red

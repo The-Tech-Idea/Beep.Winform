@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.LabelSelectedBackColor = SurfaceColor;
             this.LabelSelectedForeColor = ForeColor;
             this.LabelDisabledBackColor = SurfaceColor;
-            this.LabelDisabledForeColor = ForeColor;
+            this.LabelDisabledForeColor = ThemeUtil.Lighten(ForeColor, -0.15);
             this.LabelDisabledBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
         }
     }

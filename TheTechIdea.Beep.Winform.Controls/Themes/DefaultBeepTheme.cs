@@ -753,10 +753,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TitleStyle = TS(24, FontStyle.Bold, 700, ForeColor);
                 SubtitleStyle = TS(18, FontStyle.Regular, 600, C(55, 65, 81));
                 BodyStyle = TS(12, FontStyle.Regular, 400, ForeColor);
-                CaptionStyle = TS(11, FontStyle.Regular, 400, C(107, 114, 128));
+                CaptionStyle = TS(11, FontStyle.Regular, 400, C(75, 85, 99));
                 ButtonStyle = TS(12, FontStyle.Bold, 600, OnPrimaryColor);
                 LinkStyle = TS(12, FontStyle.Regular, 500, C(37, 99, 235));
-                OverlineStyle = TS(10, FontStyle.Regular, 600, C(107, 114, 128));
+                OverlineStyle = TS(10, FontStyle.Regular, 600, C(75, 85, 99));
 
                 // Material-ish token set
                 DisplayLarge = TS(57, FontStyle.Regular, 300, ForeColor);
@@ -773,7 +773,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 BodySmall = TS(12, FontStyle.Regular, 400, C(55, 65, 81));
                 LabelLarge = TS(14, FontStyle.Regular, 500, C(55, 65, 81));
                 LabelMedium = TS(12, FontStyle.Regular, 500, C(75, 85, 99));
-                LabelSmall = TS(11, FontStyle.Regular, 500, C(107, 114, 128));
+                LabelSmall = TS(11, FontStyle.Regular, 500, C(75, 85, 99));
 
                 // Global font sizes
                 FontSizeBlockHeader = 20f;
@@ -1423,7 +1423,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             public TypographyStyle GetBlockHeaderFont() => TitleSmall ?? TitleStyle ?? TS(18, FontStyle.Bold, 600, ForeColor);
             public TypographyStyle GetBlockTextFont() => BodyMedium ?? BodyStyle ?? TS(14, FontStyle.Regular, 400, ForeColor);
             public TypographyStyle GetButtonFont() => ButtonStyle ?? ButtonFont ?? TS(12, FontStyle.Bold, 600, OnPrimaryColor);
-            public TypographyStyle GetCaptionFont() => CaptionStyle ?? LabelSmall ?? TS(11, FontStyle.Regular, 400, C(107, 114, 128));
+            public TypographyStyle GetCaptionFont() => CaptionStyle ?? LabelSmall ?? TS(11, FontStyle.Regular, 400, C(75, 85, 99));
             public TypographyStyle GetQuestionFont() => TitleSmall ?? TitleStyle ?? TS(16, FontStyle.Bold, 600, ForeColor);
 
             public void ReplaceTransparentColors(Color fallbackColor)

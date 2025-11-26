@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         
         /// <summary>Vibrant neon glow with bright saturated colors (distinct from DarkGlow)</summary>
         Neon = 37,
-        Retro = 37,
+        Retro = 371,
         NeonGlow = 38,
 
         // Extended mappings aligned with ModernForm painters

@@ -56,7 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Elementary => new ElementaryBackgroundPainterWrapper(),
                 BeepControlStyle.Gaming => new GamingBackgroundPainterWrapper(),
                 BeepControlStyle.Neon => new NeonBackgroundPainterWrapper(),
-              
                 BeepControlStyle.Terminal => new TerminalBackgroundPainterWrapper(),
                 BeepControlStyle.ArcLinux => new ArcLinuxBackgroundPainterWrapper(),
                 BeepControlStyle.Brutalist => new BrutalistBackgroundPainterWrapper(),
@@ -76,6 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Solarized => new SolarizedBackgroundPainterWrapper(),
                 BeepControlStyle.Tokyo => new TokyoBackgroundPainterWrapper(),
                 BeepControlStyle.Ubuntu => new UbuntuBackgroundPainterWrapper(),
+                BeepControlStyle.Retro => new RetroBackgroundPainterWrapper(),
                 _ => null
             };
         }

@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class BackgroundPainterHelpers
     {
+
       
         /// <summary>
         /// Lighten a color by a percentage
@@ -139,5 +140,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 _graphics.Restore(_state);
             }
         }
+
     }
 }

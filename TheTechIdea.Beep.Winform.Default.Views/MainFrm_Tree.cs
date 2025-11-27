@@ -14,9 +14,9 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
 {
-    public partial class MainFrm_Tree :  TemplateForm
+    public partial class MainFrm_Tree : TemplateForm
     {
-     
+
 
         public MainFrm_Tree()
         {
@@ -31,11 +31,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
             beepAppTree1.init(beepService);
             beepAppTree1.CreateRootTree();
-         
+
 
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
 
+
+        }
+
+        private void MainFrm_Tree_Load(object sender, EventArgs e)
+        {
 
         }
     }

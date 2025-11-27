@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -41,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.OnPrimaryColor = Color.FromArgb(255, 255, 255);  // White on dark
             this.OnBackgroundColor = Color.FromArgb(30, 30, 30);  // Dark on white
             this.FocusIndicatorColor = Color.FromArgb(45, 45, 45);  // Dark grey focus
+            ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
 
         private static Color MinimalMinimizeColor => Color.FromArgb(253, 224, 71);

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -871,7 +872,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 DaysFont = LabelMedium;
                 DaysSelectedFont = LabelMedium;
                 DateFont = LabelMedium;
-                CalendarFooterColor = C(107, 114, 128);
+                CalendarFooterColor = C(75, 85, 99);
                 FooterFont = LabelSmall;
 
                 // -- Charts
@@ -880,7 +881,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ChartBackColor = CardBackColor;
                 ChartLineColor = C(55, 65, 81);
                 ChartFillColor = Blend(PrimaryColor, Color.White, 0.85);
-                ChartAxisColor = C(107, 114, 128);
+                ChartAxisColor = C(75, 85, 99);
                 ChartTitleColor = ForeColor;
                 ChartTextColor = C(55, 65, 81);
                 ChartLegendBackColor = CardBackColor;
@@ -988,7 +989,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TextBoxSelectedBackColor = BackgroundColor;
                 TextBoxSelectedForeColor = ForeColor;
                 TextBoxSelectedBorderColor = C(29, 78, 216); // blue-700
-                TextBoxPlaceholderColor = C(107, 114, 128);
+                TextBoxPlaceholderColor = C(75, 85, 99);
                 TextBoxErrorBorderColor = ErrorColor;
                 TextBoxErrorBackColor = Blend(ErrorColor, Color.White, 0.94);
                 TextBoxErrorForeColor = C(97, 26, 21);
@@ -1104,7 +1105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ScrollBarThumbColor = C(209, 213, 219);
                 ScrollBarHoverTrackColor = C(229, 231, 235);
                 ScrollBarHoverThumbColor = C(156, 163, 175);
-                ScrollBarActiveThumbColor = C(107, 114, 128);
+                ScrollBarActiveThumbColor = C(75, 85, 99);
 
                 // -- Status bar
                 StatusBarBackColor = C(248, 250, 252);
@@ -1314,7 +1315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ActiveTabBackColor = BackgroundColor;
                 ActiveTabForeColor = ForeColor;
                 InactiveTabBackColor = CardBackColor;
-                InactiveTabForeColor = C(107, 114, 128);
+                InactiveTabForeColor = C(75, 85, 99);
                 TabBorderColor = BorderColor;
                 TabHoverBackColor = Blend(PrimaryColor, Color.White, 0.94);
                 TabHoverForeColor = Darken(PrimaryColor, 0.35);
@@ -1397,7 +1398,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 SwitchUnSelectedFont = BodyMedium;
                 SwitchBackColor = C(229, 231, 235);
                 SwitchBorderColor = BorderColor;
-                SwitchForeColor = C(107, 114, 128);
+                SwitchForeColor = C(75, 85, 99);
                 SwitchSelectedBackColor = PrimaryColor;
                 SwitchSelectedBorderColor = Darken(PrimaryColor, 0.10);
                 SwitchSelectedForeColor = OnPrimaryColor;
@@ -1414,6 +1415,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 // -- Fill ANY remaining null/empty properties via convention
                 FillTypographyDefaultsByConvention();
                 FillColorDefaultsByConvention();
+
+                // Run validation and autofix for accessible contrast on common tokens
+                ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
             }
 
             // -------------------------------------------------------------------------

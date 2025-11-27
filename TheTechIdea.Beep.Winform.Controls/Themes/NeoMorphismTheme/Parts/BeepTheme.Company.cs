@@ -10,21 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCompany()
         {
-            this.CompanyPopoverBackgroundColor = Color.FromArgb(236,240,243);
-            this.CompanyTitleColor = Color.FromArgb(236,240,243);
+            this.CompanyPopoverBackgroundColor = SurfaceColor;
+            this.CompanyTitleColor = ForeColor;
             this.CompanyTitleFont = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanySubtitleColor = Color.FromArgb(236,240,243);
+            this.CompanySubtitleColor = ForeColor;
             this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyDescriptionColor = Color.FromArgb(236,240,243);
+            this.CompanyDescriptionColor = ForeColor;
             this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyLinkColor = Color.FromArgb(236,240,243);
-            this.CompanyLinkFont = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyButtonBackgroundColor = Color.FromArgb(236,240,243);
-            this.CompanyButtonTextColor = Color.FromArgb(58,66,86);
+            this.CompanyLinkColor = AccentColor;
+            this.CompanyLinkFont = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = AccentColor, LineHeight = 1.55f };
+            this.CompanyButtonBackgroundColor = SurfaceColor;
+            this.CompanyButtonTextColor = ForeColor;
             this.CompanyButtonFont = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            this.CompanyDropdownBackgroundColor = Color.FromArgb(236,240,243);
-            this.CompanyDropdownTextColor = Color.FromArgb(58,66,86);
-            this.CompanyLogoBackgroundColor = Color.FromArgb(236,240,243);
+            this.CompanyDropdownBackgroundColor = SurfaceColor;
+            this.CompanyDropdownTextColor = ForeColor;
+            this.CompanyLogoBackgroundColor = SurfaceColor;
         }
     }
 }

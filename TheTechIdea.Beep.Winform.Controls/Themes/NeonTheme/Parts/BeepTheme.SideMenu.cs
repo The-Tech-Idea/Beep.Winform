@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplySideMenu()
         {
-            this.SideMenuBackColor = Color.FromArgb(10,12,20);
-            this.SideMenuHoverBackColor = Color.FromArgb(10,12,20);
-            this.SideMenuSelectedBackColor = Color.FromArgb(10,12,20);
-            this.SideMenuForeColor = Color.FromArgb(235,245,255);
-            this.SideMenuSelectedForeColor = Color.FromArgb(235,245,255);
-            this.SideMenuHoverForeColor = Color.FromArgb(235,245,255);
-            this.SideMenuBorderColor = Color.FromArgb(60,70,100);
-            this.SideMenuTitleTextColor = Color.FromArgb(235,245,255);
-            this.SideMenuTitleBackColor = Color.FromArgb(10,12,20);
-            this.SideMenuSubTitleTextColor = Color.FromArgb(235,245,255);
-            this.SideMenuSubTitleBackColor = Color.FromArgb(10,12,20);
-            this.SideMenuGradiantStartColor = Color.FromArgb(10,12,20);
-            this.SideMenuGradiantEndColor = Color.FromArgb(10,12,20);
-            this.SideMenuGradiantMiddleColor = Color.FromArgb(10,12,20);
+            this.SideMenuBackColor = PanelGradiantMiddleColor;
+            this.SideMenuHoverBackColor = PanelGradiantMiddleColor;
+            this.SideMenuSelectedBackColor = PanelGradiantMiddleColor;
+            this.SideMenuForeColor = ForeColor;
+            this.SideMenuSelectedForeColor = ForeColor;
+            this.SideMenuHoverForeColor = ForeColor;
+            this.SideMenuBorderColor = InactiveBorderColor;
+            this.SideMenuTitleTextColor = ForeColor;
+            this.SideMenuTitleBackColor = PanelGradiantMiddleColor;
+            this.SideMenuSubTitleTextColor = ForeColor;
+            this.SideMenuSubTitleBackColor = PanelGradiantMiddleColor;
+            this.SideMenuGradiantStartColor = PanelGradiantMiddleColor;
+            this.SideMenuGradiantEndColor = PanelGradiantMiddleColor;
+            this.SideMenuGradiantMiddleColor = PanelGradiantMiddleColor;
             this.SideMenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

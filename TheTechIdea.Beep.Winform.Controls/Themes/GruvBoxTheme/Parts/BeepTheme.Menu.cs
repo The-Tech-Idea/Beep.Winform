@@ -14,29 +14,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14F, FontStyle.Bold);
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
-            
-            this.MenuBackColor = Color.FromArgb(40, 40, 40);  // Dark gray
-            this.MenuForeColor = Color.FromArgb(235, 219, 178);  // Beige text
-            this.MenuBorderColor = Color.FromArgb(80, 73, 69);  // Muted brown
-            
+
+            this.MenuBackColor = SurfaceColor;
+            this.MenuForeColor = ForeColor;
+            this.MenuBorderColor = BorderColor;
+
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(235, 219, 178);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(250, 189, 47);  // Yellow on hover
-            this.MenuMainItemHoverBackColor = Color.FromArgb(50, 48, 47);  // Lighter gray
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(254, 128, 25);  // Orange
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(60, 56, 54);  // Medium brown
-            
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = AccentColor;
+            this.MenuMainItemHoverBackColor = SecondaryColor;
+            this.MenuMainItemSelectedForeColor = AccentColor;
+            this.MenuMainItemSelectedBackColor = SecondaryColor;
+
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(235, 219, 178);
-            this.MenuItemHoverForeColor = Color.FromArgb(250, 189, 47);  // Yellow on hover
-            this.MenuItemHoverBackColor = Color.FromArgb(50, 48, 47);  // Lighter gray
-            this.MenuItemSelectedForeColor = Color.FromArgb(254, 128, 25);  // Orange
-            this.MenuItemSelectedBackColor = Color.FromArgb(60, 56, 54);  // Medium brown
-            
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = AccentColor;
+            this.MenuItemHoverBackColor = SecondaryColor;
+            this.MenuItemSelectedForeColor = AccentColor;
+            this.MenuItemSelectedBackColor = SecondaryColor;
+
             // Dark gradient
-            this.MenuGradiantStartColor = Color.FromArgb(60, 56, 54);
-            this.MenuGradiantEndColor = Color.FromArgb(50, 48, 47);
-            this.MenuGradiantMiddleColor = Color.FromArgb(40, 40, 40);
+            this.MenuGradiantStartColor = SecondaryColor;
+            this.MenuGradiantEndColor = SurfaceColor;
+            this.MenuGradiantMiddleColor = SurfaceColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

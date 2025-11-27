@@ -44,17 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            int radius = StyleBorders.GetRadius(style);
-
-            using (var roundedPath = GraphicsExtensions.GetRoundedRectPath(path.GetBoundsRect(), radius))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.SetClip(roundedPath);
-                painter.DrawImage(g, roundedPath.GetBoundsRect());
-                g.ResetClip();
-            }
-            
+            // Respect the incoming path geometry (already created from the Style system).
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SetClip(path);
+            painter.DrawImage(g, path.GetBoundsRect());
+            g.ResetClip();
         }
 
         public static void Paint(Graphics g, GraphicsPath path, string imagePath)
@@ -85,14 +80,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             string key = GetTintCacheKey(imagePath, tint, opacity, bounds.Size);
             if (_tintedCache.TryGetValue(key, out var tinted) && tinted != null)
             {
-                using (var roundedPath = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
-                {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.SetClip(roundedPath);
-                    g.DrawImage(tinted, roundedPath.GetBoundsRect());
-                    g.ResetClip();
-                }
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.SetClip(path);
+                g.DrawImage(tinted, bounds);
+                g.ResetClip();
                 return;
             }
 
@@ -110,14 +102,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                         painter.ApplyThemeOnImage = true;
                         painter.FillColor = tint;
                         painter.Opacity = opacity;
-                        using (var bounds1   = GraphicsExtensions.GetRoundedRectPath(path.GetBoundsRect(), cornerRadius))
-                        {
-                            g.SmoothingMode = SmoothingMode.AntiAlias;
-                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                            g.SetClip(path);
-                            painter.DrawImage(g, bounds1.GetBoundsRect());
-                            g.ResetClip();
-                        }
+                        g.SmoothingMode = SmoothingMode.AntiAlias;
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.SetClip(path);
+                        painter.DrawImage(g, bounds);
+                        g.ResetClip();
                     }
                     finally
                     {
@@ -161,14 +150,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
             _tintedCache[key] = bmp;
 
-            using (var bound2 = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.SetClip(path);
-                g.DrawImage(bmp, bound2.GetBoundsRect());
-                g.ResetClip();
-            }
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SetClip(path);
+            g.DrawImage(bmp, bounds);
+            g.ResetClip();
         }
 
         #endregion
@@ -604,6 +590,63 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                     
                 g.ResetClip();
             }
+        }
+
+        /// <summary>
+        /// Well-known analytic shapes that correspond to the SVG assets in GFX/Shapes.
+        /// These can be used as "style shapes" when painting images.
+        /// </summary>
+        public enum StyledShape
+        {
+            Rectangle,
+            Circle,
+            Triangle,
+            Square,
+            Hexagon,
+            Pentagon,
+            Octagon,
+            Star,
+            Diamond,
+            Pill
+        }
+
+        /// <summary>
+        /// Paints an image clipped to a predefined analytic shape (matching GFX/Shapes),
+        /// using the provided bounds as the outer box for the shape.
+        /// </summary>
+        public static void PaintInShape(
+            Graphics g,
+            Rectangle bounds,
+            string imagePath,
+            StyledShape shape,
+            Color? tint = null,
+            float opacity = 1f)
+        {
+            if (string.IsNullOrEmpty(imagePath) || bounds.Width <= 0 || bounds.Height <= 0)
+                return;
+
+            float centerX = bounds.X + bounds.Width / 2f;
+            float centerY = bounds.Y + bounds.Height / 2f;
+            float size = Math.Min(bounds.Width, bounds.Height) / 2f;
+
+            using GraphicsPath shapePath = shape switch
+            {
+                StyledShape.Circle => GraphicsExtensions.CreateCircle(centerX, centerY, size),
+                StyledShape.Triangle => GraphicsExtensions.CreateTriangle(centerX, centerY, size),
+                StyledShape.Hexagon => GraphicsExtensions.CreateHexagon(centerX, centerY, size, 0f),
+                StyledShape.Pentagon => GraphicsExtensions.CreatePentagon(centerX, centerY, size, 0f),
+                StyledShape.Octagon => GraphicsExtensions.CreateOctagon(centerX, centerY, size, 0f),
+                StyledShape.Star => GraphicsExtensions.CreateStar(centerX, centerY, size, size * 0.5f, 5, 0f),
+                StyledShape.Diamond => GraphicsExtensions.CreateDiamond(centerX, centerY, bounds.Width, bounds.Height),
+                StyledShape.Pill => GraphicsExtensions.CreatePill(bounds.X, bounds.Y, bounds.Width, bounds.Height),
+                StyledShape.Square => GraphicsExtensions.CreateRectanglePath(bounds),
+                _ => GraphicsExtensions.CreateRectanglePath(bounds)
+            };
+
+            if (tint.HasValue)
+                PaintWithTint(g, shapePath, imagePath, tint.Value, opacity);
+            else
+                Paint(g, shapePath, imagePath);
         }
 
         #endregion

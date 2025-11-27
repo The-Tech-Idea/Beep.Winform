@@ -57,7 +57,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.FillPath(bgBrush, bgPath);
 
             // System border
-            using var borderPen = new Pen(Color.FromArgb(100, 107, 114, 128), 1); // System gray border
+            var borderBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+            using var borderPen = new Pen(Color.FromArgb(100, borderBase.R, borderBase.G, borderBase.B), 1); // System gray border
             g.DrawPath(borderPen, bgPath);
 
             // Soft shadow
@@ -76,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
             {
                 using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(107, 114, 128)); // System gray
+                using var titleBrush = new SolidBrush(Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99)); // System gray
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.ContentRect.X, ctx.ContentRect.Y);
             }
 
@@ -85,7 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 string message = ctx.Message;
                 using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-                using var messageBrush = new SolidBrush(Color.FromArgb(120, 107, 114, 128));
+                var msgBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                using var messageBrush = new SolidBrush(Color.FromArgb(120, msgBase.R, msgBase.G, msgBase.B));
 
                 Rectangle messageRect = new Rectangle(
                     ctx.ContentRect.X,
@@ -102,7 +104,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 string timestamp = ctx.Timestamp;
                 using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var timeBrush = new SolidBrush(Color.FromArgb(80, 107, 114, 128));
+                var timeBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                using var timeBrush = new SolidBrush(Color.FromArgb(80, timeBase.R, timeBase.G, timeBase.B));
 
                 Rectangle timeRect = new Rectangle(
                     ctx.ContentRect.X,
@@ -118,7 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void DrawSystemIcon(Graphics g, Rectangle rect)
         {
             // Draw gear/cog icon
-            using var gearPen = new Pen(Color.FromArgb(107, 114, 128), 2);
+            var gearBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+            using var gearPen = new Pen(Color.FromArgb(gearBase.R, gearBase.G, gearBase.B), 2);
 
             // Outer circle
             g.DrawEllipse(gearPen, rect.X + 2, rect.Y + 2, 20, 20);

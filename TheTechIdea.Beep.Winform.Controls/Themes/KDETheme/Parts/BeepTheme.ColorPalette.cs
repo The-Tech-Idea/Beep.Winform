@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -31,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.OnPrimaryColor = Color.FromArgb(61,174,233);
             this.OnBackgroundColor = ForeColor;
             this.FocusIndicatorColor = Color.FromArgb(61,174,233);
+            ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
     }
 }

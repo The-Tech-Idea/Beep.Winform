@@ -10,22 +10,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyTaskCard()
         {
-            this.TaskCardBackColor = Color.FromArgb(236,240,243);
-            this.TaskCardForeColor = Color.FromArgb(58,66,86);
-            this.TaskCardBorderColor = Color.FromArgb(221,228,235);
-            this.TaskCardTitleForeColor = Color.FromArgb(58,66,86);
-            this.TaskCardTitleBackColor = Color.FromArgb(236,240,243);
-            this.TaskCardSubTitleForeColor = Color.FromArgb(58,66,86);
-            this.TaskCardSubTitleBackColor = Color.FromArgb(236,240,243);
-            this.TaskCardMetricTextForeColor = Color.FromArgb(58,66,86);
-            this.TaskCardMetricTextBackColor = Color.FromArgb(236,240,243);
-            this.TaskCardMetricTextBorderColor = Color.FromArgb(221,228,235);
-            this.TaskCardMetricTextHoverForeColor = Color.FromArgb(58,66,86);
-            this.TaskCardMetricTextHoverBackColor = Color.FromArgb(236,240,243);
-            this.TaskCardMetricTextHoverBorderColor = Color.FromArgb(221,228,235);
-            this.TaskCardProgressValueForeColor = Color.FromArgb(58,66,86);
-            this.TaskCardProgressValueBackColor = Color.FromArgb(236,240,243);
-            this.TaskCardProgressValueBorderColor = Color.FromArgb(221,228,235);
+            this.TaskCardBackColor = PanelBackColor;
+            this.TaskCardForeColor = ForeColor;
+            this.TaskCardBorderColor = BorderColor;
+            this.TaskCardTitleForeColor = ForeColor;
+            this.TaskCardTitleBackColor = PanelBackColor;
+            this.TaskCardSubTitleForeColor = ForeColor;
+            this.TaskCardSubTitleBackColor = PanelBackColor;
+            this.TaskCardMetricTextForeColor = ForeColor;
+            this.TaskCardMetricTextBackColor = PanelBackColor;
+            this.TaskCardMetricTextBorderColor = BorderColor;
+            this.TaskCardMetricTextHoverForeColor = ForeColor;
+            this.TaskCardMetricTextHoverBackColor = PanelGradiantMiddleColor;
+            this.TaskCardMetricTextHoverBorderColor = ActiveBorderColor;
+            this.TaskCardProgressValueForeColor = ForeColor;
+            this.TaskCardProgressValueBackColor = PanelBackColor;
+            this.TaskCardProgressValueBorderColor = BorderColor;
         }
     }
 }

@@ -10,24 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyGrid()
         {
-            this.GridBackColor = Color.FromArgb(255,255,255);
-            this.GridForeColor = Color.FromArgb(32,31,30);
-            this.GridHeaderBackColor = Color.FromArgb(255,255,255);
-            this.GridHeaderForeColor = Color.FromArgb(32,31,30);
-            this.GridHeaderBorderColor = Color.FromArgb(225,225,225);
-            this.GridHeaderHoverBackColor = Color.FromArgb(255,255,255);
-            this.GridHeaderHoverForeColor = Color.FromArgb(32,31,30);
-            this.GridHeaderSelectedBackColor = Color.FromArgb(255,255,255);
-            this.GridHeaderSelectedForeColor = Color.FromArgb(32,31,30);
-            this.GridHeaderHoverBorderColor = Color.FromArgb(225,225,225);
-            this.GridHeaderSelectedBorderColor = Color.FromArgb(225,225,225);
-            this.GridRowHoverBackColor = Color.FromArgb(255,255,255);
-            this.GridRowHoverForeColor = Color.FromArgb(32,31,30);
-            this.GridRowSelectedBackColor = Color.FromArgb(255,255,255);
-            this.GridRowSelectedForeColor = Color.FromArgb(32,31,30);
-            this.GridRowHoverBorderColor = Color.FromArgb(225,225,225);
-            this.GridRowSelectedBorderColor = Color.FromArgb(225,225,225);
-            this.GridLineColor = Color.FromArgb(228, 228, 228);
+            this.GridBackColor = SurfaceColor;
+            this.GridForeColor = ForeColor;
+            this.GridHeaderBackColor = SurfaceColor;
+            this.GridHeaderForeColor = ForeColor;
+            this.GridHeaderBorderColor = BorderColor;
+            this.GridHeaderHoverBackColor = SurfaceColor;
+            this.GridHeaderHoverForeColor = ForeColor;
+            this.GridHeaderSelectedBackColor = SecondaryColor;
+            this.GridHeaderSelectedForeColor = ForeColor;
+            this.GridHeaderHoverBorderColor = BorderColor;
+            this.GridHeaderSelectedBorderColor = BorderColor;
+            this.GridRowHoverBackColor = SurfaceColor;
+            this.GridRowHoverForeColor = ForeColor;
+            this.GridRowSelectedBackColor = SecondaryColor;
+            this.GridRowSelectedForeColor = ForeColor;
+            this.GridRowHoverBorderColor = BorderColor;
+            this.GridRowSelectedBorderColor = BorderColor;
+            this.GridLineColor = BorderColor;
         }
     }
 }

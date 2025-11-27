@@ -10,15 +10,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplySwitch()
         {
-            this.SwitchBackColor = Color.FromArgb(10,12,20);
-            this.SwitchBorderColor = Color.FromArgb(60,70,100);
-            this.SwitchForeColor = Color.FromArgb(235,245,255);
-            this.SwitchSelectedBackColor = Color.FromArgb(10,12,20);
-            this.SwitchSelectedBorderColor = Color.FromArgb(60,70,100);
-            this.SwitchSelectedForeColor = Color.FromArgb(235,245,255);
-            this.SwitchHoverBackColor = Color.FromArgb(10,12,20);
-            this.SwitchHoverBorderColor = Color.FromArgb(60,70,100);
-            this.SwitchHoverForeColor = Color.FromArgb(235,245,255);
+            this.SwitchBackColor = PanelGradiantMiddleColor;
+            this.SwitchBorderColor = InactiveBorderColor;
+            this.SwitchForeColor = ForeColor;
+            this.SwitchSelectedBackColor = PanelGradiantMiddleColor;
+            this.SwitchSelectedBorderColor = InactiveBorderColor;
+            this.SwitchSelectedForeColor = ForeColor;
+            this.SwitchHoverBackColor = PanelGradiantMiddleColor;
+            this.SwitchHoverBorderColor = InactiveBorderColor;
+            this.SwitchHoverForeColor = ForeColor;
         }
     }
 }

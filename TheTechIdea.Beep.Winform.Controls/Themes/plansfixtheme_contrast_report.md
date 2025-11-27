@@ -127,4 +127,58 @@ ValidateContrast(autofix: false);
 
 If you'd like me to generate the precise WCAG-based numbers and exact hex fixes, say `Run exact contrast audit` and I’ll continue.
 
+---
+
+## Theme Parts Coverage Checklist
+
+This checklist mirrors the canonical parts list in lines 152–187 and is used for **every theme folder under `Themes/*Theme`**.  
+For each theme, we traverse its `Parts` folder and apply the same refactor rules (palette‑driven, no random ARGB, use `ThemeUtil.Lighten/Darken`).
+
+### Canonical theme parts (used by all themes)
+- `BeepTheme.ColorPalette.cs`  *(source of truth for all colors)*
+- `BeepTheme.Core.cs`
+- `BeepTheme.AppBar.cs`
+- `BeepTheme.Buttons.cs`
+- `BeepTheme.TextBox.cs`
+- `BeepTheme.Menu.cs`
+- `BeepTheme.Card.cs`
+- `BeepTheme.Grid.cs`
+- `BeepTheme.List.cs`
+- `BeepTheme.Labels.cs`
+- `BeepTheme.Link.cs`
+- `BeepTheme.ComboBox.cs`
+- `BeepTheme.CheckBox.cs`
+- `BeepTheme.RadioButton.cs`
+- `BeepTheme.ProgressBar.cs`
+- `BeepTheme.Tab.cs`
+- `BeepTheme.SideMenu.cs`
+- `BeepTheme.StatsCard.cs`
+- `BeepTheme.TaskCard.cs`
+- `BeepTheme.Dashboard.cs`
+- `BeepTheme.Dialog.cs`
+- `BeepTheme.Navigation.cs`
+- `BeepTheme.StatusBar.cs`
+- `BeepTheme.Badge.cs`
+- `BeepTheme.ToolTip.cs`
+- `BeepTheme.Switch.cs`
+- `BeepTheme.Stepper.cs`
+- `BeepTheme.Tree.cs`
+- `BeepTheme.Calendar.cs`
+- `BeepTheme.Chart.cs`
+- `BeepTheme.Iconography.cs`
+- `BeepTheme.Login.cs`
+- `BeepTheme.Company.cs`
+- `BeepTheme.Miscellaneous.cs`
+- `BeepTheme.Typography.cs`
+
+### Per‑theme traversal status
+
+- **MinimalTheme**: Palette + core/buttons reviewed; remaining parts to be aligned using canonical list above.
+- **NeonTheme**: Palette aligned with Neon style painters; parts to be checked against palette for stray ARGB.
+- **NordTheme**: Buttons updated to palette‑driven; other parts pending full pass.
+- **NordicTheme**: Palette OK; parts pending full pass.
+- **ArcLinuxTheme, GruvBoxTheme, OneDarkTheme, PaperTheme, TokyoTheme, UbuntuTheme**: Palettes defined; all parts under `Parts` to be refactored using canonical list and fixthemesplan rules.
+- **SolarizedTheme**: Palette reviewed; buttons updated to be palette‑driven (SurfaceColor / AccentColor with ThemeUtil.Lighten/Darken); remaining parts under `Parts` to be refactored in the same way.
+- **All other *Theme folders (BrutalistTheme, CartoonTheme, ChatBubbleTheme, iOSTheme, KDETheme, MacOSTheme, GNOMETheme, GlassTheme, FluentTheme, DraculaTheme, CyberpunkTheme, HolographicTheme, MetroTheme, Metro2Theme, etc.)**: Follow the same canonical parts pattern; each folder will be traversed and its parts refactored to use `BeepTheme.ColorPalette.cs` as the only source of role colors.
+
 End of `plansfixtheme_contrast_report.md`.

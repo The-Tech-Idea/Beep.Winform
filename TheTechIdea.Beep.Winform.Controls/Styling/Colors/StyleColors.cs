@@ -344,6 +344,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
 
         internal static Color GetSurface(BeepControlStyle style)
         {
+            // Surface colors are aligned with the "secondary" / card-surface values
+            // so that backgrounds, paths, and borders share a coherent base.
             return style switch
             {
                 BeepControlStyle.Material3 => Color.FromArgb(255, 251, 254),        // Soft lavender tonal surface
@@ -355,10 +357,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Windows11Mica => Color.FromArgb(248, 248, 248),    // Cool gray
                 BeepControlStyle.MacOSBigSur => Color.FromArgb(252, 252, 252),      // Clean white with warmth
                 BeepControlStyle.ChakraUI => Color.FromArgb(247, 250, 252),         // Soft blue-gray
-                BeepControlStyle.TailwindCard => Color.FromArgb(255, 255, 255),     // Pure white
-                BeepControlStyle.NotionMinimal => Color.FromArgb(251, 251, 250),    // Off-white with warmth
+                BeepControlStyle.TailwindCard => Color.FromArgb(249, 250, 251),     // Card surface (matches secondary)
+                BeepControlStyle.NotionMinimal => Color.FromArgb(247, 247, 245),    // Block surface (matches secondary)
                 BeepControlStyle.VercelClean => Color.FromArgb(255, 255, 255),      // Pure white
-                BeepControlStyle.StripeDashboard => Color.FromArgb(248, 250, 252),  // Light blue-gray
+                BeepControlStyle.StripeDashboard => Color.FromArgb(242, 244, 248),  // Card surface (matches secondary)
                 BeepControlStyle.DarkGlow => Color.FromArgb(24, 24, 27),            // Deep charcoal
                 BeepControlStyle.DiscordStyle => Color.FromArgb(47, 49, 54),        // Dark slate gray
                 BeepControlStyle.GradientModern => Color.FromArgb(58, 123, 213),    // Blue (gradient start)

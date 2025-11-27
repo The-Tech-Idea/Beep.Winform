@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -12,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Arc Linux dark theme - aligned with FormStyle.ArcLinux from FormPainterMetrics
             // Background: #383C4A (56, 60, 74) / #404552 (64, 69, 82) - using the darker base
-            this.ForeColor = Color.FromArgb(211, 218, 227);  // Light text for dark background
+            this.ForeColor = Color.FromArgb(230, 235, 241);  // Light text for dark background (slightly lighter for better contrast)
             this.BackColor = Color.FromArgb(56, 60, 74);  // Main background (darker variant)
             this.PanelBackColor = Color.FromArgb(64, 69, 82);  // Slightly lighter panel
             this.PanelGradiantStartColor = Color.FromArgb(64, 69, 82);
@@ -38,8 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.SuccessColor = Color.FromArgb(76, 175, 80);
             
             // On-color variants for readability
-            this.OnPrimaryColor = Color.FromArgb(211, 218, 227);  // Light text on primary
-            this.OnBackgroundColor = Color.FromArgb(211, 218, 227);  // Light text on background
+            this.OnPrimaryColor = Color.FromArgb(230, 235, 241);  // Light text on primary (improved contrast)
+            this.OnBackgroundColor = Color.FromArgb(230, 235, 241);  // Light text on background (improved contrast)
+            // Validate contrast for the theme and autofix tokens when needed
+            ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
             this.FocusIndicatorColor = Color.FromArgb(82, 148, 226);  // Blue focus ring
         }
     }

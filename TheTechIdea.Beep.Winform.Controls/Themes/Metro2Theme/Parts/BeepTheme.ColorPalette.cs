@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -41,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.OnPrimaryColor = Color.FromArgb(255, 255, 255);  // White on blue
             this.OnBackgroundColor = Color.FromArgb(0, 0, 0);  // Black on white
             this.FocusIndicatorColor = Color.FromArgb(0, 120, 215);  // Metro blue focus
+            ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
     }
 }

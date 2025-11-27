@@ -15,23 +15,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = Color.FromArgb(250, 250, 250);  // Light paper
-            this.MenuForeColor = Color.FromArgb(33, 33, 33);  // Dark grey text
-            this.MenuBorderColor = Color.FromArgb(224, 224, 224);  // Light grey
+            this.MenuBackColor = BackgroundColor;  // Light paper
+            this.MenuForeColor = ForeColor;  // Dark grey text
+            this.MenuBorderColor = InactiveBorderColor;  // Light grey
             
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(33, 33, 33);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(33, 33, 33);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(240, 240, 240);  // Darker hover
-            this.MenuMainItemSelectedForeColor = Color.White;  // White text
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(33, 150, 243);  // Material blue
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;
+            this.MenuMainItemHoverBackColor = PanelGradiantStartColor;  // Darker hover
+            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // White-like on blue
+            this.MenuMainItemSelectedBackColor = PrimaryColor;  // Material blue
             
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(33, 33, 33);
-            this.MenuItemHoverForeColor = Color.FromArgb(33, 33, 33);
-            this.MenuItemHoverBackColor = Color.FromArgb(240, 240, 240);  // Darker hover
-            this.MenuItemSelectedForeColor = Color.White;  // White text
-            this.MenuItemSelectedBackColor = Color.FromArgb(33, 150, 243);  // Material blue
+                this.MenuItemForeColor = ForeColor;
+                this.MenuItemHoverForeColor = ForeColor;
+                this.MenuItemHoverBackColor = PanelGradiantStartColor;
+                this.MenuItemSelectedForeColor = OnPrimaryColor;
+                this.MenuItemSelectedBackColor = PrimaryColor;
+                this.MenuTitleForeColor = ForeColor;
+                this.MenuItemDisabledForeColor = DisabledTextColor;
+                this.MenuItemCheckedBackColor = BackgroundColor;
+                this.MenuItemCheckedForeColor = ForeColor;
+                this.MenuItemSelectedBackColor = PanelGradiantStartColor;
+                this.MenuItemSelectedForeColor = ForeColor;
+                this.MenuItemHoverBackColor = PanelGradiantStartColor;
+                this.MenuItemHoverForeColor = ForeColor;
             
             // Clean gradient
             this.MenuGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.02);

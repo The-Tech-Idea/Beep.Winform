@@ -10,15 +10,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyToolTip()
         {
-            this.ToolTipBackColor = Color.FromArgb(40,44,52);
-            this.ToolTipForeColor = Color.FromArgb(171,178,191);
-            this.ToolTipBorderColor = Color.FromArgb(92,99,112);
-            this.ToolTipShadowColor = Color.FromArgb(40,44,52);
-            this.ToolTipShadowOpacity = Color.FromArgb(40,44,52);
-            this.ToolTipTextColor = Color.FromArgb(171,178,191);
-            this.ToolTipLinkColor = Color.FromArgb(40,44,52);
-            this.ToolTipLinkHoverColor = Color.FromArgb(40,44,52);
-            this.ToolTipLinkVisitedColor = Color.FromArgb(40,44,52);
+            this.ToolTipBackColor = SurfaceColor;
+            this.ToolTipForeColor = ForeColor;
+            this.ToolTipBorderColor = BorderColor;
+            this.ToolTipShadowColor = InactiveBorderColor;
+            this.ToolTipShadowOpacity = InactiveBorderColor;
+            this.ToolTipTextColor = ForeColor;
+            this.ToolTipLinkColor = PrimaryColor;
+            this.ToolTipLinkHoverColor = ThemeUtil.Lighten(PrimaryColor, 0.15);
+            this.ToolTipLinkVisitedColor = PrimaryColor;
         }
     }
 }

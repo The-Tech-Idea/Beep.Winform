@@ -31,6 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.OnPrimaryColor = Color.FromArgb(255,255,255);  // White text on blue primary
             this.OnBackgroundColor = ForeColor;
             this.FocusIndicatorColor = Color.FromArgb(250,250,252);
+            ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
+        using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
     }
 }

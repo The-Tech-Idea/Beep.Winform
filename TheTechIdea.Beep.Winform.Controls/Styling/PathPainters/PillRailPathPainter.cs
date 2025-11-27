@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
     {
         public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState .Normal)
         {
-            Color fillColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(107, 114, 128));
+            Color fillColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99));
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {

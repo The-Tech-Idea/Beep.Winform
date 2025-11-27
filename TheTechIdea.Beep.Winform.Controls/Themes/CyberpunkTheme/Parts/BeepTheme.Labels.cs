@@ -10,18 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyLabels()
         {
-            this.LabelBackColor = Color.FromArgb(10,8,20);
-            this.LabelForeColor = Color.FromArgb(228,244,255);
-            this.LabelBorderColor = Color.FromArgb(90,20,110);
-            this.LabelHoverBorderColor = Color.FromArgb(90,20,110);
-            this.LabelHoverBackColor = Color.FromArgb(10,8,20);
-            this.LabelHoverForeColor = Color.FromArgb(228,244,255);
-            this.LabelSelectedBorderColor = Color.FromArgb(90,20,110);
-            this.LabelSelectedBackColor = Color.FromArgb(10,8,20);
-            this.LabelSelectedForeColor = Color.FromArgb(228,244,255);
-            this.LabelDisabledBackColor = Color.FromArgb(10,8,20);
-            this.LabelDisabledForeColor = Color.FromArgb(228,244,255);
-            this.LabelDisabledBorderColor = Color.FromArgb(90,20,110);
+            this.LabelBackColor = BackgroundColor;
+            this.LabelForeColor = ForeColor;
+            this.LabelBorderColor = SecondaryColor;
+            this.LabelHoverBorderColor = SecondaryColor;
+            this.LabelHoverBackColor = PanelBackColor;
+            this.LabelHoverForeColor = ForeColor;
+            this.LabelSelectedBorderColor = SecondaryColor;
+            this.LabelSelectedBackColor = PanelBackColor;
+            this.LabelSelectedForeColor = ForeColor;
+            this.LabelDisabledBackColor = BackgroundColor;
+            this.LabelDisabledForeColor = InactiveBorderColor;
+            this.LabelDisabledBorderColor = SecondaryColor;
         }
     }
 }

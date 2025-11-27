@@ -80,7 +80,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 }
                 if (!context.IsCollapsed)
                 {
-                    Color textColor = context.UseThemeColors && context.Theme != null ? (item == context.SelectedItem ? Color.White : context.Theme.SideMenuForeColor) : (item == context.SelectedItem ? Color.White : Color.FromArgb(156, 163, 175));
+                    Color fallbackText = context.Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                    Color textColor = context.UseThemeColors && context.Theme != null ? (item == context.SelectedItem ? Color.White : context.Theme.SideMenuForeColor) : (item == context.SelectedItem ? Color.White : fallbackText);
                     var font = BeepFontManager.GetCachedFont("Inter", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular);
                     using (var brush = new SolidBrush(textColor))
                     {
@@ -149,7 +150,8 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                     PaintMenuItemIcon(g, child, iconRect, context);
                     x += iconSize + iconPadding;
                 }
-                Color textColor = context.UseThemeColors && context.Theme != null ? (child == context.SelectedItem ? Color.White : Color.FromArgb(180, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B)) : (child == context.SelectedItem ? Color.White : Color.FromArgb(107, 114, 128));
+                Color fallbackChildText = context.Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                Color textColor = context.UseThemeColors && context.Theme != null ? (child == context.SelectedItem ? Color.White : Color.FromArgb(180, context.Theme.SideMenuForeColor.R, context.Theme.SideMenuForeColor.G, context.Theme.SideMenuForeColor.B)) : (child == context.SelectedItem ? Color.White : fallbackChildText);
                 var font = BeepFontManager.GetCachedFont("Inter", 12f, FontStyle.Regular);
                 using (var brush = new SolidBrush(textColor))
                 {

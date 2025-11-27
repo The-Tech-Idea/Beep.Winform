@@ -21,13 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarLabelBackColor = BackgroundColor;
             this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(117, 117, 117);  // Medium grey subtitle
+            this.AppBarSubTitleForeColor = SecondaryTextColor;  // Medium grey subtitle
             this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - Material Design colors
-            this.AppBarCloseButtonColor = Color.FromArgb(66, 66, 66);  // Medium grey
-            this.AppBarMaxButtonColor = Color.FromArgb(66, 66, 66);
-            this.AppBarMinButtonColor = Color.FromArgb(66, 66, 66);
+            this.AppBarCloseButtonColor = ForeColor;  // Medium grey
+            this.AppBarMaxButtonColor = ForeColor;
+            this.AppBarMinButtonColor = ForeColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Roboto", FontSize = 16f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.25f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Roboto", FontSize = 13.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
             
             // Clean gradient
-            this.AppBarGradiantStartColor = Color.White;
-            this.AppBarGradiantEndColor = Color.FromArgb(250, 250, 250);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(255, 255, 255);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

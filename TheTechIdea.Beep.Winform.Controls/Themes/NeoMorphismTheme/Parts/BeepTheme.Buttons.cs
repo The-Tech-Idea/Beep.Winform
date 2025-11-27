@@ -11,34 +11,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyButtons()
         {
             // NeoMorphism buttons - soft neomorphic effect
-            // Default: Light gray background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light gray-blue
-            this.ButtonForeColor = ForeColor;  // Dark gray text
-            this.ButtonBorderColor = BorderColor;  // Soft border
-            
-            // Hover: Slightly darker for recessed effect
-            this.ButtonHoverBackColor = Color.FromArgb(228, 228, 233);
+            this.ButtonBackColor = SurfaceColor;
+            this.ButtonForeColor = ForeColor;
+            this.ButtonBorderColor = BorderColor;
+
+            this.ButtonHoverBackColor = SecondaryColor;
             this.ButtonHoverForeColor = ForeColor;
-            this.ButtonHoverBorderColor = ActiveBorderColor;  // Blue border
-            
-            // Selected: Blue background
-            this.ButtonSelectedBackColor = PrimaryColor;  // Blue
-            this.ButtonSelectedForeColor = OnPrimaryColor;  // White text
+            this.ButtonHoverBorderColor = ActiveBorderColor;
+
+            this.ButtonSelectedBackColor = PrimaryColor;
+            this.ButtonSelectedForeColor = OnPrimaryColor;
             this.ButtonSelectedBorderColor = PrimaryColor;
-            
-            // Selected hover: Lighter blue
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(90, 125, 255);
+
+            this.ButtonSelectedHoverBackColor = AccentColor;
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
-            this.ButtonSelectedHoverBorderColor = Color.FromArgb(90, 125, 255);
-            
-            // Pressed: Lighter for embossed effect
-            this.ButtonPressedBackColor = Color.FromArgb(245, 245, 250);
+            this.ButtonSelectedHoverBorderColor = AccentColor;
+
+            this.ButtonPressedBackColor = SurfaceColor;
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
-            
-            // Error button: Red background with white text
-            this.ButtonErrorBackColor = ErrorColor;  // Red
-            this.ButtonErrorForeColor = OnPrimaryColor;  // White text on red
+
+            this.ButtonErrorBackColor = ErrorColor;
+            this.ButtonErrorForeColor = OnPrimaryColor;
             this.ButtonErrorBorderColor = ErrorColor;
         }
     }

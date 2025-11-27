@@ -25,9 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarSubTitleBackColor = BackgroundColor;  // White subtitle background
             
             // System buttons - black for brutalist aesthetic
-            this.AppBarCloseButtonColor = Color.FromArgb(0, 0, 0);
-            this.AppBarMaxButtonColor = Color.FromArgb(0, 0, 0);
-            this.AppBarMinButtonColor = Color.FromArgb(0, 0, 0);
+            this.AppBarCloseButtonColor = ForeColor;
+            this.AppBarMaxButtonColor = ForeColor;
+            this.AppBarMinButtonColor = ForeColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 14f, FontWeight = FontWeight.Bold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.1f, LetterSpacing = 0.02f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
             
             // No gradient for brutalist
-            this.AppBarGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.AppBarGradiantEndColor = Color.FromArgb(255, 255, 255);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(255, 255, 255);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
         }
     }

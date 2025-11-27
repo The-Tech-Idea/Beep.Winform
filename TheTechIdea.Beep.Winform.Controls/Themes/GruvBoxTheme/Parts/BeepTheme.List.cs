@@ -10,17 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyList()
         {
-            this.ListBackColor = Color.FromArgb(40,40,40);
-            this.ListForeColor = Color.FromArgb(235,219,178);
-            this.ListBorderColor = Color.FromArgb(168,153,132);
-            this.ListItemForeColor = Color.FromArgb(235,219,178);
-            this.ListItemHoverForeColor = Color.FromArgb(235,219,178);
-            this.ListItemHoverBackColor = Color.FromArgb(40,40,40);
-            this.ListItemSelectedForeColor = Color.FromArgb(235,219,178);
-            this.ListItemSelectedBackColor = Color.FromArgb(40,40,40);
-            this.ListItemSelectedBorderColor = Color.FromArgb(168,153,132);
-            this.ListItemBorderColor = Color.FromArgb(168,153,132);
-            this.ListItemHoverBorderColor = Color.FromArgb(168,153,132);
+            this.ListBackColor = SurfaceColor;
+            this.ListForeColor = ForeColor;
+            this.ListBorderColor = BorderColor;
+            this.ListItemForeColor = ForeColor;
+            this.ListItemHoverForeColor = ForeColor;
+            this.ListItemHoverBackColor = SurfaceColor;
+            this.ListItemSelectedForeColor = ForeColor;
+            this.ListItemSelectedBackColor = SecondaryColor;
+            this.ListItemSelectedBorderColor = BorderColor;
+            this.ListItemBorderColor = BorderColor;
+            this.ListItemHoverBorderColor = BorderColor;
             this.ListItemSpacing = 0f;
             this.ListIndentation = 0f;
         }

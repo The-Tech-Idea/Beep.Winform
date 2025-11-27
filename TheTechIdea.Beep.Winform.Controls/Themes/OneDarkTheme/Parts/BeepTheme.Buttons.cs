@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonBorderColor = BorderColor;  // #3C4252
             
             // Hover: Slightly lighter
-            this.ButtonHoverBackColor = Color.FromArgb(47, 51, 61);
+            this.ButtonHoverBackColor = PanelGradiantMiddleColor;
             this.ButtonHoverForeColor = PrimaryColor;  // One Dark blue
             this.ButtonHoverBorderColor = PrimaryColor;  // Blue border
             
@@ -27,12 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedBorderColor = PrimaryColor;
             
             // Selected hover: Lighter blue
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(117, 195, 255);
+            this.ButtonSelectedHoverBackColor = ThemeUtil.Lighten(PrimaryColor, 0.3);
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
-            this.ButtonSelectedHoverBorderColor = Color.FromArgb(117, 195, 255);
+            this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
             
             // Pressed: Darker
-            this.ButtonPressedBackColor = Color.FromArgb(32, 36, 44);
+            this.ButtonPressedBackColor = ThemeUtil.Darken(BackgroundColor, 0.05);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             

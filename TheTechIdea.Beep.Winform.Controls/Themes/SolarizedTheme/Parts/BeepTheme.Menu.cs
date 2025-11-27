@@ -15,28 +15,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = Color.FromArgb(0, 43, 54);  // Dark blue-green
-            this.MenuForeColor = Color.FromArgb(238, 232, 213);  // Light beige text
-            this.MenuBorderColor = Color.FromArgb(88, 110, 117);  // #586E75
+            this.MenuBackColor = BackgroundColor;  // Dark blue-green
+            this.MenuForeColor = ForeColor;  // Light beige text
+            this.MenuBorderColor = BorderColor;  // #586E75
             
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(238, 232, 213);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(42, 161, 152);  // Cyan on hover
-            this.MenuMainItemHoverBackColor = Color.FromArgb(7, 54, 66);  // #073642
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(238, 232, 213);  // Light text
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(203, 75, 22);  // Orange
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = SecondaryColor;  // Cyan on hover
+            this.MenuMainItemHoverBackColor = SurfaceColor;  // #073642
+            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // Light text
+            this.MenuMainItemSelectedBackColor = AccentColor;  // Orange
             
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(238, 232, 213);
-            this.MenuItemHoverForeColor = Color.FromArgb(42, 161, 152);  // Cyan on hover
-            this.MenuItemHoverBackColor = Color.FromArgb(7, 54, 66);  // #073642
-            this.MenuItemSelectedForeColor = Color.FromArgb(238, 232, 213);  // Light text
-            this.MenuItemSelectedBackColor = Color.FromArgb(203, 75, 22);  // Orange
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = SecondaryColor;  // Cyan on hover
+            this.MenuItemHoverBackColor = SurfaceColor;  // #073642
+            this.MenuItemSelectedForeColor = OnPrimaryColor;  // Light text
+            this.MenuItemSelectedBackColor = AccentColor;  // Orange
             
-            // Dark gradient
-            this.MenuGradiantStartColor = Color.FromArgb(0, 43, 54);
-            this.MenuGradiantEndColor = Color.FromArgb(0, 43, 54);
-            this.MenuGradiantMiddleColor = Color.FromArgb(0, 43, 54);
+            // Dark gradient based on background
+            this.MenuGradiantStartColor = BackgroundColor;
+            this.MenuGradiantEndColor = BackgroundColor;
+            this.MenuGradiantMiddleColor = ThemeUtil.Lighten(BackgroundColor, 0.04);
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

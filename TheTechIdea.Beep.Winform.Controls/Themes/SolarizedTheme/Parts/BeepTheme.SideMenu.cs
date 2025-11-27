@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplySideMenu()
         {
-            this.SideMenuBackColor = Color.FromArgb(0,43,54);
-            this.SideMenuHoverBackColor = Color.FromArgb(0,43,54);
-            this.SideMenuSelectedBackColor = Color.FromArgb(0,43,54);
-            this.SideMenuForeColor = Color.FromArgb(147,161,161);
-            this.SideMenuSelectedForeColor = Color.FromArgb(147,161,161);
-            this.SideMenuHoverForeColor = Color.FromArgb(147,161,161);
-            this.SideMenuBorderColor = Color.FromArgb(88,110,117);
-            this.SideMenuTitleTextColor = Color.FromArgb(147,161,161);
-            this.SideMenuTitleBackColor = Color.FromArgb(0,43,54);
-            this.SideMenuSubTitleTextColor = Color.FromArgb(147,161,161);
-            this.SideMenuSubTitleBackColor = Color.FromArgb(0,43,54);
-            this.SideMenuGradiantStartColor = Color.FromArgb(0,43,54);
-            this.SideMenuGradiantEndColor = Color.FromArgb(0,43,54);
-            this.SideMenuGradiantMiddleColor = Color.FromArgb(0,43,54);
+            this.SideMenuBackColor = BackgroundColor;
+            this.SideMenuHoverBackColor = PanelGradiantMiddleColor;
+            this.SideMenuSelectedBackColor = PanelBackColor;
+            this.SideMenuForeColor = ForeColor;
+            this.SideMenuSelectedForeColor = ForeColor;
+            this.SideMenuHoverForeColor = ForeColor;
+            this.SideMenuBorderColor = BorderColor;
+            this.SideMenuTitleTextColor = ForeColor;
+            this.SideMenuTitleBackColor = BackgroundColor;
+            this.SideMenuSubTitleTextColor = ForeColor;
+            this.SideMenuSubTitleBackColor = BackgroundColor;
+            this.SideMenuGradiantStartColor = PanelBackColor;
+            this.SideMenuGradiantEndColor = PanelBackColor;
+            this.SideMenuGradiantMiddleColor = PanelGradiantMiddleColor;
             this.SideMenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

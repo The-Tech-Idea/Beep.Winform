@@ -14,29 +14,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 14F, FontStyle.Bold);
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12F, FontStyle.Regular);
-            
-            this.MenuBackColor = Color.FromArgb(255, 240, 255);  // Pink-tinted background
-            this.MenuForeColor = Color.FromArgb(80, 0, 120);  // Purple text
-            this.MenuBorderColor = Color.FromArgb(150, 100, 200);  // Purple border
-            
+
+            this.MenuBackColor = SurfaceColor;
+            this.MenuForeColor = ForeColor;
+            this.MenuBorderColor = BorderColor;
+
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(80, 0, 120);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(80, 0, 120);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(240, 220, 255);  // Light purple hover
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(80, 0, 120);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(220, 180, 255);  // Medium purple selected
-            
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;
+            this.MenuMainItemHoverBackColor = SecondaryColor;
+            this.MenuMainItemSelectedForeColor = ForeColor;
+            this.MenuMainItemSelectedBackColor = AccentColor;
+
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(80, 0, 120);
-            this.MenuItemHoverForeColor = Color.FromArgb(80, 0, 120);
-            this.MenuItemHoverBackColor = Color.FromArgb(240, 220, 255);  // Light purple hover
-            this.MenuItemSelectedForeColor = Color.FromArgb(80, 0, 120);
-            this.MenuItemSelectedBackColor = Color.FromArgb(220, 180, 255);  // Medium purple selected
-            
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = ForeColor;
+            this.MenuItemHoverBackColor = SecondaryColor;
+            this.MenuItemSelectedForeColor = ForeColor;
+            this.MenuItemSelectedBackColor = AccentColor;
+
             // Playful gradient
-            this.MenuGradiantStartColor = Color.FromArgb(255, 250, 255);
-            this.MenuGradiantEndColor = Color.FromArgb(255, 230, 250);
-            this.MenuGradiantMiddleColor = Color.FromArgb(255, 240, 255);
+            this.MenuGradiantStartColor = SecondaryColor;
+            this.MenuGradiantEndColor = SurfaceColor;
+            this.MenuGradiantMiddleColor = SurfaceColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
         }
     }

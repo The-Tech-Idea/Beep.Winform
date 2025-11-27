@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyStepper()
         {
-            this.StepperBackColor = Color.FromArgb(243,242,241);
-            this.StepperForeColor = Color.FromArgb(32,31,30);
-            this.StepperBorderColor = Color.FromArgb(220,220,220);
-            this.StepperItemForeColor = Color.FromArgb(32,31,30);
-            this.StepperItemHoverForeColor = Color.FromArgb(32,31,30);
-            this.StepperItemHoverBackColor = Color.FromArgb(243,242,241);
-            this.StepperItemSelectedForeColor = Color.FromArgb(32,31,30);
-            this.StepperItemSelectedBackColor = Color.FromArgb(243,242,241);
-            this.StepperItemSelectedBorderColor = Color.FromArgb(220,220,220);
-            this.StepperItemBorderColor = Color.FromArgb(220,220,220);
-            this.StepperItemHoverBorderColor = Color.FromArgb(220,220,220);
-            this.StepperItemCheckedBoxForeColor = Color.FromArgb(32,31,30);
-            this.StepperItemCheckedBoxBackColor = Color.FromArgb(243,242,241);
-            this.StepperItemCheckedBoxBorderColor = Color.FromArgb(220,220,220);
+            this.StepperBackColor = PanelBackColor;
+            this.StepperForeColor = ForeColor;
+            this.StepperBorderColor = InactiveBorderColor;
+            this.StepperItemForeColor = ForeColor;
+            this.StepperItemHoverForeColor = ForeColor;
+            this.StepperItemHoverBackColor = PanelGradiantMiddleColor;
+            this.StepperItemSelectedForeColor = OnPrimaryColor;
+            this.StepperItemSelectedBackColor = PrimaryColor;
+            this.StepperItemSelectedBorderColor = ActiveBorderColor;
+            this.StepperItemBorderColor = InactiveBorderColor;
+            this.StepperItemHoverBorderColor = InactiveBorderColor;
+            this.StepperItemCheckedBoxForeColor = ForeColor;
+            this.StepperItemCheckedBoxBackColor = PanelBackColor;
+            this.StepperItemCheckedBoxBorderColor = InactiveBorderColor;
         }
     }
 }

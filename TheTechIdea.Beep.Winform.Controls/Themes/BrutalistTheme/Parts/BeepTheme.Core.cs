@@ -14,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.BorderSize = 3;
             this.ShadowOpacity = 0.10f;
             this.IsDarkTheme = false;
+            this.FocusIndicatorColor = BorderColor;
         }
     }
 }

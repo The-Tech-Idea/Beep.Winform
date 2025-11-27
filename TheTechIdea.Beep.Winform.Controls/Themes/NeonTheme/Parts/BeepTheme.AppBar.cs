@@ -21,13 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarLabelBackColor = BackgroundColor;
             this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(80, 180, 200);  // Dimmed cyan subtitle
-            this.AppBarSubTitleBackColor = Color.FromArgb(20, 20, 35);
+            this.AppBarSubTitleForeColor = InactiveBorderColor;  // Dimmed cyan subtitle
+            this.AppBarSubTitleBackColor = PanelBackColor;
             
             // System buttons - cyan glow
-            this.AppBarCloseButtonColor = Color.FromArgb(0, 255, 200);  // Cyan
-            this.AppBarMaxButtonColor = Color.FromArgb(0, 255, 200);
-            this.AppBarMinButtonColor = Color.FromArgb(0, 255, 200);
+            this.AppBarCloseButtonColor = BorderColor;  // Cyan
+            this.AppBarMaxButtonColor = BorderColor;
+            this.AppBarMinButtonColor = BorderColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Montserrat", FontSize = 13.5f, FontWeight = FontWeight.Bold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LetterSpacing = 0.04f, LineHeight = 1.12f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Montserrat", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
             
             // Dark gradient
-            this.AppBarGradiantStartColor = Color.FromArgb(20, 24, 38);
-            this.AppBarGradiantEndColor = Color.FromArgb(15, 18, 30);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(10, 12, 20);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

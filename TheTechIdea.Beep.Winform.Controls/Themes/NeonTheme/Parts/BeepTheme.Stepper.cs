@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyStepper()
         {
-            this.StepperBackColor = Color.FromArgb(10,12,20);
-            this.StepperForeColor = Color.FromArgb(235,245,255);
-            this.StepperBorderColor = Color.FromArgb(60,70,100);
-            this.StepperItemForeColor = Color.FromArgb(235,245,255);
-            this.StepperItemHoverForeColor = Color.FromArgb(235,245,255);
-            this.StepperItemHoverBackColor = Color.FromArgb(10,12,20);
-            this.StepperItemSelectedForeColor = Color.FromArgb(235,245,255);
-            this.StepperItemSelectedBackColor = Color.FromArgb(10,12,20);
-            this.StepperItemSelectedBorderColor = Color.FromArgb(60,70,100);
-            this.StepperItemBorderColor = Color.FromArgb(60,70,100);
-            this.StepperItemHoverBorderColor = Color.FromArgb(60,70,100);
-            this.StepperItemCheckedBoxForeColor = Color.FromArgb(235,245,255);
-            this.StepperItemCheckedBoxBackColor = Color.FromArgb(10,12,20);
-            this.StepperItemCheckedBoxBorderColor = Color.FromArgb(60,70,100);
+            this.StepperBackColor = PanelGradiantMiddleColor;
+            this.StepperForeColor = ForeColor;
+            this.StepperBorderColor = InactiveBorderColor;
+            this.StepperItemForeColor = ForeColor;
+            this.StepperItemHoverForeColor = ForeColor;
+            this.StepperItemHoverBackColor = PanelGradiantMiddleColor;
+            this.StepperItemSelectedForeColor = ForeColor;
+            this.StepperItemSelectedBackColor = PanelGradiantMiddleColor;
+            this.StepperItemSelectedBorderColor = InactiveBorderColor;
+            this.StepperItemBorderColor = InactiveBorderColor;
+            this.StepperItemHoverBorderColor = InactiveBorderColor;
+            this.StepperItemCheckedBoxForeColor = ForeColor;
+            this.StepperItemCheckedBoxBackColor = PanelGradiantMiddleColor;
+            this.StepperItemCheckedBoxBorderColor = InactiveBorderColor;
         }
     }
 }

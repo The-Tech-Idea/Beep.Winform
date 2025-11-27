@@ -15,28 +15,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = Color.FromArgb(15, 15, 25);  // Deep navy
-            this.MenuForeColor = Color.FromArgb(0, 255, 255);  // Cyan text
-            this.MenuBorderColor = Color.FromArgb(0, 255, 255);  // Cyan glow
+            this.MenuBackColor = BackgroundColor;  // Deep navy
+            this.MenuForeColor = ForeColor;  // Cyan text
+            this.MenuBorderColor = BorderColor;  // Cyan glow
             
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(0, 255, 255);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(100, 255, 255);  // Brighter cyan on hover
-            this.MenuMainItemHoverBackColor = Color.FromArgb(25, 25, 40);  // Lighter navy
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(15, 15, 25);  // Dark text
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(0, 255, 255);  // Cyan background
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;  // Brighter cyan-ish on hover mapped to ForeColor
+            this.MenuMainItemHoverBackColor = PanelGradiantStartColor;  // Lighter navy
+            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // Dark text on neon selected
+            this.MenuMainItemSelectedBackColor = SecondaryColor;  // Cyan background
             
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(0, 255, 255);
-            this.MenuItemHoverForeColor = Color.FromArgb(100, 255, 255);  // Brighter cyan on hover
-            this.MenuItemHoverBackColor = Color.FromArgb(25, 25, 40);  // Lighter navy
-            this.MenuItemSelectedForeColor = Color.FromArgb(15, 15, 25);  // Dark text
-            this.MenuItemSelectedBackColor = Color.FromArgb(0, 255, 255);  // Cyan background
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = ForeColor;
+            this.MenuItemHoverBackColor = PanelGradiantStartColor;  // Lighter navy
+            this.MenuItemSelectedForeColor = OnPrimaryColor;
+            this.MenuItemSelectedBackColor = SecondaryColor;
             
             // Dark gradient
-            this.MenuGradiantStartColor = Color.FromArgb(20, 24, 38);
-            this.MenuGradiantEndColor = Color.FromArgb(15, 18, 30);
-            this.MenuGradiantMiddleColor = Color.FromArgb(10, 12, 20);
+            this.MenuGradiantStartColor = PanelGradiantStartColor;
+            this.MenuGradiantEndColor = PanelGradiantEndColor;
+            this.MenuGradiantMiddleColor = PanelGradiantMiddleColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

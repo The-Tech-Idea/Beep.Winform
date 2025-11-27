@@ -10,33 +10,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyMenu()
         {
-            // Brutalist menu - white with black borders
+            // Brutalist menu - palette driven
             this.MenuTitleFont = ThemeUtils.ConvertFontToTypographyStyle("Courier New", 14F, FontStyle.Bold);
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Courier New", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Courier New", 12F, FontStyle.Regular);
-            
-            this.MenuBackColor = Color.FromArgb(255, 255, 255);  // Pure white
-            this.MenuForeColor = Color.FromArgb(0, 0, 0);  // Black text
-            this.MenuBorderColor = Color.FromArgb(0, 0, 0);  // Black border
-            
+            this.MenuBackColor = SurfaceColor;
+            this.MenuForeColor = ForeColor;
+            this.MenuBorderColor = BorderColor;
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(0, 0, 0);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(0, 0, 0);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(240, 240, 240);  // Light gray hover
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(0, 0, 0);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(200, 200, 200);  // Medium gray selected
-            
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;
+            this.MenuMainItemHoverBackColor = SecondaryColor;
+            this.MenuMainItemSelectedForeColor = ForeColor;
+            this.MenuMainItemSelectedBackColor = SecondaryColor;
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(0, 0, 0);
-            this.MenuItemHoverForeColor = Color.FromArgb(0, 0, 0);
-            this.MenuItemHoverBackColor = Color.FromArgb(240, 240, 240);  // Light gray hover
-            this.MenuItemSelectedForeColor = Color.FromArgb(0, 0, 0);
-            this.MenuItemSelectedBackColor = Color.FromArgb(200, 200, 200);  // Medium gray selected
-            
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = ForeColor;
+            this.MenuItemHoverBackColor = SecondaryColor;
+            this.MenuItemSelectedForeColor = ForeColor;
+            this.MenuItemSelectedBackColor = SecondaryColor;
             // No gradient for brutalist aesthetic
-            this.MenuGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.MenuGradiantEndColor = Color.FromArgb(255, 255, 255);
-            this.MenuGradiantMiddleColor = Color.FromArgb(255, 255, 255);
+            this.MenuGradiantStartColor = SurfaceColor;
+            this.MenuGradiantEndColor = SurfaceColor;
+            this.MenuGradiantMiddleColor = SurfaceColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

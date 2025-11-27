@@ -10,16 +10,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyDashboard()
         {
-            this.DashboardBackColor = Color.FromArgb(40,44,52);
-            this.DashboardCardBackColor = Color.FromArgb(40,44,52);
-            this.DashboardCardHoverBackColor = Color.FromArgb(40,44,52);
-            this.DashboardTitleForeColor = Color.FromArgb(171,178,191);
-            this.DashboardTitleBackColor = Color.FromArgb(40,44,52);
-            this.DashboardSubTitleForeColor = Color.FromArgb(171,178,191);
-            this.DashboardSubTitleBackColor = Color.FromArgb(40,44,52);
-            this.DashboardGradiantStartColor = Color.FromArgb(40,44,52);
-            this.DashboardGradiantEndColor = Color.FromArgb(40,44,52);
-            this.DashboardGradiantMiddleColor = Color.FromArgb(40,44,52);
+            this.DashboardBackColor = BackgroundColor;
+            this.DashboardCardBackColor = PanelBackColor;
+            this.DashboardCardHoverBackColor = PanelGradiantMiddleColor;
+            this.DashboardTitleForeColor = ForeColor;
+            this.DashboardTitleBackColor = PanelBackColor;
+            this.DashboardSubTitleForeColor = ForeColor;
+            this.DashboardSubTitleBackColor = PanelBackColor;
+            this.DashboardGradiantStartColor = PanelGradiantStartColor;
+            this.DashboardGradiantEndColor = PanelGradiantEndColor;
+            this.DashboardGradiantMiddleColor = PanelGradiantMiddleColor;
             this.DashboardGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

@@ -10,8 +10,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyGradient()
         {
-            this.GradientStartColor = Color.FromArgb(250,250,250);
-            this.GradientEndColor = Color.FromArgb(250,250,250);
+            this.GradientStartColor = SurfaceColor;
+            this.GradientEndColor = SurfaceColor;
             this.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
         }
     }

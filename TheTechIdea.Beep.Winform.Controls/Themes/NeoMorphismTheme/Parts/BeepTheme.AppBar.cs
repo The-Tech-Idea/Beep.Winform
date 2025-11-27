@@ -10,34 +10,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyAppBar()
         {
-            // NeoMorphism AppBar - soft neomorphic design
-            this.AppBarBackColor = BackgroundColor;  // Light gray-blue
-            this.AppBarForeColor = ForeColor;  // Dark gray text
-            this.AppBarButtonForeColor = PrimaryColor;  // Dark gray buttons
-            this.AppBarButtonBackColor = BackgroundColor;
-            this.AppBarTextBoxBackColor = SurfaceColor;  // Slightly lighter
+            this.AppBarBackColor = SurfaceColor;
+            this.AppBarForeColor = ForeColor;
+            this.AppBarButtonForeColor = PrimaryColor;
+            this.AppBarButtonBackColor = SurfaceColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;
             this.AppBarTextBoxForeColor = ForeColor;
             this.AppBarLabelForeColor = ForeColor;
-            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarLabelBackColor = SurfaceColor;
             this.AppBarTitleForeColor = ForeColor;
-            this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(130, 130, 140);  // Medium gray
-            this.AppBarSubTitleBackColor = BackgroundColor;
-            
-            // System buttons - dark colors
-            this.AppBarCloseButtonColor = Color.FromArgb(80, 80, 90);  // Dark gray
-            this.AppBarMaxButtonColor = Color.FromArgb(80, 80, 90);
-            this.AppBarMinButtonColor = Color.FromArgb(80, 80, 90);
-            
-            // Typography
+            this.AppBarTitleBackColor = SurfaceColor;
+            this.AppBarSubTitleForeColor = SecondaryColor;
+            this.AppBarSubTitleBackColor = SurfaceColor;
+
+            this.AppBarCloseButtonColor = ErrorColor;
+            this.AppBarMaxButtonColor = AccentColor;
+            this.AppBarMinButtonColor = WarningColor;
+
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Poppins", FontSize = 13.5f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.2f };
-            this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
+            this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = SecondaryColor, LineHeight = 1.55f };
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Poppins", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
-            
-            // Soft gradient
-            this.AppBarGradiantStartColor = ThemeUtil.Lighten(BackgroundColor, 0.06);
-            this.AppBarGradiantEndColor = ThemeUtil.Darken(BackgroundColor, 0.07);
-            this.AppBarGradiantMiddleColor = ThemeUtil.Lighten(BackgroundColor, 0.03);
+
+            this.AppBarGradiantStartColor = SecondaryColor;
+            this.AppBarGradiantEndColor = SurfaceColor;
+            this.AppBarGradiantMiddleColor = SurfaceColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
         }
     }

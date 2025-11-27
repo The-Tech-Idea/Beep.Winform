@@ -10,12 +10,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyNavigation()
         {
-            this.NavigationBackColor = Color.FromArgb(255,251,235);
-            this.NavigationForeColor = Color.FromArgb(33,37,41);
-            this.NavigationHoverBackColor = Color.FromArgb(255,251,235);
-            this.NavigationHoverForeColor = Color.FromArgb(33,37,41);
-            this.NavigationSelectedBackColor = Color.FromArgb(255,251,235);
-            this.NavigationSelectedForeColor = Color.FromArgb(33,37,41);
+            this.NavigationBackColor = SurfaceColor;
+            this.NavigationForeColor = ForeColor;
+            this.NavigationHoverBackColor = SecondaryColor;
+            this.NavigationHoverForeColor = ForeColor;
+            this.NavigationSelectedBackColor = AccentColor;
+            this.NavigationSelectedForeColor = ForeColor;
         }
     }
 }

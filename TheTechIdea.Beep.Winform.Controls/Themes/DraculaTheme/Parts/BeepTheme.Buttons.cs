@@ -27,12 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedBorderColor = PrimaryColor;
             
             // Selected hover: Medium purple
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(76, 79, 98);
+            this.ButtonSelectedHoverBackColor = PanelGradiantMiddleColor;
             this.ButtonSelectedHoverForeColor = AccentColor;
             this.ButtonSelectedHoverBorderColor = PrimaryColor;
             
             // Pressed: Darker
-            this.ButtonPressedBackColor = Color.FromArgb(32, 34, 44);
+            this.ButtonPressedBackColor = PanelGradiantStartColor;
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             

@@ -15,28 +15,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = Color.FromArgb(40, 42, 54);  // Dark background
-            this.MenuForeColor = Color.FromArgb(248, 248, 242);  // Cream text
-            this.MenuBorderColor = Color.FromArgb(68, 71, 90);  // Gray border
+            this.MenuBackColor = BackgroundColor;  // Dark background
+            this.MenuForeColor = ForeColor;  // Cream text
+            this.MenuBorderColor = BorderColor;  // Gray border
             
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(248, 248, 242);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(255, 121, 198);  // Pink on hover
-            this.MenuMainItemHoverBackColor = Color.FromArgb(52, 55, 72);  // Lighter purple
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(255, 121, 198);
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(68, 71, 90);  // Medium purple
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = AccentColor;  // Pink on hover
+            this.MenuMainItemHoverBackColor = PanelGradiantMiddleColor;  // Lighter surface
+            this.MenuMainItemSelectedForeColor = AccentColor;
+            this.MenuMainItemSelectedBackColor = PanelGradiantMiddleColor;  // Medium surface
             
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(248, 248, 242);
-            this.MenuItemHoverForeColor = Color.FromArgb(255, 121, 198);  // Pink on hover
-            this.MenuItemHoverBackColor = Color.FromArgb(52, 55, 72);  // Lighter purple
-            this.MenuItemSelectedForeColor = Color.FromArgb(255, 121, 198);
-            this.MenuItemSelectedBackColor = Color.FromArgb(68, 71, 90);  // Medium purple
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = AccentColor;  // Pink on hover
+            this.MenuItemHoverBackColor = PanelGradiantMiddleColor;  // Lighter surface
+            this.MenuItemSelectedForeColor = AccentColor;
+            this.MenuItemSelectedBackColor = PanelGradiantMiddleColor;  // Medium surface
             
             // Purple gradient
-            this.MenuGradiantStartColor = Color.FromArgb(68, 71, 90);
-            this.MenuGradiantEndColor = Color.FromArgb(52, 55, 72);
-            this.MenuGradiantMiddleColor = Color.FromArgb(60, 63, 82);
+            this.MenuGradiantStartColor = PanelGradiantStartColor;
+            this.MenuGradiantEndColor = PanelGradiantEndColor;
+            this.MenuGradiantMiddleColor = PanelGradiantMiddleColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
         }
     }

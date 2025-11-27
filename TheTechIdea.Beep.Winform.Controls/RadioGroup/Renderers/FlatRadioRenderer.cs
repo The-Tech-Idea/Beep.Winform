@@ -385,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     SelectedBorder = Color.FromArgb(34, 197, 94), // Green instead of blue
                     SelectedIndicator = Color.White,
                     Text = Color.FromArgb(17, 24, 39),
-                    SubtitleText = Color.FromArgb(107, 114, 128),
+                    SubtitleText = Color.FromArgb(75, 85, 99),
                     DisabledText = Color.FromArgb(156, 163, 175),
                     HoverBackground = Color.FromArgb(240, 253, 244), // Light green
                     SelectedBackground = Color.FromArgb(220, 252, 231), // Light green

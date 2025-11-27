@@ -10,24 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyGrid()
         {
-            this.GridBackColor = Color.FromArgb(18,16,34);
-            this.GridForeColor = Color.FromArgb(228,244,255);
-            this.GridHeaderBackColor = Color.FromArgb(18,16,34);
-            this.GridHeaderForeColor = Color.FromArgb(228,244,255);
-            this.GridHeaderBorderColor = Color.FromArgb(90,20,110);
-            this.GridHeaderHoverBackColor = Color.FromArgb(18,16,34);
-            this.GridHeaderHoverForeColor = Color.FromArgb(228,244,255);
-            this.GridHeaderSelectedBackColor = Color.FromArgb(18,16,34);
-            this.GridHeaderSelectedForeColor = Color.FromArgb(228,244,255);
-            this.GridHeaderHoverBorderColor = Color.FromArgb(90,20,110);
-            this.GridHeaderSelectedBorderColor = Color.FromArgb(90,20,110);
-            this.GridRowHoverBackColor = Color.FromArgb(18,16,34);
-            this.GridRowHoverForeColor = Color.FromArgb(228,244,255);
-            this.GridRowSelectedBackColor = Color.FromArgb(18,16,34);
-            this.GridRowSelectedForeColor = Color.FromArgb(228,244,255);
-            this.GridRowHoverBorderColor = Color.FromArgb(90,20,110);
-            this.GridRowSelectedBorderColor = Color.FromArgb(90,20,110);
-            this.GridLineColor = Color.FromArgb(90,20,110);
+            this.GridBackColor = PanelBackColor;
+            this.GridForeColor = ForeColor;
+            this.GridHeaderBackColor = PanelBackColor;
+            this.GridHeaderForeColor = ForeColor;
+            this.GridHeaderBorderColor = SecondaryColor;
+            this.GridHeaderHoverBackColor = PanelGradiantMiddleColor;
+            this.GridHeaderHoverForeColor = ForeColor;
+            this.GridHeaderSelectedBackColor = PanelGradiantMiddleColor;
+            this.GridHeaderSelectedForeColor = ForeColor;
+            this.GridHeaderHoverBorderColor = SecondaryColor;
+            this.GridHeaderSelectedBorderColor = SecondaryColor;
+            this.GridRowHoverBackColor = PanelGradiantMiddleColor;
+            this.GridRowHoverForeColor = ForeColor;
+            this.GridRowSelectedBackColor = PanelBackColor;
+            this.GridRowSelectedForeColor = ForeColor;
+            this.GridRowHoverBorderColor = SecondaryColor;
+            this.GridRowSelectedBorderColor = SecondaryColor;
+            this.GridLineColor = SecondaryColor;
         }
     }
 }

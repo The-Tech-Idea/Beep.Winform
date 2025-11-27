@@ -10,12 +10,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyStatusBar()
         {
-            this.StatusBarBackColor = Color.FromArgb(236,240,243);
-            this.StatusBarForeColor = Color.FromArgb(58,66,86);
-            this.StatusBarBorderColor = Color.FromArgb(221,228,235);
-            this.StatusBarHoverBackColor = Color.FromArgb(236,240,243);
-            this.StatusBarHoverForeColor = Color.FromArgb(58,66,86);
-            this.StatusBarHoverBorderColor = Color.FromArgb(221,228,235);
+            this.StatusBarBackColor = BackgroundColor;
+            this.StatusBarForeColor = ForeColor;
+            this.StatusBarBorderColor = BorderColor;
+            this.StatusBarHoverBackColor = PanelGradiantMiddleColor;
+            this.StatusBarHoverForeColor = ForeColor;
+            this.StatusBarHoverBorderColor = ActiveBorderColor;
         }
     }
 }

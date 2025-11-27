@@ -10,21 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCompany()
         {
-            this.CompanyPopoverBackgroundColor = Color.FromArgb(250,250,250);
-            this.CompanyTitleColor = Color.FromArgb(250,250,250);
+            this.CompanyPopoverBackgroundColor = SurfaceColor;
+            this.CompanyTitleColor = ForeColor;
             this.CompanyTitleFont = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
-            this.CompanySubtitleColor = Color.FromArgb(250,250,250);
+            this.CompanySubtitleColor = ForeColor;
             this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
-            this.CompanyDescriptionColor = Color.FromArgb(250,250,250);
+            this.CompanyDescriptionColor = ForeColor;
             this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
-            this.CompanyLinkColor = Color.FromArgb(250,250,250);
-            this.CompanyLinkFont = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
-            this.CompanyButtonBackgroundColor = Color.FromArgb(250,250,250);
-            this.CompanyButtonTextColor = Color.FromArgb(20,20,20);
+            this.CompanyLinkColor = AccentColor;
+            this.CompanyLinkFont = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = AccentColor, LineHeight = 1.45f };
+            this.CompanyButtonBackgroundColor = SurfaceColor;
+            this.CompanyButtonTextColor = ForeColor;
             this.CompanyButtonFont = new TypographyStyle { FontFamily = "Inter", FontSize = 13f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.45f };
-            this.CompanyDropdownBackgroundColor = Color.FromArgb(250,250,250);
-            this.CompanyDropdownTextColor = Color.FromArgb(20,20,20);
-            this.CompanyLogoBackgroundColor = Color.FromArgb(250,250,250);
+            this.CompanyDropdownBackgroundColor = SurfaceColor;
+            this.CompanyDropdownTextColor = ForeColor;
+            this.CompanyLogoBackgroundColor = SurfaceColor;
         }
     }
 }

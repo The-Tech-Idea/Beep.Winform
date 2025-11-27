@@ -10,8 +10,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyLink()
         {
-            this.LinkColor = Color.FromArgb(236,240,243);
-            this.LinkHoverColor = Color.FromArgb(236,240,243);
+            this.LinkColor = ForeColor;
+            this.LinkHoverColor = PrimaryColor;
             this.LinkIsUnderline = false;
         }
     }

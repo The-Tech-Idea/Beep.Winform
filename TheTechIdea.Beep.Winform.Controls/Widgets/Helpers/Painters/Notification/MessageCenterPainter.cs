@@ -166,7 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Time
                 if (message.ContainsKey("Time"))
                 {
-                    using var timeBrush = new SolidBrush(Color.FromArgb(80, 107, 114, 128));
+                    var timeBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                    using var timeBrush = new SolidBrush(Color.FromArgb(80, timeBase.R, timeBase.G, timeBase.B));
                     Rectangle timeRect = new Rectangle(rect.Right - 70, y + 4, 70, 12);
                     g.DrawString(message["Time"].ToString(), timeFont, timeBrush, timeRect);
                 }
@@ -187,7 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             using var countFont = new Font(Owner.Font.FontFamily, 24f, FontStyle.Bold);
             using var countBrush = new SolidBrush(Color.FromArgb(59, 130, 246));
             using var labelFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Regular);
-            using var labelBrush = new SolidBrush(Color.FromArgb(100, 31, 41, 55));
+            var labelBase = Theme?.SubLabelForColor ?? Color.FromArgb(31, 41, 55);
+            using var labelBrush = new SolidBrush(Color.FromArgb(100, labelBase.R, labelBase.G, labelBase.B));
 
             var countFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString(count.ToString(), countFont, countBrush, rect, countFormat);

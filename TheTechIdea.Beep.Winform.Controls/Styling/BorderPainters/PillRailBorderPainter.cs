@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             Color baseBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(229, 231, 235));
-            Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(107, 114, 128));
+            Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99));
             Color borderColor = baseBorderColor;
             bool showRing = false;
 

@@ -11,34 +11,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyButtons()
         {
             // Brutalist buttons - bold, high-contrast
-            // Default: White background with black text
-            this.ButtonBackColor = SurfaceColor;  // White
-            this.ButtonForeColor = ForeColor;  // Black
-            this.ButtonBorderColor = BorderColor;  // Black border
-            
-            // Hover: Slightly darker background for visibility
-            this.ButtonHoverBackColor = Color.FromArgb(240, 240, 240);
+            // Default: Palette-driven
+            this.ButtonBackColor = SurfaceColor;
+            this.ButtonForeColor = ForeColor;
+            this.ButtonBorderColor = BorderColor;
+
+            // Hover: Use palette for hover state
+            this.ButtonHoverBackColor = SurfaceColor;
             this.ButtonHoverForeColor = ForeColor;
             this.ButtonHoverBorderColor = BorderColor;
-            
-            // Selected: Medium gray background for distinction
-            this.ButtonSelectedBackColor = Color.FromArgb(200, 200, 200);
+
+            // Selected: Use secondary color for distinction
+            this.ButtonSelectedBackColor = SecondaryColor;
             this.ButtonSelectedForeColor = ForeColor;
             this.ButtonSelectedBorderColor = BorderColor;
-            
-            // Selected hover: Slightly darker gray
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(180, 180, 180);
+
+            // Selected hover: Use secondary color
+            this.ButtonSelectedHoverBackColor = SecondaryColor;
             this.ButtonSelectedHoverForeColor = ForeColor;
             this.ButtonSelectedHoverBorderColor = BorderColor;
-            
-            // Pressed: Darker for feedback
-            this.ButtonPressedBackColor = Color.FromArgb(220, 220, 220);
-            this.ButtonPressedForeColor = ForeColor;
+
+            // Pressed: Use primary color for feedback
+            this.ButtonPressedBackColor = PrimaryColor;
+            this.ButtonPressedForeColor = OnPrimaryColor;
             this.ButtonPressedBorderColor = BorderColor;
-            
+
             // Error button: Red background with white text
             this.ButtonErrorBackColor = ErrorColor;
-            this.ButtonErrorForeColor = OnPrimaryColor;  // White text on red
+            this.ButtonErrorForeColor = OnPrimaryColor;
             this.ButtonErrorBorderColor = BorderColor;
         }
     }

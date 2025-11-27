@@ -10,17 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyComboBox()
         {
-            this.ComboBoxBackColor = Color.FromArgb(10,12,20);
-            this.ComboBoxForeColor = Color.FromArgb(235,245,255);
-            this.ComboBoxBorderColor = Color.FromArgb(60,70,100);
-            this.ComboBoxHoverBackColor = Color.FromArgb(10,12,20);
-            this.ComboBoxHoverForeColor = Color.FromArgb(235,245,255);
-            this.ComboBoxHoverBorderColor = Color.FromArgb(60,70,100);
-            this.ComboBoxSelectedBackColor = Color.FromArgb(10,12,20);
-            this.ComboBoxSelectedForeColor = Color.FromArgb(235,245,255);
-            this.ComboBoxSelectedBorderColor = Color.FromArgb(60,70,100);
-            this.ComboBoxErrorBackColor = Color.FromArgb(10,12,20);
-            this.ComboBoxErrorForeColor = Color.FromArgb(235,245,255);
+            this.ComboBoxBackColor = PanelGradiantMiddleColor;
+            this.ComboBoxForeColor = ForeColor;
+            this.ComboBoxBorderColor = InactiveBorderColor;
+            this.ComboBoxHoverBackColor = PanelGradiantMiddleColor;
+            this.ComboBoxHoverForeColor = ForeColor;
+            this.ComboBoxHoverBorderColor = InactiveBorderColor;
+            this.ComboBoxSelectedBackColor = PanelGradiantMiddleColor;
+            this.ComboBoxSelectedForeColor = ForeColor;
+            this.ComboBoxSelectedBorderColor = InactiveBorderColor;
+            this.ComboBoxErrorBackColor = PanelGradiantMiddleColor;
+            this.ComboBoxErrorForeColor = ForeColor;
         }
     }
 }

@@ -21,23 +21,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarLabelBackColor = BackgroundColor;
             this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(101, 123, 131);  // #657B83 dimmed blue
-            this.AppBarSubTitleBackColor = Color.FromArgb(7, 54, 66);
+            this.AppBarSubTitleForeColor = ThemeUtil.Darken(ForeColor, 0.18);  // dimmed from ForeColor
+            this.AppBarSubTitleBackColor = SurfaceColor;
             
-            // System buttons - orange
-            this.AppBarCloseButtonColor = Color.FromArgb(203, 75, 22);  // Orange
-            this.AppBarMaxButtonColor = Color.FromArgb(203, 75, 22);
-            this.AppBarMinButtonColor = Color.FromArgb(203, 75, 22);
+            // System buttons - accent orange
+            this.AppBarCloseButtonColor = AccentColor;
+            this.AppBarMaxButtonColor = AccentColor;
+            this.AppBarMinButtonColor = AccentColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Source Sans 3", FontSize = 14f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.2f };
             this.AppBarSubTitleStyle = new TypographyStyle { FontFamily = "Source Sans 3", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Source Sans 3", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
             
-            // Dark gradient
-            this.AppBarGradiantStartColor = Color.FromArgb(0, 43, 54);
-            this.AppBarGradiantEndColor = Color.FromArgb(0, 43, 54);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(0, 43, 54);
+            // Dark gradient based on background
+            this.AppBarGradiantStartColor = BackgroundColor;
+            this.AppBarGradiantEndColor = BackgroundColor;
+            this.AppBarGradiantMiddleColor = ThemeUtil.Lighten(BackgroundColor, 0.04);
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

@@ -10,24 +10,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyTextBox()
         {
-            this.TextBoxBackColor = BackgroundColor;
+            this.TextBoxBackColor = SurfaceColor;
             this.TextBoxForeColor = ForeColor;
             this.TextBoxBorderColor = BorderColor;
             this.TextBoxHoverBorderColor = ActiveBorderColor;
-            this.TextBoxHoverBackColor = SurfaceColor;
+            this.TextBoxHoverBackColor = SecondaryColor;
             this.TextBoxHoverForeColor = ForeColor;
-            this.TextBoxSelectedBorderColor = ActiveBorderColor;
-            this.TextBoxSelectedBackColor = SurfaceColor;
-            this.TextBoxSelectedForeColor = ForeColor;
-            this.TextBoxPlaceholderColor = Color.FromArgb(120, 120, 120);
+            this.TextBoxSelectedBorderColor = PrimaryColor;
+            this.TextBoxSelectedBackColor = PrimaryColor;
+            this.TextBoxSelectedForeColor = OnPrimaryColor;
+            this.TextBoxPlaceholderColor = PlaceholderColor;
             this.TextBoxErrorBorderColor = ErrorColor;
-            this.TextBoxErrorBackColor = BackgroundColor;
+            this.TextBoxErrorBackColor = SurfaceColor;
             this.TextBoxErrorForeColor = OnPrimaryColor;
             this.TextBoxErrorTextColor = OnPrimaryColor;
             this.TextBoxErrorPlaceholderColor = ErrorColor;
-            this.TextBoxErrorTextBoxColor = BackgroundColor;
+            this.TextBoxErrorTextBoxColor = SurfaceColor;
             this.TextBoxErrorTextBoxBorderColor = ErrorColor;
-            this.TextBoxErrorTextBoxHoverColor = BackgroundColor;
+            this.TextBoxErrorTextBoxHoverColor = SurfaceColor;
         }
     }
 }

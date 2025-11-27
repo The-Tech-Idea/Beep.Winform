@@ -550,12 +550,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
             {
                 int offsetX = avatarX + displayedCount * (avatarSize - overlap);
                 var plusRect = new Rectangle(offsetX, currentY, avatarSize, avatarSize);
-
+                var subLabel = _currentTheme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
                 var plusLabel = new BeepLabel
                 {
                     Text = $"+{_teamAvatars.Count - maxVisibleAvatars}",
                     ForeColor = Color.White,
-                    BackColor = Color.FromArgb(150, 107, 114, 128),
+                    BackColor = Color.FromArgb(150, subLabel.R, subLabel.G, subLabel.B),
                     Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardSubStyleStyle) ??
                           new Font("Segoe UI", _compactMode ? 8f : 10f, FontStyle.Bold),
                     IsChild = true,
@@ -706,26 +706,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
 
         private void UpdateStatusColor()
         {
-            _statusColor = _projectStatus.ToLower() switch
+                _statusColor = _projectStatus.ToLower() switch
             {
-                "not started" => Color.FromArgb(107, 114, 128), // Gray
+                "not started" => _currentTheme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99), // Gray
                 "in progress" => Color.FromArgb(59, 130, 246),  // Blue
                 "completed" => Color.FromArgb(34, 197, 94),     // Green
                 "on hold" => Color.FromArgb(245, 158, 11),      // Orange
                 "cancelled" => Color.FromArgb(239, 68, 68),     // Red
-                _ => Color.FromArgb(107, 114, 128)               // Default Gray
+                _ => _currentTheme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99)               // Default Gray
             };
         }
 
         private void UpdatePriorityColor()
         {
-            _priorityColor = _projectPriority.ToLower() switch
+                _priorityColor = _projectPriority.ToLower() switch
             {
                 "low" => Color.FromArgb(34, 197, 94),       // Green
                 "medium" => Color.FromArgb(245, 158, 11),   // Orange
                 "high" => Color.FromArgb(239, 68, 68),      // Red
                 "critical" => Color.FromArgb(147, 51, 234), // Purple
-                _ => Color.FromArgb(107, 114, 128)           // Default Gray
+                _ => _currentTheme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99)           // Default Gray
             };
         }
 

@@ -11,10 +11,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyCore()
         {
             // Metro theme - Windows Metro design
-            this.BorderRadius = 0;  // Matching FormStyle.Metro (sharp corners)
+            this.BorderRadius = 0;
             this.BorderSize = 1;
-            this.ShadowOpacity = 0.06f;  // Minimal shadows
-            this.IsDarkTheme = false;  // Light theme
+            this.ShadowOpacity = 0.06f;
+            this.IsDarkTheme = false;
+            this.FocusIndicatorColor = FocusIndicatorColor;
         }
     }
 }

@@ -21,13 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarLabelBackColor = BackgroundColor;
             this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(100, 100, 100);  // Medium gray
+            this.AppBarSubTitleForeColor = InactiveBorderColor;  // Medium gray
             this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - Metro blue
-            this.AppBarCloseButtonColor = Color.FromArgb(0, 120, 215);  // Metro blue
-            this.AppBarMaxButtonColor = Color.FromArgb(0, 120, 215);
-            this.AppBarMinButtonColor = Color.FromArgb(0, 120, 215);
+            this.AppBarCloseButtonColor = PrimaryColor;  // Metro blue
+            this.AppBarMaxButtonColor = PrimaryColor;
+            this.AppBarMinButtonColor = PrimaryColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Segoe UI", FontSize = 14f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.2f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Segoe UI", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
             
             // Clean gradient
-            this.AppBarGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.AppBarGradiantEndColor = Color.FromArgb(240, 240, 240);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(248, 248, 248);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

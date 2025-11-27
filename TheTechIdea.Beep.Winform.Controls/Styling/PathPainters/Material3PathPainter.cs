@@ -7,18 +7,28 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
     /// <summary>
-    /// Material Design3 path painter with tonal surfaces
-    /// Uses solid primary color with subtle state changes
+    /// Material Design 3 path painter with tonal elevation.
+    /// Uses the primary color and creates a subtle vertical gradient to mimic M3 surfaces.
     /// </summary>
     public static class Material3PathPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState .Normal)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color fillColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(103,80,164));
+            // Base tonal color from theme or M3 default primary
+            Color baseColor = PathPainterHelpers.GetColorFromStyleOrTheme(
+                theme,
+                useThemeColors,
+                "Primary",
+                Color.FromArgb(103, 80, 164));
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {
-                PathPainterHelpers.PaintSolidPath(g, path, fillColor, state);
+                // Create a subtle elevation effect – slightly lighter at the top, darker at the bottom
+                Color top = PathPainterHelpers.Lighten(baseColor, 0.04f);
+                Color bottom = PathPainterHelpers.Darken(baseColor, 0.04f);
+
+                // Apply state adjustments (hover/pressed/disabled) on top of tonal colors
+                PathPainterHelpers.PaintGradientPath(g, path, top, bottom, LinearGradientMode.Vertical, state);
             }
         }
     }

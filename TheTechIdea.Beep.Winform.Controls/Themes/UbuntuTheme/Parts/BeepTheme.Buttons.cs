@@ -11,34 +11,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyButtons()
         {
             // Ubuntu buttons - Ubuntu Linux desktop aesthetic
-            // Default: Light grey background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light grey
-            this.ButtonForeColor = ForeColor;  // Dark grey text
-            this.ButtonBorderColor = BorderColor;  // Light grey border
-            
-            // Hover: Darker background
-            this.ButtonHoverBackColor = Color.FromArgb(230, 230, 235);
+            this.ButtonBackColor = SurfaceColor;
+            this.ButtonForeColor = ForeColor;
+            this.ButtonBorderColor = BorderColor;
+
+            this.ButtonHoverBackColor = SecondaryColor;
             this.ButtonHoverForeColor = ForeColor;
-            this.ButtonHoverBorderColor = ActiveBorderColor;  // Ubuntu orange
-            
-            // Selected: Ubuntu orange background
-            this.ButtonSelectedBackColor = PrimaryColor;  // Ubuntu orange
-            this.ButtonSelectedForeColor = OnPrimaryColor;  // White text
+            this.ButtonHoverBorderColor = ActiveBorderColor;
+
+            this.ButtonSelectedBackColor = PrimaryColor;
+            this.ButtonSelectedForeColor = OnPrimaryColor;
             this.ButtonSelectedBorderColor = PrimaryColor;
-            
-            // Selected hover: Darker orange
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(213, 64, 12);
+
+            this.ButtonSelectedHoverBackColor = AccentColor;
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
-            this.ButtonSelectedHoverBorderColor = Color.FromArgb(213, 64, 12);
-            
-            // Pressed: Lighter
-            this.ButtonPressedBackColor = Color.FromArgb(255, 255, 255);
+            this.ButtonSelectedHoverBorderColor = AccentColor;
+
+            this.ButtonPressedBackColor = SurfaceColor;
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
-            
-            // Error button: Red background with white text
-            this.ButtonErrorBackColor = ErrorColor;  // Ubuntu red
-            this.ButtonErrorForeColor = OnPrimaryColor;  // White text on red
+
+            this.ButtonErrorBackColor = ErrorColor;
+            this.ButtonErrorForeColor = OnPrimaryColor;
             this.ButtonErrorBorderColor = ErrorColor;
         }
     }

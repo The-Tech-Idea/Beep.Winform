@@ -16,17 +16,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (path == null) return path;
 
-            Color cyanGlow = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Neon);
+            // Base neon color
+            Color baseNeon = useThemeColors && theme != null
+                ? theme.AccentColor
+                : StyleColors.GetPrimary(BeepControlStyle.Neon);
+
+            // Adjust border/glow color by state
+            Color neonColor = state switch
+            {
+                ControlState.Hovered => BorderPainterHelpers.Lighten(baseNeon, 0.1f),
+                ControlState.Pressed => BorderPainterHelpers.Darken(baseNeon, 0.1f),
+                ControlState.Disabled => BorderPainterHelpers.WithAlpha(baseNeon, 90),
+                _ => baseNeon
+            };
+
             float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Neon);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            BorderPainterHelpers.PaintSimpleBorder(g, path, cyanGlow, borderWidth);
+            // Draw sharp neon border
+            BorderPainterHelpers.PaintSimpleBorder(g, path, neonColor, borderWidth, state);
 
-            // Neon: Always show intense glow
-            BorderPainterHelpers.PaintGlowBorder(g, path, cyanGlow,6.0f,1.0f);
+            // Neon glow intensity varies with state/focus
+            float glowWidth = isFocused || state == ControlState.Selected ? 8.0f : 6.0f;
+            float glowIntensity = state == ControlState.Disabled ? 0.5f : 1.0f;
+            BorderPainterHelpers.PaintGlowBorder(g, path, neonColor, glowWidth, glowIntensity);
 
-            return path;
+            // Return area inside border so content paths are inset correctly
+            return path.CreateInsetPath(borderWidth);
         }
     }
 }

@@ -10,13 +10,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCard()
         {
-            this.CardTextForeColor = Color.FromArgb(228,244,255);
-            this.CardBackColor = Color.FromArgb(10,8,20);
-            this.CardTitleForeColor = Color.FromArgb(228,244,255);
-            this.CardSubTitleForeColor = Color.FromArgb(228,244,255);
-            this.CardrGradiantStartColor = Color.FromArgb(10,8,20);
-            this.CardGradiantEndColor = Color.FromArgb(10,8,20);
-            this.CardGradiantMiddleColor = Color.FromArgb(10,8,20);
+            this.CardTextForeColor = ForeColor;
+            this.CardBackColor = PanelBackColor;
+            this.CardTitleForeColor = ForeColor;
+            this.CardSubTitleForeColor = ForeColor;
+            this.CardrGradiantStartColor = PanelGradiantStartColor;
+            this.CardGradiantEndColor = PanelGradiantEndColor;
+            this.CardGradiantMiddleColor = PanelGradiantMiddleColor;
             this.CardGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
         }
     }

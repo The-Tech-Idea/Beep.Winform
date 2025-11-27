@@ -10,21 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCompany()
         {
-            this.CompanyPopoverBackgroundColor = Color.FromArgb(40,44,52);
-            this.CompanyTitleColor = Color.FromArgb(40,44,52);
+            this.CompanyPopoverBackgroundColor = PanelBackColor;
+            this.CompanyTitleColor = ForeColor;
             this.CompanyTitleFont = new TypographyStyle { FontFamily = "Fira Code", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanySubtitleColor = Color.FromArgb(40,44,52);
+            this.CompanySubtitleColor = ForeColor;
             this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Fira Code", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyDescriptionColor = Color.FromArgb(40,44,52);
+            this.CompanyDescriptionColor = ForeColor;
             this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Fira Code", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyLinkColor = Color.FromArgb(40,44,52);
+            this.CompanyLinkColor = PrimaryColor;
             this.CompanyLinkFont = new TypographyStyle { FontFamily = "Fira Code", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyButtonBackgroundColor = Color.FromArgb(40,44,52);
-            this.CompanyButtonTextColor = Color.FromArgb(171,178,191);
+            this.CompanyButtonBackgroundColor = PanelBackColor;
+            this.CompanyButtonTextColor = ForeColor;
             this.CompanyButtonFont = new TypographyStyle { FontFamily = "Fira Code", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyDropdownBackgroundColor = Color.FromArgb(40,44,52);
-            this.CompanyDropdownTextColor = Color.FromArgb(171,178,191);
-            this.CompanyLogoBackgroundColor = Color.FromArgb(40,44,52);
+            this.CompanyDropdownBackgroundColor = PanelBackColor;
+            this.CompanyDropdownTextColor = ForeColor;
+            this.CompanyLogoBackgroundColor = PanelBackColor;
         }
     }
 }

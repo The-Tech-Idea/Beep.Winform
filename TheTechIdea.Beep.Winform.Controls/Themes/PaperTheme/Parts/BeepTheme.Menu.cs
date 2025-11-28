@@ -32,10 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 this.MenuItemHoverBackColor = PanelGradiantStartColor;
                 this.MenuItemSelectedForeColor = OnPrimaryColor;
                 this.MenuItemSelectedBackColor = PrimaryColor;
-                this.MenuTitleForeColor = ForeColor;
-                this.MenuItemDisabledForeColor = DisabledTextColor;
-                this.MenuItemCheckedBackColor = BackgroundColor;
-                this.MenuItemCheckedForeColor = ForeColor;
+          
                 this.MenuItemSelectedBackColor = PanelGradiantStartColor;
                 this.MenuItemSelectedForeColor = ForeColor;
                 this.MenuItemHoverBackColor = PanelGradiantStartColor;

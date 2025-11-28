@@ -33,8 +33,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.CreateRootTree();
 
 
-            beepMenuAppBar1.beepServices = beepService;
-            beepMenuAppBar1.CreateMenuItems();
+            //beepMenuAppBar1.beepServices = beepService;
+            //beepMenuAppBar1.CreateMenuItems();
 
 
         }

@@ -303,6 +303,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         }
 
         /// <summary>
+        /// Paints a gradient filled path (custom direction)
+        /// </summary>
+        public static void PaintGradientPath(Graphics g, GraphicsPath path, Color color1, Color color2, LinearGradientMode mode, ControlState state = ControlState.Normal)
+        {
+            Color adjustedColor1 = ApplyState(color1, state);
+            Color adjustedColor2 = ApplyState(color2, state);
+
+            RectangleF bounds = path.GetBounds();
+            if (bounds.Width <=0 || bounds.Height <=0) return;
+
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, adjustedColor1, adjustedColor2, mode);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.FillPath(gradientBrush, path);
+        }
+
+        /// <summary>
         /// Paints a gradient filled path (vertical)
         /// </summary>
         public static void PaintGradientPath(Graphics g, GraphicsPath path, Color color1, Color color2, ControlState state = ControlState.Normal)

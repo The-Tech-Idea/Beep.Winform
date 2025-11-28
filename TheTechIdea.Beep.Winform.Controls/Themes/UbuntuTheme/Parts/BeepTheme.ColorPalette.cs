@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.WarningColor = Color.FromArgb(229, 165, 10);  // Orange
             this.SuccessColor = Color.FromArgb(42, 168, 118);  // Green
             
-            // On-colors for readability
+           
             this.OnPrimaryColor = Color.White;  // White on orange
             this.OnBackgroundColor = Color.FromArgb(44, 44, 44);  // Dark on light
             this.FocusIndicatorColor = Color.FromArgb(233, 84, 32);  // Ubuntu orange focus

@@ -26,4 +26,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.CompanyDropdownTextColor = ForeColor;
             this.CompanyLogoBackgroundColor = PanelBackColor;
         }
+    }
+}
         

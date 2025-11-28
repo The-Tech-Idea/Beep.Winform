@@ -10,18 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class BorderlessComboBoxPainter : BaseComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            Color bgColor = _helper.GetBackgroundColor();
-            
-            // Draw subtle background on hover or focus
-            if (_owner.Focused || _owner.IsHovered)
-            {
-                Color hoverBg = Color.FromArgb(245, bgColor.R, bgColor.G, bgColor.B);
-                var brush = PaintersFactory.GetSolidBrush(hoverBg);
-                g.FillRectangle(brush, rect);
-            }
-        }
+      
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {

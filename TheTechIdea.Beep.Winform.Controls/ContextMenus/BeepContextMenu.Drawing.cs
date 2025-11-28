@@ -24,11 +24,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             
             // Use current theme (kept in sync with BeepThemesManager)
-            var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
-            
-            // Get effective control style
+            var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
             var effectiveStyle = ControlStyle;
-            
+            // Get effective control style
+            if (FormStyle!= ThemeManagement.BeepThemesManager.CurrentStyle){
+
+                effectiveStyle = BeepStyling.GetControlStyle(ThemeManagement.BeepThemesManager.CurrentStyle);
+            }
+           
+            ControlStyle = effectiveStyle;
             // CRITICAL: Calculate BeepStyling insets (padding + border + shadow) to match RecalculateSize()
             int beepPadding = BeepStyling.GetPadding(effectiveStyle);
             float beepBorderWidth = BeepStyling.GetBorderThickness(effectiveStyle);
@@ -68,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 controlPath,
                 effectiveStyle,
                 theme,
-                _useThemeColors,
+                true,
                 ControlState.Normal,
                 false
             )?.Dispose();
@@ -144,16 +148,40 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             bool hasChildren = ContextMenuManager.HasChildren(item);
             bool hasShortcut = _showShortcuts && !string.IsNullOrEmpty(item.ShortcutText);
 
+            // Get theme colors directly from current theme
+            var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+            
+            // Always use theme colors if available, fallback to defaults
+            var menuBgColor = theme?.MenuBackColor ?? Color.White;
+            var selectedBgColor = theme?.MenuItemSelectedBackColor ?? Color.FromArgb(90, 120, 230);
+            var hoverBgColor = theme?.MenuItemHoverBackColor ?? Color.FromArgb(220, 235, 255);
+
+            // Determine if background is dark or light to adjust text contrast
+            bool isDarkBackground = IsDarkColor(menuBgColor);
+            var textColor = theme?.MenuItemForeColor ?? Color.Black;
+            
+            // If text and background don't have enough contrast, flip the text color
+            if (isDarkBackground && IsDarkColor(textColor))
+            {
+                // Dark background with dark text = poor contrast, use light text
+                textColor = Color.White;
+            }
+            else if (!isDarkBackground && !IsDarkColor(textColor))
+            {
+                // Light background with light text = poor contrast, use dark text
+                textColor = Color.Black;
+            }
+
             // Draw hover/selected highlight
             if (isHovered || isSelected)
             {
-                var hoverColor = isSelected ? Color.FromArgb(90, 120, 230) : Color.FromArgb(220, 235, 255);
-                using (var fillBrush = new SolidBrush(hoverColor))
+                var highlightColor = isSelected ? selectedBgColor : hoverBgColor;
+                using (var fillBrush = new SolidBrush(highlightColor))
                     g.FillRectangle(fillBrush, itemRect);
             }
             else
             {
-                using (var fillBrush = new SolidBrush(Color.White))
+                using (var fillBrush = new SolidBrush(menuBgColor))
                     g.FillRectangle(fillBrush, itemRect);
             }
 
@@ -204,7 +232,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
 
             // Draw text and optional subtext
-            var textColor = UseThemeColors && _currentTheme != null ? _currentTheme.MenuItemForeColor : Color.Black;
             var textRect = new Rectangle(textStartX, itemRect.Y, textWidth, itemRect.Height);
             var safeFont = _textFont;
             if (!string.IsNullOrEmpty(item.SubText))
@@ -214,8 +241,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 var subRect = new Rectangle(textStartX, itemRect.Y + itemRect.Height / 2, textWidth, itemRect.Height / 2 - 2);
                 TextRenderer.DrawText(g, item.DisplayField ?? "", safeFont, titleRect, textColor,
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-                Color subColor = UseThemeColors && _currentTheme != null ? Color.FromArgb(160, _currentTheme.MenuItemForeColor) : Color.Gray;
-                // use smaller font for subtitle
+                
+                // Muted subtext color from theme (50% opacity)
+                Color subColor = Color.Gray;
+                if (theme?.MenuItemForeColor != null)
+                {
+                    subColor = Color.FromArgb(160, theme.MenuItemForeColor);
+                }
+                
                 TextRenderer.DrawText(g, item.SubText ?? "", _shortcutFont, subRect, subColor,
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
             }
@@ -228,9 +261,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Draw shortcut text if present (right-aligned, before arrow)
             if (hasShortcut)
             {
-                var shortcutColor = UseThemeColors && _currentTheme != null 
-                    ? Color.FromArgb(128, _currentTheme.MenuItemForeColor) // 50% opacity
-                    : Color.Gray;
+                var shortcutColor = Color.Gray;
+                if (theme?.MenuItemForeColor != null)
+                {
+                    // 50% opacity of forecolor for shortcut hint
+                    shortcutColor = Color.FromArgb(128, theme.MenuItemForeColor);
+                }
                     
                 var shortcutRect = new Rectangle(
                     itemRect.Right - arrowWidth - shortcutWidth,
@@ -278,9 +314,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         private void DrawSeparatorSimple(Graphics g, Rectangle itemRect)
         {
+            var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+            var separatorColor = theme?.BorderColor ?? Color.LightGray;
+            
             int sepY = itemRect.Top + itemRect.Height / 2;
-            using (var pen = new Pen(Color.LightGray, 1))
+            using (var pen = new Pen(separatorColor, 1))
                 g.DrawLine(pen, itemRect.Left + 10, sepY, itemRect.Right - 10, sepY);
+        }
+
+        /// <summary>
+        /// Determines if a color is considered "dark" (luminance less than 128)
+        /// Used for contrast checking to ensure text is readable
+        /// </summary>
+        private bool IsDarkColor(Color color)
+        {
+            // Standard luminance formula: (0.299 * R + 0.587 * G + 0.114 * B)
+            double luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B);
+            return luminance < 128; // Threshold: 0-255 scale
         }
         
         #endregion

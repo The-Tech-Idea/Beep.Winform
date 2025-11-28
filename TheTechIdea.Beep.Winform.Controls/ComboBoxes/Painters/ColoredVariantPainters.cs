@@ -8,14 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class BlueDropdownPainter : OutlinedComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            // Light blue tinted background
-            Color bgColor = Color.FromArgb(240, 245, 255);
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillRectangle(brush, rect);
-        }
-        
+   
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(66, 133, 244); // Blue
@@ -29,13 +22,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class GreenDropdownPainter : OutlinedComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            // Light green tinted background
-            Color bgColor = Color.FromArgb(240, 255, 245);
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillRectangle(brush, rect);
-        }
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
@@ -50,13 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class InvertedComboBoxPainter : OutlinedComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            // Dark background
-            Color bgColor = Color.FromArgb(45, 45, 48);
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillRectangle(brush, rect);
-        }
+    
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
@@ -85,13 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class ErrorComboBoxPainter : OutlinedComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            // Light red tinted background
-            Color bgColor = Color.FromArgb(255, 245, 245);
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillRectangle(brush, rect);
-        }
+       
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {

@@ -94,6 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             if (Parent == null || Width <= 0 || Height <= 0) return;
 
+          
+
             // Use cached background if valid
             if (_parentBackgroundCacheValid && _cachedParentBackground != null)
             {

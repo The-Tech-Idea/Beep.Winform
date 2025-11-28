@@ -21,7 +21,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private Rectangle _contentRect;
         private int _reserveTop;
         private int _reserveBottom;
-
+        
+        // Cached label properties for shared use between drawing and border functions
+        private int _labelLeft;
+        private int _labelWidth;
+        private int _labelHeight;
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _borderRect;
         public Rectangle ContentRect => _contentRect;
@@ -187,12 +191,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             _reserveBottom = reserveBottom;
 
             // Border rectangle with rounded corner consideration
-            // IMPORTANT: Border rect should account for label above and helper below
+            // Border Y should be positioned to cut through the middle of the label text
+            // So the label appears to sit ON the border
+            int borderY = shadow + (reserveTop > 0 ? reserveTop / 2 : 0);
+            int borderHeight = Math.Max(0, owner.Height - (shadow) * 2 - (borderY - shadow) - reserveBottom);
+            
             var borderRect = new Rectangle(
                 shadow,
-                shadow + reserveTop,
+                borderY,
                 Math.Max(0, owner.Width - (shadow) * 2),
-                Math.Max(0, owner.Height - (shadow) * 2 - reserveTop - reserveBottom)
+                borderHeight
             );
             
             // Adjust border rect for rounded corners
@@ -248,6 +256,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         {
             if (g == null || owner == null) return;
             UpdateLayout(owner);
+            
+            // Calculate label properties once for shared use across drawing functions
+            CalculateLabelProperties(g, owner);
+            
             // Background (classic)
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
@@ -420,6 +432,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner.IsSelected && owner.CanBeSelected) return ControlState.Selected;
             return ControlState.Normal;
         }
+
+        /// <summary>
+        /// Calculates and caches label properties (position, width, height) for shared use.
+        /// Call this before DrawBorders and DrawLabelAndHelperNonMaterial to ensure consistent calculations.
+        /// </summary>
+        private void CalculateLabelProperties(Graphics g, Base.BaseControl owner)
+        {
+            if (g == null || owner == null || string.IsNullOrEmpty(owner.LabelText))
+            {
+                _labelWidth = 0;
+                _labelHeight = 0;
+                _labelLeft = 0;
+                return;
+            }
+            int startoffset = 8; // 
+            // Measure label text
+            float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+            using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+            var actualTextSize = TextRenderer.MeasureText(g, owner.LabelText, lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            
+            int textWidth = actualTextSize.Width;
+            int padding = 4; // padding on both sides
+            _labelHeight = actualTextSize.Height;
+            _labelWidth = textWidth + (padding * 2);
+
+            // Calculate label position based on alignment
+            switch (owner.LabelPosition)
+            {
+                case LabelPosition.Center:
+                    _labelLeft = _borderRect.Left + (_borderRect.Width - _labelWidth) / 2;
+                    break;
+                case LabelPosition.Right:
+                    _labelLeft = _borderRect.Right - _labelWidth- startoffset;
+                    break;
+                case LabelPosition.Left:
+                default:
+                    _labelLeft = _borderRect.Left+ startoffset;
+                    break;
+            }
+        }
+
         private void DrawBorders(Graphics g, Base.BaseControl owner)
         {
             Color borderColor = owner.BorderColor;
@@ -429,30 +482,67 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             else if (owner.IsPressed) borderColor = owner.PressedBorderColor;
             else if (owner.IsSelected) borderColor = owner.SelectedBorderColor;
 
+            // Determine if we should skip the top border line for the label area
+            bool skipTopBorderForLabel = owner.ShowLabelAboveBorder && !string.IsNullOrEmpty(owner.LabelText) && _labelWidth > 0;
+            
             if (owner.ShowAllBorders && owner.BorderThickness > 0)
             {
                 using var pen = new Pen(borderColor, owner.BorderThickness) { DashStyle = owner.BorderDashStyle, Alignment = PenAlignment.Inset };
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
-                    using var path = ControlPaintHelper.GetRoundedRectPath(_borderRect, owner.BorderRadius);
+                    using var path = GraphicsExtensions.GetRoundedRectPath(_borderRect, owner.BorderRadius);
                     g.DrawPath(pen, path);
                 }
                 else
                 {
-                    g.DrawRectangle(pen, _borderRect);
+                    if (skipTopBorderForLabel)
+                    {
+                        // Draw borders (skip top part where label is)
+                        // Left border
+                        g.DrawLine(pen, _borderRect.Left, _borderRect.Top, _borderRect.Left, _borderRect.Bottom);
+                        // Right border
+                        g.DrawLine(pen, _borderRect.Right, _borderRect.Top, _borderRect.Right, _borderRect.Bottom);
+                        // Bottom border
+                        g.DrawLine(pen, _borderRect.Left, _borderRect.Bottom, _borderRect.Right, _borderRect.Bottom);
+                        // Top border - left part (before label)
+                        if (_labelLeft > _borderRect.Left)
+                            g.DrawLine(pen, _borderRect.Left, _borderRect.Top, _labelLeft, _borderRect.Top);
+                        // Top border - right part (after label)
+                        if (_labelLeft + _labelWidth < _borderRect.Right)
+                            g.DrawLine(pen, _labelLeft + _labelWidth, _borderRect.Top, _borderRect.Right, _borderRect.Top);
+                    }
+                    else
+                    {
+                        g.DrawRectangle(pen, _borderRect);
+                    }
                 }
             }
             else if (owner.BorderThickness > 0)
             {
                 using var pen = new Pen(borderColor, owner.BorderThickness) { DashStyle = owner.BorderDashStyle };
-                if (owner.ShowTopBorder)
-                    g.DrawLine(pen, _borderRect.Left, _borderRect.Top, _borderRect.Right, _borderRect.Top);
+                
                 if (owner.ShowBottomBorder)
                     g.DrawLine(pen, _borderRect.Left, _borderRect.Bottom, _borderRect.Right, _borderRect.Bottom);
                 if (owner.ShowLeftBorder)
                     g.DrawLine(pen, _borderRect.Left, _borderRect.Top, _borderRect.Left, _borderRect.Bottom);
                 if (owner.ShowRightBorder)
                     g.DrawLine(pen, _borderRect.Right, _borderRect.Top, _borderRect.Right, _borderRect.Bottom);
+                
+                if (owner.ShowTopBorder)
+                {
+                    if (skipTopBorderForLabel)
+                    {
+                        // Draw top border segments (before and after label)
+                        if (_labelLeft > _borderRect.Left)
+                            g.DrawLine(pen, _borderRect.Left, _borderRect.Top, _labelLeft, _borderRect.Top);
+                        if (_labelLeft + _labelWidth < _borderRect.Right)
+                            g.DrawLine(pen, _labelLeft + _labelWidth, _borderRect.Top, _borderRect.Right, _borderRect.Top);
+                    }
+                    else
+                    {
+                        g.DrawLine(pen, _borderRect.Left, _borderRect.Top, _borderRect.Right, _borderRect.Top);
+                    }
+                }
             }
         }
 
@@ -499,32 +589,73 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         {
             if (g == null || owner == null) return;
 
-            // DEBUG: Verify border rect values
-            System.Diagnostics.Debug.WriteLine($"BorderRect: X={_borderRect.X}, Y={_borderRect.Y}, W={_borderRect.Width}, H={_borderRect.Height}");
-            System.Diagnostics.Debug.WriteLine($"ReserveTop={_reserveTop}, ReserveBottom={_reserveBottom}");
-
-            // Draw label text just above the top border
-            if (!string.IsNullOrEmpty(owner.LabelText))
+            // Draw label text in the reserved space above the border
+            if (!string.IsNullOrEmpty(owner.LabelText) && _labelWidth > 0)
             {
                 float labelSize = Math.Max(8f, owner.Font.Size - 1f);
                 using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
-                var labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                 
-                // Label should be positioned at: borderRect.Top - reserveTop
-                // This puts it in the space reserved above the border
-                int labelTop = Math.Max(0, _borderRect.Top - _reserveTop);
+                int labelTop;
+                TextFormatFlags textFormat;
+                
+                if (owner.ShowLabelAboveBorder)
+                {
+                    // Label floats on the border line
+                    labelTop = 2; // shadowOffset
+                    
+                    // Determine text format based on position
+                    switch (owner.LabelPosition)
+                    {
+                        case LabelPosition.Center:
+                            textFormat = TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis;
+                            break;
+                        case LabelPosition.Right:
+                            textFormat = TextFormatFlags.Right | TextFormatFlags.EndEllipsis;
+                            break;
+                        case LabelPosition.Left:
+                        default:
+                            textFormat = TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
+                            break;
+                    }
+                    
+                    // Draw line under the text with background color
+                    int lineY = _borderRect.Top;
+                    using (var linePen = new Pen(owner.BackColor, 2))
+                    {
+                        g.DrawLine(linePen, _labelLeft, lineY, _labelLeft + _labelWidth, lineY);
+                    }
+                }
+                else
+                {
+                    // Label above border (traditional position)
+                    labelTop = Math.Max(0, _borderRect.Top - _reserveTop);
+                    
+                    // Determine text format based on position
+                    switch (owner.LabelPosition)
+                    {
+                        case LabelPosition.Center:
+                            textFormat = TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis;
+                            break;
+                        case LabelPosition.Right:
+                            textFormat = TextFormatFlags.Right | TextFormatFlags.EndEllipsis;
+                            break;
+                        case LabelPosition.Left:
+                        default:
+                            textFormat = TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
+                            break;
+                    }
+                }
                 
                 var labelRect = new Rectangle(
-                    _borderRect.Left + 6, 
+                    _labelLeft, 
                     labelTop, 
-                    Math.Max(10, _borderRect.Width - 12), 
-                    _reserveTop > 0 ? _reserveTop : labelHeight
+                    _labelWidth, 
+                    _reserveTop > 0 ? _reserveTop : _labelHeight
                 );
+
+                Color labelColor = owner._currentTheme.AppBarTitleForeColor;
                 
-                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? owner.ForeColor : owner.ErrorColor;
-                
-                System.Diagnostics.Debug.WriteLine($"Drawing label at: {labelRect}");
-                TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, textFormat);
             }
 
             // Draw helper or error text just below the bottom border
@@ -546,9 +677,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 
                 Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
                 
-                System.Diagnostics.Debug.WriteLine($"Drawing helper at: {supportRect}");
                 TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
         }
+
+        // Private fields to store calculated rectangles and reserves
+       
     }
 }

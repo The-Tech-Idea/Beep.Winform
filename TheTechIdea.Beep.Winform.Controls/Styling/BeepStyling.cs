@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         // Current Style and theme
         public static BeepControlStyle CurrentControlStyle { get; set; }
         public static IBeepTheme CurrentTheme { get; set; }
-        public static bool UseThemeColors { get; set; } = false;  // Global setting to use theme colors
+        public static bool UseThemeColors { get; set; } = true;  // Global setting to use theme colors
         
         static BeepStyling()
         {
@@ -295,6 +295,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case BeepControlStyle.GradientModern:
                     GradientModernBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
+                case BeepControlStyle.Modern:
+                    // Modern design language: subtle background + overlay
+                    ModernBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
                 case BeepControlStyle.Bootstrap:
                     BootstrapBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
@@ -372,10 +376,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         public static void PaintStyleBorder(Graphics g, GraphicsPath path, bool isFocused, BeepControlStyle style)
         {
             if (path == null) return;
-            
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            
-            // Border painting logic here if needed
+
+            // Attempt to retrieve border painter and delegate
+            var painter = TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters.BorderPainterFactory.CreatePainter(style);
+            if (painter != null)
+            {
+                var state = isFocused ? ControlState.Focused : ControlState.Normal;
+                painter.Paint(g, path, isFocused, style, CurrentTheme, UseThemeColors, state);
+            }
         }
 
         /// <summary>
@@ -998,16 +1008,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             //        contentPath = currentPath;
             //}
            
-            // === STEP 4: Paint Background (fills the area between border and final content) ===
-            if (!IsTransparentBackground)
-            {
-                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
-                if (backgroundPainter != null)
-                {
-                    backgroundPainter.Paint(g, contentPath, style, theme, useThemeColors, state);
-                }
-            }
-            // === STEP 2: Paint Inner Shadow (paints around content area, returns smaller path) ===
+            // === STEP 1: Paint Inner Shadow FIRST (background layer - paints around content area, returns smaller path) ===
             GraphicsPath pathAfterShadow = contentPath;
             if (StyleShadows.HasShadow(style) && state != ControlState.Disabled)
             {
@@ -1020,7 +1021,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 }
             }
 
-            // === STEP 3: Paint Border (uses shadow path, returns smaller path after border) ===
+            // === STEP 2: Paint Background (fills the area between border and final content) ===
+            if (!IsTransparentBackground)
+            {
+                var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+                if (backgroundPainter != null)
+                {
+                    backgroundPainter.Paint(g, pathAfterShadow, style, theme, useThemeColors, state);
+                }
+            }
+
+            // === STEP 3: Paint Border LAST (uses shadow path, returns smaller path after border) ===
             GraphicsPath pathAfterBorder = pathAfterShadow;
             var borderPainter = BorderPainterFactory.CreatePainter(style);
             if (borderPainter != null && !IsTransparentBackground)

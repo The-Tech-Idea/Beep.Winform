@@ -60,7 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.FillPath(bgBrush, bgPath);
 
             // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(50, Theme?.BorderColor.R, Theme?.BorderColor.G, Theme?.BorderColor.B), 1); // Light border
+            using var borderPen = new Pen(
+                Color.FromArgb(
+                    50,
+                    (int?)(Theme?.BorderColor.R) ?? 0,
+                    (int?)(Theme?.BorderColor.G) ?? 0,
+                    (int?)(Theme?.BorderColor.B) ?? 0
+                ), 1); // Light border
             g.DrawPath(borderPen, bgPath);
 
             // Soft shadow

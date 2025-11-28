@@ -8,6 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
     public sealed partial class HolographicTheme : DefaultBeepTheme
     {
+        Color DisabledTextColor= Color.FromArgb(120, 120, 120);
         public HolographicTheme()
         {
             ThemeName = "HolographicTheme";

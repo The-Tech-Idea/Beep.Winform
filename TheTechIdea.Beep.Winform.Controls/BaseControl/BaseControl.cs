@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected ToolTip _toolTip;
 
         // Cached parent background for transparent controls (avoid BitBlt feedback loop)
-        private Bitmap _cachedParentBackground = null;
+        private Bitmap? _cachedParentBackground = null;
         private bool _parentBackgroundCacheValid = false;
 
         // State flags (exposed like base BeepControl)

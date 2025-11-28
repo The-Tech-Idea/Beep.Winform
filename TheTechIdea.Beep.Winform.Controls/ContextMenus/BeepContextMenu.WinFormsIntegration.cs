@@ -117,6 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         protected override void WndProc(ref Message m)
         {
+            // Safety check: prevent processing messages if form is disposed
+            if (IsDisposed || !IsHandleCreated)
+            {
+                base.WndProc(ref m);
+                return;
+            }
+
             switch (m.Msg)
             {
                 case WM_NCACTIVATE:

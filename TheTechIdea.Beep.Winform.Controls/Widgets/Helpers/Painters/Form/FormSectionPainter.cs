@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.FillPath(bgBrush, bgPath);
 
             // Draw section border
-            using var borderPen = new Pen(Theme?.CardBorderColor ?? Theme?.BorderColor ?? Color.Empty, 1);
+            using var borderPen = new Pen( Theme?.BorderColor ?? Color.Empty, 1);
             g.DrawPath(borderPen, bgPath);
 
             // Draw title background separator

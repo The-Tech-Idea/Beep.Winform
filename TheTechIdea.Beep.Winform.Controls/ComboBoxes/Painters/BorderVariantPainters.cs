@@ -12,15 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     {
         private const int BorderRadius = 8;
         
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            Color bgColor = _helper.GetBackgroundColor();
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            using (var path = GetRoundedRectPath(rect, BorderRadius))
-            {
-                g.FillPath(brush, path);
-            }
-        }
+     
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
@@ -67,13 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class DarkBorderPainter : BaseComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            Color bgColor = Color.FromArgb(30, 30, 30);
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillRectangle(brush, rect);
-        }
-        
+      
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(80, 80, 80);
@@ -107,17 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class PillCornersComboBoxPainter : BaseComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            Color bgColor = _helper.GetBackgroundColor();
-            int radius = rect.Height / 2; // Full pill shape
-            
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            using (var path = GetPillPath(rect))
-            {
-                g.FillPath(brush, path);
-            }
-        }
+     
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {

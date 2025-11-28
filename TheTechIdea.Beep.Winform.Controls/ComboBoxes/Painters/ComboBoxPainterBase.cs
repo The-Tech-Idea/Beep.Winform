@@ -23,6 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             _theme = theme;
             _helper = owner.Helper;
         }
+        public virtual void DrawBackground(Graphics g, Rectangle rect)
+        {
+            // Light blue tinted background
+            Color bgColor = Color.FromArgb(240, 245, 255);
+            var brush = PaintersFactory.GetSolidBrush(bgColor);
+            g.FillRectangle(brush, rect);
+        }
 
         public abstract void Paint(Graphics g, BeepComboBox owner, Rectangle drawingRect);
 

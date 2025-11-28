@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
@@ -8,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     /// <summary>
     /// Base class for all wizard form implementations
     /// </summary>
-    public abstract class BaseWizardForm : Form, IWizardForm
+    public abstract class BaseWizardForm : BeepiFormPro, IWizardForm
     {
         protected readonly WizardInstance _instance;
         protected Panel _contentPanel;

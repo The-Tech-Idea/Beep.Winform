@@ -11,12 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class MinimalComboBoxPainter : BaseComboBoxPainter
     {
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            Color bgColor = _helper.GetBackgroundColor();
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillRectangle(brush, rect);
-        }
+     
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {

@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 AutoSize = false,
                 Font = new Font("Segoe UI", 16f, FontStyle.Bold),
-                ForeColor = Theme?.PrimaryTextColor ?? Color.Empty,
+                ForeColor = _currentTheme?.PrimaryTextColor ?? Color.Empty,
                 Location = new Point(20, 15),
                 Size = new Size(600, 30),
                 Text = _instance.Config.Title
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 AutoSize = false,
                 Font = new Font("Segoe UI", 9f),
-                ForeColor = Theme?.SecondaryTextColor ?? Color.Empty,
+                ForeColor = _currentTheme?.SecondaryTextColor ?? Color.Empty,
                 Location = new Point(20, 50),
                 Size = new Size(600, 20),
                 Text = _instance.Config.Description ?? ""
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 Location = new Point(0, 75),
                 Size = new Size(ClientSize.Width, 4),
-                BackColor = Theme?.PanelBackColor ?? Color.Empty,
+                BackColor = _currentTheme?.PanelBackColor ?? Color.Empty,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
 
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 AutoSize = false,
                 Font = new Font("Segoe UI", 8f),
-                ForeColor = Theme?.SecondaryTextColor ?? Color.Empty,
+                ForeColor = _currentTheme?.SecondaryTextColor ?? Color.Empty,
                 Location = new Point(ClientSize.Width - 80, 50),
                 Size = new Size(60, 20),
                 TextAlign = ContentAlignment.MiddleRight,

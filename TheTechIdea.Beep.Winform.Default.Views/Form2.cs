@@ -32,5 +32,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
 
         }
+
+        private void beepTextBox1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

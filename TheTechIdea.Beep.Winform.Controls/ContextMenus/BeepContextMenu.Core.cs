@@ -180,10 +180,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;
-            BackColor = Color.White;
-            
+          
+            ShowCaptionBar = false;
             // CRITICAL: Enable focus and mouse events
-           
+
             TabStop = true;
           
 

@@ -290,6 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         /// </summary>
         public static GraphicsPath PaintFloatingShadow(Graphics g, GraphicsPath bounds, int radius, int elevation = 8)
         {
+            Color baseShadowTheme = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
             // Floating shadows have both soft blur and offset
             int blur = elevation * 2;
             int offsetY = elevation;

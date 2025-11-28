@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             // Draw in order
             DrawBackground(g, drawingRect);
-            DrawBorder(g, drawingRect);
+         //   DrawBorder(g, drawingRect);
             DrawTextArea(g, textAreaRect);
             
             if (!imageRect.IsEmpty)
@@ -76,7 +76,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         /// <summary>
         /// Draw the background of the combo box
         /// </summary>
-        protected abstract void DrawBackground(Graphics g, Rectangle rect);
+        protected  void DrawBackground(Graphics g, Rectangle rect)
+        {
+
+        }
         
         /// <summary>
         /// Draw the border of the combo box

@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     [DisplayName("Beep Context Menu")]
     [Category("Beep Controls")]
     [Description("A modern context menu with advanced styling using BeepStyling system and integrated features.")]
-    public partial class BeepContextMenu : Form
+    public partial class BeepContextMenu : BeepiFormPro
     {
         // All implementation is in partial classes:
         // - BeepContextMenu.Core.cs: Core fields and initialization

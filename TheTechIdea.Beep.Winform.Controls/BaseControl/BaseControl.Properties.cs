@@ -22,6 +22,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     {
         #region Painter strategy
         private bool _istransparent = false;
+        // Tracks whether a caller explicitly set IsTransparentBackground. When true, theme/application code should not override this property.
+        private bool _explicitIsTransparent = false;
         [Browsable(true)]
         [Category("Appearance")]
         public bool IsTransparentBackground
@@ -31,8 +33,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_istransparent == value) return;
                 _istransparent = value;
+                // Mark as an explicit developer action so theme application respects it
+                _explicitIsTransparent = true;
+                InvalidateParentBackgroundCache();
                 Invalidate();
             }
+        }
+
+        /// <summary>
+        /// Sets IsTransparentBackground as a result of a style/theme application. This will not overwrite an explicit developer-set value.
+        /// </summary>
+        /// <param name="value">Desired transparency value from theme or style.</param>
+        internal void SetIsTransparentBackgroundFromTheme(bool value)
+        {
+            if (_explicitIsTransparent) return; // don't override explicit developer preference
+            if (_istransparent == value) return;
+            _istransparent = value;
+            InvalidateParentBackgroundCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Clears explicit IsTransparentBackground flag so subsequent theme changes can control transparency.
+        /// </summary>
+        public void ClearExplicitIsTransparentFlag()
+        {
+            _explicitIsTransparent = false;
         }
 
         private BeepControlStyle _borderPainterStyle = BeepControlStyle.None;
@@ -647,6 +673,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
         }
         private string _labelText = string.Empty;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show label above the border (floating on border) or above the control")]
+        public bool ShowLabelAboveBorder
+        {
+            get => _showLabelAboveBorder;
+            set { if (_showLabelAboveBorder == value) return; _showLabelAboveBorder = value; UpdateMaterialLayout(); Invalidate(); }
+        }
+        private bool _showLabelAboveBorder = false;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Position of the label text (Left, Center, Right)")]
+        public LabelPosition LabelPosition
+        {
+            get => _labelPosition;
+            set { if (_labelPosition == value) return; _labelPosition = value; Invalidate(); }
+        }
+        private LabelPosition _labelPosition = LabelPosition.Left;
 
         private bool _showHelperText = false;
         public bool HelperTextOn

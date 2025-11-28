@@ -512,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+           // base.DrawContent(g);
             DrawWithBeepStyling(g);
 
         }
@@ -568,17 +568,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isSelected) 
                     itemState = ControlState.Selected;
 
-                // Paint control using BeepStyling (shadow → border → background). Returns content path
+                // // Paint control using BeepStyling (shadow → border → background). Returns content path
                 var contentPath = BeepStyling.PaintControl(
                     g,
                     itemPath,
                     ControlStyle,
                     theme,
                     UseThemeColors,
-                    itemState,
-                    false
+                    itemState,IsTransparentBackground 
                 );
-
+              //  var contentPath= itemPath;//BeepStyling.GetContentPath(GraphicsExtensions.GetRoundedRectPath(this.DrawingRect,BeepStyling.GetRadius(ControlStyle)), ControlStyle);
                 // Draw image and text within returned content area
                 if (contentPath != null)
                 {

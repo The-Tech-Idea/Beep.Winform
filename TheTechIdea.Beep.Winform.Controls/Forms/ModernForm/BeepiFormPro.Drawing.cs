@@ -326,8 +326,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnMouseMove(e);
             
-            // Skip interaction in design mode
-            if (InDesignMode) return;
+            // Skip interaction in design mode or if control is disposed
+            if (InDesignMode || IsDisposed || !IsHandleCreated) return;
             
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
@@ -341,8 +341,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnMouseDown(e);
             
-            // Skip interaction in design mode
-            if (InDesignMode) return;
+            // Skip interaction in design mode or if control is disposed
+            if (InDesignMode || IsDisposed || !IsHandleCreated) return;
             
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
@@ -355,8 +355,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnMouseHover(e);
             
-            // Skip interaction in design mode
-            if (InDesignMode) return;
+            // Skip interaction in design mode or if control is disposed
+            if (InDesignMode || IsDisposed || !IsHandleCreated) return;
             
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
@@ -369,8 +369,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnMouseUp(e);
             
-            // Skip interaction in design mode
-            if (InDesignMode) return;
+            // Skip interaction in design mode or if control is disposed
+            if (InDesignMode || IsDisposed || !IsHandleCreated) return;
             
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);

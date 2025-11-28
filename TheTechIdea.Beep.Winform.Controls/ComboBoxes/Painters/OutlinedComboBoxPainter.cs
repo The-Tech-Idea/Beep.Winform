@@ -13,15 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     {
         private const int BorderRadius = 4;
         
-        protected override void DrawBackground(Graphics g, Rectangle rect)
-        {
-            Color bgColor = _helper.GetBackgroundColor();
-            var brush = PaintersFactory.GetSolidBrush(bgColor);
-            using (var path = GetRoundedRectPath(rect, BorderRadius))
-            {
-                g.FillPath(brush, path);
-            }
-        }
+      
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {

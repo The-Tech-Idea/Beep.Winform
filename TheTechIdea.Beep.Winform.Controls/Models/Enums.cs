@@ -35,6 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         Focused,
         Hover
     }
+
     /// <summary>
     /// Enum for external drawing layers
     /// </summary>

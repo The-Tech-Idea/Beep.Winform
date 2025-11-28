@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.DrawContent(g);
             if (Width <= 0 || Height <= 0) return;
-            
+            UpdateLayout();
             // Ensure painter exists for current type
             if (_comboBoxPainter == null)
             {
@@ -38,7 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rect.Inflate(-2, -2); // Small default padding
                 UpdateLayout();
             }
-            
+            var rectToDraw = DrawingRect;
+           // rectToDraw.Inflate(-2, -2);
             // Let the combo box painter draw everything
             _comboBoxPainter.Paint(g, this, DrawingRect);
             

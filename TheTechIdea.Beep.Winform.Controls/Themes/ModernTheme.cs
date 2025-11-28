@@ -877,28 +877,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             CodeBlockBackgroundColor = C(250, 250, 250);
             CodeBlockBorderColor = midGray;
 
-            // Buttons
+            // Buttons - modern, clean design with clear states
             ButtonFont = ButtonStyle;
             ButtonHoverFont = ButtonStyle;
             ButtonSelectedFont = ButtonStyle;
-            ButtonHoverBackColor = Darken(blueAccent, 0.1);
+            ButtonBackColor = blueAccent; // Primary action blue
+            ButtonForeColor = white; // White text on blue
+            ButtonBorderColor = blueAccent; // Match background
+            ButtonHoverBackColor = Darken(blueAccent, 0.08); // Slightly darker on hover
             ButtonHoverForeColor = white;
-            ButtonHoverBorderColor = Darken(blueAccent, 0.2);
-            ButtonSelectedBorderColor = blueAccent;
-            ButtonSelectedBackColor = blueAccent;
+            ButtonHoverBorderColor = Darken(blueAccent, 0.15);
+            ButtonSelectedBackColor = Darken(blueAccent, 0.12);
             ButtonSelectedForeColor = white;
-            ButtonSelectedHoverBackColor = Darken(blueAccent, 0.1);
+            ButtonSelectedBorderColor = Darken(blueAccent, 0.2);
+            ButtonSelectedHoverBackColor = Darken(blueAccent, 0.15);
             ButtonSelectedHoverForeColor = white;
-            ButtonSelectedHoverBorderColor = Darken(blueAccent, 0.2);
-            ButtonBackColor = blueAccent;
-            ButtonForeColor = white;
-            ButtonBorderColor = blueAccent;
-            ButtonErrorBackColor = redAccent;
+            ButtonSelectedHoverBorderColor = Darken(blueAccent, 0.25);
+            ButtonPressedBackColor = Darken(blueAccent, 0.2); // Darker when pressed
+            ButtonPressedForeColor = white;
+            ButtonPressedBorderColor = Darken(blueAccent, 0.3);
+            ButtonErrorBackColor = redAccent; // Red for destructive actions
             ButtonErrorForeColor = white;
             ButtonErrorBorderColor = redAccent;
-            ButtonPressedBackColor = Darken(blueAccent, 0.15);
-            ButtonPressedForeColor = white;
-            ButtonPressedBorderColor = Darken(blueAccent, 0.25);
 
             // Cards (subtle shadows implied)
             CardTitleFont = TitleSmall;
@@ -955,31 +955,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ChartGridLineColor = midGray;
             ChartDefaultSeriesColors = new List<Color> { blueAccent, greenAccent, redAccent, WarningColor };
 
-            // CheckBox
-            CheckBoxBackColor = white;
+            // CheckBox - clean checkbox with modern styling
+            CheckBoxBackColor = white; // White unchecked box
             CheckBoxForeColor = black;
-            CheckBoxBorderColor = midGray;
-            CheckBoxCheckedBackColor = blueAccent;
-            CheckBoxCheckedForeColor = white;
+            CheckBoxBorderColor = midGray; // Gray border
+            CheckBoxCheckedBackColor = blueAccent; // Blue when checked
+            CheckBoxCheckedForeColor = white; // White checkmark
             CheckBoxCheckedBorderColor = blueAccent;
-            CheckBoxHoverBackColor = hoverBlue;
+            CheckBoxHoverBackColor = subtleWhite; // Subtle hover
             CheckBoxHoverForeColor = black;
-            CheckBoxHoverBorderColor = blueAccent;
+            CheckBoxHoverBorderColor = blueAccent; // Blue on hover
             CheckBoxFont = BodyMedium;
             CheckBoxCheckedFont = BodyMedium;
 
-            // ComboBox
-            ComboBoxBackColor = white;
-            ComboBoxForeColor = black;
-            ComboBoxBorderColor = midGray;
-            ComboBoxHoverBackColor = hoverBlue;
+            // ComboBox - dropdown input with clear states
+            ComboBoxBackColor = white; // White background
+            ComboBoxForeColor = black; // Black text
+            ComboBoxBorderColor = midGray; // Subtle border
+            ComboBoxHoverBackColor = subtleWhite; // Light hover
             ComboBoxHoverForeColor = black;
-            ComboBoxHoverBorderColor = blueAccent;
-            ComboBoxSelectedBackColor = blueAccent;
-            ComboBoxSelectedForeColor = white;
+            ComboBoxHoverBorderColor = blueAccent; // Blue on interact
+            ComboBoxSelectedBackColor = blueAccent; // Blue selected
+            ComboBoxSelectedForeColor = white; // White text on blue
             ComboBoxSelectedBorderColor = blueAccent;
-            ComboBoxErrorBackColor = C(255, 230, 230);
-            ComboBoxErrorForeColor = redAccent;
+            ComboBoxErrorBackColor = C(255, 245, 245); // Light red error
+            ComboBoxErrorForeColor = redAccent; // Red error text
             ComboBoxItemFont = BodyMedium;
             ComboBoxListFont = BodyMedium;
 
@@ -1103,21 +1103,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             GridCellErrorFont = BodyMedium;
             GridColumnFont = LabelMedium;
 
-            // Grid Colors
-            GridBackColor = white;
-            GridForeColor = black;
-            GridHeaderBackColor = lightGray;
-            GridHeaderForeColor = black;
-            GridHeaderBorderColor = midGray;
-            GridHeaderHoverBackColor = subtleWhite;
+            // Grid Colors - clean data table styling
+            GridBackColor = white; // White grid background
+            GridForeColor = black; // Black text
+            GridHeaderBackColor = lightGray; // Light gray headers
+            GridHeaderForeColor = black; // Dark header text
+            GridHeaderBorderColor = midGray; // Subtle borders
+            GridHeaderHoverBackColor = C(235, 240, 250); // Very light blue hover
             GridHeaderHoverForeColor = black;
-            GridHeaderSelectedBackColor = blueAccent;
+            GridHeaderSelectedBackColor = blueAccent; // Blue selected header
             GridHeaderSelectedForeColor = white;
             GridHeaderHoverBorderColor = blueAccent;
             GridHeaderSelectedBorderColor = blueAccent;
-            GridRowHoverBackColor = hoverBlue;
+            GridRowHoverBackColor = C(245, 248, 255); // Very subtle blue hover
             GridRowHoverForeColor = black;
-            GridRowSelectedBackColor = blueAccent;
+            GridRowSelectedBackColor = blueAccent; // Blue selected row
             GridRowSelectedForeColor = white;
             GridRowHoverBorderColor = blueAccent;
 
@@ -1306,16 +1306,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             MenuBorderColor = midGray;
             // Main menu items (top-level menu bar items)
             MenuMainItemForeColor = black;
-            MenuMainItemHoverForeColor = black;
+            MenuMainItemHoverForeColor = blueAccent;
             MenuMainItemHoverBackColor = subtleWhite;
             MenuMainItemSelectedForeColor = white;
             MenuMainItemSelectedBackColor = blueAccent;
-            // Menu items (dropdown items)
-            MenuItemForeColor = black;
+            // Menu items (dropdown items) - clean, modern colors
+            MenuItemForeColor = black; // Dark text on light background
             MenuItemHoverForeColor = black;
-            MenuItemHoverBackColor = hoverBlue; // Light blue hover
-            MenuItemSelectedForeColor = white;
-            MenuItemSelectedBackColor = blueAccent;
+            MenuItemHoverBackColor = C(229, 237, 255); // Very light blue hover
+            MenuItemSelectedForeColor = white; // White text on blue background
+            MenuItemSelectedBackColor = blueAccent; // Blue selected background
             // Menu gradients
             MenuGradiantStartColor = subtleWhite;
             MenuGradiantEndColor = lightGray;
@@ -1375,44 +1375,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             SubLabelHoverBackColor = subtleWhite;
             SubLabelHoverForeColor = black;
 
-            // TextBox (consistent with ComboBox)
+            // TextBox - clean input fields with subtle interactions
             TextBoxFont = BodyMedium;
             TextBoxHoverFont = BodyMedium;
             TextBoxSelectedFont = BodyMedium;
-            TextBoxBackColor = white;
-            TextBoxForeColor = black;
-            TextBoxBorderColor = midGray;
-            TextBoxHoverBackColor = white;
+            TextBoxBackColor = white; // White input area
+            TextBoxForeColor = black; // Black text
+            TextBoxBorderColor = midGray; // Light gray border
+            TextBoxHoverBackColor = subtleWhite; // Barely perceptible on hover
             TextBoxHoverForeColor = black;
-            TextBoxHoverBorderColor = blueAccent;
+            TextBoxHoverBorderColor = blueAccent; // Blue on hover for focus hint
             TextBoxSelectedBackColor = white;
             TextBoxSelectedForeColor = black;
-            TextBoxSelectedBorderColor = blueAccent;
-            TextBoxPlaceholderColor = darkGray;
-            TextBoxErrorBackColor = C(255, 230, 230);
-            TextBoxErrorForeColor = redAccent;
-            TextBoxErrorBorderColor = redAccent;
+            TextBoxSelectedBorderColor = blueAccent; // Blue when focused
+            TextBoxPlaceholderColor = C(180, 180, 180); // Medium gray placeholder
+            TextBoxErrorBackColor = C(255, 245, 245); // Very light red tint
+            TextBoxErrorForeColor = black; // Keep text readable
+            TextBoxErrorBorderColor = redAccent; // Red for error state
             TextBoxErrorTextColor = redAccent;
-            TextBoxErrorPlaceholderColor = redAccent;
-            TextBoxErrorTextBoxColor = C(255, 230, 230);
+            TextBoxErrorPlaceholderColor = C(220, 100, 100); // Lighter red for error placeholder
+            TextBoxErrorTextBoxColor = C(255, 250, 250);
             TextBoxErrorTextBoxBorderColor = redAccent;
-            TextBoxErrorTextBoxHoverColor = C(255, 240, 240);
+            TextBoxErrorTextBoxHoverColor = C(255, 245, 245);
 
-            // List (consistent with Grid rows)
+            // List - list item selection and interaction
             ListTitleFont = TitleSmall;
             ListSelectedFont = BodyMedium;
             ListUnSelectedFont = BodyMedium;
-            ListBackColor = white;
-            ListForeColor = black;
-            ListBorderColor = midGray;
+            ListBackColor = white; // White background
+            ListForeColor = black; // Black text
+            ListBorderColor = midGray; // Subtle border
             ListItemForeColor = black;
             ListItemHoverForeColor = black;
-            ListItemHoverBackColor = hoverBlue;
+            ListItemHoverBackColor = C(245, 248, 255); // Very light blue hover
             ListItemHoverBorderColor = blueAccent;
-            ListItemSelectedForeColor = white;
-            ListItemSelectedBackColor = blueAccent;
+            ListItemSelectedForeColor = white; // White text on selection
+            ListItemSelectedBackColor = blueAccent; // Blue selection
             ListItemSelectedBorderColor = blueAccent;
-            ListItemBorderColor = white; // Solid white instead of transparent
+            ListItemBorderColor = white; // Solid white separator
 
             // ScrollList (similar to List)
             ScrollListTitleFont = TitleSmall;
@@ -1425,11 +1425,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ScrollListBorderColor = midGray;
             ScrollListItemForeColor = black;
             ScrollListItemHoverForeColor = black;
-            ScrollListItemHoverBackColor = hoverBlue;
+            ScrollListItemHoverBackColor = C(245, 248, 255); // Very light blue hover
             ScrollListItemSelectedForeColor = white;
             ScrollListItemSelectedBackColor = blueAccent;
             ScrollListItemSelectedBorderColor = blueAccent;
-            ScrollListItemBorderColor = white; // Solid white instead of transparent
+            ScrollListItemBorderColor = white; // Solid white separator
 
             // Links
             LinkColor = blueAccent;
@@ -1466,7 +1466,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             StatusBarBackColor = lightGray;
             StatusBarForeColor = black;
             StatusBarBorderColor = midGray;
-            StatusBarHoverBackColor = hoverBlue;
+            StatusBarHoverBackColor = C(245, 248, 255); // Very light blue hover
             StatusBarHoverForeColor = black;
             StatusBarHoverBorderColor = blueAccent;
             GradientStartColor = subtleWhite;

@@ -396,11 +396,16 @@ namespace TheTechIdea.Beep.Vis.Modules
         Open,
         Show,
     }
+    /// <summary>
+    /// Enum for label position in controls
+    /// </summary>
     public enum LabelPosition
     {
-        Left,
-        Right
+        Left = 0,       // Label aligned to the left
+        Center = 1,     // Label centered
+        Right = 2       // Label aligned to the right
     }
+
     public enum TypeStyleFontSize { None, Small, Medium, Big, Banner, Large, ExtraLarge, ExtraExtraLarge, ExtraExtraExtraLarge }
     public enum CustomBorderStyle { None, Solid, Dashed, Dotted }
     public enum DisplayAnimationType { None, Popup, Slide, Fade, SlideAndFade }

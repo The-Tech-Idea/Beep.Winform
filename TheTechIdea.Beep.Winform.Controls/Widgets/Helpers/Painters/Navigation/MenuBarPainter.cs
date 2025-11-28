@@ -31,8 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.FromArgb(250, 250, 250));
-            using var borderPen = new Pen(Color.FromArgb(30, Color.Gray), 1);
+            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.Empty);
+            using var borderPen = new Pen(Color.FromArgb(30, Theme?.SecondaryTextColor ?? Color.Empty), 1);
             g.FillRectangle(bgBrush, ctx.DrawingRect);
             g.DrawRectangle(borderPen, ctx.DrawingRect);
         }
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
             int itemWidth = ctx.ContentRect.Width / items.Count;
             using var menuFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 }
 
                 // Menu item text
-                using var textBrush = new SolidBrush(item.IsActive ? primaryColor : Theme?.ForeColor ?? Color.Black);
+                using var textBrush = new SolidBrush(item.IsActive ? primaryColor : (Theme?.ForeColor ?? Color.Empty));
                 var textRect = new Rectangle(itemRect.X + 28, itemRect.Y, itemRect.Width - 28, itemRect.Height);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(item.Text, menuFont, textBrush, textRect, format);

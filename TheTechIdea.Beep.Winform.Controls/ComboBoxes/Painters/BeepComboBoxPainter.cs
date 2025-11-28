@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
@@ -79,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // For editable mode, we might want to show a different background
             if (_owner.IsEditable && _owner.Focused)
             {
-                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, _theme?.PrimaryColor ?? Color.Blue));
+                var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 10));
                 g.FillRectangle(brush, textAreaRect);
             }
         }

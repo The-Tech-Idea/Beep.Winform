@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintTabSelector(Graphics g, Rectangle bounds, DateTimePickerHoverState hoverState)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var accentColor = _theme?.AccentColor ?? Color.Empty;
             var inactiveColor = Color.FromArgb(240, 240, 240);
             var textColor = _theme?.ForeColor ?? Color.Black;
             var activeTextColor = textColor;
@@ -167,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintRangeHighlight(Graphics g, DateTimePickerLayout leftLayout, DateTimePickerLayout rightLayout, DateTime leftMonth, DateTime rightMonth, DateTime rangeStart, DateTime rangeEnd)
         {
-            var rangeColor = Color.FromArgb(50, _theme?.AccentColor ?? Color.FromArgb(0, 120, 215));
+            var rangeColor = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.AccentColor ?? Color.Empty, 50);
 
             using (var brush = new SolidBrush(rangeColor))
             {

@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             var sampleData = new List<double> { 20, 25, 30, 28, 35, 40, 38, 45, 42, 50 };
             var chartArea = new Rectangle(rect.X + 16, headerRect.Bottom + 8, rect.Width - 32, rect.Height - headerRect.Height - 24);
             WidgetRenderingHelpers.DrawLineChart(g, chartArea, sampleData, 
-                Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 3f);
+                Theme?.PrimaryColor ?? Color.Empty, 3f);
 
             // Hover effect for chart area
             if (IsAreaHovered("AnalyticsPanel_Chart"))
@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 // Icon area
                 var iconRect = new Rectangle(metricRect.X + 8, metricRect.Y + 8, 20, 20);
                 string iconName = metric.ContainsKey("Icon") ? metric["Icon"].ToString() : defaultIcons[i % defaultIcons.Length];
-                Color iconColor = metric.ContainsKey("Color") ? (Color)metric["Color"] : Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+                Color iconColor = metric.ContainsKey("Color") ? (Color)metric["Color"] : Theme?.PrimaryColor ?? Color.Empty;
                 
                 _imagePainter.DrawSvg(g, iconName, iconRect, iconColor, hovered ? 0.85f : 0.7f);
 

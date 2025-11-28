@@ -1,5 +1,6 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -27,9 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // Only draw bottom border on focus
             if (_owner.Focused)
             {
-                Color borderColor = _owner.HasError 
-                    ? Color.Red 
-                    : (_theme?.PrimaryColor ?? Color.Blue);
+                Color borderColor = _owner.HasError
+                    ? Color.Red
+                    : (_theme?.PrimaryColor ?? Color.Empty);
                 
                 var pen = PaintersFactory.GetPen(borderColor,2f);
                 g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
@@ -46,9 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (buttonRect.IsEmpty) return;
             
             // No separator - completely borderless
-            Color arrowColor = _owner.Focused 
-                ? (_theme?.PrimaryColor ?? Color.Blue)
-                : Color.FromArgb(180, _theme?.SecondaryColor ?? Color.Gray);
+            Color arrowColor = _owner.Focused
+                ? (_theme?.PrimaryColor ?? Color.Empty)
+                : PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.SecondaryColor ?? Color.Empty, 180);
             
             DrawDropdownArrow(g, buttonRect, arrowColor);
         }

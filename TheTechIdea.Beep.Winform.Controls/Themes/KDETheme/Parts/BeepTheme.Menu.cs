@@ -15,28 +15,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Noto Sans", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Noto Sans", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = Color.FromArgb(248, 249, 250);  // Light gray
-            this.MenuForeColor = Color.FromArgb(33, 37, 41);  // Dark gray text
-            this.MenuBorderColor = Color.FromArgb(222, 226, 230);  // Medium gray
+            this.MenuBackColor = BackgroundColor;  // Light gray
+            this.MenuForeColor = ForeColor;  // Dark gray text
+            this.MenuBorderColor = BorderColor;  // Medium gray
             
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(33, 37, 41);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(33, 37, 41);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(230, 235, 240);  // Darker gray hover
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(255, 255, 255);  // White text
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(61, 174, 233);  // KDE blue
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;
+            this.MenuMainItemHoverBackColor = ThemeUtil.Darken(BackgroundColor, 0.06);  // Darker gray hover
+            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // White text on primary background
+            this.MenuMainItemSelectedBackColor = PrimaryColor;  // KDE blue
             
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(33, 37, 41);
-            this.MenuItemHoverForeColor = Color.FromArgb(33, 37, 41);
-            this.MenuItemHoverBackColor = Color.FromArgb(230, 235, 240);  // Darker gray hover
-            this.MenuItemSelectedForeColor = Color.FromArgb(255, 255, 255);  // White text
-            this.MenuItemSelectedBackColor = Color.FromArgb(61, 174, 233);  // KDE blue
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = ForeColor;
+            this.MenuItemHoverBackColor = ThemeUtil.Darken(BackgroundColor, 0.06);  // Darker gray hover
+            this.MenuItemSelectedForeColor = OnPrimaryColor;  // White text on primary background
+            this.MenuItemSelectedBackColor = PrimaryColor;  // KDE blue
             
             // Clean gradient
-            this.MenuGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.MenuGradiantEndColor = Color.FromArgb(248, 249, 250);
-            this.MenuGradiantMiddleColor = Color.FromArgb(252, 252, 253);
+            this.MenuGradiantStartColor = PanelGradiantStartColor;
+            this.MenuGradiantEndColor = PanelGradiantEndColor;
+            this.MenuGradiantMiddleColor = PanelGradiantMiddleColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

@@ -10,15 +10,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyTab()
         {
-            this.TabBackColor = Color.FromArgb(248,249,250);
-            this.TabForeColor = Color.FromArgb(33,37,41);
-            this.TabBorderColor = Color.FromArgb(222,226,230);
-            this.TabHoverBackColor = Color.FromArgb(248,249,250);
-            this.TabHoverForeColor = Color.FromArgb(33,37,41);
-            this.TabSelectedBackColor = Color.FromArgb(248,249,250);
-            this.TabSelectedForeColor = Color.FromArgb(33,37,41);
-            this.TabSelectedBorderColor = Color.FromArgb(222,226,230);
-            this.TabHoverBorderColor = Color.FromArgb(222,226,230);
+            this.TabBackColor = PanelBackColor;
+            this.TabForeColor = ForeColor;
+            this.TabBorderColor = BorderColor;
+            this.TabHoverBackColor = PanelBackColor;
+            this.TabHoverForeColor = ForeColor;
+            this.TabSelectedBackColor = PanelBackColor;
+            this.TabSelectedForeColor = ForeColor;
+            this.TabSelectedBorderColor = BorderColor;
+            this.TabHoverBorderColor = BorderColor;
         }
     }
 }

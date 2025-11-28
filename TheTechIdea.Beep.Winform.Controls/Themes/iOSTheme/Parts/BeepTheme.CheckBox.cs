@@ -10,15 +10,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCheckBox()
         {
-            this.CheckBoxBackColor = Color.FromArgb(242,242,247);
-            this.CheckBoxForeColor = Color.FromArgb(28,28,30);
-            this.CheckBoxBorderColor = Color.FromArgb(198,198,207);
-            this.CheckBoxCheckedBackColor = Color.FromArgb(242,242,247);
-            this.CheckBoxCheckedForeColor = Color.FromArgb(28,28,30);
-            this.CheckBoxCheckedBorderColor = Color.FromArgb(198,198,207);
-            this.CheckBoxHoverBackColor = Color.FromArgb(242,242,247);
-            this.CheckBoxHoverForeColor = Color.FromArgb(28,28,30);
-            this.CheckBoxHoverBorderColor = Color.FromArgb(198,198,207);
+            this.CheckBoxBackColor = BackgroundColor;
+            this.CheckBoxForeColor = ForeColor;
+            this.CheckBoxBorderColor = BorderColor;
+            this.CheckBoxCheckedBackColor = BackgroundColor;
+            this.CheckBoxCheckedForeColor = ForeColor;
+            this.CheckBoxCheckedBorderColor = BorderColor;
+            this.CheckBoxHoverBackColor = BackgroundColor;
+            this.CheckBoxHoverForeColor = ForeColor;
+            this.CheckBoxHoverBorderColor = BorderColor;
         }
     }
 }

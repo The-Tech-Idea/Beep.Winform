@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.WarningColor = Color.FromArgb(255,193,7);
             this.SuccessColor = Color.FromArgb(46,204,113);
             this.OnPrimaryColor = Color.FromArgb(61,174,233);
+            this.ShadowColor = PanelBackColor;
             this.OnBackgroundColor = ForeColor;
             this.FocusIndicatorColor = Color.FromArgb(61,174,233);
             ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);

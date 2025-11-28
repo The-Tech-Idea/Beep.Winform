@@ -10,17 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyProgressBar()
         {
-            this.ProgressBarBackColor = Color.FromArgb(242,242,247);
-            this.ProgressBarForeColor = Color.FromArgb(28,28,30);
-            this.ProgressBarBorderColor = Color.FromArgb(198,198,207);
-            this.ProgressBarChunkColor = Color.FromArgb(242,242,247);
-            this.ProgressBarErrorColor = Color.FromArgb(242,242,247);
-            this.ProgressBarSuccessColor = Color.FromArgb(242,242,247);
-            this.ProgressBarInsideTextColor = Color.FromArgb(28,28,30);
-            this.ProgressBarHoverBackColor = Color.FromArgb(242,242,247);
-            this.ProgressBarHoverForeColor = Color.FromArgb(28,28,30);
-            this.ProgressBarHoverBorderColor = Color.FromArgb(198,198,207);
-            this.ProgressBarHoverInsideTextColor = Color.FromArgb(28,28,30);
+            this.ProgressBarBackColor = BackgroundColor;
+            this.ProgressBarForeColor = ForeColor;
+            this.ProgressBarBorderColor = BorderColor;
+            this.ProgressBarChunkColor = BackgroundColor;
+            this.ProgressBarErrorColor = BackgroundColor;
+            this.ProgressBarSuccessColor = BackgroundColor;
+            this.ProgressBarInsideTextColor = ForeColor;
+            this.ProgressBarHoverBackColor = BackgroundColor;
+            this.ProgressBarHoverForeColor = ForeColor;
+            this.ProgressBarHoverBorderColor = BorderColor;
+            this.ProgressBarHoverInsideTextColor = ForeColor;
         }
     }
 }

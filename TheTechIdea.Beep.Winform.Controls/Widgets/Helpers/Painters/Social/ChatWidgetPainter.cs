@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             DrawSoftShadow(g, ctx.DrawingRect, 8, layers: 3, offset: 2);
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
+            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.Empty);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
         }
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 rect.Width - iconRect.Width - 12, 20);
             
             using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
-            using var titleBrush = new SolidBrush(Color.FromArgb(200, Color.Black));
+            using var titleBrush = new SolidBrush(Color.FromArgb(200, Theme?.CardTextForeColor ?? Color.Empty));
             g.DrawString(chatTitle, titleFont, titleBrush, titleRect, 
                 new StringFormat { LineAlignment = StringAlignment.Center });
 
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             
             string statusText = GetChatStatusText(participants);
             using var statusFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var statusBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+            using var statusBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
             g.DrawString(statusText, statusFont, statusBrush, statusRect);
 
             // Online indicator for active participants
@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             if (messages.Count > visibleMessages.Count)
             {
                 var moreRect = new Rectangle(rect.X, rect.Y, rect.Width, 20);
-                using var moreBrush = new SolidBrush(Color.FromArgb(40, Color.Gray));
+                using var moreBrush = new SolidBrush(Color.FromArgb(40, Theme?.SecondaryTextColor ?? Color.Empty));
                 g.FillRectangle(moreBrush, moreRect);
 
                 using var moreFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Italic);
@@ -242,9 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             }
 
             // Draw message bubble
-            Color bubbleColor = isCurrentUser ? 
-                (ctx.AccentColor != Color.Empty ? ctx.AccentColor : Color.FromArgb(0, 120, 215)) : 
-                Color.FromArgb(240, 240, 240);
+            Color bubbleColor = isCurrentUser ? (ctx.AccentColor == Color.Empty ? Theme?.AccentColor ?? Color.Empty : ctx.AccentColor) : Theme?.CardBackColor ?? Color.Empty;
             
             using var bubbleBrush = new SolidBrush(bubbleColor);
             using var bubblePath = CreateRoundedPath(bubbleRect, MESSAGE_BUBBLE_RADIUS);
@@ -253,12 +251,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Hover outline
             if (IsAreaHovered($"Chat_Message_{message.Timestamp.Ticks}"))
             {
-                using var hoverPen = new Pen(Theme?.AccentColor ?? Color.Gray, 1.2f);
+                using var hoverPen = new Pen(Theme?.AccentColor ?? Color.Empty, 1.2f);
                 g.DrawPath(hoverPen, bubblePath);
             }
 
             // Draw message content
-            Color textColor = isCurrentUser ? Color.White : Color.FromArgb(80, 80, 80);
+            Color textColor = isCurrentUser ? Theme?.OnPrimaryColor ?? Color.Empty : Color.FromArgb(80, Theme?.CardTextForeColor ?? Color.Empty);
             using var textBrush = new SolidBrush(textColor);
             var textRect = Rectangle.Inflate(bubbleRect, -MESSAGE_PADDING, -MESSAGE_PADDING);
             g.DrawString(message.Content, messageFont, textBrush, textRect);
@@ -266,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Draw timestamp
             string timeText = FormatMessageTime(message.Timestamp);
             using var timeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-            using var timeBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
+            using var timeBrush = new SolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
             var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
             
             float timeX = isCurrentUser ? 
@@ -288,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawMessageAvatar(Graphics g, Rectangle rect, string senderName, string avatarPath)
         {
             // Draw avatar background
-            using var avatarBrush = new SolidBrush(Color.FromArgb(220, 220, 220));
+            using var avatarBrush = new SolidBrush(Theme?.CardBackColor ?? Color.Empty);
             g.FillEllipse(avatarBrush, rect);
 
             if (!string.IsNullOrEmpty(avatarPath))
@@ -312,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 // Draw initials
                 string initials = GetUserInitials(senderName);
                 using var initialFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-                using var initialBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
+                using var initialBrush = new SolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(initials, initialFont, initialBrush, rect, format);
             }
@@ -324,9 +322,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             {
                 MessageStatus.Sending => Color.FromArgb(150, Color.Gray),
                 MessageStatus.Sent => Color.FromArgb(100, Color.Gray),
-                MessageStatus.Delivered => Color.FromArgb(76, 175, 80),
-                MessageStatus.Read => Color.FromArgb(33, 150, 243),
-                MessageStatus.Failed => Color.FromArgb(244, 67, 54),
+                MessageStatus.Delivered => Theme?.SuccessColor ?? Color.Empty,
+                MessageStatus.Read => Theme?.PrimaryColor ?? Color.Empty,
+                MessageStatus.Failed => Theme?.ErrorColor ?? Color.Empty,
                 _ => Color.FromArgb(150, Color.Gray)
             };
 
@@ -376,12 +374,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawInputArea(Graphics g, Rectangle rect, WidgetContext ctx)
         {
             // Input background
-            using var inputBgBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.FromArgb(250, 250, 250));
+            using var inputBgBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.Empty);
             using var inputPath = CreateRoundedPath(rect, 18);
             g.FillPath(inputBgBrush, inputPath);
 
             // Input border
-            using var borderPen = new Pen(Color.FromArgb(220, 220, 220), 1);
+            using var borderPen = new Pen(Theme?.BorderColor ?? Color.Empty, 1);
             g.DrawPath(borderPen, inputPath);
 
             // Placeholder text or current input
@@ -389,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             
             string displayText = string.IsNullOrEmpty(inputText) ? "Type a message..." : inputText;
             Color textColor = string.IsNullOrEmpty(inputText) ? 
-                Color.FromArgb(150, Color.Gray) : Color.FromArgb(80, 80, 80);
+                Color.FromArgb(150, Theme?.SecondaryTextColor ?? Color.Empty) : Color.FromArgb(80, Theme?.CardTextForeColor ?? Color.Empty);
 
             var textRect = Rectangle.Inflate(rect, -12, 0);
             textRect.Width -= 40; // Space for send button

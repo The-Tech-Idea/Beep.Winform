@@ -68,16 +68,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             // Draw main section background
-            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Color.White);
+            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Color.Empty);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
 
             // Draw section border
-            using var borderPen = new Pen(Color.FromArgb(200, 200, 200), 1);
+            using var borderPen = new Pen(Theme?.CardBorderColor ?? Theme?.BorderColor ?? Color.Empty, 1);
             g.DrawPath(borderPen, bgPath);
 
             // Draw title background separator
-            using var titleBgBrush = new SolidBrush(Color.FromArgb(248, 248, 248));
+            using var titleBgBrush = new SolidBrush(Theme?.PanelBackColor ?? Color.Empty);
             g.FillRectangle(titleBgBrush, ctx.HeaderRect);
 
             // Draw separator line under title
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (!string.IsNullOrEmpty(ctx.Title))
             {
                 using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.Black);
+                using var titleBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.Empty);
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect,
                            new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
             }
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (!string.IsNullOrEmpty(description))
             {
                 using var descFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
-                using var descBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+                using var descBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
                 var descRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Bottom - 20,
                                            ctx.ContentRect.Width, 16);
                 g.DrawString(description, descFont, descBrush, descRect);
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                                             fieldRect.Width * 2 / 3 - 8, fieldRect.Height);
 
                 // Draw input background
-                Color inputBgColor = Theme?.TextBoxBackColor ?? Color.White;
+                Color inputBgColor = Theme?.TextBoxBackColor ?? Color.Empty;
                 using var inputBrush = new SolidBrush(inputBgColor);
                 using var inputPath = CreateRoundedPath(inputRect, 3);
                 g.FillPath(inputBrush, inputPath);
@@ -210,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                                             ctx.HeaderRect.Top + 6, indicatorWidth, indicatorHeight);
 
             // Draw background
-            using var bgBrush = new SolidBrush(Color.FromArgb(200, 200, 200));
+            using var bgBrush = new SolidBrush(Theme?.PanelBackColor ?? Color.Empty);
             g.FillRectangle(bgBrush, indicatorRect);
 
             // Draw progress
@@ -222,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             // Draw step text
             using var stepFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-            using var stepBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+            using var stepBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
             string stepText = $"{currentStep}/{totalSteps}";
             g.DrawString(stepText, stepFont, stepBrush,
                        new PointF(indicatorRect.Right + 4, indicatorRect.Top - 1));
@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 }
             }
 
-            return Theme?.TextBoxBorderColor ?? Color.FromArgb(200, 200, 200);
+            return Theme?.TextBoxBorderColor ?? Color.Empty;
         }
 
         public void Dispose()

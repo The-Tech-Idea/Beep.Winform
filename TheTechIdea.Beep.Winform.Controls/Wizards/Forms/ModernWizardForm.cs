@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 AutoSize = false,
                 Font = new Font("Segoe UI", 16f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(30, 30, 30),
+                ForeColor = Theme?.PrimaryTextColor ?? Color.Empty,
                 Location = new Point(20, 15),
                 Size = new Size(600, 30),
                 Text = _instance.Config.Title
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 AutoSize = false,
                 Font = new Font("Segoe UI", 9f),
-                ForeColor = Color.FromArgb(100, 100, 100),
+                ForeColor = Theme?.SecondaryTextColor ?? Color.Empty,
                 Location = new Point(20, 50),
                 Size = new Size(600, 20),
                 Text = _instance.Config.Description ?? ""
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 Location = new Point(0, 75),
                 Size = new Size(ClientSize.Width, 4),
-                BackColor = Color.FromArgb(230, 230, 230),
+                BackColor = Theme?.PanelBackColor ?? Color.Empty,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
 
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 AutoSize = false,
                 Font = new Font("Segoe UI", 8f),
-                ForeColor = Color.FromArgb(100, 100, 100),
+                ForeColor = Theme?.SecondaryTextColor ?? Color.Empty,
                 Location = new Point(ClientSize.Width - 80, 50),
                 Size = new Size(60, 20),
                 TextAlign = ContentAlignment.MiddleRight,
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 var currentIndex = _instance.CurrentStepIndex;
                 var totalSteps = _instance.Config.Steps.Count;
-                var accentColor = _instance.Config.Theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+                var accentColor = _instance.Config.Theme?.AccentColor ?? Color.Empty;
 
                 WizardHelpers.DrawProgressBar(
                     pe.Graphics,

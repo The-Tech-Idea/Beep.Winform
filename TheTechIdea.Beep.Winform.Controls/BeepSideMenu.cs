@@ -331,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 300;
             }
             Dock = DockStyle.Left;
-            BackColor = Color.FromArgb(51, 51, 51);
+            BackColor = BeepStyling.CurrentTheme?.SideMenuBackColor ?? Color.Empty;
             ForeColor = Color.White;
             Font = new Font("Segoe UI", 9);
             Init();

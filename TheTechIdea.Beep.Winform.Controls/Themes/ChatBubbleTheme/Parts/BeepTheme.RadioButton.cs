@@ -10,17 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyRadioButton()
         {
-            this.RadioButtonBackColor = Color.FromArgb(245,248,255);
-            this.RadioButtonForeColor = Color.FromArgb(24,28,35);
-            this.RadioButtonBorderColor = Color.FromArgb(210,220,235);
-            this.RadioButtonCheckedBackColor = Color.FromArgb(245,248,255);
-            this.RadioButtonCheckedForeColor = Color.FromArgb(24,28,35);
-            this.RadioButtonCheckedBorderColor = Color.FromArgb(210,220,235);
-            this.RadioButtonHoverBackColor = Color.FromArgb(245,248,255);
-            this.RadioButtonHoverForeColor = Color.FromArgb(24,28,35);
-            this.RadioButtonHoverBorderColor = Color.FromArgb(210,220,235);
-            this.RadioButtonSelectedForeColor = Color.FromArgb(24,28,35);
-            this.RadioButtonSelectedBackColor = Color.FromArgb(245,248,255);
+            this.RadioButtonBackColor = BackgroundColor;
+            this.RadioButtonForeColor = ForeColor;
+            this.RadioButtonBorderColor = BorderColor;
+            this.RadioButtonCheckedBackColor = BackgroundColor;
+            this.RadioButtonCheckedForeColor = ForeColor;
+            this.RadioButtonCheckedBorderColor = BorderColor;
+            this.RadioButtonHoverBackColor = BackgroundColor;
+            this.RadioButtonHoverForeColor = ForeColor;
+            this.RadioButtonHoverBorderColor = BorderColor;
+            this.RadioButtonSelectedForeColor = ForeColor;
+            this.RadioButtonSelectedBackColor = BackgroundColor;
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -26,8 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = _owner.Focused 
-                ? _theme?.PrimaryColor ?? Color.Blue
-                : (_owner.HasError ? Color.Red : Color.FromArgb(180, _theme?.BorderColor ?? Color.Gray));
+                ? _theme?.PrimaryColor ?? Color.Empty
+                : (_owner.HasError ? Color.Red : PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.BorderColor ?? Color.Empty, 180));
             
             float borderWidth = _owner.Focused ? 2f : 1f;
             
@@ -51,8 +52,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             // Material design doesn't use separator - just the icon
             Color arrowColor = _owner.Focused 
-                ? (_theme?.PrimaryColor ?? Color.Blue)
-                : (_theme?.SecondaryColor ?? Color.Gray);
+                ? (_theme?.PrimaryColor ?? Color.Empty)
+                : (_theme?.SecondaryColor ?? Color.Empty);
             
             DrawDropdownArrow(g, buttonRect, arrowColor);
         }

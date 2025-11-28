@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -25,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (_owner.IsSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.LightGray)))
+                    using (var hoverBrush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.AccentColor ?? Color.Empty, 30)))
                     {
                         g.FillPath(hoverBrush, path);
                     }

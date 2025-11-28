@@ -47,8 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Modern system gray background with subtle gradient
             using var bgBrush = new LinearGradientBrush(
                 ctx.DrawingRect,
-                Color.FromArgb(250, 250, 250), // Light gray
-                Color.FromArgb(240, 240, 240), // Slightly darker gray
+                Theme?.BackColor ?? Color.Empty,
+                Theme?.PanelBackColor ?? Color.Empty,
                 LinearGradientMode.Vertical
             );
 
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.FillPath(bgBrush, bgPath);
 
             // System border
-            var borderBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+            var borderBase = Theme?.SubLabelForColor ?? Color.Empty;
             using var borderPen = new Pen(Color.FromArgb(100, borderBase.R, borderBase.G, borderBase.B), 1); // System gray border
             g.DrawPath(borderPen, bgPath);
 
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
             {
                 using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99)); // System gray
+                using var titleBrush = new SolidBrush(Theme?.SubLabelForColor ?? Color.Empty); // System gray
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.ContentRect.X, ctx.ContentRect.Y);
             }
 
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 string message = ctx.Message;
                 using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-                var msgBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                var msgBase = Theme?.SubLabelForColor ?? Color.Empty;
                 using var messageBrush = new SolidBrush(Color.FromArgb(120, msgBase.R, msgBase.G, msgBase.B));
 
                 Rectangle messageRect = new Rectangle(
@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 string timestamp = ctx.Timestamp;
                 using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                var timeBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                var timeBase = Theme?.SubLabelForColor ?? Color.Empty;
                 using var timeBrush = new SolidBrush(Color.FromArgb(80, timeBase.R, timeBase.G, timeBase.B));
 
                 Rectangle timeRect = new Rectangle(
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void DrawSystemIcon(Graphics g, Rectangle rect)
         {
             // Draw gear/cog icon
-            var gearBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+            var gearBase = Theme?.SubLabelForColor ?? Color.Empty;
             using var gearPen = new Pen(Color.FromArgb(gearBase.R, gearBase.G, gearBase.B), 2);
 
             // Outer circle

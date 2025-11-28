@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
@@ -103,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintFilterButton(Graphics g, Rectangle bounds, string text, bool isSelected, bool isHovered)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var accentColor = _theme?.AccentColor ?? Color.Empty;
             var bgColor = isSelected ? accentColor : (isHovered ? Color.FromArgb(240, 240, 240) : Color.White);
             var textColor = isSelected ? Color.White : (_theme?.ForeColor ?? Color.Black);
             var borderColor = isSelected ? accentColor : Color.FromArgb(220, 220, 220);
@@ -246,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintRangeOverlay(Graphics g, Rectangle leftBounds, Rectangle rightBounds, DateTime leftMonth, DateTime rightMonth, DateTime rangeStart, DateTime rangeEnd, DateTimePickerProperties properties)
         {
-            var rangeColor = Color.FromArgb(40, _theme?.AccentColor ?? Color.FromArgb(0, 120, 215));
+            var rangeColor = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.AccentColor ?? Color.Empty, 40);
             using (var brush = new SolidBrush(rangeColor))
             {
                 // Calculate grid areas
@@ -406,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(120, 120, 120);
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
-            var pressedColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var pressedColor = _theme?.AccentColor ?? Color.Empty;
             var font = new Font(_theme?.FontName ?? "Segoe UI", 12f);
 
             // Draw spinner border

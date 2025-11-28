@@ -292,10 +292,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             Rectangle highlightRect = segment.Bounds;
             highlightRect.Inflate(2, 2);
             
-            // Choose color based on state
-            Color highlightColor = isActive 
-                ? Color.FromArgb(80, _currentTheme?.AccentColor ?? Color.DodgerBlue)
-                : Color.FromArgb(40, _currentTheme?.AccentColor ?? Color.LightGray);
+            // Choose color based on state - prefer theme color or Color.Empty
+            Color highlightColor = isActive
+                ? TheTechIdea.Beep.Winform.Controls.Styling.PathPainters.PathPainterHelpers.WithAlphaIfNotEmpty(_currentTheme?.AccentColor ?? Color.Empty, 80)
+                : TheTechIdea.Beep.Winform.Controls.Styling.PathPainters.PathPainterHelpers.WithAlphaIfNotEmpty(_currentTheme?.AccentColor ?? Color.Empty, 40);
             
             using (SolidBrush brush = new SolidBrush(highlightColor))
             {
@@ -304,7 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             
             // Draw subtle border
             Color borderColor = isActive
-                ? _currentTheme?.AccentColor ?? Color.DodgerBlue
+                ? _currentTheme?.AccentColor ?? Color.Empty
                 : Color.FromArgb(100, ForeColor);
             
             using (Pen pen = new Pen(borderColor, 1))

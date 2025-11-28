@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawFlowDiagram(Graphics g, WidgetContext ctx, List<NavigationItem> processes, int activeIndex)
         {
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             var successColor = Color.FromArgb(76, 175, 80);
             var pendingColor = Color.FromArgb(189, 189, 189);
 

@@ -72,7 +72,7 @@ namespace WinformSampleApp
             _addCtxGroupBtn.Click += (_, __) =>
             {
                 if (Ribbon == null) return;
-                _ctxGroupId = Ribbon.AddContextualGroup("Design", Color.MediumPurple);
+                _ctxGroupId = Ribbon.AddContextualGroup("Design", BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty);
                 var ctxTab = Ribbon.AddContextualTab(_ctxGroupId, "Format");
                 var grp = Ribbon.AddGroup(ctxTab, "Arrange");
                 grp.AddLargeButton("Align");
@@ -212,7 +212,7 @@ namespace WinformSampleApp
                             bottomBar.MovableNotchDepth = 30f;
                             bottomBar.MovableNotchWidthFactor = 1.25f;
                             bottomBar.CTAShadowYOffset = 10;
-                            bottomBar.AccentColor = Color.FromArgb(24, 219, 125); // bright green-ish
+                            bottomBar.AccentColor = BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty; // bright green-ish
                             break;
                         case BottomBarStyle.OutlineFloatingCTA:
                             bottomBar.OutlineRingStrokeWidth = 8;
@@ -220,7 +220,7 @@ namespace WinformSampleApp
                             bottomBar.OutlineInnerAlpha = 20;
                             bottomBar.OutlineHaloScale = 1.45f;
                             bottomBar.CTAShadowYOffset = 10;
-                            bottomBar.AccentColor = Color.FromArgb(24, 219, 125);
+                            bottomBar.AccentColor = BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty;
                             break;
                         default:
                             // reset for other styles to defaults
@@ -231,7 +231,7 @@ namespace WinformSampleApp
                             bottomBar.OutlineHaloAlpha = 36;
                             bottomBar.OutlineInnerAlpha = 12;
                             bottomBar.OutlineHaloScale = 1.4f;
-                            bottomBar.AccentColor = Color.FromArgb(96, 80, 255);
+                            bottomBar.AccentColor = BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
                             break;
                     }
                 }

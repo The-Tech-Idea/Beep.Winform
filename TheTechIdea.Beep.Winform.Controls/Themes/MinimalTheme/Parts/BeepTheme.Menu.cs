@@ -22,16 +22,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Main menu items
             this.MenuMainItemForeColor = ForeColor;
             this.MenuMainItemHoverForeColor = ForeColor;
-            this.MenuMainItemHoverBackColor = Color.FromArgb(245, 245, 245);  // SurfaceColor (light grey)
+            this.MenuMainItemHoverBackColor = SurfaceColor;
             this.MenuMainItemSelectedForeColor = ForeColor;
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(230, 230, 230);  // Medium grey
+            this.MenuMainItemSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.03);
             
             // Sub menu items
             this.MenuItemForeColor = ForeColor;
             this.MenuItemHoverForeColor = ForeColor;
-            this.MenuItemHoverBackColor = Color.FromArgb(245, 245, 245);  // SurfaceColor (light grey)
+            this.MenuItemHoverBackColor = SurfaceColor;
             this.MenuItemSelectedForeColor = ForeColor;
-            this.MenuItemSelectedBackColor = Color.FromArgb(230, 230, 230);  // Medium grey
+            this.MenuItemSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.03);
             
             // Clean gradient
             this.MenuGradiantStartColor = BackgroundColor;

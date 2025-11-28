@@ -342,7 +342,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw time spinner hover
             if (_mouseOverTimeArea && ShowTime && !_timeSpinnerRect.IsEmpty)
             {
-                using (SolidBrush brush = new SolidBrush(Color.FromArgb(16, 66, 133, 244)))
+                var baseAccent = _currentTheme?.AccentColor ?? BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
+                using (SolidBrush brush = new SolidBrush(Color.FromArgb(16, baseAccent)))
                 {
                     g.FillRectangle(brush, _timeSpinnerRect);
                 }
@@ -489,7 +490,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Rectangle selectionRect = Rectangle.Inflate(cellRect, -6, -6);
                     using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(selectionRect, 8))
-                    using (SolidBrush brush = new SolidBrush(_currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244)))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme?.CalendarSelectedDateBackColor ?? Color.Empty))
                     {
                         g.FillPath(brush, path);
                     }
@@ -498,7 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Rectangle todayRect = Rectangle.Inflate(cellRect, -6, -6);
                     using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(todayRect, 8))
-                    using (Pen pen = new Pen(_currentTheme?.CalendarTodayForeColor ?? Color.FromArgb(66, 133, 244), 1))
+                    using (Pen pen = new Pen(_currentTheme?.CalendarTodayForeColor ?? Color.Empty, 1))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -543,7 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_selectedDateTime.HasValue)
             {
                 // Blue rounded background
-                using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(66, 133, 244)))
+                using (SolidBrush bgBrush = new SolidBrush(_currentTheme?.CalendarSelectedDateBackColor ?? Color.Empty))
                 using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(_selectedDateDisplayRect, 8))
                 {
                     g.FillPath(bgBrush, path);
@@ -626,7 +627,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawFooterLinks(Graphics g)
         {
             var linkColor = _currentTheme?.CalendarSelectedDateBackColor;
-            if (linkColor == null || linkColor.Value == Color.Empty) linkColor = Color.FromArgb(66, 133, 244);
+            if (linkColor == null || linkColor.Value == Color.Empty) linkColor = BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
 
             // Compute states
             var clearState = GetHitState(_clearRect);

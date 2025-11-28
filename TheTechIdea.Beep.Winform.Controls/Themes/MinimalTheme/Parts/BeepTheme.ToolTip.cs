@@ -13,8 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ToolTipBackColor = SurfaceColor;
             this.ToolTipForeColor = ForeColor;
             this.ToolTipBorderColor = ActiveBorderColor;
-            this.ToolTipShadowColor = Color.FromArgb(30, 0, 0, 0);
-            this.ToolTipShadowOpacity = Color.FromArgb(40, 0, 0, 0);
+            this.ToolTipShadowColor = ShadowColor;
+            this.ToolTipShadowOpacity = ShadowColor;
             this.ToolTipTextColor = ForeColor;
             this.ToolTipLinkColor = PrimaryColor;
             this.ToolTipLinkHoverColor = SecondaryColor;

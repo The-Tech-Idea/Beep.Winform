@@ -10,20 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyStepper()
         {
-            this.StepperBackColor = Color.FromArgb(248,249,250);
-            this.StepperForeColor = Color.FromArgb(33,37,41);
-            this.StepperBorderColor = Color.FromArgb(222,226,230);
-            this.StepperItemForeColor = Color.FromArgb(33,37,41);
-            this.StepperItemHoverForeColor = Color.FromArgb(33,37,41);
-            this.StepperItemHoverBackColor = Color.FromArgb(248,249,250);
-            this.StepperItemSelectedForeColor = Color.FromArgb(33,37,41);
-            this.StepperItemSelectedBackColor = Color.FromArgb(248,249,250);
-            this.StepperItemSelectedBorderColor = Color.FromArgb(222,226,230);
-            this.StepperItemBorderColor = Color.FromArgb(222,226,230);
-            this.StepperItemHoverBorderColor = Color.FromArgb(222,226,230);
-            this.StepperItemCheckedBoxForeColor = Color.FromArgb(33,37,41);
-            this.StepperItemCheckedBoxBackColor = Color.FromArgb(248,249,250);
-            this.StepperItemCheckedBoxBorderColor = Color.FromArgb(222,226,230);
+            this.StepperBackColor = PanelBackColor;
+            this.StepperForeColor = ForeColor;
+            this.StepperBorderColor = BorderColor;
+            this.StepperItemForeColor = ForeColor;
+            this.StepperItemHoverForeColor = ForeColor;
+            this.StepperItemHoverBackColor = PanelBackColor;
+            this.StepperItemSelectedForeColor = ForeColor;
+            this.StepperItemSelectedBackColor = PanelBackColor;
+            this.StepperItemSelectedBorderColor = BorderColor;
+            this.StepperItemBorderColor = BorderColor;
+            this.StepperItemHoverBorderColor = BorderColor;
+            this.StepperItemCheckedBoxForeColor = ForeColor;
+            this.StepperItemCheckedBoxBackColor = PanelBackColor;
+            this.StepperItemCheckedBoxBorderColor = BorderColor;
         }
     }
 }

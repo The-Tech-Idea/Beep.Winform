@@ -11,23 +11,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyAppBar()
         {
             // ChatBubble AppBar - soft cyan background with black text
-            this.AppBarBackColor = Color.FromArgb(230, 250, 255);  // Light cyan
-            this.AppBarForeColor = Color.FromArgb(0, 0, 0);  // Black text
-            this.AppBarButtonForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarButtonBackColor = Color.FromArgb(230, 250, 255);
-            this.AppBarTextBoxBackColor = Color.FromArgb(255, 255, 255);  // White text boxes
-            this.AppBarTextBoxForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarLabelForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarLabelBackColor = Color.FromArgb(230, 250, 255);
-            this.AppBarTitleForeColor = Color.FromArgb(0, 0, 0);
-            this.AppBarTitleBackColor = Color.FromArgb(230, 250, 255);
-            this.AppBarSubTitleForeColor = Color.FromArgb(50, 50, 50);  // Dark gray
-            this.AppBarSubTitleBackColor = Color.FromArgb(230, 250, 255);
+            this.AppBarBackColor = BackgroundColor;  // Light cyan
+            this.AppBarForeColor = ForeColor;  // Black text
+            this.AppBarButtonForeColor = ForeColor;
+            this.AppBarButtonBackColor = BackgroundColor;
+            this.AppBarTextBoxBackColor = SurfaceColor;  // White text boxes
+            this.AppBarTextBoxForeColor = ForeColor;
+            this.AppBarLabelForeColor = ForeColor;
+            this.AppBarLabelBackColor = BackgroundColor;
+            this.AppBarTitleForeColor = ForeColor;
+            this.AppBarTitleBackColor = BackgroundColor;
+            this.AppBarSubTitleForeColor = SecondaryColor;  // Dark gray
+            this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - standard colors
-            this.AppBarCloseButtonColor = Color.FromArgb(0, 0, 0);
-            this.AppBarMaxButtonColor = Color.FromArgb(0, 0, 0);
-            this.AppBarMinButtonColor = Color.FromArgb(0, 0, 0);
+            this.AppBarCloseButtonColor = ForeColor;
+            this.AppBarMaxButtonColor = ForeColor;
+            this.AppBarMinButtonColor = ForeColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Nunito", FontSize = 14f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.2f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Nunito", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
             
             // Subtle gradient
-            this.AppBarGradiantStartColor = Color.FromArgb(245, 248, 255);
-            this.AppBarGradiantEndColor = Color.FromArgb(220, 245, 250);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(230, 250, 255);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

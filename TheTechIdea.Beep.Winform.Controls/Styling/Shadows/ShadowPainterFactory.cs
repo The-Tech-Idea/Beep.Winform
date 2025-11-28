@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         {
             _offsetX = offsetX;
             _offsetY = offsetY;
-            _shadowColor = shadowColor ?? Color.Black;
+            _shadowColor = shadowColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
             _opacity = opacity;
             _layers = layers;
         }
@@ -405,8 +405,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         public DoubleShadowPainterWrapper(Color? color1 = null, Color? color2 = null, 
             int offset1X = 2, int offset1Y = 2, int offset2X = 4, int offset2Y = 4)
         {
-            _color1 = color1 ?? Color.FromArgb(100, 0, 0, 0);
-            _color2 = color2 ?? Color.FromArgb(60, 0, 0, 0);
+            var baseShadow = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
+            _color1 = color1 ?? Color.FromArgb(100, baseShadow);
+            _color2 = color2 ?? Color.FromArgb(60, baseShadow);
             _offset1X = offset1X;
             _offset1Y = offset1Y;
             _offset2X = offset2X;
@@ -513,7 +514,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
             var (offsetX, offsetY, blur, opacity) = ShadowPainterHelpers.CalculateAdaptiveShadow(bounds, _intensity);
-            return ShadowPainterHelpers.PaintDropShadow(g, bounds, radius, offsetX, offsetY, blur, Color.Black, opacity);
+            var baseShadow = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
+            return ShadowPainterHelpers.PaintDropShadow(g, bounds, radius, offsetX, offsetY, blur, baseShadow, opacity);
         }
     }
 

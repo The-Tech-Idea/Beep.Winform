@@ -49,6 +49,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         }
 
         /// <summary>
+        /// Add alpha transparency to a color unless the base color is Color.Empty. Returns Color.Empty in that case.
+        /// </summary>
+        public static Color WithAlphaIfNotEmpty(Color color, int alpha)
+        {
+            if (color == Color.Empty) return Color.Empty;
+            return WithAlpha(color, alpha);
+        }
+
+        /// <summary>
         /// Blend two colors
         /// </summary>
         public static Color BlendColors(Color color1, Color color2, float ratio)

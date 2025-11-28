@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = itemHeight,
                 Width = Width,
                 Location = new Point(0, 0),
-                BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51)
+                BackColor = _currentTheme?.SideMenuBackColor ?? Color.Empty
             };
 
              highlightPanel = new Panel
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 5,
                 Height = itemHeight,
                 Dock = DockStyle.Left,
-                BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51),
+                BackColor = _currentTheme?.SideMenuBackColor ?? Color.Empty,
                 Visible = true,
                 Tag = "HiLight"
             };
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 2,
                 Height = itemHeight,
                 Dock = DockStyle.Left,
-                BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51),
+                BackColor = _currentTheme?.SideMenuBackColor ?? Color.Empty,
                 Visible = true,
                 Tag = "Spacing"
             };
@@ -126,13 +126,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             mainButton.MouseEnter += (s, e) =>
             {
-               buttonRowPanel.BackColor = _currentTheme?.ButtonHoverBackColor ?? Color.Gray;
-                highlightPanel.BackColor = _currentTheme?.ButtonHoverBackColor ?? Color.Gray;
+               buttonRowPanel.BackColor = _currentTheme?.ButtonHoverBackColor ?? Color.Empty;
+                highlightPanel.BackColor = _currentTheme?.ButtonHoverBackColor ?? Color.Empty;
             };
             mainButton.MouseLeave += (s, e) =>
             {
-                buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
-                highlightPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
+                buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.Empty;
+                highlightPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.Empty;
             };
             mainButton.Click += (s, e) => ItemClick?.Invoke(this, new BeepMouseEventArgs("ItemClicked", item));
 
@@ -295,8 +295,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
          //   base.ApplyTheme();
-            BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
-            buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
+            BackColor = _currentTheme?.ButtonBackColor ?? Color.Empty;
+            buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.Empty;
           
             mainButton.Theme = Theme;
             // mainButton.ApplyTheme();
@@ -306,14 +306,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (ctrl is Panel panel && panel.Tag?.ToString() == "HiLight")
                 {
-                    panel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
+                    panel.BackColor = _currentTheme?.ButtonBackColor ?? Color.Empty;
                 }
             }
 
             if (toggleButton != null)
             {
-                toggleButton.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
-                toggleButton.ForeColor = _currentTheme?.SideMenuForeColor ?? Color.White;
+                toggleButton.BackColor = _currentTheme?.ButtonBackColor ?? Color.Empty;
+                toggleButton.ForeColor = _currentTheme?.SideMenuForeColor ?? Color.Empty;
                 toggleButton.Theme = Theme;
                 toggleButton.ApplyTheme();
             }

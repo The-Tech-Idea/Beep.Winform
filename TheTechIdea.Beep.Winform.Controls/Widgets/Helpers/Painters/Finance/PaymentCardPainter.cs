@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                     "bank transfer" => "arrow-right-left",
                     _ => "credit-card"
                 };
-                _imagePainter.DrawSvg(g, iconName, iconRect, Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.9f);
+                _imagePainter.DrawSvg(g, iconName, iconRect, Theme?.PrimaryColor ?? Color.Empty, 0.9f);
 
                 // Payment method title
                 var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             
             Color balanceColor = isHovered
                 ? Color.FromArgb(Math.Min(255, ((Theme?.PrimaryColor ?? Color.Blue).R + 30)), Math.Min(255, ((Theme?.PrimaryColor ?? Color.Blue).G + 30)), Math.Min(255, ((Theme?.PrimaryColor ?? Color.Blue).B + 30)))
-                : Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+                : Theme?.PrimaryColor ?? Color.Empty;
             
             using var balanceBrush = new SolidBrush(balanceColor);
             string balanceText = $"{currencySymbol}{balance:N2}";

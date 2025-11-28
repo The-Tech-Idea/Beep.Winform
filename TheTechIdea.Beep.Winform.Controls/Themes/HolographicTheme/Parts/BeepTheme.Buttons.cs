@@ -17,22 +17,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonBorderColor = BorderColor;  // Purple glow (#8A6FFF)
             
             // Hover: Slightly lighter with cyan border
-            this.ButtonHoverBackColor = Color.FromArgb(50, 40, 70);
+            this.ButtonHoverBackColor = PanelGradiantStartColor;
             this.ButtonHoverForeColor = AccentColor;  // Pink text
             this.ButtonHoverBorderColor = SecondaryColor;  // Cyan glow
             
             // Selected: Medium purple with cyan accent
-            this.ButtonSelectedBackColor = Color.FromArgb(60, 50, 90);
+            this.ButtonSelectedBackColor = PanelGradiantMiddleColor;
             this.ButtonSelectedForeColor = SecondaryColor;  // Cyan text
             this.ButtonSelectedBorderColor = SecondaryColor;
             
             // Selected hover: Lighter purple
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(75, 60, 110);
+            this.ButtonSelectedHoverBackColor = PanelGradiantEndColor;
             this.ButtonSelectedHoverForeColor = SecondaryColor;
             this.ButtonSelectedHoverBorderColor = SecondaryColor;
             
             // Pressed: Darker
-            this.ButtonPressedBackColor = Color.FromArgb(20, 15, 28);
+            this.ButtonPressedBackColor = BackgroundColor;
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             

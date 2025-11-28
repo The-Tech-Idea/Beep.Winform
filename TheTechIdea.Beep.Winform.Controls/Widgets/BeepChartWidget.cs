@@ -33,8 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private string _title = "Chart Title";
         private List<double> _values = new List<double> { 10, 25, 30, 45, 20, 35 };
         private List<string> _labels = new List<string> { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
-        private List<Color> _colors = new List<Color>();
-        private Color _accentColor = Color.FromArgb(33, 150, 243);
+        private List<Color> _colors = new List<Color>(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ChartDefaultSeriesColors ?? new List<Color>());
+        private Color _accentColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty;
         private bool _showLegend = true;
         private bool _showGrid = true;
         private double _minValue = 0;
@@ -61,15 +61,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         private void InitializeDefaultColors()
         {
-            _colors.AddRange(new[]
+            // Prefer theme-provided chart colors; otherwise provide a sensible default palette
+            if (_colors == null || _colors.Count == 0)
             {
-                Color.FromArgb(33, 150, 243),   // Blue
-                Color.FromArgb(76, 175, 80),    // Green
-                Color.FromArgb(255, 193, 7),    // Amber
-                Color.FromArgb(244, 67, 54),    // Red
-                Color.FromArgb(156, 39, 176),   // Purple
-                Color.FromArgb(255, 152, 0),    // Orange
-            });
+                var themeColors = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ChartDefaultSeriesColors;
+                if (themeColors != null && themeColors.Count > 0)
+                {
+                    _colors.AddRange(themeColors);
+                }
+                else
+                {
+                    _colors.AddRange(new[]
+                    {
+                        Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty,
+                        Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty,
+                        Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.WarningColor ?? Color.Empty,
+                        Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ErrorColor ?? Color.Empty,
+                        Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty,
+                        Color.Empty,
+                    });
+                }
+            }
         }
 
         private void InitializePainter()

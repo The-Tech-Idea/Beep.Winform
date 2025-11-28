@@ -21,13 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarLabelBackColor = SurfaceColor;
             this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = SurfaceColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(140, 140, 140);  // Medium gray
+            this.AppBarSubTitleForeColor = SecondaryColor;  // Medium gray (token)
             this.AppBarSubTitleBackColor = SurfaceColor;
             
             // System buttons - dark colors
-            this.AppBarCloseButtonColor = Color.FromArgb(100, 100, 100);  // Dark gray
-            this.AppBarMaxButtonColor = Color.FromArgb(100, 100, 100);
-            this.AppBarMinButtonColor = Color.FromArgb(100, 100, 100);
+            this.AppBarCloseButtonColor = SecondaryColor;  // Dark gray
+            this.AppBarMaxButtonColor = SecondaryColor;
+            this.AppBarMinButtonColor = SecondaryColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 13.5f, FontWeight = FontWeight.Medium, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.2f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Inter", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.55f };
             
             // Minimal gradient
-            this.AppBarGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.AppBarGradiantEndColor = Color.FromArgb(252, 252, 252);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(254, 254, 254);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

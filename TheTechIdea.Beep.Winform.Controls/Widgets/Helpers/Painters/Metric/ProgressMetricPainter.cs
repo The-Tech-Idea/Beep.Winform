@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
                 // Progress icon
                 var iconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y - 1, 14, 14);
                 _imagePainter.DrawSvg(g, "activity", iconRect, 
-                    Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.7f);
+                    Theme?.PrimaryColor ?? Color.Empty, 0.7f);
                 
                 var textRect = new Rectangle(ctx.HeaderRect.X + 18, ctx.HeaderRect.Y, 
                     ctx.HeaderRect.Width - 18, ctx.HeaderRect.Height);
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
                 var fillRect = new Rectangle(progressRect.X, progressRect.Y, fillWidth, progressRect.Height);
                 
                 using var fillPath = CreateRoundedPath(fillRect, fillRect.Height / 2);
-                var progressColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
+                var progressColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.Empty);
                 
                 var lighter = Color.FromArgb(
                     Math.Min(255, progressColor.R + 30),

@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Appearance")]
-        public Color LeftSectionColor { get; set; } = Color.FromArgb(200, 144, 238, 144); // Light green as in the image
+        public Color LeftSectionColor { get; set; } = BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty; // prefer theme token for left section
 
         #endregion
 
@@ -185,7 +185,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw the colored background for the left section
-            using (SolidBrush sectionBrush = new SolidBrush(LeftSectionColor))
+            var sectionColor = LeftSectionColor != Color.Empty ? LeftSectionColor : (_currentTheme?.SuccessColor ?? Color.FromArgb(144, 238, 144));
+            using (SolidBrush sectionBrush = new SolidBrush(Color.FromArgb(200, sectionColor)))
             {
                 int leftSectionWidth = Width / 2; // Split the control into two halves
                 using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(new Rectangle(0, 0, leftSectionWidth, Height), BorderRadius))

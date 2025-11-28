@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         private void PaintLargeHeader(Graphics g, Rectangle bounds, DateTime selectedDate)
         {
             // Header background with accent color
-            var headerColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(100, 180, 220);
+            var headerColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             using (var brush = new SolidBrush(headerColor))
             {
                 g.FillRectangle(brush, bounds);
@@ -173,10 +173,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
         {
-            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(100, 180, 220);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
-            var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(100, 180, 220);
+            var todayColor = _theme?.CalendarTodayForeColor ?? Color.Empty;
 
             cellBounds.Inflate(-3, -3);
 

@@ -32,12 +32,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.FromArgb(250, 250, 250));
+            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.Empty);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, 8);
             g.FillPath(bgBrush, bgPath);
 
             // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(20, Color.Gray), 1);
+            using var borderPen = new Pen(Color.FromArgb(20, Theme?.SecondaryTextColor ?? Color.Empty), 1);
             g.DrawPath(borderPen, bgPath);
         }
 
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawQuickActionGrid(Graphics g, WidgetContext ctx, List<NavigationItem> actions)
         {
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             int cols = Math.Min(actions.Count, 4); // Max 4 columns
             int rows = (int)Math.Ceiling((double)actions.Count / cols);
             
@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 _imagePainter.DrawSvg(g, iconName, iconRect, primaryColor, 0.9f);
                 
                 // Action label
-                using var textBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
+                using var textBrush = new SolidBrush(Theme?.ForeColor ?? Color.Empty);
                 var textRect = new Rectangle(x, y + iconRect.Bottom + 4, buttonSize, 20);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(action.Text, actionFont, textBrush, textRect, format);

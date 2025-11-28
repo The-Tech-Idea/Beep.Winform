@@ -261,8 +261,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Color startColor, endColor;
                     if (Checked)
                     {
-                        startColor = _currentTheme?.CheckBoxBackColor ?? Color.FromArgb(70, 70, 70);
-                        endColor = _currentTheme?.CheckBoxForeColor ?? Color.FromArgb(45, 45, 45);
+                        startColor = _currentTheme?.CheckBoxBackColor ?? Color.Empty;
+                        endColor = _currentTheme?.CheckBoxForeColor ?? Color.Empty;
                     }
                     else
                     {
@@ -347,8 +347,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Color startColor, endColor;
                     if (Checked)
                     {
-                        startColor = _currentTheme?.CheckBoxBackColor ?? Color.FromArgb(70, 70, 70);
-                        endColor = _currentTheme?.CheckBoxForeColor ?? Color.FromArgb(45, 45, 45);
+                        startColor = _currentTheme?.CheckBoxBackColor ?? Color.Empty;
+                        endColor = _currentTheme?.CheckBoxForeColor ?? Color.Empty;
                     }
                     else
                     {

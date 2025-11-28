@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void DrawPortfolioHeader(Graphics g, WidgetContext ctx)
         {
             var iconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y + 2, 20, 20);
-            _imagePainter.DrawSvg(g, "pie-chart", iconRect, Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.9f);
+            _imagePainter.DrawSvg(g, "pie-chart", iconRect, Theme?.PrimaryColor ?? Color.Empty, 0.9f);
 
             var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
             using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);

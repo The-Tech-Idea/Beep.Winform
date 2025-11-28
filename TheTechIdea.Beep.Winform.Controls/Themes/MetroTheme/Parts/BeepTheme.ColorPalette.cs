@@ -32,6 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AccentColor = Color.FromArgb(255, 185, 0);  // Orange
             this.BackgroundColor = Color.FromArgb(255, 255, 255);
             this.SurfaceColor = Color.FromArgb(255, 255, 255);
+            // subtle shadow color for floating elements
+            this.ShadowColor = Color.FromArgb(25, 0, 0, 0);  // subtle black alpha
             
             // Status colors
             this.ErrorColor = Color.FromArgb(196, 30, 58);  // Red

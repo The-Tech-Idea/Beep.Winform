@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             var iconRect = _headerIconRect;
             string iconName = GetFieldTypeIcon(field.Type.ToString());
             _imagePainter.DrawSvg(g, iconName, iconRect, 
-                Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.8f);
+                Theme?.PrimaryColor ?? Color.Empty, 0.8f);
 
             // Field label
             var labelRect = _headerLabelRect;
@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawFocusIndicator(Graphics g, Rectangle contentRect)
         {
-            using var cursorPen = new Pen(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 1);
+            using var cursorPen = new Pen(Theme?.PrimaryColor ?? Color.Empty, 1);
             int cursorX = contentRect.X + contentRect.Width - 20;
             g.DrawLine(cursorPen, cursorX, contentRect.Y + 4, cursorX, contentRect.Bottom - 4);
         }
@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (ctx.IsFocused)
             {
                 var focusRect = Rectangle.Inflate(ctx.DrawingRect, 2, 2);
-                using var focusPen = new Pen(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 2);
+                using var focusPen = new Pen(Theme?.PrimaryColor ?? Color.Empty, 2);
                 g.DrawRoundedRectangle(focusPen, focusRect, 8);
             }
 

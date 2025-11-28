@@ -10,21 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCompany()
         {
-            this.CompanyPopoverBackgroundColor = Color.FromArgb(15,16,32);
-            this.CompanyTitleColor = Color.FromArgb(15,16,32);
+            this.CompanyPopoverBackgroundColor = SurfaceColor;
+            this.CompanyTitleColor = ForeColor;
             this.CompanyTitleFont = new TypographyStyle { FontFamily = "Sora", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
-            this.CompanySubtitleColor = Color.FromArgb(15,16,32);
+            this.CompanySubtitleColor = AccentColor;
             this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Sora", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
-            this.CompanyDescriptionColor = Color.FromArgb(15,16,32);
+            this.CompanyDescriptionColor = ForeColor;
             this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Sora", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
-            this.CompanyLinkColor = Color.FromArgb(15,16,32);
+            this.CompanyLinkColor = SecondaryColor;
             this.CompanyLinkFont = new TypographyStyle { FontFamily = "Sora", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
-            this.CompanyButtonBackgroundColor = Color.FromArgb(15,16,32);
-            this.CompanyButtonTextColor = Color.FromArgb(245,247,255);
+            this.CompanyButtonBackgroundColor = PrimaryColor;
+            this.CompanyButtonTextColor = OnPrimaryColor;
             this.CompanyButtonFont = new TypographyStyle { FontFamily = "Sora", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
-            this.CompanyDropdownBackgroundColor = Color.FromArgb(15,16,32);
-            this.CompanyDropdownTextColor = Color.FromArgb(245,247,255);
-            this.CompanyLogoBackgroundColor = Color.FromArgb(15,16,32);
+            this.CompanyDropdownBackgroundColor = SurfaceColor;
+            this.CompanyDropdownTextColor = ForeColor;
+            this.CompanyLogoBackgroundColor = SurfaceColor;
         }
     }
 }

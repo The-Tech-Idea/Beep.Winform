@@ -79,12 +79,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             // Key light shadow (directional, smaller)
             int keyOffsetY = elevationValue * 2;
             int keyBlur = elevationValue * 2;
-            Color keyShadowColor = Color.FromArgb(40, 0, 0, 0);
+            Color baseShadowTheme = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
+            Color keyShadowColor = Color.FromArgb(40, baseShadowTheme);
 
             // Ambient light shadow (larger, softer)
             int ambientOffsetY = elevationValue;
             int ambientBlur = elevationValue * 4;
-            Color ambientShadowColor = Color.FromArgb(30, 0, 0, 0);
+            Color ambientShadowColor = Color.FromArgb(30, baseShadowTheme);
 
             // Draw ambient shadow first (larger)
             PaintSoftShadow(g, bounds, radius, 0, ambientOffsetY, ambientShadowColor, 0.3f, ambientBlur);
@@ -193,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         /// </summary>
         public static GraphicsPath PaintInnerShadow(Graphics g, GraphicsPath bounds, int radius, int depth = 4, Color? shadowColor = null)
         {
-            Color shadow = shadowColor ?? Color.FromArgb(100, 0, 0, 0);
+            Color shadow = shadowColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.FromArgb(100, 0, 0, 0);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Create inset path
@@ -294,10 +295,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = elevation;
 
             // Draw large soft shadow
-            PaintSoftShadow(g, bounds, radius, 0, offsetY, Color.FromArgb(40, 0, 0, 0), 0.4f, blur);
+            PaintSoftShadow(g, bounds, radius, 0, offsetY, Color.FromArgb(40, baseShadowTheme), 0.4f, blur);
 
             // Draw tighter core shadow
-            PaintSoftShadow(g, bounds, radius, 0, offsetY / 2, Color.FromArgb(60, 0, 0, 0), 0.3f, blur / 2);
+            PaintSoftShadow(g, bounds, radius, 0, offsetY / 2, Color.FromArgb(60, baseShadowTheme), 0.3f, blur / 2);
 
             return bounds.CreateInsetPath(radius);
         }

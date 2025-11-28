@@ -10,17 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyChart()
         {
-            this.ChartBackColor = Color.FromArgb(242,242,247);
-            this.ChartLineColor = Color.FromArgb(242,242,247);
-            this.ChartFillColor = Color.FromArgb(242,242,247);
-            this.ChartAxisColor = Color.FromArgb(242,242,247);
-            this.ChartTitleColor = Color.FromArgb(242,242,247);
-            this.ChartTextColor = Color.FromArgb(28,28,30);
-            this.ChartLegendBackColor = Color.FromArgb(242,242,247);
-            this.ChartLegendTextColor = Color.FromArgb(28,28,30);
-            this.ChartLegendShapeColor = Color.FromArgb(242,242,247);
-            this.ChartGridLineColor = Color.FromArgb(242,242,247);
-            this.ChartDefaultSeriesColors = new System.Collections.Generic.List<Color> { Color.FromArgb(10,132,255), Color.FromArgb(88,86,214), Color.FromArgb(255,159,10), Color.FromArgb(142,142,147) };
+            this.ChartBackColor = BackgroundColor;
+            this.ChartLineColor = InactiveBorderColor;
+            this.ChartFillColor = BackgroundColor;
+            this.ChartAxisColor = InactiveBorderColor;
+            this.ChartTitleColor = ForeColor;
+            this.ChartTextColor = ForeColor;
+            this.ChartLegendBackColor = BackgroundColor;
+            this.ChartLegendTextColor = ForeColor;
+            this.ChartLegendShapeColor = SurfaceColor;
+            this.ChartGridLineColor = InactiveBorderColor;
+            this.ChartDefaultSeriesColors = new System.Collections.Generic.List<Color> { PrimaryColor, SecondaryColor, AccentColor, ThemeUtil.Lighten(ForeColor, 0.6) };
         }
     }
 }

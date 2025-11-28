@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             // Draw fieldset border
-            using var borderPen = new Pen(Theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1);
+            using var borderPen = new Pen(Theme?.BorderColor ?? Color.Empty, 1);
             var borderRect = new Rectangle(ctx.DrawingRect.Left + 6, ctx.DrawingRect.Top + 6,
                                          ctx.DrawingRect.Width - 12, ctx.DrawingRect.Height - 12);
 
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.DrawPath(borderPen, borderPath);
 
             // Fill background
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
+            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.Empty);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
         }
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 var (rect, index, name) = _fieldRects[i];
                 if (IsAreaHovered($"FieldSet_Field_{index}"))
                 {
-                    using var hover = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
+                    using var hover = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Empty));
                     g.FillRectangle(hover, Rectangle.Inflate(rect, 2, 2));
                 }
             }
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             // Draw legend text
             using var legendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
-            using var legendBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.FromArgb(100, 100, 100));
+            using var legendBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.Empty);
             g.DrawString(title, legendFont, legendBrush, legendRect);
         }
 
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 // Draw placeholder content
                 using var placeholderFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
-                using var placeholderBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
+                using var placeholderBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Theme?.SecondaryTextColor ?? Color.Empty));
                 g.DrawString("No fields defined", placeholderFont, placeholderBrush, ctx.ContentRect);
                 return;
             }
@@ -155,8 +155,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
                 // Draw field value/input area
                 var inputRect = new Rectangle(fieldRect.Left, fieldRect.Top + 14, fieldRect.Width, 18);
-                using var inputBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.FromArgb(250, 250, 250));
-                using var inputPen = new Pen(Theme?.TextBoxBorderColor ?? Color.FromArgb(200, 200, 200), 1);
+                using var inputBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.Empty);
+                using var inputPen = new Pen(Theme?.TextBoxBorderColor ?? Color.Empty, 1);
 
                 g.FillRectangle(inputBrush, inputRect);
                 g.DrawRectangle(inputPen, inputRect);
@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
                 using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 Color valueColor = string.IsNullOrEmpty(field.Value?.ToString()) ?
-                    Color.Gray : (Theme?.LabelForeColor ?? Theme?.ForeColor ?? Color.Black);
+                    Theme?.SecondaryTextColor ?? Color.Empty : (Theme?.LabelForeColor ?? Theme?.ForeColor ?? Color.Empty);
                 using var valueBrush = new SolidBrush(valueColor);
 
                 g.DrawString(displayValue, valueFont, valueBrush, inputRect.Left + 4, inputRect.Top + 2);
@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         {
             // Draw a small required indicator in the top-right corner
             var indicatorRect = new Rectangle(ctx.DrawingRect.Right - 20, ctx.DrawingRect.Top + 4, 12, 12);
-            using var indicatorBrush = new SolidBrush(Color.FromArgb(200, Color.Red));
+            using var indicatorBrush = new SolidBrush(Color.FromArgb(200, Theme?.ErrorColor ?? Color.Empty));
             g.FillEllipse(indicatorBrush, indicatorRect);
 
             using var indicatorFont = new Font("Arial", 8f, FontStyle.Bold);

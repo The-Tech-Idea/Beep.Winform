@@ -677,7 +677,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _filledBackgroundColor;
             set { if (_filledBackgroundColor == value) return; _filledBackgroundColor = value; Invalidate(); }
         }
-        private Color _filledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+        private Color _filledBackgroundColor = Color.FromArgb(20, Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black);
         // Badge
         private string _badgeText = "";
         [Browsable(true)] public virtual string BadgeText

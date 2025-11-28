@@ -38,14 +38,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
             // AG-Grid neutral header background
-            var bgColor = theme?.GridHeaderBackColor ?? Color.FromArgb(248, 248, 248);
+            var bgColor = theme?.GridHeaderBackColor ?? Color.Empty;
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, headerRect);
             }
 
             // Top and bottom borders
-            var borderColor = theme?.GridLineColor ?? Color.FromArgb(221, 221, 221);
+            var borderColor = theme?.GridLineColor ?? Color.Empty;
             using (var pen = new Pen(borderColor))
             {
                 g.DrawLine(pen, headerRect.Left, headerRect.Top, headerRect.Right, headerRect.Top);
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) 
                 ?? new Font("Arial", 9f, FontStyle.Bold);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            var textColor = theme?.GridHeaderForeColor ?? Color.FromArgb(51, 51, 51);
+            var textColor = theme?.GridHeaderForeColor ?? Color.Empty;
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);
 
             // Draw AG-Grid sort indicator (small triangle)
@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (sortDirection == SortDirection.None || iconRect.IsEmpty) return;
 
-            var color = theme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+            var color = theme?.AccentColor ?? Color.Empty;
             using (var brush = new SolidBrush(color))
             {
                 var centerX = iconRect.X + iconRect.Width / 2;
@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (iconRect.IsEmpty) return;
 
             var color = isActive
-                ? (theme?.AccentColor ?? Color.FromArgb(33, 150, 243))
+                ? (theme?.AccentColor ?? Color.Empty)
                 : Color.FromArgb(150, 150, 150);
 
             using (var pen = new Pen(color, 1.5f))
@@ -252,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Active indicator dot
             if (isActive)
             {
-                using (var brush = new SolidBrush(theme?.AccentColor ?? Color.FromArgb(33, 150, 243)))
+                using (var brush = new SolidBrush(theme?.AccentColor ?? Color.Empty))
                 {
                     g.FillEllipse(brush, iconRect.Right - 4, iconRect.Y, 3, 3);
                 }

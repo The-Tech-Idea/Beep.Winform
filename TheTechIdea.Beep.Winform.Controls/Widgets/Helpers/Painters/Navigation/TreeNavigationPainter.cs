@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private int DrawTreeStructure(Graphics g, WidgetContext ctx, List<TreeNodeItem> items, int startY, int currentIndex)
         {
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             int itemHeight = 24;
             int indentSize = 20;
             

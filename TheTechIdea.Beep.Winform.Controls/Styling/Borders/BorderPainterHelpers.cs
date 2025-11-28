@@ -123,6 +123,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         }
 
         /// <summary>
+        /// Create a color with a specific alpha value, but return Color.Empty if original color is Color.Empty
+        /// This is useful when falling back to Color.Empty for theme-missing colors so the result remains empty instead of a gray/black overlay.
+        /// </summary>
+        public static Color WithAlphaIfNotEmpty(Color color, int alpha)
+        {
+            if (color == Color.Empty) return Color.Empty;
+            return WithAlpha(color, alpha);
+        }
+
+        /// <summary>
         /// Blend two colors together by a specified amount
         /// </summary>
         /// <param name="baseColor">The base color</param>

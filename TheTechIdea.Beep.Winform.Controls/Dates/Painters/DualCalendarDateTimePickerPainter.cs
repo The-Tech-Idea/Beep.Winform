@@ -7,6 +7,7 @@ using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 using TheTechIdea.Beep.Winform.Controls.Dates.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
@@ -55,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             PaintSingleCalendarFromGrid(g, leftGrid, displayMonth, properties, hoverState, true, 0);
 
             // Separator
-            var borderColor = _theme?.BorderColor ?? Color.FromArgb(230, 230, 230);
+            var borderColor = _theme?.BorderColor ?? Color.Empty;
             using (var pen = new Pen(borderColor, 1))
             {
                 int padding = 16;
@@ -171,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         private void PaintYearComboBox(Graphics g, Rectangle bounds, int selectedYear, DateTimePickerHoverState hoverState, int gridIndex)
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
-            var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
+            var hoverColor = _theme?.CalendarHoverBackColor ?? Color.Empty;
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold);
 
@@ -227,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
-            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             var bgColor = Color.FromArgb(250, 250, 250);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(230, 230, 230);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
@@ -260,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
-            var rangeColor = Color.FromArgb(50, accentColor);
+            var rangeColor = PathPainterHelpers.WithAlphaIfNotEmpty(accentColor, 50);
             
             // Define distinct colors for start and end dates
             var startDateColor = Color.FromArgb(34, 139, 34);  // Forest Green

@@ -12,29 +12,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Glass buttons - frosted glass effect
             // Default: Light blue background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light blue
+            this.ButtonBackColor = SurfaceColor;  // Light surface
             this.ButtonForeColor = ForeColor;  // Dark gray
-            this.ButtonBorderColor = BorderColor;  // Visible border
+            this.ButtonBorderColor = InactiveBorderColor;  // Visible border
             
             // Hover: Slightly darker blue
-            this.ButtonHoverBackColor = Color.FromArgb(216, 234, 250);
+            this.ButtonHoverBackColor = PanelGradiantStartColor;
             this.ButtonHoverForeColor = ForeColor;
             this.ButtonHoverBorderColor = ActiveBorderColor;  // Indigo border
             
             // Selected: Medium blue
-            this.ButtonSelectedBackColor = Color.FromArgb(190, 220, 245);
+            this.ButtonSelectedBackColor = PrimaryColor;
             this.ButtonSelectedForeColor = ForeColor;
             this.ButtonSelectedBorderColor = ActiveBorderColor;
             
             // Selected hover: Darker blue
-            this.ButtonSelectedHoverBackColor = Color.FromArgb(170, 210, 240);
+            this.ButtonSelectedHoverBackColor = PanelGradiantStartColor;
             this.ButtonSelectedHoverForeColor = ForeColor;
             this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
             
             // Pressed: Lighter
-            this.ButtonPressedBackColor = Color.FromArgb(250, 252, 255);
+            this.ButtonPressedBackColor = PanelGradiantMiddleColor;
             this.ButtonPressedForeColor = ForeColor;
-            this.ButtonPressedBorderColor = BorderColor;
+            this.ButtonPressedBorderColor = InactiveBorderColor;
             
             // Error button: Red background with white text
             this.ButtonErrorBackColor = ErrorColor;  // Red

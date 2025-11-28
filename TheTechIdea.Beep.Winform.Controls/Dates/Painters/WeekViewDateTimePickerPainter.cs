@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
@@ -85,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         private void PaintSelectedWeekInfo(Graphics g, Rectangle bounds)
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
-            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             var bgColor = Color.FromArgb(250, 250, 250);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(230, 230, 230);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
@@ -314,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
-            var weekColor = Color.FromArgb(40, accentColor);
+            var weekColor = PathPainterHelpers.WithAlphaIfNotEmpty(accentColor, 40);
 
             cellBounds.Inflate(-1, -1);
 

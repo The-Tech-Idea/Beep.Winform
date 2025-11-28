@@ -10,16 +10,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyTree()
         {
-            this.TreeBackColor = Color.FromArgb(15,16,32);
-            this.TreeForeColor = Color.FromArgb(245,247,255);
-            this.TreeBorderColor = Color.FromArgb(74,79,123);
-            this.TreeNodeForeColor = Color.FromArgb(245,247,255);
-            this.TreeNodeHoverForeColor = Color.FromArgb(245,247,255);
-            this.TreeNodeHoverBackColor = Color.FromArgb(15,16,32);
-            this.TreeNodeSelectedForeColor = Color.FromArgb(245,247,255);
-            this.TreeNodeSelectedBackColor = Color.FromArgb(15,16,32);
-            this.TreeNodeCheckedBoxForeColor = Color.FromArgb(245,247,255);
-            this.TreeNodeCheckedBoxBackColor = Color.FromArgb(15,16,32);
+            this.TreeBackColor = SurfaceColor;
+            this.TreeForeColor = ForeColor;
+            this.TreeBorderColor = InactiveBorderColor;
+            this.TreeNodeForeColor = ForeColor;
+            this.TreeNodeHoverForeColor = ForeColor;
+            this.TreeNodeHoverBackColor = PanelGradiantStartColor;
+            this.TreeNodeSelectedForeColor = OnPrimaryColor;
+            this.TreeNodeSelectedBackColor = PrimaryColor;
+            this.TreeNodeCheckedBoxForeColor = ForeColor;
+            this.TreeNodeCheckedBoxBackColor = SurfaceColor;
         }
     }
 }

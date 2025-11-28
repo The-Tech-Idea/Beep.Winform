@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
-            Color borderColor = Color.FromArgb(200, _theme?.BorderColor ?? Color.LightGray);
+            Color borderColor = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.BorderColor ?? Color.Empty, 200);
             var basePen = PaintersFactory.GetPen(borderColor, 1.5f);
             // need to modify LineJoin, clone the cached pen
             var pen = (System.Drawing.Pen)basePen.Clone();
@@ -120,9 +121,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
-            Color borderColor = _owner.Focused 
-                ? _theme?.PrimaryColor ?? Color.Blue
-                : (_theme?.BorderColor ?? Color.Gray);
+            Color borderColor = _owner.Focused
+                ? _theme?.PrimaryColor ?? Color.Empty
+                : (_theme?.BorderColor ?? Color.Empty);
             
             var pen = PaintersFactory.GetPen(borderColor, _owner.Focused ? 2f : 1f);
             using (var path = GetPillPath(rect))
@@ -134,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
         {
             if (buttonRect.IsEmpty) return;
-            Color arrowColor = _theme?.SecondaryColor ?? Color.Gray;
+            Color arrowColor = _theme?.SecondaryColor ?? Color.Empty;
             DrawDropdownArrow(g, buttonRect, arrowColor);
         }
         

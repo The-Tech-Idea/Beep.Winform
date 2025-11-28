@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
@@ -98,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // For editable mode, we might want to show a different background
             if (_owner.IsEditable && _owner.Focused)
             {
-                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, _theme?.PrimaryColor ?? Color.Blue));
+                var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 10));
                 g.FillRectangle(brush, textAreaRect);
             }
         }
@@ -159,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected void DrawPlaceholderIcon(Graphics g, Rectangle iconRect)
         {
-            var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, _theme?.SecondaryColor ?? Color.Gray));
+            var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.SecondaryColor ?? Color.Empty, 150));
             var smallRect = iconRect;
             smallRect.Inflate(-4, -4);
             g.FillEllipse(brush, smallRect);

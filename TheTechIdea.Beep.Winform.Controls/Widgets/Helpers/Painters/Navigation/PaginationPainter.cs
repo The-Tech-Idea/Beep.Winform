@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawModernPagination(Graphics g, WidgetContext ctx)
         {
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             int spacing = 4;
             
             using var pageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawPageButton(Graphics g, Rectangle rect, string text, bool enabled, bool isActive, string iconName = null, bool hovered = false)
         {
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             Color bgColor = isActive ? primaryColor : enabled ? (hovered ? Color.FromArgb(245, 247, 249) : Color.White) : Color.FromArgb(248, 249, 250);
             Color borderColor = isActive ? primaryColor : (hovered ? Color.FromArgb(200, 215, 230) : Color.FromArgb(220, 220, 220));
             using var bgBrush = new SolidBrush(bgColor);

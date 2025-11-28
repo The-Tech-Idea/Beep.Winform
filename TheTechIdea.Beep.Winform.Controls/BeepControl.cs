@@ -300,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // For Filled variant
         [Category("Material UI")]
         [Description("Background color when using the Filled variant")]
-        public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
+        public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black);
 
         // Effects toggles
         private bool _enableSplashEffect = true;
@@ -1397,59 +1397,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (UIColor)
             {
                 case ReactUIColor.Primary:
-                    primaryColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(25, 118, 210);
-                    secondaryColor = _currentTheme?.ButtonHoverBackColor ?? Color.FromArgb(66, 165, 245);
-                    borderColor = _currentTheme?.ButtonBorderColor ?? Color.FromArgb(25, 118, 210);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = _currentTheme?.ButtonForeColor ?? Color.White;
+                    // Prefer explicit themed button color tokens, otherwise fall back to primary/secondary theme tokens
+                    primaryColor = _currentTheme?.ButtonBackColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.ButtonHoverBackColor ?? _currentTheme?.SecondaryColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.ButtonBorderColor ?? _currentTheme?.ActiveBorderColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.ButtonForeColor ?? _currentTheme?.OnPrimaryColor ?? Color.White;
                     break;
 
                 case ReactUIColor.Secondary:
-                    primaryColor = Color.FromArgb(156, 39, 176);
-                    secondaryColor = Color.FromArgb(186, 104, 200);
-                    borderColor = Color.FromArgb(156, 39, 176);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = Color.White;
+                    primaryColor = _currentTheme?.SecondaryColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.ButtonHoverBackColor ?? _currentTheme?.AccentColor ?? _currentTheme?.SecondaryColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.ButtonBorderColor ?? _currentTheme?.InactiveBorderColor ?? _currentTheme?.SecondaryColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.ButtonForeColor ?? _currentTheme?.OnBackgroundColor ?? Color.White;
                     break;
 
                 case ReactUIColor.Success:
-                    primaryColor = Color.FromArgb(46, 125, 50);
-                    secondaryColor = Color.FromArgb(76, 175, 80);
-                    borderColor = Color.FromArgb(46, 125, 50);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = Color.White;
+                    primaryColor = _currentTheme?.SuccessColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.SecondaryColor ?? _currentTheme?.SuccessColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.BorderColor ?? _currentTheme?.SuccessColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.OnPrimaryColor ?? Color.White;
                     break;
 
                 case ReactUIColor.Error:
-                    primaryColor = Color.FromArgb(211, 47, 47);
-                    secondaryColor = Color.FromArgb(239, 83, 80);
-                    borderColor = Color.FromArgb(211, 47, 47);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = Color.White;
+                    primaryColor = _currentTheme?.ErrorColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.AccentColor ?? _currentTheme?.ErrorColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.BorderColor ?? _currentTheme?.ErrorColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.OnPrimaryColor ?? Color.White;
                     break;
 
                 case ReactUIColor.Warning:
-                    primaryColor = Color.FromArgb(237, 108, 2);
-                    secondaryColor = Color.FromArgb(255, 152, 0);
-                    borderColor = Color.FromArgb(237, 108, 2);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = Color.White;
+                    primaryColor = _currentTheme?.WarningColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.AccentColor ?? _currentTheme?.WarningColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.BorderColor ?? _currentTheme?.WarningColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.OnPrimaryColor ?? Color.White;
                     break;
 
                 case ReactUIColor.Info:
-                    primaryColor = Color.FromArgb(2, 136, 209);
-                    secondaryColor = Color.FromArgb(3, 169, 244);
-                    borderColor = Color.FromArgb(2, 136, 209);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = Color.White;
+                    primaryColor = _currentTheme?.AccentColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.SecondaryColor ?? _currentTheme?.AccentColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.BorderColor ?? _currentTheme?.AccentColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.OnPrimaryColor ?? Color.White;
                     break;
 
                 default: // Default
-                    primaryColor = Color.FromArgb(158, 158, 158);
-                    secondaryColor = Color.FromArgb(189, 189, 189);
-                    borderColor = Color.FromArgb(158, 158, 158);
-                    backgroundColor = Color.FromArgb(255, 255, 255);
-                    textColor = Color.Black;
+                    primaryColor = _currentTheme?.ButtonBackColor ?? _currentTheme?.SecondaryColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    secondaryColor = _currentTheme?.ButtonHoverBackColor ?? _currentTheme?.SecondaryColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    borderColor = _currentTheme?.ButtonBorderColor ?? _currentTheme?.BorderColor ?? _currentTheme?.PrimaryColor ?? Color.Empty;
+                    backgroundColor = _currentTheme?.BackgroundColor ?? Color.White;
+                    textColor = _currentTheme?.ButtonForeColor ?? Color.Black;
                     break;
             }
 

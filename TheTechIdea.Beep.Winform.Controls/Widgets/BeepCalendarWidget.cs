@@ -39,21 +39,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private DateTime _displayMonth = DateTime.Now;
         private List<CalendarEvent> _events = new List<CalendarEvent>();
         private List<TimeSlot> _timeSlots = new List<TimeSlot>();
-        private Color _accentColor = Color.FromArgb(33, 150, 243); // Blue
-        private Color _eventColor = Color.FromArgb(76, 175, 80); // Green
-        private Color _selectedColor = Color.FromArgb(255, 193, 7); // Amber
-        private Color _todayColor = Color.FromArgb(244, 67, 54); // Red
-        private Color _calendarBorderColor = Color.FromArgb(200, 200, 200);
-        private Color _surfaceColor = Color.White;
-        private Color _selectedDateBackColor = Color.FromArgb(33, 150, 243);
-        private Color _selectedDateForeColor = Color.White;
-        private Color _hoverBackColor = Color.FromArgb(245, 245, 245);
-        private Color _hoverForeColor = Color.Black;
-        private Color _titleForeColor = Color.Black;
-        private Color _daysHeaderForeColor = Color.FromArgb(100, 100, 100);
-        private Color _confirmedEventColor = Color.FromArgb(76, 175, 80);
-        private Color _pendingEventColor = Color.FromArgb(255, 193, 7);
-        private Color _conflictEventColor = Color.FromArgb(244, 67, 54);
+        private Color _accentColor = BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
+        private Color _eventColor = BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
+        private Color _selectedColor = BeepStyling.CurrentTheme?.CalendarSelectedDateBackColor ?? Color.Empty;
+        private Color _todayColor = BeepStyling.CurrentTheme?.CalendarTodayForeColor ?? Color.Empty;
+        private Color _calendarBorderColor = BeepStyling.CurrentTheme?.CalendarBorderColor ?? Color.Empty;
+        private Color _surfaceColor = BeepStyling.CurrentTheme?.SurfaceColor ?? Color.Empty;
+        private Color _selectedDateBackColor = BeepStyling.CurrentTheme?.CalendarSelectedDateBackColor ?? Color.Empty;
+        private Color _selectedDateForeColor = BeepStyling.CurrentTheme?.CalendarSelectedDateForColor ?? Color.Empty;
+        private Color _hoverBackColor = BeepStyling.CurrentTheme?.CalendarHoverBackColor ?? Color.Empty;
+        private Color _hoverForeColor = BeepStyling.CurrentTheme?.CalendarHoverForeColor ?? Color.Empty;
+        private Color _titleForeColor = BeepStyling.CurrentTheme?.CalendarTitleForColor ?? Color.Empty;
+        private Color _daysHeaderForeColor = BeepStyling.CurrentTheme?.CalendarDaysHeaderForColor ?? Color.Empty;
+        private Color _confirmedEventColor = BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty;
+        private Color _pendingEventColor = BeepStyling.CurrentTheme?.WarningColor ?? Color.Empty;
+        private Color _conflictEventColor = BeepStyling.CurrentTheme?.ErrorColor ?? Color.Empty;
         private bool _showWeekends = true;
         private bool _showToday = true;
         private bool _showEvents = true;
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     StartTime = DateTime.Today.AddHours(10), 
                     EndTime = DateTime.Today.AddHours(11),
                     Description = "Weekly team standup",
-                    Color = Color.FromArgb(76, 175, 80),
+                    Color = _confirmedEventColor,
                     Type = "Meeting"
                 },
                 new CalendarEvent 
@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     StartTime = DateTime.Today.AddDays(1).AddHours(14), 
                     EndTime = DateTime.Today.AddDays(1).AddHours(15),
                     Description = "Quarterly project review",
-                    Color = Color.FromArgb(33, 150, 243),
+                    Color = _accentColor,
                     Type = "Review"
                 },
                 new CalendarEvent 
@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     StartTime = DateTime.Today.AddDays(2).AddHours(16), 
                     EndTime = DateTime.Today.AddDays(2).AddHours(17),
                     Description = "Client consultation call",
-                    Color = Color.FromArgb(255, 193, 7),
+                    Color = _pendingEventColor,
                     Type = "Call"
                 }
             });

@@ -10,21 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyCompany()
         {
-            this.CompanyPopoverBackgroundColor = Color.FromArgb(245,248,255);
-            this.CompanyTitleColor = Color.FromArgb(245,248,255);
+            this.CompanyPopoverBackgroundColor = PanelGradiantStartColor;
+            this.CompanyTitleColor = ForeColor;
             this.CompanyTitleFont = new TypographyStyle { FontFamily = "Nunito", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanySubtitleColor = Color.FromArgb(245,248,255);
+            this.CompanySubtitleColor = ForeColor;
             this.CompanySubTitleFont = new TypographyStyle { FontFamily = "Nunito", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyDescriptionColor = Color.FromArgb(245,248,255);
+            this.CompanyDescriptionColor = ForeColor;
             this.CompanyDescriptionFont = new TypographyStyle { FontFamily = "Nunito", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyLinkColor = Color.FromArgb(245,248,255);
+            this.CompanyLinkColor = AccentColor;
             this.CompanyLinkFont = new TypographyStyle { FontFamily = "Nunito", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyButtonBackgroundColor = Color.FromArgb(245,248,255);
-            this.CompanyButtonTextColor = Color.FromArgb(24,28,35);
+            this.CompanyButtonBackgroundColor = BackgroundColor;
+            this.CompanyButtonTextColor = ForeColor;
             this.CompanyButtonFont = new TypographyStyle { FontFamily = "Nunito", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
-            this.CompanyDropdownBackgroundColor = Color.FromArgb(245,248,255);
-            this.CompanyDropdownTextColor = Color.FromArgb(24,28,35);
-            this.CompanyLogoBackgroundColor = Color.FromArgb(245,248,255);
+            this.CompanyDropdownBackgroundColor = BackgroundColor;
+            this.CompanyDropdownTextColor = ForeColor;
+            this.CompanyLogoBackgroundColor = BackgroundColor;
         }
     }
 }

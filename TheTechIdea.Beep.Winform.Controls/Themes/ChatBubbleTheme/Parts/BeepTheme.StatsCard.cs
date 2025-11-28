@@ -10,25 +10,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyStatsCard()
         {
-            this.StatsCardBackColor = Color.FromArgb(245,248,255);
-            this.StatsCardForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardBorderColor = Color.FromArgb(210,220,235);
-            this.StatsCardTitleForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardTitleBackColor = Color.FromArgb(245,248,255);
-            this.StatsCardSubTitleForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardSubTitleBackColor = Color.FromArgb(245,248,255);
-            this.StatsCardValueForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardValueBackColor = Color.FromArgb(245,248,255);
-            this.StatsCardValueBorderColor = Color.FromArgb(210,220,235);
-            this.StatsCardValueHoverForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardValueHoverBackColor = Color.FromArgb(245,248,255);
-            this.StatsCardValueHoverBorderColor = Color.FromArgb(210,220,235);
-            this.StatsCardInfoForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardInfoBackColor = Color.FromArgb(74,158,255);
-            this.StatsCardInfoBorderColor = Color.FromArgb(210,220,235);
-            this.StatsCardTrendForeColor = Color.FromArgb(24,28,35);
-            this.StatsCardTrendBackColor = Color.FromArgb(245,248,255);
-            this.StatsCardTrendBorderColor = Color.FromArgb(210,220,235);
+            this.StatsCardBackColor = BackgroundColor;
+            this.StatsCardForeColor = ForeColor;
+            this.StatsCardBorderColor = BorderColor;
+            this.StatsCardTitleForeColor = ForeColor;
+            this.StatsCardTitleBackColor = BackgroundColor;
+            this.StatsCardSubTitleForeColor = ForeColor;
+            this.StatsCardSubTitleBackColor = BackgroundColor;
+            this.StatsCardValueForeColor = ForeColor;
+            this.StatsCardValueBackColor = BackgroundColor;
+            this.StatsCardValueBorderColor = BorderColor;
+            this.StatsCardValueHoverForeColor = ForeColor;
+            this.StatsCardValueHoverBackColor = BackgroundColor;
+            this.StatsCardValueHoverBorderColor = BorderColor;
+            this.StatsCardInfoForeColor = ForeColor;
+            this.StatsCardInfoBackColor = PrimaryColor;
+            this.StatsCardInfoBorderColor = BorderColor;
+            this.StatsCardTrendForeColor = ForeColor;
+            this.StatsCardTrendBackColor = BackgroundColor;
+            this.StatsCardTrendBorderColor = BorderColor;
         }
     }
 }

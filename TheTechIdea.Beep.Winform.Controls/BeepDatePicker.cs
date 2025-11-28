@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showValidationIcon && !string.IsNullOrEmpty(_validationErrorMessage))
             {
                 ToolTipText = _validationErrorMessage;
-                BackColor = Color.FromArgb(255, 245, 245);
+                BackColor = _currentTheme?.TextBoxErrorBackColor ?? Color.Empty;
             }
         }
         private void ClearValidationError() { ToolTipText = ""; ApplyTheme(); }
@@ -670,7 +670,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 string placeholder = GetPlaceholderText();
                 Rectangle placeholderRect = GetTextRect(contentRect);
-                Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty ? _currentTheme.TextBoxPlaceholderColor : Color.FromArgb(150, ForeColor);
+                Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty ? _currentTheme.TextBoxPlaceholderColor : BeepStyling.CurrentTheme?.TextBoxPlaceholderColor ?? Color.Empty;
                 TextRenderer.DrawText(g, placeholder, _textFont, placeholderRect, placeholderColor,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }

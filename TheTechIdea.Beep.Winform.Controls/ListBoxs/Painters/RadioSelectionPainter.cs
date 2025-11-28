@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -103,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.PrimaryColor ?? Color.LightGray)))
+                    using (var hoverBrush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 30)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -119,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color outerFill = Color.White;
             Color borderColor = isDisabled
                 ? Color.FromArgb(200, 200, 200)
-                : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.SteelBlue)
+                : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty)
                                              : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
 
             using (var brush = new SolidBrush(outerFill))
@@ -139,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 Color dotColor = isDisabled
                     ? Color.FromArgb(180, 180, 180)
-                    : (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.SteelBlue);
+                    : (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty);
                 using (var brush = new SolidBrush(dotColor))
                 {
                     g.FillEllipse(brush, innerRect);

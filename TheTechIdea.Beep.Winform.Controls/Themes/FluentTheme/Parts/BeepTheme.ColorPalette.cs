@@ -42,6 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.OnPrimaryColor = Color.FromArgb(255, 255, 255);  // White on blue
             this.OnBackgroundColor = Color.FromArgb(32, 32, 32);  // Dark on light
             this.FocusIndicatorColor = Color.FromArgb(0, 120, 215);  // Blue focus
+            // subtle shadow used for floating elements (light theme subtle black)
+            this.ShadowColor = Color.FromArgb(25, 0, 0, 0);
             ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
     }

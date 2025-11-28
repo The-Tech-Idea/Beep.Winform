@@ -15,28 +15,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("SF Pro", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = Color.FromArgb(242, 242, 247);  // Light gray
-            this.MenuForeColor = Color.FromArgb(28, 28, 30);  // Dark gray text
-            this.MenuBorderColor = Color.FromArgb(198, 198, 207);  // Medium gray
+            this.MenuBackColor = BackgroundColor;  // Light gray
+            this.MenuForeColor = ForeColor;  // Dark gray text
+            this.MenuBorderColor = BorderColor;  // Medium gray
             
             // Main menu items
-            this.MenuMainItemForeColor = Color.FromArgb(28, 28, 30);
-            this.MenuMainItemHoverForeColor = Color.FromArgb(28, 28, 30);
-            this.MenuMainItemHoverBackColor = Color.FromArgb(220, 220, 230);  // Darker gray hover
-            this.MenuMainItemSelectedForeColor = Color.FromArgb(255, 255, 255);  // White text
-            this.MenuMainItemSelectedBackColor = Color.FromArgb(10, 132, 255);  // iOS blue
+            this.MenuMainItemForeColor = ForeColor;
+            this.MenuMainItemHoverForeColor = ForeColor;
+            this.MenuMainItemHoverBackColor = ThemeUtil.Darken(BackgroundColor, 0.06);  // Darker gray hover
+            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // White text
+            this.MenuMainItemSelectedBackColor = PrimaryColor;  // iOS blue
             
             // Sub menu items
-            this.MenuItemForeColor = Color.FromArgb(28, 28, 30);
-            this.MenuItemHoverForeColor = Color.FromArgb(28, 28, 30);
-            this.MenuItemHoverBackColor = Color.FromArgb(220, 220, 230);  // Darker gray hover
-            this.MenuItemSelectedForeColor = Color.FromArgb(255, 255, 255);  // White text
-            this.MenuItemSelectedBackColor = Color.FromArgb(10, 132, 255);  // iOS blue
+            this.MenuItemForeColor = ForeColor;
+            this.MenuItemHoverForeColor = ForeColor;
+            this.MenuItemHoverBackColor = ThemeUtil.Darken(BackgroundColor, 0.06);  // Darker gray hover
+            this.MenuItemSelectedForeColor = OnPrimaryColor;  // White text
+            this.MenuItemSelectedBackColor = PrimaryColor;  // iOS blue
             
             // Clean gradient
-            this.MenuGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.MenuGradiantEndColor = Color.FromArgb(252, 252, 252);
-            this.MenuGradiantMiddleColor = Color.FromArgb(248, 248, 248);
+            this.MenuGradiantStartColor = PanelGradiantStartColor;
+            this.MenuGradiantEndColor = PanelGradiantEndColor;
+            this.MenuGradiantMiddleColor = PanelGradiantMiddleColor;
             this.MenuGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

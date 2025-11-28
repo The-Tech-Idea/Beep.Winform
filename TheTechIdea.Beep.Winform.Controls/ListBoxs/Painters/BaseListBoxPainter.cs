@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -81,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Small icon or circle
             int iconSize = 36;
             Rectangle iconRect = new Rectangle(rect.Left + (rect.Width - iconSize) / 2, rect.Top + 8, iconSize, iconSize);
-            using (var brush = new SolidBrush(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.LightBlue)))
+            using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 40)))
             {
                 g.FillEllipse(brush, iconRect);
             }
@@ -191,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
                     using (var font = new Font(_owner.Font.FontFamily, Math.Max(8, _owner.Font.Size - 2), FontStyle.Regular))
-                    using (var brush = new SolidBrush(Color.FromArgb(140, _theme?.ListForeColor ?? Color.Gray)))
+                    using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.ListForeColor ?? Color.Empty, 140)))
                     {
                         var hint = "PgUp / PgDn";
                         var hintRect = new Rectangle(drawingRect.Right - 120, drawingRect.Bottom - 26, 110, 20);
@@ -304,8 +305,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 // Use primary color but with subtle alpha blend based on hover progress for pleasing effect
-                Color primary = _theme?.PrimaryColor ?? Color.LightBlue;
-                backgroundColor = Color.FromArgb(20, primary.R, primary.G, primary.B);
+                Color primary = _theme?.PrimaryColor ?? Color.Empty;
+                backgroundColor = PathPainterHelpers.WithAlphaIfNotEmpty(primary, 20);
                 using (var pen = new Pen(Color.FromArgb(200, primary), 1.5f))
                 {
                     g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
@@ -360,7 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
 
                 // Draw selection border
-                var borderColor = (_owner.SelectionBorderColor != Color.Empty) ? _owner.SelectionBorderColor : (_theme?.AccentColor ?? Color.FromArgb(40, 40, 40));
+                var borderColor = (_owner.SelectionBorderColor != Color.Empty) ? _owner.SelectionBorderColor : (_theme?.AccentColor ?? Color.Empty);
                 int borderThickness = Math.Max(1, _owner.SelectionBorderThickness);
                 using (var pen = new Pen(borderColor, borderThickness))
                 {

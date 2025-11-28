@@ -38,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            var bgColor = Theme?.BackColor ?? Color.FromArgb(248, 248, 248);
-            var borderColor = Theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
+            var bgColor = Theme?.BackColor ?? Color.Empty;
+            var borderColor = Theme?.BorderColor ?? Color.Empty;
             
             using (var bgBrush = new SolidBrush(bgColor))
             using (var borderPen = new Pen(borderColor))
@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw label
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                var titleColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(70, 70, 70);
+                var titleColor =  Theme?.TextBoxForeColor ?? Color.Empty;
                 using (var titleFont = new Font("Segoe UI", 9f, FontStyle.Regular))
                 using (var titleBrush = new SolidBrush(titleColor))
                 {
@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw focus indicators on handles
             var trackRect = GetTrackRect(ctx.ContentRect);
             var minHandle = GetMinHandleRect(trackRect, 0.25f); // Example: 25% position
-            var focusColor = Theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var focusColor = Theme?.AccentColor ?? Color.Empty;
             
             using (var focusPen = new Pen(focusColor, 2))
             {
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
 
         private void DrawTrack(Graphics g, Rectangle trackRect)
         {
-            var trackColor = Theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
+            var trackColor = Theme?.BorderColor ?? Color.Empty;
             using (var trackBrush = new SolidBrush(trackColor))
             {
                 g.FillRoundedRectangle(trackBrush, trackRect, trackRect.Height / 2);
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             int endX = (int)(trackRect.Left + maxValue * trackRect.Width);
             var rangeRect = new Rectangle(startX, trackRect.Top, endX - startX, trackRect.Height);
             
-            var rangeColor = Theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var rangeColor = Theme?.AccentColor ?? Color.Empty;
             using (var rangeBrush = new SolidBrush(rangeColor))
             {
                 g.FillRoundedRectangle(rangeBrush, rangeRect, trackRect.Height / 2);
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
         private void DrawHandle(Graphics g, Rectangle handleRect, bool isMax)
         {
             var handleColor = Color.White;
-            var borderColor = Theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var borderColor = Theme?.AccentColor ?? Color.Empty;
             var shadowColor = Color.FromArgb(60, Color.Black);
             
             // Draw shadow
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             var minValue = 25; // Example values
             var maxValue = 75;
             
-            var textColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(100, 100, 100);
+            var textColor =  Theme?.TextBoxForeColor ?? Color.Empty;
             using (var textFont = new Font("Segoe UI", 8f))
             using (var textBrush = new SolidBrush(textColor))
             {

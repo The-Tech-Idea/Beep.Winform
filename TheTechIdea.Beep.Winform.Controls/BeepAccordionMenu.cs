@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeAccordion()
         {
             // Set up the accordion properties
-            BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51);
+            BackColor = _currentTheme?.SideMenuBackColor ?? Color.Empty;
 
             // Subscribe to events
             items.ListChanged += Items_ListChanged;
@@ -318,7 +318,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             // Fill the background with menu background color
-            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51)))
+            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme?.SideMenuBackColor ?? Color.Empty))
             {
                 graphics.FillRectangle(backgroundBrush, rectangle);
             }
@@ -331,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 headerHeight
             );
 
-            using (SolidBrush headerBrush = new SolidBrush(_currentTheme?.SideMenuBackColor ?? Color.FromArgb(41, 41, 41)))
+            using (SolidBrush headerBrush = new SolidBrush(_currentTheme?.SideMenuBackColor ?? Color.Empty))
             {
                 graphics.FillRectangle(headerBrush, headerRect);
             }
@@ -339,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw title text
             _label.Text = Title;
             _label.ForeColor = _currentTheme?.SideMenuForeColor ?? Color.White;
-            _label.BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(41, 41, 41);
+            _label.BackColor = _currentTheme?.SideMenuBackColor ?? Color.Empty;
             _label.TextAlign = ContentAlignment.MiddleLeft;
 
             // Add padding for title text
@@ -456,11 +456,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (isSelected)
             {
-                itemBackColor = _currentTheme?.MenuMainItemSelectedBackColor ?? Color.FromArgb(61, 61, 61);
+                itemBackColor = _currentTheme?.MenuMainItemSelectedBackColor ?? Color.Empty;
             }
             else if (isHovered)
             {
-                itemBackColor = _currentTheme?.MenuMainItemHoverBackColor ?? Color.FromArgb(71, 71, 71);
+                itemBackColor = _currentTheme?.MenuMainItemHoverBackColor ?? Color.Empty;
             }
 
             // Draw item background
@@ -600,11 +600,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (isSelected)
                 {
-                    itemBackColor = _currentTheme?.MenuMainItemSelectedBackColor ?? Color.FromArgb(61, 61, 61);
+                    itemBackColor = _currentTheme?.MenuMainItemSelectedBackColor ?? Color.Empty;
                 }
                 else if (isHovered)
                 {
-                    itemBackColor = _currentTheme?.MenuMainItemHoverBackColor ?? Color.FromArgb(71, 71, 71);
+                    itemBackColor = _currentTheme?.MenuMainItemHoverBackColor ?? Color.Empty;
                 }
 
                 // Draw child item background
@@ -812,7 +812,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Override ApplyTheme to apply theme colors to the control
         public override void ApplyTheme()
         {
-            BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51);
+            BackColor = _currentTheme?.SideMenuBackColor ?? Color.Empty;
 
             if (_label != null)
             {

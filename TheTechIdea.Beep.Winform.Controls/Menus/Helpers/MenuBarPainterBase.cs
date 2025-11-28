@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// </summary>
         protected Color GetSelectedBackgroundColor()
         {
-            return GetThemeColor(t => t.MenuItemSelectedBackColor, Color.FromArgb(33, 150, 243));
+            return GetThemeColor(t => t.MenuItemSelectedBackColor, Color.Empty);
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// </summary>
         protected Color GetAccentColor()
         {
-            return GetThemeColor(t => t.AccentColor, Color.FromArgb(33, 150, 243));
+            return GetThemeColor(t => t.AccentColor, Color.Empty);
         }
 
         /// <summary>

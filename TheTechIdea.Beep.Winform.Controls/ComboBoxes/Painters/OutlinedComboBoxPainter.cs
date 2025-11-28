@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -25,8 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = _owner.Focused 
-                ? _theme?.PrimaryColor ?? Color.Blue
-                : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Gray));
+                ? _theme?.PrimaryColor ?? Color.Empty
+                : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Empty));
             
             float borderWidth = _owner.Focused ? 2f : 1f;
             
@@ -52,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (buttonRect.IsEmpty) return;
             
             // Draw subtle separator line (not full height for modern look)
-            Color separatorColor = Color.FromArgb(230, _theme?.BorderColor ?? Color.Gray);
+            Color separatorColor = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.BorderColor ?? Color.Empty, 230);
             int margin = 8;
             var pen = PaintersFactory.GetPen(separatorColor, 1f);
             g.DrawLine(pen, 

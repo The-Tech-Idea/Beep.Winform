@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
-            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);

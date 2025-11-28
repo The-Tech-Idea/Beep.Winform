@@ -427,6 +427,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         }
 
         /// <summary>
+        /// Creates a new color with specified alpha unless the base color is Color.Empty; in that case, returns Color.Empty.
+        /// </summary>
+        public static Color WithAlphaIfNotEmpty(Color color, int alpha)
+        {
+            if (color == Color.Empty) return Color.Empty;
+            return WithAlpha(color, alpha);
+        }
+
+        /// <summary>
         /// Creates a new color with specified RGB and alpha
         /// </summary>
         public static Color WithAlpha(int r, int g, int b, int alpha)

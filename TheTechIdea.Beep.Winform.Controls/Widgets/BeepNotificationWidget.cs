@@ -49,16 +49,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private bool _showIcon = true;
         private bool _showAction = false;
         private int _progress = 0;
-        private Color _accentColor = Color.FromArgb(33, 150, 243);
-        private Color _successColor = Color.FromArgb(76, 175, 80);
-        private Color _warningColor = Color.FromArgb(255, 193, 7);
-        private Color _errorColor = Color.FromArgb(244, 67, 54);
-        private Color _infoColor = Color.FromArgb(33, 150, 243);
-        private Color _cardBackColor = Color.White;
-        private Color _cardTitleForeColor = Color.Black;
-        private Color _cardTextForeColor = Color.FromArgb(100, 100, 100);
-        private Color _borderColor = Color.FromArgb(200, 200, 200);
-        private Color _surfaceColor = Color.FromArgb(250, 250, 250);
+        private Color _accentColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty;
+        private Color _successColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty;
+        private Color _warningColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.WarningColor ?? Color.Empty;
+        private Color _errorColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ErrorColor ?? Color.Empty;
+        private Color _infoColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty;
+        private Color _cardBackColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BackgroundColor ?? Color.White;
+        private Color _cardTitleForeColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.OnBackgroundColor ?? Color.Black;
+        private Color _cardTextForeColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.TextBoxForeColor ?? Color.Empty;
+        private Color _borderColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.Empty;
+        private Color _surfaceColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.SurfaceColor ?? Color.Empty;
         private DateTime _timestamp = DateTime.Now;
 
         // Events

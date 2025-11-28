@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             {
                 Dock = DockStyle.Bottom,
                 Height = 60,
-                BackColor = Color.FromArgb(240, 240, 240),
+                BackColor = _instance.Config.Theme?.PanelBackColor ?? Color.Empty,
                 Padding = new Padding(20, 10, 20, 10)
             };
 
@@ -64,8 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 Text = _instance.Config.NextButtonText,
                 Size = new Size(100, 36),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = _instance.Config.Theme?.AccentColor ?? Color.FromArgb(0, 120, 215),
-                ForeColor = Color.White,
+                BackColor = _instance.Config.Theme?.AccentColor ?? Color.Empty,
+                ForeColor = _instance.Config.Theme?.OnPrimaryColor ?? Color.Empty,
                 Font = new Font("Segoe UI", 9f),
                 Cursor = Cursors.Hand
             };

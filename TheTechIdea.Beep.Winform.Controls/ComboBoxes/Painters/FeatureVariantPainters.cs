@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             int scaledW = (int)(chipRect.Width * scale);
             int scaledH = (int)(chipRect.Height * scale);
             var scaledRect = new Rectangle(chipRect.X, chipRect.Y + (chipRect.Height - scaledH) / 2, scaledW, scaledH);
-            var bgColor = _theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var bgColor = _theme?.PrimaryColor ?? Color.Empty;
             int alpha = (int)(255 * Math.Max(0.35f, Math.Min(1f, progress)));
             var colorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
             // Draw background

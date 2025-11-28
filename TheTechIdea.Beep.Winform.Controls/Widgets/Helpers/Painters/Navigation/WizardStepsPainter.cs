@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int gap = items.Count > 1 ? availableWidth / (items.Count - 1) : 0;
             int centerY = ctx.ContentRect.Y + ctx.ContentRect.Height / 2 - 6;
 
-            var primary = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primary = Theme?.PrimaryColor ?? Color.Empty;
             var complete = Color.FromArgb(76, 175, 80);
             var pending = Color.FromArgb(189, 189, 189);
 

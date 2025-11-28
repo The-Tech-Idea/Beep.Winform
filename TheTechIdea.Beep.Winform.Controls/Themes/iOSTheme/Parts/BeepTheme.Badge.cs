@@ -10,8 +10,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyBadge()
         {
-            this.BadgeBackColor = Color.FromArgb(242,242,247);
-            this.BadgeForeColor = Color.FromArgb(28,28,30);
+            this.BadgeBackColor = BackgroundColor;
+            this.BadgeForeColor = ForeColor;
         }
     }
 }

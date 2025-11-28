@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Progress icon
             var iconRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + 2, 20, 20);
             _imagePainter.DrawSvg(g, "activity", iconRect,
-                Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.9f);
+                Theme?.PrimaryColor ?? Color.Empty, 0.9f);
 
             // Progress message with modern typography
             using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);

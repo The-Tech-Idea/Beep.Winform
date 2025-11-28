@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -16,13 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isSelected)
             {
                 // Subtle selection highlight
-                using (var brush = new SolidBrush(Color.FromArgb(25, _theme?.PrimaryColor ?? Color.LightBlue)))
+                using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 25)))
                 {
                     g.FillRectangle(brush, itemRect);
                 }
 
                 // Very subtle selection indicator on left
-                using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.Blue))
+                using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.Empty))
                 {
                     g.FillRectangle(brush, itemRect.Left, itemRect.Top, 2, itemRect.Height);
                 }

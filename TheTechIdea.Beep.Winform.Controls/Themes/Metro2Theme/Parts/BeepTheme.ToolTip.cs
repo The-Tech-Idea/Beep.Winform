@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ToolTipBackColor = PanelBackColor;
             this.ToolTipForeColor = ForeColor;
             this.ToolTipBorderColor = InactiveBorderColor;
-            this.ToolTipShadowColor = PanelBackColor;
+            this.ToolTipShadowColor = ShadowColor;
             this.ToolTipShadowOpacity = PanelBackColor;
             this.ToolTipTextColor = ForeColor;
             this.ToolTipLinkColor = PrimaryColor;

@@ -98,6 +98,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
         }
 
         /// <summary>
+        /// Add alpha transparency to a color, unless the base color is Color.Empty. Returns Color.Empty in that case.
+        /// </summary>
+        public static Color WithAlphaIfNotEmpty(Color color, int alpha)
+        {
+            if (color == Color.Empty) return Color.Empty;
+            return WithAlpha(color, alpha);
+        }
+
+        /// <summary>
         /// Create color with RGB and alpha
         /// </summary>
         public static Color WithAlpha(int r, int g, int b, int alpha)

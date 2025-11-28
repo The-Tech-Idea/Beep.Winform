@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         {
             if (metrics.Count < 2) return;
             
-            DrawComparisonPanel(g, leftRect, metrics[0], Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), "Current", true);
+            DrawComparisonPanel(g, leftRect, metrics[0], Theme?.PrimaryColor ?? Color.Empty, "Current", true);
             DrawComparisonPanel(g, rightRect, metrics.Count > 1 ? metrics[1] : metrics[0], 
                 Theme?.AccentColor ?? Color.FromArgb(255, 152, 0), "Previous", false);
             

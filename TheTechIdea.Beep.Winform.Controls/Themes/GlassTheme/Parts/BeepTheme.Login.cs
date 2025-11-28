@@ -10,16 +10,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyLogin()
         {
-            this.LoginPopoverBackgroundColor = Color.FromArgb(236,244,255);
-            this.LoginTitleColor = Color.FromArgb(236,244,255);
-            this.LoginSubtitleColor = Color.FromArgb(236,244,255);
-            this.LoginDescriptionColor = Color.FromArgb(236,244,255);
-            this.LoginLinkColor = Color.FromArgb(236,244,255);
-            this.LoginButtonBackgroundColor = Color.FromArgb(236,244,255);
-            this.LoginButtonTextColor = Color.FromArgb(17,24,39);
-            this.LoginDropdownBackgroundColor = Color.FromArgb(236,244,255);
-            this.LoginDropdownTextColor = Color.FromArgb(17,24,39);
-            this.LoginLogoBackgroundColor = Color.FromArgb(236,244,255);
+            this.LoginPopoverBackgroundColor = SurfaceColor;
+            this.LoginTitleColor = ForeColor;
+            this.LoginSubtitleColor = ForeColor;
+            this.LoginDescriptionColor = ForeColor;
+            this.LoginLinkColor = AccentColor;
+            this.LoginButtonBackgroundColor = PrimaryColor;
+            this.LoginButtonTextColor = OnPrimaryColor;
+            this.LoginDropdownBackgroundColor = SurfaceColor;
+            this.LoginDropdownTextColor = ForeColor;
+            this.LoginLogoBackgroundColor = BackgroundColor;
         }
     }
 }

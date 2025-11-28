@@ -39,8 +39,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            var bgColor = Theme?.BackColor ?? Color.FromArgb(248, 248, 248);
-            var borderColor = Theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
+            var bgColor = Theme?.BackColor ?? Color.Empty;
+            var borderColor = Theme?.BorderColor ?? Color.Empty;
             
             using (var bgBrush = new SolidBrush(bgColor))
             using (var borderPen = new Pen(borderColor))
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw label
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                var titleColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(70, 70, 70);
+                var titleColor =  Theme?.TextBoxForeColor ?? Color.Empty;
                 using (var titleFont = new Font("Segoe UI", 9f, FontStyle.Regular))
                 using (var titleBrush = new SolidBrush(titleColor))
                 {
@@ -96,9 +96,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
 
         private void DrawInputField(Graphics g, Rectangle rect)
         {
-            var bgColor = Color.White;
-            var borderColor = Theme?.BorderColor ?? Color.FromArgb(180, 180, 180);
-            var textColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(70, 70, 70);
+            var bgColor = Theme?.TextBoxBackColor ?? Color.Empty;
+            var borderColor = Theme?.BorderColor ?? Color.Empty;
+            var textColor =  Theme?.TextBoxForeColor ?? Color.Empty;
             
             using (var bgBrush = new SolidBrush(bgColor))
             using (var borderPen = new Pen(borderColor))
@@ -123,9 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
 
         private void DrawSpinnerButton(Graphics g, Rectangle rect, bool isUp)
         {
-            var buttonColor = Theme?.ButtonBackColor ?? Color.FromArgb(240, 240, 240);
-            var borderColor = Theme?.BorderColor ?? Color.FromArgb(180, 180, 180);
-            var arrowColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(100, 100, 100);
+            var buttonColor = Theme?.ButtonBackColor ?? Color.Empty;
+            var borderColor = Theme?.BorderColor ?? Color.Empty;
+            var arrowColor =  Theme?.TextBoxForeColor ?? Color.Empty;
             
             using (var buttonBrush = new SolidBrush(buttonColor))
             using (var borderPen = new Pen(borderColor))

@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int stepSize = 32;
             int y = progressRect.Y + 4;
             
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             var completedColor = Color.FromArgb(76, 175, 80);
             var futureColor = Color.FromArgb(200, 200, 200);
             
@@ -288,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (currentStep < totalSteps)
             {
                 // Next button
-                using var nextBrush = new SolidBrush(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243));
+                using var nextBrush = new SolidBrush(Theme?.PrimaryColor ?? Color.Empty);
                 g.FillRoundedRectangle(nextBrush, buttonRect, 6);
                 
                 var iconRect = new Rectangle(buttonRect.X + 8, buttonRect.Y + 8, 16, 16);

@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.PaddingMedium = 0;
             this.PaddingLarge = 0;
             this.ApplyThemeToIcons = false;
-            this.ShadowColor = PanelBackColor;
+            this.ShadowColor = ShadowColor;
             this.AnimationDurationShort = 0f;
             this.AnimationDurationMedium = 0f;
             this.AnimationDurationLong = 0f;

@@ -42,9 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private MaterialTextFieldVariant _bcMaterialVariant = MaterialTextFieldVariant.Outlined;
         private int _bcMaterialRadius = 8;
         private bool _bcShowFill = false;
-        private Color _bcFillColor = Color.FromArgb(245, 245, 245);
-        private Color _bcOutlineColor = Color.FromArgb(140, 140, 140);
-        private Color _bcPrimaryColor = Color.FromArgb(25, 118, 210);
+        private Color _bcFillColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.TextBoxBackColor ?? Color.Empty;
+        private Color _bcOutlineColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.TextBoxBorderColor ?? Color.Empty;
+        private Color _bcPrimaryColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty;
         private bool _bcUseVariantPadding = true;
         private Padding _bcCustomMaterialPadding = Padding.Empty;
         private int _bcElevationLevel = 0;
@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         private string _bcErrorText = string.Empty;
         private bool _bcHasError = false;
-        private Color _bcErrorColor = Color.FromArgb(176, 0, 32); // Material Design error color
+        private Color _bcErrorColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ErrorColor ?? Color.Empty; // Material Design error color
         #endregion
 
         #region Material properties

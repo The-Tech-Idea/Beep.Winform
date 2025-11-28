@@ -31,12 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.FromArgb(248, 249, 250));
+            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.Empty);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, 8);
             g.FillPath(bgBrush, bgPath);
 
             // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(20, Color.Gray), 1);
+            using var borderPen = new Pen(Color.FromArgb(20, Theme?.SecondaryTextColor ?? Color.Empty), 1);
             g.DrawPath(borderPen, bgPath);
         }
 
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
             int itemHeight = 36;
             int spacing = 4;
-            var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
 
             using var navFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
 
@@ -82,10 +82,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var iconRect = new Rectangle(itemRect.X + 12, itemRect.Y + (itemRect.Height - 20) / 2, 20, 20);
                 var iconName = GetSidebarIcon(item.Text, i);
                 _imagePainter.DrawSvg(g, iconName, iconRect,
-                    isActive ? primaryColor : Color.FromArgb(140, Theme?.ForeColor ?? Color.Black), 0.9f);
+                    isActive ? primaryColor : Color.FromArgb(140, Theme?.ForeColor ?? Color.Empty), 0.9f);
 
                 // Navigation text
-                using var textBrush = new SolidBrush(isActive ? primaryColor : Theme?.ForeColor ?? Color.Black);
+                using var textBrush = new SolidBrush(isActive ? primaryColor : Theme?.ForeColor ?? Color.Empty);
                 var textRect = new Rectangle(itemRect.X + 40, itemRect.Y, itemRect.Width - 40, itemHeight);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(item.Text, navFont, textBrush, textRect, format);

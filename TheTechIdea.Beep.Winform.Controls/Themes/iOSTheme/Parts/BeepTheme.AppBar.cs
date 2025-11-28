@@ -21,13 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarLabelBackColor = BackgroundColor;
             this.AppBarTitleForeColor = ForeColor;
             this.AppBarTitleBackColor = BackgroundColor;
-            this.AppBarSubTitleForeColor = Color.FromArgb(142, 142, 147);  // Medium gray
+            this.AppBarSubTitleForeColor = ThemeUtil.Lighten(ForeColor, 0.6);  // Medium gray
             this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - standard colors
-            this.AppBarCloseButtonColor = Color.FromArgb(0, 0, 0);
-            this.AppBarMaxButtonColor = Color.FromArgb(0, 0, 0);
-            this.AppBarMinButtonColor = Color.FromArgb(0, 0, 0);
+            this.AppBarCloseButtonColor = ForeColor;
+            this.AppBarMaxButtonColor = ForeColor;
+            this.AppBarMinButtonColor = ForeColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "SF Pro Text", FontSize = 17f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LineHeight = 1.2f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "SF Pro Text", FontSize = 13f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.5f };
             
             // Clean gradient
-            this.AppBarGradiantStartColor = Color.FromArgb(255, 255, 255);
-            this.AppBarGradiantEndColor = Color.FromArgb(252, 252, 252);
-            this.AppBarGradiantMiddleColor = Color.FromArgb(248, 248, 248);
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
         }
     }

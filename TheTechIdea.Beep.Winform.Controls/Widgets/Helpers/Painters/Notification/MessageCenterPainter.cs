@@ -50,8 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Modern clean background with subtle gradient
             using var bgBrush = new LinearGradientBrush(
                 ctx.DrawingRect,
-                Color.FromArgb(255, 255, 255), // White
-                Color.FromArgb(248, 250, 252), // Very light gray
+                Theme?.BackColor ?? Color.Empty,
+                Theme?.PanelBackColor ?? Color.Empty,
                 LinearGradientMode.Vertical
             );
 
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.FillPath(bgBrush, bgPath);
 
             // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(50, 226, 232, 240), 1); // Light border
+            using var borderPen = new Pen(Color.FromArgb(50, Theme?.BorderColor.R, Theme?.BorderColor.G, Theme?.BorderColor.B), 1); // Light border
             g.DrawPath(borderPen, bgPath);
 
             // Soft shadow
@@ -141,14 +141,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Message item background (alternate colors)
                 if (i % 2 == 1)
                 {
-                    using var itemBrush = new SolidBrush(Color.FromArgb(10, 241, 245, 249));
+                    using var itemBrush = new SolidBrush(Color.FromArgb(10, Theme?.PanelBackColor ?? Color.Empty));
                     g.FillRectangle(itemBrush, rect.X, y, rect.Width, itemHeight);
                 }
 
                 // Sender
                 if (message.ContainsKey("Sender"))
                 {
-                    using var senderBrush = new SolidBrush(Color.FromArgb(31, 41, 55));
+                    using var senderBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.Empty);
                     Rectangle senderRect = new Rectangle(rect.X + 8, y + 4, rect.Width - 80, 14);
                     g.DrawString(message["Sender"].ToString(), senderFont, senderBrush, senderRect);
                 }
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Subject
                 if (message.ContainsKey("Subject"))
                 {
-                    using var subjectBrush = new SolidBrush(Color.FromArgb(100, 31, 41, 55));
+                    using var subjectBrush = new SolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
                     Rectangle subjectRect = new Rectangle(rect.X + 8, y + 18, rect.Width - 80, 12);
                     string subject = message["Subject"].ToString();
                     if (subject.Length > 30) subject = subject.Substring(0, 27) + "...";
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Time
                 if (message.ContainsKey("Time"))
                 {
-                    var timeBase = Theme?.SubLabelForColor ?? Color.FromArgb(75, 85, 99);
+                    var timeBase = Theme?.SubLabelForColor ?? Color.Empty;
                     using var timeBrush = new SolidBrush(Color.FromArgb(80, timeBase.R, timeBase.G, timeBase.B));
                     Rectangle timeRect = new Rectangle(rect.Right - 70, y + 4, 70, 12);
                     g.DrawString(message["Time"].ToString(), timeFont, timeBrush, timeRect);
@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 bool isUnread = message.ContainsKey("IsUnread") && (bool)message["IsUnread"];
                 if (isUnread)
                 {
-                    using var unreadBrush = new SolidBrush(Color.FromArgb(59, 130, 246));
+                    using var unreadBrush = new SolidBrush(Theme?.AccentColor ?? Color.Empty);
                     g.FillEllipse(unreadBrush, rect.X + rect.Width - 12, y + 6, 6, 6);
                 }
             }
@@ -186,9 +186,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             // Draw centered message count
             using var countFont = new Font(Owner.Font.FontFamily, 24f, FontStyle.Bold);
-            using var countBrush = new SolidBrush(Color.FromArgb(59, 130, 246));
+            using var countBrush = new SolidBrush(Theme?.AccentColor ?? Color.Empty);
             using var labelFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Regular);
-            var labelBase = Theme?.SubLabelForColor ?? Color.FromArgb(31, 41, 55);
+            var labelBase = Theme?.SubLabelForColor ?? Color.Empty;
             using var labelBrush = new SolidBrush(Color.FromArgb(100, labelBase.R, labelBase.G, labelBase.B));
 
             var countFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };

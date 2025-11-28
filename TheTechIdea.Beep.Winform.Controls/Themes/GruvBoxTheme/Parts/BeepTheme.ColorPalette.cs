@@ -42,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.OnPrimaryColor = Color.FromArgb(40, 40, 40);  // Dark on colored
             this.OnBackgroundColor = Color.FromArgb(235, 219, 178);  // Light on dark
             this.FocusIndicatorColor = Color.FromArgb(250, 189, 47);  // Yellow focus (#FABD2F)
+            this.ShadowColor = Color.FromArgb(40, 40, 40);
             ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
     }

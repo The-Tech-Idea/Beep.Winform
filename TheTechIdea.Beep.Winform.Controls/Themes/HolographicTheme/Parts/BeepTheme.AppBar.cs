@@ -25,9 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarSubTitleBackColor = BackgroundColor;
             
             // System buttons - cyan
-            this.AppBarCloseButtonColor = Color.FromArgb(150, 200, 255);  // Cyan
-            this.AppBarMaxButtonColor = Color.FromArgb(150, 200, 255);
-            this.AppBarMinButtonColor = Color.FromArgb(150, 200, 255);
+            this.AppBarCloseButtonColor = ActiveBorderColor;  // Cyan
+            this.AppBarMaxButtonColor = ActiveBorderColor;
+            this.AppBarMinButtonColor = ActiveBorderColor;
             
             // Typography
             this.AppBarTitleStyle = new TypographyStyle { FontFamily = "Sora", FontSize = 13.5f, FontWeight = FontWeight.SemiBold, FontStyle = FontStyle.Regular, TextColor = AppBarTitleForeColor, LetterSpacing = 0.03f, LineHeight = 1.14f };
@@ -35,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.AppBarTextStyle = new TypographyStyle { FontFamily = "Sora", FontSize = 12.5f, FontWeight = FontWeight.Normal, FontStyle = FontStyle.Regular, TextColor = ForeColor, LineHeight = 1.52f };
             
             // Gradient effect
-            this.AppBarGradiantStartColor = Color.FromArgb(255, 122, 217);  // Pink
-            this.AppBarGradiantEndColor = Color.FromArgb(122, 252, 255);  // Cyan
-            this.AppBarGradiantMiddleColor = Color.FromArgb(176, 141, 255);  // Purple
+            this.AppBarGradiantStartColor = PanelGradiantStartColor;  // Pink
+            this.AppBarGradiantEndColor = PanelGradiantEndColor;  // Cyan
+            this.AppBarGradiantMiddleColor = PanelGradiantMiddleColor;  // Purple
             this.AppBarGradiantDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
         }
     }

@@ -1,52 +1,59 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for DarkGlow Style with neon effects
+    /// Glow background painter - dark base with neon inner glow
+    /// Multi-ring inset glow effect for dramatic appearance
     /// </summary>
     public static class GlowBackgroundPainter
     {
-        /// <summary>
-        /// Paint DarkGlow background with neon glow effect
-        /// </summary>
-        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, 
+            bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            Color glowColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
+            if (g == null || path == null) return;
 
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            // Glow: dark background
+            Color bgColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            Color glowColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
 
-            int glowSize =3;
-            for (int i = glowSize; i >0; i--)
+            // Solid dark background with state handling
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Subtle);
+
+            // State-modulated glow intensity
+            float glowMultiplier = state switch
             {
-                int alpha = (int)(30 * ((float)(glowSize - i +1) / glowSize));
+                ControlState.Hovered => 1.3f,
+                ControlState.Pressed => 0.7f,
+                ControlState.Selected => 1.2f,
+                ControlState.Focused => 1.1f,
+                ControlState.Disabled => 0.4f,
+                _ => 1.0f
+            };
+
+            // Multi-ring inset glow effect
+            int glowSize = 3;
+            for (int i = glowSize; i > 0; i--)
+            {
+                int baseAlpha = (int)(30 * ((float)(glowSize - i + 1) / glowSize));
+                int alpha = Math.Min(255, (int)(baseAlpha * glowMultiplier));
                 Color glowStep = Color.FromArgb(alpha, glowColor);
 
-                var innerPath = GraphicsExtensions.CreateInsetPath(path, i);
-                var glowPen = PaintersFactory.GetPen(glowStep,2f);
-                g.DrawPath(glowPen, innerPath);
-                innerPath.Dispose();
+                using (var innerPath = GraphicsExtensions.CreateInsetPath(path, i))
+                {
+                    if (innerPath.PointCount > 0)
+                    {
+                        var glowPen = PaintersFactory.GetPen(glowStep, 2f);
+                        g.DrawPath(glowPen, innerPath);
+                    }
+                }
             }
-        }
-
-        private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
-        {
-            if (useThemeColors && theme != null)
-            {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
-                if (themeColor != Color.Empty)
-                    return themeColor;
-            }
-            return styleColorFunc(style);
         }
     }
 }
-

@@ -3,13 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Fluent (legacy) background painter - Microsoft Fluent Design System
-    /// Fluent UX: Acrylic materials, subtle transparency, depth through layering
+    /// Fluent background painter - Microsoft Fluent Design System
+    /// Acrylic-inspired materials with subtle depth through diagonal gradient
     /// </summary>
     public static class FluentBackgroundPainter
     {
@@ -17,37 +16,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Fluent Style: Semi-transparent with subtle lighting
-            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Fluent);
+            if (g == null || path == null) return;
 
-            // Fluent-specific state handling - subtle reveals
-            Color stateColor = state switch
-            {
-                ControlState.Hovered => Color.FromArgb(baseColor.A, Math.Min(255, baseColor.R +26), Math.Min(255, baseColor.G +26), Math.Min(255, baseColor.B +26)),
-                ControlState.Pressed => Color.FromArgb(baseColor.A, Math.Max(0, baseColor.R - (int)(baseColor.R *0.08f)), Math.Max(0, baseColor.G - (int)(baseColor.G *0.08f)), Math.Max(0, baseColor.B - (int)(baseColor.B *0.08f))),
-                ControlState.Selected => Color.FromArgb(200, (useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0,120,212)).R, (useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0,120,212)).G, (useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0,120,212)).B),
-                ControlState.Disabled => Color.FromArgb(80, baseColor.R, baseColor.G, baseColor.B),
-                ControlState.Focused => Color.FromArgb(baseColor.A, Math.Min(255, baseColor.R +31), Math.Min(255, baseColor.G +31), Math.Min(255, baseColor.B +31)),
-                _ => baseColor,
-            };
+            // Fluent: clean system background
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.Fluent);
 
-            // Fluent Style: Subtle acrylic-like gradient
+            // State handling with strong Fluent-style feedback
+            Color stateColor = BackgroundPainterHelpers.GetStateAdjustedColor(
+                baseColor, state, BackgroundPainterHelpers.StateIntensity.Strong);
+
             var bounds = path.GetBounds();
-            // Create the secondary color for the gradient
-            Color secondary = Color.FromArgb(stateColor.A, Math.Max(0, stateColor.R -8), Math.Max(0, stateColor.G -8), Math.Max(0, stateColor.B -8));
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Use PaintersFactory for the base gradient brush (single color-to-color fallback)
-            var brush = PaintersFactory.GetLinearGradientBrush(bounds, stateColor, secondary, LinearGradientMode.ForwardDiagonal);
+            // Fluent signature: subtle diagonal acrylic-like gradient
+            Color secondary = BackgroundPainterHelpers.Darken(stateColor, 0.03f);
 
-            // Build local ColorBlend for interpolation if we want custom stops
-            var blend = new ColorBlend();
-            blend.Colors = new Color[] { stateColor, Color.FromArgb(stateColor.A, Math.Min(255, stateColor.R +5), Math.Min(255, stateColor.G +5), Math.Min(255, stateColor.B +5)), stateColor };
-            blend.Positions = new float[] {0f,0.5f,1f };
+            var brush = PaintersFactory.GetLinearGradientBrush(
+                bounds, stateColor, secondary, LinearGradientMode.ForwardDiagonal);
+            
+            // Custom color blend for acrylic feel (lighter in middle)
             try
             {
+                var blend = new ColorBlend
+                {
+                    Colors = new[] { 
+                        stateColor, 
+                        BackgroundPainterHelpers.Lighten(stateColor, 0.02f), 
+                        stateColor 
+                    },
+                    Positions = new[] { 0f, 0.5f, 1f }
+                };
                 brush.InterpolationColors = blend;
             }
-            catch { }
+            catch { /* Fallback to linear gradient if blend fails */ }
 
             g.FillPath(brush, path);
         }

@@ -1,34 +1,42 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Shadow painter for standard single shadow styles
-    /// Used by most styles that have simple drop shadows
+    /// Standard shadow painter - Default fallback shadow
+    /// Used when no specific style shadow painter is available
+    /// Clean, neutral, state-aware
     /// </summary>
     public static class StandardShadowPainter
     {
-        public static GraphicsPath Paint(Graphics g, GraphicsPath path, BeepControlStyle style, GraphicsPath borderPath)
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            int blur = StyleShadows.GetShadowBlur(style);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color shadowColor = Color.Black;
             int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int radius = StyleBorders.GetRadius(style);
 
-            // Use helper for standard shadow
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(
-                g, path, radius, offsetX, offsetY, shadowColor, 0.16f, blur);
+            // Standard: Good default shadow
+            int alpha = state switch
+            {
+                ControlState.Hovered => 50,
+                ControlState.Pressed => 25,
+                ControlState.Focused => 45,
+                ControlState.Disabled => 15,
+                _ => 35
+            };
 
-            return remainingPath;
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
         }
     }
 }

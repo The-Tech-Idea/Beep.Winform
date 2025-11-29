@@ -16,9 +16,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     [AddinAttribute(Caption = "Data Connections", Name = "uc_DataConnections", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "Data Connections", BranchType = EnumPointType.Function, IconImageName = "rdbmsconnections.svg", BranchClass = "ADDIN", BranchDescription = "Data Connections Setup Screen")]
-    public partial class uc_DataConnections :  TemplateUserControl, IAddinVisSchema
+    public partial class uc_DataConnections : TemplateUserControl, IAddinVisSchema
     {
-        public uc_DataConnections(IServiceProvider services): base(services)
+        public uc_DataConnections(IServiceProvider services) : base(services)
         {
             InitializeComponent();
 
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         #endregion "IAddinVisSchema"
         DataConnectionViewModel viewModel;
 
-      
+
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
@@ -124,6 +124,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             base.OnNavigatedTo(parameters);
             beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
 
+
+        }
+
+        private void uc_DataConnections_Load(object sender, EventArgs e)
+        {
 
         }
     }

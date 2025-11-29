@@ -3,44 +3,48 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for macOS Big Sur Style
+    /// macOS background painter - classic Mac design language
+    /// Clean surface with subtle gradient depth
     /// </summary>
     public static class MacOSBackgroundPainter
     {
-        /// <summary>
-        /// Paint macOS background with system-Style appearance
-        /// </summary>
-        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            
-            // Base background
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
-            
-            // macOS has a subtle gradient for depth
+            if (g == null || path == null) return;
+
+            // macOS: system gray/white surface
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.MacOSBigSur);
+
+            // Solid background with subtle state handling
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,
+                BackgroundPainterHelpers.StateIntensity.Subtle);
+
+            // macOS subtle gradient overlay for depth
             RectangleF bounds = path.GetBounds();
-            Color topTint = Color.FromArgb(12, 255, 255, 255);
-            Color bottomTint = Color.FromArgb(5, 0, 0, 0);
-            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, topTint, bottomTint, LinearGradientMode.Vertical);
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(
+                bounds,
+                Color.FromArgb(10, 255, 255, 255),  // Subtle top highlight
+                Color.FromArgb(5, 0, 0, 0),         // Subtle bottom shadow
+                LinearGradientMode.Vertical);
             g.FillPath(gradientBrush, path);
         }
-        
-        private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
+
+        /// <summary>
+        /// Legacy overload without state
+        /// </summary>
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors)
         {
-            if (useThemeColors && theme != null)
-            {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
-                if (themeColor != Color.Empty)
-                    return themeColor;
-            }
-            return styleColorFunc(style);
+            Paint(g, path, style, theme, useThemeColors, ControlState.Normal);
         }
     }
 }
-

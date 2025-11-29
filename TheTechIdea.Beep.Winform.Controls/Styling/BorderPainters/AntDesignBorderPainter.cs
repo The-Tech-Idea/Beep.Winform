@@ -21,8 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color baseBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(217, 217, 217));
             Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(24, 144, 255));
             
+            // Respect the configured border width for the style - if it's zero, do not draw any border
+            float configuredWidth = StyleBorders.GetBorderWidth(style);
+            if (configuredWidth <= 0f)
+                return path;
+
             Color borderColor = baseBorderColor;
-            float borderWidth = StyleBorders.GetBorderWidth(style); // 1px default
+            float borderWidth = configuredWidth; // 1px default
 
             // Ant Design UX: Spec-compliant state behaviors
             switch (state)

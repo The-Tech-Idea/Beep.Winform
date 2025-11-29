@@ -1,39 +1,48 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Vercel clean shadow painter - no shadow (placeholder for consistency)
-    /// Vercel Style uses stark, flat design without shadows
+    /// Vercel clean shadow painter - Vercel/Next.js design aesthetic
+    /// Stark, minimal design with extremely subtle shadows
+    /// Focus on typography and whitespace
     /// </summary>
     public static class VercelCleanShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
-            // Vercel Clean UX: Flat design with very subtle state shadows
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Only show shadow on interaction states (Vercel's minimal depth)
-            if (state == ControlState.Normal) return path;
+            // Vercel: No shadow in normal state (stark flat design)
+            if (state == ControlState.Normal || state == ControlState.Disabled)
+                return path;
 
-            // Calculate shadow properties based on state
-            float shadowOpacity = 0.05f; // Very subtle
-            if (state == ControlState.Hovered)
-                shadowOpacity = 0.08f; // Slightly more on hover
-            else if (state == ControlState.Focused)
-                shadowOpacity = 0.06f; // Moderate on focus
-            else if (state == ControlState.Pressed)
-                shadowOpacity = 0.03f; // Minimal on press
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Paint shadows
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 8);
-            return remainingPath;
+            // Vercel extremely subtle interaction shadows
+            int alpha = state switch
+            {
+                ControlState.Hovered => 18,    // Very subtle hover
+                ControlState.Pressed => 8,     // Minimal press
+                ControlState.Focused => 15,    // Subtle focus
+                ControlState.Selected => 22,   // Slightly more for selection
+                _ => 0
+            };
+
+            if (alpha == 0) return path;
+
+            // Use subtle shadow (Vercel stark minimalism)
+            return ShadowPainterHelpers.PaintSubtleShadow(
+                g, path, radius,
+                1, alpha);
         }
     }
 }

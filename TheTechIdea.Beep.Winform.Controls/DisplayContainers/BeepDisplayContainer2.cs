@@ -208,10 +208,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Calculate initial layout
             RecalculateLayout();
             
-            // Hook into handle creation to force initial paint (like BaseControl)
+            // Hook into handle creation to force initial paint
             HandleCreated += (s, e) =>
             {
-                System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] HandleCreated - forcing initial paint");
                 Invalidate(true);
             };
             
@@ -220,7 +219,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 if (Visible)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[BeepDisplayContainer2] VisibleChanged to true - forcing paint");
                     Invalidate(true);
                 }
             };

@@ -8,8 +8,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// Metro shadow painter - NO shadows (flat design signature)
-    /// Metro design principle: Flat UI with no depth effects
-    /// Returns path unchanged for consistency with other painters
+    /// Metro/Modern UI design principle: Pure flat design with no depth effects
+    /// Returns path unchanged - this is intentional
     /// </summary>
     public static class MetroShadowPainter
     {
@@ -18,9 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
-            // Metro: NO shadows - flat design is the signature
+            // Metro: NO shadows - flat design is the core principle
             // StyleShadows.HasShadow(Metro) returns false
-            // Return path unchanged
+            // Always return path unchanged - shadows would break the Metro aesthetic
             return path;
         }
     }

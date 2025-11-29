@@ -25,6 +25,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
             {
                 return CreateByType(shadowType.Value);
             }
+            // If style explicitly has no shadows configured, don't create a painter
+            if (!StyleShadows.HasShadow(style))
+            {
+                return null;
+            }
 
             // Otherwise, create based on Style
             return style switch
@@ -58,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Effect => new EffectStyleShadowPainterWrapper(),
                 BeepControlStyle.Metro => null, // Metro: NO shadows (flat design)
                 BeepControlStyle.Office => new CardShadowPainterWrapper(CardShadowStyle.Small), // Office: Subtle shadows
-                BeepControlStyle.NeoBrutalist => null, // NeoBrutalist: NO shadows (signature)
+                BeepControlStyle.NeoBrutalist => new NeoBrutalistShadowPainterWrapper(), // NeoBrutalist: Hard offset shadow (visible)
                 BeepControlStyle.HighContrast => null, // HighContrast: NO shadows (WCAG AAA)
                 BeepControlStyle.Gnome => new AmbientShadowPainterWrapper(4, 0.3f), // Gnome: Subtle ambient
                 BeepControlStyle.Kde => new NeonGlowPainterWrapper(Color.FromArgb(61, 174, 233), 0.6f, 12), // Kde: Blue glow
@@ -651,6 +656,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
             return Metro2ShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Metro2, theme, true, ControlState.Normal);
+        }
+    }
+
+    public class NeoBrutalistShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return NeoBrutalistShadowPainter.Paint(g, bounds, radius, BeepControlStyle.NeoBrutalist, theme, true, MaterialElevation.Level0, ControlState.Normal);
         }
     }
 

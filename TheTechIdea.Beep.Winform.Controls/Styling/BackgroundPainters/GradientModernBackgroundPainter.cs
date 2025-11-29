@@ -3,13 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Gradient Modern background painter - Vertical gradient from primary to 30% darker
-    /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
+    /// Gradient Modern background painter - smooth vertical gradient
+    /// Primary color to darker shade with state-modulated intensity
     /// </summary>
     public static class GradientModernBackgroundPainter
     {
@@ -17,24 +16,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Gradient Modern: Smooth vertical gradient with state-aware intensity
-            Color primaryColor = useThemeColors && theme != null ? theme.PrimaryColor : StyleColors.GetBackground(BeepControlStyle.GradientModern);
+            if (g == null || path == null) return;
 
-            // GradientModern-specific state handling - NO HELPER FUNCTIONS
-            // Unique gradient intensity modulation for modern gradient design
-            float gradientIntensity = state switch
+            // Gradient Modern: use primary color as base
+            Color primaryColor = useThemeColors && theme != null 
+                ? theme.PrimaryColor 
+                : StyleColors.GetBackground(BeepControlStyle.GradientModern);
+
+            var bounds = path.GetBounds();
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // State-modulated gradient intensity
+            float darkAmount = state switch
             {
-                ControlState.Hovered =>1.15f,
-                ControlState.Pressed =>0.90f,
-                ControlState.Selected =>1.25f,
-                ControlState.Focused =>1.08f,
-                ControlState.Disabled =>0.60f,
-                _ =>1.0f,
+                ControlState.Hovered => 0.25f,   // Lighter gradient
+                ControlState.Pressed => 0.40f,   // Darker gradient
+                ControlState.Selected => 0.20f,  // Lighter gradient
+                ControlState.Focused => 0.28f,   // Slightly lighter
+                ControlState.Disabled => 0.15f,  // Very subtle gradient
+                _ => 0.30f                        // Normal gradient
             };
 
-            Color secondary = ControlPaint.Dark(primaryColor, gradientIntensity);
-            var bounds = path.GetBounds();
-            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, primaryColor, secondary, LinearGradientMode.Vertical);
+            Color secondary = BackgroundPainterHelpers.Darken(primaryColor, darkAmount);
+            
+            // Apply disabled state alpha
+            if (state == ControlState.Disabled)
+            {
+                primaryColor = BackgroundPainterHelpers.WithAlpha(primaryColor, 100);
+                secondary = BackgroundPainterHelpers.WithAlpha(secondary, 100);
+            }
+
+            var gradientBrush = PaintersFactory.GetLinearGradientBrush(
+                bounds, primaryColor, secondary, LinearGradientMode.Vertical);
             g.FillPath(gradientBrush, path);
         }
     }

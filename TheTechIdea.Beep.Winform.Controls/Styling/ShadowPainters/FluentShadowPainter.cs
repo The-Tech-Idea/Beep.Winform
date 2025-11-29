@@ -3,13 +3,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Fluent (legacy) shadow painter - Microsoft Fluent Design System
-    /// Fluent UX: Depth through layered shadows, reveal lighting
+    /// Fluent Design shadow painter - Microsoft Fluent Design System
+    /// Layered depth through subtle shadows with reveal lighting feel
+    /// State-aware for interactive feedback
     /// </summary>
     public static class FluentShadowPainter
     {
@@ -17,27 +17,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // State-specific shadow effects
-            switch (state)
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Fluent shadow color - neutral black
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // State-based shadow for Fluent layered depth
+            int alpha = state switch
             {
-                case ControlState.Hovered:
-                    return ShadowPainterHelpers.PaintFloatingShadow(g, path, radius, 4);
-                case ControlState.Pressed:
-                    return ShadowPainterHelpers.PaintCardShadow(g, path, radius, ShadowPainterHelpers.CardShadowStyle.Small);
-                case ControlState.Selected:
-                    Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 120, 212);
-                    return ShadowPainterHelpers.PaintAmbientShadow(g, path, radius, spread: 8, opacity: 0.7f);
-                case ControlState.Disabled:
-                    return path;
-            }
-            // Match FluentFormPainter: subtle shadow for acrylic effect
-            return ShadowPainterHelpers.PaintDropShadow(
+                ControlState.Hovered => 50,    // More prominent on hover (reveal effect)
+                ControlState.Pressed => 25,    // Reduced when pressed
+                ControlState.Focused => 45,    // Moderate focus
+                ControlState.Selected => 55,   // More for selection indication
+                ControlState.Disabled => 10,   // Minimal
+                _ => 35                        // Default subtle shadow
+            };
+
+            int spread = state == ControlState.Hovered ? 3 : 2;
+
+            // Use clean drop shadow (Fluent layered depth)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
                 g, path, radius,
-                0, 2, 6, // offsetX, offsetY, blur
-                Color.FromArgb(40, 0, 0, 0), // subtle shadow
-                0.3f);
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

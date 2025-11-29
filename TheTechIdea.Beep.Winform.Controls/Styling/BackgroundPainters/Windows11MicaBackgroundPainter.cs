@@ -1,15 +1,15 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Windows 11 Mica background painter - Vertical gradient (2% darker at bottom)
-    /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
+    /// Windows 11 Mica background painter - desktop wallpaper-tinted material
+    /// Vertical gradient with primary color tinting based on state
     /// </summary>
     public static class Windows11MicaBackgroundPainter
     {
@@ -17,81 +17,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Windows 11 Mica: Subtle mica material with state-aware tinting
-            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Windows11Mica);
-            Color primaryColor = useThemeColors && theme != null ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.Windows11Mica);
+            if (g == null || path == null) return;
 
-            // Windows11Mica-specific state handling - NO HELPER FUNCTIONS
-            // Unique Mica tint intensity changes for Windows 11 design
-            Color stateColor;
-            float micaTintStrength;
-            
-            switch (state)
-            {
-                case ControlState.Hovered:
-                    // Windows11 hover: 8% tint with primary color
-                    micaTintStrength = 0.08f;
-                    int hR = (int)(baseColor.R * (1f - micaTintStrength) + primaryColor.R * micaTintStrength);
-                    int hG = (int)(baseColor.G * (1f - micaTintStrength) + primaryColor.G * micaTintStrength);
-                    int hB = (int)(baseColor.B * (1f - micaTintStrength) + primaryColor.B * micaTintStrength);
-                    stateColor = Color.FromArgb(baseColor.A, hR, hG, hB);
-                    break;
-                case ControlState.Pressed:
-                    // Windows11 pressed: 12% darker with more tint
-                    micaTintStrength = 0.12f;
-                    int pR = (int)(baseColor.R * (1f - micaTintStrength) + primaryColor.R * micaTintStrength);
-                    int pG = (int)(baseColor.G * (1f - micaTintStrength) + primaryColor.G * micaTintStrength);
-                    int pB = (int)(baseColor.B * (1f - micaTintStrength) + primaryColor.B * micaTintStrength);
-                    // Also darken 10%
-                    pR = Math.Max(0, pR - (int)(pR * 0.10f));
-                    pG = Math.Max(0, pG - (int)(pG * 0.10f));
-                    pB = Math.Max(0, pB - (int)(pB * 0.10f));
-                    stateColor = Color.FromArgb(baseColor.A, pR, pG, pB);
-                    break;
-                case ControlState.Selected:
-                    // Windows11 selected: 10% tint (noticeable)
-                    micaTintStrength = 0.10f;
-                    int sR = (int)(baseColor.R * (1f - micaTintStrength) + primaryColor.R * micaTintStrength);
-                    int sG = (int)(baseColor.G * (1f - micaTintStrength) + primaryColor.G * micaTintStrength);
-                    int sB = (int)(baseColor.B * (1f - micaTintStrength) + primaryColor.B * micaTintStrength);
-                    stateColor = Color.FromArgb(baseColor.A, sR, sG, sB);
-                    break;
-                case ControlState.Focused:
-                    // Windows11 focused: 6% subtle tint
-                    micaTintStrength = 0.06f;
-                    int fR = (int)(baseColor.R * (1f - micaTintStrength) + primaryColor.R * micaTintStrength);
-                    int fG = (int)(baseColor.G * (1f - micaTintStrength) + primaryColor.G * micaTintStrength);
-                    int fB = (int)(baseColor.B * (1f - micaTintStrength) + primaryColor.B * micaTintStrength);
-                    stateColor = Color.FromArgb(baseColor.A, fR, fG, fB);
-                    break;
-                case ControlState.Disabled:
-                    // Windows11 disabled: 2% tint, very dim
-                    micaTintStrength = 0.02f;
-                    int dR = (int)(baseColor.R * (1f - micaTintStrength) + primaryColor.R * micaTintStrength);
-                    int dG = (int)(baseColor.G * (1f - micaTintStrength) + primaryColor.G * micaTintStrength);
-                    int dB = (int)(baseColor.B * (1f - micaTintStrength) + primaryColor.B * micaTintStrength);
-                    stateColor = Color.FromArgb(75, dR, dG, dB); // 75 alpha
-                    break;
-                default: // Normal
-                    // Normal: 5% default Mica tint
-                    micaTintStrength = 0.05f;
-                    int nR = (int)(baseColor.R * (1f - micaTintStrength) + primaryColor.R * micaTintStrength);
-                    int nG = (int)(baseColor.G * (1f - micaTintStrength) + primaryColor.G * micaTintStrength);
-                    int nB = (int)(baseColor.B * (1f - micaTintStrength) + primaryColor.B * micaTintStrength);
-                    stateColor = Color.FromArgb(baseColor.A, nR, nG, nB);
-                    break;
-            }
+            // Mica base color
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.Windows11Mica);
+            Color primaryColor = useThemeColors && theme != null 
+                ? theme.PrimaryColor 
+                : StyleColors.GetPrimary(BeepControlStyle.Windows11Mica);
 
-            // Create Mica gradient effect (2% darker at bottom)
-            Color topColor = stateColor;
-            int bottomR = Math.Max(0, stateColor.R - (int)(stateColor.R * 0.02f));
-            int bottomG = Math.Max(0, stateColor.G - (int)(stateColor.G * 0.02f));
-            int bottomB = Math.Max(0, stateColor.B - (int)(stateColor.B * 0.02f));
-            Color bottomColor = Color.FromArgb(stateColor.A, bottomR, bottomG, bottomB);
+            // Get Mica-tinted color based on state
+            Color stateColor = GetMicaStateColor(baseColor, primaryColor, state);
 
             RectangleF bounds = path.GetBounds();
-            var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Mica gradient effect (2% darker at bottom)
+            Color topColor = stateColor;
+            Color bottomColor = BackgroundPainterHelpers.Darken(stateColor, 0.02f);
+
+            var brush = PaintersFactory.GetLinearGradientBrush(
+                bounds, topColor, bottomColor, LinearGradientMode.Vertical);
             g.FillPath(brush, path);
+        }
+
+        private static Color GetMicaStateColor(Color baseColor, Color primaryColor, ControlState state)
+        {
+            // Mica tint strength varies by state
+            float tintStrength = state switch
+            {
+                ControlState.Hovered => 0.08f,
+                ControlState.Pressed => 0.12f,
+                ControlState.Selected => 0.10f,
+                ControlState.Focused => 0.06f,
+                ControlState.Disabled => 0.02f,
+                _ => 0.05f // Normal
+            };
+
+            // Blend base with primary based on tint strength
+            Color blended = BlendColors(baseColor, primaryColor, tintStrength);
+
+            // Additional modifications for specific states
+            if (state == ControlState.Pressed)
+            {
+                blended = BackgroundPainterHelpers.Darken(blended, 0.10f);
+            }
+            else if (state == ControlState.Disabled)
+            {
+                blended = BackgroundPainterHelpers.WithAlpha(blended, 75);
+            }
+
+            return blended;
+        }
+
+        private static Color BlendColors(Color baseColor, Color blendColor, float ratio)
+        {
+            return Color.FromArgb(
+                baseColor.A,
+                (int)(baseColor.R * (1 - ratio) + blendColor.R * ratio),
+                (int)(baseColor.G * (1 - ratio) + blendColor.G * ratio),
+                (int)(baseColor.B * (1 - ratio) + blendColor.B * ratio)
+            );
         }
     }
 }

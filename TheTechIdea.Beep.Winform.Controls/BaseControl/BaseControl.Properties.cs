@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private BeepControlStyle _borderPainterStyle = BeepControlStyle.None;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Select the painter (renderer) used to draw the control. Auto picks Material when Material ProgressBarStyle is enabled, otherwise Classic.")]
+        [Description("Select the painter (renderer) used to draw the control border. Synchronized with ControlStyle.")]
         public BeepControlStyle BorderPainter
         {
             get => _borderPainterStyle;
@@ -72,6 +72,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_borderPainterStyle == value) return;
                 _borderPainterStyle = value;
+                
+                // CRITICAL: Also synchronize ControlStyle when BorderPainter changes directly
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
+                }
+                
                 UpdateBorderPainter();
                 Invalidate();
             }
@@ -1103,6 +1110,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_controlstyle != value)
                 {
                     _controlstyle = value;
+                    
+                    // CRITICAL: Synchronize BorderPainter with ControlStyle
+                    // This ensures border style, color, and width update when ControlStyle changes
+                    if (_borderPainterStyle != value)
+                    {
+                        _borderPainterStyle = value;
+                        UpdateBorderPainter();
+                    }
+                    
                     // Auto-resize to compensate chrome when style-based painting is used
                     try
                     {

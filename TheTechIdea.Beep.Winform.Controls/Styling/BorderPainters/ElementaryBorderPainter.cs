@@ -15,9 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (path == null) return path;
 
-            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Elementary);
-            Color subtleBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Elementary);
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Elementary);
+            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color subtleBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 

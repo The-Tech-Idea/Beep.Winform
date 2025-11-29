@@ -4,39 +4,47 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
+    /// <summary>
+    /// Gaming shadow painter - RGB-style intense glow
+    /// Neon green or accent color glow for gaming/esports UIs
+    /// Angular, intense, state-aware
+    /// </summary>
     public static class GamingShadowPainter
     {
         public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(BeepControlStyle.Gaming)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            Color neonGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Gaming);
-            int glowRadius = StyleShadows.GetShadowBlur(BeepControlStyle.Gaming);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            RectangleF bounds = path.GetBounds();
+            // Gaming glow - neon green or theme accent
+            Color glowColor = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : StyleColors.GetPrimary(style);
             
-            // Gaming: Intense green RGB glow
-            for (int i = glowRadius; i >0; i -=2)
+            int glowRadius = StyleShadows.GetShadowBlur(style);
+
+            // Gaming: Intense state-based glow
+            float intensity = state switch
             {
-                float alpha = (float)i / glowRadius *0.5f;
-                Rectangle glowBounds = Rectangle.Round(bounds);
-                glowBounds.Inflate(i, i);
+                ControlState.Hovered => 1.1f,   // Brighter on hover
+                ControlState.Pressed => 0.8f,   // Dimmer when pressed
+                ControlState.Focused => 1.2f,   // Bright on focus
+                ControlState.Selected => 1.0f,  // Normal when selected
+                ControlState.Disabled => 0.2f,  // Very dim when disabled
+                _ => 0.9f                       // Default
+            };
 
-                using (var glowPath = new GraphicsPath())
-                {
-                    glowPath.AddRectangle(glowBounds); // Angular
-
-                    var pen = PaintersFactory.GetPen(Color.FromArgb((int)(alpha *255), neonGreen),2f);
-                    g.DrawPath(pen, glowPath);
-                }
-            }
-
-            return path;
+            // Use neon glow helper (gaming uses same technique)
+            return ShadowPainterHelpers.PaintNeonGlow(
+                g, path, radius,
+                glowColor, intensity, glowRadius);
         }
     }
 }

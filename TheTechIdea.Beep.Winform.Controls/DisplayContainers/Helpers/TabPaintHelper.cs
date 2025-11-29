@@ -119,24 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Draw tab text only if there's space
                 if (textBounds.Width > 10 && textBounds.Height > 10)
                 {
-                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Drawing text '{title}' at {textBounds} with color {colors.TextColor}");
                     DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Skipping text - bounds too small: {textBounds}");
                 }
                 
                 // Draw close button if needed and there's space
                 if (showCloseButton && bounds.Width > 30 && bounds.Height > 16)
                 {
                     var closeRect = new Rectangle(bounds.Right - 20, bounds.Y + (bounds.Height - 12) / 2, 12, 12);
-                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Drawing close button at {closeRect}");
                     DrawCloseButton(g, closeRect, isCloseHovered, colors.TextColor);
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab: Skipping close button - bounds too small or disabled: width={bounds.Width}, height={bounds.Height}, showClose={showCloseButton}");
                 }
                 // If style is underline or minimal and active, draw underline accent
                 if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && isActive)
@@ -144,11 +134,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     DrawUnderline(g, bounds, colors);
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // Log error for debugging
-                System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab error: {ex.Message}");
-                
                 // Fallback to simple rectangle drawing
                 try
                 {
@@ -265,7 +252,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // In transparent mode, skip background painting entirely - let parent show through
             if (_isTransparent)
             {
-                // Don't paint background - just return, borders and text will be drawn separately
                 return;
             }
             
@@ -281,8 +267,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 else if (isHovered)
                     state = ControlState.Hovered;
                 
-                // Use BeepStyling.PaintControl for consistent rendering with the rest of the framework
-                // This automatically handles shadow, border, and background based on ControlStyle
+                // Use BeepStyling.PaintControl for consistent rendering
                 var contentPath = BeepStyling.PaintControl(
                     g,
                     tabPath,
@@ -293,12 +278,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     _isTransparent
                 );
                 
-                // Dispose content path if returned
                 contentPath?.Dispose();
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"DrawTabBackground error: {ex.Message}");
                 // Ultimate fallback - simple rectangle fill
                 using (var brush = new SolidBrush(colors.BackgroundColor))
                 {
@@ -323,11 +306,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         private void DrawTabText(Graphics g, Rectangle textBounds, string title, Font font, Color textColor, bool isActive)
         {
-            // Validate parameters before drawing
             if (g == null || string.IsNullOrEmpty(title) || font == null || textBounds.Width <= 0 || textBounds.Height <= 0)
                 return;
 
-            // Use TextRenderer for more reliable text rendering (avoids Font.Height exceptions)
             try
             {
                 // Determine font style for active tabs
@@ -340,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     }
                     catch
                     {
-                        textFont = font; // Fallback to regular font
+                        textFont = font;
                     }
                 }
                 
@@ -359,11 +340,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     textFont.Dispose();
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // Log the error details for debugging
-                System.Diagnostics.Debug.WriteLine($"DrawTabText error: {ex.Message}");
-                
                 // Final fallback to simple text rendering
                 try
                 {
@@ -422,10 +400,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         {
             var path = new GraphicsPath();
             
-            // Validate rectangle
             if (rect.Width <= 0 || rect.Height <= 0)
             {
-                return path; // Return empty path for invalid rectangles
+                return path;
             }
             
             if (radius <= 0)
@@ -448,37 +425,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
             try
             {
-                // Create rounded rectangle path
                 var arc = new Rectangle(rect.X, rect.Y, diameter, diameter);
                 
-                // Top-left arc
                 path.AddArc(arc, 180, 90);
-                
-                // Top-right arc
                 arc.X = rect.Right - diameter;
                 path.AddArc(arc, 270, 90);
-                
-                // Bottom-right arc
                 arc.Y = rect.Bottom - diameter;
                 path.AddArc(arc, 0, 90);
-                
-                // Bottom-left arc
                 arc.X = rect.Left;
                 path.AddArc(arc, 90, 90);
                 
                 path.CloseFigure();
             }
-            catch (ArgumentException ex)
+            catch
             {
-                // If arc creation fails, fall back to rectangle
-                System.Diagnostics.Debug.WriteLine($"CreateRoundedPath error: {ex.Message}");
-                path.Reset();
-                path.AddRectangle(rect);
-            }
-            catch (Exception ex)
-            {
-                // Handle any other unexpected errors
-                System.Diagnostics.Debug.WriteLine($"CreateRoundedPath unexpected error: {ex.Message}");
                 path.Reset();
                 if (rect.Width > 0 && rect.Height > 0)
                 {

@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color dynamicPrimary = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(103, 80, 164));
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             switch (state)
             {

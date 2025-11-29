@@ -19,8 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            Color baseBorderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Office);
-            Color primaryColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
+            Color baseBorderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color primaryColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(style);
             Color borderColor = baseBorderColor;
             bool showAccentBar = false;
 
@@ -55,13 +55,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Paint Office 1px border with 4px radius
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Office); // 1.0f
+            float borderWidth = StyleBorders.GetBorderWidth(style); // 1.0f
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Paint Office signature 3px accent bar on left (ribbon Style)
             if (showAccentBar)
             {
-                int accentBarWidth = StyleBorders.GetAccentBarWidth(BeepControlStyle.Office); // 3px
+                int accentBarWidth = StyleBorders.GetAccentBarWidth(style); // 3px
                 var bounds = path.GetBounds();
 
                 var accentBrush = PaintersFactory.GetSolidBrush(primaryColor);

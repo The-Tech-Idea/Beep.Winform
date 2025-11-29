@@ -3,32 +3,39 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Elementary background painter - elementary OS Pantheon desktop
-    /// Very subtle, clean white, 8px generous radius, Open Sans font aesthetic
+    /// elementary OS background painter - Pantheon desktop
+    /// Very clean, minimal white backgrounds with subtle interactions
+    /// elementary's signature refined, macOS-inspired aesthetic
     /// </summary>
     public static class ElementaryBackgroundPainter
     {
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
             IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            if (path == null) return;
+            if (g == null || path == null) return;
 
-            Color cleanWhite = useThemeColors && theme != null ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Elementary);
-            Color subtleBlue = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Elementary);
+            // elementary: clean white
+            Color cleanWhite = useThemeColors && theme != null 
+                ? theme.BackgroundColor 
+                : StyleColors.GetBackground(BeepControlStyle.Elementary);
+            Color subtleBlue = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : StyleColors.GetPrimary(BeepControlStyle.Elementary);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
+            // elementary uses very subtle state changes (refined, not bold)
             Color fillColor = state switch
             {
-                ControlState.Hovered => ColorUtils.Darken(cleanWhite, 0.03f),
-                ControlState.Pressed => ColorUtils.Darken(cleanWhite, 0.06f),
-                ControlState.Selected => Color.FromArgb(20, subtleBlue),
-                ControlState.Disabled => ColorUtils.Lighten(cleanWhite, 0.02f),
+                ControlState.Hovered => BackgroundPainterHelpers.Darken(cleanWhite, 0.03f),
+                ControlState.Pressed => BackgroundPainterHelpers.Darken(cleanWhite, 0.06f),
+                ControlState.Selected => BackgroundPainterHelpers.BlendColors(cleanWhite, subtleBlue, 0.10f),
+                ControlState.Focused => BackgroundPainterHelpers.Darken(cleanWhite, 0.02f),
+                ControlState.Disabled => BackgroundPainterHelpers.WithAlpha(cleanWhite, 100),
                 _ => cleanWhite
             };
 

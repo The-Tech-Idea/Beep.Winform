@@ -2,26 +2,27 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for GlassAcrylic Style
+    /// Glass background painter - translucent glass/mica effect
+    /// Semi-transparent light background with state awareness
     /// </summary>
     public static class GlassBackgroundPainter
     {
-        /// <summary>
-        /// Paint glass/acrylic background
-        /// </summary>
-        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, 
+            bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            // Base mica/glass color (matches FormStyle GlassFormPainter)
-            Color glassColor = Color.FromArgb(220, 245, 245, 245); // Semi-transparent light gray
-            var glassBrush = PaintersFactory.GetSolidBrush(glassColor);
-            g.FillPath(glassBrush, path);
+            if (g == null || path == null) return;
+
+            // Glass: semi-transparent light gray
+            Color glassColor = useThemeColors && theme != null 
+                ? BackgroundPainterHelpers.WithAlpha(theme.BackgroundColor, 220)
+                : Color.FromArgb(220, 245, 245, 245);
+
+            // Use frosted glass helper for consistent glass effect
+            BackgroundPainterHelpers.PaintFrostedGlassBackground(g, path, glassColor,220,state);
         }
     }
 }
-

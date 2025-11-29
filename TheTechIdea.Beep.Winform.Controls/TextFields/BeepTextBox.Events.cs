@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawTypingIndicator(g);
             }
 
-            _helper?.DrawAll(g, ClientRectangle, _textRect);
+            _helper?.DrawAll(g, DrawingRect, _textRect);
         }
         
         #endregion

@@ -16,8 +16,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Brutalist: Very thick, bold borders (3-4px) in solid black or dark color
-            float outerWidth = Math.Max(StyleBorders.GetBorderWidth(style), 3f); // Minimum 3px for bold look
+            // Brutalist: Respect configured border width for style.
+            float configuredWidth = StyleBorders.GetBorderWidth(style);
+            if (configuredWidth <= 0f)
+            {
+                // No border configured for this style - return unchanged path
+                return path;
+            }
+            // Use configured width for Brutalist, allow focus to increase it
+            float outerWidth = configuredWidth;
             Color outerColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.Black);
 
             if (isFocused || state == ControlState.Selected)
@@ -31,9 +38,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             var oldMode = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.None;
 
-            var pen = PaintersFactory.GetPen(outerColor, outerWidth);
-            pen.Alignment = PenAlignment.Inset;
-            g.DrawPath(pen, path);
+            // Create NEW pen (not cached) so we can modify Alignment property
+            using (var pen = new Pen(outerColor, outerWidth))
+            {
+                pen.Alignment = PenAlignment.Inset;
+                g.DrawPath(pen, path);
+            }
 
             g.SmoothingMode = oldMode;
 

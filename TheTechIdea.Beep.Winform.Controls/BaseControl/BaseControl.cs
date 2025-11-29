@@ -203,6 +203,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // 5. Initialize default painter based on PainterKind (defaults to Auto -> Classic)
                 UpdatePainterFromKind();
                 
+                // 6. Initialize border painter if ControlStyle/BorderPainter is already set
+                // This ensures border style, color, and width are applied on construction
+                if (_borderPainterStyle != BeepControlStyle.None)
+                {
+                    UpdateBorderPainter();
+                }
+                
             }
             catch (Exception ex)
             {

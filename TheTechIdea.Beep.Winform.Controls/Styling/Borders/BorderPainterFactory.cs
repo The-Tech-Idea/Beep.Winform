@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -116,6 +117,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         public GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
+            // If the configured border width for this style is ZERO or negative, do not attempt to paint.
+            // This prevents border painters from drawing fallback lines when the style explicitly specifies no border.
+            float configuredWidth = StyleBorders.GetBorderWidth(Style);
+            if (configuredWidth <= 0f)
+            {
+                // No border required - return the original path unchanged.
+                return path;
+            }
+
             return PaintStatic(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }

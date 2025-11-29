@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             // Apple UX: Minimal, refined state changes (very subtle)
             switch (state)

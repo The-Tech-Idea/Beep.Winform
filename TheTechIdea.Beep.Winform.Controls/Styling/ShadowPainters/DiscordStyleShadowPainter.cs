@@ -1,40 +1,42 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Discord Style shadow painter
-    /// Uses Discord's card shadow system
+    /// Discord Style shadow painter - Dark UI subtle shadow
+    /// Matches Discord's dark interface aesthetic
+    /// Subtle depth without overwhelming dark backgrounds
     /// </summary>
     public static class DiscordStyleShadowPainter
     {
-        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-                MaterialElevation elevation = MaterialElevation.Level1,
-                ControlState state = ControlState.Normal)
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            ControlState state = ControlState.Normal)
+        {
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // Discord: Subtle on dark backgrounds
+            int alpha = state switch
             {
-                // Discord ControlStyle UX: Flat design with minimal state shadows
-                if (!StyleShadows.HasShadow(style)) return path;
+                ControlState.Hovered => 50,
+                ControlState.Pressed => 25,
+                ControlState.Focused => 45,
+                ControlState.Disabled => 15,
+                _ => 35
+            };
 
-                // Only show shadow on interaction states (Discord's subtle depth)
-                if (state == ControlState.Normal) return path;
-
-                // Calculate shadow properties based on state
-                float shadowOpacity = 0.12f; // Minimal
-                if (state == ControlState.Hovered)
-                    shadowOpacity = 0.18f; // Slightly more on hover
-                else if (state == ControlState.Focused)
-                    shadowOpacity = 0.15f; // Moderate on focus
-                else if (state == ControlState.Pressed)
-                    shadowOpacity = 0.08f; // Minimal on press
-
-                // Paint shadows
-                GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 5);
-
-                return remainingPath;
-            }
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
+        }
     }
 }

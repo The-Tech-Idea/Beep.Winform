@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
             bool showAccentBar = false;
 
             // Bootstrap UX: Bold, clear state changes

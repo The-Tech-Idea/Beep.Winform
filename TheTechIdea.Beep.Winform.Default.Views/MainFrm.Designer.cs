@@ -63,12 +63,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.BadgeText = "";
             beepAppTree1.BeepService = null;
             beepAppTree1.BlockID = null;
-            beepAppTree1.BorderColor = Color.FromArgb(200, 200, 200);
+            beepAppTree1.BorderColor = Color.FromArgb(0, 255, 0);
             beepAppTree1.BorderDashStyle = DashStyle.Solid;
-            beepAppTree1.BorderPainter = BeepControlStyle.None;
-            beepAppTree1.BorderRadius = 8;
+            beepAppTree1.BorderPainter = BeepControlStyle.Terminal;
+            beepAppTree1.BorderRadius = 0;
             beepAppTree1.BorderStyle = BorderStyle.None;
-            beepAppTree1.BorderThickness = 1;
+            beepAppTree1.BorderThickness = 2;
             beepAppTree1.BottomoffsetForDrawingRect = 0;
             beepAppTree1.BoundProperty = null;
             beepAppTree1.Branches = (List<IBranch>)resources.GetObject("beepAppTree1.Branches");
@@ -157,6 +157,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.IsValid = true;
             beepAppTree1.IsVisible = true;
             beepAppTree1.Items = (List<object>)resources.GetObject("beepAppTree1.Items");
+            beepAppTree1.LabelPosition = LabelPosition.Left;
             beepAppTree1.LabelText = "";
             beepAppTree1.LabelTextOn = false;
             beepAppTree1.LeadingIconPath = "";
@@ -190,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 2;
+            beepAppTree1.SeqID = 1;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 3;
             beepAppTree1.ShadowOpacity = 0.25F;
@@ -199,6 +200,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.ShowCheckBox = true;
             beepAppTree1.ShowFocusIndicator = false;
             beepAppTree1.ShowHorizontalScrollBar = true;
+            beepAppTree1.ShowLabelAboveBorder = false;
             beepAppTree1.ShowLeftBorder = false;
             beepAppTree1.ShowRightBorder = false;
             beepAppTree1.ShowShadow = false;
@@ -247,10 +249,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.BlockID = null;
             beepDisplayContainer1.BorderColor = Color.FromArgb(200, 200, 200);
             beepDisplayContainer1.BorderDashStyle = DashStyle.Solid;
-            beepDisplayContainer1.BorderPainter = BeepControlStyle.None;
-            beepDisplayContainer1.BorderRadius = 8;
+            beepDisplayContainer1.BorderPainter = BeepControlStyle.Terminal;
+            beepDisplayContainer1.BorderRadius = 0;
             beepDisplayContainer1.BorderStyle = BorderStyle.FixedSingle;
-            beepDisplayContainer1.BorderThickness = 1;
+            beepDisplayContainer1.BorderThickness = 2;
             beepDisplayContainer1.BottomoffsetForDrawingRect = 0;
             beepDisplayContainer1.BoundProperty = null;
             beepDisplayContainer1.CanBeFocused = false;
@@ -266,7 +268,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepDisplayContainer1.DisabledBorderColor = Color.LightGray;
             beepDisplayContainer1.DisabledForeColor = Color.Gray;
-            beepDisplayContainer1.DrawingRect = new Rectangle(0, 0, 1363, 441);
+            beepDisplayContainer1.Dock = DockStyle.Fill;
+            beepDisplayContainer1.DrawingRect = new Rectangle(0, 0, 1432, 520);
             beepDisplayContainer1.Easing = EasingType.Linear;
             beepDisplayContainer1.EnableHighQualityRendering = true;
             beepDisplayContainer1.EnableMaterialStyle = false;
@@ -327,17 +330,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.IsSelected = false;
             beepDisplayContainer1.IsSelectedOptionOn = false;
             beepDisplayContainer1.IsShadowAffectedByTheme = true;
-            beepDisplayContainer1.IsTransparentBackground = true;
+            beepDisplayContainer1.IsTransparentBackground = false;
             beepDisplayContainer1.IsValid = true;
             beepDisplayContainer1.IsVisible = true;
             beepDisplayContainer1.Items = (List<object>)resources.GetObject("beepDisplayContainer1.Items");
+            beepDisplayContainer1.LabelPosition = LabelPosition.Left;
             beepDisplayContainer1.LabelText = "";
             beepDisplayContainer1.LabelTextOn = false;
             beepDisplayContainer1.LeadingIconPath = "";
             beepDisplayContainer1.LeadingImagePath = "";
             beepDisplayContainer1.LeftoffsetForDrawingRect = 0;
             beepDisplayContainer1.LinkedProperty = null;
-            beepDisplayContainer1.Location = new Point(481, 225);
+            beepDisplayContainer1.Location = new Point(412, 146);
             beepDisplayContainer1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepDisplayContainer1.MaxHitListDrawPerFrame = 0;
             beepDisplayContainer1.ModernGradientType = ModernGradientType.None;
@@ -365,11 +369,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.ShowAllBorders = false;
             beepDisplayContainer1.ShowBottomBorder = false;
             beepDisplayContainer1.ShowFocusIndicator = false;
+            beepDisplayContainer1.ShowLabelAboveBorder = false;
             beepDisplayContainer1.ShowLeftBorder = false;
             beepDisplayContainer1.ShowRightBorder = false;
             beepDisplayContainer1.ShowShadow = false;
             beepDisplayContainer1.ShowTopBorder = false;
-            beepDisplayContainer1.Size = new Size(1363, 441);
+            beepDisplayContainer1.Size = new Size(1432, 520);
             beepDisplayContainer1.SlideFrom = SlideDirection.Left;
             beepDisplayContainer1.StaticNotMoving = false;
             beepDisplayContainer1.TabIndex = 11;
@@ -405,10 +410,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.BlockID = null;
             beepMenuAppBar1.BorderColor = Color.LightGray;
             beepMenuAppBar1.BorderDashStyle = DashStyle.Solid;
-            beepMenuAppBar1.BorderPainter = BeepControlStyle.None;
-            beepMenuAppBar1.BorderRadius = 8;
+            beepMenuAppBar1.BorderPainter = BeepControlStyle.Terminal;
+            beepMenuAppBar1.BorderRadius = 0;
             beepMenuAppBar1.BorderStyle = BorderStyle.FixedSingle;
-            beepMenuAppBar1.BorderThickness = 1;
+            beepMenuAppBar1.BorderThickness = 2;
             beepMenuAppBar1.BottomoffsetForDrawingRect = 0;
             beepMenuAppBar1.BoundProperty = "SelectedMenuItem";
             beepMenuAppBar1.CanBeFocused = false;
@@ -489,6 +494,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.IsValid = true;
             beepMenuAppBar1.IsVisible = true;
             beepMenuAppBar1.Items = (List<object>)resources.GetObject("beepMenuAppBar1.Items");
+            beepMenuAppBar1.LabelPosition = LabelPosition.Left;
             beepMenuAppBar1.LabelText = "";
             beepMenuAppBar1.LabelTextOn = false;
             beepMenuAppBar1.LeadingIconPath = "";
@@ -525,6 +531,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.ShowAllBorders = false;
             beepMenuAppBar1.ShowBottomBorder = false;
             beepMenuAppBar1.ShowFocusIndicator = false;
+            beepMenuAppBar1.ShowLabelAboveBorder = false;
             beepMenuAppBar1.ShowLeftBorder = false;
             beepMenuAppBar1.ShowRightBorder = false;
             beepMenuAppBar1.ShowShadow = false;
@@ -548,6 +555,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.UseGradientBackground = false;
             beepMenuAppBar1.UseRichToolTip = true;
             beepMenuAppBar1.UseThemeFont = false;
+            beepMenuAppBar1.Click += beepMenuAppBar1_Click;
             // 
             // MainFrm
             // 

@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color borderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
             Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             switch (state)
             {

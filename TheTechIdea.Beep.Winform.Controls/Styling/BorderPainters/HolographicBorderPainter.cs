@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             float width = StyleBorders.GetBorderWidth(style);
+            if (width <= 0f) return path;
             RectangleF bounds = path.GetBounds();
 
             using (var gradient = new LinearGradientBrush(bounds, Color.Magenta, Color.Cyan, LinearGradientMode.Horizontal))

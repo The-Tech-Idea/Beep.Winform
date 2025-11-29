@@ -575,7 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ControlStyle,
                     theme,
                     UseThemeColors,
-                    itemState,IsTransparentBackground 
+                    itemState,IsTransparentBackground ,ShowAllBorders
                 );
               //  var contentPath= itemPath;//BeepStyling.GetContentPath(GraphicsExtensions.GetRoundedRectPath(this.DrawingRect,BeepStyling.GetRadius(ControlStyle)), ControlStyle);
                 // Draw image and text within returned content area

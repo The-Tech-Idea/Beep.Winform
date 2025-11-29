@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// <summary>
         /// Get color based on UseThemeColors setting
         /// </summary>
-        private static Color GetColor(BeepControlStyle style, Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey)
+        public static Color GetColor(BeepControlStyle style, Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey)
         {
             if (UseThemeColors && CurrentTheme != null)
             {
@@ -246,11 +246,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             // Draw shadow first (behind background)
             if (StyleShadows.HasShadow(style))
             {
-                GraphicsPath shadowResult;
-                if (StyleShadows.UsesDualShadows(style))
-                    shadowResult = NeumorphismShadowPainter.Paint(g, path, radius, style, CurrentTheme, useThemeColors);
+                // Prefer a registered painter from the factory if present
+                var shadowPainter = TheTechIdea.Beep.Winform.Controls.Styling.Shadows.ShadowPainterFactory.CreatePainter(style);
+                if (shadowPainter != null)
+                {
+                    shadowPainter.Paint(g, path, radius, CurrentTheme);
+                }
+                else if (StyleShadows.UsesDualShadows(style))
+                {
+                    NeumorphismShadowPainter.Paint(g, path, radius, style, CurrentTheme, useThemeColors);
+                }
                 else
-                    shadowResult = StandardShadowPainter.Paint(g, path, style, path);
+                {
+                    StandardShadowPainter.Paint(g, path, radius, style, CurrentTheme, useThemeColors);
+                }
             }
 
             // Delegate to individual Style background painter
@@ -378,6 +387,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             if (path == null) return;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            // If configured border width is zero, do not attempt to paint border for this style
+            if (StyleBorders.GetBorderWidth(style) <= 0f) return;
 
             // Attempt to retrieve border painter and delegate
             var painter = TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters.BorderPainterFactory.CreatePainter(style);
@@ -987,7 +998,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             BeepControlStyle style,
             IBeepTheme theme,
             bool useThemeColors,
-            ControlState state = ControlState.Normal,bool IsTransparentBackground=false)
+            ControlState state = ControlState.Normal,bool IsTransparentBackground=false,bool showborders=true)
         {
             if (controlPath == null)
                 return null;
@@ -1032,13 +1043,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
             // === STEP 3: Paint Border LAST (uses shadow path, returns smaller path after border) ===
+            // NOTE: Border should ALWAYS be painted regardless of IsTransparentBackground
+            // The transparent flag only affects background fill, not borders
             GraphicsPath pathAfterBorder = pathAfterShadow;
             var borderPainter = BorderPainterFactory.CreatePainter(style);
-            if (borderPainter != null && !IsTransparentBackground)
+            float configuredBorderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderPainter != null && configuredBorderWidth > 0f && showborders)
             {
                 bool isFocused = (state == ControlState.Focused);
                 pathAfterBorder = borderPainter.Paint(g, pathAfterShadow, isFocused, style, theme, useThemeColors, state);
-               
             }
           
           
@@ -1273,7 +1286,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var borderPainter = BorderPainterFactory.CreatePainter(style);
-            if (borderPainter != null)
+            float configuredBorderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderPainter != null && configuredBorderWidth > 0f)
             {
                 bool isFocused = (state == ControlState.Focused);
                 borderPainter.Paint(g, controlPath, isFocused, style, theme, useThemeColors, state);

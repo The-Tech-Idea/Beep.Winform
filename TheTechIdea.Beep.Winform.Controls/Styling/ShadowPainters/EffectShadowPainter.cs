@@ -17,6 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
+            if (g == null || path == null) return path ?? new GraphicsPath();
+            if (!StyleShadows.HasShadow(style)) return path;
+
             GraphicsPath remainingPath = (GraphicsPath)path.Clone();
 
             // State-specific shadow effects

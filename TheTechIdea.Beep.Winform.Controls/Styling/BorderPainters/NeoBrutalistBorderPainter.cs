@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             // NeoBrutalist: THICK black borders (signature!)
-            Color blackBorder = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.NeoBrutalist);
+            Color blackBorder = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(style);
             Color borderColor = blackBorder;
 
             // NeoBrutalist: BOLD state changes (no subtlety!)
@@ -48,13 +48,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             // NeoBrutalist focused: Stay black (no special focus ring - raw design)
             // The thick border itself IS the focus indicator
 
-            // Paint NeoBrutalist SIGNATURE 4px THICK black border (0px radius - sharp!)
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.NeoBrutalist); // 4.0f THICK!
+            // Respect configured border width for NeoBrutalist style - if zero, do not draw border
+            float configuredWidth = StyleBorders.GetBorderWidth(style);
+            if (configuredWidth <= 0f) return path;
+            // Paint NeoBrutalist SIGNATURE 6px THICK black border (0px radius - sharp!)
+            float borderWidth = configuredWidth; // 6.0f THICK!
 
-            var pen = PaintersFactory.GetPen(borderColor, borderWidth);
-            pen.LineJoin = LineJoin.Miter; // Sharp corners (brutalist!)
-            pen.Alignment = PenAlignment.Inset; // Keep border inside path
-            g.DrawPath(pen, path);
+            // Create NEW pen (not cached) so we can modify LineJoin and Alignment properties
+            using (var pen = new Pen(borderColor, borderWidth))
+            {
+                pen.LineJoin = LineJoin.Miter; // Sharp corners (brutalist!)
+                pen.Alignment = PenAlignment.Center; // Center border on path edge (half in, half out for visibility with shadow)
+                g.DrawPath(pen, path);
+            }
 
             // Return the area inside the THICK border
             return path.CreateInsetPath(borderWidth);

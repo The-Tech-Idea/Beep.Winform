@@ -1,35 +1,55 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
+    /// <summary>
+    /// GruvBox theme background painter - retro groove color scheme
+    /// Warm, earthy tones with a vintage CRT feel and subtle grain
+    /// </summary>
     public static class GruvBoxBackgroundPainter
     {
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme,
             bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            if (path == null) return;
+            if (g == null || path == null) return;
 
-            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(0x3C, 0x38, 0x36);
-            Color fillColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            // GruvBox dark hard background
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackgroundColor 
+                : Color.FromArgb(0x28, 0x28, 0x28); // bg0_h
+            
+            // GruvBox orange accent
+            Color accent = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : Color.FromArgb(0xFB, 0xB8, 0x6C); // orange bright
 
-            var brush = PaintersFactory.GetSolidBrush(fillColor);
-            g.FillPath(brush, path);
+            // Paint solid background with subtle state handling
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,
+                BackgroundPainterHelpers.StateIntensity.Subtle);
 
             var bounds = Rectangle.Round(path.GetBounds());
-            using var clip = new BackgroundPainterHelpers.ClipScope(g, path);
-            var grainPen = PaintersFactory.GetPen(Color.FromArgb(15, 251, 184, 108), 1);
-            for (int y = bounds.Top; y < bounds.Bottom; y += 3)
-            {
-                g.DrawLine(grainPen, bounds.Left, y, bounds.Right, y);
-            }
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            var topRect = new Rectangle(bounds.Left, bounds.Top, bounds.Width, Math.Max(1, bounds.Height / 6));
-            var glow = PaintersFactory.GetLinearGradientBrush(topRect, Color.FromArgb(40, 251, 184, 108), Color.Transparent, LinearGradientMode.Vertical);
-            g.FillRectangle(glow, topRect);
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
+            {
+                // Warm grain effect (retro CRT feel)
+                BackgroundPainterHelpers.PaintScanlineOverlay(g, bounds, 
+                    Color.FromArgb(12, accent), 3);
+
+                // Warm top glow
+                int glowHeight = Math.Max(1, bounds.Height / 6);
+                var topRect = new Rectangle(bounds.Left, bounds.Top, bounds.Width, glowHeight);
+                var glow = PaintersFactory.GetLinearGradientBrush(
+                    topRect, 
+                    Color.FromArgb(30, accent), 
+                    Color.Transparent, 
+                    LinearGradientMode.Vertical);
+                g.FillRectangle(glow, topRect);
+            }
         }
     }
 }

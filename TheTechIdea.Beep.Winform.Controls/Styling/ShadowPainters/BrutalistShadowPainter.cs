@@ -1,14 +1,14 @@
+// File: BrutalistShadowPainter.cs
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Brutalist shadow painter - hard, offset block shadow for bold geometric 3D layered effect.
+    /// Classic Brutalist shadow - solid black rectangle offset to bottom-right
+    /// Creates the iconic "stacked paper" 3D effect with hard edges
+    /// No blur, no gradients, just a clean solid shadow block
     /// </summary>
     public static class BrutalistShadowPainter
     {
@@ -16,35 +16,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // Brutalist: Shadow is the same shape as the element, offset to create 3D layered effect
-            int offsetX = 3; // Offset to the right
-            int offsetY = 3; // Offset down
-            
-            // Clone the path and offset it
-            using (var shadowPath = (GraphicsPath)path.Clone())
+            var bounds = path.GetBounds();
+
+            // Turn off anti-aliasing → mandatory for crisp Brutalist hard edges
+            var prevMode = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.None;
+
+            try
             {
-                // Create transformation matrix for offset
-                using (var matrix = new System.Drawing.Drawing2D.Matrix())
+                // Shadow offset - the "depth" of the 3D stacked effect
+                int offsetX = StyleShadows.GetShadowOffsetX(style); // Default: 6
+                int offsetY = StyleShadows.GetShadowOffsetY(style); // Default: 6
+                
+                // Ensure minimum offset for visible effect
+                if (offsetX < 4) offsetX = 4;
+                if (offsetY < 4) offsetY = 4;
+
+                // Shadow color from StyleShadows (solid black for Brutalist)
+                Color shadowColor = StyleShadows.GetShadowColor(style);
+
+                // Draw single solid shadow rectangle offset behind the control
+                using (var brush = new SolidBrush(shadowColor))
                 {
-                    matrix.Translate(offsetX, offsetY);
-                    shadowPath.Transform(matrix);
-                    
-                    // Disable anti-aliasing for sharp shadow edges
-                    var previousSmoothing = g.SmoothingMode;
-                    g.SmoothingMode = SmoothingMode.None;
-
-                    // Draw the shadow shape (solid dark block)
-                    var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, 0, 0, 0)); // Darker for more contrast
-                    g.FillPath(brush, shadowPath);
-
-                    g.SmoothingMode = previousSmoothing;
+                    // The shadow is a simple rectangle, same size as control, offset down-right
+                    g.FillRectangle(brush,
+                        bounds.X + offsetX,
+                        bounds.Y + offsetY,
+                        bounds.Width,
+                        bounds.Height);
                 }
             }
+            finally
+            {
+                g.SmoothingMode = prevMode;
+            }
 
-            return path.CreateInsetPath(0f);
+            return path;
         }
     }
 }

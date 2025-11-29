@@ -536,11 +536,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Margin = new Padding(0);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-
-        }
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);

@@ -26,8 +26,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 throw new ArgumentException("Graphics object is null.");
             }
 
-            // Ensure border width is at least 2
-            float width = Math.Max(2f, StyleBorders.GetBorderWidth(style));
+            // Respect configured border width - if zero do not draw any border
+            float configuredWidth = StyleBorders.GetBorderWidth(style);
+            if (configuredWidth <= 0f) return path;
+
+            // Use the configured width (retain previous minimum if needed by style heuristics, but user should control this)
+            float width = configuredWidth;
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(210, 210, 220));
 
             if (isFocused)
@@ -35,12 +39,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 borderColor = BorderPainterHelpers.Lighten(borderColor, 0.2f);
             }
 
-            var pen = PaintersFactory.GetPen(borderColor, width);
-
-            pen.LineJoin = LineJoin.Round; // smooth corners for wider borders
-
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.DrawPath(pen, path);
+            // Create NEW pen (not cached) so we can modify LineJoin property
+            using (var pen = new Pen(borderColor, width))
+            {
+                pen.LineJoin = LineJoin.Round; // smooth corners for wider borders
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawPath(pen, path);
+            }
 
             // Return inner content area inset by half the border width
             return path.CreateInsetPath(width / 2f);

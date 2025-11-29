@@ -7,7 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Nord shadow painter - cool subtle elevation.
+    /// Nord shadow painter - Cool arctic-blue tinted shadow
+    /// Matches Nord theme's cool color palette
+    /// Subtle elevation with blue undertone
     /// </summary>
     public static class NordShadowPainter
     {
@@ -15,16 +17,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            return ShadowPainterHelpers.PaintDropShadow(
-                g, path, radius,
-                StyleShadows.GetShadowOffsetX(style),
-                StyleShadows.GetShadowOffsetY(style),
-                StyleShadows.GetShadowBlur(style),
-                StyleShadows.GetShadowColor(style),
-                0.24f);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Nord uses cool blue-tinted shadow
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // State-based subtle shadow
+            int alpha = state switch
+            {
+                ControlState.Hovered => 45,
+                ControlState.Pressed => 22,
+                ControlState.Focused => 40,
+                ControlState.Disabled => 12,
+                _ => 30
+            };
+
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
         }
     }
 }

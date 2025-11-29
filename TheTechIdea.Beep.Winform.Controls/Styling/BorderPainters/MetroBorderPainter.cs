@@ -18,8 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            Color baseBorderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Metro);
-            Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Metro);
+            Color baseBorderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color primaryColor = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
             Color borderColor = baseBorderColor;
 
             // Metro: Bold, flat color changes for different states
@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Paint Metro 2px flat border (sharp edges - 0px radius from StyleBorders)
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Metro); // 2.0f
+            float borderWidth = StyleBorders.GetBorderWidth(style); // 2.0f
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Return the area inside the border

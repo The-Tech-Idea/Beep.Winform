@@ -3,13 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Material You background painter - Solid with 8% tonal primary highlight
-    /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
+    /// Material You background painter - personalized dynamic color system
+    /// Tonal surface with primary color tinting for personalized feel
     /// </summary>
     public static class MaterialYouBackgroundPainter
     {
@@ -17,27 +16,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Material You: Dynamic color with personalized primary tinting
-            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.MaterialYou);
-            Color primaryColor = useThemeColors && theme != null ? theme.PrimaryColor : StyleColors.GetPrimary(BeepControlStyle.MaterialYou);
+            if (g == null || path == null) return;
 
-            // MaterialYou-specific state handling - NO HELPER FUNCTIONS
-            Color stateColor = state switch
-            {
-                ControlState.Hovered => Color.FromArgb(baseColor.A, (int)(baseColor.R * 0.90f + primaryColor.R * 0.10f), (int)(baseColor.G * 0.90f + primaryColor.G * 0.10f), (int)(baseColor.B * 0.90f + primaryColor.B * 0.10f)),
-                ControlState.Pressed => Color.FromArgb(baseColor.A, Math.Max(0, baseColor.R - (int)(baseColor.R * 0.08f)), Math.Max(0, baseColor.G - (int)(baseColor.G * 0.08f)), Math.Max(0, baseColor.B - (int)(baseColor.B * 0.08f))),
-                ControlState.Selected => Color.FromArgb(baseColor.A, (int)(baseColor.R * 0.85f + primaryColor.R * 0.15f), (int)(baseColor.G * 0.85f + primaryColor.G * 0.15f), (int)(baseColor.B * 0.85f + primaryColor.B * 0.15f)),
-                ControlState.Focused => Color.FromArgb(baseColor.A, (int)(baseColor.R * 0.93f + primaryColor.R * 0.07f), (int)(baseColor.G * 0.93f + primaryColor.G * 0.07f), (int)(baseColor.B * 0.93f + primaryColor.B * 0.07f)),
-                ControlState.Disabled => Color.FromArgb(90, baseColor),
-                _ => baseColor,
-            };
+            // Material You: dynamic surface color
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.MaterialYou);
+            Color primaryColor = useThemeColors && theme != null 
+                ? theme.PrimaryColor 
+                : StyleColors.GetPrimary(BeepControlStyle.MaterialYou);
 
+            // Material You state handling: blend with primary color
+            Color stateColor = GetMaterialYouStateColor(baseColor, primaryColor, state);
             var brush = PaintersFactory.GetSolidBrush(stateColor);
             g.FillPath(brush, path);
 
-            // Add tonal primary highlight (8% alpha) - consistent across states
-            var tonalBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(20, primaryColor));
+            // Tonal primary overlay (Material You's signature personal tinting)
+            var tonalBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, primaryColor));
             g.FillPath(tonalBrush, path);
+        }
+
+        private static Color GetMaterialYouStateColor(Color baseColor, Color primaryColor, ControlState state)
+        {
+            return state switch
+            {
+                // Hover: blend 10% primary
+                ControlState.Hovered => BlendColors(baseColor, primaryColor, 0.10f),
+                // Pressed: darken 8%
+                ControlState.Pressed => BackgroundPainterHelpers.Darken(baseColor, 0.08f),
+                // Selected: blend 15% primary
+                ControlState.Selected => BlendColors(baseColor, primaryColor, 0.15f),
+                // Focused: blend 7% primary
+                ControlState.Focused => BlendColors(baseColor, primaryColor, 0.07f),
+                // Disabled: reduced alpha
+                ControlState.Disabled => BackgroundPainterHelpers.WithAlpha(baseColor, 90),
+                _ => baseColor
+            };
+        }
+
+        private static Color BlendColors(Color baseColor, Color blendColor, float ratio)
+        {
+            return Color.FromArgb(
+                baseColor.A,
+                (int)(baseColor.R * (1 - ratio) + blendColor.R * ratio),
+                (int)(baseColor.G * (1 - ratio) + blendColor.G * ratio),
+                (int)(baseColor.B * (1 - ratio) + blendColor.B * ratio)
+            );
         }
     }
 }

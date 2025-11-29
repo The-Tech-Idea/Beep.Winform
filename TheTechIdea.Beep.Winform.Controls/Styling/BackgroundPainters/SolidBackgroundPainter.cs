@@ -3,35 +3,46 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for simple solid color styles
-    /// Used by: Minimal, Fluent2, AntDesign, ChakraUI, NotionMinimal, VercelClean, PillRail
+    /// Generic solid background painter for styles that need simple fill
+    /// Used by: various simple styles as fallback or base
     /// </summary>
     public static class SolidBackgroundPainter
     {
         /// <summary>
-        /// Paint solid color background (for Minimal, Fluent, AntDesign, etc.)
+        /// Paint solid color background with state awareness
         /// </summary>
-        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            if (g == null || path == null) return;
+
+            Color bgColor = GetBackgroundColor(style, theme, useThemeColors);
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Normal);
+        }
+
+        /// <summary>
+        /// Legacy overload without state (defaults to Normal)
+        /// </summary>
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors)
+        {
+            Paint(g, path, style, theme, useThemeColors, ControlState.Normal);
         }
         
-        private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
+        private static Color GetBackgroundColor(BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor("Background");
                 if (themeColor != Color.Empty)
                     return themeColor;
             }
-            return styleColorFunc(style);
+            return StyleColors.GetBackground(style);
         }
     }
 }

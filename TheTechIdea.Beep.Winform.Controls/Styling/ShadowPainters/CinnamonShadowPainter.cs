@@ -3,55 +3,48 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Cinnamon shadow painter - Standard card shadows for Linux Mint desktop
+    /// Cinnamon shadow painter - Linux Mint desktop environment
+    /// Comfortable, familiar shadows for a traditional desktop feel
+    /// Slightly warmer and more prominent than GNOME
     /// </summary>
     public static class CinnamonShadowPainter
     {
         public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(BeepControlStyle.Cinnamon)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            Color shadowColor = StyleShadows.GetShadowColor(BeepControlStyle.Cinnamon);
-            int blur = StyleShadows.GetShadowBlur(BeepControlStyle.Cinnamon);
-            int offsetY = StyleShadows.GetShadowOffsetY(BeepControlStyle.Cinnamon);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            RectangleF bounds = path.GetBounds();
-            Rectangle shadowBounds = Rectangle.Round(bounds);
-            shadowBounds.Offset(0, offsetY);
-            shadowBounds.Inflate(blur / 2, blur / 2);
+            // Cinnamon uses neutral shadows
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int blur = StyleShadows.GetShadowBlur(style);
 
-            using (var shadowPath = new GraphicsPath())
+            // State-based alpha - Cinnamon has comfortable interactive feedback
+            int alpha = state switch
             {
-                if (radius == 0)
-                {
-                    shadowPath.AddRectangle(shadowBounds);
-                }
-                else
-                {
-                    int diameter = (radius + blur / 2) * 2;
-                    Size size = new Size(diameter, diameter);
-                    Rectangle arc = new Rectangle(shadowBounds.Location, size);
-                    shadowPath.AddArc(arc, 180, 90);
-                    arc.X = shadowBounds.Right - diameter;
-                    shadowPath.AddArc(arc, 270, 90);
-                    arc.Y = shadowBounds.Bottom - diameter;
-                    shadowPath.AddArc(arc, 0, 90);
-                    arc.X = shadowBounds.Left;
-                    shadowPath.AddArc(arc, 90, 90);
-                    shadowPath.CloseFigure();
-                }
+                ControlState.Hovered => 60,    // More prominent on hover
+                ControlState.Pressed => 35,    // Reduced when pressed
+                ControlState.Focused => 55,    // Moderate focus
+                ControlState.Disabled => 20,   // Subtle
+                _ => 45                        // Default - slightly more than Elementary
+            };
 
-                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(60, shadowColor));
-                g.FillPath(brush, shadowPath);
-            }
+            int spread = blur / 3;
 
-            return path;
+            // Use clean single-layer drop shadow (Linux Mint style)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread > 0 ? spread : 3);
         }
     }
 }

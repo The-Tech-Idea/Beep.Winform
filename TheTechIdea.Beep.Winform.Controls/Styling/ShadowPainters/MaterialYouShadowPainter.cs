@@ -1,4 +1,6 @@
+using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
@@ -7,45 +9,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// Material You shadow painter
-    /// Uses Material elevation with dynamic color adaptation
+    /// Material 3 elevation with dynamic color adaptation
+    /// Shadows can be tinted by surface color for cohesive feel
     /// </summary>
     public static class MaterialYouShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
-            // Material You UX: Dynamic color adaptation and state elevation
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
             // Adjust elevation based on state
-            var actualElevation = elevation;
-            if (state == ControlState.Hovered)
-                actualElevation = (MaterialElevation)Math.Min(5, (int)elevation + 1);
-            else if (state == ControlState.Pressed)
-                actualElevation = (MaterialElevation)Math.Max(0, (int)elevation - 1);
-            else if (state == ControlState.Focused)
-                actualElevation = (MaterialElevation)Math.Min(5, (int)elevation + 1);
-
-            // Material You dynamic shadow color adaptation
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-
-            // Adapt shadow color based on theme if available
-            if (useThemeColors && theme != null)
+            int effectiveLevel = (int)elevation;
+            switch (state)
             {
-                var themeShadow = BeepStyling.GetThemeColor("Shadow");
-                if (themeShadow != Color.Empty)
-                    shadowColor = Color.FromArgb(shadowColor.A, themeShadow);
+                case ControlState.Hovered:
+                    effectiveLevel = Math.Min(5, effectiveLevel + 1);
+                    break;
+                case ControlState.Pressed:
+                    effectiveLevel = Math.Max(0, effectiveLevel - 1);
+                    break;
+                case ControlState.Focused:
+                    effectiveLevel = Math.Min(5, effectiveLevel + 1);
+                    break;
+                case ControlState.Disabled:
+                    effectiveLevel = 0;
+                    break;
             }
 
-            // Use StyleShadows for consistent Material You shadows
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            if (effectiveLevel == 0) return path;
 
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, 0.6f, blur / 2);
+            // Material You: Dynamic shadow color from theme
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            
+            // Adapt shadow color for Material You dynamic theming
+            if (useThemeColors && theme != null)
+            {
+                // Material You can tint shadows slightly with surface color
+                Color surfaceColor = theme.SurfaceColor;
+                if (surfaceColor != Color.Empty)
+                {
+                    // Blend a hint of surface color into shadow for cohesion
+                    int r = (int)(shadowColor.R * 0.85 + surfaceColor.R * 0.15);
+                    int gr = (int)(shadowColor.G * 0.85 + surfaceColor.G * 0.15);
+                    int b = (int)(shadowColor.B * 0.85 + surfaceColor.B * 0.15);
+                    shadowColor = Color.FromArgb(r, gr, b);
+                }
+            }
 
-            return remainingPath;
+            // Use dual-layer shadow for proper Material elevation
+            return ShadowPainterHelpers.PaintDualLayerShadow(
+                g, path, radius,
+                effectiveLevel,
+                shadowColor);
         }
     }
 }

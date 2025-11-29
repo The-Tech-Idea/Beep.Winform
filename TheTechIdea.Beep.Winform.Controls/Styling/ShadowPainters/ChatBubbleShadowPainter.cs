@@ -3,12 +3,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Chat bubble shadow painter - soft coloured messenger shadow.
+    /// Chat Bubble shadow painter - Soft messaging UI shadow
+    /// Creates "floating message" effect
+    /// Subtle but present depth
     /// </summary>
     public static class ChatBubbleShadowPainter
     {
@@ -16,17 +17,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            Color color = StyleShadows.GetShadowColor(style);
-            return ShadowPainterHelpers.PaintDropShadow(
-                g, path, radius,
-                StyleShadows.GetShadowOffsetX(style),
-                StyleShadows.GetShadowOffsetY(style),
-                StyleShadows.GetShadowBlur(style),
-                color,
-                0.26f);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            int alpha = state switch
+            {
+                ControlState.Hovered => 45,
+                ControlState.Pressed => 22,
+                ControlState.Focused => 40,
+                ControlState.Disabled => 15,
+                _ => 32
+            };
+
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 3);
         }
     }
 }

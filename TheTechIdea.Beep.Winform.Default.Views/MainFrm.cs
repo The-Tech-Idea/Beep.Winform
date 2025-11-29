@@ -49,5 +49,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
 
         }
+
+        private void beepMenuAppBar1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

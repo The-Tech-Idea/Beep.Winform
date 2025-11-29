@@ -7,7 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// One Dark shadow painter - neutral editor shadow.
+    /// One Dark shadow painter - Subtle neutral editor shadow
+    /// Matches One Dark Pro theme aesthetic
+    /// Minimal but present depth indication
     /// </summary>
     public static class OneDarkShadowPainter
     {
@@ -15,16 +17,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            return ShadowPainterHelpers.PaintDropShadow(
-                g, path, radius,
-                StyleShadows.GetShadowOffsetX(style),
-                StyleShadows.GetShadowOffsetY(style),
-                StyleShadows.GetShadowBlur(style),
-                StyleShadows.GetShadowColor(style),
-                0.26f);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // State-based subtle shadow
+            int alpha = state switch
+            {
+                ControlState.Hovered => 40,
+                ControlState.Pressed => 20,
+                ControlState.Focused => 35,
+                ControlState.Disabled => 12,
+                _ => 28
+            };
+
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
         }
     }
 }

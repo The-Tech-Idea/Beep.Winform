@@ -3,13 +3,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// WebFramework shadow painter - Modern Web CSS-like shadows
-    /// Web UX: Box-shadow Style with spread, blur, and color
+    /// WebFramework shadow painter - Generic modern web CSS shadows
+    /// CSS box-shadow inspired with state variations
+    /// Good default for web-like UIs
     /// </summary>
     public static class WebFrameworkShadowPainter
     {
@@ -17,45 +17,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            GraphicsPath remainingPath;
-            // Web-Style shadows: CSS box-shadow inspired
-            switch (state)
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Web shadow - neutral black
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // Web CSS-like state shadows
+            int alpha = state switch
             {
-                case ControlState.Hovered:
-                    // Web hover: Medium shadow with spread
-                    remainingPath = ShadowPainterHelpers.PaintColoredShadow(
-                        g, path, radius,
-                        baseColor: Color.FromArgb(40, 0, 0, 0),
-                        offsetX: 0, offsetY: 4,
-                        intensity: 0.4f
-                    );
-                    break;
+                ControlState.Hovered => 50,    // box-shadow on hover
+                ControlState.Pressed => 25,    // Reduced on click
+                ControlState.Focused => 45,    // Focus ring shadow
+                ControlState.Selected => 55,   // Selected state
+                ControlState.Disabled => 12,   // Minimal
+                _ => 35                        // Default box-shadow
+            };
 
-                case ControlState.Pressed:
-                    // Web pressed: Inner shadow (inset effect)
-                    remainingPath = ShadowPainterHelpers.PaintInnerShadow(
-                        g, path, radius,
-                        depth: 3,
-                        shadowColor: Color.FromArgb(50, 0, 0, 0)
-                    );
-                    break;
+            int spread = 2;
 
-                case ControlState.Selected:
-                    // Web selected: Colored box-shadow
-                    Color accentColor = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(59, 130, 246);
-                    remainingPath = ShadowPainterHelpers.PaintColoredShadow(
-                        g, path, radius,
-                        baseColor: Color.FromArgb(80, accentColor),
-                        offsetX: 0, offsetY: 0,
-                        intensity: 0.8f
-                    );
-                    break;
-
-                default:
-                    remainingPath = path;
-                    break;
-            }
-            return remainingPath;
+            // Use clean drop shadow (Web CSS style)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

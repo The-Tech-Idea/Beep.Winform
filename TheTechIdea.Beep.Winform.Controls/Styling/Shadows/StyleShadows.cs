@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Kde => true,                   // KDE glow + shadow
                 BeepControlStyle.Cinnamon => true,              // Cinnamon soft shadow
                 BeepControlStyle.Elementary => true,            // Elementary subtle shadow
-                BeepControlStyle.NeoBrutalist => false,         // Neo-Brutalist NO shadows (signature)
+                BeepControlStyle.NeoBrutalist => true,          // Neo-Brutalist hard offset shadow
                 BeepControlStyle.Gaming => true,                // Gaming dramatic glow
                 BeepControlStyle.HighContrast => false,         // High contrast flat (no shadow)
                 BeepControlStyle.Neon => true,                  // Neon strong glow
@@ -72,6 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Terminal => false,
                 BeepControlStyle.Tokyo => true,
                 BeepControlStyle.Ubuntu => true,
+                BeepControlStyle.Retro => true,                  // Retro classic offset shadow
+              
                 _ => false
             };
         }
@@ -106,6 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Kde => 10,                     // KDE soft glow
                 BeepControlStyle.Cinnamon => 10,                // Cinnamon moderate
                 BeepControlStyle.Elementary => 8,               // Elementary subtle
+                BeepControlStyle.NeoBrutalist => 0,             // Neo-Brutalist no blur (hard edge)
                 BeepControlStyle.Gaming => 20,                  // Gaming dramatic glow
                 BeepControlStyle.Neon => 24,                    // Neon large glow
                 BeepControlStyle.ArcLinux => 6,
@@ -127,7 +130,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Solarized => 7,
                 BeepControlStyle.Terminal => 0,
                 BeepControlStyle.Tokyo => 14,
-                BeepControlStyle.Ubuntu => 12,
+                BeepControlStyle.Ubuntu => 6,                 // Ubuntu/Yaru: subtle like GNOME
+                BeepControlStyle.Retro => 4,                     // Retro tight shadow
                 _ => 8
             };
         }
@@ -162,6 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Kde => 2,                      // KDE glow spreads
                 BeepControlStyle.Cinnamon => 0,                 // No spread
                 BeepControlStyle.Elementary => 0,               // No spread
+                BeepControlStyle.NeoBrutalist => 0,             // Neo-Brutalist no spread
                 BeepControlStyle.Gaming => 6,                   // Gaming glow expands
                 BeepControlStyle.Neon => 8,                     // Neon glow expands
                 _ => 0
@@ -198,6 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Kde => 0,                      // KDE glow all around
                 BeepControlStyle.Cinnamon => 3,                 // Cinnamon below
                 BeepControlStyle.Elementary => 2,               // Elementary subtle below
+                BeepControlStyle.NeoBrutalist => 4,             // Neo-Brutalist offset down
                 BeepControlStyle.Gaming => 0,                   // Gaming glow all around
                 BeepControlStyle.Neon => 0,                     // Neon glow all around
                 BeepControlStyle.ArcLinux => 3,
@@ -219,7 +225,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Solarized => 3,
                 BeepControlStyle.Terminal => 0,
                 BeepControlStyle.Tokyo => 7,
-                BeepControlStyle.Ubuntu => 5,
+                BeepControlStyle.Ubuntu => 2,                 // Ubuntu/Yaru: subtle below
+                BeepControlStyle.Retro => 2,                     // Retro offset
                 _ => 2
             };
         }
@@ -233,6 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
             {
                 BeepControlStyle.Neumorphism => 5,              // Neo offset right
                 BeepControlStyle.Brutalist => 6,
+                BeepControlStyle.NeoBrutalist => 4,             // Neo-Brutalist offset right
                 _ => 0                                          // Most centered
             };
         }
@@ -267,10 +275,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Kde => Color.FromArgb(100, 61, 174, 233),      // KDE blue glow
                 BeepControlStyle.Cinnamon => Color.FromArgb(40, 0, 0, 0),       // Cinnamon soft black
                 BeepControlStyle.Elementary => Color.FromArgb(30, 0, 0, 0),     // Elementary subtle black
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(255, 0, 0, 0),  // Neo-Brutalist pure black
                 BeepControlStyle.Gaming => Color.FromArgb(150, 0, 255, 127),    // Gaming green glow
                 BeepControlStyle.Neon => Color.FromArgb(180, 0, 255, 255),      // Neon cyan glow
                 BeepControlStyle.ArcLinux => Color.FromArgb(40, 0, 0, 0),
-                BeepControlStyle.Brutalist => Color.FromArgb(120, 0, 0, 0),
+                BeepControlStyle.Brutalist => Color.FromArgb(255, 0, 0, 0),  // Solid black for hard Brutalist shadow
                 BeepControlStyle.Cartoon => Color.FromArgb(60, 0, 0, 0),
                 BeepControlStyle.ChatBubble => Color.FromArgb(60, 100, 149, 237),
                 BeepControlStyle.Cyberpunk => Color.FromArgb(140, 0, 255, 255),
@@ -287,7 +296,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                
                 BeepControlStyle.Solarized => Color.FromArgb(80, 0, 43, 54),
                 BeepControlStyle.Tokyo => Color.FromArgb(130, 122, 162, 247),
-                BeepControlStyle.Ubuntu => Color.FromArgb(120, 233, 84, 32),
+                BeepControlStyle.Ubuntu => Color.FromArgb(40, 0, 0, 0),         // Clean neutral shadow (Yaru/GNOME style)
+                BeepControlStyle.Retro => Color.FromArgb(80, 0, 0, 0),          // Retro classic shadow
                 _ => Color.FromArgb(40, 0, 0, 0)
             };
         }

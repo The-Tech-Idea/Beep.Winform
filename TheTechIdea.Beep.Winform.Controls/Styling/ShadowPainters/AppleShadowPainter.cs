@@ -7,8 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Apple shadow painter - Apple Design System
-    /// Apple UX: Subtle, clean shadows with minimal noise
+    /// Apple shadow painter - Apple Design Language
+    /// Very subtle, refined shadows that feel natural
+    /// Clean and unobtrusive - shadows should be "felt, not seen"
     /// </summary>
     public static class AppleShadowPainter
     {
@@ -16,23 +17,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            GraphicsPath remainingPath = (GraphicsPath)path.Clone();
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // State-specific shadow intensity
-            switch (state)
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Apple shadow color - very subtle neutral
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // Apple shadows are extremely subtle - "felt, not seen"
+            int alpha = state switch
             {
-                case ControlState.Hovered:
-                case ControlState.Pressed:
-                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, ShadowPainterHelpers.CardShadowStyle.Small);
-                    break;
-                case ControlState.Selected:
-                    Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 122, 255);
-                    remainingPath = ShadowPainterHelpers.PaintColoredShadow(g, path, radius, accentColor, 0, 0, 0.8f);
-                    break;
-                case ControlState.Disabled:
-                    return path;
-            }
-            return remainingPath;
+                ControlState.Hovered => 35,    // Slightly more visible
+                ControlState.Pressed => 15,    // Very subtle when pressed
+                ControlState.Focused => 30,    // Moderate
+                ControlState.Selected => 40,   // Slightly more for selection
+                ControlState.Disabled => 8,    // Almost invisible
+                _ => 25                        // Default - very subtle
+            };
+
+            // Very minimal spread for Apple's refined look
+            int spread = 1;
+
+            // Use clean single-layer shadow (Apple refinement)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -12,51 +13,67 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     {
         #region Painting
         
-       /// <summary>
+        /// <summary>
         /// Handles tab transition animation rendering
         /// </summary>
         private void HandleTabTransition(Graphics g)
         {
             // Disabled to prevent crashes - simple immediate switching instead
-            // if (g == null) return;
-            // 
-            // // Handle tab transition animation if active
-            // if (_animationHelper != null && 
-            //     _animationHelper.IsTransitioning && 
-            //     _previousTab != null && 
-            //     _activeTab != null && 
-            //     _displayMode == ContainerDisplayMode.Tabbed)
-            // {
-            //     DrawTabTransition(g);
-            // }
         }
 
         /// <summary>
-        /// Draws tabs directly in OnPaint with opaque backgrounds (like BeepMenuBar draws menu items)
+        /// Draws the content area background with proper theme colors
+        /// </summary>
+        private void DrawContentAreaBackground(Graphics g)
+        {
+            if (g == null || _contentArea.IsEmpty) return;
+            
+            // Skip if transparent
+            if (IsTransparentBackground) return;
+            
+            // Get effective background color
+            Color bgColor = GetEffectiveContentBackColor();
+            
+            // Draw content area background
+            using (var brush = new SolidBrush(bgColor))
+            {
+                g.FillRectangle(brush, _contentArea);
+            }
+        }
+        
+        /// <summary>
+        /// Draws the tab area background
+        /// </summary>
+        private void DrawTabAreaBackground(Graphics g)
+        {
+            if (g == null || _tabArea.IsEmpty) return;
+            
+            // Skip if transparent
+            if (IsTransparentBackground) return;
+            
+            // Use a slightly different shade for the tab strip area
+            Color tabStripColor = _tabBackColor;
+            
+            using (var brush = new SolidBrush(tabStripColor))
+            {
+                g.FillRectangle(brush, _tabArea);
+            }
+        }
+
+        /// <summary>
+        /// Draws tabs directly in OnPaint with proper styling
         /// </summary>
         private void DrawTabsDirectlyInOnPaint(Graphics g)
         {
             if (g == null || _tabs == null || _tabs.Count == 0 || _tabArea.IsEmpty) return;
             
-            // Ensure paint helper exists
-            if (_paintHelper == null)
-            {
-                var controlStyle = ControlStyle;
-                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
-                _paintHelper.TabStyle = this.TabStyle; // use container's TabStyle
-            }
-            else
-            {
-                // Update helper style
-                _paintHelper.ControlStyle = ControlStyle;
-                _paintHelper.IsTransparent = IsTransparentBackground;
-                _paintHelper.TabStyle = this.TabStyle;
-            }
+            // Ensure paint helper exists and is configured
+            EnsurePaintHelper();
             
-            // Tab area background should be TRANSPARENT - don't draw it
-            // Each tab will draw its own opaque background so they're visible
+            // Draw tab strip background first
+            DrawTabAreaBackground(g);
             
-            // Draw each visible tab (each tab draws its own opaque background)
+            // Draw each visible tab
             foreach (var tab in _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty))
             {
                 DrawTab(g, tab);
@@ -65,31 +82,50 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Draw scroll buttons if needed
             if (_needsScrolling)
             {
-                var controlStyle = ControlStyle;
-                DrawModernButton(g, _scrollLeftButton, _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom ? ArrowDirection.Left : ArrowDirection.Up, controlStyle);
-                DrawModernButton(g, _scrollRightButton, _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom ? ArrowDirection.Right : ArrowDirection.Down, controlStyle);
-                DrawModernButton(g, _newTabButton, null, controlStyle, isPlusButton: true);
+                DrawModernButton(g, _scrollLeftButton, 
+                    _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom ? ArrowDirection.Left : ArrowDirection.Up, 
+                    ControlStyle);
+                DrawModernButton(g, _scrollRightButton, 
+                    _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom ? ArrowDirection.Right : ArrowDirection.Down, 
+                    ControlStyle);
+                DrawModernButton(g, _newTabButton, null, ControlStyle, isPlusButton: true);
             }
             
             // Draw separator line between tabs and content
             DrawTabContentSeparator(g);
         }
-
-
+        
         /// <summary>
+        /// Ensures the paint helper is initialized and configured
+        /// </summary>
+        private void EnsurePaintHelper()
+        {
+            if (_paintHelper == null)
+            {
+                _paintHelper = new TabPaintHelper(_currentTheme, ControlStyle, IsTransparentBackground);
+            }
+            
+            // Always update to current settings
+            _paintHelper.ControlStyle = ControlStyle;
+            _paintHelper.IsTransparent = IsTransparentBackground;
+            _paintHelper.TabStyle = TabStyle;
+            _paintHelper.Theme = _currentTheme;
+        }
       
         /// <summary>
         /// DrawContent is called by BaseControl.OnPaint - this is where we draw our tabs
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-            // Skip painting during batch operations
+            // Skip during batch operations
             if (_batchMode) return;
             
-            // Don't call base.DrawContent - it would clear the background again
-            // We've already handled background in OnPaintBackground
+            // Set up quality rendering
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             
+            // Draw content area background (if not transparent)
+            DrawContentAreaBackground(g);
          
             // Draw tabs if in Tabbed mode
             if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
@@ -201,49 +237,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             if (_tabArea.IsEmpty || _contentArea.IsEmpty) return;
             
-            using (var pen = new Pen(_borderColor, 1f))
-            {
-                if (_tabPosition == TabPosition.Top)
-                {
-                    g.DrawLine(pen, _tabArea.Left, _tabArea.Bottom - 1, _tabArea.Right, _tabArea.Bottom - 1);
-                }
-                else if (_tabPosition == TabPosition.Bottom)
-                {
-                    g.DrawLine(pen, _tabArea.Left, _tabArea.Top, _tabArea.Right, _tabArea.Top);
-                }
-                else if (_tabPosition == TabPosition.Left)
-                {
-                    g.DrawLine(pen, _tabArea.Right - 1, _tabArea.Top, _tabArea.Right - 1, _tabArea.Bottom);
-                }
-                else if (_tabPosition == TabPosition.Right)
-                {
-                    g.DrawLine(pen, _tabArea.Left, _tabArea.Top, _tabArea.Left, _tabArea.Bottom);
-                }
-            }
-        }
-        
-        private void DrawTabs(Graphics g)
-        {
-            if (_paintHelper == null)
-            {
-                // Initialize paint helper if not already initialized
-                var controlStyle = ControlStyle;
-                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle);
-            }
+            // Use theme border color
+            Color separatorColor = _borderColor;
             
-            if (_tabs == null || _tabs.Count == 0) 
+            using (var pen = new Pen(separatorColor, 1f))
             {
-                System.Diagnostics.Debug.WriteLine($"DrawTabs: No tabs to draw (Count: {_tabs?.Count ?? 0})");
-                return;
-            }
-            
-            var visibleTabs = _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty).ToList();
-            System.Diagnostics.Debug.WriteLine($"DrawTabs: Drawing {visibleTabs.Count} of {_tabs.Count} tabs. TabArea: {_tabArea}");
-            
-            foreach (var tab in visibleTabs)
-            {
-                System.Diagnostics.Debug.WriteLine($"DrawTabs: Drawing tab '{tab.Title}' at {tab.Bounds}, IsVisible: {tab.IsVisible}, IsActive: {tab == _activeTab}");
-                DrawTab(g, tab);
+                switch (_tabPosition)
+                {
+                    case TabPosition.Top:
+                        g.DrawLine(pen, _tabArea.Left, _tabArea.Bottom - 1, _tabArea.Right, _tabArea.Bottom - 1);
+                        break;
+                    case TabPosition.Bottom:
+                        g.DrawLine(pen, _tabArea.Left, _tabArea.Top, _tabArea.Right, _tabArea.Top);
+                        break;
+                    case TabPosition.Left:
+                        g.DrawLine(pen, _tabArea.Right - 1, _tabArea.Top, _tabArea.Right - 1, _tabArea.Bottom);
+                        break;
+                    case TabPosition.Right:
+                        g.DrawLine(pen, _tabArea.Left, _tabArea.Top, _tabArea.Left, _tabArea.Bottom);
+                        break;
+                }
             }
         }
 
@@ -251,15 +264,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         {
             if (tab == null || tab.Bounds.IsEmpty || string.IsNullOrEmpty(tab.Title)) return;
             
+            // Ensure paint helper is ready
+            EnsurePaintHelper();
+            
             var isActive = tab == _activeTab;
             var isHovered = tab == _hoveredTab;
-            
-            if (_paintHelper == null)
-            {
-                // Initialize paint helper if not already initialized
-                var controlStyle = ControlStyle;
-                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle);
-            }
             
             _paintHelper.DrawProfessionalTab(g, tab.Bounds, tab.Title, Font ?? SystemFonts.DefaultFont,
                 isActive, isHovered, _showCloseButtons, 

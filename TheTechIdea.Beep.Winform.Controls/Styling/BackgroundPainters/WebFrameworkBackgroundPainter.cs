@@ -1,138 +1,132 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painters for web framework styles (Bootstrap, Tailwind, Stripe, Figma, Discord)
+    /// Background painters for web framework styles
+    /// Delegates to individual painters for each framework
     /// </summary>
     public static class WebFrameworkBackgroundPainter
     {
         /// <summary>
-        /// Paint Bootstrap card background
+        /// Paint Bootstrap card background - clean and simple
         /// </summary>
-        public static void PaintBootstrap(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void PaintBootstrap(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            if (g == null || path == null) return;
 
-            // Simple solid background - Bootstrap is clean and simple
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            Color bgColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Normal);
         }
         
         /// <summary>
-        /// Paint Tailwind card background with subtle border glow
+        /// Paint Tailwind card background with subtle ring effect
         /// </summary>
-        public static void PaintTailwind(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void PaintTailwind(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            if (g == null || path == null) return;
 
-            // Base background
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            Color bgColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Normal);
 
-            // Tailwind often has a subtle ring/outline effect
-            Color ringColor = Color.FromArgb(8,0,0,0);
-            var ringPen = PaintersFactory.GetPen(ringColor,1f);
+            // Tailwind subtle ring/outline effect
+            var ringPen = PaintersFactory.GetPen(Color.FromArgb(8, 0, 0, 0), 1f);
             g.DrawPath(ringPen, path);
         }
         
         /// <summary>
-        /// Paint Discord background with dark theme
+        /// Paint Discord background - dark theme
         /// </summary>
-        public static void PaintDiscord(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void PaintDiscord(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            if (g == null || path == null) return;
 
-            // Solid dark background
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            Color bgColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Normal);
         }
         
         /// <summary>
         /// Paint Stripe dashboard background with subtle gradient
         /// </summary>
-        public static void PaintStripe(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void PaintStripe(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            if (g == null || path == null) return;
 
-            // Base background
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            Color bgColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Subtle);
 
-            // Stripe has very subtle gradients for polish
-            RectangleF bounds = path.GetBounds();
-            var gradientBrush = PaintersFactory.GetLinearGradientBrush(bounds, Color.FromArgb(3,255,255,255), Color.FromArgb(3,0,0,0), LinearGradientMode.Vertical);
-            g.FillPath(gradientBrush, path);
+            // Stripe polish: very subtle vertical gradient overlay
+            BackgroundPainterHelpers.PaintSubtleGradientBackground(g, path,
+                bgColor, 0.03f, state, BackgroundPainterHelpers.StateIntensity.Subtle);
         }
         
         /// <summary>
-        /// Paint Figma card background with clean appearance
+        /// Paint Figma card background - clean with subtle border
         /// </summary>
-        public static void PaintFigma(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void PaintFigma(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            if (g == null || path == null) return;
 
-            // Clean solid background
-            var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
-            g.FillPath(bgBrush, path);
+            Color bgColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                BackgroundPainterHelpers.StateIntensity.Strong);
 
-            // Figma uses subtle border for definition
-            Color borderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
-            var borderPen = PaintersFactory.GetPen(borderColor,0.5f);
+            // Figma subtle border for definition
+            Color borderColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
+            var borderPen = PaintersFactory.GetPen(borderColor, 0.5f);
             g.DrawPath(borderPen, path);
         }
         
         /// <summary>
-        /// Paints the background based on the control Style.
+        /// Paints the background based on the control style.
         /// </summary>
-        /// <param name="g">The graphics object to paint on.</param>
-        /// <param name="path">The graphics path defining the shape to paint.</param>
-        /// <param name="style">The control Style.</param>
-        /// <param name="theme">The theme information.</param>
-        /// <param name="useThemeColors">Whether to use theme colors.</param>
-        /// <param name="state">The control state.</param>
-        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
+            if (g == null || path == null) return;
+
             switch (style)
             {
                 case BeepControlStyle.Bootstrap:
-                    PaintBootstrap(g, path, style, theme, useThemeColors);
+                    PaintBootstrap(g, path, style, theme, useThemeColors, state);
                     break;
                 case BeepControlStyle.TailwindCard:
-                    PaintTailwind(g, path, style, theme, useThemeColors);
+                    PaintTailwind(g, path, style, theme, useThemeColors, state);
                     break;
                 case BeepControlStyle.DiscordStyle:
-                    PaintDiscord(g, path, style, theme, useThemeColors);
+                    PaintDiscord(g, path, style, theme, useThemeColors, state);
                     break;
                 case BeepControlStyle.StripeDashboard:
-                    PaintStripe(g, path, style, theme, useThemeColors);
+                    PaintStripe(g, path, style, theme, useThemeColors, state);
                     break;
                 case BeepControlStyle.FigmaCard:
-                    PaintFigma(g, path, style, theme, useThemeColors);
+                    PaintFigma(g, path, style, theme, useThemeColors, state);
                     break;
                 case BeepControlStyle.WebFramework:
-                    // Default to Bootstrap for generic WebFramework Style
-                    PaintBootstrap(g, path, style, theme, useThemeColors);
+                    // Default to Bootstrap for generic WebFramework style
+                    PaintBootstrap(g, path, style, theme, useThemeColors, state);
                     break;
                 default:
-                    throw new NotSupportedException($"Style {style} is not supported by WebFrameworkBackgroundPainter.");
+                    // Fallback: solid background
+                    var bgColor = StyleColors.GetBackground(style);
+                    BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
+                        BackgroundPainterHelpers.StateIntensity.Normal);
+                    break;
             }
-        }
-        
-        private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
-        {
-            if (useThemeColors && theme != null)
-            {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
-                if (themeColor != Color.Empty)
-                    return themeColor;
-            }
-            return styleColorFunc(style);
         }
     }
 }

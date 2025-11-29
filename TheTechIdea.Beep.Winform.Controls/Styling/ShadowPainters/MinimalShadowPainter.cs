@@ -1,43 +1,44 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Minimal shadow painter - no shadow (placeholder for consistency)
-    /// Minimal design doesn't use shadows
+    /// Minimal shadow painter - Very subtle, almost invisible shadow
+    /// For minimal/flat designs that need just a hint of depth
+    /// State-aware but always extremely subtle
     /// </summary>
     public static class MinimalShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
-            // Minimal UX: Very subtle shadows only on interaction
-                        if (!StyleShadows.HasShadow(style)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // Only show shadow on interaction states
-                        if (state == ControlState.Normal) return path;
+            // Minimal: Only show shadow on interaction
+            if (state == ControlState.Normal || state == ControlState.Disabled)
+                return path;
 
-            float shadowOpacity = 0.08f; // Very subtle
-            if (state == ControlState.Hovered)
-                shadowOpacity = 0.12f; // Slightly more on hover
-            else if (state == ControlState.Focused)
-                shadowOpacity = 0.10f; // Moderate on focus
-            else if (state == ControlState.Pressed)
-                shadowOpacity = 0.05f; // Minimal on press
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Use StyleShadows for consistent minimal shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            int alpha = state switch
+            {
+                ControlState.Hovered => 18,
+                ControlState.Pressed => 8,
+                ControlState.Focused => 15,
+                _ => 0
+            };
 
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 4);
+            if (alpha == 0) return path;
 
-            return remainingPath;
+            return ShadowPainterHelpers.PaintSubtleShadow(
+                g, path, radius, 1, alpha);
         }
     }
 }

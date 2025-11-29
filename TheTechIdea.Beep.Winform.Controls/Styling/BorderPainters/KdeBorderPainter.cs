@@ -22,10 +22,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             if (path == null) return path;
 
             // KDE Breeze colors
-            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Kde);
-            Color breezeBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Kde);
+            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color breezeBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
 
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Kde); // 1.0f
+            float borderWidth = StyleBorders.GetBorderWidth(style); // 1.0f
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // State-based border color
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             // KDE signature: Blue glow on focus (Breeze effect - 3px wide glow)
             if (isFocused || state == ControlState.Focused)
             {
-                float glowWidth = StyleBorders.GetGlowWidth(BeepControlStyle.Kde); // 3.0f
+                float glowWidth = StyleBorders.GetGlowWidth(style); // 3.0f
                 BorderPainterHelpers.PaintGlowBorder(g, path, breezeBlue, glowWidth, 0.4f);
             }
 

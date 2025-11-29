@@ -7,7 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Glassmorphism shadow painter - soft ambient shadow.
+    /// Glassmorphism shadow painter - Frosted glass effect shadow
+    /// Subtle glow for glass/blur effect aesthetics
+    /// State-aware with soft edges
     /// </summary>
     public static class GlassmorphismShadowPainter
     {
@@ -15,15 +17,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // Match GlassFormPainter: subtle shadow for glass effect
-            return ShadowPainterHelpers.PaintDropShadow(
-                g, path, radius,
-                0, 2, 8, // offsetX, offsetY, blur
-                Color.FromArgb(30, 0, 0, 0), // subtle dark shadow
-                0.15f);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color glowColor = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : Color.White;
+
+            float intensity = state switch
+            {
+                ControlState.Hovered => 0.4f,
+                ControlState.Pressed => 0.15f,
+                ControlState.Focused => 0.35f,
+                ControlState.Disabled => 0.1f,
+                _ => 0.25f
+            };
+
+            return ShadowPainterHelpers.PaintGlassShadow(
+                g, path, radius, glowColor, intensity);
         }
     }
 }

@@ -7,7 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Nordic shadow painter - light Scandinavian softness.
+    /// Nordic shadow painter - Similar to Nord with blue undertone
+    /// Scandinavian design aesthetic with cool colors
+    /// Subtle, clean elevation
     /// </summary>
     public static class NordicShadowPainter
     {
@@ -15,16 +17,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            return ShadowPainterHelpers.PaintDropShadow(
-                g, path, radius,
-                StyleShadows.GetShadowOffsetX(style),
-                StyleShadows.GetShadowOffsetY(style),
-                StyleShadows.GetShadowBlur(style),
-                StyleShadows.GetShadowColor(style),
-                0.22f);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            int alpha = state switch
+            {
+                ControlState.Hovered => 42,
+                ControlState.Pressed => 20,
+                ControlState.Focused => 38,
+                ControlState.Disabled => 12,
+                _ => 28
+            };
+
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
         }
     }
 }

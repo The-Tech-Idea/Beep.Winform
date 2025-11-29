@@ -3,12 +3,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Paper shadow painter - material card elevation.
+    /// Paper shadow painter - Soft paper-lift shadow
+    /// Creates subtle "paper lifted from surface" effect
+    /// Light, clean aesthetic
     /// </summary>
     public static class PaperShadowPainter
     {
@@ -16,16 +17,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            return ShadowPainterHelpers.PaintDropShadow(
-                g, path, radius,
-                StyleShadows.GetShadowOffsetX(style),
-                StyleShadows.GetShadowOffsetY(style),
-                StyleShadows.GetShadowBlur(style),
-                StyleShadows.GetShadowColor(style),
-                0.30f);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // Paper: Soft, light shadow
+            int alpha = state switch
+            {
+                ControlState.Hovered => 45,
+                ControlState.Pressed => 22,
+                ControlState.Focused => 40,
+                ControlState.Disabled => 12,
+                _ => 32
+            };
+
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
         }
     }
 }

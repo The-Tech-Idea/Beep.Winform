@@ -7,7 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Arc Linux shadow painter - minimal diffuse shadow.
+    /// Arc Linux shadow painter - Arc theme design
+    /// Minimal, clean shadows for a modern flat appearance
+    /// Subtle diffuse shadow with state awareness
     /// </summary>
     public static class ArcLinuxShadowPainter
     {
@@ -15,15 +17,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            int blur = StyleShadows.GetShadowBlur(style);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Arc uses minimal neutral shadows
+            Color shadowColor = Color.Black;
             int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-            Color color = StyleShadows.GetShadowColor(style);
 
-            return ShadowPainterHelpers.PaintDropShadow(g, path, radius, offsetX, offsetY, blur, color, 0.25f);
+            // State-based alpha - Arc has minimal interactive feedback
+            int alpha = state switch
+            {
+                ControlState.Hovered => 45,    // Slightly more visible
+                ControlState.Pressed => 25,    // Very subtle when pressed
+                ControlState.Focused => 40,    // Moderate
+                ControlState.Disabled => 12,   // Almost invisible
+                _ => 30                        // Default - minimal
+            };
+
+            // Use clean single-layer drop shadow (Arc flat style)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                2); // Minimal spread
         }
     }
 }

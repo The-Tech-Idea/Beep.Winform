@@ -67,6 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
+            // Paint all built-in caption elements (icon, minimize, maximize, close, theme, style buttons)
             owner.PaintBuiltInCaptionElements(g);
         }
 

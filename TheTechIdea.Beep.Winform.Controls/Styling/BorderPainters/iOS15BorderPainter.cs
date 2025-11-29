@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color accentColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "AccentColor", Color.FromArgb(0, 122, 255));
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             switch (state)
             {

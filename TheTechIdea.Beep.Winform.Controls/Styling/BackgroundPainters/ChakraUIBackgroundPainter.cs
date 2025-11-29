@@ -3,13 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Chakra UI background painter - Solid white background
-    /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
+    /// Chakra UI background painter - modern React design system
+    /// Clean solid backgrounds with balanced state feedback
     /// </summary>
     public static class ChakraUIBackgroundPainter
     {
@@ -17,21 +16,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Chakra UI: Modern clean with balanced feedback
-            Color backgroundColor = StyleColors.GetBackground(BeepControlStyle.ChakraUI);
+            if (g == null || path == null) return;
 
-            Color stateColor = state switch
-            {
-                ControlState.Hovered => Color.FromArgb(backgroundColor.A, Math.Min(255, backgroundColor.R + (int)(255 *0.05f)), Math.Min(255, backgroundColor.G + (int)(255 *0.05f)), Math.Min(255, backgroundColor.B + (int)(255 *0.05f))),
-                ControlState.Pressed => Color.FromArgb(backgroundColor.A, Math.Max(0, backgroundColor.R - (int)(backgroundColor.R *0.06f)), Math.Max(0, backgroundColor.G - (int)(backgroundColor.G *0.06f)), Math.Max(0, backgroundColor.B - (int)(backgroundColor.B *0.06f))),
-                ControlState.Selected => Color.FromArgb(backgroundColor.A, Math.Min(255, backgroundColor.R + (int)(255 *0.08f)), Math.Min(255, backgroundColor.G + (int)(255 *0.08f)), Math.Min(255, backgroundColor.B + (int)(255 *0.08f))),
-                ControlState.Focused => Color.FromArgb(backgroundColor.A, Math.Min(255, backgroundColor.R + (int)(255 *0.035f)), Math.Min(255, backgroundColor.G + (int)(255 *0.035f)), Math.Min(255, backgroundColor.B + (int)(255 *0.035f))),
-                ControlState.Disabled => Color.FromArgb(100, backgroundColor),
-                _ => backgroundColor,
-            };
+            // Chakra UI: clean white
+            Color backgroundColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.ChakraUI);
 
-            var brush = PaintersFactory.GetSolidBrush(stateColor);
-            g.FillPath(brush, path);
+            // Chakra UI uses normal balanced state feedback
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, backgroundColor, state,
+                BackgroundPainterHelpers.StateIntensity.Normal);
         }
     }
 }

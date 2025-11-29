@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
@@ -6,38 +7,42 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Notion minimal shadow painter - no shadow (placeholder for consistency)
-    /// Notion Style emphasizes clean, flat design without shadows
+    /// Notion minimal shadow painter - Notion app design
+    /// Clean, flat design with very subtle interaction shadows
+    /// Focus on content, minimal chrome
     /// </summary>
     public static class NotionMinimalShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
-            // Notion Minimal UX: Very subtle shadows only on interaction
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Only show shadow on interaction states (Notion's subtle depth)
-            if (state == ControlState.Normal) return path;
+            // Notion: No shadow in normal state (clean, flat)
+            if (state == ControlState.Normal || state == ControlState.Disabled)
+                return path;
 
-            float shadowOpacity = 0.06f; // Very subtle
-            if (state == ControlState.Hovered)
-                shadowOpacity = 0.10f; // Slightly more on hover
-            else if (state == ControlState.Focused)
-                shadowOpacity = 0.08f; // Moderate on focus
-            else if (state == ControlState.Pressed)
-                shadowOpacity = 0.04f; // Minimal on press
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Use StyleShadows for consistent Notion shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            // Notion very subtle interaction shadows
+            int alpha = state switch
+            {
+                ControlState.Hovered => 20,    // Very subtle hover
+                ControlState.Pressed => 10,    // Minimal press
+                ControlState.Focused => 18,    // Subtle focus
+                ControlState.Selected => 25,   // Slightly more for selection
+                _ => 0
+            };
 
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 6);
+            if (alpha == 0) return path;
 
-            return remainingPath;
+            // Use subtle shadow (Notion minimalism)
+            return ShadowPainterHelpers.PaintSubtleShadow(
+                g, path, radius,
+                2, alpha);
         }
     }
 }

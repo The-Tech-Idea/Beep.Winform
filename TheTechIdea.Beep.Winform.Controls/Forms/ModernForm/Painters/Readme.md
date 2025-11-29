@@ -1,6 +1,21 @@
 # BeepiFormPro Painters
 
-This folder contains 32 specialized painter classes that provide unique visual styles for `BeepiFormPro` forms.
+This folder contains **33 specialized painter classes** that provide unique visual styles for `BeepiFormPro` forms.
+
+## ⚠️ CRITICAL DESIGN PRINCIPLE
+
+**Each painter is a DISTINCT, COMPLETE implementation.**
+
+- **NO base class inheritance** - each painter stands alone
+- **`CalculateLayoutAndHitAreas` is painter-specific** - button placement, sizes, spacing are all unique per style
+- **All code is explicit and visible** in each painter file
+- **`FormPainterRenderHelper`** is ONLY for drawing utilities (shapes, colors), NOT layout logic
+
+This ensures:
+1. Each painter can be understood in isolation
+2. No hidden behavior from base classes
+3. Easy debugging and maintenance
+4. Style-specific customizations without breaking other painters
 
 ## Overview
 
@@ -10,7 +25,7 @@ The painter pattern enables complete separation of rendering logic from form beh
 - Window borders with unique shapes and effects
 - System buttons (Close, Maximize, Minimize) with custom rendering
 - Theme/Style toggle buttons (when enabled)
-- Custom button shapes and visual identities per painter
+- Custom button shapes and visual identities per painter (UNIQUE SKIN)
 
 ## Architecture
 
@@ -244,15 +259,16 @@ The painter automatically registers hit areas. Button clicks are handled by `Bee
 
 ## ✅ Implementation Status
 
-**Current Status**: 33/33 painters fully implemented (100%)
+**Current Status**: 33/33 painters fully implemented and verified (100%)
 
 All painters:
-- ✅ Implement all required interfaces
-- ✅ Have proper `CalculateLayoutAndHitAreas` implementation
-- ✅ Register theme/style buttons correctly
-- ✅ Have unique visual identities
-- ✅ Support hit area testing
-- ✅ Handle DPI scaling via metrics
+- ✅ Implement all required interfaces (`IFormPainter`, `IFormPainterMetricsProvider`, `IFormNonClientPainter`)
+- ✅ Have their own DISTINCT `CalculateLayoutAndHitAreas` implementation
+- ✅ Register all hit areas (close, maximize, minimize, theme, style, customAction, icon, title)
+- ✅ Have unique visual identities (UNIQUE SKIN)
+- ✅ Support hit area testing for button interaction
+- ✅ Handle DPI scaling via `FormPainterMetrics`
+- ✅ **NO base class inheritance** - each is standalone
 
 ## 🧪 Testing Checklist
 
@@ -276,11 +292,17 @@ For each painter:
 - `FormPainterMetrics.cs` - Sizing metrics
 - `PainterLayoutInfo.cs` - Layout structure
 - `IFormPainter.cs` - Core interface definitions
+- `FormPainterRenderHelper.cs` - Drawing utilities ONLY (shapes, colors, NOT layout)
 - `BeepFormStyle.cs` - Style enumeration
+- `FORM_PAINTER_REVISION_PLAN.md` - Revision plan and status
 - `skinplan.md` - Architecture and development plan
+
+## 🗑️ Deleted Files
+
+- `FormPainterBase.cs` - **DELETED** - Was a base class that is no longer used. Each painter is now a distinct implementation.
 
 ---
 
-**Last Updated**: 2025-10-20  
-**Version**: 2.1  
-**Progress**: 100% Complete (33/33 painters)
+**Last Updated**: 2025-05-29  
+**Version**: 3.0  
+**Progress**: 100% Complete (33/33 painters verified as distinct implementations)

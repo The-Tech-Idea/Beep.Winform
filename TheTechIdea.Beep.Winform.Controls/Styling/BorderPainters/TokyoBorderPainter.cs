@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             float width = StyleBorders.GetBorderWidth(style);
+            if (width <= 0f) return path;
             Color neon = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(122, 162, 247));
             neon = BorderPainterHelpers.WithAlpha(neon, isFocused || state == ControlState.Selected ? 220 : 160);
 

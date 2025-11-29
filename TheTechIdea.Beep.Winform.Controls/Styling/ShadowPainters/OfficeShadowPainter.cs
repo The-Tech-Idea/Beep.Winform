@@ -7,9 +7,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Office shadow painter - Microsoft Office Ribbon UI subtle elevation
-    /// Subtle shadows for professional depth, 8px blur with 2px offset
-    /// Only visible on interaction states (hover, selected, focused)
+    /// Office shadow painter - Microsoft Office Ribbon UI
+    /// Professional, subtle shadows for enterprise applications
+    /// Only visible on interaction states (professional clean look)
     /// </summary>
     public static class OfficeShadowPainter
     {
@@ -18,42 +18,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
-            // Office: Subtle shadows for professional elevation
-            if (!StyleShadows.HasShadow(BeepControlStyle.Office)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // Office: Only show shadow on interaction states (professional subtlety)
-            float shadowOpacity = 0f;
-            
-            switch (state)
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Office: Shadow only on interaction (clean ribbon appearance)
+            int alpha = state switch
             {
-                case ControlState.Hovered:
-                    shadowOpacity = 0.08f; // Very subtle on hover
-                    break;
-                case ControlState.Focused:
-                    shadowOpacity = 0.10f; // Slightly more on focus
-                    break;
-                case ControlState.Selected:
-                    shadowOpacity = 0.12f; // Most visible when selected
-                    break;
-                case ControlState.Pressed:
-                    shadowOpacity = 0.05f; // Minimal on press
-                    break;
-                default:
-                    // Office: No shadow in normal state (clean ribbon appearance)
-                    return path;
-            }
+                ControlState.Hovered => 30,    // Subtle on hover
+                ControlState.Pressed => 15,    // Minimal on press
+                ControlState.Focused => 35,    // Moderate focus
+                ControlState.Selected => 40,   // Most visible when selected
+                ControlState.Disabled => 0,    // No shadow when disabled
+                _ => 0                         // No shadow in normal state (clean look)
+            };
 
-            // Use StyleShadows for consistent Office shadows
-            Color shadowColor = StyleShadows.GetShadowColor(BeepControlStyle.Office); // Subtle black
-            int blur = StyleShadows.GetShadowBlur(BeepControlStyle.Office); // 8px
-            int offsetY = StyleShadows.GetShadowOffsetY(BeepControlStyle.Office); // 2px below
-            int offsetX = StyleShadows.GetShadowOffsetX(BeepControlStyle.Office); // 0px (centered)
+            // No shadow in normal/disabled state
+            if (alpha == 0) return path;
 
-            // Paint subtle soft shadow (Office professional Style)
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(
-                g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 4);
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
 
-            return remainingPath;
+            // Use clean drop shadow (Office professional)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                2);
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
@@ -9,8 +10,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     public partial class BeepDisplayContainer2
     {
         #region Theme Integration
-
-      
         
         /// <summary>
         /// Applies theme colors to tab elements
@@ -21,32 +20,50 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             if (_paintHelper != null)
             {
                 _paintHelper.Theme = _currentTheme;
+                _paintHelper.ControlStyle = ControlStyle;
             }
 
             // Use theme colors if available, otherwise use style defaults
             if (UseThemeColors && _currentTheme != null)
             {
-                _tabBackColor = _currentTheme.PanelBackColor;
-                _tabForeColor = _currentTheme.ForeColor;
-                _activeTabBackColor = _currentTheme.ButtonBackColor;
-                _activeTabForeColor = _currentTheme.ButtonForeColor;
-                _hoverTabBackColor = ControlPaint.Light(_currentTheme.ButtonBackColor, 0.3f);
-                _borderColor = _currentTheme.BorderColor;
+                // Tab area colors from theme
+                _tabBackColor = _currentTheme.TabBackColor != Color.Empty 
+                    ? _currentTheme.TabBackColor 
+                    : _currentTheme.PanelBackColor;
+                _tabForeColor = _currentTheme.TabForeColor != Color.Empty 
+                    ? _currentTheme.TabForeColor 
+                    : _currentTheme.ForeColor;
+                _activeTabBackColor = _currentTheme.TabSelectedBackColor != Color.Empty 
+                    ? _currentTheme.TabSelectedBackColor 
+                    : _currentTheme.ButtonBackColor;
+                _activeTabForeColor = _currentTheme.TabSelectedForeColor != Color.Empty 
+                    ? _currentTheme.TabSelectedForeColor 
+                    : _currentTheme.ButtonForeColor;
+                _hoverTabBackColor = _currentTheme.TabHoverBackColor != Color.Empty 
+                    ? _currentTheme.TabHoverBackColor 
+                    : ControlPaint.Light(_currentTheme.ButtonBackColor, 0.2f);
+                _borderColor = _currentTheme.TabBorderColor != Color.Empty 
+                    ? _currentTheme.TabBorderColor 
+                    : _currentTheme.BorderColor;
                 _contentBackColor = _currentTheme.BackColor;
             }
             else
             {
                 // Use style-based colors for more modern look (consistent with BeepStyling)
-                _tabBackColor = BeepStyling.GetBackgroundColor(ControlStyle);
-                _tabForeColor = BeepStyling.GetForegroundColor(ControlStyle);
-                _activeTabBackColor = ControlPaint.Light(BeepStyling.GetBackgroundColor(ControlStyle), 0.1f);
-                _activeTabForeColor = BeepStyling.GetForegroundColor(ControlStyle);
-                _hoverTabBackColor = ControlPaint.Light(_tabBackColor, 0.1f);
-                _borderColor = BeepStyling.GetBorderColor(ControlStyle);
-                _contentBackColor = BeepStyling.GetBackgroundColor(ControlStyle);
+                _tabBackColor = StyleColors.GetBackground(ControlStyle);
+                _tabForeColor = StyleColors.GetForeground(ControlStyle);
+                _activeTabBackColor = StyleColors.GetSelection(ControlStyle);
+                _activeTabForeColor = StyleColors.GetForeground(ControlStyle);
+                _hoverTabBackColor = StyleColors.GetHover(ControlStyle);
+                _borderColor = StyleColors.GetBorder(ControlStyle);
+                _contentBackColor = StyleColors.GetSurface(ControlStyle);
             }
             
-            Invalidate();
+            // Update BackColor property to match content background
+            if (!IsTransparentBackground)
+            {
+                base.BackColor = _contentBackColor;
+            }
         }
         
         /// <summary>
@@ -71,6 +88,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 base.BackColor = _contentBackColor;
             }
+        }
+        
+        /// <summary>
+        /// Gets the effective content background color, respecting transparency and theme
+        /// </summary>
+        private Color GetEffectiveContentBackColor()
+        {
+            if (IsTransparentBackground)
+                return Color.Transparent;
+                
+            if (UseThemeColors && _currentTheme != null)
+                return _currentTheme.BackColor;
+                
+            return _contentBackColor;
         }
 
         #endregion

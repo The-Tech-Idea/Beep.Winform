@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
             bool showRing = false;
 
             switch (state)

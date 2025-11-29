@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.HighContrast => 0,             // High contrast sharp for clarity
                 BeepControlStyle.Neon => 2,                    // Neon rounded for glow
                 BeepControlStyle.ArcLinux => 4,
-                BeepControlStyle.Brutalist => 0,
+                BeepControlStyle.Brutalist => 0,                // Brutalist sharp (no radius)
                 BeepControlStyle.Cartoon => 2,
                 BeepControlStyle.ChatBubble => 4,
                 BeepControlStyle.Cyberpunk => 4,
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.AntDesign => 1.0f,             // Standard
                 BeepControlStyle.MaterialYou => 0.0f,           // No border (filled)
                 BeepControlStyle.Windows11Mica => 1.0f,         // Standard
-                BeepControlStyle.MacOSBigSur => 0.5f,           // Thin
+                BeepControlStyle.MacOSBigSur => 1.0f,           // Thin (was 0.5f, changed for GDI+ compatibility)
                 BeepControlStyle.ChakraUI => 1.0f,              // Standard
                 BeepControlStyle.TailwindCard => 1.0f,          // Standard
                 BeepControlStyle.NotionMinimal => 1.0f,         // Standard
@@ -147,12 +147,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Kde => 1.0f,                   // KDE standard
                 BeepControlStyle.Cinnamon => 1.0f,              // Cinnamon standard
                 BeepControlStyle.Elementary => 1.0f,            // Elementary standard
-                BeepControlStyle.NeoBrutalist => 4.0f,          // Neo-Brutalist very thick (signature)
+                BeepControlStyle.NeoBrutalist => 2.5f,          // Neo-Brutalist very thick aggressive border
                 BeepControlStyle.Gaming => 2.0f,                // Gaming thick borders
                 BeepControlStyle.HighContrast => 2.0f,          // High contrast thick for visibility
                 BeepControlStyle.Neon => 2.0f,                  // Neon thick for glow effect
                 BeepControlStyle.ArcLinux => 1.0f,
-                BeepControlStyle.Brutalist => 5.0f,
+                BeepControlStyle.Brutalist => 0f,             // Brutalist thin precise line (refined, not aggressive)
                 BeepControlStyle.Cartoon => 3.0f,
                 BeepControlStyle.ChatBubble => 2.0f,
                 BeepControlStyle.Cyberpunk => 2.0f,

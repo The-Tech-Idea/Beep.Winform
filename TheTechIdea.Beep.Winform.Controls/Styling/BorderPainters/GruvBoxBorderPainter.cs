@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(251, 184, 108));
             borderColor = BorderPainterHelpers.WithAlpha(borderColor, isFocused || state == ControlState.Selected ? 200 : 140);
 

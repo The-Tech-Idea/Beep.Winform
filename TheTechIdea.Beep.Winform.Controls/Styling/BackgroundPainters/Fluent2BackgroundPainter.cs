@@ -3,13 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Fluent2 background painter - Solid clean background
-    /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
+    /// Fluent 2 background painter - Windows 11 era Fluent Design
+    /// Clean solid backgrounds with refined state transitions
     /// </summary>
     public static class Fluent2BackgroundPainter
     {
@@ -17,21 +16,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Fluent2: Clean solid background with acrylic-inspired opacity changes
-            Color baseColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Fluent2);
+            if (g == null || path == null) return;
 
-            Color stateColor = state switch
-            {
-                ControlState.Hovered => Color.FromArgb(baseColor.A, Math.Min(255, baseColor.R + (int)(255 *0.10f)), Math.Min(255, baseColor.G + (int)(255 *0.10f)), Math.Min(255, baseColor.B + (int)(255 *0.10f))),
-                ControlState.Pressed => Color.FromArgb(baseColor.A, Math.Max(0, baseColor.R - (int)(baseColor.R *0.08f)), Math.Max(0, baseColor.G - (int)(baseColor.G *0.08f)), Math.Max(0, baseColor.B - (int)(baseColor.B *0.08f))),
-                ControlState.Selected => Color.FromArgb(baseColor.A, Math.Min(255, baseColor.R + (int)(255 *0.14f)), Math.Min(255, baseColor.G + (int)(255 *0.14f)), Math.Min(255, baseColor.B + (int)(255 *0.14f))),
-                ControlState.Focused => Color.FromArgb(baseColor.A, Math.Min(255, baseColor.R + (int)(255 *0.06f)), Math.Min(255, baseColor.G + (int)(255 *0.06f)), Math.Min(255, baseColor.B + (int)(255 *0.06f))),
-                ControlState.Disabled => Color.FromArgb(70, baseColor),
-                _ => baseColor,
-            };
+            // Fluent 2: clean system background
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.Fluent2);
 
-            var brush = PaintersFactory.GetSolidBrush(stateColor);
-            g.FillPath(brush, path);
+            // Fluent 2 uses strong, noticeable state changes
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,
+                BackgroundPainterHelpers.StateIntensity.Strong);
         }
     }
 }

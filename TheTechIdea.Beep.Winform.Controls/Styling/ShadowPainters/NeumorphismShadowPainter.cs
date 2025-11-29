@@ -1,59 +1,63 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Shadow painter for Neumorphism Style
-    /// Draws dual shadows (light top-left, dark bottom-right)
+    /// Neumorphism shadow painter - Soft UI dual shadow effect
+    /// Light shadow top-left, dark shadow bottom-right
+    /// Creates embossed/raised appearance
     /// </summary>
     public static class NeumorphismShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
-            // Neumorphism UX: Dual shadow system (light top-left, dark bottom-right) with state support
+            if (g == null || path == null) return path;
             if (!StyleShadows.UsesDualShadows(style)) return path;
 
-            // Adjust shadow intensity based on state
-            float shadowIntensity = 1.0f; // Base neumorphic intensity
-            switch (state)
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Get background color for neumorphic calculation
+            Color backgroundColor = theme?.BackColor ?? SystemColors.Control;
+
+            // State-based intensity adjustment
+            float intensity = state switch
             {
-                case ControlState.Hovered:
-                    shadowIntensity = 1.3f; // More pronounced on hover
-                    break;
-                case ControlState.Pressed:
-                    shadowIntensity = 0.7f; // Less pronounced on press (pressed in effect)
-                    break;
-                case ControlState.Focused:
-                    shadowIntensity = 1.1f; // Slightly more on focus
-                    break;
-                case ControlState.Disabled:
-                    shadowIntensity = 0.5f; // Much reduced when disabled
-                    break;
-                default: // Normal
-                    break;
+                ControlState.Hovered => 1.2f,   // More pronounced
+                ControlState.Pressed => 0.6f,   // Pressed in (inverted effect)
+                ControlState.Focused => 1.1f,   // Slightly more
+                ControlState.Disabled => 0.4f,  // Much reduced
+                _ => 1.0f                       // Default
+            };
+
+            // For pressed state, we could invert the shadows (inner shadow effect)
+            if (state == ControlState.Pressed)
+            {
+                // Pressed: use inner shadow for "pressed in" effect
+                return ShadowPainterHelpers.PaintInnerShadow(
+                    g, path, radius,
+                    4, Color.FromArgb(60, 0, 0, 0));
             }
 
-            int offsetY = (int)(StyleShadows.GetShadowOffsetY(style) * shadowIntensity);
-            int offsetX = (int)(StyleShadows.GetShadowOffsetX(style) * shadowIntensity);
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            Color highlightColor = StyleShadows.GetNeumorphismHighlight(style);
+            // Use neumorphic shadow helper with intensity-adjusted background
+            if (intensity != 1.0f)
+            {
+                // Adjust background brightness based on intensity
+                int adjust = (int)((intensity - 1.0f) * 20);
+                backgroundColor = Color.FromArgb(
+                    Math.Max(0, Math.Min(255, backgroundColor.R + adjust)),
+                    Math.Max(0, Math.Min(255, backgroundColor.G + adjust)),
+                    Math.Max(0, Math.Min(255, backgroundColor.B + adjust)));
+            }
 
-            // Adjust alpha based on intensity
-            shadowColor = Color.FromArgb((int)(shadowColor.A * shadowIntensity), shadowColor);
-            highlightColor = Color.FromArgb((int)(highlightColor.A * shadowIntensity), highlightColor);
-
-            // Use the helper method for neumorphic shadows
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintNeumorphicShadow(g, path, radius, shadowColor);
-
-            return remainingPath;
+            return ShadowPainterHelpers.PaintNeumorphicShadow(
+                g, path, radius, backgroundColor);
         }
     }
 }

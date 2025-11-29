@@ -4,70 +4,70 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// KDE shadow painter - Breeze design system
-    /// Blue glow effect on interaction (signature KDE Breeze)
-    /// 12px blur radius, Breeze blue (#3DAEE9) color
-    /// 0.6f intensity for noticeable but not overwhelming glow
+    /// Blue glow effect on hover/focus (signature KDE Breeze)
+    /// No shadow in normal state, accent-colored glow on interaction
     /// </summary>
     public static class KdeShadowPainter
     {
+        // KDE Breeze signature blue
+        private static readonly Color BreezeBlue = Color.FromArgb(61, 174, 233);
+
         public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(BeepControlStyle.Kde)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // KDE: Blue glow only on interaction (Breeze signature)
-            if (state != ControlState.Hovered && state != ControlState.Focused && state != ControlState.Selected)
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // KDE Breeze: Glow only on interaction states
+            if (state == ControlState.Normal || state == ControlState.Disabled)
             {
-                return path; // No glow in normal/pressed/disabled states
+                // No shadow in normal/disabled state (flat Breeze style)
+                return path;
             }
 
-            Color breezeBlue = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Kde);
-            int glowRadius = StyleShadows.GetShadowBlur(BeepControlStyle.Kde); // 12px
-            float intensity = 0.6f;
+            // Get glow color - use theme accent if available, otherwise Breeze blue
+            Color glowColor = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : BreezeBlue;
 
-            RectangleF bounds = path.GetBounds();
-            
-            // KDE Breeze: Multi-layer blue glow effect
-            for (int i = glowRadius; i > 0; i -= 2)
+            // State-based glow intensity
+            float intensity;
+            int glowRadius;
+
+            switch (state)
             {
-                float alpha = (intensity * (float)i / glowRadius) * 0.3f; // Fade out
-                Rectangle glowBounds = Rectangle.Round(bounds);
-                glowBounds.Inflate(i, i);
-
-                using (var glowPath = new GraphicsPath())
-                {
-                    if (radius == 0)
-                    {
-                        glowPath.AddRectangle(glowBounds);
-                    }
-                    else
-                    {
-                        int diameter = (radius + i) * 2;
-                        Size size = new Size(diameter, diameter);
-                        Rectangle arc = new Rectangle(glowBounds.Location, size);
-
-                        glowPath.AddArc(arc, 180, 90);
-                        arc.X = glowBounds.Right - diameter;
-                        glowPath.AddArc(arc, 270, 90);
-                        arc.Y = glowBounds.Bottom - diameter;
-                        glowPath.AddArc(arc, 0, 90);
-                        arc.X = glowBounds.Left;
-                        glowPath.AddArc(arc, 90, 90);
-                        glowPath.CloseFigure();
-                    }
-
-                    var pen = PaintersFactory.GetPen(Color.FromArgb((int)(alpha * 255), breezeBlue), 2f);
-                    g.DrawPath(pen, glowPath);
-                }
+                case ControlState.Hovered:
+                    intensity = 0.5f;
+                    glowRadius = 8;
+                    break;
+                case ControlState.Focused:
+                    intensity = 0.7f;
+                    glowRadius = 10;
+                    break;
+                case ControlState.Selected:
+                    intensity = 0.6f;
+                    glowRadius = 8;
+                    break;
+                case ControlState.Pressed:
+                    intensity = 0.3f;
+                    glowRadius = 6;
+                    break;
+                default:
+                    return path;
             }
 
-            return path;
+            // Paint Breeze-style border glow
+            return ShadowPainterHelpers.PaintBorderGlow(
+                g, path, radius,
+                glowColor, glowRadius, intensity);
         }
     }
 }

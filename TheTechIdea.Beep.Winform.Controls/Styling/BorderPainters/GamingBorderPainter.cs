@@ -16,9 +16,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (path == null) return path;
 
-            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Gaming);
-            Color neonGreen = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Gaming);
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Gaming);
+            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color neonGreen = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             g.SmoothingMode = SmoothingMode.None; // Angular
 

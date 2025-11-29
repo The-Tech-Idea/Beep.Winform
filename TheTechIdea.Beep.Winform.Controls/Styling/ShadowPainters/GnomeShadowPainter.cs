@@ -3,59 +3,46 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Gnome shadow painter - Adwaita design system
-    /// Subtle ambient shadows for depth (4px spread, 0.3f opacity)
-    /// Soft, natural shadows matching GNOME's welcoming aesthetic
+    /// GNOME shadow painter - Adwaita/libadwaita design system
+    /// Clean, subtle drop shadow with state-aware feedback
+    /// Professional, welcoming appearance matching GTK4/GNOME HIG
     /// </summary>
     public static class GnomeShadowPainter
     {
         public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(BeepControlStyle.Gnome)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // Gnome: Subtle ambient shadow (Adwaita signature)
-            int spread = StyleShadows.GetShadowSpread(BeepControlStyle.Gnome); // 4
-            float opacity = 0.3f; // Subtle
-            Color shadowColor = StyleShadows.GetShadowColor(BeepControlStyle.Gnome);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Ambient shadow: Slightly larger path with soft edges
-            RectangleF bounds = path.GetBounds();
-            Rectangle shadowBounds = Rectangle.Round(bounds);
-            shadowBounds.Inflate(spread, spread);
+            // GNOME/Adwaita uses clean neutral shadows
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int spread = StyleShadows.GetShadowSpread(style);
 
-            using (var shadowPath = new GraphicsPath())
+            // State-based alpha - Adwaita has subtle interactive feedback
+            int alpha = state switch
             {
-                if (radius == 0)
-                {
-                    shadowPath.AddRectangle(shadowBounds);
-                }
-                else
-                {
-                    int diameter = (radius + spread) * 2;
-                    Size size = new Size(diameter, diameter);
-                    Rectangle arc = new Rectangle(shadowBounds.Location, size);
+                ControlState.Hovered => 50,    // Slightly more prominent
+                ControlState.Pressed => 25,    // Subtle when pressed
+                ControlState.Focused => 45,    // Moderate focus
+                ControlState.Disabled => 15,   // Very subtle
+                _ => 35                        // Default subtle shadow
+            };
 
-                    shadowPath.AddArc(arc, 180, 90);
-                    arc.X = shadowBounds.Right - diameter;
-                    shadowPath.AddArc(arc, 270, 90);
-                    arc.Y = shadowBounds.Bottom - diameter;
-                    shadowPath.AddArc(arc, 0, 90);
-                    arc.X = shadowBounds.Left;
-                    shadowPath.AddArc(arc, 90, 90);
-                    shadowPath.CloseFigure();
-                }
-
-                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb((int)(opacity * 255), shadowColor));
-                g.FillPath(brush, shadowPath);
-            }
-
-            return path;
+            // Use clean single-layer drop shadow (authentic GNOME style)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread > 0 ? spread : 2);
         }
     }
 }

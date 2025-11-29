@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -7,8 +8,9 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Material (legacy) shadow painter - Google Material Design (v2)
-    /// Material UX: Elevation-based shadows with penumbra + umbra
+    /// Material Design 2 shadow painter
+    /// Classic Material elevation with key + ambient shadows
+    /// State-aware for proper interactive feedback
     /// </summary>
     public static class MaterialShadowPainter
     {
@@ -17,54 +19,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
-            GraphicsPath remainingPath = (GraphicsPath)path.Clone();
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // Material Design shadows: Elevation system
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Adjust elevation based on state (Material UX pattern)
+            int effectiveLevel = (int)elevation;
             switch (state)
             {
                 case ControlState.Hovered:
-                    remainingPath = ShadowPainterHelpers.PaintFloatingShadow(g, path, radius, elevation: 4);
+                    effectiveLevel = Math.Min(5, effectiveLevel + 2); // More elevation on hover
                     break;
-
                 case ControlState.Pressed:
-                    remainingPath = ShadowPainterHelpers.PaintFloatingShadow(g, path, radius, elevation: 8);
+                    effectiveLevel = Math.Max(1, effectiveLevel); // Keep some elevation when pressed
                     break;
-
-                case ControlState.Selected:
-                    // Material selected: Elevated with accent shadow
-                    Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(33, 150, 243);
-                    remainingPath = ShadowPainterHelpers.PaintDoubleShadow(
-                        g, path, radius,
-                        color1: Color.FromArgb(70, accentColor),
-                        color2: Color.FromArgb(40, 0, 0, 0),
-                        offset1X: 0, offset1Y: 0,
-                        offset2X: 0, offset2Y: 0
-                    );
-                    break;
-
-                case ControlState.Disabled:
-                    // Material disabled: Very subtle shadow (1dp)
-                    remainingPath = ShadowPainterHelpers.PaintMaterialShadow(g, path, radius, MaterialElevation.Level0);
-                    break;
-
                 case ControlState.Focused:
-                    // Material focus: Ripple-like glow
-                    Color focusColor = useThemeColors ? theme.AccentColor : Color.FromArgb(33, 150, 243);
-                    remainingPath = ShadowPainterHelpers.PaintNeonGlow(
-                        g, path, radius,
-                        glowColor: Color.FromArgb(100, focusColor),
-                        glowRadius: 8,
-                        intensity: 0.8f
-                    );
+                    effectiveLevel = Math.Min(5, effectiveLevel + 1);
                     break;
-
-                default: // Normal
-                    // Material default: 2dp elevation (matches MaterialFormPainter)
-                    remainingPath = ShadowPainterHelpers.PaintMaterialShadow(g, path, radius, MaterialElevation.Level2);
+                case ControlState.Selected:
+                    effectiveLevel = Math.Min(5, effectiveLevel + 1);
+                    break;
+                case ControlState.Disabled:
+                    effectiveLevel = 0;
                     break;
             }
 
-            return remainingPath;
+            if (effectiveLevel == 0) return path;
+
+            // Get shadow color
+            Color shadowColor = Color.Black;
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+
+            // Selected state: Add accent color tint to shadow
+            if (state == ControlState.Selected && useThemeColors && theme != null)
+            {
+                Color accentColor = theme.AccentColor;
+                if (accentColor != Color.Empty)
+                {
+                    // Blend accent into shadow for selected indication
+                    int r = (int)(shadowColor.R * 0.7 + accentColor.R * 0.3);
+                    int gr = (int)(shadowColor.G * 0.7 + accentColor.G * 0.3);
+                    int b = (int)(shadowColor.B * 0.7 + accentColor.B * 0.3);
+                    shadowColor = Color.FromArgb(r, gr, b);
+                }
+            }
+
+            // Use dual-layer shadow for authentic Material elevation
+            return ShadowPainterHelpers.PaintDualLayerShadow(
+                g, path, radius,
+                effectiveLevel,
+                shadowColor);
         }
     }
 }

@@ -265,26 +265,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             {
                 // Use the already-calculated border rect which accounts for label/helper space
                 GraphicsPath path = BeepStyling.CreateStylePath(_borderRect);
-                
+                // Draw borders only when control is not frameless AND some border is requested
+                bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder)));
                 // Paint the styled control only in the border area
-                BeepStyling.PaintControl(g, path, owner.ControlStyle, owner._currentTheme, false, GetEffectiveState(owner), owner.IsTransparentBackground);
+                BeepStyling.PaintControl(g, path, owner.ControlStyle, owner._currentTheme, false, GetEffectiveState(owner), owner.IsTransparentBackground, shouldDrawBorders);
                 
                 // Clean up path
                 path?.Dispose();
             }
             else
             {
-                var backColor = GetEffectiveBackColor(owner);
-                using (var brush = new SolidBrush(backColor))
+                // Only fill background if NOT transparent
+                // When transparent, parent background (painted in OnPaintBackground) shows through
+                if (!owner.IsTransparentBackground)
                 {
-                    if (owner.IsRounded && owner.BorderRadius > 0)
+                    var backColor = GetEffectiveBackColor(owner);
+                    using (var brush = new SolidBrush(backColor))
                     {
-                        using var path = GraphicsExtensions.GetRoundedRectPath(_drawingRect, owner.BorderRadius);
-                        g.FillPath(brush, path);
-                    }
-                    else
-                    {
-                        g.FillRectangle(brush, _drawingRect);
+                        if (owner.IsRounded && owner.BorderRadius > 0)
+                        {
+                            using var path = GraphicsExtensions.GetRoundedRectPath(_drawingRect, owner.BorderRadius);
+                            g.FillPath(brush, path);
+                        }
+                        else
+                        {
+                            g.FillRectangle(brush, _drawingRect);
+                        }
                     }
                 }
                 // Borders (classic)

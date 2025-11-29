@@ -4,56 +4,46 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
+    /// <summary>
+    /// Neon shadow painter - Intense neon glow effect
+    /// Bright cyan/colored glow for nightclub/synthwave aesthetic
+    /// High intensity state-aware glow
+    /// </summary>
     public static class NeonShadowPainter
     {
         public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius,
-            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(BeepControlStyle.Neon)) return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            Color cyanGlow = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Neon);
-            int glowRadius = StyleShadows.GetShadowBlur(BeepControlStyle.Neon); //24px - intense
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            RectangleF bounds = path.GetBounds();
+            // Neon glow color - cyan by default or theme accent
+            Color glowColor = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : StyleColors.GetPrimary(style);
             
-            // Neon: Maximum intensity cyan glow
-            for (int i = glowRadius; i >0; i -=2)
+            int glowRadius = StyleShadows.GetShadowBlur(style);
+
+            // State-based intensity - Neon is always bright
+            float intensity = state switch
             {
-                float alpha = (float)i / glowRadius *0.8f; // High intensity
-                Rectangle glowBounds = Rectangle.Round(bounds);
-                glowBounds.Inflate(i, i);
+                ControlState.Hovered => 1.2f,   // Brighter on hover
+                ControlState.Pressed => 0.7f,   // Dimmer when pressed
+                ControlState.Focused => 1.3f,   // Brightest on focus
+                ControlState.Disabled => 0.3f,  // Very dim when disabled
+                _ => 1.0f                       // Default bright
+            };
 
-                using (var glowPath = new GraphicsPath())
-                {
-                    if (radius ==0)
-                    {
-                        glowPath.AddRectangle(glowBounds);
-                    }
-                    else
-                    {
-                        int diameter = (radius + i) *2;
-                        Size size = new Size(diameter, diameter);
-                        Rectangle arc = new Rectangle(glowBounds.Location, size);
-                        glowPath.AddArc(arc,180,90);
-                        arc.X = glowBounds.Right - diameter;
-                        glowPath.AddArc(arc,270,90);
-                        arc.Y = glowBounds.Bottom - diameter;
-                        glowPath.AddArc(arc,0,90);
-                        arc.X = glowBounds.Left;
-                        glowPath.AddArc(arc,90,90);
-                        glowPath.CloseFigure();
-                    }
-
-                    var pen = PaintersFactory.GetPen(Color.FromArgb((int)(alpha *255), cyanGlow),3f);
-                    g.DrawPath(pen, glowPath);
-                }
-            }
-
-            return path;
+            // Use neon glow helper
+            return ShadowPainterHelpers.PaintNeonGlow(
+                g, path, radius,
+                glowColor, intensity, glowRadius);
         }
     }
 }

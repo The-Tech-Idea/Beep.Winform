@@ -20,9 +20,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (path == null) return path;
 
-            Color borderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Cinnamon);
-            Color mintGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Cinnamon);
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Cinnamon);
+            Color borderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color mintGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(style);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -37,8 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             if (isFocused || state == ControlState.Focused)
             {
-                float ringWidth = StyleBorders.GetRingWidth(BeepControlStyle.Cinnamon);
-                float ringOffset = StyleBorders.GetRingOffset(BeepControlStyle.Cinnamon);
+                float ringWidth = StyleBorders.GetRingWidth(style);
+                float ringOffset = StyleBorders.GetRingOffset(style);
                 BorderPainterHelpers.PaintRing(g, path, mintGreen, ringWidth, ringOffset);
             }
 

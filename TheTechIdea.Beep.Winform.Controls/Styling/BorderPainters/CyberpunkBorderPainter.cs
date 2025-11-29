@@ -17,9 +17,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            Color neon = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Neon);
+            Color neon = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(style);
             Color core = BorderPainterHelpers.WithAlpha(neon, 220);
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             // Outer glow layers
             BorderPainterHelpers.PaintGlowBorder(g, path, BorderPainterHelpers.WithAlpha(neon, 80), 12f);

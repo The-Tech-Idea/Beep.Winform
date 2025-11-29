@@ -4,55 +4,77 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Background painter for Windows11 Mica Style
+    /// Mica background painter - Windows 11 signature material effect
+    /// Subtle noise texture with desktop-tint simulation and depth gradient
     /// </summary>
     public static class MicaBackgroundPainter
     {
-        /// <summary>
-        /// Paint Windows11 Mica background
-        /// </summary>
-        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
+            if (g == null || path == null) return;
+
+            // Mica base color
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.Windows11Mica);
+
+            // Apply state adjustment
+            Color stateColor = BackgroundPainterHelpers.GetStateAdjustedColor(
+                baseColor, state, BackgroundPainterHelpers.StateIntensity.Subtle);
 
             var bounds = Rectangle.Truncate(path.GetBounds());
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Create a unique signature using color and bounds so we can cache rendered mica bitmaps
-            string signature = $"mica_{bgColor.ToArgb()}_{bounds.Width}x{bounds.Height}";
+            // Create unique signature for cached mica bitmap
+            string signature = $"mica_{stateColor.ToArgb()}_{bounds.Width}x{bounds.Height}";
 
-            // Generate or fetch a rasterized bitmap for the mica effect
-            var bmp = PaintersFactory.GetOrCreateRaster(signature, () => GenerateMicaBitmap(bounds.Size, bgColor));
+            // Get or create cached mica texture
+            var bmp = PaintersFactory.GetOrCreateRaster(signature, 
+                () => GenerateMicaBitmap(bounds.Size, stateColor));
 
-            // Draw the cached raster to the target graphics clipped by the path
+            // Draw cached mica texture clipped by path
             using (var texture = new TextureBrush(bmp, WrapMode.Clamp))
             {
                 g.FillPath(texture, path);
             }
 
-            // Very subtle gradient for depth - use cached gradient brush
+            // Subtle depth gradient overlay
             RectangleF fBounds = path.GetBounds();
-            Color topTint = Color.FromArgb(8, 255, 255, 255);
-            Color bottomTint = Color.FromArgb(4, 0, 0, 0);
-            var gradient = PaintersFactory.GetLinearGradientBrush(fBounds, topTint, bottomTint, LinearGradientMode.Vertical);
+            var gradient = PaintersFactory.GetLinearGradientBrush(
+                fBounds,
+                Color.FromArgb(6, 255, 255, 255),
+                Color.FromArgb(3, 0, 0, 0),
+                LinearGradientMode.Vertical);
             g.FillPath(gradient, path);
+        }
+
+        /// <summary>
+        /// Legacy overload without state
+        /// </summary>
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
+            IBeepTheme theme, bool useThemeColors)
+        {
+            Paint(g, path, style, theme, useThemeColors, ControlState.Normal);
         }
 
         private static Bitmap GenerateMicaBitmap(Size size, Color baseColor)
         {
-            // Simplified mica generator: subtle noise + tint
             var bmp = new Bitmap(Math.Max(1, size.Width), Math.Max(1, size.Height));
             using (var g = Graphics.FromImage(bmp))
             {
                 g.Clear(baseColor);
-                var rand = new Random(12345); // deterministic noise
-                using (var pen = new Pen(Color.FromArgb(10, Color.White)))
+                
+                // Subtle deterministic noise
+                var rand = new Random(12345);
+                using (var pen = new Pen(Color.FromArgb(8, Color.White)))
                 {
-                    for (int i = 0; i < (size.Width * size.Height) / 500; i++)
+                    int noiseCount = Math.Max(10, (size.Width * size.Height) / 600);
+                    for (int i = 0; i < noiseCount; i++)
                     {
                         int x = rand.Next(size.Width);
                         int y = rand.Next(size.Height);
@@ -60,24 +82,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     }
                 }
 
-                // Apply a radial soft light vignette for subtle depth
-                using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, 0, size.Width, size.Height), Color.FromArgb(10, Color.White), Color.FromArgb(0, Color.White), LinearGradientMode.Vertical))
+                // Soft light vignette for depth
+                using (var brush = new LinearGradientBrush(
+                    new Rectangle(0, 0, size.Width, size.Height),
+                    Color.FromArgb(8, Color.White),
+                    Color.FromArgb(0, Color.White),
+                    LinearGradientMode.Vertical))
                 {
                     g.FillRectangle(brush, 0, 0, size.Width, size.Height);
                 }
             }
             return bmp;
-        }
-
-        private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
-        {
-            if (useThemeColors && theme != null)
-            {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
-                if (themeColor != Color.Empty)
-                    return themeColor;
-            }
-            return styleColorFunc(style);
         }
     }
 }

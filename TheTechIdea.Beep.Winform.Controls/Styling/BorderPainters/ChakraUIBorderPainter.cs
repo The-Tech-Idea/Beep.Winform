@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
             bool showRing = false;
 
             // Chakra UI UX: Distinctive teal states with smooth transitions

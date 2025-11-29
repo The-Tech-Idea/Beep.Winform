@@ -45,6 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f)
+            {
+                // no border configured for this style
+                return path;
+            }
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             if (showRing)

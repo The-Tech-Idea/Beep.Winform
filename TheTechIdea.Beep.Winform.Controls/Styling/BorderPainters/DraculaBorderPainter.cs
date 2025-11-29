@@ -26,8 +26,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintGlowBorder(g, path, BorderPainterHelpers.WithAlpha(primary, 140), 4f, 1.0f);
             }
 
-            BorderPainterHelpers.PaintSimpleBorder(g, path, outline, StyleBorders.GetBorderWidth(style), state);
-            return path.CreateInsetPath(StyleBorders.GetBorderWidth(style) + 2f);
+            float bw = StyleBorders.GetBorderWidth(style);
+            if (bw <= 0f) return path;
+            BorderPainterHelpers.PaintSimpleBorder(g, path, outline, bw, state);
+            return path.CreateInsetPath(bw + 2f);
         }
     }
 }

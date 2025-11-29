@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             // Base neon color
             Color baseNeon = useThemeColors && theme != null
                 ? theme.AccentColor
-                : StyleColors.GetPrimary(BeepControlStyle.Neon);
+                : StyleColors.GetPrimary(style);
 
             // Adjust border/glow color by state
             Color neonColor = state switch
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 _ => baseNeon
             };
 
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Neon);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 

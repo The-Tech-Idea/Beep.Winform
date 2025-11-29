@@ -20,8 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             ControlState state = ControlState.Normal)
         {
             // HighContrast: Pure black borders for maximum contrast
-            Color blackBorder = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.HighContrast);
-            Color focusColor = useThemeColors ? theme.AccentColor : StyleColors.GetSelection(BeepControlStyle.HighContrast);
+            Color blackBorder = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color focusColor = useThemeColors ? theme.AccentColor : StyleColors.GetSelection(style);
             Color borderColor = blackBorder;
             bool showFocusRing = false;
 
@@ -55,14 +55,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Paint HighContrast 2px black border (0px radius - sharp for clarity)
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.HighContrast); // 2.0f
+            float borderWidth = StyleBorders.GetBorderWidth(style); // 2.0f
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Paint WCAG AAA compliant 3px focus ring (yellow for maximum contrast)
             if (showFocusRing)
             {
-                float ringWidth = StyleBorders.GetRingWidth(BeepControlStyle.HighContrast); // 3.0f
-                float ringOffset = StyleBorders.GetRingOffset(BeepControlStyle.HighContrast); // 2.0f
+                float ringWidth = StyleBorders.GetRingWidth(style); // 3.0f
+                float ringOffset = StyleBorders.GetRingOffset(style); // 2.0f
                 BorderPainterHelpers.PaintRing(g, path, focusColor, ringWidth, ringOffset);
             }
 

@@ -22,10 +22,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             if (path == null) return path;
 
             // Gnome Adwaita colors
-            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(BeepControlStyle.Gnome);
-            Color blueAccent = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Gnome);
+            Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
+            Color blueAccent = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
 
-            float borderWidth = StyleBorders.GetBorderWidth(BeepControlStyle.Gnome); // 1.0f
+            float borderWidth = StyleBorders.GetBorderWidth(style); // 1.0f
+            if (borderWidth <= 0f) return path;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // State-based border color
@@ -44,8 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             // Gnome: 2px blue focus ring when focused (Adwaita keyboard navigation)
             if (isFocused || state == ControlState.Focused)
             {
-                float ringWidth = StyleBorders.GetRingWidth(BeepControlStyle.Gnome); // 2.0f
-                float ringOffset = StyleBorders.GetRingOffset(BeepControlStyle.Gnome); // 2.0f
+                float ringWidth = StyleBorders.GetRingWidth(style); // 2.0f
+                float ringOffset = StyleBorders.GetRingOffset(style); // 2.0f
                 BorderPainterHelpers.PaintRing(g, path, blueAccent, ringWidth, ringOffset);
             }
 

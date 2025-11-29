@@ -14,13 +14,224 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class ShadowPainterHelpers
     {
+        #region "Clean UX/UI Shadow Methods"
+
         /// <summary>
-        /// Paints a soft multi-layer shadow
+        /// Paints a clean single-layer drop shadow (GNOME/Apple/Ubuntu style)
+        /// Best for: Linux desktop themes, Apple designs, minimal UIs
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="bounds">Control path</param>
+        /// <param name="radius">Corner radius</param>
+        /// <param name="offsetX">Horizontal offset (usually 0)</param>
+        /// <param name="offsetY">Vertical offset (2-6px typical)</param>
+        /// <param name="shadowColor">Shadow color (use neutral black)</param>
+        /// <param name="alpha">Shadow opacity (0-255, typical 30-60)</param>
+        /// <param name="spread">Shadow expansion (0-4px typical)</param>
+        public static GraphicsPath PaintCleanDropShadow(Graphics g, GraphicsPath bounds, int radius,
+            int offsetX, int offsetY, Color shadowColor, int alpha, int spread = 2)
+        {
+            if (g == null || bounds == null) return bounds;
+            if (alpha <= 0) return bounds;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            RectangleF boundsRect = bounds.GetBounds();
+            Rectangle shadowBounds = Rectangle.Round(boundsRect);
+            shadowBounds.Offset(offsetX, offsetY);
+            shadowBounds.Inflate(spread, spread);
+
+            using (var shadowPath = new GraphicsPath())
+            {
+                if (radius <= 0)
+                {
+                    shadowPath.AddRectangle(shadowBounds);
+                }
+                else
+                {
+                    int effectiveRadius = radius + spread;
+                    int diameter = effectiveRadius * 2;
+
+                    if (diameter > 0 && shadowBounds.Width > diameter && shadowBounds.Height > diameter)
+                    {
+                        Size cornerSize = new Size(diameter, diameter);
+                        Rectangle arc = new Rectangle(shadowBounds.Location, cornerSize);
+
+                        shadowPath.AddArc(arc, 180, 90);
+                        arc.X = shadowBounds.Right - diameter;
+                        shadowPath.AddArc(arc, 270, 90);
+                        arc.Y = shadowBounds.Bottom - diameter;
+                        shadowPath.AddArc(arc, 0, 90);
+                        arc.X = shadowBounds.Left;
+                        shadowPath.AddArc(arc, 90, 90);
+                        shadowPath.CloseFigure();
+                    }
+                    else
+                    {
+                        shadowPath.AddRectangle(shadowBounds);
+                    }
+                }
+
+                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, shadowColor));
+                g.FillPath(brush, shadowPath);
+            }
+
+            return bounds;
+        }
+
+        /// <summary>
+        /// Paints a hard-edged offset shadow (Brutalist/Retro/Cartoon style)
+        /// Best for: Brutalist design, retro UIs, cartoon styles
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="bounds">Control path</param>
+        /// <param name="offsetX">Horizontal offset (4-8px typical)</param>
+        /// <param name="offsetY">Vertical offset (4-8px typical)</param>
+        /// <param name="shadowColor">Shadow color (solid black typical)</param>
+        public static GraphicsPath PaintHardOffsetShadow(Graphics g, GraphicsPath bounds,
+            int offsetX, int offsetY, Color shadowColor)
+        {
+            if (g == null || bounds == null) return bounds;
+
+            RectangleF boundsRect = bounds.GetBounds();
+
+            // Disable anti-aliasing for crisp hard edges
+            var prevMode = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.None;
+
+            try
+            {
+                using (var brush = new SolidBrush(shadowColor))
+                {
+                    g.FillRectangle(brush,
+                        boundsRect.X + offsetX,
+                        boundsRect.Y + offsetY,
+                        boundsRect.Width,
+                        boundsRect.Height);
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = prevMode;
+            }
+
+            return bounds;
+        }
+
+        /// <summary>
+        /// Paints a state-aware shadow that adjusts based on control state
+        /// Best for: Any interactive control needing state feedback
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="bounds">Control path</param>
+        /// <param name="radius">Corner radius</param>
+        /// <param name="state">Current control state</param>
+        /// <param name="baseAlpha">Base shadow alpha (for Normal state)</param>
+        /// <param name="baseOffsetY">Base Y offset (for Normal state)</param>
+        /// <param name="shadowColor">Shadow color</param>
+        public static GraphicsPath PaintStateAwareShadow(Graphics g, GraphicsPath bounds, int radius,
+            ControlState state, int baseAlpha = 40, int baseOffsetY = 3, Color? shadowColor = null)
+        {
+            if (g == null || bounds == null) return bounds;
+
+            Color color = shadowColor ?? Color.Black;
+
+            // Adjust shadow based on state
+            int alpha;
+            int offsetY;
+            int spread;
+
+            switch (state)
+            {
+                case ControlState.Hovered:
+                    alpha = (int)(baseAlpha * 1.4f);  // More prominent
+                    offsetY = baseOffsetY + 1;        // Slightly more offset
+                    spread = 3;
+                    break;
+                case ControlState.Pressed:
+                    alpha = (int)(baseAlpha * 0.6f);  // Less prominent (appears closer)
+                    offsetY = Math.Max(1, baseOffsetY - 1);
+                    spread = 1;
+                    break;
+                case ControlState.Focused:
+                    alpha = (int)(baseAlpha * 1.2f);  // Slightly more prominent
+                    offsetY = baseOffsetY;
+                    spread = 2;
+                    break;
+                case ControlState.Disabled:
+                    alpha = (int)(baseAlpha * 0.4f);  // Very subtle
+                    offsetY = Math.Max(1, baseOffsetY - 1);
+                    spread = 1;
+                    break;
+                default: // Normal
+                    alpha = baseAlpha;
+                    offsetY = baseOffsetY;
+                    spread = 2;
+                    break;
+            }
+
+            return PaintCleanDropShadow(g, bounds, radius, 0, offsetY, color, alpha, spread);
+        }
+
+        /// <summary>
+        /// Paints a very subtle shadow for minimal designs
+        /// Best for: Minimal, Notion, Vercel, flat designs with subtle depth
+        /// </summary>
+        public static GraphicsPath PaintSubtleShadow(Graphics g, GraphicsPath bounds, int radius,
+            int offsetY = 2, int alpha = 20)
+        {
+            return PaintCleanDropShadow(g, bounds, radius, 0, offsetY, Color.Black, alpha, 1);
+        }
+
+        /// <summary>
+        /// Paints a two-layer shadow (key + ambient) for Material-style elevation
+        /// Best for: Material Design, modern cards, elevated surfaces
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="bounds">Control path</param>
+        /// <param name="radius">Corner radius</param>
+        /// <param name="elevation">Elevation level (1-5 typical)</param>
+        /// <param name="shadowColor">Shadow base color</param>
+        public static GraphicsPath PaintDualLayerShadow(Graphics g, GraphicsPath bounds, int radius,
+            int elevation = 2, Color? shadowColor = null)
+        {
+            if (g == null || bounds == null) return bounds;
+            if (elevation <= 0) return bounds;
+
+            Color color = shadowColor ?? Color.Black;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Ambient shadow (larger, softer, less opaque)
+            // Cap alpha at 30 for subtle professional appearance
+            int ambientAlpha = Math.Min(30, 10 + elevation * 3);
+            int ambientOffsetY = elevation;
+            int ambientSpread = Math.Min(6, elevation + 2);
+            PaintCleanDropShadow(g, bounds, radius, 0, ambientOffsetY, color, ambientAlpha, ambientSpread);
+
+            // Key shadow (tighter, more defined)
+            // Cap alpha at 35 for subtle professional appearance
+            int keyAlpha = Math.Min(35, 15 + elevation * 4);
+            int keyOffsetY = elevation + 1;
+            int keySpread = Math.Min(4, elevation);
+            PaintCleanDropShadow(g, bounds, radius, 0, keyOffsetY, color, keyAlpha, keySpread);
+
+            return bounds;
+        }
+
+        #endregion
+
+        #region "Core Shadow Methods"
+
+        /// <summary>
+        /// Paints a soft multi-layer shadow (improved opacity calculation)
+        /// Note: For clean single-layer shadows, prefer PaintCleanDropShadow
         /// </summary>
         public static GraphicsPath PaintSoftShadow(Graphics g, GraphicsPath bounds, int radius, int offsetX, int offsetY,
-            Color shadowColor, float opacity, int layers = 6)
+            Color shadowColor, float opacity, int layers = 4)
         {
             if (opacity <= 0 || opacity > 1) return bounds;
+            if (layers <= 0) layers = 1;
+            if (layers > 8) layers = 8; // Cap layers for performance
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.CompositingQuality = CompositingQuality.HighQuality;
@@ -30,27 +241,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             {
                 offsetMatrix.Translate(offsetX, offsetY);
 
+                // Draw layers from OUTERMOST to INNERMOST
+                // Outer layers are larger (more spread) and dimmer
+                // Inner layers are smaller and slightly brighter, painting OVER outer layers
+                // This creates a soft fade-out effect at the edges
                 for (int i = 1; i <= layers; i++)
                 {
-                    float layerOpacityFactor = (float)(layers - i + 1) / layers;
-                    float finalOpacity = opacity * layerOpacityFactor * 0.6f;
-                    int layerAlpha = Math.Max(5, (int)(255 * finalOpacity));
+                    // Outer layers (i=1) have more spread and are dimmer
+                    // Inner layers (i=layers) have less spread and are brighter
+                    int spread = layers - i;
+                    
+                    // Calculate alpha - use sqrt for smoother progression
+                    // Base alpha from shadowColor (or 80 if not set), scaled by opacity
+                    int baseAlpha = Math.Min(80, (int)(shadowColor.A * opacity * 0.5f));
+                    float layerFade = (float)Math.Sqrt((float)i / layers); // sqrt for smoother progression
+                    int layerAlpha = Math.Max(3, Math.Min(80, (int)(baseAlpha * layerFade)));
 
-                    Color layerShadowColor = Color.FromArgb(layerAlpha, shadowColor);
-
-                    int spread = i - 1;
+                    Color layerShadowColor = Color.FromArgb(layerAlpha, shadowColor.R, shadowColor.G, shadowColor.B);
 
                     using (GraphicsPath shadowPath = (GraphicsPath)bounds.Clone())
                     {
                         shadowPath.Transform(offsetMatrix);
 
-                        // Apply spread if needed
+                        // Apply spread - expand path for outer layers
                         if (spread > 0)
                         {
                             using (GraphicsPath expandedPath = shadowPath.CreateInsetPath(-spread))
                             {
-                                var shadowBrush = PaintersFactory.GetSolidBrush(layerShadowColor);
-                                g.FillPath(shadowBrush, expandedPath);
+                                if (expandedPath != null && expandedPath.PointCount > 0)
+                                {
+                                    var shadowBrush = PaintersFactory.GetSolidBrush(layerShadowColor);
+                                    g.FillPath(shadowBrush, expandedPath);
+                                }
                             }
                         }
                         else
@@ -73,25 +295,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         {
             if (elevation == MaterialElevation.Level0) return bounds;
 
-            // Material shadows use two layers: key light (top) and ambient light (bottom)
+            // Material Design elevation: two-layer shadow (ambient + key)
             int elevationValue = (int)elevation;
-
-            // Key light shadow (directional, smaller)
-            int keyOffsetY = elevationValue * 2;
-            int keyBlur = elevationValue * 2;
             Color baseShadowTheme = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
-            Color keyShadowColor = Color.FromArgb(40, baseShadowTheme);
 
-            // Ambient light shadow (larger, softer)
-            int ambientOffsetY = elevationValue;
-            int ambientBlur = elevationValue * 4;
-            Color ambientShadowColor = Color.FromArgb(30, baseShadowTheme);
+            // Material Design shadow parameters based on elevation level
+            // Alpha values are subtle (15-35 range) for professional appearance
+            int ambientAlpha = Math.Min(25, 12 + elevationValue * 3);
+            int keyAlpha = Math.Min(30, 15 + elevationValue * 4);
+            
+            int ambientOffsetY = Math.Max(1, elevationValue);
+            int keyOffsetY = Math.Max(2, elevationValue + 1);
+            
+            int ambientSpread = Math.Max(2, elevationValue + 1);
+            int keySpread = Math.Max(1, elevationValue);
 
-            // Draw ambient shadow first (larger)
-            PaintSoftShadow(g, bounds, radius, 0, ambientOffsetY, ambientShadowColor, 0.3f, ambientBlur);
+            // Draw ambient shadow first (larger, softer)
+            PaintCleanDropShadow(g, bounds, radius, 0, ambientOffsetY, baseShadowTheme, ambientAlpha, ambientSpread);
 
-            // Draw key shadow on top (smaller, more defined)
-            PaintSoftShadow(g, bounds, radius, 0, keyOffsetY, keyShadowColor, 0.4f, keyBlur);
+            // Draw key shadow on top (tighter, more defined)
+            PaintCleanDropShadow(g, bounds, radius, 0, keyOffsetY, baseShadowTheme, keyAlpha, keySpread);
 
             // Return the area inside the shadow using shape-aware inset
             return bounds.CreateInsetPath(radius);
@@ -186,28 +409,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 Math.Max(0, color.B - (int)(color.B * percent))
             );
         }
-
+        #endregion
         #region "Modern UX/UI Shadow Effects"
 
         /// <summary>
         /// Paints inner shadow (inset shadow for pressed/recessed effect)
+        /// Best for: Pressed button states, recessed panels, input fields
         /// </summary>
         public static GraphicsPath PaintInnerShadow(Graphics g, GraphicsPath bounds, int radius, int depth = 4, Color? shadowColor = null)
         {
-            Color shadow = shadowColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.FromArgb(100, 0, 0, 0);
+            if (g == null || bounds == null || bounds.PointCount == 0) return bounds;
+
+            Color shadow = shadowColor ?? BeepStyling.CurrentTheme?.ShadowColor ?? Color.FromArgb(100, 0, 0, 0);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Create inset path
-            using (var insetPath = bounds.CreateInsetPath(depth))
+            try
             {
-                // Create gradient from edge to center
+                // Create gradient from edge to center using PathGradientBrush
                 using (var pathBrush = new PathGradientBrush(bounds))
                 {
                     pathBrush.CenterColor = Color.Transparent;
                     pathBrush.SurroundColors = new[] { shadow };
-                    pathBrush.FocusScales = new PointF(0.8f, 0.8f);
+                    pathBrush.FocusScales = new PointF(0.85f, 0.85f);
 
                     g.FillPath(pathBrush, bounds);
+                }
+            }
+            catch
+            {
+                // Fallback: simple darkened edge if PathGradientBrush fails
+                using (var pen = new Pen(Color.FromArgb(shadow.A / 2, shadow), 1))
+                {
+                    g.DrawPath(pen, bounds);
                 }
             }
 
@@ -219,29 +452,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         /// </summary>
         public static GraphicsPath PaintCardShadow(Graphics g, GraphicsPath bounds, int radius, CardShadowStyle style = CardShadowStyle.Medium)
         {
-            int offsetY, blur;
-            float opacity;
+            int offsetY, spread, alpha;
 
+            // Use direct alpha values for cleaner, more predictable shadows
+            // PaintCleanDropShadow takes alpha directly, producing subtle professional shadows
             switch (style)
             {
                 case CardShadowStyle.Small:
-                    offsetY = 2; blur = 4; opacity = 0.15f;
+                    offsetY = 1; spread = 2; alpha = 15;
                     break;
                 case CardShadowStyle.Medium:
-                    offsetY = 4; blur = 8; opacity = 0.2f;
+                    offsetY = 2; spread = 3; alpha = 20;
                     break;
                 case CardShadowStyle.Large:
-                    offsetY = 8; blur = 16; opacity = 0.25f;
+                    offsetY = 4; spread = 5; alpha = 25;
                     break;
                 case CardShadowStyle.XLarge:
-                    offsetY = 16; blur = 24; opacity = 0.3f;
+                    offsetY = 6; spread = 8; alpha = 30;
                     break;
                 default:
-                    offsetY = 4; blur = 8; opacity = 0.2f;
+                    offsetY = 2; spread = 3; alpha = 20;
                     break;
             }
 
-            return PaintSoftShadow(g, bounds, radius, 0, offsetY, Color.Black, opacity, blur / 2);
+            // Use PaintCleanDropShadow for predictable, subtle shadow
+            return PaintCleanDropShadow(g, bounds, radius, 0, offsetY, Color.Black, alpha, spread);
         }
 
         /// <summary>
@@ -275,8 +510,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 if (bounds is null) return new GraphicsPath();
                 if (bounds.GetBounds().IsEmpty) return new GraphicsPath();
                 using (var glowPath = bounds.CreateInsetPath(-i))
+                // Create NEW pen (not cached) so we can modify LineJoin property
+                using (var pen = new Pen(Color.FromArgb(alpha, glowColor), 2f))
                 {
-                    var pen = PaintersFactory.GetPen(Color.FromArgb(alpha, glowColor), 2f);
                     pen.LineJoin = LineJoin.Round;
                     g.DrawPath(pen, glowPath);
                 }
@@ -291,15 +527,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         public static GraphicsPath PaintFloatingShadow(Graphics g, GraphicsPath bounds, int radius, int elevation = 8)
         {
             Color baseShadowTheme = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
-            // Floating shadows have both soft blur and offset
-            int blur = elevation * 2;
-            int offsetY = elevation;
+            
+            // Floating shadows: two layers for depth - ambient (soft) + key (tighter)
+            int offsetY = Math.Max(2, elevation / 2);
+            
+            // Ambient shadow (larger, softer, more spread)
+            int ambientAlpha = Math.Min(30, 10 + elevation);
+            int ambientSpread = Math.Max(3, elevation / 2);
+            PaintCleanDropShadow(g, bounds, radius, 0, offsetY + 2, baseShadowTheme, ambientAlpha, ambientSpread);
 
-            // Draw large soft shadow
-            PaintSoftShadow(g, bounds, radius, 0, offsetY, Color.FromArgb(40, baseShadowTheme), 0.4f, blur);
-
-            // Draw tighter core shadow
-            PaintSoftShadow(g, bounds, radius, 0, offsetY / 2, Color.FromArgb(60, baseShadowTheme), 0.3f, blur / 2);
+            // Key shadow (tighter, more defined)
+            int keyAlpha = Math.Min(35, 15 + elevation);
+            int keySpread = Math.Max(2, elevation / 3);
+            PaintCleanDropShadow(g, bounds, radius, 0, offsetY, baseShadowTheme, keyAlpha, keySpread);
 
             return bounds.CreateInsetPath(radius);
         }
@@ -511,9 +751,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
                 if (alpha <= 0) continue;
 
-                var pen = PaintersFactory.GetPen(Color.FromArgb(alpha, glowColor), (glowWidth - i) * 2);
-                pen.LineJoin = LineJoin.Round;
-                g.DrawPath(pen, bounds);
+                // Create NEW pen (not cached) so we can modify LineJoin property
+                using (var pen = new Pen(Color.FromArgb(alpha, glowColor), (glowWidth - i) * 2))
+                {
+                    pen.LineJoin = LineJoin.Round;
+                    g.DrawPath(pen, bounds);
+                }
             }
 
             return bounds.CreateInsetPath(radius);

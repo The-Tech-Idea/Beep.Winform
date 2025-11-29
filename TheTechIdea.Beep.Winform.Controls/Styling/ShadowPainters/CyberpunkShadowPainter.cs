@@ -4,12 +4,13 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Cyberpunk shadow painter - cyan neon glow.
+    /// Cyberpunk shadow painter - Cyan/magenta neon glow
+    /// Night city aesthetic with intense neon lighting
+    /// State-aware for interactive feedback
     /// </summary>
     public static class CyberpunkShadowPainter
     {
@@ -17,11 +18,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.HasShadow(style))
-                return path;
+            if (g == null || path == null) return path;
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            Color glow = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Neon);
-            return ShadowPainterHelpers.PaintNeonGlow(g, path, radius, glow, 1.0f, StyleShadows.GetShadowBlur(style));
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Cyberpunk glow - cyan or theme accent
+            Color glowColor = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : StyleColors.GetPrimary(style);
+            
+            int glowRadius = StyleShadows.GetShadowBlur(style);
+
+            // Cyberpunk: Intense neon state-based
+            float intensity = state switch
+            {
+                ControlState.Hovered => 1.2f,   // Brighter on hover
+                ControlState.Pressed => 0.7f,   // Dimmer when pressed
+                ControlState.Focused => 1.4f,   // Brightest on focus
+                ControlState.Disabled => 0.25f, // Very dim when disabled
+                _ => 1.0f                       // Default bright
+            };
+
+            // Use neon glow helper
+            return ShadowPainterHelpers.PaintNeonGlow(
+                g, path, radius,
+                glowColor, intensity, glowRadius);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
@@ -7,34 +8,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// macOS Big Sur shadow painter
-    /// Uses soft shadows with vibrancy
+    /// Soft, vibrant shadows with subtle state feedback
+    /// Matches macOS layered window appearance
     /// </summary>
     public static class MacOSBigSurShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level1,
             ControlState state = ControlState.Normal)
         {
-            // macOS Big Sur UX: Soft shadows with vibrancy and state changes
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // macOS shadow vibrancy based on state
-            float shadowOpacity = 0.2f; // Base macOS subtle shadow
-            if (state == ControlState.Hovered)
-                shadowOpacity = 0.28f; // More vibrant on hover
-            else if (state == ControlState.Focused)
-                shadowOpacity = 0.24f; // Moderate increase on focus
-            else if (state == ControlState.Pressed)
-                shadowOpacity = 0.12f; // Reduced on press
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Match MacOSFormPainter: gentle shadows with proper offset
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintDropShadow(
+            // macOS Big Sur shadow color - soft neutral
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+
+            // macOS shadow intensity - soft and vibrant
+            int alpha = state switch
+            {
+                ControlState.Hovered => 45,    // More vibrant on hover
+                ControlState.Pressed => 20,    // Reduced on press
+                ControlState.Focused => 40,    // Moderate focus
+                ControlState.Selected => 50,   // Slightly more for selection
+                ControlState.Disabled => 10,   // Minimal
+                _ => 30                        // Default - soft
+            };
+
+            // macOS uses slightly larger spread for soft appearance
+            int spread = 2;
+
+            // Use clean single-layer shadow (macOS softness)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
                 g, path, radius,
-                0, 2, 8, // offsetX, offsetY, blur
-                Color.FromArgb((int)(shadowOpacity * 255), 0, 0, 0),
-                1.0f);
-
-            return remainingPath;
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

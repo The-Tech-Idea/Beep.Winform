@@ -1,73 +1,63 @@
+using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Gradient modern shadow painter
-    /// Uses modern soft shadow for gradient backgrounds
+    /// Gradient Modern shadow painter - Deep shadows for gradient backgrounds
+    /// Rich, prominent shadows that complement gradient surfaces
+    /// State and elevation aware
     /// </summary>
     public static class GradientModernShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
-            // Gradient Modern UX: Deep shadows with enhanced state depth
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Get base shadow values from StyleShadows
-            int blur = StyleShadows.GetShadowBlur(style);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Gradient Modern uses more prominent shadows
+            Color shadowColor = Color.Black;
             int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-            Color shadowColor = StyleShadows.GetShadowColor(style);
 
-            // Gradient modern shadow depth based on state
-            float shadowOpacity = 0.3f; // Base deep shadow
-
-            switch (state)
+            // Base alpha higher for gradient backgrounds
+            int baseAlpha = (int)elevation switch
             {
-                case ControlState.Hovered:
-                    shadowOpacity = 0.42f; // Deeper on hover
-                    blur += 4; // More blur on hover
-                    break;
-                case ControlState.Focused:
-                    shadowOpacity = 0.36f; // Moderate increase on focus
-                    blur += 2; // Slightly more blur on focus
-                    break;
-                case ControlState.Pressed:
-                    shadowOpacity = 0.24f; // Reduced on press
-                    blur -= 2; // Less blur when pressed
-                    offsetY = Math.Max(1, offsetY - 2); // Closer shadow
-                    break;
-                case ControlState.Disabled:
-                    shadowOpacity = 0.15f; // Much reduced when disabled
-                    blur -= 4; // Less blur when disabled
-                    break;
-                default: // Normal
-                    break;
-            }
+                0 => 35,
+                1 => 45,
+                2 => 55,
+                3 => 65,
+                4 => 75,
+                _ => 85
+            };
 
-            // Gradient modern elevation levels
-            if (elevation >= MaterialElevation.Level4)
+            // State-based adjustments
+            int alpha = state switch
             {
-                shadowOpacity += 0.12f; // Very deep
-                blur += 4;
-            }
-            else if (elevation >= MaterialElevation.Level3)
-            {
-                shadowOpacity += 0.08f; // Deeper
-                blur += 2;
-            }
+                ControlState.Hovered => (int)(baseAlpha * 1.4f),
+                ControlState.Pressed => (int)(baseAlpha * 0.6f),
+                ControlState.Focused => (int)(baseAlpha * 1.3f),
+                ControlState.Disabled => (int)(baseAlpha * 0.4f),
+                _ => baseAlpha
+            };
 
-            // Paint shadows
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur);
+            int spread = Math.Max(3, (int)elevation + 2);
 
-            return remainingPath;
+            // Use clean drop shadow (more prominent for gradients)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

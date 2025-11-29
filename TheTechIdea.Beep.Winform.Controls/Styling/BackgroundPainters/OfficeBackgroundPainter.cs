@@ -3,14 +3,12 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
-    /// Office background painter - Microsoft Office Ribbon UI Style
-    /// Clean white background with subtle gradients and professional appearance
-    /// Supports: Normal, Hovered, Pressed, Selected, Disabled, Focused states
+    /// Office background painter - Microsoft Office Ribbon UI style
+    /// Clean white backgrounds with subtle professional gradients
     /// </summary>
     public static class OfficeBackgroundPainter
     {
@@ -18,56 +16,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Office: Clean white background with subtle gradients (ribbon Style)
-            Color backgroundColor = useThemeColors && theme != null ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Office);
-            Color primaryColor = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Office);
+            if (g == null || path == null) return;
 
-            // Office-specific state handling - Professional, subtle
-            Color topColor, bottomColor;
-            
-            switch (state)
-            {
-                case ControlState.Hovered:
-                    // Office hover: Very light blue tint with subtle gradient
-                    topColor = Color.FromArgb(250, 251, 253); // Very light blue
-                    bottomColor = Color.FromArgb(245, 248, 252); // Slightly darker blue
-                    break;
-                case ControlState.Pressed:
-                    // Office pressed: Light primary color with gradient
-                    topColor = Color.FromArgb(210, 230, 250); // Light blue
-                    bottomColor = Color.FromArgb(190, 220, 245); // Slightly darker
-                    break;
-                case ControlState.Selected:
-                    // Office selected: Accent color with subtle gradient
-                    int alpha = 40;
-                    topColor = Color.FromArgb(alpha, primaryColor.R, primaryColor.G, primaryColor.B);
-                    bottomColor = Color.FromArgb(alpha + 20, primaryColor.R, primaryColor.G, primaryColor.B);
-                    
-                    // Fill base white first
-                    var baseBrush = PaintersFactory.GetSolidBrush(backgroundColor);
-                    g.FillPath(baseBrush, path);
-                    break;
-                case ControlState.Focused:
-                    // Office focused: Very subtle blue tint
-                    topColor = Color.FromArgb(252, 253, 254);
-                    bottomColor = Color.FromArgb(248, 250, 252);
-                    break;
-                case ControlState.Disabled:
-                    // Office disabled: Gray with subtle gradient
-                    topColor = Color.FromArgb(240, 240, 240);
-                    bottomColor = Color.FromArgb(230, 230, 230);
-                    break;
-                default: // Normal
-                    // Office normal: Pure white (clean professional)
-                    topColor = backgroundColor;
-                    bottomColor = backgroundColor;
-                    break;
-            }
+            // Office: clean white background
+            Color backgroundColor = useThemeColors && theme != null 
+                ? theme.BackColor 
+                : StyleColors.GetBackground(BeepControlStyle.Office);
+            Color primaryColor = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : StyleColors.GetPrimary(BeepControlStyle.Office);
 
-            // Paint with subtle vertical gradient (Office ribbon Style)
             var bounds = path.GetBounds();
-            var brush = PaintersFactory.GetLinearGradientBrush(bounds, topColor, bottomColor, LinearGradientMode.Vertical);
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Get Office-style colors for state
+            var (topColor, bottomColor) = GetOfficeStateColors(backgroundColor, primaryColor, state);
+
+            // Office ribbon-style vertical gradient
+            var brush = PaintersFactory.GetLinearGradientBrush(
+                bounds, topColor, bottomColor, LinearGradientMode.Vertical);
             g.FillPath(brush, path);
+        }
+
+        private static (Color top, Color bottom) GetOfficeStateColors(Color baseColor, Color primaryColor, ControlState state)
+        {
+            return state switch
+            {
+                // Hover: very light blue tint
+                ControlState.Hovered => (
+                    Color.FromArgb(250, 251, 253),
+                    Color.FromArgb(245, 248, 252)),
+                
+                // Pressed: stronger blue tint
+                ControlState.Pressed => (
+                    Color.FromArgb(210, 230, 250),
+                    Color.FromArgb(190, 220, 245)),
+                
+                // Selected: subtle primary color tint
+                ControlState.Selected => (
+                    BackgroundPainterHelpers.BlendColors(baseColor, primaryColor, 0.15f),
+                    BackgroundPainterHelpers.BlendColors(baseColor, primaryColor, 0.20f)),
+                
+                // Focused: very subtle blue tint
+                ControlState.Focused => (
+                    Color.FromArgb(252, 253, 254),
+                    Color.FromArgb(248, 250, 252)),
+                
+                // Disabled: gray gradient
+                ControlState.Disabled => (
+                    Color.FromArgb(240, 240, 240),
+                    Color.FromArgb(230, 230, 230)),
+                
+                // Normal: pure clean white
+                _ => (baseColor, baseColor)
+            };
         }
     }
 }

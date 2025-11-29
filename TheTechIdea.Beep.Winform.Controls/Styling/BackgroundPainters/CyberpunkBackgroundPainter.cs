@@ -3,29 +3,50 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
+    /// <summary>
+    /// Cyberpunk background painter - futuristic neon aesthetic
+    /// Very dark background with pink gradient glow and cyan accent outline
+    /// </summary>
     public static class CyberpunkBackgroundPainter
     {
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme,
             bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            if (path == null) return;
+            if (g == null || path == null) return;
 
-            Color baseColor = useThemeColors && theme != null ? theme.BackgroundColor : Color.FromArgb(10,10,12);
-            Color neon = useThemeColors && theme != null ? theme.AccentColor : Color.FromArgb(0,255,200);
+            // Cyberpunk: almost black
+            Color baseColor = useThemeColors && theme != null 
+                ? theme.BackgroundColor 
+                : Color.FromArgb(10, 10, 12);
+            Color neon = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : Color.FromArgb(0, 255, 200);
 
-            var fill = BackgroundPainterHelpers.ApplyState(baseColor, state);
-            var brush = PaintersFactory.GetSolidBrush(fill);
-            g.FillPath(brush, path);
+            // Solid background with strong state handling
+            BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,
+                BackgroundPainterHelpers.StateIntensity.Strong);
 
             var bounds = path.GetBounds();
-            var leftGrad = PaintersFactory.GetLinearGradientBrush(new RectangleF(bounds.Left, bounds.Top, Math.Min(120,bounds.Width), bounds.Height), Color.FromArgb(60,255,0,150), Color.Transparent, LinearGradientMode.Horizontal);
-            g.FillRectangle(leftGrad, new RectangleF(bounds.Left, bounds.Top, Math.Min(120,bounds.Width), bounds.Height));
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            var pen = PaintersFactory.GetPen(Color.FromArgb(120, neon),2f);
+            // Pink gradient glow from left edge
+            float glowWidth = Math.Min(100f, bounds.Width * 0.4f);
+            if (glowWidth > 5)
+            {
+                var leftRect = new RectangleF(bounds.Left, bounds.Top, glowWidth, bounds.Height);
+                var leftGrad = PaintersFactory.GetLinearGradientBrush(
+                    leftRect, 
+                    Color.FromArgb(50, 255, 0, 150), 
+                    Color.Transparent, 
+                    LinearGradientMode.Horizontal);
+                g.FillRectangle(leftGrad, leftRect);
+            }
+
+            // Neon accent outline
+            var pen = PaintersFactory.GetPen(Color.FromArgb(100, neon), 1.5f);
             g.DrawPath(pen, path);
         }
     }

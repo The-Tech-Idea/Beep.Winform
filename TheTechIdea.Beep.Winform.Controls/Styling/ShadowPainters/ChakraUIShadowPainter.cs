@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
@@ -6,32 +7,55 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
-    /// Chakra UI shadow painter
-    /// Uses Chakra UI's shadow tokens
+    /// Chakra UI shadow painter - Chakra design system shadows
+    /// sm, base, md, lg, xl, 2xl, dark-lg, outline, inner
+    /// Modern component library shadows
     /// </summary>
     public static class ChakraUIShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level1,
             ControlState state = ControlState.Normal)
         {
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Calculate shadow properties based on state and elevation
-            float shadowOpacity = 0.18f;
-            int shadowLayers = 4;
-            if (state == ControlState.Hovered) { shadowOpacity = 0.26f; shadowLayers = 5; }
-            else if (state == ControlState.Focused) { shadowOpacity = 0.22f; shadowLayers = 5; }
-            else if (state == ControlState.Pressed) { shadowOpacity = 0.14f; shadowLayers = 3; }
-            if (elevation >= MaterialElevation.Level3) { shadowOpacity += 0.06f; shadowLayers += 1; }
-            else if (elevation >= MaterialElevation.Level2) { shadowOpacity += 0.03f; shadowLayers += 1; }
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Paint shadows using soft shadow with calculated opacity
-            Color shadowColor = StyleShadows.GetShadowColor(style);
+            // Chakra uses neutral shadows
+            Color shadowColor = Color.Black;
             int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, shadowLayers);
-            return remainingPath;
+
+            // Chakra shadow tokens
+            int baseAlpha = (int)elevation switch
+            {
+                0 => 20,    // sm
+                1 => 30,    // base
+                2 => 40,    // md
+                3 => 50,    // lg
+                4 => 60,    // xl
+                _ => 70     // 2xl
+            };
+
+            // State-based Chakra adjustments
+            int alpha = state switch
+            {
+                ControlState.Hovered => (int)(baseAlpha * 1.35f),
+                ControlState.Pressed => (int)(baseAlpha * 0.65f),
+                ControlState.Focused => (int)(baseAlpha * 1.2f),
+                ControlState.Disabled => (int)(baseAlpha * 0.35f),
+                _ => baseAlpha
+            };
+
+            int spread = Math.Max(2, (int)elevation + 1);
+
+            // Use clean drop shadow (Chakra modern style)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

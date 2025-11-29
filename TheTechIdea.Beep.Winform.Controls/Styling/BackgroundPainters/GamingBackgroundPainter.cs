@@ -3,42 +3,41 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
     /// <summary>
     /// Gaming background painter - RGB gaming aesthetic
-    /// Dark background with angular0px radius, green glow (#00FF7F)
-    /// Orbitron font aesthetic, aggressive cyberpunk Style
+    /// Dark background with angular edges (no anti-aliasing)
+    /// Green neon glow on hover for aggressive feedback
     /// </summary>
     public static class GamingBackgroundPainter
     {
         public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, 
             IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            if (path == null) return;
+            if (g == null || path == null) return;
 
-            Color darkBg = useThemeColors && theme != null ? theme.BackgroundColor : StyleColors.GetBackground(BeepControlStyle.Gaming);
-            Color neonGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(BeepControlStyle.Gaming);
+            // Gaming: dark charcoal
+            Color darkBg = useThemeColors && theme != null 
+                ? theme.BackgroundColor 
+                : StyleColors.GetBackground(BeepControlStyle.Gaming);
+            Color neonGreen = useThemeColors && theme != null 
+                ? theme.AccentColor 
+                : StyleColors.GetPrimary(BeepControlStyle.Gaming);
 
-            g.SmoothingMode = SmoothingMode.None; // Angular for gaming aesthetic
-
-            Color fillColor = state switch
+            // Angular gaming aesthetic - disable smoothing
+            using (var scope = new BackgroundPainterHelpers.SmoothingScope(g, SmoothingMode.None))
             {
-                ControlState.Hovered => ColorUtils.Lighten(darkBg,0.1f),
-                ControlState.Pressed => ColorUtils.Lighten(darkBg,0.15f),
-                ControlState.Selected => Color.FromArgb(40, neonGreen),
-                ControlState.Disabled => ColorUtils.Darken(darkBg,0.1f),
-                _ => darkBg
-            };
+                // Strong state feedback for gaming
+                BackgroundPainterHelpers.PaintSolidBackground(g, path, darkBg, state,
+                    BackgroundPainterHelpers.StateIntensity.Strong);
+            }
 
-            var brush = PaintersFactory.GetSolidBrush(fillColor);
-            g.FillPath(brush, path);
-
+            // Neon glow overlay on hover
             if (state == ControlState.Hovered)
             {
-                var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, neonGreen));
+                var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(25, neonGreen));
                 g.FillPath(glowBrush, path);
             }
         }

@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
@@ -7,30 +8,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
     /// <summary>
     /// Microsoft Fluent 2 shadow painter
-    /// Uses modern soft shadows
+    /// Modern soft shadows with subtle state feedback
+    /// Refined elevation for contemporary Windows design
     /// </summary>
     public static class Fluent2ShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, 
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
-            // Fluent2 UX: Subtle elevation with state changes
+            if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Calculate shadow properties based on state
-            float shadowOpacity = 0.25f; // Base Fluent subtle shadow
-            if (state == ControlState.Hovered)
-                shadowOpacity = 0.35f; // More prominent on hover
-            else if (state == ControlState.Focused)
-                shadowOpacity = 0.30f; // Moderate increase on focus
-            else if (state == ControlState.Pressed)
-                shadowOpacity = 0.15f; // Reduced on press
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Paint shadows
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 2);
+            // Fluent 2 shadow - neutral, modern
+            Color shadowColor = Color.Black;
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
 
-            return remainingPath;
+            // Fluent 2 state-based shadow intensity
+            int alpha = state switch
+            {
+                ControlState.Hovered => 55,    // More prominent
+                ControlState.Pressed => 25,    // Reduced
+                ControlState.Focused => 50,    // Moderate
+                ControlState.Selected => 60,   // Most visible
+                ControlState.Disabled => 12,   // Minimal
+                _ => 40                        // Default modern subtle
+            };
+
+            int spread = 2;
+
+            // Use clean drop shadow (Fluent 2 modern style)
+            return ShadowPainterHelpers.PaintCleanDropShadow(
+                g, path, radius,
+                0, offsetY,
+                shadowColor, alpha,
+                spread);
         }
     }
 }

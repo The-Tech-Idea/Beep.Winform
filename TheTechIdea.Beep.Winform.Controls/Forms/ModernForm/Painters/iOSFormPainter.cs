@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var layout = new PainterLayoutInfo();
             var metrics = GetMetrics(owner);
             
-            owner._hits.Clear();
+            // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
             
             // If caption bar is hidden, skip button layout
             if (!owner.ShowCaptionBar)

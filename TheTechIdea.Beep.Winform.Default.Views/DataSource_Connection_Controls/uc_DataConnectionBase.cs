@@ -244,41 +244,33 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
             _childPropertyControls.Clear();
 
-            // Always add General and Provider/Categorization and Credentials
+            // Tabs based on IConnectionProperties regions:
+            // 1. General Properties - ID, GuidID, ConnectionName, ConnectionString, Category, Favourite, IsDefault, Drawn
             AddChildTab(new uc_GeneralProperties());
-            AddChildTab(new uc_ProviderandCategorizationProperties());
-            AddChildTab(new uc_CredentialsandConnectionStringProperties());
 
-            // Add according to category/type flags
-            var cat = ConnectionProperties.Category;
-            bool isDb = ConnectionProperties.IsDatabase || cat == DatasourceCategory.RDBMS || cat == DatasourceCategory.NOSQL || cat == DatasourceCategory.DocumentDB || cat == DatasourceCategory.KeyValueDB || cat == DatasourceCategory.ColumnarDB || cat == DatasourceCategory.GraphDB || cat == DatasourceCategory.TimeSeriesDB || cat == DatasourceCategory.BigData;
-            bool isFile = ConnectionProperties.IsFile || cat == DatasourceCategory.FILE;
-            bool isWeb = ConnectionProperties.IsWebApi || cat == DatasourceCategory.WEBAPI;
-
-            if (isDb)
-            {
-                AddChildTab(new uc_DatabaseProperties());
-                AddChildTab(new uc_NetwrokandRemoteProperties());
-                AddChildTab(new uc_AuthenticationandSecurityProperties());
-                AddChildTab(new uc_CertificatesandSSLProperties());
-            }
-            if (isFile)
-            {
-                AddChildTab(new uc_FileProperties());
-            }
-            if (isWeb)
-            {
-                AddChildTab(new uc_WebApiProperties());
-                AddChildTab(new uc_webapiAuthenticationProperties());
-                AddChildTab(new uc_HttpCompositionProperties());
-                AddChildTab(new uc_NetwrokandRemoteProperties());
-            }
-
-            // Additional tabs
+            // 2. Type and State Flags - IsLocal, IsRemote, IsWebApi, IsFile, IsDatabase, IsComposite, IsCloud, IsFavourite, IsInMemory
             AddChildTab(new uc_TypeandStateFlagsProperties());
-            AddChildTab(new uc_RequstandBehaviorProperties());
-            // uc_MetaDataProperties is dynamic; it already exists in project if needed, add as last
-            AddChildTab(new uc_MetaDataProperties());
+
+            // 3. Database Properties - DatabaseType, Database, Databases, SchemaName, OracleSIDorService
+            AddChildTab(new uc_DatabaseProperties());
+
+            // 4. File Properties - FilePath, FileName, Ext, Delimiter
+            AddChildTab(new uc_FileProperties());
+
+            // 5. Network and Remote Connection Properties - Host, Port, Url
+            AddChildTab(new uc_NetwrokandRemoteProperties());
+
+            // 6. Authentication and Security - UserID, Password, ApiKey, KeyToken, CertificatePath, SSL settings, etc.
+            AddChildTab(new uc_AuthenticationandSecurityProperties());
+
+            // 7. Driver - DriverName, DriverVersion, Parameters
+            AddChildTab(new uc_DriverProperties());
+
+            // 8. Web API Properties - HttpMethod, TimeoutMs, MaxRetries, etc.
+            AddChildTab(new uc_WebApiProperties());
+
+            // 9. Web API Authentication - ClientId, ClientSecret, AuthType, AuthUrl, TokenUrl, Scope, Proxy settings
+            AddChildTab(new uc_webapiAuthenticationProperties());
         }
 
         private void AddChildTab(uc_DataConnectionPropertiesBaseControl child)
@@ -287,7 +279,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             child.ConnectionProperties = ConnectionProperties;
             child.SetupBindings(ConnectionProperties);
             _childPropertyControls.Add(child);
-            AddTab(child.ConnectionPropertytabPage);
+            
+            // Create a TabPage and add the child control to it
+            TabPage tabPage = new TabPage();
+            tabPage.Controls.Add(child);
+            child.Dock = DockStyle.Fill;
+            tabPage.Text = child.GetType().Name.Replace("uc_", "").Replace("Properties", "");
+            
+            // Add the TabPage to beepTabs1
+            AddTab(tabPage);
         }
         #endregion
 

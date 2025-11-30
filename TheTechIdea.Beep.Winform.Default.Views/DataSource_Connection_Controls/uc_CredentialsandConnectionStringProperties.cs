@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public override void SetupBindings(ConnectionProperties conn)
         {
             base.SetupBindings(conn);
-            ConnectionPropertytabPage.Text = "Credentials";
+            Text = "Credentials";
             if (conn == null) return;
 
             Credentials_UserIDbeepTextBox.DataBindings.Clear();

@@ -34,5 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         public const int SidebarWidth = 300;
         public const int DayHeaderHeight = 30;
         public const int TimeSlotHeight = 60;
+        public const int TimeColumnWidth = 60;
     }
 }

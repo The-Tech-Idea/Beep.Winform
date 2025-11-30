@@ -75,7 +75,85 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
         }
-      
+
+        /// <summary>
+        /// Gets or sets the FormStyle for visual appearance (maps to ContextMenuType)
+        /// </summary>
+        [Category("Beep")]
+        [Description("The form style for the context menu appearance")]
+        [Browsable(true)]
+        public FormStyle FormStyle
+        {
+            get => _contextMenuType;
+            set => ContextMenuType = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the border color
+        /// </summary>
+        [Category("Appearance")]
+        [Description("The border color of the context menu")]
+        [Browsable(true)]
+        public Color BorderColor
+        {
+            get => _currentTheme?.BorderColor ?? Color.FromArgb(200, 200, 200);
+            set { /* Read-only - derived from theme */ }
+        }
+
+        /// <summary>
+        /// Gets or sets the corner radius
+        /// </summary>
+        [Category("Appearance")]
+        [Description("The corner radius of the context menu")]
+        [Browsable(true)]
+        public Forms.ModernForm.Painters.CornerRadius CornerRadius
+        {
+            get => _cornerRadius ?? (_cornerRadius = new Forms.ModernForm.Painters.CornerRadius(8));
+            set
+            {
+                if (_cornerRadius != value)
+                {
+                    _cornerRadius = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current theme
+        /// </summary>
+        [Browsable(false)]
+        public IBeepTheme CurrentTheme
+        {
+            get => _currentTheme;
+            set
+            {
+                if (_currentTheme != value)
+                {
+                    _currentTheme = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the shadow effect
+        /// </summary>
+        [Category("Appearance")]
+        [Description("The shadow effect for the context menu")]
+        [Browsable(true)]
+        public Forms.ModernForm.Painters.ShadowEffect ShadowEffect
+        {
+            get => _shadowEffect ?? (_shadowEffect = new Forms.ModernForm.Painters.ShadowEffect());
+            set
+            {
+                if (_shadowEffect != value)
+                {
+                    _shadowEffect = value;
+                    Invalidate();
+                }
+            }
+        }
 
         /// <summary>
         /// Current theme name from BeepThemesManager (aligns with BaseControl.Theme)

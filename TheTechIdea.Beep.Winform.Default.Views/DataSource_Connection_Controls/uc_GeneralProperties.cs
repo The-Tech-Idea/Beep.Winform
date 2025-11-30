@@ -1,40 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
+    /// <summary>
+    /// Tab control for General Properties region of IConnectionProperties
+    /// Properties: ID, GuidID, ConnectionName, ConnectionString, Category, Favourite, IsDefault, Drawn
+    /// </summary>
     public partial class uc_GeneralProperties : uc_DataConnectionPropertiesBaseControl
     {
         public uc_GeneralProperties()
         {
             InitializeComponent();
         }
+
         public override void SetupBindings(ConnectionProperties conn)
         {
             base.SetupBindings(conn);
-            ConnectionPropertytabPage.Text = "General";
             if (conn == null) return;
 
             // Clear existing bindings
             General_IDbeepTextBox.DataBindings.Clear();
             General_GuidIDbeepTextBox.DataBindings.Clear();
             General_ConnectionNamebeepTextBox.DataBindings.Clear();
-            General_CompositeLayerNamebeepTextBox.DataBindings.Clear();
+            General_ConnectionStringbeepTextBox.DataBindings.Clear();
+            General_CategorybeepComboBox.DataBindings.Clear();
+            General_FavouritebeepCheckBox.DataBindings.Clear();
+            General_IsDefaultbeepCheckBox.DataBindings.Clear();
+            General_DrawnbeepCheckBox.DataBindings.Clear();
 
-            // Bindings
+            // Bindings for General Properties region
             General_IDbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.ID), true, DataSourceUpdateMode.OnPropertyChanged));
             General_GuidIDbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.GuidID), true, DataSourceUpdateMode.OnPropertyChanged));
             General_ConnectionNamebeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.ConnectionName), true, DataSourceUpdateMode.OnPropertyChanged));
-            General_CompositeLayerNamebeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.CompositeLayerName), true, DataSourceUpdateMode.OnPropertyChanged));
+            General_ConnectionStringbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.ConnectionString), true, DataSourceUpdateMode.OnPropertyChanged));
+            General_FavouritebeepCheckBox.DataBindings.Add(new Binding("CurrentValue", conn, nameof(conn.Favourite), true, DataSourceUpdateMode.OnPropertyChanged));
+            General_IsDefaultbeepCheckBox.DataBindings.Add(new Binding("CurrentValue", conn, nameof(conn.IsDefault), true, DataSourceUpdateMode.OnPropertyChanged));
+            General_DrawnbeepCheckBox.DataBindings.Add(new Binding("CurrentValue", conn, nameof(conn.Drawn), true, DataSourceUpdateMode.OnPropertyChanged));
 
+            // Setup Category ComboBox
+            General_CategorybeepComboBox.ListItems = Enum.GetValues(typeof(DatasourceCategory))
+                .Cast<DatasourceCategory>()
+                .Select(c => new Winform.Controls.Models.SimpleItem { Text = c.ToString(), Value = c })
+                .ToBindingList();
+            General_CategorybeepComboBox.SetValue(conn.Category);
+            General_CategorybeepComboBox.SelectedItemChanged += (s, e) =>
+            {
+                if (e.SelectedItem is Winform.Controls.Models.SimpleItem item)
+                    conn.Category = (DatasourceCategory)item.Value;
+            };
+
+            // Read-only fields
             General_IDbeepTextBox.ReadOnly = true;
             General_GuidIDbeepTextBox.ReadOnly = true;
         }

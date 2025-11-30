@@ -6,7 +6,11 @@ using System.Collections.Generic;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
-    internal interface ICardPainter
+    /// <summary>
+    /// Interface for card painters. Each CardStyle has its own distinct painter implementation.
+    /// No base class - each painter is completely self-contained.
+    /// </summary>
+    internal interface ICardPainter : IDisposable
     {
         void Initialize(BaseControl owner, IBeepTheme theme);
         LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx);

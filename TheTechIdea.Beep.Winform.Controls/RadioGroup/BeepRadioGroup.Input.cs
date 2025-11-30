@@ -10,6 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            if (DesignMode) return;
             
             // Convert mouse location to be relative to DrawingRect
             var adjustedLocation = new Point(
@@ -23,12 +24,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            if (DesignMode) return;
+            
             _hitTestHelper.HandleMouseLeave();
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
+            if (DesignMode) return;
             
             // Convert mouse location to be relative to DrawingRect
             var adjustedLocation = new Point(
@@ -42,6 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
             base.OnMouseDoubleClick(e);
+            if (DesignMode) return;
             
             // Convert mouse location to be relative to DrawingRect
             var adjustedLocation = new Point(
@@ -57,6 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
+            if (DesignMode) return;
             
             if (_hitTestHelper.HandleKeyDown(e.KeyCode, Orientation))
             {
@@ -66,6 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
         protected override bool ProcessTabKey(bool forward)
         {
+            if (DesignMode) return base.ProcessTabKey(forward);
+            
             if (forward)
             {
                 return _hitTestHelper.MoveFocusNext();

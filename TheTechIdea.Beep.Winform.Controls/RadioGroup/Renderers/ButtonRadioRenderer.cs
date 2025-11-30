@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
@@ -15,8 +16,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private readonly CardRadioRenderer _inner = new CardRadioRenderer();
 
         public string StyleName => "Button";
-        public string DisplayName => "Button Group ProgressBarStyle";
+        public string DisplayName => "Button Group Style";
         public bool SupportsMultipleSelection => true;
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _inner.ControlStyle;
+            set => _inner.ControlStyle = value;
+        }
+        
+        public bool UseThemeColors
+        {
+            get => _inner.UseThemeColors;
+            set => _inner.UseThemeColors = value;
+        }
 
         public Size MaxImageSize
         {

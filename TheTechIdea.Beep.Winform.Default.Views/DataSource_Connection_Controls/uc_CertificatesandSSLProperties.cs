@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public override void SetupBindings(ConnectionProperties conn)
         {
             base.SetupBindings(conn);
-            ConnectionPropertytabPage.Text = "Certificate and SSL";
+            Text = "Certificate and SSL";
             // Bind controls to ConnectionProperties properties for Certificate and SSL 
             // 
         }

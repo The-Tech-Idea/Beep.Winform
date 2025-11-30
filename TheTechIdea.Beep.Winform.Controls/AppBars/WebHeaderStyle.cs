@@ -47,7 +47,16 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         MinimalClean,
 
         /// <summary>Multi-Row Compact - Multiple rows with category and secondary navigation</summary>
-        MultiRowCompact
+        MultiRowCompact,
+        
+        /// <summary>Startup Hero - Modern startup landing page style (GigSpot/BookMentor inspired)</summary>
+        StartupHero,
+        
+        /// <summary>Portfolio Minimal - Personal portfolio/agency style (John Doe/Parise inspired)</summary>
+        PortfolioMinimal,
+        
+        /// <summary>E-commerce Modern - Modern e-commerce with icons (StyleHub/HalfZone inspired)</summary>
+        EcommerceModern
     }
 
     /// <summary>
@@ -115,6 +124,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         /// <summary>Gets or sets custom data associated with this tab</summary>
         public object? Tag { get; set; }
 
+        /// <summary>Gets or sets whether this tab has child items (dropdown)</summary>
+        public bool HasChildren { get; set; } = false;
+
         /// <summary>
         /// Creates a new WebHeaderTab with the specified text
         /// </summary>
@@ -166,6 +178,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         /// <summary>Gets or sets custom data associated with this button</summary>
         public object? Tag { get; set; }
+
+        /// <summary>Gets or sets the badge count for notification icons (0 = no badge)</summary>
+        public int BadgeCount { get; set; } = 0;
 
         /// <summary>
         /// Creates a new WebHeaderActionButton

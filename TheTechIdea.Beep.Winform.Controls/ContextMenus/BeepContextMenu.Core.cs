@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm; // For FormStyle enum
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
@@ -63,6 +63,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private FormStyle _contextMenuType = FormStyle.Modern;
         private BeepControlStyle _controlStyle = BeepControlStyle.None;
         private bool _useThemeColors = true;
+        private Forms.ModernForm.Painters.CornerRadius _cornerRadius = new Forms.ModernForm.Painters.CornerRadius(8);
+        private Forms.ModernForm.Painters.ShadowEffect _shadowEffect = new Forms.ModernForm.Painters.ShadowEffect();
         
         // Menu items
         private BindingList<SimpleItem> _menuItems = new BindingList<SimpleItem>();
@@ -180,12 +182,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;
-          
-            ShowCaptionBar = false;
+            
+            // CRITICAL: Set minimum size to prevent ArgumentException in WndProc
+            // Context menus need valid dimensions before WM_SHOWWINDOW is processed
+            MinimumSize = new Size(50, 20);
+            Size = new Size(200, 100); // Default size until RecalculateSize is called
+            
             // CRITICAL: Enable focus and mouse events
-
             TabStop = true;
-          
 
             Padding = new Padding(1);
             

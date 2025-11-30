@@ -149,8 +149,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         /// Custom list box Style where developers can provide their own item rendering logic
         /// Allows full customization through CustomItemRenderer delegate
         /// </summary>
-        Custom = 25
+        Custom = 25,
+        
+        /// <summary>
+        /// Glassmorphism style - frosted glass effect with blur-like backgrounds
+        /// Modern UI trend with semi-transparent cards and subtle borders
+        /// </summary>
+        Glassmorphism = 26,
+        
+        /// <summary>
+        /// Neumorphic (Soft UI) style - soft shadows and embossed/extruded look
+        /// Modern design trend with subtle 3D effects using shadows
+        /// </summary>
+        Neumorphic = 27,
+        
+        /// <summary>
+        /// Gradient Card style - colorful gradient backgrounds with card-like items
+        /// Modern and vibrant design with smooth color transitions
+        /// </summary>
+        GradientCard = 28,
+        
+        /// <summary>
+        /// Chip style - items rendered as selectable chips similar to BeepMultiChipGroup
+        /// Ideal for tag/category selection with wrap layout
+        /// </summary>
+        ChipStyle = 29,
+        
+        /// <summary>
+        /// Avatar list - items with circular avatar images and modern layout
+        /// Ideal for user/contact lists
+        /// </summary>
+        AvatarList = 30,
+        
+        /// <summary>
+        /// Timeline style - items displayed as timeline entries with connectors
+        /// Ideal for activity logs and history
+        /// </summary>
+        Timeline = 31
     }
+    
     public enum SelectionModeEnum
     {
         Single = 0,

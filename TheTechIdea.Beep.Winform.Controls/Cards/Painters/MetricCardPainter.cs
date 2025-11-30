@@ -2,152 +2,228 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// MetricCardPainter - For displaying metrics, charts, and activity data
-    /// Optimized for data visualization and KPI displays
+    /// MetricCard - Data visualization card with large metric value, trend indicator, and status bar.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class MetricCardPainter : CardPainterBase
+    internal sealed class MetricCardPainter : ICardPainter
     {
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // Metric card fonts
+        private Font _labelFont;
         private Font _valueFont;
         private Font _trendFont;
+        private Font _secondaryFont;
         private Font _badgeFont;
-
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        
+        // Metric card spacing
+        private const int Padding = 16;
+        private const int IconSize = 40;
+        private const int LabelHeight = 20;
+        private const int ValueHeight = 40;
+        private const int TrendHeight = 20;
+        private const int TrendPillWidth = 100;
+        private const int BadgeWidth = 70;
+        private const int BadgeHeight = 20;
+        private const int StatusBarHeight = 6;
+        private const int ElementGap = 8;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            _owner = owner;
+            _theme = theme;
+            
+            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            
+            try { _labelFont?.Dispose(); } catch { }
             try { _valueFont?.Dispose(); } catch { }
             try { _trendFont?.Dispose(); } catch { }
+            try { _secondaryFont?.Dispose(); } catch { }
             try { _badgeFont?.Dispose(); } catch { }
-            _valueFont = new Font(Owner.Font.FontFamily, 22f, FontStyle.Bold);
-            _trendFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-            _badgeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Bold);
+            
+            _labelFont = new Font(fontFamily, 10f, FontStyle.Regular);
+            _valueFont = new Font(fontFamily, 26f, FontStyle.Bold);
+            _trendFont = new Font(fontFamily, 9f, FontStyle.Bold);
+            _secondaryFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
         }
-
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
-
-            // Icon or small chart thumbnail
+            
+            // Icon or chart thumbnail (optional)
             if (ctx.ShowImage)
             {
-                int iconSize = 36;
-                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, iconSize, iconSize);
+                ctx.ImageRect = new Rectangle(
+                    drawingRect.Left + Padding,
+                    drawingRect.Top + Padding,
+                    IconSize,
+                    IconSize);
             }
-
-            // Metric name/title
-            int headerLeft = ctx.DrawingRect.Left + pad + (ctx.ShowImage ? 46 : 0);
-            int headerWidth = ctx.DrawingRect.Width - pad * 2 - (ctx.ShowImage ? 46 : 0);
-            ctx.HeaderRect = new Rectangle(headerLeft, ctx.DrawingRect.Top + pad, headerWidth, 18);
-
-            // Large metric value
-            int valueTop = ctx.HeaderRect.Bottom + 6;
-            ctx.SubtitleRect = new Rectangle(ctx.DrawingRect.Left + pad, valueTop, ctx.DrawingRect.Width - pad * 2, 36);
-
-            // Trend indicator (percentage change, arrows)
-            ctx.RatingRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.SubtitleRect.Bottom + 4, 120, 16);
-
-            // Secondary metric or comparison value
-            ctx.ParagraphRect = new Rectangle(ctx.RatingRect.Right + 8, ctx.SubtitleRect.Bottom + 4, 
-                Math.Max(60, ctx.DrawingRect.Right - pad - (ctx.RatingRect.Right + 8)), 16);
-
-            // Badge for metric category or status
+            
+            // Metric label/name
+            int labelLeft = drawingRect.Left + Padding + (ctx.ShowImage ? IconSize + ElementGap : 0);
+            int labelWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? IconSize + ElementGap : 0);
+            
+            ctx.HeaderRect = new Rectangle(
+                labelLeft,
+                drawingRect.Top + Padding,
+                labelWidth,
+                LabelHeight);
+            
+            // Category badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(ctx.DrawingRect.Right - pad - 70, ctx.DrawingRect.Top + pad, 65, 18);
+                ctx.BadgeRect = new Rectangle(
+                    drawingRect.Right - Padding - BadgeWidth,
+                    drawingRect.Top + Padding,
+                    BadgeWidth,
+                    BadgeHeight);
             }
-
-            // Status bar for progress or threshold indicator
+            
+            // Large metric value
+            ctx.SubtitleRect = new Rectangle(
+                drawingRect.Left + Padding,
+                ctx.HeaderRect.Bottom + ElementGap,
+                drawingRect.Width - Padding * 2,
+                ValueHeight);
+            
+            // Trend indicator (left side)
+            ctx.RatingRect = new Rectangle(
+                drawingRect.Left + Padding,
+                ctx.SubtitleRect.Bottom + ElementGap,
+                TrendPillWidth,
+                TrendHeight);
+            
+            // Secondary metric/comparison (right of trend)
+            ctx.ParagraphRect = new Rectangle(
+                ctx.RatingRect.Right + ElementGap * 2,
+                ctx.SubtitleRect.Bottom + ElementGap,
+                Math.Max(60, drawingRect.Right - Padding - ctx.RatingRect.Right - ElementGap * 2),
+                TrendHeight);
+            
+            // Status/progress bar at bottom
             if (ctx.ShowStatus)
             {
-                ctx.StatusRect = new Rectangle(ctx.DrawingRect.Left, ctx.DrawingRect.Bottom - 6, ctx.DrawingRect.Width, 6);
+                ctx.StatusRect = new Rectangle(
+                    drawingRect.Left,
+                    drawingRect.Bottom - StatusBarHeight,
+                    drawingRect.Width,
+                    StatusBarHeight);
             }
-
+            
+            // No buttons for metric cards
             ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
+            
             return ctx;
         }
-
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
         {
-            // Draw large metric value with emphasis
-            if (!string.IsNullOrEmpty(ctx.SubtitleText))
+            // Background handled by BaseControl
+        }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Draw large metric value
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                var valueBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
-                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _valueFont, valueBrush, ctx.SubtitleRect, format);
+                using var brush = new SolidBrush(ctx.AccentColor);
+                var format = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _valueFont, brush, ctx.SubtitleRect, format);
             }
-
-            // Draw trend indicator with color coding (up/down arrows, percentages)
-            if (!string.IsNullOrEmpty(ctx.StatusText))
+            
+            // Draw trend indicator with color-coded pill background
+            if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.RatingRect.IsEmpty)
             {
-                // Determine trend color based on prefix
-                Color trendColor = Color.Gray;
-                string displayText = ctx.StatusText;
+                // Determine trend color
+                Color trendColor = Color.FromArgb(158, 158, 158); // Gray default
                 
                 if (ctx.StatusText.StartsWith("+") || ctx.StatusText.Contains("↑"))
                 {
-                    trendColor = Color.FromArgb(76, 175, 80); // Material Green
+                    trendColor = Color.FromArgb(76, 175, 80); // Green
                 }
                 else if (ctx.StatusText.StartsWith("-") || ctx.StatusText.Contains("↓"))
                 {
-                    trendColor = Color.FromArgb(244, 67, 54); // Material Red
+                    trendColor = Color.FromArgb(244, 67, 54); // Red
                 }
-
-                var trendBrush = PaintersFactory.GetSolidBrush(trendColor);
-                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 
-                // Draw trend with background pill
-                var trendBounds = new Rectangle(ctx.RatingRect.X, ctx.RatingRect.Y, Math.Min(100, ctx.RatingRect.Width), ctx.RatingRect.Height);
-                var pillBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(30, trendColor));
-                using var path = CreateRoundedPath(trendBounds, 8);
-                g.FillPath(pillBrush, path);
-                g.DrawString(displayText, _trendFont, trendBrush, trendBounds, format);
+                // Draw pill background
+                var pillRect = new Rectangle(ctx.RatingRect.X, ctx.RatingRect.Y, 
+                    Math.Min(TrendPillWidth, ctx.RatingRect.Width), ctx.RatingRect.Height);
+                
+                using var pillPath = CardRenderingHelpers.CreateRoundedPath(pillRect, 10);
+                using var pillBrush = new SolidBrush(Color.FromArgb(25, trendColor));
+                g.FillPath(pillBrush, pillPath);
+                
+                // Draw trend text
+                using var textBrush = new SolidBrush(trendColor);
+                var format = new StringFormat 
+                { 
+                    Alignment = StringAlignment.Center, 
+                    LineAlignment = StringAlignment.Center 
+                };
+                g.DrawString(ctx.StatusText, _trendFont, textBrush, pillRect, format);
             }
-
+            
             // Draw category badge
-            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
+                    ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
-
-            // Draw progress/threshold status bar
-            if (ctx.ShowStatus)
+            
+            // Draw status/progress bar
+            if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                var statusBrush = PaintersFactory.GetSolidBrush(ctx.StatusColor);
-                g.FillRectangle(statusBrush, ctx.StatusRect);
+                using var brush = new SolidBrush(ctx.StatusColor);
+                g.FillRectangle(brush, ctx.StatusRect);
             }
         }
-
-        private GraphicsPath CreateRoundedPath(Rectangle bounds, int radius)
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
         {
-            var path = new GraphicsPath();
-            if (radius == 0)
+            if (!ctx.BadgeRect.IsEmpty)
             {
-                path.AddRectangle(bounds);
-                return path;
+                owner.AddHitArea("Category", ctx.BadgeRect, null,
+                    () => notifyAreaHit?.Invoke("Category", ctx.BadgeRect));
             }
-
-            int diameter = radius * 2;
-            var arc = new Rectangle(bounds.Location, new Size(diameter, diameter));
-
-            path.AddArc(arc, 180, 90);
-            arc.X = bounds.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = bounds.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = bounds.Left;
-            path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-
-            return path;
         }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _labelFont?.Dispose();
+            _valueFont?.Dispose();
+            _trendFont?.Dispose();
+            _secondaryFont?.Dispose();
+            _badgeFont?.Dispose();
+            
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

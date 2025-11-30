@@ -1,22 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
 {
     /// <summary>
     /// Corporate Minimal Painter
-    /// Clean white design with subtle styling for corporate sites
-    /// Features: Understated branding, professional tabs, accent line, subtle shadows
+    /// DISTINCT STYLE: Professional enterprise design with subtle gray tones and
+    /// understated elegance. Suitable for B2B and corporate sites.
+    /// Features: Muted colors, thin borders, professional typography, subtle shadows
     /// </summary>
     public class CorporateMinimalPainter : WebHeaderStylePainterBase
     {
-        private const int PADDING = 10;
-        private const int TAB_SPACING = 22;
-        private const int LOGO_WIDTH = 38;
-        private const int BUTTON_WIDTH = 98;
+        // Layout constants
+        private const int PADDING = 20;
+        private const int TAB_SPACING = 24;
+        private const int LOGO_SIZE = 34;
+        private const int BUTTON_HEIGHT = 36;
+        private const int BUTTON_MIN_WIDTH = 100;
+
+        // Style-specific colors (corporate gray palette)
+        private static readonly Color AccentSlate = Color.FromArgb(71, 85, 105);
+        private static readonly Color AccentSlateHover = Color.FromArgb(51, 65, 85);
+        private static readonly Color TextPrimary = Color.FromArgb(30, 41, 59);
+        private static readonly Color TextSecondary = Color.FromArgb(100, 116, 139);
+        private static readonly Color BorderColor = Color.FromArgb(226, 232, 240);
+        private static readonly Color BgHover = Color.FromArgb(248, 250, 252);
 
         public override WebHeaderStyle Style => WebHeaderStyle.CorporateMinimal;
 
@@ -24,126 +37,184 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             Graphics g,
             Rectangle bounds,
             IBeepTheme theme,
+            WebHeaderColors colors,
             List<WebHeaderTab> tabs,
             List<WebHeaderActionButton> buttons,
             int selectedTabIndex,
             string logoImagePath,
+            string logoText,
             bool showLogo,
             bool showSearchBox,
             string searchText,
             Font tabFont,
-            Font buttonFont)
+            Font buttonFont,
+            bool skipBackground = false)
         {
-            // Draw clean white background
-            using (var brush = new SolidBrush(Color.White))
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // Clean white background (skip if transparent background)
+            Color bgColor = colors?.BackgroundColor ?? Color.White;
+            if (!skipBackground)
             {
-                g.FillRectangle(brush, bounds);
+                using (var brush = new SolidBrush(bgColor))
+                {
+                    g.FillRectangle(brush, bounds);
+                }
             }
 
+            int centerY = bounds.Top + bounds.Height / 2;
             int x = bounds.Left + PADDING;
 
-            // Draw Logo (pill)
-            if (showLogo && !string.IsNullOrEmpty(logoImagePath))
+            // === LOGO ===
+            if (showLogo)
             {
-                var logoBounds = new Rectangle(x, bounds.Top + (bounds.Height - LOGO_WIDTH) / 2, LOGO_WIDTH, LOGO_WIDTH);
-                DrawLogoPill(g, logoBounds, logoImagePath, theme);
-                x += LOGO_WIDTH + PADDING;
+                // Accent line before logo
+                using (var pen = new Pen(AccentSlate, 2))
+                {
+                    g.DrawLine(pen, bounds.Left + 8, bounds.Top + 14, bounds.Left + 8, bounds.Bottom - 14);
+                }
+
+                if (!string.IsNullOrEmpty(logoImagePath))
+                {
+                    var logoBounds = new Rectangle(x, centerY - LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE);
+                    DrawLogoPill(g, logoBounds, logoImagePath, theme);
+                    x += LOGO_SIZE + 12;
+                }
+
+                // Company name - professional typography
+                string brandText = !string.IsNullOrEmpty(logoText) ? logoText : "CORP";
+                using (var font = new Font("Segoe UI", 9, FontStyle.Bold))
+                {
+                    // Letter spacing simulation
+                    float spacing = 2f;
+                    float currentX = x;
+                    foreach (char c in brandText.ToUpper())
+                    {
+                        string ch = c.ToString();
+                        var size = g.MeasureString(ch, font);
+                        using (var brush = new SolidBrush(TextPrimary))
+                        {
+                            g.DrawString(ch, font, brush, currentX, centerY - size.Height / 2);
+                        }
+                        currentX += size.Width - 4 + spacing;
+                    }
+                    x = (int)currentX + 30;
+                }
             }
 
-            // Draw a thin accent line near logo
-            using (var accent = new Pen(Color.FromArgb(100, 140, 220), 2))
-            {
-                g.DrawLine(accent, bounds.Left + (LOGO_WIDTH / 2), bounds.Top + 10, bounds.Left + (LOGO_WIDTH / 2), bounds.Bottom - 10);
-            }
-
-            // Draw company initials
-            using (var brush = new SolidBrush(Color.FromArgb(50, 50, 80)))
-            using (var font = new Font("Arial", 8, FontStyle.Regular))
-            using (var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center })
-            {
-                g.DrawString("CORP", font, brush, new Rectangle(x, bounds.Top, 70, bounds.Height), sf);
-            }
-            x += 75;
-
-            // Draw Tabs centered
+            // === TABS (centered, professional) ===
             if (tabs != null && tabs.Count > 0)
             {
-                // measure total width
-                int tabsTotalWidth = 0;
-                for (int i = 0; i < tabs.Count; i++)
+                // Calculate total width for centering
+                int totalTabsWidth = 0;
+                foreach (var tab in tabs)
                 {
-                    var textSize = g.MeasureString(tabs[i].Text, tabFont);
-                    tabsTotalWidth += (int)textSize.Width + 14 + TAB_SPACING;
+                    var textSize = g.MeasureString(tab.Text, tabFont);
+                    totalTabsWidth += (int)textSize.Width + 20 + TAB_SPACING;
                 }
-                tabsTotalWidth -= TAB_SPACING; // remove last spacing
-                int tabStartX = bounds.Left + (bounds.Width - tabsTotalWidth) / 2;
+                totalTabsWidth -= TAB_SPACING;
+
+                // Center tabs
+                int tabStartX = bounds.Left + (bounds.Width - totalTabsWidth) / 2;
+                tabStartX = Math.Max(tabStartX, x);
 
                 for (int i = 0; i < tabs.Count; i++)
                 {
                     var tab = tabs[i];
                     var textSize = g.MeasureString(tab.Text, tabFont);
-                    var tabBounds = new Rectangle(
-                        tabStartX,
-                        bounds.Top + 10,
-                        (int)textSize.Width + 14,
-                        bounds.Height - 20);
-
+                    int tabWidth = (int)textSize.Width + 20;
+                    var tabBounds = new Rectangle(tabStartX, bounds.Top + 10, tabWidth, bounds.Height - 20);
                     tab.Bounds = tabBounds;
 
-                    // Draw tab text
-                    Color textColor = tab.IsActive ? Color.FromArgb(50, 100, 180) : Color.FromArgb(100, 100, 120);
-                    DrawTab(g, tabBounds, tab, tab.IsActive, tab.IsHovered, textColor, tabFont);
-
-                    // Draw simple underline for active
-                    if (tab.IsActive)
+                    // Hover background
+                    if (tab.IsHovered && !tab.IsActive)
                     {
-                        using (var pen = new Pen(Color.FromArgb(50, 100, 180), 1.5f))
+                        using (var brush = new SolidBrush(BgHover))
                         {
-                            g.DrawLine(pen, tabBounds.Left, tabBounds.Bottom, tabBounds.Right, tabBounds.Bottom);
+                            g.FillRectangle(brush, tabBounds);
                         }
                     }
 
-                    tabStartX += tabBounds.Width + TAB_SPACING;
+                    // Tab text
+                    Color textColor = tab.IsActive ? AccentSlate : (tab.IsHovered ? TextPrimary : TextSecondary);
+                    using (var brush = new SolidBrush(textColor))
+                    using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+                    {
+                        g.DrawString(tab.Text, tabFont, brush, tabBounds, sf);
+                    }
+
+                    // Thin underline for active
+                    if (tab.IsActive)
+                    {
+                        using (var pen = new Pen(AccentSlate, 1.5f))
+                        {
+                            g.DrawLine(pen, tabBounds.Left + 4, tabBounds.Bottom - 4, tabBounds.Right - 4, tabBounds.Bottom - 4);
+                        }
+                    }
+
+                    tabStartX += tabWidth + TAB_SPACING;
                 }
             }
 
-            // Draw Buttons (Right side)
+            // === BUTTONS (right side) ===
+            int rightX = bounds.Right - PADDING;
             if (buttons != null && buttons.Count > 0)
             {
-                int buttonX = bounds.Right - PADDING;
                 for (int i = buttons.Count - 1; i >= 0; i--)
                 {
                     var btn = buttons[i];
-                    buttonX -= BUTTON_WIDTH;
-                    var btnBounds = new Rectangle(buttonX, bounds.Top + (bounds.Height - 32) / 2, BUTTON_WIDTH, 32);
+                    int btnWidth = Math.Max(BUTTON_MIN_WIDTH, btn.Width > 0 ? btn.Width : BUTTON_MIN_WIDTH);
+                    rightX -= btnWidth;
+                    var btnBounds = new Rectangle(rightX, centerY - BUTTON_HEIGHT / 2, btnWidth, BUTTON_HEIGHT);
                     btn.Bounds = btnBounds;
 
-                    // Draw corporate button
-                    if (btn.IsHovered)
+                    bool isCta = btn.Style == WebHeaderButtonStyle.Solid || i == buttons.Count - 1;
+
+                    if (isCta)
                     {
-                        using (var brush = new SolidBrush(Color.FromArgb(240, 245, 250)))
+                        // Solid corporate button
+                        Color bgCol = btn.IsHovered ? AccentSlateHover : AccentSlate;
+                        using (var brush = new SolidBrush(bgCol))
                         {
                             g.FillRectangle(brush, btnBounds);
                         }
+                        using (var brush = new SolidBrush(Color.White))
+                        using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+                        {
+                            g.DrawString(btn.Text, buttonFont, brush, btnBounds, sf);
+                        }
                     }
-
-                    using (var pen = new Pen(Color.FromArgb(200, 210, 230), 1))
+                    else
                     {
-                        g.DrawRectangle(pen, btnBounds);
+                        // Outline button
+                        if (btn.IsHovered)
+                        {
+                            using (var brush = new SolidBrush(BgHover))
+                            {
+                                g.FillRectangle(brush, btnBounds);
+                            }
+                        }
+
+                        using (var pen = new Pen(BorderColor, 1))
+                        {
+                            g.DrawRectangle(pen, btnBounds);
+                        }
+
+                        Color textCol = btn.IsHovered ? TextPrimary : TextSecondary;
+                        using (var brush = new SolidBrush(textCol))
+                        using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+                        {
+                            g.DrawString(btn.Text, buttonFont, brush, btnBounds, sf);
+                        }
                     }
 
-                    using (var brush = new SolidBrush(Color.FromArgb(70, 80, 110)))
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                    {
-                        g.DrawString(btn.Text, buttonFont, brush, btnBounds, sf);
-                    }
-
-                    buttonX -= 6;
+                    rightX -= 12;
                 }
             }
 
-            // Draw subtle bottom border
-            using (var pen = new Pen(Color.FromArgb(230, 235, 245), 1))
+            // Bottom border
+            using (var pen = new Pen(BorderColor, 1))
             {
                 g.DrawLine(pen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
             }
@@ -151,14 +222,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
 
         public override Rectangle GetTabBounds(int tabIndex, Rectangle headerBounds, List<WebHeaderTab> tabs)
         {
-            if (tabIndex >= 0 && tabIndex < tabs.Count)
+            if (tabIndex >= 0 && tabIndex < tabs?.Count)
                 return tabs[tabIndex].Bounds;
             return Rectangle.Empty;
         }
 
         public override Rectangle GetButtonBounds(int buttonIndex, Rectangle headerBounds, List<WebHeaderActionButton> buttons)
         {
-            if (buttonIndex >= 0 && buttonIndex < buttons.Count)
+            if (buttonIndex >= 0 && buttonIndex < buttons?.Count)
                 return buttons[buttonIndex].Bounds;
             return Rectangle.Empty;
         }
@@ -169,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             {
                 for (int i = 0; i < tabs.Count; i++)
                 {
-                    if (HitTestRect(pt, tabs[i].Bounds))
+                    if (tabs[i].Bounds.Contains(pt))
                         return i;
                 }
             }
@@ -178,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             {
                 for (int i = 0; i < buttons.Count; i++)
                 {
-                    if (HitTestRect(pt, buttons[i].Bounds))
+                    if (buttons[i].Bounds.Contains(pt))
                         return -(i + 1);
                 }
             }

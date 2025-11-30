@@ -15,28 +15,57 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         private Graphics _currentGraphics;
         #endregion
 
+        #region Design-Time Paint Overrides
+        /// <summary>
+        /// Override OnPaint to completely bypass base class in design mode
+        /// </summary>
+        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        {
+            if (DesignMode)
+            {
+                // Bypass ALL base class painting in design mode
+                PaintDesignTimePlaceholder(e.Graphics);
+                return;
+            }
+            base.OnPaint(e);
+        }
+
+        /// <summary>
+        /// Override OnPaintBackground to prevent base class background painting in design mode
+        /// </summary>
+        protected override void OnPaintBackground(System.Windows.Forms.PaintEventArgs e)
+        {
+            if (DesignMode)
+            {
+                // Simple background - no base class call
+                e.Graphics.Clear(Color.FromArgb(245, 245, 247));
+                return;
+            }
+            base.OnPaintBackground(e);
+        }
+        #endregion
+
         #region Drawing Methods
         /// <summary>
         /// Override DrawContent to delegate to the current painter
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
+            // CRITICAL: Skip ALL processing in design mode to prevent flickering
+            if (DesignMode)
+            {
+                // Ultra-simple design-time rendering - no base calls, no painter, no theme
+                PaintDesignTimePlaceholder(g);
+                return;
+            }
+
             base.DrawContent(g);
 
-            // Ensure painter initialized
-            if (_currentPainter == null)
+            // Ensure painter initialized (runtime only)
+            if (_currentPainter == null && !DesignMode)
             {
                 InitializePainter();
             }
-
-            // When using theme, keep background in sync
-            if (UseThemeColors && _currentTheme != null)
-            {
-                BackColor = _currentTheme.SideMenuBackColor;
-            }
-
-            // Always ensure background is painted once per pass
-            BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
 
             _currentGraphics = g;
 
@@ -44,27 +73,6 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-            // Design-time: avoid calling full painters which may read files or do heavy work.
-            if (DesignMode)
-            {
-                // Fast placeholder rendering for Visual Studio Designer to prevent IDE freeze
-                PaintBackgroundPerStyle(g);
-                // Optionally draw a lightweight mock list to help the designer visualize the control
-                var font = BeepFontManager.GetCachedFont("Segoe UI", 9f);
-                using (var pen = new Pen(Color.FromArgb(80, Color.Gray), 1f))
-                using (var brush = new SolidBrush(Color.FromArgb(100, Color.Gray)))
-                {
-                    int y = DrawingRect.Top + 12;
-                    for (int i = 0; i < Math.Min(4, Math.Max(1, Items?.Count ?? 0)); i++)
-                    {
-                        g.DrawRectangle(pen, DrawingRect.Left + 12, y, DrawingRect.Width - 24, Math.Max(22, ItemHeight - 12));
-                        g.DrawString("Item", font, brush, DrawingRect.Left + 20, y + 2);
-                        y += ItemHeight + 4;
-                    }
-                }
-                return; // Skip full painter work in designer
-            }
 
             // Runtime: measured painter call with safety guard
             try
@@ -89,6 +97,40 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 }
             }
         }
+        /// <summary>
+        /// Ultra-simple design-time placeholder rendering.
+        /// Avoids ALL complex operations that could cause flickering.
+        /// </summary>
+        private void PaintDesignTimePlaceholder(Graphics g)
+        {
+            // Simple solid background - no theme lookup, no style lookup
+            g.Clear(Color.FromArgb(245, 245, 247));
+            
+            // Simple border
+            using (var pen = new Pen(Color.FromArgb(200, 200, 200), 1f))
+            {
+                g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+            }
+            
+            // Simple placeholder items
+            using (var brush = new SolidBrush(Color.FromArgb(180, 180, 180)))
+            {
+                int y = 16;
+                int itemHeight = 36;
+                for (int i = 0; i < 4 && y + itemHeight < Height - 16; i++)
+                {
+                    g.FillRectangle(brush, 12, y, Width - 24, itemHeight);
+                    y += itemHeight + 8;
+                }
+            }
+            
+            // Label
+            using (var brush = new SolidBrush(Color.FromArgb(100, 100, 100)))
+            {
+                g.DrawString("BeepSideBar", SystemFonts.DefaultFont, brush, 12, Height - 24);
+            }
+        }
+
         /// <summary>
         /// Paint background color based on the selected Style
         /// Each Style has a distinct, recognizable background color

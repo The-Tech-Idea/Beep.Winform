@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public override void SetupBindings(ConnectionProperties conn)
         {
             base.SetupBindings(conn);
-            ConnectionPropertytabPage.Text = "Providers";
+            Text = "Providers";
             if (conn == null) return;
 
             Provider_CategorybeepComboBox.DataBindings.Clear();

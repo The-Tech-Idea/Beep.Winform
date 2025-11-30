@@ -1,28 +1,39 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
     /// ProductCompactCard - Horizontal compact product display for lists
     /// </summary>
-    internal sealed class ProductCompactCardPainter : CardPainterBase
+    internal sealed class ProductCompactCardPainter : ICardPainter, IDisposable
     {
+        private BaseControl Owner;
+        private IBeepTheme Theme;
         private Font _priceFont;
         private Font _badgeFont;
 
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        // Constants specific to this painter
+        private const int DefaultPad = 12;
+        private const int HeaderHeight = 26;
+        private const int ButtonHeight = 32;
+
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            Owner = owner;
+            Theme = theme;
             try { _priceFont?.Dispose(); } catch { }
             try { _badgeFont?.Dispose(); } catch { }
             _priceFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
             _badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
         }
 
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
@@ -48,10 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             return ctx;
         }
 
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
+        public void DrawBackground(Graphics g, LayoutContext ctx) { }
 
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
             // Draw price
             if (!string.IsNullOrEmpty(ctx.SubtitleText)) // Price in SubtitleText
@@ -71,6 +81,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
+            }
+        }
+
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit) { }
+
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _priceFont?.Dispose();
+                _badgeFont?.Dispose();
+                _disposed = true;
             }
         }
     }

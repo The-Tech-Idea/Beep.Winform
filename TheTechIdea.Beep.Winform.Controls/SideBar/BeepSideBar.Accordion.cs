@@ -133,6 +133,9 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 // Protect against property changes causing unexpected behavior
             }
 
+            // Start accordion animation
+            StartAccordionAnimation(item, newState);
+
             // Raise expansion changed event
             try { OnItemExpansionChanged(item, _expandedState[item]); } catch { }
 
@@ -166,12 +169,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 item.IsExpanded = true;
             }
             catch { }
+            
+            // Start accordion expand animation
+            StartAccordionAnimation(item, true);
+            
             try { OnItemExpansionChanged(item, true); } catch { }
-            try
-            {
-                OnItemExpansionChanged(item, true);
-            }
-            catch { }
             RefreshHitAreas();
             Invalidate();
         }
@@ -190,12 +192,11 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 item.IsExpanded = false;
             }
             catch { }
+            
+            // Start accordion collapse animation
+            StartAccordionAnimation(item, false);
+            
             try { OnItemExpansionChanged(item, false); } catch { }
-            try
-            {
-                OnItemExpansionChanged(item, false);
-            }
-            catch { }
             RefreshHitAreas();
             Invalidate();
         }

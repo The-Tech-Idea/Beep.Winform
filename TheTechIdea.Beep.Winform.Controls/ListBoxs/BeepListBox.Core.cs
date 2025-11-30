@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
@@ -174,13 +175,38 @@ namespace TheTechIdea.Beep.Winform.Controls;
         
         #region Events
         
+        /// <summary>
+        /// Fired when the selected item changes (single selection mode)
+        /// </summary>
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        
+        /// <summary>
+        /// Fired when an item is clicked
+        /// </summary>
         public event EventHandler<SimpleItem> ItemClicked;
+        
+        /// <summary>
+        /// Fired when the search text changes
+        /// </summary>
         public event EventHandler SearchTextChanged;
+        
+        /// <summary>
+        /// Fired when selection changes (supports both single and multi-select modes)
+        /// This is the primary event for synchronizing with other controls like BeepMultiChipGroup
+        /// </summary>
+        public event EventHandler<ListBoxSelectionChangedEventArgs> SelectionChanged;
+        
+        /// <summary>
+        /// Fired when items are checked/unchecked (checkbox mode)
+        /// </summary>
+        public event EventHandler<ListBoxCheckedChangedEventArgs> CheckedItemsChanged;
         
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+            
+            // Also fire the unified SelectionChanged event
+            OnSelectionChanged(selectedItem, _selectedItems.ToList(), SelectionChangeReason.ItemSelected);
         }
         
         protected virtual void OnItemClicked(SimpleItem item)
@@ -191,6 +217,39 @@ namespace TheTechIdea.Beep.Winform.Controls;
         protected virtual void OnSearchTextChanged()
         {
             SearchTextChanged?.Invoke(this, EventArgs.Empty);
+        }
+        
+        /// <summary>
+        /// Raises the SelectionChanged event with full details
+        /// </summary>
+        protected virtual void OnSelectionChanged(SimpleItem currentItem, List<SimpleItem> selectedItems, SelectionChangeReason reason)
+        {
+            SelectionChanged?.Invoke(this, new ListBoxSelectionChangedEventArgs(
+                currentItem,
+                selectedItems,
+                SelectionMode,
+                reason
+            ));
+        }
+        
+        /// <summary>
+        /// Raises the CheckedItemsChanged event
+        /// </summary>
+        protected virtual void OnCheckedItemsChanged(SimpleItem item, bool isChecked)
+        {
+            var checkedItems = _itemCheckBoxes
+                .Where(kvp => kvp.Value.State == CheckBoxState.Checked)
+                .Select(kvp => kvp.Key)
+                .ToList();
+            
+            CheckedItemsChanged?.Invoke(this, new ListBoxCheckedChangedEventArgs(
+                item,
+                isChecked,
+                checkedItems
+            ));
+            
+            // Also fire SelectionChanged for synchronization
+            OnSelectionChanged(item, checkedItems, SelectionChangeReason.CheckboxToggled);
         }
         
         #endregion

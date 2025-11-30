@@ -86,10 +86,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ListBoxType.RadioSelection => new RadioSelectionPainter(),
                 ListBoxType.ErrorStates => new ErrorStatesPainter(),
                 ListBoxType.Custom => new CustomListPainter(),
+                // New modern styles
+                ListBoxType.Glassmorphism => new GlassmorphismListBoxPainter(),
+                ListBoxType.Neumorphic => new NeumorphicListBoxPainter(),
+                ListBoxType.GradientCard => new GradientCardListBoxPainter(),
+                ListBoxType.ChipStyle => new ChipStyleListBoxPainter(),
+                ListBoxType.AvatarList => new AvatarListBoxPainter(),
+                ListBoxType.Timeline => new TimelineListBoxPainter(),
                 _ => new StandardListBoxPainter()
             };
             ControlStyle = BeepStyling.GetControlStyle(BeepThemesManager.CurrentStyle);
-            painter.Style = ControlStyle    ;
+            painter.Style = ControlStyle;
 
             // If custom painter and we have a custom renderer, set it
             if (painter is CustomListPainter customPainter && _customItemRenderer != null)

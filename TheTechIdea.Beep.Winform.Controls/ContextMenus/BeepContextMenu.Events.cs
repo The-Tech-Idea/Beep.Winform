@@ -291,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             int smallChange = GetScrollBarSmallChange();
             int scrollAmount = delta * smallChange;
             int newValue = GetScrollBarValue() - scrollAmount;
-            
+          
             // Clamp to valid range
             newValue = Math.Max(GetScrollBarMinimum(), Math.Min(newValue, GetScrollBarMaximum() - GetScrollBarLargeChange() + 1));
             

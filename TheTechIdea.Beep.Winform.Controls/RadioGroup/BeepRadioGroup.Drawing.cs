@@ -15,6 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Layout and Rendering
         private void UpdateItemsAndLayout()
         {
+            // Skip heavy operations in design mode
+            if (DesignMode || !IsHandleCreated) return;
+            
             // Update helpers with new data
             _stateHelper.UpdateItems(_items);
             
@@ -71,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     IsSelected = _stateHelper.IsSelected(item),
                     IsHovered = _hitTestHelper.HoveredIndex == i,
                     IsFocused = _hitTestHelper.FocusedIndex == i,
-                    IsEnabled = true, // Could be per item later
+                    IsEnabled = !IsItemDisabled(item.Text), // Per-item disabled state
                     Index = i
                 };
                 
@@ -93,6 +96,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
         protected override void DrawContent(Graphics g)
         {
+            // Design-time placeholder rendering
+            if (DesignMode)
+            {
+                PaintDesignTimePlaceholder(g);
+                return;
+            }
+            
             base.DrawContent(g);
             if (_currentRenderer == null || _items == null || _items.Count == 0)
                 return;
@@ -101,8 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             UpdateItemStates();
             if (UseThemeColors && _currentTheme != null)
             {
-                BackColor = _currentTheme.SideMenuBackColor;
-                g.Clear(BackColor);
+                g.Clear(_currentTheme.SideMenuBackColor);
             }
             else
             {
@@ -133,6 +142,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _currentRenderer.RenderItem(g, _items[i], adjustedRect, _itemStates[i]);
                 }
+            }
+        }
+        
+        /// <summary>
+        /// Simple placeholder rendering for Visual Studio Designer
+        /// </summary>
+        private void PaintDesignTimePlaceholder(Graphics g)
+        {
+            g.FillRectangle(new SolidBrush(Color.FromArgb(245, 245, 247)), ClientRectangle);
+            using (var pen = new Pen(Color.FromArgb(209, 213, 219), 1))
+            {
+                g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+            }
+            using (var font = new Font("Segoe UI", 10))
+            using (var brush = new SolidBrush(Color.FromArgb(100, 100, 100)))
+            {
+                g.DrawString("BeepRadioGroup (Design Mode)", font, brush, 10, 10);
+                g.DrawString($"Style: {RadioGroupStyle}", font, brush, 10, 30);
+                g.DrawString($"Items: {_items?.Count ?? 0}", font, brush, 10, 50);
             }
         }
         #endregion

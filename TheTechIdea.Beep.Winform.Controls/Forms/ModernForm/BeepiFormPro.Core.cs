@@ -12,6 +12,99 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
     {
+        #region Layout Caching
+        // Layout caching to prevent recalculating on every paint
+        private Size _lastLayoutSize = Size.Empty;
+        private bool _layoutDirty = true;
+        private FormStyle _lastLayoutStyle = FormStyle.Modern;
+        private bool _lastShowCaptionBar = true;
+        private bool _lastShowCloseButton = true;
+        private bool _lastShowMinMaxButtons = true;
+        private bool _lastShowThemeButton = false;
+        private bool _lastShowStyleButton = false;
+        private bool _lastShowCustomActionButton = false;
+
+        /// <summary>
+        /// Ensures layout is calculated only when necessary (size changed, style changed, etc.)
+        /// This dramatically improves performance by avoiding redundant calculations on every paint.
+        /// </summary>
+        private void EnsureLayoutCalculated()
+        {
+            // CRITICAL: Skip layout calculation if form has invalid dimensions
+            // This prevents ArgumentException during form initialization or when size is zero
+            if (ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return;
+
+            // Check if layout needs recalculation
+            bool needsRecalc = _layoutDirty 
+                || _lastLayoutSize != ClientSize 
+                || _lastLayoutStyle != FormStyle
+                || _lastShowCaptionBar != ShowCaptionBar
+                || _lastShowCloseButton != ShowCloseButton
+                || _lastShowMinMaxButtons != ShowMinMaxButtons
+                || _lastShowThemeButton != ShowThemeButton
+                || _lastShowStyleButton != ShowStyleButton
+                || _lastShowCustomActionButton != ShowCustomActionButton;
+
+            if (!needsRecalc)
+                return;
+
+            // Ensure managers exist
+            if (_layout == null)
+                _layout = new BeepiFormProLayoutManager(this);
+            if (_hits == null)
+                _hits = new BeepiFormProHitAreaManager(this);
+            if (_interact == null)
+                _interact = new BeepiFormProInteractionManager(this, _hits);
+
+            // Ensure painter exists
+            if (ActivePainter == null)
+            {
+                try { ApplyFormStyle(); } catch { }
+            }
+
+            if (ActivePainter == null)
+                return;
+
+            // Clear hit areas - painters will register their own hit areas
+            _hits.Clear();
+            
+            try
+            {
+                // Let the painter calculate layout and register all hit areas
+                // Painters are responsible for registering caption, buttons, etc.
+                ActivePainter.CalculateLayoutAndHitAreas(this);
+            }
+            catch
+            {
+                // Swallow painter exceptions in design-time
+            }
+
+            // NOTE: Do NOT register caption hit area here - painters handle it themselves
+            // Registering it twice causes hit test issues
+
+            // Update cache tracking
+            _lastLayoutSize = ClientSize;
+            _lastLayoutStyle = FormStyle;
+            _lastShowCaptionBar = ShowCaptionBar;
+            _lastShowCloseButton = ShowCloseButton;
+            _lastShowMinMaxButtons = ShowMinMaxButtons;
+            _lastShowThemeButton = ShowThemeButton;
+            _lastShowStyleButton = ShowStyleButton;
+            _lastShowCustomActionButton = ShowCustomActionButton;
+            _layoutDirty = false;
+        }
+
+        /// <summary>
+        /// Marks the layout as dirty, forcing recalculation on next paint.
+        /// Call this when properties that affect layout change.
+        /// </summary>
+        public void InvalidateLayout()
+        {
+            _layoutDirty = true;
+        }
+        #endregion
+
         private bool InDesignModeSafe =>
            LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
            (Site?.DesignMode ?? false);
@@ -56,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     _formstyle = value;
                     ApplyFormStyle();
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout(); // Mark layout dirty - will recalculate on next paint
                     DebouncedInvalidate();
                 }
             }
@@ -180,9 +273,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showCaptionBar != value)
                 {
                     _showCaptionBar = value;
-                    Invalidate();
+                    InvalidateLayout(); // Mark layout dirty
                     PerformLayout();
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    Invalidate();
                 }
             }
         }
@@ -200,9 +293,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_captionHeight != value)
                 {
                     _captionHeight = value;
-                    Invalidate();
+                    InvalidateLayout(); // Mark layout dirty
                     PerformLayout();
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    Invalidate();
                 }
             }
         }
@@ -402,8 +495,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showThemeButton != value)
                 {
                     _showThemeButton = value;
-                  
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -421,8 +514,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showStyleButton != value)
                 {
                     _showStyleButton = value;
-                   
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -441,8 +534,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showProfileButton != value)
                 {
                     _showProfileButton = value;
-                  
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -461,8 +554,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showSearchBox != value)
                 {
                     _showSearchBox = value;
-                  
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -481,8 +574,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showCloseButton != value)
                 {
                     _showCloseButton = value;
-                 
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -501,8 +594,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showMinMaxButtons != value)
                 {
                     _showMinMaxButtons = value;
-                   
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -521,8 +614,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showCustomActionButton != value)
                 {
                     _showCustomActionButton = value;
-                   
-                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                    InvalidateLayout();
+                    Invalidate();
                 }
             }
         }
@@ -880,58 +973,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// <summary>
-        /// Calculates layout and updates hit areas when form properties change
+        /// Calculates layout and updates hit areas when form properties change.
+        /// Now uses the layout caching system for better performance.
         /// </summary>
         private void RecalculateLayoutAndHitAreas()
         {
-            // Make layout recalculation safe in design-time and runtime.
-            // Ensure manager objects exist (they're lightweight) so painters can
-            // compute layout even when the form is being edited in the designer.
+            // Mark layout as dirty and force immediate recalculation
+            InvalidateLayout();
+            
             try
             {
-                if (_layout == null)
-                    _layout = new BeepiFormProLayoutManager(this);
-
-                if (_hits == null)
-                    _hits = new BeepiFormProHitAreaManager(this);
-
-                if (_interact == null)
-                    _interact = new BeepiFormProInteractionManager(this, _hits);
-
-                // Ensure painter is available. ApplyFormStyle is idempotent and
-                // safe to call; painters are simple renderers and are designer-safe.
-                if (ActivePainter == null)
-                {
-                    try { ApplyFormStyle(); } catch { /* ignore in design-time */ }
-                }
-
-                if (ActivePainter == null)
-                {
-                    // Nothing to do if we still have no painter
-                    return;
-                }
-
-                // Let the painter compute the layout. Wrap in try/catch to avoid
-                // designer crashes if a painter implementation relies on runtime
-                // resources that are unavailable in the designer.
-                try
-                {
-                    ActivePainter.CalculateLayoutAndHitAreas(this);
-                }
-                catch
-                {
-                    // Swallow painter exceptions in design-time to keep the designer
-                    // usable. At worst the painter won't show preview, but the form
-                    // remains editable.
-                }
-
-                // Update hit areas for interaction (clear then register caption)
-                _hits.Clear();
-                if (ShowCaptionBar && CurrentLayout != null && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-                {
-                    _hits.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                }
+                EnsureLayoutCalculated();
             }
             catch
             {

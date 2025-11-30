@@ -1,126 +1,242 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// CalendarCardPainter - For calendar events, schedules, and tasks
-    /// Emphasizes date/time information with structured layout
+    /// CalendarCard - Calendar-style event with large date block, time, and status bar.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class CalendarCardPainter : CardPainterBase
+    internal sealed class CalendarCardPainter : ICardPainter
     {
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // Calendar card fonts
         private Font _monthFont;
         private Font _dayFont;
+        private Font _titleFont;
+        private Font _timeFont;
+        private Font _descFont;
         private Font _badgeFont;
-
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        
+        // Calendar card spacing
+        private const int Padding = 16;
+        private const int DateBlockSize = 64;
+        private const int StatusBarHeight = 4;
+        private const int TitleHeight = 26;
+        private const int TimeHeight = 18;
+        private const int BadgeWidth = 120;
+        private const int BadgeHeight = 22;
+        private const int ButtonHeight = 36;
+        private const int ElementGap = 8;
+        private const int ContentGap = 16;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            _owner = owner;
+            _theme = theme;
+            
+            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            
             try { _monthFont?.Dispose(); } catch { }
             try { _dayFont?.Dispose(); } catch { }
+            try { _titleFont?.Dispose(); } catch { }
+            try { _timeFont?.Dispose(); } catch { }
+            try { _descFont?.Dispose(); } catch { }
             try { _badgeFont?.Dispose(); } catch { }
-            _monthFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-            _dayFont = new Font(Owner.Font.FontFamily, 18f, FontStyle.Bold);
-            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            
+            _monthFont = new Font(fontFamily, 9f, FontStyle.Bold);
+            _dayFont = new Font(fontFamily, 22f, FontStyle.Bold);
+            _titleFont = new Font(fontFamily, 12f, FontStyle.Bold);
+            _timeFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
         }
-
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
-
-            // Large date block on the left (Material Design inspired)
-            if (ctx.ShowImage)
-            {
-                int dateBlockSize = 60;
-                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, dateBlockSize, dateBlockSize);
-            }
-
-            // Content area (to the right of date block)
-            int contentLeft = ctx.DrawingRect.Left + pad + (ctx.ShowImage ? 70 : 0);
-            int contentWidth = ctx.DrawingRect.Width - pad * 2 - (ctx.ShowImage ? 70 : 0);
-
-            // Event title
-            ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, HeaderHeight);
-
-            // Time range or duration
-            ctx.SubtitleRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 4, contentWidth, 16);
-
-            // Location or category badge
-            if (!string.IsNullOrEmpty(ctx.BadgeText1))
-            {
-                ctx.BadgeRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 6, Math.Min(120, contentWidth), 20);
-            }
-
-            // Event description
-            int descTop = ctx.SubtitleRect.Bottom + (string.IsNullOrEmpty(ctx.BadgeText1) ? 8 : 32);
-            ctx.ParagraphRect = new Rectangle(contentLeft, descTop, contentWidth, Math.Max(20, ctx.DrawingRect.Height - (descTop - ctx.DrawingRect.Top) - pad * 2 - (ctx.ShowButton ? ButtonHeight + 8 : 0)));
-
-            // Status indicator bar (top or bottom)
+            
+            // Status indicator bar at top
             if (ctx.ShowStatus)
             {
-                ctx.StatusRect = new Rectangle(ctx.DrawingRect.Left, ctx.DrawingRect.Top, ctx.DrawingRect.Width, 4);
+                ctx.StatusRect = new Rectangle(
+                    drawingRect.Left,
+                    drawingRect.Top,
+                    drawingRect.Width,
+                    StatusBarHeight);
             }
-
-            // Action button (RSVP, Join, View Details, Mark Complete)
+            
+            int contentTop = ctx.ShowStatus ? ctx.StatusRect.Bottom + Padding : drawingRect.Top + Padding;
+            
+            // Large date block on left (Material Design inspired)
+            if (ctx.ShowImage)
+            {
+                ctx.ImageRect = new Rectangle(
+                    drawingRect.Left + Padding,
+                    contentTop,
+                    DateBlockSize,
+                    DateBlockSize);
+            }
+            
+            // Content area to the right of date block
+            int contentLeft = ctx.ShowImage ? ctx.ImageRect.Right + ContentGap : drawingRect.Left + Padding;
+            int contentWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? DateBlockSize + ContentGap : 0);
+            
+            // Event title
+            ctx.HeaderRect = new Rectangle(
+                contentLeft,
+                contentTop,
+                contentWidth,
+                TitleHeight);
+            
+            // Time range or duration
+            ctx.SubtitleRect = new Rectangle(
+                contentLeft,
+                ctx.HeaderRect.Bottom + ElementGap / 2,
+                contentWidth,
+                TimeHeight);
+            
+            // Location/category badge
+            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            {
+                ctx.BadgeRect = new Rectangle(
+                    contentLeft,
+                    ctx.SubtitleRect.Bottom + ElementGap,
+                    Math.Min(BadgeWidth, contentWidth),
+                    BadgeHeight);
+            }
+            
+            // Event description
+            int descTop = ctx.SubtitleRect.Bottom + (string.IsNullOrEmpty(ctx.BadgeText1) ? ElementGap : BadgeHeight + ElementGap * 2);
+            int descHeight = Math.Max(30, drawingRect.Height - descTop - Padding - (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
+            
+            ctx.ParagraphRect = new Rectangle(
+                contentLeft,
+                descTop,
+                contentWidth,
+                descHeight);
+            
+            // Action button (RSVP, Join, Mark Complete)
             if (ctx.ShowButton)
             {
-                int buttonY = Math.Max(ctx.DrawingRect.Bottom - pad - ButtonHeight, ctx.ParagraphRect.Bottom + 8);
-                ctx.ButtonRect = new Rectangle(contentLeft, buttonY, contentWidth, ButtonHeight);
+                ctx.ButtonRect = new Rectangle(
+                    contentLeft,
+                    drawingRect.Bottom - Padding - ButtonHeight,
+                    contentWidth,
+                    ButtonHeight);
             }
-
+            
             ctx.ShowSecondaryButton = false;
+            
             return ctx;
         }
-
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
         {
-            // Draw date block with calendar-Style layout
-            if (ctx.ShowImage && !string.IsNullOrEmpty(ctx.SubtitleText))
+            // Background handled by BaseControl
+        }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Draw status accent bar
+            if (ctx.ShowStatus && !ctx.StatusRect.IsEmpty)
             {
-                // Split date text (expecting format like "MAR\n15" or just "15")
-                var dateParts = ctx.SubtitleText.Split('\n', ' ', '/');
+                using var brush = new SolidBrush(ctx.StatusColor);
+                g.FillRectangle(brush, ctx.StatusRect);
+            }
+            
+            // Draw date block with calendar-style layout
+            if (ctx.ShowImage && !string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.ImageRect.IsEmpty)
+            {
+                // Draw date block background
+                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
+                using var bgBrush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
+                g.FillPath(bgBrush, bgPath);
+                
+                // Draw border
+                using var borderPen = new Pen(ctx.AccentColor, 2);
+                g.DrawPath(borderPen, bgPath);
+                
+                // Parse date (expecting format like "MAR 15" or "MAR/15" or "15")
+                var dateParts = ctx.SubtitleText.Split(new[] { '\n', ' ', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                
+                using var textBrush = new SolidBrush(ctx.AccentColor);
+                
                 if (dateParts.Length >= 2)
                 {
-                    // Draw month
-                    var monthFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
-                    var monthBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
-                    g.DrawString(dateParts[0], _monthFont, monthBrush, new RectangleF(ctx.ImageRect.X, ctx.ImageRect.Y + 8, ctx.ImageRect.Width, 14), monthFormat);
-
-                    // Draw day
+                    // Month at top
+                    var monthRect = new RectangleF(ctx.ImageRect.X, ctx.ImageRect.Y + 10, ctx.ImageRect.Width, 14);
+                    var monthFormat = new StringFormat { Alignment = StringAlignment.Center };
+                    g.DrawString(dateParts[0].ToUpper(), _monthFont, textBrush, monthRect, monthFormat);
+                    
+                    // Day number below
+                    var dayRect = new RectangleF(ctx.ImageRect.X, ctx.ImageRect.Y + 24, ctx.ImageRect.Width, 32);
                     var dayFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(dateParts[1], _dayFont, monthBrush, new RectangleF(ctx.ImageRect.X, ctx.ImageRect.Y + 20, ctx.ImageRect.Width, 32), dayFormat);
+                    g.DrawString(dateParts[1], _dayFont, textBrush, dayRect, dayFormat);
                 }
                 else
                 {
-                    // Single value - just draw centered
+                    // Single value - draw centered
                     var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    var monthBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
-                    g.DrawString(ctx.SubtitleText, _dayFont, monthBrush, ctx.ImageRect, format);
+                    g.DrawString(ctx.SubtitleText, _dayFont, textBrush, ctx.ImageRect, format);
                 }
-
-                // Draw border around date block
-                var borderPen = PaintersFactory.GetPen(ctx.AccentColor, 2f);
-                g.DrawRectangle(borderPen, ctx.ImageRect);
             }
-
-            // Draw category or location badge
-            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            
+            // Draw location/category badge
+            if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
-            }
-
-            // Draw status accent bar (event status: upcoming, ongoing, completed, cancelled)
-            if (ctx.ShowStatus)
-            {
-                var statusBrush = PaintersFactory.GetSolidBrush(ctx.StatusColor);
-                g.FillRectangle(statusBrush, ctx.StatusRect);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
+                    ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
         }
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        {
+            if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
+            {
+                owner.AddHitArea("DateBlock", ctx.ImageRect, null,
+                    () => notifyAreaHit?.Invoke("DateBlock", ctx.ImageRect));
+            }
+            
+            if (!ctx.BadgeRect.IsEmpty)
+            {
+                owner.AddHitArea("Location", ctx.BadgeRect, null,
+                    () => notifyAreaHit?.Invoke("Location", ctx.BadgeRect));
+            }
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _monthFont?.Dispose();
+            _dayFont?.Dispose();
+            _titleFont?.Dispose();
+            _timeFont?.Dispose();
+            _descFont?.Dispose();
+            _badgeFont?.Dispose();
+            
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

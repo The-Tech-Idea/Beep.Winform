@@ -269,11 +269,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
             if (_popup != null && !_popup.IsDisposed) ClosePopup();
 
             _popup = new BeepPopupForm();
+            _popup.ShowCaptionBar = false;
             _popup.Theme = this.Theme;
             _popup.AutoClose = true;
             _popup.FormStyle = FormStyle.Modern;
 
-            _popupContent = new PopupContent(_items, _selected, MaxSelection, RequireAtLeastOne, this.Theme, this.TextFont);
+            // Get a safe font reference - TextFont might be disposed or null
+            Font safeFont = null;
+            try
+            {
+                var tf = this.TextFont;
+                if (tf != null && tf.FontFamily != null)
+                {
+                    safeFont = tf;
+                }
+            }
+            catch { }
+            
+            _popupContent = new PopupContent(_items, _selected, MaxSelection, RequireAtLeastOne, this.Theme, safeFont);
             _popupContent.Dock = DockStyle.Fill;
             _popupContent.SelectionChanged += PopupContent_SelectionChanged;
 
@@ -340,18 +353,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 _maxSel = maxSelection;
                 _requireOne = requireOne;
                 _theme = theme;
-                _textFont = textFont;
+                // CRITICAL: Clone the font or use a safe default to prevent disposed font errors
+                _textFont = GetSafeFont(textFont);
                 Initialize();
+            }
+            
+            /// <summary>
+            /// Returns a safe font - either a clone of the provided font or a default font.
+            /// This prevents ArgumentException when the original font is disposed.
+            /// </summary>
+            private static Font GetSafeFont(Font font)
+            {
+                try
+                {
+                    if (font != null && font.FontFamily != null)
+                    {
+                        // Create a new font instance to avoid issues with disposed fonts
+                        return new Font(font.FontFamily, font.Size, font.Style);
+                    }
+                }
+                catch
+                {
+                    // Font is invalid or disposed
+                }
+                // Return a safe default font
+                return new Font("Segoe UI", 9f, FontStyle.Regular);
             }
 
             private void Initialize()
             {
                 this.Padding = new Padding(6);
-                _searchBox = new BeepTextBox { Dock = DockStyle.Top, PlaceholderText = "Search...", Height = 28, Theme = _theme, TextFont = _textFont };
+                _searchBox = new BeepTextBox { Dock = DockStyle.Top, PlaceholderText = "Search...", Height = 28, Theme = _theme };
+                // Set font safely
+                try { _searchBox.TextFont = _textFont; } catch { }
                 _searchBox.TextChanged += (s, e) => ApplyFilter();
 
                 _chipPanel = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 40, AutoScroll = true, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
-                _chkList = new CheckedListBox { Dock = DockStyle.Fill, CheckOnClick = true, Font = _textFont };
+                _chkList = new CheckedListBox { Dock = DockStyle.Fill, CheckOnClick = true };
+                // Set font safely - CheckedListBox requires a valid font for ItemHeight calculation
+                try { _chkList.Font = _textFont; } catch { _chkList.Font = new Font("Segoe UI", 9f); }
                 _chkList.ItemCheck += _chkList_ItemCheck;
 
                 this.Controls.Add(_chkList);

@@ -4,12 +4,14 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Toggle switch Style renderer.
+    /// Toggle switch Style renderer with StyleColors support.
     /// </summary>
     public class ToggleRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -17,10 +19,24 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private IBeepTheme _theme;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
+        private BeepControlStyle _controlStyle = BeepControlStyle.iOS15;
+        private bool _useThemeColors = true;
 
         public string StyleName => "Toggle";
-        public string DisplayName => "Toggle Switch ProgressBarStyle";
+        public string DisplayName => "Toggle Switch Style";
         public bool SupportsMultipleSelection => true;
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set => _controlStyle = value;
+        }
+        
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set => _useThemeColors = value;
+        }
 
         public Size MaxImageSize { get => _maxImageSize; set => _maxImageSize = value; }
 

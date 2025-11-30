@@ -2,6 +2,27 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.Common"
+		},
+		{
+			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.Common.Util"
+		},
+		{
+			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.Extensions"
+		},
+		{
+			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
+		},
+		{
+			"path": "../Beep.Winform.Sample/WinFormsApp.UI.Test"
+		},
+		{
+			"path": "../BeepDM/DataManagementEngineStandard"
+		},
+		{
+			"path": "../BeepDM/DataManagementModelsStandard"
 		}
 	],
 	"settings": {}

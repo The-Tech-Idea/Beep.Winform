@@ -1,60 +1,152 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// DialogCard - Simple modal-Style (like confirmation dialogs)
+    /// DialogCard - Modal-style confirmation dialog with centered icon, title, message, and action buttons.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class DialogCardPainter : CardPainterBase
+    internal sealed class DialogCardPainter : ICardPainter
     {
-        private Font _headerFont;
-        private Font _paragraphFont;
-
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // Dialog card fonts
+        private Font _titleFont;
+        private Font _messageFont;
+        
+        // Dialog card spacing
+        private const int Padding = 24;
+        private const int IconSize = 56;
+        private const int TitleHeight = 28;
+        private const int MessageHeight = 60;
+        private const int ButtonHeight = 40;
+        private const int ButtonWidth = 110;
+        private const int ButtonGap = 16;
+        private const int ElementGap = 16;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
-            try { _headerFont?.Dispose(); } catch { }
-            try { _paragraphFont?.Dispose(); } catch { }
-
-            // Cache lightweight fonts used by dialog painter
-            _headerFont = new Font(Owner.Font.FontFamily, Owner.Font.Size +1f, FontStyle.Bold);
-            _paragraphFont = new Font(Owner.Font.FontFamily, Owner.Font.Size, FontStyle.Regular);
+            _owner = owner;
+            _theme = theme;
+            
+            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            var fontSize = owner?.Font?.Size ?? 10f;
+            
+            try { _titleFont?.Dispose(); } catch { }
+            try { _messageFont?.Dispose(); } catch { }
+            
+            _titleFont = new Font(fontFamily, fontSize + 2f, FontStyle.Bold);
+            _messageFont = new Font(fontFamily, fontSize, FontStyle.Regular);
         }
-
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad +4;
             ctx.DrawingRect = drawingRect;
-
-            int top = ctx.DrawingRect.Top + pad;
+            
+            int contentTop = drawingRect.Top + Padding;
+            
+            // Centered icon at top (optional)
             if (ctx.ShowImage)
             {
-                int icon =48;
-                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + (ctx.DrawingRect.Width - icon) /2, top, icon, icon);
-                top = ctx.ImageRect.Bottom +16;
+                ctx.ImageRect = new Rectangle(
+                    drawingRect.Left + (drawingRect.Width - IconSize) / 2,
+                    contentTop,
+                    IconSize,
+                    IconSize);
+                contentTop = ctx.ImageRect.Bottom + ElementGap;
             }
-
-            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, top, ctx.DrawingRect.Width - pad *2, HeaderHeight);
-            ctx.ParagraphRect = new Rectangle(ctx.HeaderRect.Left, ctx.HeaderRect.Bottom +12, ctx.HeaderRect.Width,60);
-
-            ctx.SecondaryButtonRect = new Rectangle(ctx.DrawingRect.Right - pad -100 *2 -12, ctx.DrawingRect.Bottom - pad - ButtonHeight,100, ButtonHeight);
-            ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Right - pad -100, ctx.DrawingRect.Bottom - pad - ButtonHeight,100, ButtonHeight);
-
+            
+            // Title (centered)
+            ctx.HeaderRect = new Rectangle(
+                drawingRect.Left + Padding,
+                contentTop,
+                drawingRect.Width - Padding * 2,
+                TitleHeight);
+            
+            // Message/description (centered)
+            ctx.ParagraphRect = new Rectangle(
+                ctx.HeaderRect.Left,
+                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Width,
+                MessageHeight);
+            
+            // Two action buttons at bottom (Cancel on left, Confirm on right)
+            int buttonsTop = drawingRect.Bottom - Padding - ButtonHeight;
+            int buttonsWidth = ButtonWidth * 2 + ButtonGap;
+            int buttonsLeft = drawingRect.Left + (drawingRect.Width - buttonsWidth) / 2;
+            
+            // Secondary button (Cancel) - left
+            ctx.SecondaryButtonRect = new Rectangle(
+                buttonsLeft,
+                buttonsTop,
+                ButtonWidth,
+                ButtonHeight);
+            
+            // Primary button (Confirm) - right
+            ctx.ButtonRect = new Rectangle(
+                ctx.SecondaryButtonRect.Right + ButtonGap,
+                buttonsTop,
+                ButtonWidth,
+                ButtonHeight);
+            
             ctx.ShowSecondaryButton = true;
+            
             return ctx;
         }
-
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
         {
-            // Keep dialog accents minimal and avoid allocating brushes/pens here.
-            // If future accents are needed, use PaintersFactory.GetSolidBrush/GetPen
-            // and cached fonts created in Initialize to avoid per-paint allocations.
+            // Background handled by BaseControl
         }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Dialog cards are intentionally minimal
+            // Could add icon background circle if needed
+            if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                
+                // Subtle circle behind icon
+                var circleRect = Rectangle.Inflate(ctx.ImageRect, 8, 8);
+                using var brush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
+                g.FillEllipse(brush, circleRect);
+            }
+        }
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        {
+            // Dialog cards don't typically have additional hit areas beyond buttons
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _titleFont?.Dispose();
+            _messageFont?.Dispose();
+            
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

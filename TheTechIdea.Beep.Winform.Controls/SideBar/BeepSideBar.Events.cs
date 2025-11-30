@@ -35,14 +35,29 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             base.OnMouseMove(e);
 
+            // Skip processing in design mode
+            if (DesignMode) return;
+
             _lastMousePosition = e.Location;
-             SimpleItem previousHovered = _hoveredItem;
+            SimpleItem previousHovered = _hoveredItem;
             _hoveredItem = GetItemAtPoint(e.Location);
 
-            //if (_hoveredItem != previousHovered)
-            //{
-            //    Invalidate();
-            //}
+            // Trigger hover animation when hover state changes
+            if (_hoveredItem != previousHovered)
+            {
+                if (_hoveredItem != null && _enableHoverAnimation)
+                {
+                    // Mouse entered a new item - start fade in animation
+                    StartHoverAnimation(_hoveredItem, true);
+                }
+                else if (previousHovered != null && _enableHoverAnimation)
+                {
+                    // Mouse left an item - start fade out animation
+                    StartHoverAnimation(previousHovered, false);
+                }
+                
+                Invalidate();
+            }
 
             // Update cursor
             Cursor = _hoveredItem != null ? Cursors.Hand : Cursors.Default;
@@ -52,13 +67,54 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         {
             base.OnMouseLeave(e);
 
+            // Skip processing in design mode
+            if (DesignMode) return;
+
             if (_hoveredItem != null)
             {
+                // Start fade out animation only if enabled
+                if (_enableHoverAnimation)
+                {
+                    StartHoverAnimation(_hoveredItem, false);
+                }
                 _hoveredItem = null;
-               // Invalidate();
+                Invalidate();
             }
 
             Cursor = Cursors.Default;
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            // Skip processing in design mode
+            if (DesignMode) return;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                // Set pressed item for visual feedback
+                var item = GetItemAtPoint(e.Location);
+                if (item != null && item.IsEnabled)
+                {
+                    _pressedItem = item;
+                    Invalidate();
+                }
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            // Skip processing in design mode
+            if (DesignMode) return;
+
+            if (_pressedItem != null)
+            {
+                _pressedItem = null;
+                Invalidate();
+            }
         }
 
         protected override void OnMouseClick(MouseEventArgs e)

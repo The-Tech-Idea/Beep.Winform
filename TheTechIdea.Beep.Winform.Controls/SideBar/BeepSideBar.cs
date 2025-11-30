@@ -81,15 +81,26 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         #region Constructor
         public BeepSideBar()
         {
-            InitializeComponent();
-            InitializePainter();
-           // InitializeAnimation();
-            EnableAnimation = false; // safer default to avoid designer-time jitter
-            
+            // Set control styles FIRST before any other initialization
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw, true);
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.SupportsTransparentBackColor, true);
+            
+            // Disable animations by default to prevent design-time issues
+            EnableAnimation = false;
+            _enableSelectionAnimation = false;
+            _enableHoverAnimation = false;
+            _enableAccordionAnimation = false;
+            
+            InitializeComponent();
+            
+            // Only initialize painter after basic setup
+            if (!DesignMode)
+            {
+                InitializePainter();
+            }
             
             Width = _expandedWidth;
             Dock = DockStyle.Left;
@@ -98,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
 
         private void InitializeComponent()
         {
-            // Subscribe to list changes
+            // Subscribe to list changes - but guard against design-time spam
             _items.ListChanged += Items_ListChanged;
         }
         #endregion
@@ -134,7 +145,12 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
             {
                 if (_selectedItem != value)
                 {
+                    var previousItem = _selectedItem;
                     _selectedItem = value;
+                    
+                    // Start selection animation
+                    StartSelectionAnimation(value, previousItem);
+                    
                     OnPropertyChanged(nameof(SelectedItem));
                     Invalidate();
                 }
@@ -306,26 +322,35 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            
+            // Skip all initialization in design mode
+            if (DesignMode)
+            {
+                return;
+            }
+            
+            // Initialize painter now that handle is created
+            if (_currentPainter == null)
+            {
+                InitializePainter();
+            }
+            
             // Warmup commonly used icons to avoid blocking on first paint
             try
             {
-                // Avoid starting background tasks in design mode which can interfere with the designer
-                if (!DesignMode)
-                {
-                    var sizes = new int[] { 16, 20, 24, 32 };
-                    // Pre-render the default icons: hamburger, expand and collapse icons
-                    if (!string.IsNullOrEmpty(DefaultItemImagePath))
-                        TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(DefaultItemImagePath, AccentColor, 1f, sizes);
+                var sizes = new int[] { 16, 20, 24, 32 };
+                // Pre-render the default icons: hamburger, expand and collapse icons
+                if (!string.IsNullOrEmpty(DefaultItemImagePath))
+                    TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(DefaultItemImagePath, AccentColor, 1f, sizes);
 
-                    if (!string.IsNullOrEmpty(ExpandIconPath))
-                        TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(ExpandIconPath, AccentColor, 1f, sizes);
+                if (!string.IsNullOrEmpty(ExpandIconPath))
+                    TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(ExpandIconPath, AccentColor, 1f, sizes);
 
-                    if (!string.IsNullOrEmpty(CollapseIconPath))
-                        TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(CollapseIconPath, AccentColor, 1f, sizes);
+                if (!string.IsNullOrEmpty(CollapseIconPath))
+                    TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(CollapseIconPath, AccentColor, 1f, sizes);
 
-                    // Hamburger icon (menu) used by some painters
-                    TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(TheTechIdea.Beep.Icons.Svgs.Menu, AccentColor, 1f, sizes);
-                }
+                // Hamburger icon (menu) used by some painters
+                TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters.StyledImagePainter.SchedulePreRender(TheTechIdea.Beep.Icons.Svgs.Menu, AccentColor, 1f, sizes);
             }
             catch
             {
@@ -344,6 +369,12 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         // Image caching is handled by StyledImagePainter now; remove per-control cache
         private void Items_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
         {
+            // Prevent design-time and initialization spam
+            if (DesignMode || !IsHandleCreated)
+            {
+                return;
+            }
+            
             RecalculateItemSizes();
             RefreshHitAreas();
             Invalidate();

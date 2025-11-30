@@ -89,9 +89,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             InitializeComponent();
 
             // Update window region when handle is created
-
-            // Always hook events for design-time and runtime refresh
-            this.Resize += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
+            // NOTE: Heavy operations (layout calc, hit areas) are deferred to OnResizeEnd for better performance
+            this.Resize += (s, e) => { 
+                // Only update window region during resize for visual feedback
+                // Layout recalculation happens in OnResizeEnd
+                UpdateWindowRegion(); 
+            };
             this.Scroll += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
             this.HandleCreated += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
 
@@ -258,16 +261,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Clear painter caches that may depend on DPI (brushes, pens, rasters, paths)
             try { PaintersFactory.ClearCache(); } catch { }
 
-            // Update our DPI scale when monitor DPI changes
-            // UpdateDpiScale();
-
-               _hits?.Clear();
-                        ActivePainter.CalculateLayoutAndHitAreas(this);
-                        
-                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-                        {
-                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                        }
+            // Mark layout dirty - will be recalculated on next paint
+            InvalidateLayout();
 
             // Update window region for new DPI
             UpdateWindowRegion();
@@ -283,28 +278,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // This prevents rectangular corners from showing through on initial display
             UpdateWindowRegion();
             
-                _hits?.Clear();
-                        ActivePainter.CalculateLayoutAndHitAreas(this);
-                        
-                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-                        {
-                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                        }
+            // Mark layout dirty - will be recalculated on next paint
+            InvalidateLayout();
         }
 
-      
+        /// <summary>
+        /// Called when resize operation completes. All heavy operations are deferred here
+        /// to avoid performance issues during resize dragging.
+        /// </summary>
         protected override void OnResizeEnd(EventArgs e)
         {
             base.OnResizeEnd(e);
-                                    // Clear and recalculate hit areas
-                        _hits?.Clear();
-                        ActivePainter.CalculateLayoutAndHitAreas(this);
-                        
-                        if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-                        {
-                            _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                        }
-
+            
+            // CRITICAL: All heavy operations happen here, not during Resize event
+            // This dramatically improves resize performance and reduces flickering
+            
+            // Mark layout as dirty and force recalculation
+            InvalidateLayout();
+            
+            // Update window region for new size
+            UpdateWindowRegion();
+            
+            // Force full repaint
+            Invalidate(true);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -325,143 +321,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private void ApplyFormStyle()
         {
-            switch (FormStyle)
-            {
-                case FormStyle.Terminal:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new TerminalFormPainter();
-                    break;
-                case FormStyle.Modern:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new ModernFormPainter();
-                    break;
-                case FormStyle.Minimal:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new MinimalFormPainter();
-                    break;
-
-                case FormStyle.MacOS:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new MacOSFormPainter();
-                    break;
-                case FormStyle.Fluent:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new FluentFormPainter();
-                    break;
-                case FormStyle.Material:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new MaterialFormPainter();
-                    break;
-                case FormStyle.Cartoon:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new CartoonFormPainter();
-                    break;
-                case FormStyle.ChatBubble:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new ChatBubbleFormPainter();
-                    break;
-                case FormStyle.Glass:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new GlassFormPainter();
-                    break;
-                case FormStyle.Metro:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new MetroFormPainter();
-                    break;
-                case FormStyle.Metro2:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new Metro2FormPainter();
-                    break;
-                case FormStyle.GNOME:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new GNOMEFormPainter();
-                    break;
-                case FormStyle.NeoMorphism:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new NeoMorphismFormPainter();
-                    break;
-                case FormStyle.Glassmorphism:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new GlassmorphismFormPainter();
-                    break;
-                case FormStyle.iOS:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new iOSFormPainter();
-                    break;
-                // Windows11 REMOVED - use regular WinForms for native Windows look
-                case FormStyle.Nordic:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new NordicFormPainter();
-                    break;
-                case FormStyle.Paper:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new PaperFormPainter();
-                    break;
-                case FormStyle.Ubuntu:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new UbuntuFormPainter();
-                    break;
-                case FormStyle.KDE:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new KDEFormPainter();
-                    break;
-                case FormStyle.ArcLinux:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new ArcLinuxFormPainter();
-                    break;
-                case FormStyle.Dracula:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new DraculaFormPainter();
-                    break;
-                case FormStyle.Solarized:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new SolarizedFormPainter();
-                    break;
-                case FormStyle.OneDark:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new OneDarkFormPainter();
-                    break;
-                case FormStyle.GruvBox:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new GruvBoxFormPainter();
-                    break;
-                case FormStyle.Nord:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new NordFormPainter();
-                    break;
-                case FormStyle.Tokyo:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new TokyoFormPainter();
-                    break;
-                case FormStyle.Brutalist:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new BrutalistFormPainter();
-                    break;
-                case FormStyle.Retro:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new RetroFormPainter();
-                    break;
-                case FormStyle.Cyberpunk:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new CyberpunkFormPainter();
-                    break;
-                case FormStyle.Neon:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new NeonFormPainter();
-                    break;
-                case FormStyle.Holographic:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new HolographicFormPainter();
-                    break;
-                case FormStyle.Custom:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new CustomFormPainter();
-                    break;
-                default:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new MinimalFormPainter();
-                    break;
-            }
+            // Use the PaintersFactory to get cached painter instances
+            // This avoids creating new painter objects on every style change
+            FormBorderStyle = FormBorderStyle.None;
+            ActivePainter = PaintersFactory.GetPainter(FormStyle);
 
             // Force layout recalculation to reposition child controls based on new DisplayRectangle
             if (!DesignMode)
@@ -470,11 +333,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
             ApplyStyletoChildControls();
+            
             // CRITICAL: Update window region to match new Style's corner radius
             UpdateWindowRegion();
 
-            // Clear cached painters when form style changes (may change corner radii, gradients, etc.)
-            try { PaintersFactory.ClearCache(); } catch { }
+            // Note: We no longer clear the cache here - painters are reused across style changes
+            // Only clear cache when theme changes (handled in Theme setter)
 
             Invalidate();
         }

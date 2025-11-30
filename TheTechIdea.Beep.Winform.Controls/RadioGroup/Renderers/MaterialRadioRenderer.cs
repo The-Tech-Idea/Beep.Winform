@@ -5,11 +5,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Material Design 3 compliant radio group renderer
+    /// Material Design 3 compliant radio group renderer with StyleColors support
     /// </summary>
     public class MaterialRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -18,11 +20,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
+        private BeepControlStyle _controlStyle = BeepControlStyle.Material3;
+        private bool _useThemeColors = true;
 
         #region Properties
         public string StyleName => "Material";
         public string DisplayName => "Material Design 3";
-        public bool SupportsMultipleSelection => true; // Changed from false to true
+        public bool SupportsMultipleSelection => true;
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set => _controlStyle = value;
+        }
+        
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set => _useThemeColors = value;
+        }
 
         public Size MaxImageSize 
         { 
@@ -354,16 +370,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         #region Helper Methods
         private MaterialColors GetStateColors(RadioItemState state)
         {
-            if (_theme == null)
+            // Use StyleColors if not using theme colors or no theme available
+            if (!_useThemeColors || _theme == null)
             {
                 return new MaterialColors
                 {
-                    Primary = Color.FromArgb(98, 0, 238),
+                    Primary = StyleColors.GetPrimary(_controlStyle),
                     OnPrimary = Color.White,
-                    Surface = Color.White,
-                    OnSurface = Color.Black,
-                    OnSurfaceVariant = Color.FromArgb(96, 96, 96),
-                    Outline = Color.FromArgb(121, 116, 126)
+                    Surface = StyleColors.GetBackground(_controlStyle),
+                    OnSurface = StyleColors.GetForeground(_controlStyle),
+                    OnSurfaceVariant = Color.FromArgb(128, StyleColors.GetForeground(_controlStyle)),
+                    Outline = StyleColors.GetBorder(_controlStyle),
+                    Hover = StyleColors.GetHover(_controlStyle),
+                    Selection = StyleColors.GetSelection(_controlStyle),
+                    Disabled = Color.FromArgb(150, StyleColors.GetForeground(_controlStyle))
                 };
             }
 
@@ -374,7 +394,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 Surface = _theme.BackgroundColor,
                 OnSurface = _theme.ForeColor,
                 OnSurfaceVariant = _theme.SecondaryTextColor,
-                Outline = _theme.BorderColor
+                Outline = _theme.BorderColor,
+                Hover = _theme.ButtonHoverBackColor,
+                Selection = _theme.SelectedRowBackColor,
+                Disabled = _theme.DisabledForeColor
             };
         }
 
@@ -418,6 +441,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color OnSurface { get; set; }
             public Color OnSurfaceVariant { get; set; }
             public Color Outline { get; set; }
+            public Color Hover { get; set; }
+            public Color Selection { get; set; }
+            public Color Disabled { get; set; }
         }
         #endregion
     }

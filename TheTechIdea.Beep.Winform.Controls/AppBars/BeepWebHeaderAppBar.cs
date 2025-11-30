@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.ConfigUtil;
 
@@ -43,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private BindingList<SimpleItem> _buttons = new();
         private int _selectedTabIndex = -1;
         private string _logoImagePath = "";
+        private string _logoText = "";
         private string _searchText = "";
         private bool _showLogo = true;
         private bool _showSearchBox = true;
@@ -58,8 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private string _hoveredTabName = null;
         private string _hoveredButtonName = null;
 
-        // Painter
+        // Painter and colors
         private IWebHeaderStylePainter _painter;
+        private WebHeaderColors _colors;
         private SimpleItem _selectedTab;
         // Underline animation state
         private RectangleF _currentUnderlineRect = RectangleF.Empty;
@@ -70,6 +73,16 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private const int UnderlineAnimationDurationMs = 220; // ms
         private DateTime _underlineAnimStartedAt = DateTime.MinValue;
 
+        #endregion
+        
+        #region Design-Time Safety
+        /// <summary>
+        /// Safe design-time detection that works in all scenarios
+        /// </summary>
+        private bool IsDesignModeSafe => 
+            LicenseManager.UsageMode == LicenseUsageMode.Designtime || 
+            DesignMode || 
+            (Site?.DesignMode ?? false);
         #endregion
 
         #region Constructor
@@ -93,28 +106,44 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             CanBePressed = false;
             CanBeHovered = false;
 
-            // Underline animation timer
+            // Only initialize animation timer at runtime to prevent design-time flickering
+            if (!IsDesignModeSafe)
+            {
+                InitializeAnimationTimer();
+            }
+        }
+        
+        /// <summary>
+        /// Initialize the underline animation timer (runtime only)
+        /// </summary>
+        private void InitializeAnimationTimer()
+        {
             _underlineTimer = new System.Windows.Forms.Timer();
             _underlineTimer.Interval = 15; // ~60 fps
-            _underlineTimer.Tick += (s, e) =>
+            _underlineTimer.Tick += UnderlineTimer_Tick;
+        }
+        
+        private void UnderlineTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_isUnderlineAnimating || IsDesignModeSafe)
             {
-                if (!_isUnderlineAnimating)
-                    return;
+                _underlineTimer?.Stop();
+                return;
+            }
 
-                var elapsed = (DateTime.Now - _underlineAnimStartedAt).TotalMilliseconds;
-                double t = Math.Min(1.0, elapsed / UnderlineAnimationDurationMs);
-                // Use ease-out cubic easing
-                double tt = 1 - Math.Pow(1 - t, 3);
+            var elapsed = (DateTime.Now - _underlineAnimStartedAt).TotalMilliseconds;
+            double t = Math.Min(1.0, elapsed / UnderlineAnimationDurationMs);
+            // Use ease-out cubic easing
+            double tt = 1 - Math.Pow(1 - t, 3);
 
-                _currentUnderlineRect = Lerp(_startUnderlineRect, _targetUnderlineRect, tt);
-                Invalidate();
+            _currentUnderlineRect = Lerp(_startUnderlineRect, _targetUnderlineRect, tt);
+            Invalidate();
 
-                if (t >= 1.0)
-                {
-                    _isUnderlineAnimating = false;
-                    _underlineTimer.Stop();
-                }
-            };
+            if (t >= 1.0)
+            {
+                _isUnderlineAnimating = false;
+                _underlineTimer?.Stop();
+            }
         }
 
         #endregion
@@ -125,13 +154,34 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(WebHeaderStyle.ShoppyStore1)]
+        [Description("The visual style for the web header.")]
         public WebHeaderStyle HeaderStyle
         {
             get => _headerStyle;
             set
             {
-                _headerStyle = value;
-                _painter = CreatePainterForStyle(value);
+                if (_headerStyle != value)
+                {
+                    _headerStyle = value;
+                    if (!IsDesignModeSafe)
+                    {
+                        _painter = CreatePainterForStyle(value);
+                    }
+                    Invalidate();
+                }
+            }
+        }
+        
+        /// <summary>Gets or sets the logo text (displayed when no logo image)</summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text to display as logo when no logo image is set.")]
+        public string LogoText
+        {
+            get => _logoText;
+            set
+            {
+                _logoText = value;
                 Invalidate();
             }
         }
@@ -352,9 +402,20 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            
+            // Design-time: render simple placeholder to prevent flickering
+            if (IsDesignModeSafe)
+            {
+                PaintDesignTimePlaceholder(e.Graphics);
+                return;
+            }
 
             if (_painter == null)
-                _painter = new ShoppyStore1Painter();
+                _painter = CreatePainterForStyle(_headerStyle);
+            
+            // Ensure colors are initialized
+            if (_colors == null)
+                _colors = WebHeaderColors.FromTheme(_currentTheme);
 
             // Convert SimpleItem to WebHeaderTab for painter (adaptor pattern)
             var tabsList = ConvertTabsForPainter();
@@ -364,15 +425,18 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 e.Graphics,
                 new Rectangle(0, 0, Width, Height),
                 _currentTheme,
+                _colors,
                 tabsList,
                 buttonsList,
                 _selectedTabIndex,
                 _logoImagePath,
+                _logoText,
                 _showLogo,
                 _showSearchBox,
                 _searchText,
                 _tabFont,
-                _buttonFont);
+                _buttonFont,
+                IsTransparentBackground);
 
             // Draw sliding indicator overlay if enabled
             if (_indicatorStyle == TabIndicatorStyle.SlidingUnderline)
@@ -389,19 +453,100 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
                 if (!_currentUnderlineRect.IsEmpty)
                 {
-                using (var pen = new Pen(_currentTheme?.ForeColor ?? Color.Black, _indicatorThickness))
-                using (var brush = new SolidBrush((_currentTheme?.ForeColor ?? Color.Black)))
+                    using (var pen = new Pen(_currentTheme?.ForeColor ?? Color.Black, _indicatorThickness))
+                    using (var brush = new SolidBrush((_currentTheme?.ForeColor ?? Color.Black)))
+                    {
+                        var rect = Rectangle.Round(_currentUnderlineRect);
+                        // draw filled underline
+                        e.Graphics.FillRectangle(brush, rect);
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Simple placeholder rendering for Visual Studio Designer
+        /// </summary>
+        private void PaintDesignTimePlaceholder(Graphics g)
+        {
+            // Background
+            g.Clear(Color.FromArgb(255, 255, 255));
+            
+            // Bottom border line
+            using (var pen = new Pen(Color.FromArgb(230, 230, 230), 1))
+            {
+                g.DrawLine(pen, 0, Height - 1, Width, Height - 1);
+            }
+            
+            // Logo placeholder
+            int logoX = 16;
+            int logoY = (Height - 32) / 2;
+            using (var brush = new SolidBrush(Color.FromArgb(66, 133, 244)))
+            using (var font = new Font("Segoe UI", 11, FontStyle.Bold))
+            {
+                string logoDisplay = !string.IsNullOrEmpty(_logoText) ? _logoText : "Logo";
+                g.DrawString(logoDisplay, font, brush, logoX, logoY + 6);
+            }
+            
+            // Tab placeholders
+            int tabX = 120;
+            int tabCount = _tabs?.Count ?? 0;
+            if (tabCount == 0) tabCount = 4; // Show sample tabs in design mode
+            
+            using (var font = new Font("Segoe UI", 10))
+            using (var brush = new SolidBrush(Color.FromArgb(80, 80, 80)))
+            using (var activeBrush = new SolidBrush(Color.FromArgb(66, 133, 244)))
+            {
+                string[] sampleTabs = { "Home", "Products", "About", "Contact" };
+                for (int i = 0; i < Math.Min(tabCount, 6); i++)
                 {
-                    var rect = Rectangle.Round(_currentUnderlineRect);
-                    // draw filled underline
-                    e.Graphics.FillRectangle(brush, rect);
+                    string tabText = _tabs != null && i < _tabs.Count ? _tabs[i].Text : sampleTabs[i % sampleTabs.Length];
+                    var textBrush = i == _selectedTabIndex ? activeBrush : brush;
+                    g.DrawString(tabText, font, textBrush, tabX, (Height - 16) / 2);
+                    tabX += 80;
                 }
+            }
+            
+            // Action button placeholders (right side)
+            int btnX = Width - 120;
+            int btnCount = _buttons?.Count ?? 0;
+            if (btnCount == 0) btnCount = 2;
+            
+            using (var font = new Font("Segoe UI", 9))
+            {
+                // Sign In button (outline)
+                var signInRect = new Rectangle(btnX - 80, (Height - 32) / 2, 70, 32);
+                using (var pen = new Pen(Color.FromArgb(200, 200, 200), 1))
+                using (var brush = new SolidBrush(Color.FromArgb(80, 80, 80)))
+                {
+                    g.DrawRectangle(pen, signInRect);
+                    g.DrawString("Sign In", font, brush, signInRect.X + 12, signInRect.Y + 8);
                 }
+                
+                // Get Started button (solid)
+                var ctaRect = new Rectangle(btnX, (Height - 32) / 2, 90, 32);
+                using (var fillBrush = new SolidBrush(Color.FromArgb(66, 133, 244)))
+                using (var textBrush = new SolidBrush(Color.White))
+                {
+                    g.FillRectangle(fillBrush, ctaRect);
+                    g.DrawString("Get Started", font, textBrush, ctaRect.X + 8, ctaRect.Y + 8);
+                }
+            }
+            
+            // Design mode label
+            using (var font = new Font("Segoe UI", 8))
+            using (var brush = new SolidBrush(Color.FromArgb(180, 180, 180)))
+            {
+                g.DrawString($"BeepWebHeaderAppBar (Design Mode) - Style: {_headerStyle}", font, brush, 4, Height - 16);
             }
         }
 
         private void StartUnderlineAnimationToTab(int tabIndex)
         {
+            // Skip animation during design-time
+            if (IsDesignModeSafe)
+                return;
+                
             if (_painter == null || tabIndex < 0 || tabIndex >= _tabs.Count)
                 return;
 
@@ -419,6 +564,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             _targetUnderlineRect = target;
             _underlineAnimStartedAt = DateTime.Now;
             _isUnderlineAnimating = true;
+            
+            // Initialize timer if not already done
+            if (_underlineTimer == null)
+            {
+                InitializeAnimationTimer();
+            }
             _underlineTimer?.Start();
         }
 
@@ -442,7 +593,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 {
                     IsActive = (i == _selectedTabIndex),
                     IsHovered = (_hoveredTabName == $"Tab_{i}"),
-                    Tooltip = item.Description
+                    Tooltip = item.Description,
+                    // Set HasChildren so painters can show dropdown indicator
+                    HasChildren = item.Children != null && item.Children.Count > 0
                 };
                 result.Add(tab);
             }
@@ -457,11 +610,33 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 var item = _buttons[i];
                 var btn = new WebHeaderActionButton(item.Text, item.ImagePath, WebHeaderButtonStyle.Solid, item.ID)
                 {
-                    IsHovered = (_hoveredButtonName == $"Button_{i}")
+                    IsHovered = (_hoveredButtonName == $"Button_{i}"),
+                    // Set BadgeCount from the item's badge property (if available via Tag or custom property)
+                    BadgeCount = GetBadgeCount(item)
                 };
                 result.Add(btn);
             }
             return result;
+        }
+        
+        /// <summary>
+        /// Gets the badge count for a button item.
+        /// Override this method to provide custom badge count logic.
+        /// </summary>
+        protected virtual int GetBadgeCount(SimpleItem item)
+        {
+            // Check if Tag contains a badge count
+            if (item.Tag is int count)
+                return count;
+            
+            // Check if Tag is a dictionary with BadgeCount key
+            if (item.Tag is Dictionary<string, object> dict && dict.TryGetValue("BadgeCount", out var value))
+            {
+                if (value is int badgeCount)
+                    return badgeCount;
+            }
+            
+            return 0;
         }
 
         #endregion
@@ -471,6 +646,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            
+            // Skip during design-time
+            if (IsDesignModeSafe)
+                return;
 
             if (_painter == null)
                 return;
@@ -526,6 +705,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
+            
+            // Skip during design-time
+            if (IsDesignModeSafe)
+                return;
 
             if (e.Button != MouseButtons.Left || _painter == null)
                 return;
@@ -556,6 +739,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            
+            // Skip during design-time
+            if (IsDesignModeSafe)
+                return;
 
             bool needsInvalidate = false;
 
@@ -600,11 +787,56 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 return;
 
             var btn = _buttons[btnIndex];
-            ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(btn));
-
-            if (!string.IsNullOrEmpty(btn.MethodName))
+            
+            // If button has children, show popup menu (like BeepMenuBar does)
+            if (btn.Children != null && btn.Children.Count > 0)
             {
-                RunMethodFromGlobalFunctions(btn, btn.Text);
+                ShowButtonMenu(btnIndex);
+            }
+            else
+            {
+                // Fire event for buttons without children
+                ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(btn));
+
+                if (!string.IsNullOrEmpty(btn.MethodName))
+                {
+                    RunMethodFromGlobalFunctions(btn, btn.Text);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Shows a popup menu for an action button with children
+        /// </summary>
+        private void ShowButtonMenu(int btnIndex)
+        {
+            if (btnIndex < 0 || btnIndex >= _buttons.Count)
+                return;
+
+            var btn = _buttons[btnIndex];
+            if (btn.Children == null || btn.Children.Count == 0)
+                return;
+
+            // Get button bounds for positioning
+            var buttonsList = ConvertButtonsForPainter();
+            var rect = _painter.GetButtonBounds(btnIndex, new Rectangle(0, 0, Width, Height), buttonsList);
+
+            if (rect != Rectangle.Empty)
+            {
+                // Position menu below the button
+                var screenLocation = this.PointToScreen(new Point(rect.Left, rect.Bottom + 2));
+                var selectedItem = base.ShowContextMenu(new List<SimpleItem>(btn.Children), screenLocation, multiSelect: false);
+
+                if (selectedItem != null)
+                {
+                    // Fire event with selected child item
+                    ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+                    
+                    if (!string.IsNullOrEmpty(selectedItem.MethodName))
+                    {
+                        RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
+                    }
+                }
             }
         }
 
@@ -641,7 +873,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         #region Helpers
 
-        /// <summary>Create painter instance for style</summary>
+        /// <summary>Create painter instance for WebHeaderStyle</summary>
         private IWebHeaderStylePainter CreatePainterForStyle(WebHeaderStyle style)
         {
             return style switch
@@ -658,6 +890,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 WebHeaderStyle.MaterialDesign3 => new MaterialDesign3Painter(),
                 WebHeaderStyle.MinimalClean => new MinimalCleanPainter(),
                 WebHeaderStyle.MultiRowCompact => new MultiRowCompactPainter(),
+                WebHeaderStyle.StartupHero => new StartupHeroPainter(),
+                WebHeaderStyle.PortfolioMinimal => new PortfolioMinimalPainter(),
+                WebHeaderStyle.EcommerceModern => new EcommerceModernPainter(),
                 _ => new ShoppyStore1Painter()
             };
         }
@@ -678,6 +913,38 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             return errorsInfo;
         }
 
+        #endregion
+
+        #region Theme Support
+        
+        /// <summary>
+        /// Applies the current theme to the control
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            
+            // Update colors from theme
+            _colors = WebHeaderColors.FromTheme(_currentTheme);
+            
+            // Update fonts from theme if enabled
+            if (UseThemeFont && _currentTheme != null)
+            {
+                if (_currentTheme.LabelFont != null)
+                {
+                    _tabFont?.Dispose();
+                    _tabFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
+                }
+                if (_currentTheme.ButtonFont != null)
+                {
+                    _buttonFont?.Dispose();
+                    _buttonFont = FontListHelper.CreateFontFromTypography(_currentTheme.ButtonFont);
+                }
+            }
+            
+            Invalidate();
+        }
+        
         #endregion
 
         protected override void Dispose(bool disposing)

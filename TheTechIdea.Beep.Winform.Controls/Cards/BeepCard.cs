@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Cards.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -160,120 +161,79 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializePainter()
         {
-            switch (_style)
+            // Dispose old painter if it implements IDisposable
+            (_painter as IDisposable)?.Dispose();
+            
+            // 1:1 mapping - each CardStyle gets its own distinct painter
+            _painter = _style switch
             {
                 // Profile & User Cards
-                case CardStyle.ProfileCard:
-                    _painter = new ProfileCardPainter();
-                    break;
-                case CardStyle.CompactProfile:
-                    _painter = new CompactProfileCardPainter();
-                    break;
-                case CardStyle.UserCard:
-                case CardStyle.TeamMemberCard:
-                    _painter = new UserCardPainter();
-                    break;
+                CardStyle.ProfileCard => new ProfileCardPainter(),
+                CardStyle.CompactProfile => new CompactProfileCardPainter(),
+                CardStyle.UserCard => new UserCardPainter(),
+                CardStyle.TeamMemberCard => new TeamMemberCardPainter(),
                 
                 // Content & Blog Cards
-                case CardStyle.ContentCard:
-                    _painter = new ContentCardPainter();
-                    break;
-                case CardStyle.BlogCard:
-                case CardStyle.NewsCard:
-                    _painter = new BlogCardPainter();
-                    break;
-                case CardStyle.MediaCard:
-                case CardStyle.ImageCard:
-                case CardStyle.VideoCard:
-                    _painter = new MediaCardPainter();
-                    break;
+                CardStyle.ContentCard => new ContentCardPainter(),
+                CardStyle.BlogCard => new BlogCardPainter(),
+                CardStyle.NewsCard => new NewsCardPainter(),
+                CardStyle.MediaCard => new MediaCardPainter(),
                 
                 // Feature & Service Cards
-                case CardStyle.FeatureCard:
-                    _painter = new FeatureCardPainter();
-                    break;
-                case CardStyle.ServiceCard:
-                case CardStyle.IconCard:
-                case CardStyle.BenefitCard:
-                    _painter = new ServiceCardPainter();
-                    break;
+                CardStyle.FeatureCard => new FeatureCardPainter(),
+                CardStyle.ServiceCard => new ServiceCardPainter(),
+                CardStyle.IconCard => new IconCardPainter(),
+                CardStyle.BenefitCard => new BenefitCardPainter(),
                 
                 // E-commerce & Product Cards
-                case CardStyle.ProductCard:
-                case CardStyle.PricingCard:
-                case CardStyle.OfferCard:
-                case CardStyle.CartItemCard:
-                    _painter = new ProductCardPainter();
-                    break;
+                CardStyle.ProductCard => new ProductCardPainter(),
+                CardStyle.PricingCard => new PricingCardPainter(),
+                CardStyle.OfferCard => new OfferCardPainter(),
+                CardStyle.CartItemCard => new CartItemCardPainter(),
                 
                 // Social & Interaction Cards
-                case CardStyle.TestimonialCard:
-                    _painter = new TestimonialCardPainter();
-                    break;
-                case CardStyle.ReviewCard:
-                case CardStyle.CommentCard:
-                    _painter = new ReviewCardPainter();
-                    break;
-                case CardStyle.SocialMediaCard:
-                    _painter = new SocialMediaCardPainter();
-                    break;
+                CardStyle.SocialMediaCard => new SocialMediaCardPainter(),
+                CardStyle.TestimonialCard => new TestimonialCardPainter(),
+                CardStyle.ReviewCard => new ReviewCardPainter(),
+                CardStyle.CommentCard => new CommentCardPainter(),
                 
                 // Dashboard & Analytics Cards
-                case CardStyle.StatCard:
-                    _painter = new StatCardPainter();
-                    break;
-                case CardStyle.ChartCard:
-                case CardStyle.MetricCard:
-                case CardStyle.ActivityCard:
-                    _painter = new MetricCardPainter();
-                    break;
+                CardStyle.StatCard => new StatCardPainter(),
+                CardStyle.ChartCard => new ChartCardPainter(),
+                CardStyle.MetricCard => new MetricCardPainter(),
+                CardStyle.ActivityCard => new ActivityCardPainter(),
                 
                 // Communication & Messaging Cards
-                case CardStyle.NotificationCard:
-                case CardStyle.MessageCard:
-                case CardStyle.AlertCard:
-                case CardStyle.AnnouncementCard:
-                    _painter = new CommunicationCardPainter();
-                    break;
+                CardStyle.NotificationCard => new NotificationCardPainter(),
+                CardStyle.MessageCard => new MessageCardPainter(),
+                CardStyle.AlertCard => new AlertCardPainter(),
+                CardStyle.AnnouncementCard => new AnnouncementCardPainter(),
                 
                 // Event & Calendar Cards
-                case CardStyle.EventCard:
-                    _painter = new EventCardPainter();
-                    break;
-                case CardStyle.CalendarEventCard:
-                case CardStyle.ScheduleCard:
-                case CardStyle.TaskCard:
-                    _painter = new CalendarCardPainter();
-                    break;
+                CardStyle.EventCard => new EventCardPainter(),
+                CardStyle.CalendarEventCard => new CalendarCardPainter(),
+                CardStyle.ScheduleCard => new ScheduleCardPainter(),
+                CardStyle.TaskCard => new TaskCardPainter(),
                 
                 // List & Data Cards
-                case CardStyle.ListCard:
-                    _painter = new ListCardPainter();
-                    break;
-                case CardStyle.DataCard:
-                case CardStyle.FormCard:
-                case CardStyle.SettingsCard:
-                    _painter = new DataCardPainter();
-                    break;
+                CardStyle.ListCard => new ListCardPainter(),
+                CardStyle.DataCard => new DataCardPainter(),
+                CardStyle.FormCard => new FormCardPainter(),
+                CardStyle.SettingsCard => new SettingsCardPainter(),
                 
                 // Specialized Cards
-                case CardStyle.DialogCard:
-                    _painter = new DialogCardPainter();
-                    break;
-                case CardStyle.BasicCard:
-                    _painter = new BasicCardPainter();
-                    break;
-                case CardStyle.HoverCard:
-                case CardStyle.InteractiveCard:
-                case CardStyle.DownloadCard:
-                case CardStyle.ContactCard:
-                    _painter = new InteractiveCardPainter();
-                    break;
+                CardStyle.DialogCard => new DialogCardPainter(),
+                CardStyle.BasicCard => new BasicCardPainter(),
+                CardStyle.HoverCard => new HoverCardPainter(),
+                CardStyle.InteractiveCard => new InteractiveCardPainter(),
+                CardStyle.DownloadCard => new InteractiveCardPainter(), // Download uses Interactive style
+                CardStyle.ContactCard => new InteractiveCardPainter(), // Contact uses Interactive style
+                CardStyle.ImageCard => new MediaCardPainter(), // Image uses Media style
+                CardStyle.VideoCard => new VideoCardPainter(),
                 
-                default:
-                    _painter = new BasicCardPainter();
-                    break;
-            }
+                _ => new BasicCardPainter()
+            };
+            
             _painter?.Initialize(this, _currentTheme);
         }
 

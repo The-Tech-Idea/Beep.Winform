@@ -9,12 +9,16 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.SideBar
 {
     /// <summary>
-    /// Base class for BeepSideBar painters with common helper methods
+    /// Base class for BeepSideBar painters with common helper methods.
+    /// Note: For truly distinct painters, override all methods rather than relying on base implementations.
     /// </summary>
     public abstract class BaseSideBarPainter : ISideBarPainter
     {
         // Reusable ImagePainter instance - DO NOT create new instances in loops!
         private static readonly ImagePainter _sharedImagePainter = new ImagePainter();
+        
+        // Track disposal
+        private bool _disposed = false;
 
         public abstract string Name { get; }
 
@@ -521,5 +525,203 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
                 g.FillRectangle(brush, new Rectangle(x, y + 2 * (barHeight + gap), w, barHeight));
             }
         }
+
+        #region New Interface Methods (Default Implementations)
+
+        /// <summary>
+        /// Draws the pressed/active state for a menu item.
+        /// Override in derived painters for distinct pressed effects.
+        /// </summary>
+        public virtual void PaintPressed(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
+        {
+            // Default: slightly darker than selection
+            Color pressedColor = context.UseThemeColors && context.Theme != null
+                ? Color.FromArgb(30, context.Theme.PrimaryColor)
+                : Color.FromArgb(30, context.AccentColor);
+
+            using (var brush = new SolidBrush(pressedColor))
+            {
+                g.FillRectangle(brush, itemRect);
+            }
+        }
+
+        /// <summary>
+        /// Draws the disabled state for a menu item.
+        /// Override in derived painters for distinct disabled effects.
+        /// </summary>
+        public virtual void PaintDisabled(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
+        {
+            // Default: semi-transparent gray overlay
+            using (var brush = new SolidBrush(Color.FromArgb(100, 128, 128, 128)))
+            {
+                g.FillRectangle(brush, itemRect);
+            }
+        }
+
+        /// <summary>
+        /// Draws the expand/collapse icon for accordion items.
+        /// Override in derived painters for distinct expand icon styles.
+        /// </summary>
+        public virtual void PaintExpandIcon(Graphics g, Rectangle iconRect, bool isExpanded, SimpleItem item, ISideBarPainterContext context)
+        {
+            Color iconColor = context.UseThemeColors && context.Theme != null
+                ? context.Theme.SideMenuForeColor
+                : Color.FromArgb(150, 150, 150);
+
+            // Try to use SVG icons first
+            if (context.UseExpandCollapseIcon)
+            {
+                string iconPath = isExpanded ? context.CollapseIconPath : context.ExpandIconPath;
+                if (!string.IsNullOrEmpty(iconPath))
+                {
+                    try
+                    {
+                        StyledImagePainter.PaintWithTint(g, iconRect, iconPath, iconColor);
+                        return;
+                    }
+                    catch { }
+                }
+            }
+
+            // Fallback: draw chevron
+            using (var pen = new Pen(iconColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            {
+                int cx = iconRect.X + iconRect.Width / 2;
+                int cy = iconRect.Y + iconRect.Height / 2;
+                int size = Math.Min(iconRect.Width, iconRect.Height) / 3;
+
+                if (isExpanded)
+                {
+                    // Down chevron
+                    g.DrawLine(pen, cx - size, cy - size / 2, cx, cy + size / 2);
+                    g.DrawLine(pen, cx, cy + size / 2, cx + size, cy - size / 2);
+                }
+                else
+                {
+                    // Right chevron
+                    g.DrawLine(pen, cx - size / 2, cy - size, cx + size / 2, cy);
+                    g.DrawLine(pen, cx + size / 2, cy, cx - size / 2, cy + size);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws connector lines between parent and child items in accordion.
+        /// Override in derived painters for distinct connector styles.
+        /// </summary>
+        public virtual void PaintAccordionConnector(Graphics g, SimpleItem parent, Rectangle parentRect, SimpleItem child, Rectangle childRect, int indentLevel, ISideBarPainterContext context)
+        {
+            Color lineColor = context.UseThemeColors && context.Theme != null
+                ? Color.FromArgb(50, context.Theme.SideMenuForeColor)
+                : Color.FromArgb(50, 150, 150, 150);
+
+            int indent = context.IndentationWidth * indentLevel;
+            int lineX = childRect.X - indent / 2;
+
+            using (var pen = new Pen(lineColor, 1f) { DashStyle = DashStyle.Dot })
+            {
+                // Vertical line from parent
+                g.DrawLine(pen, lineX, parentRect.Bottom, lineX, childRect.Y + childRect.Height / 2);
+                // Horizontal line to child
+                g.DrawLine(pen, lineX, childRect.Y + childRect.Height / 2, childRect.X, childRect.Y + childRect.Height / 2);
+            }
+        }
+
+        /// <summary>
+        /// Draws a badge/notification indicator on a menu item.
+        /// Override in derived painters for distinct badge styles.
+        /// </summary>
+        public virtual void PaintBadge(Graphics g, Rectangle itemRect, string badgeText, Color badgeColor, ISideBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return;
+
+            var font = BeepFontManager.GetCachedFont("Segoe UI", 8f, FontStyle.Bold);
+            var textSize = g.MeasureString(badgeText, font);
+
+            int badgeWidth = Math.Max(18, (int)textSize.Width + 8);
+            int badgeHeight = 16;
+            int badgeX = itemRect.Right - badgeWidth - 8;
+            int badgeY = itemRect.Y + (itemRect.Height - badgeHeight) / 2;
+
+            Rectangle badgeRect = new Rectangle(badgeX, badgeY, badgeWidth, badgeHeight);
+
+            // Draw badge background
+            using (var path = CreateRoundedPath(badgeRect, badgeHeight / 2))
+            using (var brush = new SolidBrush(badgeColor))
+            {
+                g.FillPath(brush, path);
+            }
+
+            // Draw badge text
+            using (var brush = new SolidBrush(Color.White))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(badgeText, font, brush, badgeRect, format);
+            }
+        }
+
+        /// <summary>
+        /// Draws a section header/divider with text.
+        /// Override in derived painters for distinct section header styles.
+        /// </summary>
+        public virtual void PaintSectionHeader(Graphics g, Rectangle headerRect, string headerText, ISideBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(headerText)) return;
+
+            Color textColor = context.UseThemeColors && context.Theme != null
+                ? Color.FromArgb(150, context.Theme.SideMenuForeColor)
+                : Color.FromArgb(120, 120, 120);
+
+            var font = BeepFontManager.GetCachedFont("Segoe UI", 9f, FontStyle.Bold);
+
+            using (var brush = new SolidBrush(textColor))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+                g.DrawString(headerText.ToUpperInvariant(), font, brush, headerRect, format);
+            }
+        }
+
+        /// <summary>
+        /// Draws a simple divider line.
+        /// Override in derived painters for distinct divider styles.
+        /// </summary>
+        public virtual void PaintDivider(Graphics g, Rectangle dividerRect, ISideBarPainterContext context)
+        {
+            Color lineColor = context.UseThemeColors && context.Theme != null
+                ? Color.FromArgb(50, context.Theme.BorderColor)
+                : Color.FromArgb(50, 200, 200, 200);
+
+            int y = dividerRect.Y + dividerRect.Height / 2;
+            int padding = 16;
+
+            using (var pen = new Pen(lineColor, 1f))
+            {
+                g.DrawLine(pen, dividerRect.X + padding, y, dividerRect.Right - padding, y);
+            }
+        }
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources in derived classes
+                }
+                _disposed = true;
+            }
+        }
+
+        #endregion
     }
 }

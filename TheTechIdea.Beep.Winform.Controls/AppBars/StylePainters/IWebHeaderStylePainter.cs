@@ -20,19 +20,23 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
         /// <summary>
         /// Paints the complete header with all components
         /// </summary>
+        /// <param name="skipBackground">If true, do not draw background (for transparent background support)</param>
         void PaintHeader(
             Graphics g,
             Rectangle bounds,
             IBeepTheme theme,
+            WebHeaderColors colors,
             List<WebHeaderTab> tabs,
             List<WebHeaderActionButton> buttons,
             int selectedTabIndex,
             string logoImagePath,
+            string logoText,
             bool showLogo,
             bool showSearchBox,
             string searchText,
             Font tabFont,
-            Font buttonFont);
+            Font buttonFont,
+            bool skipBackground = false);
 
         /// <summary>
         /// Gets tab bounds after layout
@@ -61,15 +65,18 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             Graphics g,
             Rectangle bounds,
             IBeepTheme theme,
+            WebHeaderColors colors,
             List<WebHeaderTab> tabs,
             List<WebHeaderActionButton> buttons,
             int selectedTabIndex,
             string logoImagePath,
+            string logoText,
             bool showLogo,
             bool showSearchBox,
             string searchText,
             Font tabFont,
-            Font buttonFont);
+            Font buttonFont,
+            bool skipBackground = false);
 
         public abstract Rectangle GetTabBounds(int tabIndex, Rectangle headerBounds, List<WebHeaderTab> tabs);
 

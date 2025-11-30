@@ -18,21 +18,37 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private bool _useThemeColors = true;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
+        [Description("Use theme colors instead of style-based colors.")]
         [DefaultValue(true)]
         public bool UseThemeColors
         {
             get => _useThemeColors;
             set
             {
-                _useThemeColors = value;
-                Invalidate();
+                if (_useThemeColors != value)
+                {
+                    _useThemeColors = value;
+                    
+                    // Propagate to current renderer
+                    if (_currentRenderer != null)
+                    {
+                        _currentRenderer.UseThemeColors = value;
+                    }
+                    
+                    // Propagate to all renderers
+                    foreach (var renderer in _renderers.Values)
+                    {
+                        renderer.UseThemeColors = value;
+                    }
+                    
+                    Invalidate();
+                }
             }
         }
         private BeepControlStyle _style = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual Style/painter to use for rendering the sidebar.")]
+        [Description("The visual Style/painter to use for rendering the radio group.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {
@@ -42,6 +58,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 if (_style != value)
                 {
                     _style = value;
+                    
+                    // Propagate style to current renderer
+                    if (_currentRenderer != null)
+                    {
+                        _currentRenderer.ControlStyle = value;
+                    }
+                    
+                    // Propagate to all renderers
+                    foreach (var renderer in _renderers.Values)
+                    {
+                        renderer.ControlStyle = value;
+                    }
 
                     Invalidate();
                 }
@@ -315,6 +343,169 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         }
         #endregion
 
+        #region Validation Properties
+        
+        private bool _isRequired = false;
+        /// <summary>
+        /// Gets or sets whether this radio group requires a selection
+        /// </summary>
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Whether this radio group requires a selection.")]
+        [DefaultValue(false)]
+        public bool IsRequired
+        {
+            get => _isRequired;
+            set
+            {
+                if (_isRequired != value)
+                {
+                    _isRequired = value;
+                    ValidateSelection();
+                    Invalidate();
+                }
+            }
+        }
+        
+        private bool _hasValidationError = false;
+        /// <summary>
+        /// Gets or sets whether the control is in an error state
+        /// </summary>
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Whether the control is in an error state.")]
+        [DefaultValue(false)]
+        public new bool HasError
+        {
+            get => _hasValidationError;
+            set
+            {
+                if (_hasValidationError != value)
+                {
+                    _hasValidationError = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        private string _errorMessage = string.Empty;
+        /// <summary>
+        /// Gets or sets the error message to display
+        /// </summary>
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("The error message to display when validation fails.")]
+        [DefaultValue("")]
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set
+            {
+                if (_errorMessage != value)
+                {
+                    _errorMessage = value ?? string.Empty;
+                    Invalidate();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Validates the current selection based on IsRequired
+        /// </summary>
+        /// <returns>True if valid, false otherwise</returns>
+        public bool Validate()
+        {
+            ValidateSelection();
+            return !_hasValidationError;
+        }
+        
+        private void ValidateSelection()
+        {
+            if (_isRequired && _stateHelper.SelectedCount == 0)
+            {
+                _hasValidationError = true;
+                if (string.IsNullOrEmpty(_errorMessage))
+                {
+                    _errorMessage = "Selection is required";
+                }
+            }
+            else
+            {
+                _hasValidationError = false;
+            }
+        }
+        
+        #endregion
+        
+        #region Per-Item Disabled Support
+        
+        private HashSet<string> _disabledItems = new HashSet<string>();
+        
+        /// <summary>
+        /// Disables a specific item by its text value
+        /// </summary>
+        public void DisableItem(string itemText)
+        {
+            if (!string.IsNullOrEmpty(itemText) && !_disabledItems.Contains(itemText))
+            {
+                _disabledItems.Add(itemText);
+                UpdateItemStates();
+                Invalidate();
+            }
+        }
+        
+        /// <summary>
+        /// Enables a specific item by its text value
+        /// </summary>
+        public void EnableItem(string itemText)
+        {
+            if (!string.IsNullOrEmpty(itemText) && _disabledItems.Contains(itemText))
+            {
+                _disabledItems.Remove(itemText);
+                UpdateItemStates();
+                Invalidate();
+            }
+        }
+        
+        /// <summary>
+        /// Checks if a specific item is disabled
+        /// </summary>
+        public bool IsItemDisabled(string itemText)
+        {
+            return !string.IsNullOrEmpty(itemText) && _disabledItems.Contains(itemText);
+        }
+        
+        /// <summary>
+        /// Sets the enabled state for multiple items
+        /// </summary>
+        public void SetItemsEnabled(IEnumerable<string> itemTexts, bool enabled)
+        {
+            if (itemTexts == null) return;
+            
+            foreach (var text in itemTexts)
+            {
+                if (enabled)
+                    EnableItem(text);
+                else
+                    DisableItem(text);
+            }
+        }
+        
+        /// <summary>
+        /// Clears all disabled items
+        /// </summary>
+        public void EnableAllItems()
+        {
+            if (_disabledItems.Count > 0)
+            {
+                _disabledItems.Clear();
+                UpdateItemStates();
+                Invalidate();
+            }
+        }
+        
+        #endregion
+        
         #region Events
         [Category("Action")]
         [Description("Occurs when the selection changes.")]

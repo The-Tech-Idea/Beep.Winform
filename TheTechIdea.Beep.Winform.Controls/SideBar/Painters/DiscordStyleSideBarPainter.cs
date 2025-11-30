@@ -9,9 +9,44 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
+    /// <summary>
+    /// Discord Style Sidebar Painter
+    /// 
+    /// DISTINCT FEATURES:
+    /// - Dark slate background (Discord's signature dark theme)
+    /// - White pill indicator on left edge for selection
+    /// - Blurple (Discord blue-purple) accent color
+    /// - Category-style grouping with collapsible sections
+    /// - Rounded channel/item indicators
+    /// - Whitney font family (or fallback)
+    /// 
+    /// Selection: Dark fill with white left pill indicator
+    /// Hover: Slightly lighter background
+    /// Expand Icon: Category collapse arrow
+    /// Accordion: Channel-style grouping
+    /// </summary>
     public sealed class DiscordStyleSideBarPainter : BaseSideBarPainter
     {
-        // Use the BeepImage cache via context.GetCachedIcon
+        // Discord colors
+        private readonly Color _blurple = Color.FromArgb(88, 101, 242);
+        private readonly Color _darkBg = Color.FromArgb(47, 49, 54);
+        private readonly Color _darkerBg = Color.FromArgb(32, 34, 37);
+        private readonly Color _lightText = Color.FromArgb(185, 187, 190);
+        private readonly Color _mutedText = Color.FromArgb(142, 146, 151);
+
+        private Font _headerFont;
+        private Font _itemFont;
+        private Font _childFont;
+        private Font _badgeFont;
+
+        private void EnsureFonts()
+        {
+            _headerFont ??= BeepFontManager.GetCachedFont("Whitney", 11f, FontStyle.Bold);
+            _itemFont ??= BeepFontManager.GetCachedFont("Whitney", 14f, FontStyle.Regular);
+            _childFont ??= BeepFontManager.GetCachedFont("Whitney", 12f, FontStyle.Regular);
+            _badgeFont ??= BeepFontManager.GetCachedFont("Whitney", 9f, FontStyle.Bold);
+        }
+
         public override string Name => "DiscordStyle";
 
         public override void Paint(ISideBarPainterContext context)
@@ -188,5 +223,142 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 }
             }
         }
+
+        #region Discord Distinct Implementations
+
+        /// <summary>
+        /// Discord pressed state: darker background
+        /// </summary>
+        public override void PaintPressed(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
+        {
+            using (var path = CreateRoundedPath(itemRect, 4))
+            using (var brush = new SolidBrush(Color.FromArgb(79, 84, 92)))
+            {
+                g.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Discord disabled state: very muted
+        /// </summary>
+        public override void PaintDisabled(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
+        {
+            using (var brush = new SolidBrush(Color.FromArgb(50, 72, 75, 78)))
+            {
+                g.FillRectangle(brush, itemRect);
+            }
+        }
+
+        /// <summary>
+        /// Discord expand icon: category collapse arrow
+        /// </summary>
+        public override void PaintExpandIcon(Graphics g, Rectangle iconRect, bool isExpanded, SimpleItem item, ISideBarPainterContext context)
+        {
+            EnsureFonts();
+            Color iconColor = _mutedText;
+
+            // Discord uses small triangular arrows
+            int cx = iconRect.X + iconRect.Width / 2;
+            int cy = iconRect.Y + iconRect.Height / 2;
+            int size = 4;
+
+            using (var brush = new SolidBrush(iconColor))
+            {
+                Point[] triangle;
+                if (isExpanded)
+                {
+                    // Down arrow
+                    triangle = new Point[]
+                    {
+                        new Point(cx - size, cy - size / 2),
+                        new Point(cx + size, cy - size / 2),
+                        new Point(cx, cy + size / 2)
+                    };
+                }
+                else
+                {
+                    // Right arrow
+                    triangle = new Point[]
+                    {
+                        new Point(cx - size / 2, cy - size),
+                        new Point(cx - size / 2, cy + size),
+                        new Point(cx + size / 2, cy)
+                    };
+                }
+                g.FillPolygon(brush, triangle);
+            }
+        }
+
+        /// <summary>
+        /// Discord accordion connector: none (Discord uses indentation only)
+        /// </summary>
+        public override void PaintAccordionConnector(Graphics g, SimpleItem parent, Rectangle parentRect, SimpleItem child, Rectangle childRect, int indentLevel, ISideBarPainterContext context)
+        {
+            // Discord doesn't use connector lines - just indentation
+        }
+
+        /// <summary>
+        /// Discord badge: blurple pill with white text
+        /// </summary>
+        public override void PaintBadge(Graphics g, Rectangle itemRect, string badgeText, Color badgeColor, ISideBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return;
+
+            EnsureFonts();
+            var textSize = g.MeasureString(badgeText, _badgeFont);
+            int badgeWidth = Math.Max(16, (int)textSize.Width + 8);
+            int badgeHeight = 16;
+            int badgeX = itemRect.Right - badgeWidth - 24;
+            int badgeY = itemRect.Y + (itemRect.Height - badgeHeight) / 2;
+
+            Rectangle badgeRect = new Rectangle(badgeX, badgeY, badgeWidth, badgeHeight);
+
+            // Discord-style badge (red for mentions, or custom color)
+            Color bgColor = badgeColor.IsEmpty ? Color.FromArgb(237, 66, 69) : badgeColor;
+
+            using (var path = CreateRoundedPath(badgeRect, badgeHeight / 2))
+            using (var brush = new SolidBrush(bgColor))
+            {
+                g.FillPath(brush, path);
+            }
+
+            using (var brush = new SolidBrush(Color.White))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(badgeText, _badgeFont, brush, badgeRect, format);
+            }
+        }
+
+        /// <summary>
+        /// Discord section header: category style with uppercase text
+        /// </summary>
+        public override void PaintSectionHeader(Graphics g, Rectangle headerRect, string headerText, ISideBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(headerText)) return;
+
+            EnsureFonts();
+            // Discord category headers are uppercase and muted
+            using (var brush = new SolidBrush(_mutedText))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+                g.DrawString(headerText.ToUpperInvariant(), _headerFont, brush, headerRect, format);
+            }
+        }
+
+        /// <summary>
+        /// Discord divider: subtle line
+        /// </summary>
+        public override void PaintDivider(Graphics g, Rectangle dividerRect, ISideBarPainterContext context)
+        {
+            int y = dividerRect.Y + dividerRect.Height / 2;
+            int padding = 12;
+
+            using (var pen = new Pen(Color.FromArgb(60, 64, 67, 73), 1f))
+            {
+                g.DrawLine(pen, dividerRect.X + padding, y, dividerRect.Right - padding, y);
+            }
+        }
+
+        #endregion
     }
 }

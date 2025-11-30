@@ -5,11 +5,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Modern flat design renderer for radio group items (inspired by your design examples)
+    /// Modern flat design renderer for radio group items with StyleColors support
     /// </summary>
     public class FlatRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -18,11 +20,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
+        private BeepControlStyle _controlStyle = BeepControlStyle.Minimal;
+        private bool _useThemeColors = true;
 
         #region Properties
         public string StyleName => "Flat";
         public string DisplayName => "Modern Flat Design";
         public bool SupportsMultipleSelection => true;
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set => _controlStyle = value;
+        }
+        
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set => _useThemeColors = value;
+        }
 
         public Size MaxImageSize 
         { 

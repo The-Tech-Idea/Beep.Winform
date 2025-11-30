@@ -1,42 +1,115 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// BasicCard - Minimal card for general content
+    /// BasicCard - Minimal card for general content with accent line.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class BasicCardPainter : CardPainterBase
+    internal sealed class BasicCardPainter : ICardPainter
     {
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // Basic card spacing
+        private const int Padding = 16;
+        private const int HeaderHeight = 24;
+        private const int ButtonHeight = 36;
+        private const int ButtonWidth = 100;
+        private const int AccentLineWidth = 40;
+        private const int AccentLineThickness = 3;
+        private const int ElementGap = 8;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            int pad = DefaultPad;
+            _owner = owner;
+            _theme = theme;
+        }
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        {
             ctx.DrawingRect = drawingRect;
-
-            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad *2, HeaderHeight);
-            int paragraphHeight = Math.Max(0, ctx.DrawingRect.Height - HeaderHeight - ButtonHeight - (pad *3));
-            ctx.ParagraphRect = new Rectangle(ctx.HeaderRect.Left, ctx.HeaderRect.Bottom +6, ctx.HeaderRect.Width, paragraphHeight);
-
+            
+            // Header at top with space for accent line
+            ctx.HeaderRect = new Rectangle(
+                drawingRect.Left + Padding,
+                drawingRect.Top + Padding + AccentLineThickness + ElementGap,
+                drawingRect.Width - Padding * 2,
+                HeaderHeight);
+            
+            // Calculate paragraph height based on available space
+            int availableHeight = drawingRect.Height - HeaderHeight - ButtonHeight - (Padding * 3) - AccentLineThickness;
+            int paragraphHeight = Math.Max(40, availableHeight);
+            
+            ctx.ParagraphRect = new Rectangle(
+                ctx.HeaderRect.Left,
+                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Width,
+                paragraphHeight);
+            
+            // Button at bottom-right
             if (ctx.ShowButton)
             {
-                ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Right - pad -100, ctx.DrawingRect.Bottom - pad - ButtonHeight,95, ButtonHeight);
+                ctx.ButtonRect = new Rectangle(
+                    drawingRect.Right - Padding - ButtonWidth,
+                    drawingRect.Bottom - Padding - ButtonHeight,
+                    ButtonWidth,
+                    ButtonHeight);
             }
+            
             ctx.ShowSecondaryButton = false;
+            
             return ctx;
         }
-
-        // Do not draw container background/shadow here; BaseControl handles it.
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
         {
-            // Minimal accent line at top - use PaintersFactory to reuse pen
-            var accentPen = PaintersFactory.GetPen(ctx.AccentColor,2);
-            g.DrawLine(accentPen,
-                ctx.DrawingRect.Left +16, ctx.DrawingRect.Top +12,
-                ctx.DrawingRect.Left +56, ctx.DrawingRect.Top +12);
+            // Background handled by BaseControl
         }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Draw accent line at top
+            using var pen = new Pen(ctx.AccentColor, AccentLineThickness);
+            pen.StartCap = LineCap.Round;
+            pen.EndCap = LineCap.Round;
+            
+            int lineY = ctx.DrawingRect.Top + Padding;
+            g.DrawLine(pen,
+                ctx.DrawingRect.Left + Padding,
+                lineY,
+                ctx.DrawingRect.Left + Padding + AccentLineWidth,
+                lineY);
+        }
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        {
+            // No additional hit areas for basic card
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

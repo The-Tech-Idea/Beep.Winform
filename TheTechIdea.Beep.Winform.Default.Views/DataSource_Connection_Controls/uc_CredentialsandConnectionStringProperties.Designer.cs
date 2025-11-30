@@ -22,13 +22,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.Credentials_ConnectionStringbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.Credentials_PasswordbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.Credentials_UserIDbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.ConnectionPropertytabPage.SuspendLayout();
+            this.SuspendLayout();
             this.Credentials_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // ConnectionPropertytabPage
             // 
-            this.ConnectionPropertytabPage.Controls.Add(this.Credentials_propertiesPanel);
+            this.Controls.Add(this.Credentials_propertiesPanel);
             // 
             // Credentials_propertiesPanel
             // 
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "uc_CredentialsandConnectionStringProperties";
             this.Size = new System.Drawing.Size(547, 669);
-            this.ConnectionPropertytabPage.ResumeLayout(false);
+            this.ResumeLayout(false);
             this.Credentials_propertiesPanel.ResumeLayout(false);
             this.ResumeLayout(false);
         }

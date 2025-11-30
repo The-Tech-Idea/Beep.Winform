@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 {
     public partial class BeepMultiChipGroup
     {
-        private int _focusedIndex = -1;
+        // _focusedIndex is defined in BeepMultiChipGroup.Properties.cs
 
         private void UpdateChipBounds()
         {

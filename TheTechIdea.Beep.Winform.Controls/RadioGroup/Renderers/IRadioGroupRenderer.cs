@@ -3,6 +3,7 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -25,6 +26,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         /// Gets whether this renderer supports multiple selection
         /// </summary>
         bool SupportsMultipleSelection { get; }
+        
+        /// <summary>
+        /// Gets or sets the BeepControlStyle for this renderer
+        /// </summary>
+        BeepControlStyle ControlStyle { get; set; }
+        
+        /// <summary>
+        /// Gets or sets whether to use theme colors (true) or style colors (false)
+        /// </summary>
+        bool UseThemeColors { get; set; }
 
         /// <summary>
         /// Initializes the renderer with the parent control and theme
@@ -201,6 +212,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         /// Toggle switch Style
         /// </summary>
         Toggle,
+        
+        /// <summary>
+        /// iOS-style segmented control (connected buttons)
+        /// </summary>
+        Segmented,
+        
+        /// <summary>
+        /// Pill-shaped buttons (fully rounded capsules)
+        /// </summary>
+        Pill,
+        
+        /// <summary>
+        /// Large touch-friendly tiles (Windows 8/10 style)
+        /// </summary>
+        Tile,
 
         /// <summary>
         /// Custom renderer

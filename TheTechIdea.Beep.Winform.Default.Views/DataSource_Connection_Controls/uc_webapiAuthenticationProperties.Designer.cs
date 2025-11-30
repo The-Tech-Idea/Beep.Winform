@@ -1,19 +1,9 @@
-using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
-
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     partial class uc_webapiAuthenticationProperties
     {
-        /// <summary> 
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary> 
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -25,151 +15,217 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 
         #region Component Designer generated code
 
-        /// <summary> 
-        /// Required method for Designer support - do not modify 
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.WebApiAuth_propertiesPanel = new TheTechIdea.Beep.Winform.Controls.BeepPanel();
-            this.WebApiAuth_AuthTypebeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
-            this.WebApiAuth_ApiKeybeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_ApiKeyHeaderbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_ClientIdbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_ClientSecretbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_AuthUrlbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_TokenUrlbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_ScopebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_GrantTypebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_RedirectUribeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApiAuth_AuthCodebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.ConnectionPropertytabPage.SuspendLayout();
-            this.WebApiAuth_propertiesPanel.SuspendLayout();
+            base.InitializeComponent();
+            this.OAuth_propertiesPanel = new TheTechIdea.Beep.Winform.Controls.BeepPanel();
+            this.OAuth_ClientIdbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_ClientSecretbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_AuthTypebeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
+            this.OAuth_AuthUrlbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_TokenUrlbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_ScopebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_GrantTypebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_ApiKeyHeaderbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_RedirectUribeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_AuthCodebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_UseProxybeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
+            this.OAuth_ProxyUrlbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_ProxyPortbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_ProxyUserbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_ProxyPasswordbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this.OAuth_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // ConnectionPropertytabPage
+            // OAuth_propertiesPanel
             // 
-            this.ConnectionPropertytabPage.Controls.Add(this.WebApiAuth_propertiesPanel);
+            this.OAuth_propertiesPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.OAuth_propertiesPanel.Name = "OAuth_propertiesPanel";
+            this.OAuth_propertiesPanel.TabIndex = 0;
+            this.OAuth_propertiesPanel.IsChild = true;
+            this.OAuth_propertiesPanel.AutoScroll = true;
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_AuthTypebeepComboBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ClientIdbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ClientSecretbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_AuthUrlbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_TokenUrlbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ScopebeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_GrantTypebeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ApiKeyHeaderbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_RedirectUribeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_AuthCodebeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_UseProxybeepCheckBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ProxyUrlbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ProxyPortbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ProxyUserbeepTextBox);
+            this.OAuth_propertiesPanel.Controls.Add(this.OAuth_ProxyPasswordbeepTextBox);
             // 
-            // WebApiAuth_propertiesPanel
+            // OAuth_AuthTypebeepComboBox - Row 1
             // 
-            this.WebApiAuth_propertiesPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WebApiAuth_propertiesPanel.Name = "WebApiAuth_propertiesPanel";
-            this.WebApiAuth_propertiesPanel.TabIndex = 0;
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_AuthTypebeepComboBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_ApiKeybeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_ApiKeyHeaderbeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_ClientIdbeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_ClientSecretbeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_AuthUrlbeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_TokenUrlbeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_ScopebeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_GrantTypebeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_RedirectUribeepTextBox);
-            this.WebApiAuth_propertiesPanel.Controls.Add(this.WebApiAuth_AuthCodebeepTextBox);
+            this.OAuth_AuthTypebeepComboBox.Name = "OAuth_AuthTypebeepComboBox";
+            this.OAuth_AuthTypebeepComboBox.LabelText = "Auth Type";
+            this.OAuth_AuthTypebeepComboBox.LabelTextOn = true;
+            this.OAuth_AuthTypebeepComboBox.Location = new System.Drawing.Point(20, 20);
+            this.OAuth_AuthTypebeepComboBox.Size = new System.Drawing.Size(200, 50);
+            this.OAuth_AuthTypebeepComboBox.IsChild = true;
             // 
-            // WebApiAuth_AuthTypebeepComboBox
+            // OAuth_ClientIdbeepTextBox
             // 
-            this.WebApiAuth_AuthTypebeepComboBox.Name = "WebApiAuth_AuthTypebeepComboBox";
-            this.WebApiAuth_AuthTypebeepComboBox.PlaceholderText = "Auth Type";
-            this.WebApiAuth_AuthTypebeepComboBox.Location = new System.Drawing.Point(24, 24);
-            this.WebApiAuth_AuthTypebeepComboBox.Size = new System.Drawing.Size(220, 48);
+            this.OAuth_ClientIdbeepTextBox.Name = "OAuth_ClientIdbeepTextBox";
+            this.OAuth_ClientIdbeepTextBox.LabelText = "Client ID";
+            this.OAuth_ClientIdbeepTextBox.LabelTextOn = true;
+            this.OAuth_ClientIdbeepTextBox.Location = new System.Drawing.Point(240, 20);
+            this.OAuth_ClientIdbeepTextBox.Size = new System.Drawing.Size(270, 50);
+            this.OAuth_ClientIdbeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_ApiKeybeepTextBox
+            // OAuth_ClientSecretbeepTextBox - Row 2
             // 
-            this.WebApiAuth_ApiKeybeepTextBox.Name = "WebApiAuth_ApiKeybeepTextBox";
-            this.WebApiAuth_ApiKeybeepTextBox.PlaceholderText = "API Key";
-            this.WebApiAuth_ApiKeybeepTextBox.Location = new System.Drawing.Point(260, 24);
-            this.WebApiAuth_ApiKeybeepTextBox.Size = new System.Drawing.Size(260, 40);
+            this.OAuth_ClientSecretbeepTextBox.Name = "OAuth_ClientSecretbeepTextBox";
+            this.OAuth_ClientSecretbeepTextBox.LabelText = "Client Secret";
+            this.OAuth_ClientSecretbeepTextBox.LabelTextOn = true;
+            this.OAuth_ClientSecretbeepTextBox.Location = new System.Drawing.Point(20, 90);
+            this.OAuth_ClientSecretbeepTextBox.Size = new System.Drawing.Size(490, 50);
+            this.OAuth_ClientSecretbeepTextBox.UseSystemPasswordChar = true;
+            this.OAuth_ClientSecretbeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_ApiKeyHeaderbeepTextBox
+            // OAuth_AuthUrlbeepTextBox - Row 3
             // 
-            this.WebApiAuth_ApiKeyHeaderbeepTextBox.Name = "WebApiAuth_ApiKeyHeaderbeepTextBox";
-            this.WebApiAuth_ApiKeyHeaderbeepTextBox.PlaceholderText = "API Key Header";
-            this.WebApiAuth_ApiKeyHeaderbeepTextBox.Location = new System.Drawing.Point(24, 80);
-            this.WebApiAuth_ApiKeyHeaderbeepTextBox.Size = new System.Drawing.Size(220, 40);
+            this.OAuth_AuthUrlbeepTextBox.Name = "OAuth_AuthUrlbeepTextBox";
+            this.OAuth_AuthUrlbeepTextBox.LabelText = "Auth URL";
+            this.OAuth_AuthUrlbeepTextBox.LabelTextOn = true;
+            this.OAuth_AuthUrlbeepTextBox.Location = new System.Drawing.Point(20, 160);
+            this.OAuth_AuthUrlbeepTextBox.Size = new System.Drawing.Size(490, 50);
+            this.OAuth_AuthUrlbeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_ClientIdbeepTextBox
+            // OAuth_TokenUrlbeepTextBox - Row 4
             // 
-            this.WebApiAuth_ClientIdbeepTextBox.Name = "WebApiAuth_ClientIdbeepTextBox";
-            this.WebApiAuth_ClientIdbeepTextBox.PlaceholderText = "Client ID";
-            this.WebApiAuth_ClientIdbeepTextBox.Location = new System.Drawing.Point(260, 80);
-            this.WebApiAuth_ClientIdbeepTextBox.Size = new System.Drawing.Size(260, 40);
+            this.OAuth_TokenUrlbeepTextBox.Name = "OAuth_TokenUrlbeepTextBox";
+            this.OAuth_TokenUrlbeepTextBox.LabelText = "Token URL";
+            this.OAuth_TokenUrlbeepTextBox.LabelTextOn = true;
+            this.OAuth_TokenUrlbeepTextBox.Location = new System.Drawing.Point(20, 230);
+            this.OAuth_TokenUrlbeepTextBox.Size = new System.Drawing.Size(490, 50);
+            this.OAuth_TokenUrlbeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_ClientSecretbeepTextBox
+            // OAuth_ScopebeepTextBox - Row 5
             // 
-            this.WebApiAuth_ClientSecretbeepTextBox.Name = "WebApiAuth_ClientSecretbeepTextBox";
-            this.WebApiAuth_ClientSecretbeepTextBox.PlaceholderText = "Client Secret";
-            this.WebApiAuth_ClientSecretbeepTextBox.UseSystemPasswordChar = true;
-            this.WebApiAuth_ClientSecretbeepTextBox.Location = new System.Drawing.Point(24, 136);
-            this.WebApiAuth_ClientSecretbeepTextBox.Size = new System.Drawing.Size(220, 40);
+            this.OAuth_ScopebeepTextBox.Name = "OAuth_ScopebeepTextBox";
+            this.OAuth_ScopebeepTextBox.LabelText = "Scope";
+            this.OAuth_ScopebeepTextBox.LabelTextOn = true;
+            this.OAuth_ScopebeepTextBox.Location = new System.Drawing.Point(20, 300);
+            this.OAuth_ScopebeepTextBox.Size = new System.Drawing.Size(300, 50);
+            this.OAuth_ScopebeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_AuthUrlbeepTextBox
+            // OAuth_GrantTypebeepTextBox
             // 
-            this.WebApiAuth_AuthUrlbeepTextBox.Name = "WebApiAuth_AuthUrlbeepTextBox";
-            this.WebApiAuth_AuthUrlbeepTextBox.PlaceholderText = "Auth URL";
-            this.WebApiAuth_AuthUrlbeepTextBox.Location = new System.Drawing.Point(260, 136);
-            this.WebApiAuth_AuthUrlbeepTextBox.Size = new System.Drawing.Size(260, 40);
+            this.OAuth_GrantTypebeepTextBox.Name = "OAuth_GrantTypebeepTextBox";
+            this.OAuth_GrantTypebeepTextBox.LabelText = "Grant Type";
+            this.OAuth_GrantTypebeepTextBox.LabelTextOn = true;
+            this.OAuth_GrantTypebeepTextBox.Location = new System.Drawing.Point(340, 300);
+            this.OAuth_GrantTypebeepTextBox.Size = new System.Drawing.Size(170, 50);
+            this.OAuth_GrantTypebeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_TokenUrlbeepTextBox
+            // OAuth_ApiKeyHeaderbeepTextBox - Row 6
             // 
-            this.WebApiAuth_TokenUrlbeepTextBox.Name = "WebApiAuth_TokenUrlbeepTextBox";
-            this.WebApiAuth_TokenUrlbeepTextBox.PlaceholderText = "Token URL";
-            this.WebApiAuth_TokenUrlbeepTextBox.Location = new System.Drawing.Point(24, 192);
-            this.WebApiAuth_TokenUrlbeepTextBox.Size = new System.Drawing.Size(220, 40);
+            this.OAuth_ApiKeyHeaderbeepTextBox.Name = "OAuth_ApiKeyHeaderbeepTextBox";
+            this.OAuth_ApiKeyHeaderbeepTextBox.LabelText = "API Key Header";
+            this.OAuth_ApiKeyHeaderbeepTextBox.LabelTextOn = true;
+            this.OAuth_ApiKeyHeaderbeepTextBox.Location = new System.Drawing.Point(20, 370);
+            this.OAuth_ApiKeyHeaderbeepTextBox.Size = new System.Drawing.Size(230, 50);
+            this.OAuth_ApiKeyHeaderbeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_ScopebeepTextBox
+            // OAuth_RedirectUribeepTextBox
             // 
-            this.WebApiAuth_ScopebeepTextBox.Name = "WebApiAuth_ScopebeepTextBox";
-            this.WebApiAuth_ScopebeepTextBox.PlaceholderText = "Scope";
-            this.WebApiAuth_ScopebeepTextBox.Location = new System.Drawing.Point(260, 192);
-            this.WebApiAuth_ScopebeepTextBox.Size = new System.Drawing.Size(260, 40);
+            this.OAuth_RedirectUribeepTextBox.Name = "OAuth_RedirectUribeepTextBox";
+            this.OAuth_RedirectUribeepTextBox.LabelText = "Redirect URI";
+            this.OAuth_RedirectUribeepTextBox.LabelTextOn = true;
+            this.OAuth_RedirectUribeepTextBox.Location = new System.Drawing.Point(270, 370);
+            this.OAuth_RedirectUribeepTextBox.Size = new System.Drawing.Size(240, 50);
+            this.OAuth_RedirectUribeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_GrantTypebeepTextBox
+            // OAuth_AuthCodebeepTextBox - Row 7
             // 
-            this.WebApiAuth_GrantTypebeepTextBox.Name = "WebApiAuth_GrantTypebeepTextBox";
-            this.WebApiAuth_GrantTypebeepTextBox.PlaceholderText = "Grant Type";
-            this.WebApiAuth_GrantTypebeepTextBox.Location = new System.Drawing.Point(24, 248);
-            this.WebApiAuth_GrantTypebeepTextBox.Size = new System.Drawing.Size(220, 40);
+            this.OAuth_AuthCodebeepTextBox.Name = "OAuth_AuthCodebeepTextBox";
+            this.OAuth_AuthCodebeepTextBox.LabelText = "Auth Code";
+            this.OAuth_AuthCodebeepTextBox.LabelTextOn = true;
+            this.OAuth_AuthCodebeepTextBox.Location = new System.Drawing.Point(20, 440);
+            this.OAuth_AuthCodebeepTextBox.Size = new System.Drawing.Size(490, 50);
+            this.OAuth_AuthCodebeepTextBox.IsChild = true;
             // 
-            // WebApiAuth_RedirectUribeepTextBox
+            // OAuth_UseProxybeepCheckBox - Row 8 (Proxy Section)
             // 
-            this.WebApiAuth_RedirectUribeepTextBox.Name = "WebApiAuth_RedirectUribeepTextBox";
-            this.WebApiAuth_RedirectUribeepTextBox.PlaceholderText = "Redirect URI";
-            this.WebApiAuth_RedirectUribeepTextBox.Location = new System.Drawing.Point(260, 248);
-            this.WebApiAuth_RedirectUribeepTextBox.Size = new System.Drawing.Size(260, 40);
+            this.OAuth_UseProxybeepCheckBox.Name = "OAuth_UseProxybeepCheckBox";
+            this.OAuth_UseProxybeepCheckBox.Text = "Use Proxy";
+            this.OAuth_UseProxybeepCheckBox.Location = new System.Drawing.Point(20, 510);
+            this.OAuth_UseProxybeepCheckBox.Size = new System.Drawing.Size(150, 30);
+            this.OAuth_UseProxybeepCheckBox.IsChild = true;
             // 
-            // WebApiAuth_AuthCodebeepTextBox
+            // OAuth_ProxyUrlbeepTextBox - Row 9
             // 
-            this.WebApiAuth_AuthCodebeepTextBox.Name = "WebApiAuth_AuthCodebeepTextBox";
-            this.WebApiAuth_AuthCodebeepTextBox.PlaceholderText = "Auth Code";
-            this.WebApiAuth_AuthCodebeepTextBox.Location = new System.Drawing.Point(24, 304);
-            this.WebApiAuth_AuthCodebeepTextBox.Size = new System.Drawing.Size(220, 40);
+            this.OAuth_ProxyUrlbeepTextBox.Name = "OAuth_ProxyUrlbeepTextBox";
+            this.OAuth_ProxyUrlbeepTextBox.LabelText = "Proxy URL";
+            this.OAuth_ProxyUrlbeepTextBox.LabelTextOn = true;
+            this.OAuth_ProxyUrlbeepTextBox.Location = new System.Drawing.Point(20, 550);
+            this.OAuth_ProxyUrlbeepTextBox.Size = new System.Drawing.Size(350, 50);
+            this.OAuth_ProxyUrlbeepTextBox.IsChild = true;
+            // 
+            // OAuth_ProxyPortbeepTextBox
+            // 
+            this.OAuth_ProxyPortbeepTextBox.Name = "OAuth_ProxyPortbeepTextBox";
+            this.OAuth_ProxyPortbeepTextBox.LabelText = "Port";
+            this.OAuth_ProxyPortbeepTextBox.LabelTextOn = true;
+            this.OAuth_ProxyPortbeepTextBox.Location = new System.Drawing.Point(390, 550);
+            this.OAuth_ProxyPortbeepTextBox.Size = new System.Drawing.Size(120, 50);
+            this.OAuth_ProxyPortbeepTextBox.IsChild = true;
+            // 
+            // OAuth_ProxyUserbeepTextBox - Row 10
+            // 
+            this.OAuth_ProxyUserbeepTextBox.Name = "OAuth_ProxyUserbeepTextBox";
+            this.OAuth_ProxyUserbeepTextBox.LabelText = "Proxy User";
+            this.OAuth_ProxyUserbeepTextBox.LabelTextOn = true;
+            this.OAuth_ProxyUserbeepTextBox.Location = new System.Drawing.Point(20, 620);
+            this.OAuth_ProxyUserbeepTextBox.Size = new System.Drawing.Size(230, 50);
+            this.OAuth_ProxyUserbeepTextBox.IsChild = true;
+            // 
+            // OAuth_ProxyPasswordbeepTextBox
+            // 
+            this.OAuth_ProxyPasswordbeepTextBox.Name = "OAuth_ProxyPasswordbeepTextBox";
+            this.OAuth_ProxyPasswordbeepTextBox.LabelText = "Proxy Password";
+            this.OAuth_ProxyPasswordbeepTextBox.LabelTextOn = true;
+            this.OAuth_ProxyPasswordbeepTextBox.Location = new System.Drawing.Point(270, 620);
+            this.OAuth_ProxyPasswordbeepTextBox.Size = new System.Drawing.Size(240, 50);
+            this.OAuth_ProxyPasswordbeepTextBox.UseSystemPasswordChar = true;
+            this.OAuth_ProxyPasswordbeepTextBox.IsChild = true;
             // 
             // uc_webapiAuthenticationProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "uc_webapiAuthenticationProperties";
-            this.Size = new System.Drawing.Size(547, 669);
-            this.ConnectionPropertytabPage.ResumeLayout(false);
-            this.WebApiAuth_propertiesPanel.ResumeLayout(false);
+            this.Size = new System.Drawing.Size(550, 720);
+            // Add the panel to the ConnectionPropertytabPage (from base class)
+            this.Controls.Add(this.OAuth_propertiesPanel);
+            this.Text = "OAuth/API Auth";
+            this.OAuth_propertiesPanel.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
         #endregion
 
-        private TheTechIdea.Beep.Winform.Controls.BeepPanel WebApiAuth_propertiesPanel;
-        private BeepComboBox WebApiAuth_AuthTypebeepComboBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ApiKeybeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ApiKeyHeaderbeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ClientIdbeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ClientSecretbeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_AuthUrlbeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_TokenUrlbeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ScopebeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_GrantTypebeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_RedirectUribeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_AuthCodebeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepPanel OAuth_propertiesPanel;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ClientIdbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ClientSecretbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepComboBox OAuth_AuthTypebeepComboBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_AuthUrlbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_TokenUrlbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ScopebeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_GrantTypebeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ApiKeyHeaderbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_RedirectUribeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_AuthCodebeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool OAuth_UseProxybeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyUrlbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyPortbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyUserbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyPasswordbeepTextBox;
     }
 }

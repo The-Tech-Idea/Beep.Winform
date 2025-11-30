@@ -351,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var layout = new PainterLayoutInfo();
             var metrics = GetMetrics(owner);
             
-            owner._hits.Clear();
+            // NOTE: Don't call owner._hits.Clear() here - it's already cleared by EnsureLayoutCalculated
             
             if (!owner.ShowCaptionBar)
             {

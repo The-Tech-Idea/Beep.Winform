@@ -53,14 +53,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
     public enum ChipStyle
     {
+        /// <summary>Default filled chip style</summary>
         Default,
+        /// <summary>Modern Material Design style</summary>
         Modern,
+        /// <summary>Classic outlined chip</summary>
         Classic,
+        /// <summary>Text-only minimalist style</summary>
         Minimalist,
+        /// <summary>Colorful gradient chips</summary>
         Colorful,
+        /// <summary>Professional outlined style</summary>
         Professional,
+        /// <summary>Soft pastel colors</summary>
         Soft,
-        HighContrast
+        /// <summary>High contrast accessibility style</summary>
+        HighContrast,
+        /// <summary>Full pill-shaped rounded chips</summary>
+        Pill,
+        /// <summary>Likeable chips with heart icons (pink theme)</summary>
+        Likeable,
+        /// <summary>Ingredient/tag style chips with checkmarks</summary>
+        Ingredient,
+        /// <summary>Shaded chips with gradient backgrounds</summary>
+        Shaded,
+        /// <summary>Avatar chips with user profile images</summary>
+        Avatar,
+        /// <summary>Elevated chips with shadow effect</summary>
+        Elevated,
+        /// <summary>Smooth rounded corners with subtle shadows</summary>
+        Smooth,
+        /// <summary>Square/rare chips with minimal rounding</summary>
+        Square,
+        /// <summary>Dashed border style</summary>
+        Dashed,
+        /// <summary>Bold text with 30% opacity background</summary>
+        Bold
+    }
+
+    /// <summary>
+    /// Chip shape variants
+    /// </summary>
+    public enum ChipShape
+    {
+        /// <summary>Standard rounded rectangle</summary>
+        Rounded,
+        /// <summary>Full pill shape (height/2 radius)</summary>
+        Pill,
+        /// <summary>Square with minimal rounding</summary>
+        Square,
+        /// <summary>Stadium/capsule shape</summary>
+        Stadium
+    }
+    #endregion
+
+    #region Event Args
+    /// <summary>
+    /// Event arguments for chip selection changes
+    /// </summary>
+    public class ChipSelectionChangedEventArgs : EventArgs
+    {
+        public SimpleItem SelectedItem { get; }
+        public IReadOnlyList<SimpleItem> SelectedItems { get; }
+        public SimpleItem PreviousItem { get; }
+        public ChipSelectionMode SelectionMode { get; }
+        public bool IsSelected { get; }
+
+        public ChipSelectionChangedEventArgs(
+            SimpleItem selectedItem,
+            IReadOnlyList<SimpleItem> selectedItems,
+            SimpleItem previousItem,
+            ChipSelectionMode mode,
+            bool isSelected)
+        {
+            SelectedItem = selectedItem;
+            SelectedItems = selectedItems;
+            PreviousItem = previousItem;
+            SelectionMode = mode;
+            IsSelected = isSelected;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for chip click
+    /// </summary>
+    public class ChipClickedEventArgs : EventArgs
+    {
+        public SimpleItem Item { get; }
+        public int Index { get; }
+        public MouseButtons Button { get; }
+        public bool IsCloseButton { get; }
+
+        public ChipClickedEventArgs(SimpleItem item, int index, MouseButtons button, bool isCloseButton = false)
+        {
+            Item = item;
+            Index = index;
+            Button = button;
+            IsCloseButton = isCloseButton;
+        }
     }
     #endregion
 
@@ -94,11 +184,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         private ChipStyle _chipStyle = ChipStyle.Default;
         private int _chipBorderWidth = 1;
         private bool _showChipBorders = true;
+        private ChipShape _chipShape = ChipShape.Rounded;
+        private bool _showAvatar = false;
+        private bool _showLeadingIcon = true;
+        private bool _showTrailingIcon = true;
+        private bool _showCloseButton = true;
+        private bool _showCheckmark = true;
+        private bool _animateSelection = true;
 
         // Painter infra
         private IChipGroupPainter _painter;
         private readonly Dictionary<int, Rectangle> _closeRects = new();
         private ChipRenderOptions _renderOptions = new ChipRenderOptions();
+
+        // Previous selection for event tracking
+        private SimpleItem _previousSelectedItem;
         #endregion
 
         #region Properties
@@ -236,8 +336,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         [DefaultValue(true)]
         public bool ShowChipBorders { get => _showChipBorders; set { _showChipBorders = value; Invalidate(); } }
 
+        /// <summary>
+        /// Fired when the selected item changes (legacy event for backward compatibility)
+        /// </summary>
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
-        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem) => SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        
+        /// <summary>
+        /// Fired when chip selection changes (primary event for synchronization)
+        /// This event provides comprehensive information for syncing with BeepListBox
+        /// </summary>
+        public event EventHandler<ChipSelectionChangedEventArgs> SelectionChanged;
+        
+        /// <summary>
+        /// Fired when a chip is clicked (includes close button clicks)
+        /// </summary>
+        public event EventHandler<ChipClickedEventArgs> ChipClicked;
+        
+        /// <summary>
+        /// Fired when a chip is removed via close button
+        /// </summary>
+        public event EventHandler<ChipClickedEventArgs> ChipRemoved;
+        
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem) 
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+            
+            // Also fire the unified SelectionChanged event
+            OnSelectionChanged(selectedItem, true);
+        }
+        
+        /// <summary>
+        /// Raises the SelectionChanged event with full details
+        /// </summary>
+        protected virtual void OnSelectionChanged(SimpleItem item, bool isSelected)
+        {
+            SelectionChanged?.Invoke(this, new ChipSelectionChangedEventArgs(
+                item,
+                _selectedItems.ToList().AsReadOnly(),
+                _previousSelectedItem,
+                _selectionMode,
+                isSelected
+            ));
+            
+            _previousSelectedItem = item;
+        }
+        
+        /// <summary>
+        /// Raises the ChipClicked event
+        /// </summary>
+        protected virtual void OnChipClicked(SimpleItem item, int index, MouseButtons button, bool isCloseButton)
+        {
+            ChipClicked?.Invoke(this, new ChipClickedEventArgs(item, index, button, isCloseButton));
+        }
+        
+        /// <summary>
+        /// Raises the ChipRemoved event
+        /// </summary>
+        protected virtual void OnChipRemoved(SimpleItem item, int index)
+        {
+            ChipRemoved?.Invoke(this, new ChipClickedEventArgs(item, index, MouseButtons.Left, true));
+        }
 
         public new bool AutoScroll { get => false; set { } }
         #endregion
@@ -347,6 +505,153 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             _chips.ForEach(c => c.IsSelected = false);
             Invalidate();
         }
+        #endregion
+        
+        #region Selection Synchronization Methods
+        
+        /// <summary>
+        /// Sets the selection from a list of items (for sync with BeepListBox)
+        /// This method does NOT fire SelectionChanged to avoid circular updates
+        /// </summary>
+        public void SetSelectionSilent(IEnumerable<SimpleItem> items)
+        {
+            _selectedItems.Clear();
+            foreach (var item in items)
+            {
+                var match = _chipItems.FirstOrDefault(c => c.GuidId == item.GuidId);
+                if (match != null && !_selectedItems.Contains(match))
+                {
+                    _selectedItems.Add(match);
+                }
+            }
+            UpdateSelectedChips();
+            Invalidate();
+        }
+        
+        /// <summary>
+        /// Sets the selection from a list of items and fires SelectionChanged event
+        /// </summary>
+        public void SetSelection(IEnumerable<SimpleItem> items)
+        {
+            var previousSelected = _selectedItem;
+            _selectedItems.Clear();
+            
+            foreach (var item in items)
+            {
+                var match = _chipItems.FirstOrDefault(c => c.GuidId == item.GuidId);
+                if (match != null && !_selectedItems.Contains(match))
+                {
+                    _selectedItems.Add(match);
+                }
+            }
+            
+            UpdateSelectedChips();
+            
+            var newSelected = _selectedItems.FirstOrDefault();
+            if (newSelected != previousSelected)
+            {
+                _previousSelectedItem = previousSelected;
+                _selectedItem = newSelected;
+                _selectedIndex = newSelected != null ? _chipItems.IndexOf(newSelected) : -1;
+                OnSelectionChanged(newSelected, newSelected != null);
+            }
+            
+            Invalidate();
+        }
+        
+        /// <summary>
+        /// Adds an item to the selection (for multi-select mode)
+        /// </summary>
+        public void AddToSelection(SimpleItem item, bool fireEvent = true)
+        {
+            if (item == null) return;
+            
+            var match = _chipItems.FirstOrDefault(c => c.GuidId == item.GuidId);
+            if (match == null) return;
+            
+            if (!_selectedItems.Contains(match))
+            {
+                _selectedItems.Add(match);
+                UpdateSelectedChips();
+                
+                if (fireEvent)
+                {
+                    OnSelectionChanged(match, true);
+                }
+                
+                Invalidate();
+            }
+        }
+        
+        /// <summary>
+        /// Removes an item from the selection
+        /// </summary>
+        public void RemoveFromSelection(SimpleItem item, bool fireEvent = true)
+        {
+            if (item == null) return;
+            
+            var match = _chipItems.FirstOrDefault(c => c.GuidId == item.GuidId);
+            if (match == null) return;
+            
+            if (_selectedItems.Contains(match))
+            {
+                _selectedItems.Remove(match);
+                UpdateSelectedChips();
+                
+                if (fireEvent)
+                {
+                    OnSelectionChanged(match, false);
+                }
+                
+                Invalidate();
+            }
+        }
+        
+        /// <summary>
+        /// Clears all selections
+        /// </summary>
+        public void ClearSelection(bool fireEvent = true)
+        {
+            var hadSelection = _selectedItems.Count > 0;
+            _selectedItems.Clear();
+            _selectedItem = null;
+            _selectedIndex = -1;
+            _chips.ForEach(c => c.IsSelected = false);
+            
+            if (fireEvent && hadSelection)
+            {
+                OnSelectionChanged(null, false);
+            }
+            
+            Invalidate();
+        }
+        
+        /// <summary>
+        /// Toggles the selection state of an item
+        /// </summary>
+        public void ToggleSelection(SimpleItem item, bool fireEvent = true)
+        {
+            if (item == null) return;
+            
+            var match = _chipItems.FirstOrDefault(c => c.GuidId == item.GuidId);
+            if (match == null) return;
+            
+            if (_selectedItems.Contains(match))
+            {
+                RemoveFromSelection(match, fireEvent);
+            }
+            else
+            {
+                if (_selectionMode == ChipSelectionMode.Single)
+                {
+                    // Clear other selections first
+                    _selectedItems.Clear();
+                    _chips.ForEach(c => c.IsSelected = false);
+                }
+                AddToSelection(match, fireEvent);
+            }
+        }
+        
         #endregion
 
         #region Theming

@@ -93,6 +93,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
+        // WM_SHOWWINDOW constant
+        private const int WM_SHOWWINDOW = 0x0018;
+        
         protected override void WndProc(ref Message m)
         {
             // CRITICAL: In design mode, behave EXACTLY like a normal WinForm
@@ -100,6 +103,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (InDesignModeSafe)
             {
                 base.WndProc(ref m);
+                return;
+            }
+
+            // CRITICAL: Protect against messages arriving when form is disposed or not ready
+            if (IsDisposed || !IsHandleCreated)
+            {
+                try { base.WndProc(ref m); } catch { }
+                return;
+            }
+
+            // CRITICAL: For WM_SHOWWINDOW, ensure form has valid dimensions before processing
+            // This prevents ArgumentException when showing context menus with zero size
+            if (m.Msg == WM_SHOWWINDOW)
+            {
+                try
+                {
+                    // Ensure form has valid size before showing
+                    if (Width <= 0 || Height <= 0)
+                    {
+                        // Set minimum size to prevent graphics errors
+                        if (Width <= 0) Width = 1;
+                        if (Height <= 0) Height = 1;
+                    }
+                    base.WndProc(ref m);
+                }
+                catch (ArgumentException)
+                {
+                    // Silently ignore - form may not be ready yet
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Form was disposed during show
+                }
                 return;
             }
 
@@ -215,6 +251,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             int y = (short)((lparam >> 16) & 0xffff);
                             Point pos = PointToClient(new Point(x, y));
 
+                            // CRITICAL: Ensure layout is calculated before checking button positions
+                            // This ensures CurrentLayout has correct button rects even if properties changed
+                            // since the last paint. Wrap in try-catch to handle early WM_NCHITTEST before form is ready.
+                            try
+                            {
+                                EnsureLayoutCalculated();
+                            }
+                            catch
+                            {
+                                // Form not fully initialized yet, use default hit test
+                                m.Result = (IntPtr)HTCLIENT;
+                                return;
+                            }
+
                             // Check if the click is within the custom caption bar
                             if (ShowCaptionBar && CurrentLayout != null && CurrentLayout.CaptionRect.Contains(pos))
                             {
@@ -262,27 +312,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
-                            // CRITICAL: Recalculate layout after resize to ensure hit areas are correct
-                            RecalculateLayoutAndHitAreas();
+                            // Mark layout as dirty - will be recalculated on next paint or hit test
+                            InvalidateLayout();
                             
-                            // Invalidate the entire form (client + non-client) to repaint everything including child controls
+                            // Update window region for new size
+                            UpdateWindowRegion();
+                            
+                            // Invalidate the entire form (client + non-client) to repaint everything
                             Invalidate(true);
+                            
                             // Also repaint non-client area (title bar/borders)
                             RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
-                            // Force immediate update to ensure child controls are repainted
-                            Update();
                         }
                         return;
                         
                     default:
-                        base.WndProc(ref m);
+                        try
+                        {
+                            base.WndProc(ref m);
+                        }
+                        catch (ArgumentException)
+                        {
+                            // Ignore ArgumentException that can occur during form initialization
+                            // or when the form has invalid dimensions
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // Ignore if form was disposed during message processing
+                        }
                         break;
                 }
             }
-
-        
-
-
+            else
+            {
+                // When custom border is disabled, use default WndProc
+                try
+                {
+                    base.WndProc(ref m);
+                }
+                catch (ArgumentException)
+                {
+                    // Ignore ArgumentException that can occur during form initialization
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Ignore if form was disposed during message processing
+                }
+            }
         }
 
         private void PaintNonClientBorder()

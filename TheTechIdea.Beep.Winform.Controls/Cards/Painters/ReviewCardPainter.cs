@@ -1,128 +1,245 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// ReviewCardPainter - For user reviews, testimonials, and comments
-    /// Features avatar, user info, rating, and feedback text
+    /// ReviewCard - User review with avatar, rating, verification badge, and helpful actions.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class ReviewCardPainter : CardPainterBase
+    internal sealed class ReviewCardPainter : ICardPainter
     {
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // Review card fonts
+        private Font _nameFont;
+        private Font _dateFont;
+        private Font _reviewFont;
         private Font _badgeFont;
         private Font _helpfulFont;
         private Font _quoteFont;
-
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        
+        // Review card spacing
+        private const int Padding = 16;
+        private const int AvatarSize = 48;
+        private const int NameHeight = 20;
+        private const int DateHeight = 16;
+        private const int RatingWidth = 90;
+        private const int RatingHeight = 20;
+        private const int BadgeWidth = 110;
+        private const int BadgeHeight = 20;
+        private const int ReviewMinHeight = 50;
+        private const int ButtonHeight = 36;
+        private const int ButtonWidth = 100;
+        private const int ElementGap = 8;
+        private const int ContentGap = 12;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            _owner = owner;
+            _theme = theme;
+            
+            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            
+            try { _nameFont?.Dispose(); } catch { }
+            try { _dateFont?.Dispose(); } catch { }
+            try { _reviewFont?.Dispose(); } catch { }
             try { _badgeFont?.Dispose(); } catch { }
             try { _helpfulFont?.Dispose(); } catch { }
             try { _quoteFont?.Dispose(); } catch { }
-            _badgeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
-            _helpfulFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            _quoteFont = new Font("Georgia", 32f, FontStyle.Bold);
+            
+            _nameFont = new Font(fontFamily, 11f, FontStyle.Bold);
+            _dateFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _reviewFont = new Font(fontFamily, 10f, FontStyle.Regular);
+            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
+            _helpfulFont = new Font(fontFamily, 8f, FontStyle.Regular);
+            _quoteFont = new Font("Georgia", 36f, FontStyle.Bold);
         }
-
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
-
-            // User avatar (small, top-left)
+            
+            // User avatar (top-left)
             if (ctx.ShowImage)
             {
-                int avatarSize = 44;
-                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, avatarSize, avatarSize);
+                ctx.ImageRect = new Rectangle(
+                    drawingRect.Left + Padding,
+                    drawingRect.Top + Padding,
+                    AvatarSize,
+                    AvatarSize);
             }
-
-            // User info area (name and date)
-            int infoLeft = ctx.DrawingRect.Left + pad + (ctx.ShowImage ? 54 : 0);
-            int infoWidth = ctx.DrawingRect.Width - pad * 2 - (ctx.ShowImage ? 54 : 0);
             
-            // User name (header)
-            ctx.HeaderRect = new Rectangle(infoLeft, ctx.DrawingRect.Top + pad, infoWidth, 18);
-
-            // Review date (subtitle)
-            ctx.SubtitleRect = new Rectangle(infoLeft, ctx.HeaderRect.Bottom + 2, infoWidth / 2, 14);
-
-            // Star rating (top right)
+            // User info area (right of avatar)
+            int infoLeft = drawingRect.Left + Padding + (ctx.ShowImage ? AvatarSize + ContentGap : 0);
+            int infoWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? AvatarSize + ContentGap : 0);
+            
+            // User name
+            ctx.HeaderRect = new Rectangle(
+                infoLeft,
+                drawingRect.Top + Padding,
+                infoWidth - RatingWidth - ElementGap,
+                NameHeight);
+            
+            // Review date
+            ctx.SubtitleRect = new Rectangle(
+                infoLeft,
+                ctx.HeaderRect.Bottom + 2,
+                infoWidth / 2,
+                DateHeight);
+            
+            // Star rating (top-right)
             if (ctx.ShowRating)
             {
-                ctx.RatingRect = new Rectangle(ctx.DrawingRect.Right - pad - 90, ctx.DrawingRect.Top + pad, 85, 18);
+                ctx.RatingRect = new Rectangle(
+                    drawingRect.Right - Padding - RatingWidth,
+                    drawingRect.Top + Padding,
+                    RatingWidth,
+                    RatingHeight);
             }
-
-            // Verification badge (verified purchase, verified reviewer)
+            
+            // Verification badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(infoLeft, ctx.SubtitleRect.Bottom + 4, 100, 18);
+                ctx.BadgeRect = new Rectangle(
+                    infoLeft,
+                    ctx.SubtitleRect.Bottom + ElementGap,
+                    BadgeWidth,
+                    BadgeHeight);
             }
-
+            
             // Review text
-            int reviewTop = Math.Max(ctx.ImageRect.Bottom, ctx.SubtitleRect.Bottom) + (string.IsNullOrEmpty(ctx.BadgeText1) ? 10 : 26);
-            int reviewHeight = Math.Max(40, ctx.DrawingRect.Height - (reviewTop - ctx.DrawingRect.Top) - pad * 2 - (ctx.ShowButton ? ButtonHeight + 8 : 0));
-            ctx.ParagraphRect = new Rectangle(ctx.DrawingRect.Left + pad, reviewTop, 
-                ctx.DrawingRect.Width - pad * 2, reviewHeight);
-
-            // Helpful/reaction buttons
+            int reviewTop = Math.Max(
+                ctx.ShowImage ? ctx.ImageRect.Bottom : ctx.SubtitleRect.Bottom,
+                ctx.SubtitleRect.Bottom) + 
+                (string.IsNullOrEmpty(ctx.BadgeText1) ? ElementGap * 2 : BadgeHeight + ElementGap * 2);
+            
+            int reviewHeight = Math.Max(ReviewMinHeight,
+                drawingRect.Height - (reviewTop - drawingRect.Top) - Padding * 2 - 
+                (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
+            
+            ctx.ParagraphRect = new Rectangle(
+                drawingRect.Left + Padding,
+                reviewTop,
+                drawingRect.Width - Padding * 2,
+                reviewHeight);
+            
+            // Helpful button and count
             if (ctx.ShowButton)
             {
-                int buttonWidth = 100;
-                ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Bottom - pad - ButtonHeight, 
-                    buttonWidth, ButtonHeight);
+                ctx.ButtonRect = new Rectangle(
+                    drawingRect.Left + Padding,
+                    drawingRect.Bottom - Padding - ButtonHeight,
+                    ButtonWidth,
+                    ButtonHeight);
                 
                 // Helpful count display
                 if (!string.IsNullOrEmpty(ctx.StatusText))
                 {
-                    ctx.StatusRect = new Rectangle(ctx.ButtonRect.Right + 10, ctx.ButtonRect.Top, 
-                        ctx.DrawingRect.Right - pad - (ctx.ButtonRect.Right + 10), ButtonHeight);
+                    ctx.StatusRect = new Rectangle(
+                        ctx.ButtonRect.Right + ElementGap * 2,
+                        ctx.ButtonRect.Top,
+                        drawingRect.Right - Padding - ctx.ButtonRect.Right - ElementGap * 2,
+                        ButtonHeight);
                 }
             }
-
+            
             ctx.ShowSecondaryButton = false;
+            
             return ctx;
         }
-
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
+        {
+            // Background handled by BaseControl
+        }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
             // Draw star rating
-            if (ctx.ShowRating && ctx.Rating > 0)
+            if (ctx.ShowRating && ctx.Rating > 0 && !ctx.RatingRect.IsEmpty)
             {
                 CardRenderingHelpers.DrawStars(g, ctx.RatingRect, ctx.Rating, ctx.AccentColor);
             }
-
+            
             // Draw verification badge
-            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
+                    ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
-
+            
             // Draw helpful count
-            if (!string.IsNullOrEmpty(ctx.StatusText) && ctx.StatusRect != Rectangle.Empty)
+            if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.StatusRect.IsEmpty)
             {
-                var helpfulBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, ctx.AccentColor));
-                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.StatusText, _helpfulFont, helpfulBrush, ctx.StatusRect, format);
+                using var brush = new SolidBrush(Color.FromArgb(120, ctx.AccentColor));
+                var format = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.StatusText, _helpfulFont, brush, ctx.StatusRect, format);
             }
-
+            
             // Draw avatar border
-            if (ctx.ShowImage)
+            if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                var borderPen = PaintersFactory.GetPen(Color.FromArgb(50, ctx.AccentColor), 2);
-                g.DrawEllipse(borderPen, ctx.ImageRect);
+                using var pen = new Pen(Color.FromArgb(50, ctx.AccentColor), 2);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawEllipse(pen, ctx.ImageRect);
             }
-
-            // Draw quote marks for testimonial Style (subtle decoration)
-            if (ctx.ParagraphRect.Height > 40)
+            
+            // Draw decorative quote mark
+            if (!ctx.ParagraphRect.IsEmpty && ctx.ParagraphRect.Height > 40)
             {
-                var quoteBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, ctx.AccentColor));
-                g.DrawString("\"", _quoteFont, quoteBrush, ctx.ParagraphRect.Left - 4, ctx.ParagraphRect.Top - 12);
+                using var brush = new SolidBrush(Color.FromArgb(12, ctx.AccentColor));
+                g.DrawString("\"", _quoteFont, brush, 
+                    ctx.ParagraphRect.Left - 6, ctx.ParagraphRect.Top - 14);
             }
         }
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        {
+            if (ctx.ShowRating && !ctx.RatingRect.IsEmpty)
+            {
+                owner.AddHitArea("Rating", ctx.RatingRect, null,
+                    () => notifyAreaHit?.Invoke("Rating", ctx.RatingRect));
+            }
+            
+            if (!ctx.BadgeRect.IsEmpty)
+            {
+                owner.AddHitArea("Badge", ctx.BadgeRect, null,
+                    () => notifyAreaHit?.Invoke("Badge", ctx.BadgeRect));
+            }
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _nameFont?.Dispose();
+            _dateFont?.Dispose();
+            _reviewFont?.Dispose();
+            _badgeFont?.Dispose();
+            _helpfulFont?.Dispose();
+            _quoteFont?.Dispose();
+            
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

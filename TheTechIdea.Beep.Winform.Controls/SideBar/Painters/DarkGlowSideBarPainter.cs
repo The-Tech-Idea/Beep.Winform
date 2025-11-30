@@ -9,9 +9,37 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
 {
+    /// <summary>
+    /// Dark Glow Style Sidebar Painter
+    /// 
+    /// DISTINCT FEATURES:
+    /// - Deep dark background (gaming/creative aesthetic)
+    /// - Neon glow effects on selection and hover
+    /// - Gradient fills with luminous highlights
+    /// - Glowing accent colors (blue by default)
+    /// - Inter font family
+    /// - Subtle glow propagation to children
+    /// 
+    /// Selection: Gradient fill with neon glow effect
+    /// Hover: Subtle outer glow
+    /// Expand Icon: Glowing chevron
+    /// Accordion: Glow propagates to children
+    /// </summary>
     public sealed class DarkGlowSideBarPainter : BaseSideBarPainter
     {
-        // Use the BeepImage cache via context.GetCachedIcon
+        private Font _headerFont;
+        private Font _itemFont;
+        private Font _childFont;
+        private Font _badgeFont;
+
+        private void EnsureFonts()
+        {
+            _headerFont ??= BeepFontManager.GetCachedFont("Inter", 10f, FontStyle.Bold);
+            _itemFont ??= BeepFontManager.GetCachedFont("Inter", 13f, FontStyle.Regular);
+            _childFont ??= BeepFontManager.GetCachedFont("Inter", 12f, FontStyle.Regular);
+            _badgeFont ??= BeepFontManager.GetCachedFont("Inter", 8f, FontStyle.Bold);
+        }
+
         public override string Name => "DarkGlow";
 
         public override void Paint(ISideBarPainterContext context)
@@ -151,5 +179,217 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                 if (child.Children != null && child.Children.Count > 0 && context.ExpandedState.ContainsKey(child) && context.ExpandedState[child]) { PaintChildItems(g, bounds, context, child, ref currentY, indentLevel + 1); }
             }
         }
+
+        #region DarkGlow Distinct Implementations
+
+        /// <summary>
+        /// DarkGlow pressed state: intense glow
+        /// </summary>
+        public override void PaintPressed(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
+        {
+            Color glowColor = context.UseThemeColors && context.Theme != null
+                ? context.Theme.PrimaryColor
+                : Color.FromArgb(59, 130, 246);
+
+            // Intense glow background
+            using (var path = CreateRoundedPath(itemRect, 8))
+            {
+                using (var brush = new SolidBrush(Color.FromArgb(80, glowColor)))
+                {
+                    g.FillPath(brush, path);
+                }
+
+                // Outer glow effect
+                for (int i = 3; i >= 0; i--)
+                {
+                    Rectangle glowRect = new Rectangle(itemRect.X - i, itemRect.Y - i, itemRect.Width + i * 2, itemRect.Height + i * 2);
+                    using (var glowPath = CreateRoundedPath(glowRect, 8 + i))
+                    using (var pen = new Pen(Color.FromArgb(40 - i * 10, glowColor), 1f))
+                    {
+                        g.DrawPath(pen, glowPath);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// DarkGlow disabled state: no glow, dimmed
+        /// </summary>
+        public override void PaintDisabled(Graphics g, Rectangle itemRect, ISideBarPainterContext context)
+        {
+            using (var brush = new SolidBrush(Color.FromArgb(30, 40, 50, 60)))
+            {
+                g.FillRectangle(brush, itemRect);
+            }
+        }
+
+        /// <summary>
+        /// DarkGlow expand icon: glowing chevron
+        /// </summary>
+        public override void PaintExpandIcon(Graphics g, Rectangle iconRect, bool isExpanded, SimpleItem item, ISideBarPainterContext context)
+        {
+            EnsureFonts();
+            Color glowColor = context.UseThemeColors && context.Theme != null
+                ? context.Theme.PrimaryColor
+                : Color.FromArgb(59, 130, 246);
+
+            Color iconColor = Color.FromArgb(156, 163, 184);
+
+            int cx = iconRect.X + iconRect.Width / 2;
+            int cy = iconRect.Y + iconRect.Height / 2;
+            int size = iconRect.Width / 3;
+
+            // Glow effect
+            using (var glowPen = new Pen(Color.FromArgb(40, glowColor), 4f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            {
+                if (isExpanded)
+                {
+                    g.DrawLine(glowPen, cx - size, cy - size / 2, cx, cy + size / 2);
+                    g.DrawLine(glowPen, cx, cy + size / 2, cx + size, cy - size / 2);
+                }
+                else
+                {
+                    g.DrawLine(glowPen, cx - size / 2, cy - size, cx + size / 2, cy);
+                    g.DrawLine(glowPen, cx + size / 2, cy, cx - size / 2, cy + size);
+                }
+            }
+
+            // Main chevron
+            using (var pen = new Pen(iconColor, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            {
+                if (isExpanded)
+                {
+                    g.DrawLine(pen, cx - size, cy - size / 2, cx, cy + size / 2);
+                    g.DrawLine(pen, cx, cy + size / 2, cx + size, cy - size / 2);
+                }
+                else
+                {
+                    g.DrawLine(pen, cx - size / 2, cy - size, cx + size / 2, cy);
+                    g.DrawLine(pen, cx + size / 2, cy, cx - size / 2, cy + size);
+                }
+            }
+        }
+
+        /// <summary>
+        /// DarkGlow accordion connector: glowing line
+        /// </summary>
+        public override void PaintAccordionConnector(Graphics g, SimpleItem parent, Rectangle parentRect, SimpleItem child, Rectangle childRect, int indentLevel, ISideBarPainterContext context)
+        {
+            Color glowColor = context.UseThemeColors && context.Theme != null
+                ? Color.FromArgb(30, context.Theme.PrimaryColor)
+                : Color.FromArgb(30, 59, 130, 246);
+
+            Color lineColor = Color.FromArgb(50, 75, 85, 99);
+
+            int indent = context.IndentationWidth * indentLevel;
+            int lineX = childRect.X - indent / 2;
+
+            // Glow behind line
+            using (var pen = new Pen(glowColor, 3f))
+            {
+                g.DrawLine(pen, lineX, childRect.Y + childRect.Height / 2, childRect.X, childRect.Y + childRect.Height / 2);
+            }
+
+            // Main line
+            using (var pen = new Pen(lineColor, 1f))
+            {
+                g.DrawLine(pen, lineX, childRect.Y + childRect.Height / 2, childRect.X, childRect.Y + childRect.Height / 2);
+            }
+        }
+
+        /// <summary>
+        /// DarkGlow badge: glowing pill
+        /// </summary>
+        public override void PaintBadge(Graphics g, Rectangle itemRect, string badgeText, Color badgeColor, ISideBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return;
+
+            EnsureFonts();
+            var textSize = g.MeasureString(badgeText, _badgeFont);
+            int badgeWidth = Math.Max(18, (int)textSize.Width + 10);
+            int badgeHeight = 18;
+            int badgeX = itemRect.Right - badgeWidth - 24;
+            int badgeY = itemRect.Y + (itemRect.Height - badgeHeight) / 2;
+
+            Rectangle badgeRect = new Rectangle(badgeX, badgeY, badgeWidth, badgeHeight);
+
+            // Glow effect
+            Rectangle glowRect = new Rectangle(badgeRect.X - 2, badgeRect.Y - 2, badgeRect.Width + 4, badgeRect.Height + 4);
+            using (var glowPath = CreateRoundedPath(glowRect, (badgeHeight + 4) / 2))
+            using (var glowBrush = new SolidBrush(Color.FromArgb(60, badgeColor)))
+            {
+                g.FillPath(glowBrush, glowPath);
+            }
+
+            // Badge fill
+            using (var path = CreateRoundedPath(badgeRect, badgeHeight / 2))
+            using (var brush = new SolidBrush(badgeColor))
+            {
+                g.FillPath(brush, path);
+            }
+
+            // Text
+            using (var brush = new SolidBrush(Color.White))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(badgeText, _badgeFont, brush, badgeRect, format);
+            }
+        }
+
+        /// <summary>
+        /// DarkGlow section header: glowing text
+        /// </summary>
+        public override void PaintSectionHeader(Graphics g, Rectangle headerRect, string headerText, ISideBarPainterContext context)
+        {
+            if (string.IsNullOrEmpty(headerText)) return;
+
+            EnsureFonts();
+            Color glowColor = context.UseThemeColors && context.Theme != null
+                ? context.Theme.PrimaryColor
+                : Color.FromArgb(59, 130, 246);
+
+            // Glow effect on text
+            using (var glowBrush = new SolidBrush(Color.FromArgb(40, glowColor)))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+                // Draw glow (offset)
+                Rectangle glowRect = new Rectangle(headerRect.X + 1, headerRect.Y + 1, headerRect.Width, headerRect.Height);
+                g.DrawString(headerText.ToUpperInvariant(), _headerFont, glowBrush, glowRect, format);
+            }
+
+            // Main text
+            using (var brush = new SolidBrush(Color.FromArgb(156, 163, 175)))
+            {
+                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+                g.DrawString(headerText.ToUpperInvariant(), _headerFont, brush, headerRect, format);
+            }
+        }
+
+        /// <summary>
+        /// DarkGlow divider: glowing line
+        /// </summary>
+        public override void PaintDivider(Graphics g, Rectangle dividerRect, ISideBarPainterContext context)
+        {
+            Color glowColor = context.UseThemeColors && context.Theme != null
+                ? context.Theme.PrimaryColor
+                : Color.FromArgb(59, 130, 246);
+
+            int y = dividerRect.Y + dividerRect.Height / 2;
+            int padding = 16;
+
+            // Glow
+            using (var pen = new Pen(Color.FromArgb(30, glowColor), 3f))
+            {
+                g.DrawLine(pen, dividerRect.X + padding, y, dividerRect.Right - padding, y);
+            }
+
+            // Main line
+            using (var pen = new Pen(Color.FromArgb(50, 31, 41, 55), 1f))
+            {
+                g.DrawLine(pen, dividerRect.X + padding, y, dividerRect.Right - padding, y);
+            }
+        }
+
+        #endregion
     }
 }

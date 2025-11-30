@@ -1,96 +1,211 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// UserCardPainter - For user profiles and team member cards
-    /// Compact layout with avatar, name, role, and contact actions
+    /// UserCard - Team member/profile card with centered avatar, name, role, and actions.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class UserCardPainter : CardPainterBase
+    internal sealed class UserCardPainter : ICardPainter
     {
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // User card fonts
+        private Font _nameFont;
+        private Font _roleFont;
+        private Font _bioFont;
         private Font _badgeFont;
-
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        
+        // User card spacing
+        private const int Padding = 20;
+        private const int AvatarSize = 72;
+        private const int AvatarBorderWidth = 3;
+        private const int NameHeight = 26;
+        private const int RoleHeight = 20;
+        private const int BadgeWidth = 90;
+        private const int BadgeHeight = 22;
+        private const int BioMinHeight = 30;
+        private const int ButtonHeight = 38;
+        private const int ElementGap = 10;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            _owner = owner;
+            _theme = theme;
+            
+            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            
+            try { _nameFont?.Dispose(); } catch { }
+            try { _roleFont?.Dispose(); } catch { }
+            try { _bioFont?.Dispose(); } catch { }
             try { _badgeFont?.Dispose(); } catch { }
-            _badgeFont = new Font(Owner.Font.FontFamily,8f, FontStyle.Regular);
+            
+            _nameFont = new Font(fontFamily, 14f, FontStyle.Bold);
+            _roleFont = new Font(fontFamily, 10f, FontStyle.Regular);
+            _bioFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
         }
-
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
-
-            // Avatar/profile image (centered or left-aligned)
+            
+            // Centered avatar at top
             if (ctx.ShowImage)
             {
-                int avatarSize =60;
-                // Center avatar horizontally
-                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + (ctx.DrawingRect.Width - avatarSize) /2, ctx.DrawingRect.Top + pad, avatarSize, avatarSize);
+                ctx.ImageRect = new Rectangle(
+                    drawingRect.Left + (drawingRect.Width - AvatarSize) / 2,
+                    drawingRect.Top + Padding,
+                    AvatarSize,
+                    AvatarSize);
             }
-
-            // Name (header)
-            int nameTop = ctx.ShowImage ? ctx.ImageRect.Bottom +10 : ctx.DrawingRect.Top + pad;
-            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, nameTop, ctx.DrawingRect.Width - pad *2, HeaderHeight);
-
-            // Role/Title (subtitle)
-            ctx.SubtitleRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom +4, ctx.DrawingRect.Width - pad *2,16);
-
-            // Status badge (online, away, busy, offline)
+            
+            // Name (centered below avatar)
+            int nameTop = ctx.ShowImage ? ctx.ImageRect.Bottom + ElementGap * 2 : drawingRect.Top + Padding;
+            ctx.HeaderRect = new Rectangle(
+                drawingRect.Left + Padding,
+                nameTop,
+                drawingRect.Width - Padding * 2,
+                NameHeight);
+            
+            // Role/title (centered below name)
+            ctx.SubtitleRect = new Rectangle(
+                drawingRect.Left + Padding,
+                ctx.HeaderRect.Bottom + ElementGap / 2,
+                drawingRect.Width - Padding * 2,
+                RoleHeight);
+            
+            // Status badge (centered below role)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(ctx.DrawingRect.Left + (ctx.DrawingRect.Width -80) /2, ctx.SubtitleRect.Bottom +8,80,20);
+                ctx.BadgeRect = new Rectangle(
+                    drawingRect.Left + (drawingRect.Width - BadgeWidth) / 2,
+                    ctx.SubtitleRect.Bottom + ElementGap,
+                    BadgeWidth,
+                    BadgeHeight);
             }
-
-            // Bio or additional info
-            int bioTop = ctx.SubtitleRect.Bottom + (string.IsNullOrEmpty(ctx.BadgeText1) ?10 :32);
-            ctx.ParagraphRect = new Rectangle(ctx.DrawingRect.Left + pad, bioTop, ctx.DrawingRect.Width - pad *2, Math.Max(18, ctx.DrawingRect.Height - (bioTop - ctx.DrawingRect.Top) - pad *2 - (ctx.ShowButton ? ButtonHeight +8 :0)));
-
-            // Action buttons (View Profile, Message, Follow, etc.)
+            
+            // Bio/description
+            int bioTop = ctx.SubtitleRect.Bottom + 
+                (string.IsNullOrEmpty(ctx.BadgeText1) ? ElementGap * 2 : BadgeHeight + ElementGap * 2);
+            int bioHeight = Math.Max(BioMinHeight,
+                drawingRect.Height - (bioTop - drawingRect.Top) - Padding * 2 - 
+                (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
+            
+            ctx.ParagraphRect = new Rectangle(
+                drawingRect.Left + Padding,
+                bioTop,
+                drawingRect.Width - Padding * 2,
+                bioHeight);
+            
+            // Action buttons
             if (ctx.ShowButton)
             {
-                int buttonY = Math.Max(ctx.DrawingRect.Bottom - pad - ButtonHeight, ctx.ParagraphRect.Bottom +8);
+                int buttonTop = drawingRect.Bottom - Padding - ButtonHeight;
                 
                 if (ctx.ShowSecondaryButton)
                 {
-                    int buttonWidth = (ctx.DrawingRect.Width - pad *3) /2;
-                    ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Left + pad, buttonY, buttonWidth, ButtonHeight);
-                    ctx.SecondaryButtonRect = new Rectangle(ctx.ButtonRect.Right + pad, buttonY, buttonWidth, ButtonHeight);
+                    int buttonWidth = (drawingRect.Width - Padding * 3) / 2;
+                    ctx.ButtonRect = new Rectangle(
+                        drawingRect.Left + Padding,
+                        buttonTop,
+                        buttonWidth,
+                        ButtonHeight);
+                    
+                    ctx.SecondaryButtonRect = new Rectangle(
+                        ctx.ButtonRect.Right + Padding,
+                        buttonTop,
+                        buttonWidth,
+                        ButtonHeight);
                 }
                 else
                 {
-                    ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Left + pad, buttonY, ctx.DrawingRect.Width - pad *2, ButtonHeight);
+                    ctx.ButtonRect = new Rectangle(
+                        drawingRect.Left + Padding,
+                        buttonTop,
+                        drawingRect.Width - Padding * 2,
+                        ButtonHeight);
                 }
             }
-
+            
             return ctx;
         }
-
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
         {
-            // Draw status badge (online, away, etc.)
-            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            // Background handled by BaseControl
+        }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Draw status badge
+            if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
+                    ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
-
-            // Draw avatar border/ring (optional accent)
-            if (ctx.ShowImage)
+            
+            // Draw avatar accent border ring
+            if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                var borderPen = PaintersFactory.GetPen(ctx.AccentColor,2);
-                // Draw circular border around avatar
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                
+                // Outer glow ring
+                var glowRect = Rectangle.Inflate(ctx.ImageRect, 4, 4);
+                using var glowPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 2);
+                g.DrawEllipse(glowPen, glowRect);
+                
+                // Main border ring
+                using var borderPen = new Pen(ctx.AccentColor, AvatarBorderWidth);
                 g.DrawEllipse(borderPen, ctx.ImageRect);
             }
-
-            // Draw centered text formatting helper lines (optional subtle design element)
-            // This helps with Material Design elevation feel
         }
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        {
+            if (!ctx.BadgeRect.IsEmpty)
+            {
+                owner.AddHitArea("Status", ctx.BadgeRect, null,
+                    () => notifyAreaHit?.Invoke("Status", ctx.BadgeRect));
+            }
+            
+            if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
+            {
+                owner.AddHitArea("Avatar", ctx.ImageRect, null,
+                    () => notifyAreaHit?.Invoke("Avatar", ctx.ImageRect));
+            }
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _nameFont?.Dispose();
+            _roleFont?.Dispose();
+            _bioFont?.Dispose();
+            _badgeFont?.Dispose();
+            
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

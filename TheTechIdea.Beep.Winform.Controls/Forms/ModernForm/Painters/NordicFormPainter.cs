@@ -345,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             
             int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
-            owner._hits.Clear();
+            // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
             
             // Check if caption bar should be hidden
             if (!owner.ShowCaptionBar)

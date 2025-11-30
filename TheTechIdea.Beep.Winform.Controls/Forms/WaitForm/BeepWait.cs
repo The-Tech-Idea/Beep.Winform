@@ -4,6 +4,7 @@ using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
 
 
 
@@ -14,6 +15,78 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepWait : BeepiFormPro, IWaitForm
     {
         public Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
+        
+        private bool _useTerminalEffect = false;  // Disabled by default for reliability
+        private TerminalStylePreset _terminalStyle = TerminalStylePreset.Matrix;
+        private int _typewriterSpeed = 80;
+        
+        /// <summary>
+        /// Enable or disable terminal effect for the message display
+        /// </summary>
+        [Category("Terminal Effect")]
+        [Description("Enable terminal-style text effect for progress messages")]
+        [DefaultValue(false)]
+        public bool UseTerminalEffect
+        {
+            get => _useTerminalEffect;
+            set
+            {
+                _useTerminalEffect = value;
+                ConfigureTerminalEffect();
+            }
+        }
+        
+        /// <summary>
+        /// Terminal style preset for the message display
+        /// </summary>
+        [Category("Terminal Effect")]
+        [Description("Terminal visual style preset")]
+        [DefaultValue(TerminalStylePreset.Matrix)]
+        public TerminalStylePreset TerminalStyle
+        {
+            get => _terminalStyle;
+            set
+            {
+                _terminalStyle = value;
+                ConfigureTerminalEffect();
+            }
+        }
+        
+        /// <summary>
+        /// Typewriter speed (characters per second)
+        /// </summary>
+        [Category("Terminal Effect")]
+        [Description("Typewriter speed in characters per second")]
+        [DefaultValue(80)]
+        public int TypewriterSpeed
+        {
+            get => _typewriterSpeed;
+            set
+            {
+                _typewriterSpeed = Math.Max(10, Math.Min(200, value));
+                if (messege != null)
+                {
+                    messege.TypewriterSpeed = _typewriterSpeed;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Whether to wait for animations to complete before closing
+        /// </summary>
+        [Category("Terminal Effect")]
+        [Description("Wait for terminal animations to complete before closing")]
+        [DefaultValue(false)]
+        public bool WaitForAnimationsOnClose { get; set; } = false;
+        
+        /// <summary>
+        /// Maximum time to wait for animations when closing (in milliseconds)
+        /// </summary>
+        [Category("Terminal Effect")]
+        [Description("Maximum time to wait for animations when closing")]
+        [DefaultValue(3000)]
+        public int AnimationWaitTimeout { get; set; } = 3000;
+        
         public BeepWait() : base()
         {
 
@@ -56,6 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     messege.AcceptsReturn = true;
                     messege.WordWrap = true;
                     messege.ScrollBars = ScrollBars.Vertical;
+                    
+                    // Configure terminal effect
+                    ConfigureTerminalEffect();
 
                     System.Diagnostics.Debug.WriteLine("Successfully configured messege control in OnShown");
                 }
@@ -73,6 +149,85 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // If even basic configuration fails, we'll continue without it
                     }
                 }
+            }
+        }
+        
+        /// <summary>
+        /// Configure the terminal effect on the message text box
+        /// </summary>
+        private void ConfigureTerminalEffect()
+        {
+            if (messege == null) return;
+            
+            try
+            {
+                if (_useTerminalEffect)
+                {
+                    // Enable terminal mode
+                    messege.TerminalModeEnabled = true;
+                    messege.TerminalStyle = _terminalStyle;
+                    messege.TypewriterSpeed = _typewriterSpeed;
+                    messege.TerminalPrompt = "> ";
+                    messege.TerminalCursorStyle = TerminalCursorStyle.Block;
+                    
+                    // Enable visual effects based on style
+                    switch (_terminalStyle)
+                    {
+                        case TerminalStylePreset.Matrix:
+                            messege.EnableScanlines = true;
+                            messege.EnableGlow = true;
+                            messege.GlowIntensity = 0.5f;
+                            messege.EnableFlicker = false;
+                            break;
+                            
+                        case TerminalStylePreset.Classic:
+                        case TerminalStylePreset.Hacker:
+                            messege.EnableScanlines = true;
+                            messege.EnableGlow = true;
+                            messege.GlowIntensity = 0.3f;
+                            messege.EnableFlicker = true;
+                            break;
+                            
+                        case TerminalStylePreset.Amber:
+                        case TerminalStylePreset.RetroBlue:
+                            messege.EnableScanlines = true;
+                            messege.EnableCRTEffect = true;
+                            messege.EnableGlow = true;
+                            messege.GlowIntensity = 0.4f;
+                            messege.EnableFlicker = true;
+                            break;
+                            
+                        case TerminalStylePreset.Cyberpunk:
+                            messege.EnableScanlines = false;
+                            messege.EnableGlow = true;
+                            messege.GlowIntensity = 0.6f;
+                            messege.EnableFlicker = false;
+                            break;
+                            
+                        case TerminalStylePreset.Modern:
+                        case TerminalStylePreset.SolarizedDark:
+                        case TerminalStylePreset.Dracula:
+                        case TerminalStylePreset.Nord:
+                            messege.EnableScanlines = false;
+                            messege.EnableGlow = false;
+                            messege.EnableFlicker = false;
+                            messege.EnableCRTEffect = false;
+                            break;
+                    }
+                }
+                else
+                {
+                    // Disable terminal mode
+                    messege.TerminalModeEnabled = false;
+                    messege.EnableScanlines = false;
+                    messege.EnableGlow = false;
+                    messege.EnableFlicker = false;
+                    messege.EnableCRTEffect = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error configuring terminal effect: {ex.Message}");
             }
         }
 
@@ -120,6 +275,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public async void CloseForm()
         {
+            // Cancel or wait for any running animations
+            if (_useTerminalEffect && messege != null && !messege.IsDisposed)
+            {
+                try
+                {
+                    if (WaitForAnimationsOnClose)
+                    {
+                        // Wait for animations to complete
+                        messege.WaitForEffectCompletion(AnimationWaitTimeout);
+                    }
+                    else
+                    {
+                        // Cancel animations immediately
+                        messege.CancelEffectAndShowFinal();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error handling animations on close: {ex.Message}");
+                }
+            }
+            
             await Task.Delay(2000);
             SafeInvoke(() =>
             {
@@ -151,12 +328,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SafeInvoke(() =>
             {
-                // Use direct text assignment for consistency
-                string currentText = messege.Text ?? "";
-                string newText = currentText + text + Environment.NewLine;
-                messege.Text = newText;
-                messege.SelectionStart = messege.Text.Length;
-                messege.ScrollToCaret();
+                if (_useTerminalEffect && messege.TerminalModeEnabled)
+                {
+                    // Use terminal output with typewriter effect
+                    messege.TerminalWriteLine(text, animate: true);
+                }
+                else
+                {
+                    // Use direct text assignment for consistency
+                    string currentText = messege.Text ?? "";
+                    string newText = currentText + text + Environment.NewLine;
+                    messege.Text = newText;
+                    messege.SelectionStart = messege.Text.Length;
+                    messege.ScrollToCaret();
+                }
             });
         }
 
@@ -177,12 +362,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Title.Visible = true;
              //   LogopictureBox.Visible = false;
                 Title.Text = title;
-                // Use direct text assignment for consistency
-                string currentText = messege.Text ?? "";
-                string newText = currentText + text + Environment.NewLine;
-                messege.Text = newText;
-                messege.SelectionStart = messege.Text.Length;
-                messege.ScrollToCaret();
+                
+                if (_useTerminalEffect && messege.TerminalModeEnabled)
+                {
+                    // Use terminal output with typewriter effect
+                    messege.TerminalWriteLine(text, animate: true);
+                }
+                else
+                {
+                    // Use direct text assignment for consistency
+                    string currentText = messege.Text ?? "";
+                    string newText = currentText + text + Environment.NewLine;
+                    messege.Text = newText;
+                    messege.SelectionStart = messege.Text.Length;
+                    messege.ScrollToCaret();
+                }
             });
         }
 
@@ -233,13 +427,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     System.Diagnostics.Debug.WriteLine($"Current text length: {messege.Text.Length}");
                     System.Diagnostics.Debug.WriteLine($"Adding text: '{text}'");
 
-                    // Alternative approach: Direct text manipulation instead of AppendText
-                    string currentText = messege.Text ?? "";
-                    string newText = currentText + text + Environment.NewLine;
-                    messege.Text = newText;
+                    if (_useTerminalEffect && messege.TerminalModeEnabled)
+                    {
+                        // Use terminal output with typewriter effect
+                        // Format with progress percentage if available
+                        string formattedText = progress > 0 ? $"[{progress,3}%] {text}" : text;
+                        messege.TerminalWriteLine(formattedText, animate: true);
+                    }
+                    else
+                    {
+                        // Alternative approach: Direct text manipulation instead of AppendText
+                        string currentText = messege.Text ?? "";
+                        string newText = currentText + text + Environment.NewLine;
+                        messege.Text = newText;
 
-                    messege.SelectionStart = messege.Text.Length;
-                    messege.ScrollToCaret();
+                        messege.SelectionStart = messege.Text.Length;
+                        messege.ScrollToCaret();
+                    }
 
                     System.Diagnostics.Debug.WriteLine($"Final text length: {messege.Text.Length}");
                     System.Diagnostics.Debug.WriteLine($"Text contains newlines: {messege.Text.Contains('\n')}");
@@ -252,6 +456,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
+                // Cancel or wait for any running animations
+                if (_useTerminalEffect && messege != null && !messege.IsDisposed)
+                {
+                    try
+                    {
+                        if (WaitForAnimationsOnClose)
+                        {
+                            // Wait for animations to complete
+                            await Task.Run(() => messege.WaitForEffectCompletion(AnimationWaitTimeout));
+                        }
+                        else
+                        {
+                            // Cancel animations immediately
+                            SafeInvoke(() => messege.CancelEffectAndShowFinal());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error handling animations on close: {ex.Message}");
+                    }
+                }
+                
                 await Task.Delay(2000); // Simulate delay
 
                 SafeInvoke(() =>

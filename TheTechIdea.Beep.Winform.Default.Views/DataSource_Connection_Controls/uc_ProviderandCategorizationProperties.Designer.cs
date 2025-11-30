@@ -25,13 +25,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.Provider_DriverNamebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.Provider_DatabaseTypebeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
             this.Provider_CategorybeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
-            this.ConnectionPropertytabPage.SuspendLayout();
+            this.SuspendLayout();
             this.Provider_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // ConnectionPropertytabPage
             // 
-            this.ConnectionPropertytabPage.Controls.Add(this.Provider_propertiesPanel);
+            this.Controls.Add(this.Provider_propertiesPanel);
             // 
             // Provider_propertiesPanel
             // 
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "uc_ProviderandCategorizationProperties";
             this.Size = new System.Drawing.Size(547, 669);
-            this.ConnectionPropertytabPage.ResumeLayout(false);
+            this.ResumeLayout(false);
             this.Provider_propertiesPanel.ResumeLayout(false);
             this.ResumeLayout(false);
         }

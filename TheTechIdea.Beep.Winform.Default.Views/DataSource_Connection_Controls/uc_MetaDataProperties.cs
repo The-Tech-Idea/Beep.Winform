@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public override void SetupBindings(ConnectionProperties conn)
         {
             base.SetupBindings(conn);
-            ConnectionPropertytabPage.Text = "Meta Data";
+            Text = "Meta Data";
             // Bind controls to ConnectionProperties properties
             // Fill Values from ParameterList if exists
         }

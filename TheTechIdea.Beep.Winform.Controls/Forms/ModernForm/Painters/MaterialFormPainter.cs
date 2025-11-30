@@ -372,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var layout = new PainterLayoutInfo();
             FormPainterMetrics metrics = FormPainterMetrics.DefaultFor(FormStyle.Material, owner.UseThemeColors ? owner.CurrentTheme : null);
             
-            owner._hits.Clear();
+            // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
             
             // If caption bar is hidden, skip button layout
             if (!owner.ShowCaptionBar)

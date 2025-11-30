@@ -1,29 +1,40 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
     /// CommunicationCardPainter - For notifications, messages, alerts, and announcements
     /// Displays status indicators, timestamps, and action buttons
     /// </summary>
-    internal sealed class CommunicationCardPainter : CardPainterBase
+    internal sealed class CommunicationCardPainter : ICardPainter, IDisposable
     {
+        private BaseControl Owner;
+        private IBeepTheme Theme;
         private Font _badgeFont;
         private Font _statusFont;
 
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        // Constants specific to this painter
+        private const int DefaultPad = 12;
+        private const int HeaderHeight = 26;
+        private const int ButtonHeight = 32;
+
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            Owner = owner;
+            Theme = theme;
             try { _badgeFont?.Dispose(); } catch { }
             try { _statusFont?.Dispose(); } catch { }
             _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
             _statusFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
         }
 
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
@@ -80,10 +91,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             return ctx;
         }
 
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
+        public void DrawBackground(Graphics g, LayoutContext ctx) { }
 
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
             // Draw status indicator bar with color coding
             if (ctx.ShowStatus)
@@ -104,6 +114,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
                 var statusBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(128, ctx.StatusColor));
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.StatusText, _statusFont, statusBrush, ctx.SubtitleRect, format);
+            }
+        }
+
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit) { }
+
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _badgeFont?.Dispose();
+                _statusFont?.Dispose();
+                _disposed = true;
             }
         }
     }

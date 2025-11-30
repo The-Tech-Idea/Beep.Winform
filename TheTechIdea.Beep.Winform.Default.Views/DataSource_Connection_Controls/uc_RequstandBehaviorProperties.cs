@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public override void SetupBindings(ConnectionProperties conn)
         {
             base.SetupBindings(conn);
-            ConnectionPropertytabPage.Text = "Request and Behavior";
+            Text = "Request and Behavior";
             // Bind controls to ConnectionProperties properties for Providers.
             // 
         }

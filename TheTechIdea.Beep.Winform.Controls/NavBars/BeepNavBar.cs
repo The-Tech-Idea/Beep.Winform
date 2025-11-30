@@ -29,6 +29,21 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         private int _itemWidth = 80;
         private int _itemHeight = 48;
         private NavBarOrientation _orientation = NavBarOrientation.Horizontal;
+        
+        // Layout caching to prevent redundant calculations
+        private Size _lastLayoutSize = Size.Empty;
+        private bool _layoutDirty = true;
+        private bool _itemSizesDirty = true;
+        #endregion
+        
+        #region Design-Time Safety
+        /// <summary>
+        /// Safe design-time detection that works in all scenarios
+        /// </summary>
+        private bool IsDesignModeSafe => 
+            LicenseManager.UsageMode == LicenseUsageMode.Designtime || 
+            DesignMode || 
+            (Site?.DesignMode ?? false);
         #endregion
 
         #region Events
@@ -47,6 +62,13 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             
             Height = _itemHeight;
             Dock = DockStyle.Top;
+            
+            // Only perform runtime initialization
+            if (!IsDesignModeSafe)
+            {
+                _layoutDirty = true;
+                _itemSizesDirty = true;
+            }
         }
 
         private void InitializeComponent()
@@ -104,9 +126,16 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             get => _itemWidth;
             set
             {
-                _itemWidth = value;
-                RefreshHitAreas();
-                Invalidate();
+                if (_itemWidth != value)
+                {
+                    _itemWidth = value;
+                    _layoutDirty = true;
+                    if (!IsDesignModeSafe)
+                    {
+                        RefreshHitAreas();
+                    }
+                    Invalidate();
+                }
             }
         }
 
@@ -119,11 +148,18 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             get => _itemHeight;
             set
             {
-                _itemHeight = value;
-                if (_orientation == NavBarOrientation.Horizontal)
-                    Height = _itemHeight;
-                RefreshHitAreas();
-                Invalidate();
+                if (_itemHeight != value)
+                {
+                    _itemHeight = value;
+                    if (_orientation == NavBarOrientation.Horizontal)
+                        Height = _itemHeight;
+                    _layoutDirty = true;
+                    if (!IsDesignModeSafe)
+                    {
+                        RefreshHitAreas();
+                    }
+                    Invalidate();
+                }
             }
         }
 
@@ -139,7 +175,11 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
                 if (_orientation != value)
                 {
                     _orientation = value;
-                    RefreshHitAreas();
+                    _layoutDirty = true;
+                    if (!IsDesignModeSafe)
+                    {
+                        RefreshHitAreas();
+                    }
                     Invalidate();
                 }
             }
@@ -179,7 +219,33 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            RefreshHitAreas();
+            
+            // Skip expensive operations during design-time
+            if (IsDesignModeSafe)
+            {
+                Invalidate();
+                return;
+            }
+            
+            // Only refresh if size actually changed
+            var currentSize = new Size(Width, Height);
+            if (_lastLayoutSize != currentSize)
+            {
+                _lastLayoutSize = currentSize;
+                _layoutDirty = true;
+                RefreshHitAreas();
+            }
+        }
+        
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            
+            // Perform initial layout when handle is ready (runtime only)
+            if (!IsDesignModeSafe && _layoutDirty)
+            {
+                RefreshHitAreas();
+            }
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -197,6 +263,16 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         #region Private Methods
         private void Items_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
         {
+            _itemSizesDirty = true;
+            _layoutDirty = true;
+            
+            // Skip expensive operations during design-time
+            if (IsDesignModeSafe)
+            {
+                Invalidate();
+                return;
+            }
+            
             RecalculateItemSizes();
             RefreshHitAreas();
             Invalidate();
@@ -207,11 +283,22 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         /// </summary>
         private void RecalculateItemSizes()
         {
+            // Skip during design-time to prevent flickering
+            if (IsDesignModeSafe)
+                return;
+                
             if (_items == null || _items.Count == 0)
                 return;
+                
+            // Skip if sizes are already calculated
+            if (!_itemSizesDirty)
+                return;
 
-            using (var g = CreateGraphics())
+            Graphics g = null;
+            try
             {
+                g = CreateGraphics();
+                
                 int maxWidth = 80; // Minimum width
                 int maxHeight = 48; // Minimum height
                 const int iconSize = 24;
@@ -300,12 +387,21 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
                 // Update sizes (add a bit of extra space for safety)
                 _itemWidth = maxWidth + 8;
                 _itemHeight = maxHeight + 4;
+                _itemSizesDirty = false;
 
                 // Update control height for horizontal navbar
                 if (_orientation == NavBarOrientation.Horizontal)
                 {
                     Height = _itemHeight;
                 }
+            }
+            catch
+            {
+                // Silently fail during design-time or if graphics not available
+            }
+            finally
+            {
+                g?.Dispose();
             }
         }
         #endregion

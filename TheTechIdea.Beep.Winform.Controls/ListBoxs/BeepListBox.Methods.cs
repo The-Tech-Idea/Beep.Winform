@@ -160,6 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _itemCheckBoxes[item] = new BeepCheckBoxBool();
             }
             
+            var previousState = _itemCheckBoxes[item].State;
             _itemCheckBoxes[item].State = isChecked
                 ? CheckBoxState.Checked
                 : CheckBoxState.Unchecked;
@@ -173,6 +174,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
             }
+            
+            // Fire event if state actually changed
+            if ((previousState == CheckBoxState.Checked) != isChecked)
+            {
+                OnCheckedItemsChanged(item, isChecked);
+            }
+            
             RequestDelayedInvalidate();
         }
         

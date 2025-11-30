@@ -9,6 +9,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Event Handlers
         private void OnItemClicked(object sender, ItemClickEventArgs e)
         {
+            // Skip if item is disabled
+            if (e.Item != null && IsItemDisabled(e.Item.Text))
+            {
+                return;
+            }
+            
             // Handle selection logic
             if (AllowMultipleSelection)
             {
@@ -18,6 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _stateHelper.SelectItem(e.Item);
             }
+            
+            // Validate selection after change
+            ValidateSelection();
 
             // Raise public event
             ItemClicked?.Invoke(this, e);

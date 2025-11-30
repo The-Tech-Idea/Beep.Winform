@@ -17,6 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         protected override void OnPaintBackground(PaintEventArgs e)
         {
+            // CRITICAL: Skip painting if form has invalid dimensions
+            // This prevents ArgumentException during form initialization
+            if (ClientSize.Width <= 0 || ClientSize.Height <= 0)
+            {
+                return;
+            }
+            
             // CRITICAL: In design mode, behave EXACTLY like a normal WinForm for maximum compatibility
             // This ensures the designer can properly track and repaint the form
             if (InDesignMode)
@@ -69,16 +76,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 SetupGraphicsQuality(e.Graphics);
 
-                // CRITICAL: Don't clear hit areas on every paint!
-                // Hit areas should only be recalculated when layout changes (resize, property changes, etc.)
-                // Clearing them here breaks mouse interaction because paint can happen between mouse-down and mouse-up
-                _hits?.Clear();
-                ActivePainter.CalculateLayoutAndHitAreas(this);
-
-                if (ShowCaptionBar && CurrentLayout.CaptionRect.Width > 0 && CurrentLayout.CaptionRect.Height > 0)
-                {
-                    _hits?.RegisterHitArea("caption", CurrentLayout.CaptionRect, HitAreaType.Caption);
-                }
+                // Use cached layout - only recalculates when necessary (size/style/property changes)
+                // This dramatically improves performance vs. recalculating on every paint
+                EnsureLayoutCalculated();
                 // Apply backdrop effects (Acrylic, Mica, etc.)
                 if (BackdropEffect != BackdropEffect.None)
                 {

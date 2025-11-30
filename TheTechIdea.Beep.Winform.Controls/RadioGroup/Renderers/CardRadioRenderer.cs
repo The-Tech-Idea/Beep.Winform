@@ -5,11 +5,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Card-Style renderer with elevation and modern aesthetics
+    /// Card-Style renderer with elevation and modern aesthetics with StyleColors support
     /// </summary>
     public class CardRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -18,11 +20,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
+        private BeepControlStyle _controlStyle = BeepControlStyle.TailwindCard;
+        private bool _useThemeColors = true;
 
         #region Properties
         public string StyleName => "Card";
-        public string DisplayName => "Material Card ProgressBarStyle";
+        public string DisplayName => "Material Card Style";
         public bool SupportsMultipleSelection => true;
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set => _controlStyle = value;
+        }
+        
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set => _useThemeColors = value;
+        }
 
         public Size MaxImageSize 
         { 

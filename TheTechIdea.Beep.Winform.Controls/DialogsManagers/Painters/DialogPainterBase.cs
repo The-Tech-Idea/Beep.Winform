@@ -389,5 +389,55 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
         }
 
         #endregion
+
+        #region Icon Helpers
+
+        /// <summary>
+        /// Gets the icon path for the dialog configuration
+        /// </summary>
+        protected virtual string GetIconPath(DialogConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.IconPath))
+                return config.IconPath;
+
+            return config.IconType switch
+            {
+                BeepDialogIcon.Information => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg",
+                BeepDialogIcon.Warning => "TheTechIdea.Beep.Winform.GFX.SVG.warning.svg",
+                BeepDialogIcon.Error => "TheTechIdea.Beep.Winform.GFX.SVG.error.svg",
+                BeepDialogIcon.Question => "TheTechIdea.Beep.Winform.GFX.SVG.question.svg",
+                BeepDialogIcon.Success => "TheTechIdea.Beep.Winform.GFX.SVG.check.svg",
+                _ => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg"
+            };
+        }
+
+        /// <summary>
+        /// Gets the button text for the specified button type
+        /// </summary>
+        protected virtual string GetButtonText(BeepDialogButtons button, DialogConfig config)
+        {
+            // Check for custom label first
+            if (config?.CustomButtonLabels != null && 
+                config.CustomButtonLabels.TryGetValue(button, out var customLabel))
+            {
+                return customLabel;
+            }
+
+            return button switch
+            {
+                BeepDialogButtons.Ok => "OK",
+                BeepDialogButtons.Cancel => "Cancel",
+                BeepDialogButtons.Yes => "Yes",
+                BeepDialogButtons.No => "No",
+                BeepDialogButtons.Abort => "Abort",
+                BeepDialogButtons.Retry => "Retry",
+                BeepDialogButtons.Ignore => "Ignore",
+                BeepDialogButtons.Close => "Close",
+                BeepDialogButtons.Help => "Help",
+                _ => button.ToString()
+            };
+        }
+
+        #endregion
     }
 }

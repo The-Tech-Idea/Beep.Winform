@@ -5,11 +5,13 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Chip/pill-Style renderer for modern tag-like selection
+    /// Chip/pill-Style renderer for modern tag-like selection with StyleColors support
     /// </summary>
     public class ChipRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
     {
@@ -18,11 +20,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
+        private BeepControlStyle _controlStyle = BeepControlStyle.PillRail;
+        private bool _useThemeColors = true;
 
         #region Properties
         public string StyleName => "Chip";
-        public string DisplayName => "Chip/Pill ProgressBarStyle";
+        public string DisplayName => "Chip/Pill Style";
         public bool SupportsMultipleSelection => true;
+        
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlStyle;
+            set => _controlStyle = value;
+        }
+        
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set => _useThemeColors = value;
+        }
 
         public Size MaxImageSize 
         { 
@@ -36,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private const int ItemPadding = 12;
         private const int ComponentSpacing = 8;
         private const int ChipRadius = 16;
-        private const int CloseButtonSize = 12; // Add missing constant
+        private const int CloseButtonSize = 12;
         #endregion
 
         #region Initialization
@@ -277,32 +293,40 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         #region Helper Methods
         private ChipColors GetStateColors(RadioItemState state)
         {
-            if (_theme == null)
+            // Use StyleColors if not using theme colors or no theme available
+            if (!_useThemeColors || _theme == null)
             {
+                var primary = StyleColors.GetPrimary(_controlStyle);
+                var background = StyleColors.GetBackground(_controlStyle);
+                var foreground = StyleColors.GetForeground(_controlStyle);
+                var border = StyleColors.GetBorder(_controlStyle);
+                var hover = StyleColors.GetHover(_controlStyle);
+                var selection = StyleColors.GetSelection(_controlStyle);
+                
                 return new ChipColors
                 {
-                    Background = Color.FromArgb(245, 245, 245),
-                    HoverBackground = Color.FromArgb(229, 231, 235),
-                    SelectedBackground = Color.FromArgb(147, 51, 234), // Purple instead of blue
-                    Border = Color.FromArgb(209, 213, 219),
-                    HoverBorder = Color.FromArgb(156, 163, 175),
-                    SelectedBorder = Color.FromArgb(124, 58, 237), // Purple
-                    Text = Color.FromArgb(55, 65, 81),
+                    Background = StyleColors.GetSecondary(_controlStyle),
+                    HoverBackground = hover,
+                    SelectedBackground = primary,
+                    Border = border,
+                    HoverBorder = Color.FromArgb(180, primary),
+                    SelectedBorder = primary,
+                    Text = foreground,
                     SelectedText = Color.White,
-                    DisabledText = Color.FromArgb(156, 163, 175)
+                    DisabledText = Color.FromArgb(128, foreground)
                 };
             }
 
             return new ChipColors
             {
                 Background = Color.FromArgb(240, _theme.BackgroundColor),
-                HoverBackground = Color.FromArgb(230, _theme.BackgroundColor),
-                SelectedBackground = Color.FromArgb(147, 51, 234), // Force purple
+                HoverBackground = _theme.ButtonHoverBackColor,
+                SelectedBackground = _theme.PrimaryColor,
                 Border = _theme.BorderColor,
                 HoverBorder = _theme.ButtonHoverBorderColor,
-                SelectedBorder = Color.FromArgb(124, 58, 237), // Purple
+                SelectedBorder = _theme.PrimaryColor,
                 Text = _theme.ForeColor,
-                SelectedText = Color.White,
+                SelectedText = _theme.ButtonForeColor,
                 DisabledText = _theme.DisabledForeColor
             };
         }
@@ -317,7 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color SelectedBorder { get; set; }
             public Color Text { get; set; }
             public Color SelectedText { get; set; }
-            public Color DisabledText { get; set; } // Add missing property
+            public Color DisabledText { get; set; }
         }
         #endregion
     }

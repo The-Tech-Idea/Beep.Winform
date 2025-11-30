@@ -34,7 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
                 if (_style != value)
                 {
                     _style = value;
-                    InitializePainter();
+                    _layoutDirty = true;
+                    if (!IsDesignModeSafe)
+                    {
+                        InitializePainter();
+                    }
                     Invalidate();
                 }
             }
@@ -78,6 +82,10 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         #region Hit Area Management
         private void RefreshHitAreas()
         {
+            // Skip during design-time to prevent flickering
+            if (IsDesignModeSafe)
+                return;
+                
             _hitAreas.Clear();
 
             if (_currentPainter != null && DrawingRect.Width > 0 && DrawingRect.Height > 0)
@@ -88,6 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
                 {
                     _hitAreas[name] = (rect, action);
                 });
+                _layoutDirty = false;
             }
         }
 
@@ -139,12 +148,22 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         protected override void OnMouseMove(System.Windows.Forms.MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            
+            // Skip during design-time
+            if (IsDesignModeSafe)
+                return;
+                
             UpdateHoverState(e.Location);
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            
+            // Skip during design-time
+            if (IsDesignModeSafe)
+                return;
+                
             if (_hoveredItemIndex != -1)
             {
                 _hoveredItemIndex = -1;
@@ -156,6 +175,11 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
         protected override void OnMouseClick(System.Windows.Forms.MouseEventArgs e)
         {
             base.OnMouseClick(e);
+            
+            // Skip during design-time
+            if (IsDesignModeSafe)
+                return;
+                
             HandleHitAreaClick(e.Location);
         }
         #endregion

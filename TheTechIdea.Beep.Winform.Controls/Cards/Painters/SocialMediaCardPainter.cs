@@ -1,28 +1,39 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
     /// SocialMediaCard - For social media posts, feed items, announcements
     /// </summary>
-    internal sealed class SocialMediaCardPainter : CardPainterBase
+    internal sealed class SocialMediaCardPainter : ICardPainter, IDisposable
     {
+        private BaseControl Owner;
+        private IBeepTheme Theme;
         private Font _timeFont;
         private Font _iconFont;
 
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        // Constants specific to this painter
+        private const int DefaultPad = 12;
+        private const int HeaderHeight = 26;
+        private const int ButtonHeight = 32;
+
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            Owner = owner;
+            Theme = theme;
             try { _timeFont?.Dispose(); } catch { }
             try { _iconFont?.Dispose(); } catch { }
             _timeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
             _iconFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
         }
 
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
@@ -51,10 +62,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             return ctx;
         }
 
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
+        public void DrawBackground(Graphics g, LayoutContext ctx) { }
 
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText))
@@ -72,16 +82,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             {
                 var iconBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString("? Like", _iconFont, iconBrush, ctx.ButtonRect, format);
+                g.DrawString("♥ Like", _iconFont, iconBrush, ctx.ButtonRect, format);
                 
                 if (ctx.ShowSecondaryButton)
                 {
-                    g.DrawString("? Share", _iconFont, iconBrush, ctx.SecondaryButtonRect, format);
+                    g.DrawString("↗ Share", _iconFont, iconBrush, ctx.SecondaryButtonRect, format);
                 }
             }
         }
 
-        public override void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
         {
             // Add clickable areas for social interactions
             if (!ctx.ButtonRect.IsEmpty)
@@ -92,6 +102,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             
             if (!ctx.ImageRect.IsEmpty)
                 owner.AddHitArea("Profile", ctx.ImageRect, null, () => notifyAreaHit?.Invoke("Profile", ctx.ImageRect));
+        }
+
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _timeFont?.Dispose();
+                _iconFont?.Dispose();
+                _disposed = true;
+            }
         }
     }
 }

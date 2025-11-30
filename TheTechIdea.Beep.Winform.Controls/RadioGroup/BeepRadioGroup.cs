@@ -41,6 +41,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Constructor
         public BeepRadioGroup() : base()
         {
+            // Configure base control FIRST
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | 
+                    ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+            
             // Initialize helpers
             _layoutHelper = new RadioGroupLayoutHelper(this);
             _hitTestHelper = new RadioGroupHitTestHelper(this);
@@ -56,26 +60,28 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 { RadioGroupRenderStyle.Flat, new FlatRadioRenderer() },
                 { RadioGroupRenderStyle.Checkbox, new CheckboxRadioRenderer() },
                 { RadioGroupRenderStyle.Button, new ButtonRadioRenderer() },
-                { RadioGroupRenderStyle.Toggle, new ToggleRadioRenderer() }
+                { RadioGroupRenderStyle.Toggle, new ToggleRadioRenderer() },
+                { RadioGroupRenderStyle.Segmented, new SegmentedRadioRenderer() },
+                { RadioGroupRenderStyle.Pill, new PillRadioRenderer() },
+                { RadioGroupRenderStyle.Tile, new TileRadioRenderer() }
             };
 
-            // Set default renderer
-            _currentRenderer = _renderers[_renderStyle];
-            _currentRenderer.Initialize(this, _currentTheme);
-            _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer.MeasureItem(item, g);
-
-            // Initialize MaxImageSize for all renderers
-            foreach (var renderer in _renderers.Values)
+            // Only initialize renderer if not in design mode
+            if (!DesignMode)
             {
-                if (renderer is IImageAwareRenderer imageRenderer)
+                _currentRenderer = _renderers[_renderStyle];
+                _currentRenderer.Initialize(this, _currentTheme);
+                _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer?.MeasureItem(item, g) ?? Size.Empty;
+
+                // Initialize MaxImageSize for all renderers
+                foreach (var renderer in _renderers.Values)
                 {
-                    imageRenderer.MaxImageSize = _maxImageSize;
+                    if (renderer is IImageAwareRenderer imageRenderer)
+                    {
+                        imageRenderer.MaxImageSize = _maxImageSize;
+                    }
                 }
             }
-
-            // Configure base control
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | 
-                    ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
             
             Size = new Size(300, 200);
             
@@ -88,8 +94,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper.ItemPadding = new Padding(8);
             _layoutHelper.AutoSize = true;
 
-            // Apply theme
-            ApplyTheme();
+            // Apply theme only at runtime
+            if (!DesignMode)
+            {
+                ApplyTheme();
+            }
         }
 
         private void SetupEventHandlers()

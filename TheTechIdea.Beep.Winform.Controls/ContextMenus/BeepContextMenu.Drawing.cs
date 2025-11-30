@@ -10,11 +10,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     {
         #region Paint Override
         
+        /// <summary>
+        /// Override OnPaintBackground to handle custom background painting.
+        /// </summary>
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            // Skip base class painting - we handle everything in OnPaint using BeepStyling
+            if (ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return;
+            // Don't call base.OnPaintBackground - we paint our own styled background in OnPaint
+        }
+        
         protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnPaint(e);
+            // BeepContextMenu handles all painting itself using BeepStyling
             
-            if (_menuItems == null)
+            if (_menuItems == null || ClientSize.Width <= 0 || ClientSize.Height <= 0)
             {
                 return;
             }
@@ -26,12 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Use current theme (kept in sync with BeepThemesManager)
             var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
             var effectiveStyle = ControlStyle;
-            // Get effective control style
-            if (FormStyle!= ThemeManagement.BeepThemesManager.CurrentStyle){
-
+            // Get effective control style - use _contextMenuType (our local FormStyle field)
+            if (_contextMenuType != ThemeManagement.BeepThemesManager.CurrentStyle)
+            {
                 effectiveStyle = BeepStyling.GetControlStyle(ThemeManagement.BeepThemesManager.CurrentStyle);
             }
-           
             ControlStyle = effectiveStyle;
             // CRITICAL: Calculate BeepStyling insets (padding + border + shadow) to match RecalculateSize()
             int beepPadding = BeepStyling.GetPadding(effectiveStyle);

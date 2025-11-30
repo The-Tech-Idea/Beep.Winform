@@ -1,85 +1,212 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 {
     /// <summary>
-    /// EventCard - For displaying events, appointments, or time-based content
+    /// EventCard - Event display with accent bar, date block, and tags.
+    /// Distinct painter with its own layout, spacing, and rendering logic.
     /// </summary>
-    internal sealed class EventCardPainter : CardPainterBase
+    internal sealed class EventCardPainter : ICardPainter
     {
+        #region Fields
+        
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private bool _disposed;
+        
+        // Event card fonts
+        private Font _titleFont;
+        private Font _locationFont;
+        private Font _descFont;
         private Font _dateFont;
         private Font _badgeFont;
-
-        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        
+        // Event card spacing
+        private const int Padding = 12;
+        private const int AccentBarWidth = 5;
+        private const int DateBlockWidth = 60;
+        private const int DateBlockHeight = 54;
+        private const int TitleHeight = 22;
+        private const int LocationHeight = 18;
+        private const int DescHeight = 40;
+        private const int TagsHeight = 24;
+        private const int ButtonHeight = 28;
+        private const int ButtonWidth = 80;
+        private const int ElementGap = 8;
+        private const int ContentGap = 12;
+        
+        #endregion
+        
+        #region ICardPainter Implementation
+        
+        public void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            base.Initialize(owner, theme);
+            _owner = owner;
+            _theme = theme;
+            
+            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            
+            try { _titleFont?.Dispose(); } catch { }
+            try { _locationFont?.Dispose(); } catch { }
+            try { _descFont?.Dispose(); } catch { }
             try { _dateFont?.Dispose(); } catch { }
             try { _badgeFont?.Dispose(); } catch { }
-            _dateFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            
+            _titleFont = new Font(fontFamily, 12f, FontStyle.Bold);
+            _locationFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
+            _dateFont = new Font(fontFamily, 10f, FontStyle.Bold);
+            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
         }
-
-        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        
+        public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad;
             ctx.DrawingRect = drawingRect;
-
-            // Accent bar on left
-            ctx.StatusRect = new Rectangle(ctx.DrawingRect.Left, ctx.DrawingRect.Top, 4, ctx.DrawingRect.Height);
-
-            // Date block at top-left after accent
-            ctx.ImageRect = new Rectangle(ctx.StatusRect.Right + 8, ctx.DrawingRect.Top + pad, 60, 50);
-
-            int contentLeft = ctx.ImageRect.Right + 12;
-            int contentWidth = Math.Max(0, ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - pad);
-
-            ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, 20);
-            ctx.SubtitleRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 4, contentWidth, 16);
-            ctx.ParagraphRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 6, contentWidth, Math.Max(20, ctx.DrawingRect.Bottom - (ctx.SubtitleRect.Bottom + 6) - pad - ButtonHeight));
-            ctx.TagsRect = new Rectangle(contentLeft, ctx.ParagraphRect.Bottom + 8, Math.Max(0, contentWidth - 100), 20);
-
+            
+            // Accent bar on left edge
+            ctx.StatusRect = new Rectangle(
+                drawingRect.Left,
+                drawingRect.Top,
+                AccentBarWidth,
+                drawingRect.Height);
+            
+            // Date block at top-left (after accent bar)
+            ctx.ImageRect = new Rectangle(
+                ctx.StatusRect.Right + Padding,
+                drawingRect.Top + Padding,
+                DateBlockWidth,
+                DateBlockHeight);
+            
+            // Content area to the right of date block
+            int contentLeft = ctx.ImageRect.Right + ContentGap;
+            int contentWidth = Math.Max(80, drawingRect.Width - contentLeft - Padding);
+            
+            // Event title
+            ctx.HeaderRect = new Rectangle(
+                contentLeft,
+                drawingRect.Top + Padding,
+                contentWidth,
+                TitleHeight);
+            
+            // Location/venue
+            ctx.SubtitleRect = new Rectangle(
+                contentLeft,
+                ctx.HeaderRect.Bottom + ElementGap / 2,
+                contentWidth,
+                LocationHeight);
+            
+            // Description
+            int descHeight = Math.Max(30, drawingRect.Height - Padding * 2 - TitleHeight - LocationHeight - TagsHeight - ButtonHeight - ElementGap * 4);
+            ctx.ParagraphRect = new Rectangle(
+                contentLeft,
+                ctx.SubtitleRect.Bottom + ElementGap,
+                contentWidth,
+                descHeight);
+            
+            // Tags row
+            ctx.TagsRect = new Rectangle(
+                contentLeft,
+                ctx.ParagraphRect.Bottom + ElementGap,
+                contentWidth - ButtonWidth - ElementGap,
+                TagsHeight);
+            
+            // Action button (RSVP, Join, etc.)
             if (ctx.ShowButton)
             {
-                ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Right - pad - 85, ctx.DrawingRect.Bottom - pad - 28, 80, 24);
+                ctx.ButtonRect = new Rectangle(
+                    drawingRect.Right - Padding - ButtonWidth,
+                    drawingRect.Bottom - Padding - ButtonHeight,
+                    ButtonWidth,
+                    ButtonHeight);
             }
-
+            
             ctx.ShowSecondaryButton = false;
+            
             return ctx;
         }
-
-        // Container background/shadow handled by BaseControl
-        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
-
-        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        
+        public void DrawBackground(Graphics g, LayoutContext ctx)
         {
-            // Draw accent bar
-            var accentBrush = PaintersFactory.GetSolidBrush(ctx.AccentColor);
-            using (var accentPath = CreateRoundedPath(ctx.StatusRect, 2))
+            // Background handled by BaseControl
+        }
+        
+        public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Draw accent bar with rounded corners
+            if (!ctx.StatusRect.IsEmpty)
             {
-                g.FillPath(accentBrush, accentPath);
+                using var path = CardRenderingHelpers.CreateRoundedPath(ctx.StatusRect, 2);
+                using var brush = new SolidBrush(ctx.AccentColor);
+                g.FillPath(brush, path);
             }
-
+            
             // Draw date/time block
-            if (!string.IsNullOrEmpty(ctx.StatusText)) // Date in StatusText
+            if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.ImageRect.IsEmpty)
             {
                 // Background for date block
-                var dateBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, Color.Black));
-                using (var datePath = CreateRoundedPath(ctx.ImageRect, 6))
-                {
-                    g.FillPath(dateBrush, datePath);
-                }
-
-                // Draw date text
-                var textBrush = PaintersFactory.GetSolidBrush(Color.White);
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
+                using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
+                g.FillPath(bgBrush, bgPath);
+                
+                // Border
+                using var borderPen = new Pen(Color.FromArgb(50, ctx.AccentColor), 1);
+                g.DrawPath(borderPen, bgPath);
+                
+                // Draw date text centered
+                using var textBrush = new SolidBrush(ctx.AccentColor);
+                var format = new StringFormat 
+                { 
+                    Alignment = StringAlignment.Center, 
+                    LineAlignment = StringAlignment.Center 
+                };
                 g.DrawString(ctx.StatusText, _dateFont, textBrush, ctx.ImageRect, format);
             }
-
+            
             // Draw event category tags
-            CardRenderingHelpers.DrawChips(g, Owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+            if (ctx.Tags != null && ctx.Tags.Count > 0 && !ctx.TagsRect.IsEmpty)
+            {
+                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+            }
         }
+        
+        public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
+        {
+            if (!ctx.ImageRect.IsEmpty)
+            {
+                owner.AddHitArea("DateBlock", ctx.ImageRect, null,
+                    () => notifyAreaHit?.Invoke("DateBlock", ctx.ImageRect));
+            }
+            
+            if (!ctx.TagsRect.IsEmpty)
+            {
+                owner.AddHitArea("Tags", ctx.TagsRect, null,
+                    () => notifyAreaHit?.Invoke("Tags", ctx.TagsRect));
+            }
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _titleFont?.Dispose();
+            _locationFont?.Dispose();
+            _descFont?.Dispose();
+            _dateFont?.Dispose();
+            _badgeFont?.Dispose();
+            
+            _disposed = true;
+        }
+        
+        #endregion
     }
 }

@@ -119,7 +119,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "uc_WebApiProperties";
             this.Size = new System.Drawing.Size(550, 220);
-            // Add the panel to the ConnectionPropertytabPage (from base class)
+            this.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Add the panel to this UserControl
             this.Controls.Add(this.WebApi_propertiesPanel);
             this.Text = "Web API";
             this.WebApi_propertiesPanel.ResumeLayout(false);

@@ -202,7 +202,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "uc_webapiAuthenticationProperties";
             this.Size = new System.Drawing.Size(550, 720);
-            // Add the panel to the ConnectionPropertytabPage (from base class)
+            this.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Add the panel to this UserControl
             this.Controls.Add(this.OAuth_propertiesPanel);
             this.Text = "OAuth/API Auth";
             this.OAuth_propertiesPanel.ResumeLayout(false);

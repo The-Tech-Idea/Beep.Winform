@@ -233,61 +233,73 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         #region Tabs Composition
         private void BuildPropertyTabs()
         {
-            // Clear existing extra tabs except the first base tab (tabPage1)
-            for (int i = beepTabs1.TabPages.Count - 1; i >= 0; i--)
-            {
-                var tp = beepTabs1.TabPages[i];
-                if (tp != tabPage1)
-                {
-                    beepTabs1.TabPages.Remove(tp);
-                }
-            }
+            // Tabs are now created in Designer.cs for design-time visibility
+            // Here we just setup bindings for the existing designer tabs
             _childPropertyControls.Clear();
 
-            // Tabs based on IConnectionProperties regions:
-            // 1. General Properties - ID, GuidID, ConnectionName, ConnectionString, Category, Favourite, IsDefault, Drawn
-            AddChildTab(new uc_GeneralProperties());
+            // Setup bindings for designer-created tabs
+            if (ucGeneralProperties != null)
+            {
+                ucGeneralProperties.ConnectionProperties = ConnectionProperties;
+                ucGeneralProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucGeneralProperties);
+            }
 
-            // 2. Type and State Flags - IsLocal, IsRemote, IsWebApi, IsFile, IsDatabase, IsComposite, IsCloud, IsFavourite, IsInMemory
-            AddChildTab(new uc_TypeandStateFlagsProperties());
+            if (ucTypeFlagsProperties != null)
+            {
+                ucTypeFlagsProperties.ConnectionProperties = ConnectionProperties;
+                ucTypeFlagsProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucTypeFlagsProperties);
+            }
 
-            // 3. Database Properties - DatabaseType, Database, Databases, SchemaName, OracleSIDorService
-            AddChildTab(new uc_DatabaseProperties());
+            if (ucDatabaseProperties != null)
+            {
+                ucDatabaseProperties.ConnectionProperties = ConnectionProperties;
+                ucDatabaseProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucDatabaseProperties);
+            }
 
-            // 4. File Properties - FilePath, FileName, Ext, Delimiter
-            AddChildTab(new uc_FileProperties());
+            if (ucFileProperties != null)
+            {
+                ucFileProperties.ConnectionProperties = ConnectionProperties;
+                ucFileProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucFileProperties);
+            }
 
-            // 5. Network and Remote Connection Properties - Host, Port, Url
-            AddChildTab(new uc_NetwrokandRemoteProperties());
+            if (ucNetworkProperties != null)
+            {
+                ucNetworkProperties.ConnectionProperties = ConnectionProperties;
+                ucNetworkProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucNetworkProperties);
+            }
 
-            // 6. Authentication and Security - UserID, Password, ApiKey, KeyToken, CertificatePath, SSL settings, etc.
-            AddChildTab(new uc_AuthenticationandSecurityProperties());
+            if (ucAuthProperties != null)
+            {
+                ucAuthProperties.ConnectionProperties = ConnectionProperties;
+                ucAuthProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucAuthProperties);
+            }
 
-            // 7. Driver - DriverName, DriverVersion, Parameters
-            AddChildTab(new uc_DriverProperties());
+            if (ucDriverProperties != null)
+            {
+                ucDriverProperties.ConnectionProperties = ConnectionProperties;
+                ucDriverProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucDriverProperties);
+            }
 
-            // 8. Web API Properties - HttpMethod, TimeoutMs, MaxRetries, etc.
-            AddChildTab(new uc_WebApiProperties());
+            if (ucWebApiProperties != null)
+            {
+                ucWebApiProperties.ConnectionProperties = ConnectionProperties;
+                ucWebApiProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucWebApiProperties);
+            }
 
-            // 9. Web API Authentication - ClientId, ClientSecret, AuthType, AuthUrl, TokenUrl, Scope, Proxy settings
-            AddChildTab(new uc_webapiAuthenticationProperties());
-        }
-
-        private void AddChildTab(uc_DataConnectionPropertiesBaseControl child)
-        {
-            if (child == null) return;
-            child.ConnectionProperties = ConnectionProperties;
-            child.SetupBindings(ConnectionProperties);
-            _childPropertyControls.Add(child);
-            
-            // Create a TabPage and add the child control to it
-            TabPage tabPage = new TabPage();
-            tabPage.Controls.Add(child);
-            child.Dock = DockStyle.Fill;
-            tabPage.Text = child.GetType().Name.Replace("uc_", "").Replace("Properties", "");
-            
-            // Add the TabPage to beepTabs1
-            AddTab(tabPage);
+            if (ucOAuthProperties != null)
+            {
+                ucOAuthProperties.ConnectionProperties = ConnectionProperties;
+                ucOAuthProperties.SetupBindings(ConnectionProperties);
+                _childPropertyControls.Add(ucOAuthProperties);
+            }
         }
         #endregion
 

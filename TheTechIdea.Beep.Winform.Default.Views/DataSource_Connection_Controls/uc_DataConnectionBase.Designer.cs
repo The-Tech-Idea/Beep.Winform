@@ -221,10 +221,38 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox = new BeepComboBox();
             CancelbeepButton = new BeepButton();
             SavebeepButton = new BeepButton();
+            // Create child property controls and their tab pages
+            tabPageGeneral = new TabPage();
+            ucGeneralProperties = new uc_GeneralProperties();
+            tabPageTypeFlags = new TabPage();
+            ucTypeFlagsProperties = new uc_TypeandStateFlagsProperties();
+            tabPageDatabase = new TabPage();
+            ucDatabaseProperties = new uc_DatabaseProperties();
+            tabPageFile = new TabPage();
+            ucFileProperties = new uc_FileProperties();
+            tabPageNetwork = new TabPage();
+            ucNetworkProperties = new uc_NetwrokandRemoteProperties();
+            tabPageAuth = new TabPage();
+            ucAuthProperties = new uc_AuthenticationandSecurityProperties();
+            tabPageDriver = new TabPage();
+            ucDriverProperties = new uc_DriverProperties();
+            tabPageWebApi = new TabPage();
+            ucWebApiProperties = new uc_WebApiProperties();
+            tabPageOAuth = new TabPage();
+            ucOAuthProperties = new uc_webapiAuthenticationProperties();
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).BeginInit();
             beepPanel1.SuspendLayout();
             beepTabs1.SuspendLayout();
             tabPage1.SuspendLayout();
+            tabPageGeneral.SuspendLayout();
+            tabPageTypeFlags.SuspendLayout();
+            tabPageDatabase.SuspendLayout();
+            tabPageFile.SuspendLayout();
+            tabPageNetwork.SuspendLayout();
+            tabPageAuth.SuspendLayout();
+            tabPageDriver.SuspendLayout();
+            tabPageWebApi.SuspendLayout();
+            tabPageOAuth.SuspendLayout();
             SuspendLayout();
             // 
             // dataConnectionViewModelBindingSource
@@ -406,6 +434,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepTabs1.AllowDrop = true;
             beepTabs1.Appearance = TabAppearance.FlatButtons;
             beepTabs1.Controls.Add(tabPage1);
+            beepTabs1.Controls.Add(tabPageGeneral);
+            beepTabs1.Controls.Add(tabPageTypeFlags);
+            beepTabs1.Controls.Add(tabPageDatabase);
+            beepTabs1.Controls.Add(tabPageFile);
+            beepTabs1.Controls.Add(tabPageNetwork);
+            beepTabs1.Controls.Add(tabPageAuth);
+            beepTabs1.Controls.Add(tabPageDriver);
+            beepTabs1.Controls.Add(tabPageWebApi);
+            beepTabs1.Controls.Add(tabPageOAuth);
             beepTabs1.Dock = DockStyle.Fill;
             beepTabs1.DrawMode = TabDrawMode.OwnerDrawFixed;
             beepTabs1.ForeColor = Color.DimGray;
@@ -439,6 +476,123 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             tabPage1.Size = new Size(636, 693);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Connection";
+            // 
+            // tabPageGeneral
+            // 
+            tabPageGeneral.BackColor = Color.White;
+            tabPageGeneral.Controls.Add(ucGeneralProperties);
+            tabPageGeneral.ForeColor = Color.DimGray;
+            tabPageGeneral.Location = new Point(0, 30);
+            tabPageGeneral.Name = "tabPageGeneral";
+            tabPageGeneral.Padding = new Padding(3);
+            tabPageGeneral.Size = new Size(636, 693);
+            tabPageGeneral.TabIndex = 1;
+            tabPageGeneral.Text = "General";
+            ucGeneralProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageTypeFlags
+            // 
+            tabPageTypeFlags.BackColor = Color.White;
+            tabPageTypeFlags.Controls.Add(ucTypeFlagsProperties);
+            tabPageTypeFlags.ForeColor = Color.DimGray;
+            tabPageTypeFlags.Location = new Point(0, 30);
+            tabPageTypeFlags.Name = "tabPageTypeFlags";
+            tabPageTypeFlags.Padding = new Padding(3);
+            tabPageTypeFlags.Size = new Size(636, 693);
+            tabPageTypeFlags.TabIndex = 2;
+            tabPageTypeFlags.Text = "Type & Flags";
+            ucTypeFlagsProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageDatabase
+            // 
+            tabPageDatabase.BackColor = Color.White;
+            tabPageDatabase.Controls.Add(ucDatabaseProperties);
+            tabPageDatabase.ForeColor = Color.DimGray;
+            tabPageDatabase.Location = new Point(0, 30);
+            tabPageDatabase.Name = "tabPageDatabase";
+            tabPageDatabase.Padding = new Padding(3);
+            tabPageDatabase.Size = new Size(636, 693);
+            tabPageDatabase.TabIndex = 3;
+            tabPageDatabase.Text = "Database";
+            ucDatabaseProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageFile
+            // 
+            tabPageFile.BackColor = Color.White;
+            tabPageFile.Controls.Add(ucFileProperties);
+            tabPageFile.ForeColor = Color.DimGray;
+            tabPageFile.Location = new Point(0, 30);
+            tabPageFile.Name = "tabPageFile";
+            tabPageFile.Padding = new Padding(3);
+            tabPageFile.Size = new Size(636, 693);
+            tabPageFile.TabIndex = 4;
+            tabPageFile.Text = "File";
+            ucFileProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageNetwork
+            // 
+            tabPageNetwork.BackColor = Color.White;
+            tabPageNetwork.Controls.Add(ucNetworkProperties);
+            tabPageNetwork.ForeColor = Color.DimGray;
+            tabPageNetwork.Location = new Point(0, 30);
+            tabPageNetwork.Name = "tabPageNetwork";
+            tabPageNetwork.Padding = new Padding(3);
+            tabPageNetwork.Size = new Size(636, 693);
+            tabPageNetwork.TabIndex = 5;
+            tabPageNetwork.Text = "Network";
+            ucNetworkProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageAuth
+            // 
+            tabPageAuth.BackColor = Color.White;
+            tabPageAuth.Controls.Add(ucAuthProperties);
+            tabPageAuth.ForeColor = Color.DimGray;
+            tabPageAuth.Location = new Point(0, 30);
+            tabPageAuth.Name = "tabPageAuth";
+            tabPageAuth.Padding = new Padding(3);
+            tabPageAuth.Size = new Size(636, 693);
+            tabPageAuth.TabIndex = 6;
+            tabPageAuth.Text = "Authentication";
+            ucAuthProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageDriver
+            // 
+            tabPageDriver.BackColor = Color.White;
+            tabPageDriver.Controls.Add(ucDriverProperties);
+            tabPageDriver.ForeColor = Color.DimGray;
+            tabPageDriver.Location = new Point(0, 30);
+            tabPageDriver.Name = "tabPageDriver";
+            tabPageDriver.Padding = new Padding(3);
+            tabPageDriver.Size = new Size(636, 693);
+            tabPageDriver.TabIndex = 7;
+            tabPageDriver.Text = "Driver";
+            ucDriverProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageWebApi
+            // 
+            tabPageWebApi.BackColor = Color.White;
+            tabPageWebApi.Controls.Add(ucWebApiProperties);
+            tabPageWebApi.ForeColor = Color.DimGray;
+            tabPageWebApi.Location = new Point(0, 30);
+            tabPageWebApi.Name = "tabPageWebApi";
+            tabPageWebApi.Padding = new Padding(3);
+            tabPageWebApi.Size = new Size(636, 693);
+            tabPageWebApi.TabIndex = 8;
+            tabPageWebApi.Text = "Web API";
+            ucWebApiProperties.Dock = DockStyle.Fill;
+            // 
+            // tabPageOAuth
+            // 
+            tabPageOAuth.BackColor = Color.White;
+            tabPageOAuth.Controls.Add(ucOAuthProperties);
+            tabPageOAuth.ForeColor = Color.DimGray;
+            tabPageOAuth.Location = new Point(0, 30);
+            tabPageOAuth.Name = "tabPageOAuth";
+            tabPageOAuth.Padding = new Padding(3);
+            tabPageOAuth.Size = new Size(636, 693);
+            tabPageOAuth.TabIndex = 9;
+            tabPageOAuth.Text = "OAuth/API Auth";
+            ucOAuthProperties.Dock = DockStyle.Fill;
             // 
             // ConnectionNamebeepTextBox
             // 
@@ -3775,6 +3929,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepPanel1.ResumeLayout(false);
             beepTabs1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
+            tabPageGeneral.ResumeLayout(false);
+            tabPageTypeFlags.ResumeLayout(false);
+            tabPageDatabase.ResumeLayout(false);
+            tabPageFile.ResumeLayout(false);
+            tabPageNetwork.ResumeLayout(false);
+            tabPageAuth.ResumeLayout(false);
+            tabPageDriver.ResumeLayout(false);
+            tabPageWebApi.ResumeLayout(false);
+            tabPageOAuth.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -3789,7 +3952,25 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected BeepButton CancelbeepButton;
         protected BeepButton SavebeepButton;
         public Controls.BeepTabs beepTabs1;
-      
         protected TabPage tabPage1;
+        // Property tab pages and controls
+        protected TabPage tabPageGeneral;
+        protected uc_GeneralProperties ucGeneralProperties;
+        protected TabPage tabPageTypeFlags;
+        protected uc_TypeandStateFlagsProperties ucTypeFlagsProperties;
+        protected TabPage tabPageDatabase;
+        protected uc_DatabaseProperties ucDatabaseProperties;
+        protected TabPage tabPageFile;
+        protected uc_FileProperties ucFileProperties;
+        protected TabPage tabPageNetwork;
+        protected uc_NetwrokandRemoteProperties ucNetworkProperties;
+        protected TabPage tabPageAuth;
+        protected uc_AuthenticationandSecurityProperties ucAuthProperties;
+        protected TabPage tabPageDriver;
+        protected uc_DriverProperties ucDriverProperties;
+        protected TabPage tabPageWebApi;
+        protected uc_WebApiProperties ucWebApiProperties;
+        protected TabPage tabPageOAuth;
+        protected uc_webapiAuthenticationProperties ucOAuthProperties;
     }
 }

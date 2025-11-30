@@ -240,7 +240,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "uc_AuthenticationandSecurityProperties";
             this.Size = new System.Drawing.Size(550, 600);
-            // Add the panel to the ConnectionPropertytabPage (from base class)
+            this.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Add the panel to this UserControl
             this.Controls.Add(this.Auth_propertiesPanel);
             this.Text = "Authentication";
             this.Auth_propertiesPanel.ResumeLayout(false);

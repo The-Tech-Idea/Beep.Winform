@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 
-
 namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 {
     /// <summary>
@@ -377,6 +376,22 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             _dialogFont = null;
             _monospaceFont = null;
             _isInitialized = false;
+        }
+
+        public static FontFamily? GetFontFamily(BeepControlStyle controlStyle)
+        {
+            try
+            {
+                // get font family from theme
+                IBeepTheme theme = BeepThemesManager.CurrentTheme;
+                if (theme == null || string.IsNullOrEmpty(theme.FontFamily))
+                    return null;
+                return FontListHelper.GetFontFamily(theme.FontFamily);
+            }
+            catch
+            {
+                return null;
+            }
         }
         #endregion
     }

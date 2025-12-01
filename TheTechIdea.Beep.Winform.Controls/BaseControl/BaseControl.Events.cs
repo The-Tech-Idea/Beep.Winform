@@ -452,21 +452,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             base.OnParentChanged(e);
 
-            RegisterBadgeDrawer();
-            //RegisterExternalLabelHelperDrawer();
-        }
-        private void RegisterBadgeDrawer()
-        {
-            var oldParent = Tag as Control;
-            Tag = Parent;
+        // Clear ALL external drawings for this child from old parent
+        // Parent keeps track of all drawings per child, so we clear all at once
+        var oldParent = Tag as Control;
+        Tag = Parent;
 
-            if (oldParent is BaseControl oldBeepParent)
-            {
-                oldBeepParent.ClearChildExternalDrawing(this);
-            }
+        if (oldParent is IExternalDrawingProvider oldExternalDrawingProvider)
+        {
+            oldExternalDrawingProvider.ClearChildExternalDrawing(this);
+        }
 
             if (Parent == null)
             {
+                // Try to clear from form if parent is null
                 var form = FindForm();
                 if (form != null)
                 {
@@ -477,23 +475,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                             try
                             {
                                 beepParent.ClearChildExternalDrawing(this);
-                                // Parent is null here; invalidate the actual parent we cleared
                                 beepParent.Invalidate();
                             }
                             catch { }
                         }
                     }
                 }
-                // Nothing else to register if no parent
                 return;
             }
 
+            // Now register all external drawings with new parent (parent tracks them per child)
+            RegisterBadgeDrawer();
+            RegisterExternalLabelHelperDrawer();
+        }
+        
+        /// <summary>
+        /// Registers badge external drawing with parent. Does NOT clear - parent tracks all drawings per child.
+        /// </summary>
+        private void RegisterBadgeDrawer()
+        {
+            if (Parent == null) return;
+
             // Register external badge drawing with new parent, if any
-            if (Parent is BaseControl newBeepParent)
+            if (Parent is IExternalDrawingProvider newExternalDrawingProvider)
             {
                 if (!string.IsNullOrEmpty(BadgeText))
                 {
-                    newBeepParent.AddChildExternalDrawing(this, DrawBadgeExternally, DrawingLayer.AfterAll);
+                    var badgeHandler = BaseControl.CreateBadgeDrawingHandler(
+                        BadgeText, BadgeBackColor, BadgeForeColor, BadgeFont, BadgeShape);
+                    newExternalDrawingProvider.AddChildExternalDrawing(this, badgeHandler, DrawingLayer.AfterAll);
                     // Mark for redraw on parent
                     UpdateRegionForBadge();
                     try { Parent?.Invalidate(); } catch { }

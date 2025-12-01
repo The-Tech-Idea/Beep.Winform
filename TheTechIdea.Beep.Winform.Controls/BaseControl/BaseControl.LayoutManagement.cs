@@ -48,49 +48,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Math.Max(0, calculatedWidth),
                 Math.Max(0, calculatedHeight)
             );
-
-            // Reserve space for label and helper when not material
-            // Since they're centered on the borders, we only need to reserve half the text height + border thickness
-            try
-            {
-                int reserveTop = 0;
-                int reserveBottom = 0;
-                if(LabelTextOn )
-                {
-                    if (!string.IsNullOrEmpty( LabelText))
-                    {
-                        float labelSize = Math.Max(8f,  Font.Size - 1f);
-                        using var lf = new Font( Font.FontFamily, labelSize, FontStyle.Regular);
-                        int h = TextRenderer.MeasureText( "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        // Reserve space for half the text height (since it's centered on the border)
-                        reserveTop = (h / 2) + (border / 2);
-                    }
-                }
-                if(HasError || _showHelperText)
-                {
-                    string supporting = !string.IsNullOrEmpty( ErrorText) ? ErrorText : HelperText;
-                    if (!string.IsNullOrEmpty(supporting))
-                    {
-                        float supSize = Math.Max(8f,  Font.Size - 1f);
-                        using var sf = new Font( Font.FontFamily, supSize, FontStyle.Regular);
-                        int h = TextRenderer.MeasureText( "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        // Reserve space for half the text height (since it's centered on the border)
-                        reserveBottom = (h / 2) + (border / 2);
-                    }
-                }
-
-            
-                if (reserveTop > 0 || reserveBottom > 0)
-                {
-                    inner = new Rectangle(
-                        inner.X,
-                        inner.Y + reserveTop,
-                        inner.Width,
-                        Math.Max(0, inner.Height - reserveTop - reserveBottom)
-                    );
-                }
-            }
-            catch { /* best-effort */ }
             var borderRect = new Rectangle(
                   shadow,
                   shadow,

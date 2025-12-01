@@ -23,38 +23,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
 
         /// <summary>
         /// Get colors for tooltip based on ToolTipType and BeepControlStyle
+        /// Now uses ToolTipThemeHelpers for consistent theme color management
         /// </summary>
         public static (Color background, Color foreground, Color border) GetColors(
             ToolTipConfig config, 
             IBeepTheme theme)
         {
-            var beepStyle = config.Style;
-
-            // If custom colors specified, use them
-            if (config.BackColor.HasValue && config.ForeColor.HasValue && config.BorderColor.HasValue)
-            {
-                return (config.BackColor.Value, config.ForeColor.Value, config.BorderColor.Value);
-            }
-
-            // Use BeepStyling color system
-            Color background, foreground, border;
-
-            if (config.UseBeepThemeColors && theme != null)
-            {
-                // Get semantic colors based on ToolTipType
-                background = GetSemanticBackgroundColor(config.Type, theme, beepStyle);
-                foreground = GetSemanticForegroundColor(config.Type, theme);
-                border = GetSemanticBorderColor(config.Type, theme, beepStyle);
-            }
-            else
-            {
-                // Use Style-specific colors
-                background = config.BackColor ?? StyleColors.GetBackground(beepStyle);
-                foreground = config.ForeColor ?? StyleColors.GetForeground(beepStyle);
-                border = config.BorderColor ?? StyleColors.GetBorder(beepStyle);
-            }
-
-            return (background, foreground, border);
+            // Use ToolTipThemeHelpers for centralized theme color management
+            var useThemeColors = config.UseBeepThemeColors && theme != null;
+            return ToolTipThemeHelpers.GetThemeColors(
+                theme,
+                config.Type,
+                useThemeColors,
+                config.BackColor,
+                config.ForeColor,
+                config.BorderColor);
         }
 
         /// <summary>

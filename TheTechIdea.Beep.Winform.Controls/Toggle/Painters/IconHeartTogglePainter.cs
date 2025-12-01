@@ -81,10 +81,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected override void PaintIcons(Graphics g, ControlState state)
         {
-            if (IconRegion.IsEmpty) return;
+            if (IconRegion.IsEmpty)
+                return;
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Use red/pink color for favorited heart
+            // Use red/pink color for favorited heart (special case - not using OnColor/OffColor)
             Color iconColor;
             if (state == ControlState.Disabled)
             {
@@ -99,13 +101,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 iconColor = Owner.OffColor; // Outline heart uses OffColor
             }
 
-            // Note: SvgsUI only has one Heart icon, we use different opacity/styling
-            // When ON: filled appearance with red color
-            // When OFF: outline appearance with gray color
-            string iconPath = SvgsUI.Heart;
-            float opacity = Owner.IsOn ? 1f : 0.6f; // Less opacity for outline effect
+            // Get icon path using helper
+            string iconPath = GetIconPath(Owner.IsOn);
+            if (string.IsNullOrEmpty(iconPath))
+                iconPath = SvgsUI.Heart;
+
+            // Use opacity for outline effect (special case)
+            float opacity = Owner.IsOn ? 1f : 0.6f;
             
-            StyledImagePainter.PaintWithTint(g, IconRegion, iconPath, iconColor, opacity, 0);
+            // Use StyledImagePainter with custom opacity
+            using (var iconPathShape = GetRoundedRectPath(IconRegion, 0))
+            {
+                StyledImagePainter.PaintWithTint(g, iconPathShape, iconPath, iconColor, opacity, 0);
+            }
         }
 
         #endregion

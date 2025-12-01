@@ -81,10 +81,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected override void PaintIcons(Graphics g, ControlState state)
         {
-            if (IconRegion.IsEmpty) return;
+            if (IconRegion.IsEmpty)
+                return;
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Use green for thumbs-up, red for thumbs-down
+            // Use green for thumbs-up, red for thumbs-down (special case - semantic colors)
             Color iconColor;
             if (state == ControlState.Disabled)
             {
@@ -99,8 +101,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 iconColor = Color.FromArgb(255, 244, 67, 54); // Material Red for thumbs-down
             }
 
-            string iconPath = Owner.IsOn ? SvgsUI.ThumbsUp : SvgsUI.ThumbsDown;
-            StyledImagePainter.PaintWithTint(g, IconRegion, iconPath, iconColor, 1f, 0);
+            // Get icon path using helper
+            string iconPath = GetIconPath(Owner.IsOn);
+            if (string.IsNullOrEmpty(iconPath))
+                iconPath = Owner.IsOn ? SvgsUI.ThumbsUp : SvgsUI.ThumbsDown;
+
+            // Use StyledImagePainter with custom colors
+            using (var iconPathShape = GetRoundedRectPath(IconRegion, 0))
+            {
+                StyledImagePainter.PaintWithTint(g, iconPathShape, iconPath, iconColor, 1f, 0);
+            }
         }
 
         #endregion

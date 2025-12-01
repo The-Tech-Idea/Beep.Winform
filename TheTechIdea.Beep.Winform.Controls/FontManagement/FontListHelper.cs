@@ -907,6 +907,33 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                    CreateValidFont("Microsoft Sans Serif", 9f, FontStyle.Regular) ??
                    SystemFonts.DefaultFont;
         }
+
+        public static FontFamily GetFontFamily(string fontFamily)
+        {
+            return FontConfigurations
+                .Where(f => f.Name.Equals(fontFamily, StringComparison.OrdinalIgnoreCase))
+                .Select(f =>
+                {
+                    if (f.IsSystemFont)
+                    {
+                        try { return new FontFamily(f.Name); } catch { return null; }
+                    }
+                    else if (f.IsPrivateFont)
+                    {
+                        if (f.PrivateFontIndex >= 0 && f.PrivateFontIndex < privateFontCollection.Families.Length)
+                        {
+                            return privateFontCollection.Families[f.PrivateFontIndex];
+                        }
+                        else
+                        {
+                            return FindPrivateFamilyByName(f.Name);
+                        }
+                    }
+                    return null;
+                })
+                .FirstOrDefault(fam => fam != null);
+
+        }
         #endregion
     }
 

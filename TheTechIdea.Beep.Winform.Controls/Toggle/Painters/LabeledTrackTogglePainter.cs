@@ -98,32 +98,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             if (!Owner.ShowLabels)
                 return;
 
-            Font font = new Font(Owner.Font.FontFamily, Owner.Font.Size - 2, FontStyle.Bold);
-            Color textColor = Owner.IsOn ? 
-                Color.FromArgb(200, Owner.OnColor) : 
-                Color.FromArgb(200, Owner.OffColor);
-
-            try
+            // Use ToggleFontHelpers for consistent font management
+            using (var offFont = GetLabelFont(false))
+            using (var onFont = GetLabelFont(true))
             {
+                // Get track color for contrast checking
+                Color trackColor = GetTrackColor(state);
+                
+                // Calculate text colors with accessibility in mind
+                Color offTextColor = Owner.IsOn ? 
+                    Color.FromArgb(200, Owner.OnColor) : 
+                    Color.White;
+                Color onTextColor = Owner.IsOn ? 
+                    Color.White : 
+                    Color.FromArgb(200, Owner.OffColor);
+
+                // Apply high contrast adjustments if enabled
+                if (ToggleAccessibilityHelpers.IsHighContrastMode())
+                {
+                    var (onColor, offColor, thumbColor, textColor) = ToggleAccessibilityHelpers.GetHighContrastColors();
+                    offTextColor = textColor;
+                    onTextColor = textColor;
+                }
+                else
+                {
+                    // Ensure WCAG contrast compliance
+                    Color trackColorForContrast = Owner.IsOn ? Owner.OnColor : Owner.OffColor;
+                    offTextColor = ToggleAccessibilityHelpers.EnsureContrastRatio(offTextColor, trackColorForContrast, 4.5)
+                        ? offTextColor
+                        : ToggleAccessibilityHelpers.AdjustForContrast(offTextColor, trackColorForContrast, 4.5);
+                    onTextColor = ToggleAccessibilityHelpers.EnsureContrastRatio(onTextColor, trackColorForContrast, 4.5)
+                        ? onTextColor
+                        : ToggleAccessibilityHelpers.AdjustForContrast(onTextColor, trackColorForContrast, 4.5);
+                }
+
                 // Draw OFF label
                 if (!OffLabelRegion.IsEmpty)
                 {
-                    DrawCenteredText(g, Owner.OffText, font, 
-                        Owner.IsOn ? textColor : Color.White, 
+                    DrawCenteredText(g, Owner.OffText, offFont, 
+                        Owner.IsOn ? offTextColor : onTextColor, 
                         OffLabelRegion);
                 }
 
                 // Draw ON label
                 if (!OnLabelRegion.IsEmpty)
                 {
-                    DrawCenteredText(g, Owner.OnText, font, 
-                        Owner.IsOn ? Color.White : textColor, 
+                    DrawCenteredText(g, Owner.OnText, onFont, 
+                        Owner.IsOn ? onTextColor : offTextColor, 
                         OnLabelRegion);
                 }
-            }
-            finally
-            {
-                font?.Dispose();
             }
         }
 

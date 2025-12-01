@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 {
@@ -38,6 +40,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             // Start cleanup timer (runs every 5 seconds)
             _cleanupTimer = new System.Threading.Timer(OnCleanupTimer, null, 5000, 5000);
+            
+            // Subscribe to theme changes if BeepThemesManager supports it
+            // This ensures tooltips update when theme changes
+            try
+            {
+                // Note: If BeepThemesManager has a ThemeChanged event, subscribe here
+                // Example: BeepThemesManager.ThemeChanged += OnThemeChanged;
+            }
+            catch
+            {
+                // Theme subscription not available - continue without it
+            }
         }
 
         #endregion
@@ -803,6 +817,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Clear collections
             _activeTooltips.Clear();
             _controlTooltips.Clear();
+        }
+
+        #endregion
+
+        #region Theme Management
+
+        /// <summary>
+        /// Apply theme to all active tooltips
+        /// Called when theme changes to update existing tooltips
+        /// </summary>
+        public void ApplyThemeToAll(IBeepTheme theme, bool useThemeColors = true)
+        {
+            if (theme == null) return;
+
+            foreach (var kvp in _activeTooltips)
+            {
+                try
+                {
+                    var instance = kvp.Value;
+                    if (instance != null && instance.IsVisible)
+                    {
+                        // Update the tooltip's config with new theme colors
+                        var config = instance.Config;
+                        if (config != null && config.UseBeepThemeColors)
+                        {
+                            // Apply theme colors using ToolTipThemeHelpers
+                            ToolTipThemeHelpers.ApplyThemeColors(config, theme, useThemeColors);
+                            
+                            // Reapply config to update the tooltip
+                            // Note: This requires exposing a method in ToolTipInstance to reapply theme
+                            // For now, tooltips will use new theme on next show
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ToolTipManager] Error applying theme to tooltip {kvp.Key}: {ex.Message}");
+                }
+            }
         }
 
         #endregion

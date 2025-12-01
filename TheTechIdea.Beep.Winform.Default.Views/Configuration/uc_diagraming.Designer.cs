@@ -71,9 +71,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig30 = new BeepColumnConfig();
             driversConfigViewModelBindingSource = new BindingSource(components);
             CycleBeepDataTimePickerModebeepButton = new BeepButton();
+            beepPanel1 = new BeepPanel();
             CalendarnamebeepLabel = new BeepLabel();
             beepGridPro1 = new TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
+            beepPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // driversConfigViewModelBindingSource
@@ -89,26 +91,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.ApplyThemeToChilds = true;
             CycleBeepDataTimePickerModebeepButton.AutoDrawHitListComponents = false;
             CycleBeepDataTimePickerModebeepButton.AutoSizeContent = false;
-            CycleBeepDataTimePickerModebeepButton.BackColor = Color.FromArgb(14, 14, 14);
+            CycleBeepDataTimePickerModebeepButton.BackColor = Color.FromArgb(10, 10, 10);
             CycleBeepDataTimePickerModebeepButton.BadgeBackColor = Color.Red;
             CycleBeepDataTimePickerModebeepButton.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             CycleBeepDataTimePickerModebeepButton.BadgeForeColor = Color.White;
             CycleBeepDataTimePickerModebeepButton.BadgeShape = BadgeShape.Circle;
-            CycleBeepDataTimePickerModebeepButton.BadgeText = "";
+            CycleBeepDataTimePickerModebeepButton.BadgeText = "sdsds";
             CycleBeepDataTimePickerModebeepButton.BlockID = null;
             CycleBeepDataTimePickerModebeepButton.BorderColor = Color.FromArgb(0, 255, 0);
             CycleBeepDataTimePickerModebeepButton.BorderDashStyle = DashStyle.Solid;
-            CycleBeepDataTimePickerModebeepButton.BorderPainter = BeepControlStyle.None;
-            CycleBeepDataTimePickerModebeepButton.BorderRadius = 8;
+            CycleBeepDataTimePickerModebeepButton.BorderPainter = BeepControlStyle.Fluent2;
+            CycleBeepDataTimePickerModebeepButton.BorderRadius = 4;
             CycleBeepDataTimePickerModebeepButton.BorderSize = 1;
             CycleBeepDataTimePickerModebeepButton.BorderStyle = BorderStyle.FixedSingle;
             CycleBeepDataTimePickerModebeepButton.BorderThickness = 1;
             CycleBeepDataTimePickerModebeepButton.BottomoffsetForDrawingRect = 0;
             CycleBeepDataTimePickerModebeepButton.BoundProperty = null;
-            CycleBeepDataTimePickerModebeepButton.ButtonErrorText = "";
-            CycleBeepDataTimePickerModebeepButton.ButtonHasError = false;
+            CycleBeepDataTimePickerModebeepButton.ButtonErrorText = "sdsds";
+            CycleBeepDataTimePickerModebeepButton.ButtonHasError = true;
             CycleBeepDataTimePickerModebeepButton.ButtonHelperText = "";
-            CycleBeepDataTimePickerModebeepButton.ButtonLabel = "";
+            CycleBeepDataTimePickerModebeepButton.ButtonLabel = "jyuy";
             CycleBeepDataTimePickerModebeepButton.ButtonMinSize = new Size(32, 32);
             CycleBeepDataTimePickerModebeepButton.ButtonType = ButtonType.Normal;
             CycleBeepDataTimePickerModebeepButton.CanBeFocused = true;
@@ -117,19 +119,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.CanBeSelected = true;
             CycleBeepDataTimePickerModebeepButton.Category = Utilities.DbFieldCategory.Boolean;
             CycleBeepDataTimePickerModebeepButton.ComponentName = "BaseControl";
+            CycleBeepDataTimePickerModebeepButton.ControlStyle = BeepControlStyle.Fluent2;
             CycleBeepDataTimePickerModebeepButton.DataContext = null;
             CycleBeepDataTimePickerModebeepButton.DataSourceProperty = null;
-            CycleBeepDataTimePickerModebeepButton.DisabledBackColor = Color.FromArgb(38, 38, 38);
+            CycleBeepDataTimePickerModebeepButton.DisabledBackColor = Color.FromArgb(12, 12, 12);
             CycleBeepDataTimePickerModebeepButton.DisabledBorderColor = Color.Gray;
-            CycleBeepDataTimePickerModebeepButton.DisabledForeColor = Color.FromArgb(90, 140, 110);
-            CycleBeepDataTimePickerModebeepButton.DrawingRect = new Rectangle(0, 0, 151, 43);
+            CycleBeepDataTimePickerModebeepButton.DisabledForeColor = Color.FromArgb(80, 120, 80);
+            CycleBeepDataTimePickerModebeepButton.DrawingRect = new Rectangle(6, 6, 139, 31);
             CycleBeepDataTimePickerModebeepButton.Easing = EasingType.Linear;
             CycleBeepDataTimePickerModebeepButton.EnableHighQualityRendering = true;
             CycleBeepDataTimePickerModebeepButton.EnableMaterialStyle = false;
             CycleBeepDataTimePickerModebeepButton.EnableRippleEffect = false;
             CycleBeepDataTimePickerModebeepButton.EnableSplashEffect = false;
             CycleBeepDataTimePickerModebeepButton.ErrorColor = Color.FromArgb(176, 0, 32);
-            CycleBeepDataTimePickerModebeepButton.ErrorText = "";
+            CycleBeepDataTimePickerModebeepButton.ErrorText = "sdsds";
             CycleBeepDataTimePickerModebeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CycleBeepDataTimePickerModebeepButton.FieldID = null;
             CycleBeepDataTimePickerModebeepButton.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
@@ -149,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.GradientStartColor = Color.LightGray;
             CycleBeepDataTimePickerModebeepButton.GridMode = false;
             CycleBeepDataTimePickerModebeepButton.GuidID = "b332b405-1f61-441a-ab4c-c95c04004132";
-            CycleBeepDataTimePickerModebeepButton.HasError = false;
+            CycleBeepDataTimePickerModebeepButton.HasError = true;
             CycleBeepDataTimePickerModebeepButton.HelperText = "";
             CycleBeepDataTimePickerModebeepButton.HelperTextOn = false;
             CycleBeepDataTimePickerModebeepButton.HideText = false;
@@ -165,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             CycleBeepDataTimePickerModebeepButton.ImageClicked = null;
             CycleBeepDataTimePickerModebeepButton.ImageEmbededin = ImageEmbededin.Button;
-            CycleBeepDataTimePickerModebeepButton.ImagePath = null;
+            CycleBeepDataTimePickerModebeepButton.ImagePath = "";
             CycleBeepDataTimePickerModebeepButton.InactiveBorderColor = Color.Gray;
             CycleBeepDataTimePickerModebeepButton.InnerShape = null;
             CycleBeepDataTimePickerModebeepButton.IsAcceptButton = false;
@@ -197,16 +200,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.IsValid = true;
             CycleBeepDataTimePickerModebeepButton.IsVisible = true;
             CycleBeepDataTimePickerModebeepButton.Items = (List<object>)resources.GetObject("CycleBeepDataTimePickerModebeepButton.Items");
-            CycleBeepDataTimePickerModebeepButton.LabelText = "";
-            CycleBeepDataTimePickerModebeepButton.LabelTextOn = false;
+            CycleBeepDataTimePickerModebeepButton.LabelPosition = LabelPosition.Left;
+            CycleBeepDataTimePickerModebeepButton.LabelText = "jyuy";
+            CycleBeepDataTimePickerModebeepButton.LabelTextOn = true;
             CycleBeepDataTimePickerModebeepButton.LeadingIconPath = "";
             CycleBeepDataTimePickerModebeepButton.LeadingImagePath = "";
             CycleBeepDataTimePickerModebeepButton.LeftoffsetForDrawingRect = 0;
             CycleBeepDataTimePickerModebeepButton.LinkedProperty = null;
-            CycleBeepDataTimePickerModebeepButton.Location = new Point(104, 68);
+            CycleBeepDataTimePickerModebeepButton.Location = new Point(56, 85);
             CycleBeepDataTimePickerModebeepButton.Margin = new Padding(0);
             CycleBeepDataTimePickerModebeepButton.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            CycleBeepDataTimePickerModebeepButton.MaterialPreserveContentArea = true;
             CycleBeepDataTimePickerModebeepButton.MaxHitListDrawPerFrame = 0;
             CycleBeepDataTimePickerModebeepButton.MaxImageSize = new Size(32, 32);
             CycleBeepDataTimePickerModebeepButton.ModernGradientType = ModernGradientType.None;
@@ -238,6 +241,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.ShowAllBorders = false;
             CycleBeepDataTimePickerModebeepButton.ShowBottomBorder = false;
             CycleBeepDataTimePickerModebeepButton.ShowFocusIndicator = false;
+            CycleBeepDataTimePickerModebeepButton.ShowLabelAboveBorder = false;
             CycleBeepDataTimePickerModebeepButton.ShowLeftBorder = false;
             CycleBeepDataTimePickerModebeepButton.ShowRightBorder = false;
             CycleBeepDataTimePickerModebeepButton.ShowShadow = false;
@@ -248,13 +252,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("CycleBeepDataTimePickerModebeepButton.StandardImages");
             CycleBeepDataTimePickerModebeepButton.StaticNotMoving = false;
             CycleBeepDataTimePickerModebeepButton.TabIndex = 2;
-            CycleBeepDataTimePickerModebeepButton.Tag = this;
+            CycleBeepDataTimePickerModebeepButton.Tag = beepPanel1;
             CycleBeepDataTimePickerModebeepButton.TempBackColor = Color.LightGray;
             CycleBeepDataTimePickerModebeepButton.Text = "Cycle";
             CycleBeepDataTimePickerModebeepButton.TextAlign = ContentAlignment.MiddleCenter;
             CycleBeepDataTimePickerModebeepButton.TextFont = new Font("Consolas", 12F);
             CycleBeepDataTimePickerModebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
             CycleBeepDataTimePickerModebeepButton.Theme = "TerminalTheme";
+            CycleBeepDataTimePickerModebeepButton.TooltipFont = null;
+            CycleBeepDataTimePickerModebeepButton.TooltipMaxSize = null;
             CycleBeepDataTimePickerModebeepButton.ToolTipText = null;
             CycleBeepDataTimePickerModebeepButton.TopoffsetForDrawingRect = 0;
             CycleBeepDataTimePickerModebeepButton.TrailingIconPath = "";
@@ -266,6 +272,175 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.UseRichToolTip = true;
             CycleBeepDataTimePickerModebeepButton.UseScaledFont = false;
             CycleBeepDataTimePickerModebeepButton.UseThemeFont = true;
+            // 
+            // beepPanel1
+            // 
+            beepPanel1.AnimationDuration = 500;
+            beepPanel1.AnimationType = DisplayAnimationType.None;
+            beepPanel1.ApplyThemeToChilds = true;
+            beepPanel1.AutoDrawHitListComponents = true;
+            beepPanel1.BackColor = SystemColors.Control;
+            beepPanel1.BadgeBackColor = Color.FromArgb(33, 150, 243);
+            beepPanel1.BadgeFont = new Font("Segoe UI", 8F, FontStyle.Bold);
+            beepPanel1.BadgeForeColor = Color.White;
+            beepPanel1.BadgeShape = BadgeShape.Circle;
+            beepPanel1.BadgeText = "";
+            beepPanel1.BlockID = null;
+            beepPanel1.BorderColor = Color.FromArgb(216, 216, 216);
+            beepPanel1.BorderDashStyle = DashStyle.Solid;
+            beepPanel1.BorderPainter = BeepControlStyle.MacOSBigSur;
+            beepPanel1.BorderRadius = 6;
+            beepPanel1.BorderStyle = BorderStyle.FixedSingle;
+            beepPanel1.BorderThickness = 1;
+            beepPanel1.BottomoffsetForDrawingRect = 0;
+            beepPanel1.BoundProperty = null;
+            beepPanel1.CanBeFocused = false;
+            beepPanel1.CanBeHovered = false;
+            beepPanel1.CanBePressed = false;
+            beepPanel1.CanBeSelected = false;
+            beepPanel1.Category = Utilities.DbFieldCategory.String;
+            beepPanel1.ComponentName = "BaseControl";
+            beepPanel1.Controls.Add(CycleBeepDataTimePickerModebeepButton);
+            beepPanel1.ControlStyle = BeepControlStyle.MacOSBigSur;
+            beepPanel1.CustomShapePath = null;
+            beepPanel1.DataContext = null;
+            beepPanel1.DataSourceProperty = null;
+            beepPanel1.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            beepPanel1.DisabledBorderColor = Color.LightGray;
+            beepPanel1.DisabledForeColor = Color.Gray;
+            beepPanel1.DrawingRect = new Rectangle(8, 8, 344, 228);
+            beepPanel1.Easing = EasingType.Linear;
+            beepPanel1.EnableHighQualityRendering = true;
+            beepPanel1.EnableMaterialStyle = false;
+            beepPanel1.EnableRippleEffect = false;
+            beepPanel1.EnableSplashEffect = false;
+            beepPanel1.ErrorColor = Color.Empty;
+            beepPanel1.ErrorText = "";
+            beepPanel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
+            beepPanel1.FieldID = null;
+            beepPanel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepPanel1.FloatingLabel = true;
+            beepPanel1.FocusBackColor = Color.LightYellow;
+            beepPanel1.FocusBorderColor = Color.RoyalBlue;
+            beepPanel1.FocusForeColor = Color.Black;
+            beepPanel1.FocusIndicatorColor = Color.RoyalBlue;
+            beepPanel1.ForeColor = Color.FromArgb(33, 37, 41);
+            beepPanel1.Form = null;
+            beepPanel1.GlassmorphismBlur = 10F;
+            beepPanel1.GlassmorphismOpacity = 0.1F;
+            beepPanel1.GradientAngle = 0F;
+            beepPanel1.GradientDirection = LinearGradientMode.Horizontal;
+            beepPanel1.GradientEndColor = Color.FromArgb(230, 230, 230);
+            beepPanel1.GradientStartColor = Color.FromArgb(255, 255, 255);
+            beepPanel1.GridMode = false;
+            beepPanel1.GuidID = "cab69839-6931-4c26-8e17-08afe39ab606";
+            beepPanel1.HasError = false;
+            beepPanel1.HelperText = "";
+            beepPanel1.HelperTextOn = false;
+            beepPanel1.HitAreaEventOn = false;
+            beepPanel1.HitTestControl = null;
+            beepPanel1.HoverBackColor = Color.LightBlue;
+            beepPanel1.HoverBorderColor = Color.Blue;
+            beepPanel1.HoveredBackcolor = Color.LightBlue;
+            beepPanel1.HoverForeColor = Color.Black;
+            beepPanel1.IconSize = 20;
+            beepPanel1.Id = -1;
+            beepPanel1.InactiveBorderColor = Color.Gray;
+            beepPanel1.InnerShape = null;
+            beepPanel1.IsAcceptButton = false;
+            beepPanel1.IsBorderAffectedByTheme = true;
+            beepPanel1.IsCancelButton = false;
+            beepPanel1.IsChild = true;
+            beepPanel1.IsCustomeBorder = false;
+            beepPanel1.IsDefault = false;
+            beepPanel1.IsDeleted = false;
+            beepPanel1.IsDirty = false;
+            beepPanel1.IsEditable = true;
+            beepPanel1.IsFocused = false;
+            beepPanel1.IsFrameless = false;
+            beepPanel1.IsHovered = false;
+            beepPanel1.IsNew = false;
+            beepPanel1.IsPressed = false;
+            beepPanel1.IsReadOnly = false;
+            beepPanel1.IsRequired = false;
+            beepPanel1.IsRounded = true;
+            beepPanel1.IsRoundedAffectedByTheme = true;
+            beepPanel1.IsSelected = false;
+            beepPanel1.IsSelectedOptionOn = false;
+            beepPanel1.IsShadowAffectedByTheme = true;
+            beepPanel1.IsTransparentBackground = false;
+            beepPanel1.IsValid = true;
+            beepPanel1.IsVisible = true;
+            beepPanel1.Items = (List<object>)resources.GetObject("beepPanel1.Items");
+            beepPanel1.LabelPosition = LabelPosition.Left;
+            beepPanel1.LabelText = "";
+            beepPanel1.LabelTextOn = false;
+            beepPanel1.LeadingIconPath = "";
+            beepPanel1.LeadingImagePath = "";
+            beepPanel1.LeftoffsetForDrawingRect = 0;
+            beepPanel1.LinkedProperty = null;
+            beepPanel1.Location = new Point(340, 34);
+            beepPanel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepPanel1.MaxHitListDrawPerFrame = 0;
+            beepPanel1.ModernGradientType = ModernGradientType.None;
+            beepPanel1.Name = "beepPanel1";
+            beepPanel1.OverrideFontSize = TypeStyleFontSize.None;
+            beepPanel1.PainterKind = BaseControlPainterKind.Classic;
+            beepPanel1.PanelShape = PanelShape.Custom;
+            beepPanel1.ParentBackColor = SystemColors.Control;
+            beepPanel1.ParentControl = null;
+            beepPanel1.PressedBackColor = Color.Gray;
+            beepPanel1.PressedBorderColor = Color.DarkGray;
+            beepPanel1.PressedForeColor = Color.White;
+            beepPanel1.RadialCenter = (PointF)resources.GetObject("beepPanel1.RadialCenter");
+            beepPanel1.RightoffsetForDrawingRect = 0;
+            beepPanel1.SavedGuidID = null;
+            beepPanel1.SavedID = null;
+            beepPanel1.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            beepPanel1.SelectedBackColor = Color.LightGreen;
+            beepPanel1.SelectedBorderColor = Color.Green;
+            beepPanel1.SelectedForeColor = Color.Black;
+            beepPanel1.SelectedValue = null;
+            beepPanel1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
+            beepPanel1.ShadowOffset = 3;
+            beepPanel1.ShadowOpacity = 0.25F;
+            beepPanel1.ShowAllBorders = true;
+            beepPanel1.ShowBottomBorder = false;
+            beepPanel1.ShowFocusIndicator = false;
+            beepPanel1.ShowLabelAboveBorder = false;
+            beepPanel1.ShowLeftBorder = false;
+            beepPanel1.ShowRightBorder = false;
+            beepPanel1.ShowShadow = false;
+            beepPanel1.ShowTitle = true;
+            beepPanel1.ShowTitleLine = true;
+            beepPanel1.ShowTitleLineinFullWidth = true;
+            beepPanel1.ShowTopBorder = false;
+            beepPanel1.Size = new Size(360, 244);
+            beepPanel1.SlideFrom = SlideDirection.Left;
+            beepPanel1.StaticNotMoving = false;
+            beepPanel1.TabIndex = 5;
+            beepPanel1.Tag = this;
+            beepPanel1.TempBackColor = Color.LightGray;
+            beepPanel1.Text = "beepPanel1";
+            beepPanel1.TextFont = new Font("Segoe UI", 14F);
+            beepPanel1.Theme = null;
+            beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
+            beepPanel1.TitleBottomY = 34;
+            beepPanel1.TitleLineColor = Color.FromArgb(33, 33, 33);
+            beepPanel1.TitleLineThickness = 2;
+            beepPanel1.TitleText = "Panel Title";
+            beepPanel1.TooltipFont = null;
+            beepPanel1.TooltipMaxSize = null;
+            beepPanel1.ToolTipText = null;
+            beepPanel1.TopoffsetForDrawingRect = 0;
+            beepPanel1.TrailingIconPath = "";
+            beepPanel1.TrailingImagePath = "";
+            beepPanel1.UseExternalBufferedGraphics = false;
+            beepPanel1.UseFormStylePaint = true;
+            beepPanel1.UseGlassmorphism = false;
+            beepPanel1.UseGradientBackground = false;
+            beepPanel1.UseRichToolTip = true;
+            beepPanel1.UseThemeFont = true;
             // 
             // CalendarnamebeepLabel
             // 
@@ -283,8 +458,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.BlockID = null;
             CalendarnamebeepLabel.BorderColor = Color.LightGray;
             CalendarnamebeepLabel.BorderDashStyle = DashStyle.Solid;
-            CalendarnamebeepLabel.BorderPainter = BeepControlStyle.None;
-            CalendarnamebeepLabel.BorderRadius = 8;
+            CalendarnamebeepLabel.BorderPainter = BeepControlStyle.AntDesign;
+            CalendarnamebeepLabel.BorderRadius = 2;
             CalendarnamebeepLabel.BorderStyle = BorderStyle.FixedSingle;
             CalendarnamebeepLabel.BorderThickness = 1;
             CalendarnamebeepLabel.BottomoffsetForDrawingRect = 0;
@@ -295,12 +470,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.CanBeSelected = true;
             CalendarnamebeepLabel.Category = Utilities.DbFieldCategory.String;
             CalendarnamebeepLabel.ComponentName = "BaseControl";
+            CalendarnamebeepLabel.ControlStyle = BeepControlStyle.AntDesign;
             CalendarnamebeepLabel.DataContext = null;
             CalendarnamebeepLabel.DataSourceProperty = null;
             CalendarnamebeepLabel.DisabledBackColor = Color.LightGray;
             CalendarnamebeepLabel.DisabledBorderColor = Color.Gray;
             CalendarnamebeepLabel.DisabledForeColor = Color.Gray;
-            CalendarnamebeepLabel.DrawingRect = new Rectangle(1, 1, 264, 48);
+            CalendarnamebeepLabel.DrawingRect = new Rectangle(5, 5, 256, 40);
             CalendarnamebeepLabel.Easing = EasingType.Linear;
             CalendarnamebeepLabel.EnableHighQualityRendering = true;
             CalendarnamebeepLabel.EnableMaterialStyle = false;
@@ -372,13 +548,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.LabelErrorText = "";
             CalendarnamebeepLabel.LabelHasError = false;
             CalendarnamebeepLabel.LabelHelperText = "";
+            CalendarnamebeepLabel.LabelPosition = LabelPosition.Left;
             CalendarnamebeepLabel.LabelText = "";
             CalendarnamebeepLabel.LabelTextOn = false;
             CalendarnamebeepLabel.LeadingIconPath = "";
             CalendarnamebeepLabel.LeadingImagePath = "";
             CalendarnamebeepLabel.LeftoffsetForDrawingRect = 0;
             CalendarnamebeepLabel.LinkedProperty = null;
-            CalendarnamebeepLabel.Location = new Point(63, 111);
+            CalendarnamebeepLabel.Location = new Point(71, 131);
             CalendarnamebeepLabel.Margin = new Padding(0);
             CalendarnamebeepLabel.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             CalendarnamebeepLabel.MaxHitListDrawPerFrame = 0;
@@ -410,6 +587,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.ShowAllBorders = false;
             CalendarnamebeepLabel.ShowBottomBorder = false;
             CalendarnamebeepLabel.ShowFocusIndicator = false;
+            CalendarnamebeepLabel.ShowLabelAboveBorder = false;
             CalendarnamebeepLabel.ShowLeftBorder = false;
             CalendarnamebeepLabel.ShowRightBorder = false;
             CalendarnamebeepLabel.ShowShadow = false;
@@ -427,6 +605,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.TextFont = new Font("Arial", 10F);
             CalendarnamebeepLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
             CalendarnamebeepLabel.Theme = "DefaultType";
+            CalendarnamebeepLabel.TooltipFont = null;
+            CalendarnamebeepLabel.TooltipMaxSize = null;
             CalendarnamebeepLabel.ToolTipText = null;
             CalendarnamebeepLabel.TopoffsetForDrawingRect = 0;
             CalendarnamebeepLabel.TrailingIconPath = "";
@@ -447,7 +627,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.AnimationType = DisplayAnimationType.None;
             beepGridPro1.ApplyThemeToChilds = true;
             beepGridPro1.AutoDrawHitListComponents = false;
-            beepGridPro1.BackColor = Color.White;
+            beepGridPro1.BackColor = SystemColors.Control;
             beepGridPro1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepGridPro1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepGridPro1.BadgeForeColor = Color.White;
@@ -469,6 +649,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Category = Utilities.DbFieldCategory.String;
             beepGridPro1.ColumnHeaderHeight = 39;
             beepColumnConfig1.AggregationType = AggregationType.None;
+            beepColumnConfig1.AllowReorder = true;
             beepColumnConfig1.AllowSort = true;
             beepColumnConfig1.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig1.ColumnCaption = "☑";
@@ -478,6 +659,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig1.Date = new DateTime(0L);
             beepColumnConfig1.DecimalPlaces = 0;
             beepColumnConfig1.DefaultValue = null;
+            beepColumnConfig1.DisplayOrder = 0;
             beepColumnConfig1.EnumSourceType = null;
             beepColumnConfig1.Filter = null;
             beepColumnConfig1.Format = null;
@@ -518,6 +700,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig1.Visible = false;
             beepColumnConfig1.Width = 30;
             beepColumnConfig2.AggregationType = AggregationType.Count;
+            beepColumnConfig2.AllowReorder = true;
             beepColumnConfig2.AllowSort = true;
             beepColumnConfig2.ColumnCaption = "#";
             beepColumnConfig2.ColumnName = "RowNum";
@@ -526,6 +709,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig2.Date = new DateTime(0L);
             beepColumnConfig2.DecimalPlaces = 0;
             beepColumnConfig2.DefaultValue = null;
+            beepColumnConfig2.DisplayOrder = 1;
             beepColumnConfig2.EnumSourceType = null;
             beepColumnConfig2.Filter = null;
             beepColumnConfig2.Format = null;
@@ -565,6 +749,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig2.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig2.Width = 30;
             beepColumnConfig3.AggregationType = AggregationType.None;
+            beepColumnConfig3.AllowReorder = true;
             beepColumnConfig3.AllowSort = true;
             beepColumnConfig3.ColumnCaption = "RowID";
             beepColumnConfig3.ColumnName = "RowID";
@@ -573,6 +758,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig3.Date = new DateTime(0L);
             beepColumnConfig3.DecimalPlaces = 0;
             beepColumnConfig3.DefaultValue = null;
+            beepColumnConfig3.DisplayOrder = 2;
             beepColumnConfig3.EnumSourceType = null;
             beepColumnConfig3.Filter = null;
             beepColumnConfig3.Format = null;
@@ -613,6 +799,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig3.Visible = false;
             beepColumnConfig3.Width = 30;
             beepColumnConfig4.AggregationType = AggregationType.None;
+            beepColumnConfig4.AllowReorder = true;
             beepColumnConfig4.AllowSort = true;
             beepColumnConfig4.CellEditor = BeepColumnType.NumericUpDown;
             beepColumnConfig4.ColumnCaption = "ID";
@@ -622,6 +809,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig4.Date = new DateTime(0L);
             beepColumnConfig4.DecimalPlaces = 0;
             beepColumnConfig4.DefaultValue = null;
+            beepColumnConfig4.DisplayOrder = 3;
             beepColumnConfig4.EnumSourceType = null;
             beepColumnConfig4.Filter = null;
             beepColumnConfig4.Format = null;
@@ -658,6 +846,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig4.Sticked = false;
             beepColumnConfig4.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig5.AggregationType = AggregationType.None;
+            beepColumnConfig5.AllowReorder = true;
             beepColumnConfig5.AllowSort = true;
             beepColumnConfig5.ColumnCaption = "GuidID";
             beepColumnConfig5.ColumnName = "GuidID";
@@ -665,6 +854,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig5.Date = new DateTime(0L);
             beepColumnConfig5.DecimalPlaces = 0;
             beepColumnConfig5.DefaultValue = null;
+            beepColumnConfig5.DisplayOrder = 4;
             beepColumnConfig5.EnumSourceType = null;
             beepColumnConfig5.Filter = null;
             beepColumnConfig5.Format = null;
@@ -701,6 +891,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig5.Sticked = false;
             beepColumnConfig5.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig6.AggregationType = AggregationType.None;
+            beepColumnConfig6.AllowReorder = true;
             beepColumnConfig6.AllowSort = true;
             beepColumnConfig6.ColumnCaption = "PackageName";
             beepColumnConfig6.ColumnName = "PackageName";
@@ -708,6 +899,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig6.Date = new DateTime(0L);
             beepColumnConfig6.DecimalPlaces = 0;
             beepColumnConfig6.DefaultValue = null;
+            beepColumnConfig6.DisplayOrder = 5;
             beepColumnConfig6.EnumSourceType = null;
             beepColumnConfig6.Filter = null;
             beepColumnConfig6.Format = null;
@@ -744,6 +936,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig6.Sticked = false;
             beepColumnConfig6.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig7.AggregationType = AggregationType.None;
+            beepColumnConfig7.AllowReorder = true;
             beepColumnConfig7.AllowSort = true;
             beepColumnConfig7.ColumnCaption = "DriverClass";
             beepColumnConfig7.ColumnName = "DriverClass";
@@ -751,6 +944,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig7.Date = new DateTime(0L);
             beepColumnConfig7.DecimalPlaces = 0;
             beepColumnConfig7.DefaultValue = null;
+            beepColumnConfig7.DisplayOrder = 6;
             beepColumnConfig7.EnumSourceType = null;
             beepColumnConfig7.Filter = null;
             beepColumnConfig7.Format = null;
@@ -787,6 +981,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig7.Sticked = false;
             beepColumnConfig7.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig8.AggregationType = AggregationType.None;
+            beepColumnConfig8.AllowReorder = true;
             beepColumnConfig8.AllowSort = true;
             beepColumnConfig8.ColumnCaption = "version";
             beepColumnConfig8.ColumnName = "version";
@@ -794,6 +989,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig8.Date = new DateTime(0L);
             beepColumnConfig8.DecimalPlaces = 0;
             beepColumnConfig8.DefaultValue = null;
+            beepColumnConfig8.DisplayOrder = 7;
             beepColumnConfig8.EnumSourceType = null;
             beepColumnConfig8.Filter = null;
             beepColumnConfig8.Format = null;
@@ -830,6 +1026,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig8.Sticked = false;
             beepColumnConfig8.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig9.AggregationType = AggregationType.None;
+            beepColumnConfig9.AllowReorder = true;
             beepColumnConfig9.AllowSort = true;
             beepColumnConfig9.ColumnCaption = "dllname";
             beepColumnConfig9.ColumnName = "dllname";
@@ -837,6 +1034,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig9.Date = new DateTime(0L);
             beepColumnConfig9.DecimalPlaces = 0;
             beepColumnConfig9.DefaultValue = null;
+            beepColumnConfig9.DisplayOrder = 8;
             beepColumnConfig9.EnumSourceType = null;
             beepColumnConfig9.Filter = null;
             beepColumnConfig9.Format = null;
@@ -873,6 +1071,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig9.Sticked = false;
             beepColumnConfig9.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig10.AggregationType = AggregationType.None;
+            beepColumnConfig10.AllowReorder = true;
             beepColumnConfig10.AllowSort = true;
             beepColumnConfig10.ColumnCaption = "AdapterType";
             beepColumnConfig10.ColumnName = "AdapterType";
@@ -880,6 +1079,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig10.Date = new DateTime(0L);
             beepColumnConfig10.DecimalPlaces = 0;
             beepColumnConfig10.DefaultValue = null;
+            beepColumnConfig10.DisplayOrder = 9;
             beepColumnConfig10.EnumSourceType = null;
             beepColumnConfig10.Filter = null;
             beepColumnConfig10.Format = null;
@@ -916,6 +1116,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig10.Sticked = false;
             beepColumnConfig10.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig11.AggregationType = AggregationType.None;
+            beepColumnConfig11.AllowReorder = true;
             beepColumnConfig11.AllowSort = true;
             beepColumnConfig11.ColumnCaption = "CommandBuilderType";
             beepColumnConfig11.ColumnName = "CommandBuilderType";
@@ -923,6 +1124,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig11.Date = new DateTime(0L);
             beepColumnConfig11.DecimalPlaces = 0;
             beepColumnConfig11.DefaultValue = null;
+            beepColumnConfig11.DisplayOrder = 10;
             beepColumnConfig11.EnumSourceType = null;
             beepColumnConfig11.Filter = null;
             beepColumnConfig11.Format = null;
@@ -959,6 +1161,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig11.Sticked = false;
             beepColumnConfig11.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig12.AggregationType = AggregationType.None;
+            beepColumnConfig12.AllowReorder = true;
             beepColumnConfig12.AllowSort = true;
             beepColumnConfig12.ColumnCaption = "DbConnectionType";
             beepColumnConfig12.ColumnName = "DbConnectionType";
@@ -966,6 +1169,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig12.Date = new DateTime(0L);
             beepColumnConfig12.DecimalPlaces = 0;
             beepColumnConfig12.DefaultValue = null;
+            beepColumnConfig12.DisplayOrder = 11;
             beepColumnConfig12.EnumSourceType = null;
             beepColumnConfig12.Filter = null;
             beepColumnConfig12.Format = null;
@@ -1002,6 +1206,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig12.Sticked = false;
             beepColumnConfig12.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig13.AggregationType = AggregationType.None;
+            beepColumnConfig13.AllowReorder = true;
             beepColumnConfig13.AllowSort = true;
             beepColumnConfig13.ColumnCaption = "DbTransactionType";
             beepColumnConfig13.ColumnName = "DbTransactionType";
@@ -1009,6 +1214,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig13.Date = new DateTime(0L);
             beepColumnConfig13.DecimalPlaces = 0;
             beepColumnConfig13.DefaultValue = null;
+            beepColumnConfig13.DisplayOrder = 12;
             beepColumnConfig13.EnumSourceType = null;
             beepColumnConfig13.Filter = null;
             beepColumnConfig13.Format = null;
@@ -1045,6 +1251,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig13.Sticked = false;
             beepColumnConfig13.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig14.AggregationType = AggregationType.None;
+            beepColumnConfig14.AllowReorder = true;
             beepColumnConfig14.AllowSort = true;
             beepColumnConfig14.ColumnCaption = "ConnectionString";
             beepColumnConfig14.ColumnName = "ConnectionString";
@@ -1052,6 +1259,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig14.Date = new DateTime(0L);
             beepColumnConfig14.DecimalPlaces = 0;
             beepColumnConfig14.DefaultValue = null;
+            beepColumnConfig14.DisplayOrder = 13;
             beepColumnConfig14.EnumSourceType = null;
             beepColumnConfig14.Filter = null;
             beepColumnConfig14.Format = null;
@@ -1088,6 +1296,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig14.Sticked = false;
             beepColumnConfig14.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig15.AggregationType = AggregationType.None;
+            beepColumnConfig15.AllowReorder = true;
             beepColumnConfig15.AllowSort = true;
             beepColumnConfig15.ColumnCaption = "parameter1";
             beepColumnConfig15.ColumnName = "parameter1";
@@ -1095,6 +1304,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig15.Date = new DateTime(0L);
             beepColumnConfig15.DecimalPlaces = 0;
             beepColumnConfig15.DefaultValue = null;
+            beepColumnConfig15.DisplayOrder = 14;
             beepColumnConfig15.EnumSourceType = null;
             beepColumnConfig15.Filter = null;
             beepColumnConfig15.Format = null;
@@ -1131,6 +1341,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig15.Sticked = false;
             beepColumnConfig15.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig16.AggregationType = AggregationType.None;
+            beepColumnConfig16.AllowReorder = true;
             beepColumnConfig16.AllowSort = true;
             beepColumnConfig16.ColumnCaption = "parameter2";
             beepColumnConfig16.ColumnName = "parameter2";
@@ -1138,6 +1349,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig16.Date = new DateTime(0L);
             beepColumnConfig16.DecimalPlaces = 0;
             beepColumnConfig16.DefaultValue = null;
+            beepColumnConfig16.DisplayOrder = 15;
             beepColumnConfig16.EnumSourceType = null;
             beepColumnConfig16.Filter = null;
             beepColumnConfig16.Format = null;
@@ -1174,6 +1386,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig16.Sticked = false;
             beepColumnConfig16.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig17.AggregationType = AggregationType.None;
+            beepColumnConfig17.AllowReorder = true;
             beepColumnConfig17.AllowSort = true;
             beepColumnConfig17.ColumnCaption = "parameter3";
             beepColumnConfig17.ColumnName = "parameter3";
@@ -1181,6 +1394,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig17.Date = new DateTime(0L);
             beepColumnConfig17.DecimalPlaces = 0;
             beepColumnConfig17.DefaultValue = null;
+            beepColumnConfig17.DisplayOrder = 16;
             beepColumnConfig17.EnumSourceType = null;
             beepColumnConfig17.Filter = null;
             beepColumnConfig17.Format = null;
@@ -1217,6 +1431,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig17.Sticked = false;
             beepColumnConfig17.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig18.AggregationType = AggregationType.None;
+            beepColumnConfig18.AllowReorder = true;
             beepColumnConfig18.AllowSort = true;
             beepColumnConfig18.ColumnCaption = "iconname";
             beepColumnConfig18.ColumnName = "iconname";
@@ -1224,6 +1439,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig18.Date = new DateTime(0L);
             beepColumnConfig18.DecimalPlaces = 0;
             beepColumnConfig18.DefaultValue = null;
+            beepColumnConfig18.DisplayOrder = 17;
             beepColumnConfig18.EnumSourceType = null;
             beepColumnConfig18.Filter = null;
             beepColumnConfig18.Format = null;
@@ -1260,6 +1476,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig18.Sticked = false;
             beepColumnConfig18.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig19.AggregationType = AggregationType.None;
+            beepColumnConfig19.AllowReorder = true;
             beepColumnConfig19.AllowSort = true;
             beepColumnConfig19.ColumnCaption = "classHandler";
             beepColumnConfig19.ColumnName = "classHandler";
@@ -1267,6 +1484,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig19.Date = new DateTime(0L);
             beepColumnConfig19.DecimalPlaces = 0;
             beepColumnConfig19.DefaultValue = null;
+            beepColumnConfig19.DisplayOrder = 18;
             beepColumnConfig19.EnumSourceType = null;
             beepColumnConfig19.Filter = null;
             beepColumnConfig19.Format = null;
@@ -1303,6 +1521,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig19.Sticked = false;
             beepColumnConfig19.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig20.AggregationType = AggregationType.None;
+            beepColumnConfig20.AllowReorder = true;
             beepColumnConfig20.AllowSort = true;
             beepColumnConfig20.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig20.ColumnCaption = "ADOType";
@@ -1312,6 +1531,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig20.Date = new DateTime(0L);
             beepColumnConfig20.DecimalPlaces = 0;
             beepColumnConfig20.DefaultValue = null;
+            beepColumnConfig20.DisplayOrder = 19;
             beepColumnConfig20.EnumSourceType = null;
             beepColumnConfig20.Filter = null;
             beepColumnConfig20.Format = null;
@@ -1348,6 +1568,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig20.Sticked = false;
             beepColumnConfig20.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig21.AggregationType = AggregationType.None;
+            beepColumnConfig21.AllowReorder = true;
             beepColumnConfig21.AllowSort = true;
             beepColumnConfig21.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig21.ColumnCaption = "CreateLocal";
@@ -1357,6 +1578,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig21.Date = new DateTime(0L);
             beepColumnConfig21.DecimalPlaces = 0;
             beepColumnConfig21.DefaultValue = null;
+            beepColumnConfig21.DisplayOrder = 20;
             beepColumnConfig21.EnumSourceType = null;
             beepColumnConfig21.Filter = null;
             beepColumnConfig21.Format = null;
@@ -1393,6 +1615,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig21.Sticked = false;
             beepColumnConfig21.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig22.AggregationType = AggregationType.None;
+            beepColumnConfig22.AllowReorder = true;
             beepColumnConfig22.AllowSort = true;
             beepColumnConfig22.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig22.ColumnCaption = "InMemory";
@@ -1402,6 +1625,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig22.Date = new DateTime(0L);
             beepColumnConfig22.DecimalPlaces = 0;
             beepColumnConfig22.DefaultValue = null;
+            beepColumnConfig22.DisplayOrder = 21;
             beepColumnConfig22.EnumSourceType = null;
             beepColumnConfig22.Filter = null;
             beepColumnConfig22.Format = null;
@@ -1438,6 +1662,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig22.Sticked = false;
             beepColumnConfig22.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig23.AggregationType = AggregationType.None;
+            beepColumnConfig23.AllowReorder = true;
             beepColumnConfig23.AllowSort = true;
             beepColumnConfig23.ColumnCaption = "extensionstoHandle";
             beepColumnConfig23.ColumnName = "extensionstoHandle";
@@ -1445,6 +1670,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig23.Date = new DateTime(0L);
             beepColumnConfig23.DecimalPlaces = 0;
             beepColumnConfig23.DefaultValue = null;
+            beepColumnConfig23.DisplayOrder = 22;
             beepColumnConfig23.EnumSourceType = null;
             beepColumnConfig23.Filter = null;
             beepColumnConfig23.Format = null;
@@ -1481,6 +1707,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig23.Sticked = false;
             beepColumnConfig23.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig24.AggregationType = AggregationType.None;
+            beepColumnConfig24.AllowReorder = true;
             beepColumnConfig24.AllowSort = true;
             beepColumnConfig24.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig24.ColumnCaption = "Favourite";
@@ -1490,6 +1717,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig24.Date = new DateTime(0L);
             beepColumnConfig24.DecimalPlaces = 0;
             beepColumnConfig24.DefaultValue = null;
+            beepColumnConfig24.DisplayOrder = 23;
             beepColumnConfig24.EnumSourceType = null;
             beepColumnConfig24.Filter = null;
             beepColumnConfig24.Format = null;
@@ -1526,6 +1754,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig24.Sticked = false;
             beepColumnConfig24.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig25.AggregationType = AggregationType.None;
+            beepColumnConfig25.AllowReorder = true;
             beepColumnConfig25.AllowSort = true;
             beepColumnConfig25.ColumnCaption = "DatasourceCategory";
             beepColumnConfig25.ColumnName = "DatasourceCategory";
@@ -1533,6 +1762,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig25.Date = new DateTime(0L);
             beepColumnConfig25.DecimalPlaces = 0;
             beepColumnConfig25.DefaultValue = null;
+            beepColumnConfig25.DisplayOrder = 24;
             beepColumnConfig25.EnumSourceType = null;
             beepColumnConfig25.Filter = null;
             beepColumnConfig25.Format = null;
@@ -1569,6 +1799,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig25.Sticked = false;
             beepColumnConfig25.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig26.AggregationType = AggregationType.None;
+            beepColumnConfig26.AllowReorder = true;
             beepColumnConfig26.AllowSort = true;
             beepColumnConfig26.ColumnCaption = "DatasourceType";
             beepColumnConfig26.ColumnName = "DatasourceType";
@@ -1576,6 +1807,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig26.Date = new DateTime(0L);
             beepColumnConfig26.DecimalPlaces = 0;
             beepColumnConfig26.DefaultValue = null;
+            beepColumnConfig26.DisplayOrder = 25;
             beepColumnConfig26.EnumSourceType = null;
             beepColumnConfig26.Filter = null;
             beepColumnConfig26.Format = null;
@@ -1612,6 +1844,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig26.Sticked = false;
             beepColumnConfig26.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig27.AggregationType = AggregationType.None;
+            beepColumnConfig27.AllowReorder = true;
             beepColumnConfig27.AllowSort = true;
             beepColumnConfig27.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig27.ColumnCaption = "IsMissing";
@@ -1621,6 +1854,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig27.Date = new DateTime(0L);
             beepColumnConfig27.DecimalPlaces = 0;
             beepColumnConfig27.DefaultValue = null;
+            beepColumnConfig27.DisplayOrder = 26;
             beepColumnConfig27.EnumSourceType = null;
             beepColumnConfig27.Filter = null;
             beepColumnConfig27.Format = null;
@@ -1657,6 +1891,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig27.Sticked = false;
             beepColumnConfig27.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig28.AggregationType = AggregationType.None;
+            beepColumnConfig28.AllowReorder = true;
             beepColumnConfig28.AllowSort = true;
             beepColumnConfig28.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig28.ColumnCaption = "NuggetMissing";
@@ -1666,6 +1901,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig28.Date = new DateTime(0L);
             beepColumnConfig28.DecimalPlaces = 0;
             beepColumnConfig28.DefaultValue = null;
+            beepColumnConfig28.DisplayOrder = 27;
             beepColumnConfig28.EnumSourceType = null;
             beepColumnConfig28.Filter = null;
             beepColumnConfig28.Format = null;
@@ -1702,6 +1938,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig28.Sticked = false;
             beepColumnConfig28.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig29.AggregationType = AggregationType.None;
+            beepColumnConfig29.AllowReorder = true;
             beepColumnConfig29.AllowSort = true;
             beepColumnConfig29.ColumnCaption = "NuggetVersion";
             beepColumnConfig29.ColumnName = "NuggetVersion";
@@ -1709,6 +1946,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig29.Date = new DateTime(0L);
             beepColumnConfig29.DecimalPlaces = 0;
             beepColumnConfig29.DefaultValue = null;
+            beepColumnConfig29.DisplayOrder = 28;
             beepColumnConfig29.EnumSourceType = null;
             beepColumnConfig29.Filter = null;
             beepColumnConfig29.Format = null;
@@ -1745,6 +1983,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig29.Sticked = false;
             beepColumnConfig29.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig30.AggregationType = AggregationType.None;
+            beepColumnConfig30.AllowReorder = true;
             beepColumnConfig30.AllowSort = true;
             beepColumnConfig30.ColumnCaption = "NuggetSource";
             beepColumnConfig30.ColumnName = "NuggetSource";
@@ -1752,6 +1991,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig30.Date = new DateTime(0L);
             beepColumnConfig30.DecimalPlaces = 0;
             beepColumnConfig30.DefaultValue = null;
+            beepColumnConfig30.DisplayOrder = 29;
             beepColumnConfig30.EnumSourceType = null;
             beepColumnConfig30.Filter = null;
             beepColumnConfig30.Format = null;
@@ -1890,6 +2130,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.IsValid = true;
             beepGridPro1.IsVisible = true;
             beepGridPro1.Items = (List<object>)resources.GetObject("beepGridPro1.Items");
+            beepGridPro1.LabelPosition = LabelPosition.Left;
             beepGridPro1.LabelText = "";
             beepGridPro1.LabelTextOn = false;
             beepGridPro1.LeadingIconPath = "";
@@ -1926,6 +2167,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ShowBottomBorder = false;
             beepGridPro1.ShowColumnHeaders = true;
             beepGridPro1.ShowFocusIndicator = false;
+            beepGridPro1.ShowLabelAboveBorder = false;
             beepGridPro1.ShowLeftBorder = false;
             beepGridPro1.ShowRightBorder = false;
             beepGridPro1.ShowShadow = false;
@@ -1939,6 +2181,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Text = "beepGridPro1";
             beepGridPro1.TextFont = new Font("Arial", 10F);
             beepGridPro1.Theme = "DefaultType";
+            beepGridPro1.TooltipFont = null;
+            beepGridPro1.TooltipMaxSize = null;
             beepGridPro1.ToolTipText = null;
             beepGridPro1.TopoffsetForDrawingRect = 0;
             beepGridPro1.TrailingIconPath = "";
@@ -1955,13 +2199,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(beepPanel1);
             Controls.Add(beepGridPro1);
             Controls.Add(CalendarnamebeepLabel);
-            Controls.Add(CycleBeepDataTimePickerModebeepButton);
             Margin = new Padding(6);
             Name = "uc_diagraming";
             Size = new Size(1326, 718);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
+            beepPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -1970,5 +2215,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private BeepButton CycleBeepDataTimePickerModebeepButton;
         private BeepLabel CalendarnamebeepLabel;
         private Controls.GridX.BeepGridPro beepGridPro1;
+        private BeepPanel beepPanel1;
     }
 }

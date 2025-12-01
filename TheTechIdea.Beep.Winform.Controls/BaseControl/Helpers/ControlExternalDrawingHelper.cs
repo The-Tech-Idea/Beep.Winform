@@ -51,11 +51,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
     internal class ControlExternalDrawingHelper
     {
-        private readonly BaseControl _owner;
+        private readonly Control _owner;
         // Support multiple external drawing functions per child (e.g., label before, badge after)
         private readonly Dictionary<Control, List<ExternalDrawingFunction>> _childExternalDrawers = new();
 
-        public ControlExternalDrawingHelper(BaseControl owner)
+        public ControlExternalDrawingHelper(Control owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
         }

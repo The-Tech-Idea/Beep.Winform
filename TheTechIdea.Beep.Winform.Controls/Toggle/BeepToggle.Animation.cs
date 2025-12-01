@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Toggle
 {
@@ -132,10 +133,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
 
         /// <summary>
         /// Gets or sets whether colors should animate during transitions
+        /// Automatically disabled when reduced motion is enabled
         /// </summary>
         public bool AnimateColors
         {
-            get => _animateColors;
+            get => _animateColors && !ToggleAccessibilityHelpers.IsReducedMotionEnabled();
             set => _animateColors = value;
         }
 
@@ -167,10 +169,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
 
         /// <summary>
         /// Gets or sets whether focus glow effect is enabled
+        /// Automatically disabled when reduced motion is enabled
         /// </summary>
         public bool EnableFocusGlow
         {
-            get => _enableFocusGlow;
+            get => _enableFocusGlow && !ToggleAccessibilityHelpers.IsReducedMotionEnabled();
             set => _enableFocusGlow = value;
         }
 

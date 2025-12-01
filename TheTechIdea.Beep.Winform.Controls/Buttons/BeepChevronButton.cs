@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Styling;
-
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons
 {
@@ -17,7 +17,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
     public class BeepChevronButton : BaseControl
     {
         private string _imagePath;
-        private BeepImage beepImage;
         private Font _textFont = new Font("Arial", 10);
         private Point rippleCenter;
         private float rippleRadius = 0;
@@ -26,17 +25,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         private const int clickAnimationDuration = 300;
         private DateTime clickAnimationStartTime;
         private bool isAnimatingClick = false;
+        
+        // Layout rectangle for image hit testing
+        private Rectangle imageRect;
 
         public BeepChevronButton()
         {
             Width = 100;
             Height = 50;
-
-            beepImage = new BeepImage
-            {
-                Dock = DockStyle.None,
-                Margin = new Padding(0)
-            };
 
             IsChild = true;
             IsShadowAffectedByTheme = false;
@@ -45,10 +41,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             IsFrameless = true;
             Padding = new Padding(5);
             ApplyTheme();
-
-            beepImage.MouseHover += (s, e) => { IsHovered = true; Invalidate(); };
-            beepImage.MouseLeave += (s, e) => { IsHovered = false; Invalidate(); };
-            beepImage.Click += (s, e) => OnClick(e);
         }
 
         [Browsable(true)]
@@ -84,11 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             set
             {
                 _imagePath = value;
-                if (beepImage != null)
-                {
-                    beepImage.ImagePath = value;
-                    Invalidate();
-                }
+                Invalidate();
             }
         }
 
@@ -109,6 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         {
             base.DrawContent(g);
             UpdateDrawingRect();
+            ClearHitList();
             Draw(g, DrawingRect);
         }
 
@@ -201,27 +190,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 }
             }
 
-            // Draw text
+            // Draw text - measure to prevent clipping
             if (!string.IsNullOrEmpty(Text))
             {
-                TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak;
-                Rectangle textRect = scaledRect;
+                // Measure text to ensure it fits
+                var textSize = TextRenderer.MeasureText(graphics, Text, Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+                Rectangle textRect = new Rectangle(
+                    scaledRect.Left,
+                    scaledRect.Top,
+                    Math.Min(textSize.Width, scaledRect.Width),
+                    Math.Min(textSize.Height, scaledRect.Height)
+                );
+                // Center the text rect
+                textRect.X = scaledRect.Left + (scaledRect.Width - textRect.Width) / 2;
+                textRect.Y = scaledRect.Top + (scaledRect.Height - textRect.Height) / 2;
+                
+                TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding;
                 var textColor = _currentTheme.PrimaryTextColor;
                 TextRenderer.DrawText(graphics, Text, Font, textRect, textColor, flags);
             }
 
-            // Draw image if needed
+            // Draw image if needed - use StyledImagePainter directly
             if (!string.IsNullOrEmpty(ImagePath))
             {
                 int imageSize = Math.Min(scaledRect.Height - 10, 16);
-                beepImage.MaximumSize = new Size(imageSize, imageSize);
-                beepImage.Size = beepImage.MaximumSize;
-                beepImage.Location = new Point(
+                imageRect = new Rectangle(
                     scaledRect.Left + 5,
-                    scaledRect.Top + (scaledRect.Height - imageSize) / 2
+                    scaledRect.Top + (scaledRect.Height - imageSize) / 2,
+                    imageSize,
+                    imageSize
                 );
-                beepImage.DrawImage(graphics, new Rectangle(beepImage.Location, beepImage.Size));
+                
+                try
+                {
+                    StyledImagePainter.Paint(graphics, imageRect, ImagePath);
+                    AddHitArea("Image", imageRect, null, () => OnImageClick());
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error drawing image: {ex.Message}");
+                }
             }
+        }
+
+        protected virtual void OnImageClick()
+        {
+            OnClick(EventArgs.Empty);
         }
 
         private void StartClickAnimation(Point clickPoint)
@@ -269,11 +283,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                
             }
 
-            beepImage.Theme = Theme;
             Invalidate();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            
+            if (!string.IsNullOrEmpty(ImagePath) && imageRect.Contains(e.Location))
+            {
+                Cursor = Cursors.Hand;
+            }
+            else
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            Cursor = Cursors.Default;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                clickAnimationTimer?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -193,7 +194,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                     if (sz.Width <= rect.Width - 4 && sz.Height <= rect.Height - 2)
                     {
                         var pt = new System.Drawing.PointF(rect.Left + (rect.Width - sz.Width) / 2, rect.Top + (rect.Height - sz.Height) / 2);
-                        using var tb = new SolidBrush(owner.TextColor);
+                        
+                        // Ensure text color meets WCAG contrast requirements
+                        Color textColor = owner.TextColor;
+                        if (owner.UseThemeColors)
+                        {
+                            textColor = ProgressBarAccessibilityHelpers.AdjustForContrast(
+                                textColor, 
+                                owner.BackColor, 
+                                4.5); // WCAG AA minimum
+                        }
+                        
+                        // Use high contrast colors if enabled
+                        if (ProgressBarAccessibilityHelpers.IsHighContrastMode())
+                        {
+                            var (_, _, hcTextColor, _) = ProgressBarAccessibilityHelpers.GetHighContrastColors();
+                            textColor = hcTextColor;
+                        }
+                        
+                        using var tb = new SolidBrush(textColor);
                         g.DrawString(text, font, tb, pt);
                     }
                 }

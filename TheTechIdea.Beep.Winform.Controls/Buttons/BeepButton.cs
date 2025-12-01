@@ -423,7 +423,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        private ControlHitTest beepImageHitTest;
         private Color _originalForColor;
 
      
@@ -1197,9 +1196,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 TogglePopup();
             }
-            else if (beepImageHitTest != null && beepImageHitTest.TargetRect.Contains(e.Location))
+            else if (HitTest(e.Location, out var hitTest) && hitTest.Name == "BeepImageRect")
             {
-                // Image clicked, handled by BeepImage_MouseDown
+                // Image clicked, handled by AddHitArea action
             }
            
         }
@@ -1282,11 +1281,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // inherit splash effect setting from parent BeepControl
                 EnableSplashEffect = newBeepParent.EnableSplashEffect;
-                newBeepParent.AddChildExternalDrawing(
-                    this,
-                    DrawBadgeExternally,
-                    DrawingLayer.AfterAll
-                );
+                
+                // Register badge if needed
+                if (!string.IsNullOrEmpty(BadgeText))
+                {
+                    // Create BaseControl handler and wrap it for BeepControl
+                    var baseHandler = BaseControl.CreateBadgeDrawingHandler(
+                        BadgeText, BadgeBackColor, BadgeForeColor, BadgeFont, BadgeShape);
+                    // Wrap BaseControl.DrawExternalHandler to BeepControl.DrawExternalHandler
+                    BeepControl.DrawExternalHandler beepHandler = (g, bounds) => baseHandler(g, bounds);
+                    newBeepParent.AddChildExternalDrawing(
+                        this,
+                        beepHandler,
+                        DrawingLayer.AfterAll
+                    );
+                }
             }
 
             _lastBeepParent = Parent as BeepControl;
@@ -1366,7 +1375,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
+            // Measure text with Graphics for accurate sizing
+            Size textSize = TextRenderer.MeasureText(g, Text ?? "", scaledFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -1379,26 +1389,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     StyledImagePainter.Paint(g, imageRect, _imagePath);
 
-                    if (beepImageHitTest == null)
+                    // Use AddHitArea instead of ControlHitTest
+                    AddHitArea("BeepImageRect", imageRect, null, () =>
                     {
-                        beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
-                        {
-                            Name = "BeepImageRect",
-                            ActionName = "ImageClicked",
-                            HitAction = () =>
-                            {
-                                // Raise your ImageClicked event
-                                var ev = new BeepEventDataArgs("ImageClicked", this);
-                                ImageClicked?.Invoke(this, ev);
-                            }
-                        };
-                    }
-                    else
-                    {
-                        beepImageHitTest.TargetRect = imageRect;
-                    }
-
-                    AddHitTest(beepImageHitTest);
+                        var ev = new BeepEventDataArgs("ImageClicked", this);
+                        ImageClicked?.Invoke(this, ev);
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -1406,15 +1402,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Draw text if available and not hidden
+            // Draw text if available and not hidden - measure to prevent clipping
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-
-                    // For better text rendering on modern buttons
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
                 
+                // Measure text to ensure it fits in the rectangle
+                var measuredSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                textRect.Width = Math.Min(measuredSize.Width, textRect.Width);
+                textRect.Height = Math.Min(measuredSize.Height, textRect.Height);
+                
+                // Add EndEllipsis flag to prevent text from being cut
+                flags |= TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding;
+
+                // For better text rendering on modern buttons
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
             }
         }
         #endregion // End Draw Button From Html source

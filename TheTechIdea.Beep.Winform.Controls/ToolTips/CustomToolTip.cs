@@ -29,8 +29,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         private ToolTipConfig _config;
         private IBeepTheme _theme;
+        private IBeepTheme _currentTheme; // Theme from ApplyTheme() - highest priority
         private ToolTipPlacement _actualPlacement;
         private IToolTipPainter _painter;
+        private bool _isApplyingTheme = false;
 
         // Animation state
         private bool _isAnimatingIn;
@@ -64,6 +66,112 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             // Set default theme from BeepThemesManager
             _theme = BeepThemesManager.DefaultTheme;
+
+            // Set accessibility properties for screen readers
+            SetAccessibilityProperties();
+        }
+
+        /// <summary>
+        /// Set accessibility properties for screen readers
+        /// </summary>
+        private void SetAccessibilityProperties()
+        {
+            // Set accessible role
+            AccessibleRole = AccessibleRole.ToolTip;
+            AccessibleName = "Tooltip";
+            AccessibleDescription = "Additional information tooltip";
+        }
+
+        /// <summary>
+        /// Update accessibility properties with tooltip content
+        /// </summary>
+        private void UpdateAccessibilityProperties()
+        {
+            if (_config == null) return;
+
+            // Build accessible description from tooltip content
+            var description = new System.Text.StringBuilder();
+
+            if (!string.IsNullOrEmpty(_config.Title))
+            {
+                description.Append(_config.Title);
+                if (!string.IsNullOrEmpty(_config.Text))
+                {
+                    description.Append(". ");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(_config.Text))
+            {
+                description.Append(_config.Text);
+            }
+
+            if (description.Length > 0)
+            {
+                AccessibleDescription = description.ToString();
+                AccessibleName = !string.IsNullOrEmpty(_config.Title) 
+                    ? _config.Title 
+                    : "Tooltip";
+            }
+
+            // Set tooltip type for screen readers
+            var typeDescription = _config.Type switch
+            {
+                ToolTipType.Success => "Success message",
+                ToolTipType.Warning => "Warning message",
+                ToolTipType.Error => "Error message",
+                ToolTipType.Info => "Information",
+                ToolTipType.Help => "Help information",
+                _ => "Tooltip"
+            };
+
+            if (!string.IsNullOrEmpty(AccessibleDescription))
+            {
+                AccessibleDescription = $"{typeDescription}: {AccessibleDescription}";
+            }
+            else
+            {
+                AccessibleDescription = typeDescription;
+            }
+        }
+
+        /// <summary>
+        /// Apply accessibility enhancements (high contrast, contrast ratios, etc.)
+        /// </summary>
+        private void ApplyAccessibilityEnhancements()
+        {
+            if (_config == null) return;
+
+            // Check high contrast mode
+            if (ToolTipAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (backColor, foreColor, borderColor) = ToolTipAccessibilityHelpers.GetHighContrastColors();
+                
+                // Override colors with high contrast system colors
+                if (!_config.BackColor.HasValue)
+                    _config.BackColor = backColor;
+                if (!_config.ForeColor.HasValue)
+                    _config.ForeColor = foreColor;
+                if (!_config.BorderColor.HasValue)
+                    _config.BorderColor = borderColor;
+            }
+            else
+            {
+                // Ensure contrast ratios meet WCAG AA standards
+                var backColor = _config.BackColor ?? BackColor;
+                var foreColor = _config.ForeColor ?? ForeColor;
+                var borderColor = _config.BorderColor ?? Color.Gray;
+
+                var accessibleColors = ToolTipAccessibilityHelpers.GetAccessibleColors(
+                    backColor, foreColor, borderColor);
+
+                if (!_config.BackColor.HasValue)
+                    _config.BackColor = accessibleColors.backColor;
+                if (!_config.ForeColor.HasValue)
+                    _config.ForeColor = accessibleColors.foreColor;
+                if (!_config.BorderColor.HasValue)
+                    _config.BorderColor = accessibleColors.borderColor;
+            }
         }
 
         #endregion
@@ -77,14 +185,57 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         /// <summary>
         /// Current theme for rendering
+        /// Note: Use ApplyTheme() to set theme from BaseControl pattern
         /// </summary>
         public IBeepTheme Theme
         {
-            get => _theme;
+            get => _currentTheme ?? _theme;
             set
             {
                 _theme = value;
+                if (_currentTheme == null)
+                {
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Apply theme colors from ApplyTheme() pattern
+        /// This is the preferred method for theme integration
+        /// </summary>
+        public void ApplyTheme(IBeepTheme theme, bool useThemeColors = true)
+        {
+            if (_isApplyingTheme) return;
+
+            _isApplyingTheme = true;
+            try
+            {
+                _currentTheme = theme;
+                
+                // Apply theme colors to config if available
+                if (_config != null && theme != null)
+                {
+                    ToolTipThemeHelpers.ApplyThemeColors(_config, theme, useThemeColors);
+                    
+                    // Update form colors
+                    if (!_config.BackColor.HasValue)
+                    {
+                        BackColor = ToolTipThemeHelpers.GetToolTipBackColor(theme, _config.Type, useThemeColors);
+                    }
+                    
+                    if (!_config.ForeColor.HasValue)
+                    {
+                        ForeColor = ToolTipThemeHelpers.GetToolTipForeColor(theme, _config.Type, useThemeColors);
+                    }
+                }
+
+                // Trigger repaint
                 Invalidate();
+            }
+            finally
+            {
+                _isApplyingTheme = false;
             }
         }
 
@@ -115,17 +266,42 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Initialize painter if not already set
             _painter ??= new BeepStyledToolTipPainter();
 
-            // Apply theme
-            if (_config.UseBeepThemeColors && BeepThemesManager.CurrentTheme != null)
+            // Apply theme - use _currentTheme if set (from ApplyTheme()), otherwise use BeepThemesManager
+            if (_currentTheme != null)
+            {
+                _theme = _currentTheme;
+            }
+            else if (_config.UseBeepThemeColors && BeepThemesManager.CurrentTheme != null)
             {
                 _theme = BeepThemesManager.CurrentTheme;
             }
 
-            // Calculate tooltip size
+            // Apply theme colors to config
+            if (_config.UseBeepThemeColors && _theme != null)
+            {
+                ToolTipThemeHelpers.ApplyThemeColors(_config, _theme, true);
+            }
+
+            // Apply accessibility enhancements (high contrast, contrast ratios)
+            ApplyAccessibilityEnhancements();
+
+            // Update accessibility properties with tooltip content
+            UpdateAccessibilityProperties();
+
+            // Calculate tooltip size with responsive sizing
             using (var g = CreateGraphics())
             {
-                var size = _painter.CalculateSize(g, _config);
-                Size = size;
+                var contentSize = _painter.CalculateSize(g, _config);
+                
+                // Apply responsive sizing based on screen size
+                var screenBounds = ToolTipPositioningHelpers.GetScreenBounds(_config.Position);
+                var maxSize = _config.MaxSize ?? new Size(0, 0); // 0 means use default
+                var minSize = new Size(120, 40); // Minimum readable size
+                
+                var responsiveSize = ToolTipPositioningHelpers.CalculateResponsiveSize(
+                    contentSize, maxSize, minSize, screenBounds);
+                
+                Size = responsiveSize;
             }
 
             // Apply custom colors if specified
@@ -152,19 +328,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 throw new InvalidOperationException("Must call ApplyConfig before showing tooltip");
             }
 
-            // Calculate optimal placement and position
-            _actualPlacement = CalculatePlacement(position);
-            var finalPosition = AdjustPositionForPlacement(position, _actualPlacement);
-
-            // Apply screen bounds constraints
-            finalPosition = ConstrainToScreen(finalPosition);
+            // Use smart positioning with collision detection
+            var targetRect = new Rectangle(position, new Size(1, 1));
+            var (placement, finalPosition) = ToolTipPositioningHelpers.FindBestPlacement(
+                targetRect, Size, _config.Placement, _config.Offset);
+            _actualPlacement = placement;
 
             Location = finalPosition;
 
-            // Show and animate
+            // Show and animate (respect reduced motion preference)
             Show();
 
-            if (_config.Animation != ToolTipAnimation.None)
+            // Check if animations should be disabled for accessibility
+            var shouldAnimate = _config.Animation != ToolTipAnimation.None && 
+                               !ToolTipAccessibilityHelpers.ShouldDisableAnimations(_config.Animation);
+
+            if (shouldAnimate)
             {
                 await AnimateInAsync();
             }
@@ -179,9 +358,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public async Task HideAsync()
         {
-            if (_config?.Animation != ToolTipAnimation.None)
+            // Check if animations should be disabled for accessibility
+            var shouldAnimate = _config?.Animation != ToolTipAnimation.None && 
+                               !ToolTipAccessibilityHelpers.ShouldDisableAnimations(_config.Animation);
+
+            if (shouldAnimate)
             {
                 await AnimateOutAsync();
+            }
+            else
+            {
+                Opacity = 0;
             }
 
             Hide();
@@ -196,6 +383,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             var constrainedPosition = ConstrainToScreen(adjustedPosition);
             Location = constrainedPosition;
         }
+
+        ///// <summary>
+        ///// Apply accessibility enhancements (high contrast, contrast ratios, etc.)
+        ///// </summary>
+        //private void ApplyAccessibilityEnhancements()
+        //{
+        //    if (_config == null) return;
+
+        //    // Check high contrast mode
+        //    if (ToolTipAccessibilityHelpers.IsHighContrastMode())
+        //    {
+        //        var (backColor, foreColor, borderColor) = ToolTipAccessibilityHelpers.GetHighContrastColors();
+                
+        //        // Override colors with high contrast system colors
+        //        if (!_config.BackColor.HasValue)
+        //            _config.BackColor = backColor;
+        //        if (!_config.ForeColor.HasValue)
+        //            _config.ForeColor = foreColor;
+        //        if (!_config.BorderColor.HasValue)
+        //            _config.BorderColor = borderColor;
+        //    }
+        //    else
+        //    {
+        //        // Ensure contrast ratios meet WCAG AA standards
+        //        var backColor = _config.BackColor ?? BackColor;
+        //        var foreColor = _config.ForeColor ?? ForeColor;
+        //        var borderColor = _config.BorderColor ?? Color.Gray;
+
+        //        var accessibleColors = ToolTipAccessibilityHelpers.GetAccessibleColors(
+        //            backColor, foreColor, borderColor);
+
+        //        if (!_config.BackColor.HasValue)
+        //            _config.BackColor = accessibleColors.backColor;
+        //        if (!_config.ForeColor.HasValue)
+        //            _config.ForeColor = accessibleColors.foreColor;
+        //        if (!_config.BorderColor.HasValue)
+        //            _config.BorderColor = accessibleColors.borderColor;
+        //    }
+        //}
 
         #endregion
 
@@ -377,17 +603,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         /// <summary>
         /// Apply easing function to animation progress
+        /// Now uses ToolTipAnimationHelpers for enhanced easing
         /// </summary>
         private double ApplyEasing(double progress, ToolTipAnimation animation)
         {
-            return animation switch
-            {
-                ToolTipAnimation.Fade => ToolTipHelpers.EaseOutCubic(progress),
-                ToolTipAnimation.Scale => ToolTipHelpers.EaseOutCubic(progress),
-                ToolTipAnimation.Slide => ToolTipHelpers.EaseOutCubic(progress),
-                ToolTipAnimation.Bounce => ToolTipHelpers.EaseBounce(progress),
-                _ => progress
-            };
+            var easingFunc = ToolTipAnimationHelpers.GetEasingFunction(animation);
+            return easingFunc(progress);
         }
 
         /// <summary>
@@ -407,40 +628,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         /// <summary>
         /// Calculate optimal placement based on available screen space
+        /// Now uses ToolTipPositioningHelpers for smart collision detection
         /// </summary>
         private ToolTipPlacement CalculatePlacement(Point targetPosition)
         {
             if (_config.Placement != ToolTipPlacement.Auto)
             {
-                return _config.Placement;
+                // Still validate that preferred placement fits
+                var targetRect = new Rectangle(targetPosition, new Size(1, 1));
+                var tooltipSize = Size;
+                var placement = ToolTipPositioningHelpers.CalculateOptimalPlacement(
+                    targetRect, tooltipSize, _config.Placement, _config.Offset);
+                return placement;
             }
 
-            var screen = Screen.FromPoint(targetPosition);
-            var screenBounds = screen.WorkingArea;
-
-            // Calculate available space in each direction
-            int spaceAbove = targetPosition.Y - screenBounds.Top;
-            int spaceBelow = screenBounds.Bottom - targetPosition.Y;
-            int spaceLeft = targetPosition.X - screenBounds.Left;
-            int spaceRight = screenBounds.Right - targetPosition.X;
-
-            // Choose placement with most available space
-            if (spaceBelow >= Height || spaceBelow >= spaceAbove)
-            {
-                return ToolTipPlacement.Bottom;
-            }
-            else if (spaceAbove >= Height)
-            {
-                return ToolTipPlacement.Top;
-            }
-            else if (spaceRight >= Width)
-            {
-                return ToolTipPlacement.Right;
-            }
-            else
-            {
-                return ToolTipPlacement.Left;
-            }
+            // Use smart positioning helper
+            var targetRectForCalc = new Rectangle(targetPosition, new Size(1, 1));
+            return ToolTipPositioningHelpers.CalculateOptimalPlacement(
+                targetRectForCalc, Size, ToolTipPlacement.Auto, _config.Offset);
         }
 
         /// <summary>
@@ -491,16 +696,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         /// <summary>
         /// Constrain tooltip position to stay within screen bounds
+        /// Now uses ToolTipPositioningHelpers for better edge handling
         /// </summary>
         private Point ConstrainToScreen(Point position)
         {
-            var screen = Screen.FromPoint(position);
-            var bounds = screen.WorkingArea;
-
-            int x = Math.Max(bounds.Left + 10, Math.Min(position.X, bounds.Right - Width - 10));
-            int y = Math.Max(bounds.Top + 10, Math.Min(position.Y, bounds.Bottom - Height - 10));
-
-            return new Point(x, y);
+            var tooltipBounds = new Rectangle(position, Size);
+            return ToolTipPositioningHelpers.AdjustForScreenEdges(tooltipBounds, position);
         }
 
         #endregion
@@ -510,6 +711,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            
+            // Use _currentTheme if available (from ApplyTheme()), otherwise use _theme
+            var activeTheme = _currentTheme ?? _theme;
 
             if (_config == null || _painter == null)
                 return;
@@ -522,8 +726,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Get the actual painting bounds
             var bounds = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
 
-            // Use painter to render the tooltip
-            _painter.Paint(g, bounds, _config, _actualPlacement, _theme);
+            // Use painter to render the tooltip with active theme (from ApplyTheme() if available)
+            _painter.Paint(g, bounds, _config, _actualPlacement, activeTheme);
 
             // Apply animation opacity
             if (_isAnimatingIn || _isAnimatingOut)

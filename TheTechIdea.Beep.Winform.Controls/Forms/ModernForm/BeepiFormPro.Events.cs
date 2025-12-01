@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -121,6 +122,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            
+            // Perform external drawing for child controls (labels, badges, helper text)
+            if (_externalDrawing != null)
+            {
+                // Draw before content (labels, helper text)
+                PerformExternalDrawing(e.Graphics, DrawingLayer.BeforeContent);
+                // Draw after all (badges)
+                PerformExternalDrawing(e.Graphics, DrawingLayer.AfterAll);
+            }
         }
     }
 }

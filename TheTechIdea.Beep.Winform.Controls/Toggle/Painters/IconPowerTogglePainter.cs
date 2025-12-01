@@ -81,15 +81,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected override void PaintIcons(Graphics g, ControlState state)
         {
-            if (IconRegion.IsEmpty) return;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            if (IconRegion.IsEmpty)
+                return;
 
-            Color iconColor = state == ControlState.Disabled 
-                ? Color.FromArgb(100, Color.Gray) 
-                : Owner.IsOn ? Owner.OnColor : Owner.OffColor;
+            // Use ToggleIconHelpers for consistent icon management
+            var theme = Owner._currentTheme;
+            var useTheme = Owner.UseThemeColors && theme != null;
 
-            string iconPath = Owner.IsOn ? SvgsUI.Power : SvgsUI.ZapOff;
-            StyledImagePainter.PaintWithTint(g, IconRegion, iconPath, iconColor, 1f, 0);
+            PaintIcon(g, IconRegion, Owner.IsOn, state, theme, useTheme);
         }
 
         #endregion

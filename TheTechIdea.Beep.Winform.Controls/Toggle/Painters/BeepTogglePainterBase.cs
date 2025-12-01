@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 {
@@ -141,6 +142,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
         {
             Color baseColor = Owner.IsOn ? Owner.OnColor : Owner.OffColor;
 
+            // Apply high contrast adjustments if enabled
+            if (ToggleAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (onColor, offColor, thumbColor, textColor) = ToggleAccessibilityHelpers.GetHighContrastColors();
+                baseColor = Owner.IsOn ? onColor : offColor;
+            }
+
             return state switch
             {
                 ControlState.Hover => LightenColor(baseColor, 0.1f),
@@ -155,6 +163,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             Color baseColor = Owner.IsOn ? 
                 (Owner.OnThumbColor != Color.White ? Owner.OnThumbColor : Owner.ThumbColor) :
                 (Owner.OffThumbColor != Color.White ? Owner.OffThumbColor : Owner.ThumbColor);
+
+            // Apply high contrast adjustments if enabled
+            if (ToggleAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (onColor, offColor, thumbColor, textColor) = ToggleAccessibilityHelpers.GetHighContrastColors();
+                baseColor = thumbColor;
+            }
 
             return state switch
             {
@@ -200,6 +215,116 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             {
                 g.DrawString(text, font, brush, rect, format);
             }
+        }
+
+        /// <summary>
+        /// Gets label font using ToggleFontHelpers
+        /// Integrates with BeepFontManager and ControlStyle
+        /// </summary>
+        protected Font GetLabelFont(bool isOn)
+        {
+            return ToggleFontHelpers.GetLabelFont(
+                Owner,
+                Owner.ToggleStyle,
+                Owner.ControlStyle,
+                isOn);
+        }
+
+        /// <summary>
+        /// Gets button font using ToggleFontHelpers
+        /// </summary>
+        protected Font GetButtonFont(bool isActive)
+        {
+            return ToggleFontHelpers.GetButtonFont(
+                Owner,
+                Owner.ToggleStyle,
+                Owner.ControlStyle,
+                isActive);
+        }
+
+        /// <summary>
+        /// Paints icon using ToggleIconHelpers
+        /// Integrates with StyledImagePainter and theme system
+        /// </summary>
+        protected void PaintIcon(
+            Graphics g,
+            Rectangle iconBounds,
+            bool isOn,
+            ControlState state,
+            IBeepTheme theme = null,
+            bool useThemeColors = false)
+        {
+            if (iconBounds.IsEmpty || Owner == null)
+                return;
+
+            ToggleIconHelpers.PaintIcon(
+                g,
+                iconBounds,
+                Owner,
+                Owner.ToggleStyle,
+                isOn,
+                state,
+                theme,
+                useThemeColors,
+                Owner.ControlStyle);
+        }
+
+        /// <summary>
+        /// Paints icon in circle using ToggleIconHelpers
+        /// </summary>
+        protected void PaintIconInCircle(
+            Graphics g,
+            float centerX,
+            float centerY,
+            float radius,
+            bool isOn,
+            ControlState state,
+            IBeepTheme theme = null,
+            bool useThemeColors = false)
+        {
+            if (Owner == null || radius <= 0)
+                return;
+
+            ToggleIconHelpers.PaintIconInCircle(
+                g,
+                centerX,
+                centerY,
+                radius,
+                Owner,
+                Owner.ToggleStyle,
+                isOn,
+                state,
+                theme,
+                useThemeColors);
+        }
+
+        /// <summary>
+        /// Gets icon path using ToggleIconHelpers
+        /// </summary>
+        protected string GetIconPath(bool isOn)
+        {
+            if (Owner == null)
+                return null;
+
+            return ToggleIconHelpers.GetIconPath(
+                Owner.ToggleStyle,
+                isOn,
+                Owner.OnIconPath,
+                Owner.OffIconPath);
+        }
+
+        /// <summary>
+        /// Calculates icon bounds within thumb using ToggleIconHelpers
+        /// </summary>
+        protected Rectangle CalculateIconBounds(Rectangle thumbBounds)
+        {
+            if (Owner == null || thumbBounds.IsEmpty)
+                return Rectangle.Empty;
+
+            return ToggleIconHelpers.CalculateIconBounds(
+                thumbBounds,
+                Owner,
+                Owner.ToggleStyle);
         }
 
         protected GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)

@@ -105,6 +105,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string PlayCircle = $"{BaseNamespace}.play-circle.svg";
         public static readonly string Repeat = $"{BaseNamespace}.repeat.svg";
         public static readonly string Shuffle = $"{BaseNamespace}.shuffle.svg";
+        public static readonly string Sound = $"{BaseNamespace}.sound.svg";
         public static readonly string Twitch = $"{BaseNamespace}.twitch.svg";
         public static readonly string Twitter = $"{BaseNamespace}.twitter.svg";
         public static readonly string Video = $"{BaseNamespace}.video.svg";
@@ -123,14 +124,17 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string AlignRight = $"{BaseNamespace}.align-right.svg";
         public static readonly string Bold = $"{BaseNamespace}.bold.svg";
         public static readonly string Code = $"{BaseNamespace}.code.svg";
+        public static readonly string DotsVertical = $"{BaseNamespace}.dotsvertical.svg";
         public static readonly string Edit = $"{BaseNamespace}.edit.svg";
         public static readonly string Edit2 = $"{BaseNamespace}.edit-2.svg";
         public static readonly string Edit3 = $"{BaseNamespace}.edit-3.svg";
+        public static readonly string Ellipsis = $"{BaseNamespace}.ellipsis.svg";
         public static readonly string FileText = $"{BaseNamespace}.file-text.svg";
         public static readonly string Hash = $"{BaseNamespace}.hash.svg";
         public static readonly string Italic = $"{BaseNamespace}.italic.svg";
         public static readonly string List = $"{BaseNamespace}.list.svg";
         public static readonly string Slash = $"{BaseNamespace}.slash.svg";
+        public static readonly string Sliders = $"{BaseNamespace}.sliders.svg";
         public static readonly string Type = $"{BaseNamespace}.type.svg";
         public static readonly string Underline = $"{BaseNamespace}.underline.svg";
         #endregion
@@ -166,8 +170,10 @@ namespace TheTechIdea.Beep.Icons
         #endregion
 
         #region "User & People"
+        public static readonly string Person = $"{BaseNamespace}.person.svg";
         public static readonly string User = $"{BaseNamespace}.user.svg";
         public static readonly string UserCheck = $"{BaseNamespace}.user-check.svg";
+        public static readonly string UserCircle = $"{BaseNamespace}.usercircle.svg";
         public static readonly string UserMinus = $"{BaseNamespace}.user-minus.svg";
         public static readonly string UserPlus = $"{BaseNamespace}.user-plus.svg";
         public static readonly string UserX = $"{BaseNamespace}.user-x.svg";
@@ -194,14 +200,29 @@ namespace TheTechIdea.Beep.Icons
         #endregion
 
         #region "Shopping & Commerce"
+        public static readonly string Cart = $"{BaseNamespace}.cart.svg";
         public static readonly string CreditCard = $"{BaseNamespace}.credit-card.svg";
+        public static readonly string Dollar = $"{BaseNamespace}.dollar.svg";
         public static readonly string DollarSign = $"{BaseNamespace}.dollar-sign.svg";
         public static readonly string Gift = $"{BaseNamespace}.gift.svg";
+        public static readonly string Shopping = $"{BaseNamespace}.shopping.svg";
         public static readonly string ShoppingBag = $"{BaseNamespace}.shopping-bag.svg";
         public static readonly string ShoppingCart = $"{BaseNamespace}.shopping-cart.svg";
         public static readonly string Shopify = $"{BaseNamespace}.shopify.svg";
         public static readonly string Stripe = $"{BaseNamespace}.stripe.svg";
         public static readonly string Trello2 = $"{BaseNamespace}.trello.svg";
+        #endregion
+
+        #region "Authentication & Login"
+        public static readonly string Github = $"{BaseNamespace}.github.svg";
+        public static readonly string Google = $"{BaseNamespace}.google.svg";
+        public static readonly string LogIn = $"{BaseNamespace}.login.svg";
+        public static readonly string Microsoft = $"{BaseNamespace}.microsoft.svg";
+        #endregion
+
+        #region "Branding & Logos"
+        public static readonly string Brand = $"{BaseNamespace}.trademark.svg";
+        public static readonly string Logo = $"{BaseNamespace}.trademark.svg";
         #endregion
 
         #region "Science & Technology"
@@ -213,6 +234,8 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Monitor = $"{BaseNamespace}.monitor.svg";
         public static readonly string Radio = $"{BaseNamespace}.radio.svg";
         public static readonly string Server = $"{BaseNamespace}.server.svg";
+        public static readonly string Signal = $"{BaseNamespace}.signal.svg";
+        public static readonly string SignalOff = $"{BaseNamespace}.signaloff.svg";
         public static readonly string Smartphone = $"{BaseNamespace}.smartphone.svg";
         public static readonly string Tablet = $"{BaseNamespace}.tablet.svg";
         public static readonly string Terminal = $"{BaseNamespace}.terminal.svg";
@@ -223,6 +246,7 @@ namespace TheTechIdea.Beep.Icons
         #endregion
 
         #region "Navigation & Layout"
+        public static readonly string Apps = $"{BaseNamespace}.apps.svg";
         public static readonly string Columns = $"{BaseNamespace}.columns.svg";
         public static readonly string Command = $"{BaseNamespace}.command.svg";
         public static readonly string Compass = $"{BaseNamespace}.compass.svg";
@@ -257,6 +281,7 @@ namespace TheTechIdea.Beep.Icons
         #region "Charts & Analytics"
         public static readonly string BarChart = $"{BaseNamespace}.bar-chart.svg";
         public static readonly string BarChart2 = $"{BaseNamespace}.bar-chart-2.svg";
+        public static readonly string Chart = $"{BaseNamespace}.chart.svg";
         public static readonly string PieChart = $"{BaseNamespace}.pie-chart.svg";
         public static readonly string TrendingDown = $"{BaseNamespace}.trending-down.svg";
         public static readonly string TrendingUp = $"{BaseNamespace}.trending-up.svg";
@@ -296,7 +321,9 @@ namespace TheTechIdea.Beep.Icons
 
         #region "Emotions & Expressions"
         public static readonly string Frown = $"{BaseNamespace}.frown.svg";
+        public static readonly string Happy = $"{BaseNamespace}.happy.svg";
         public static readonly string Meh = $"{BaseNamespace}.meh.svg";
+        public static readonly string Sad = $"{BaseNamespace}.sad.svg";
         public static readonly string Smile = $"{BaseNamespace}.smile.svg";
         #endregion
 
@@ -306,6 +333,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Bookmark = $"{BaseNamespace}.bookmark.svg";
         public static readonly string Facebook = $"{BaseNamespace}.facebook.svg";
         public static readonly string Heart = $"{BaseNamespace}.heart.svg";
+        public static readonly string HeartOff = $"{BaseNamespace}.heartoff.svg";
         public static readonly string Linkedin = $"{BaseNamespace}.linkedin.svg";
         public static readonly string Star = $"{BaseNamespace}.star.svg";
         public static readonly string ThumbsDown = $"{BaseNamespace}.thumbs-down.svg";
@@ -326,23 +354,29 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Briefcase = $"{BaseNamespace}.briefcase.svg";
         public static readonly string Chrome = $"{BaseNamespace}.chrome.svg";
         public static readonly string Coffee = $"{BaseNamespace}.coffee.svg";
+        public static readonly string Company = $"{BaseNamespace}.company.svg";
         public static readonly string Copy2 = $"{BaseNamespace}.copy.svg";
+        public static readonly string Currency = $"{BaseNamespace}.currency.svg";
         public static readonly string Divide = $"{BaseNamespace}.divide.svg";
         public static readonly string DivideCircle = $"{BaseNamespace}.divide-circle.svg";
         public static readonly string DivideSquare = $"{BaseNamespace}.divide-square.svg";
+        public static readonly string Dot = $"{BaseNamespace}.dot.svg";
         public static readonly string Droplet2 = $"{BaseNamespace}.droplet.svg";
         public static readonly string Headphones = $"{BaseNamespace}.headphones.svg";
         public static readonly string HelpCircle = $"{BaseNamespace}.help-circle.svg";
         public static readonly string Inbox = $"{BaseNamespace}.inbox.svg";
+        public static readonly string More = $"{BaseNamespace}.more.svg";
         public static readonly string Paperclip = $"{BaseNamespace}.paperclip.svg";
         public static readonly string Percent = $"{BaseNamespace}.percent.svg";
         public static readonly string Pocket = $"{BaseNamespace}.pocket.svg";
         public static readonly string Power = $"{BaseNamespace}.power.svg";
+        public static readonly string PowerOff = $"{BaseNamespace}.poweroff.svg";
         public static readonly string Printer = $"{BaseNamespace}.printer.svg";
         public static readonly string RefreshCcw = $"{BaseNamespace}.refresh-ccw.svg";
         public static readonly string RefreshCw = $"{BaseNamespace}.refresh-cw.svg";
         public static readonly string Rss = $"{BaseNamespace}.rss.svg";
         public static readonly string Save = $"{BaseNamespace}.save.svg";
+        public static readonly string Settings = $"{BaseNamespace}.settings.svg";
         public static readonly string Share = $"{BaseNamespace}.share.svg";
         public static readonly string Share2 = $"{BaseNamespace}.share-2.svg";
         public static readonly string Speaker = $"{BaseNamespace}.speaker.svg";

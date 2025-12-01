@@ -65,14 +65,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             ToolTipConfig config, IBeepTheme theme)
         {
             var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
-            var colors = ToolTipStyleAdapter.GetColors(config, theme);
+            
+            // Use ToolTipThemeHelpers for consistent theme color management
+            var useThemeColors = config.UseBeepThemeColors && theme != null;
+            var colors = ToolTipThemeHelpers.GetThemeColors(
+                theme, 
+                config.Type, 
+                useThemeColors,
+                config.BackColor,
+                config.ForeColor,
+                config.BorderColor);
 
             // Get corner radius from Style
             int radius = StyleBorders.GetRadius(beepStyle);
 
             using (var path = CreateRoundedRectangle(bounds, radius))
             {
-                // Priority 1: Custom background color
+                // Priority 1: Custom background color (from config)
                 if (config.BackColor.HasValue)
                 {
                     using (var brush = new SolidBrush(config.BackColor.Value))
@@ -82,8 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                     return;
                 }
 
-                // Priority 2: Use BeepStyling with theme colors
-                if (config.UseBeepThemeColors && theme != null)
+                // Priority 2: Use BeepStyling with theme colors from ToolTipThemeHelpers
+                if (useThemeColors && theme != null)
                 {
                     var savedTheme = BeepStyling.CurrentTheme;
                     var savedUseTheme = BeepStyling.UseThemeColors;
@@ -107,19 +116,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 }
                 else
                 {
-                    // Priority 3: Standard BeepStyling without theme override
-                    var savedStyle = BeepStyling.CurrentControlStyle;
-                    
-                    try
+                    // Priority 3: Use theme colors from ToolTipThemeHelpers (even without BeepStyling)
+                    using (var brush = new SolidBrush(colors.backColor))
                     {
-                        BeepStyling.SetControlStyle(beepStyle);
-                        
-                        // Use BeepStyling.PaintStyleBackground for consistent styling
-                        BeepStyling.PaintStyleBackground(g, path, beepStyle);
-                    }
-                    finally
-                    {
-                        BeepStyling.SetControlStyle(savedStyle);
+                        g.FillPath(brush, path);
                     }
                 }
             }

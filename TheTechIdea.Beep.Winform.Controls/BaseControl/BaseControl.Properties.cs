@@ -677,7 +677,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string LabelText
         {
             get => _labelText;
-            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
         }
         private string _labelText = string.Empty;
 
@@ -712,7 +712,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string HelperText
         {
             get => _helperText;
-            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
         }
         private string _helperText = string.Empty;
 
@@ -740,7 +740,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if(value.Equals(_badgeText)) return;
                 _badgeText = value;
-                UpdateRegionForBadge();
+             //   UpdateRegionForBadge();
                 Invalidate();
             }
         }
@@ -1118,6 +1118,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         _borderPainterStyle = value;
                         UpdateBorderPainter();
                     }
+                    
+                    // Update tooltip if it uses ControlStyle
+                    UpdateTooltipTheme();
                     
                     // Auto-resize to compensate chrome when style-based painting is used
                     try

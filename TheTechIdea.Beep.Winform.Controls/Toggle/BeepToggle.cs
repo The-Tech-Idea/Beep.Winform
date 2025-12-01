@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Painters;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.ToolTips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Toggle
 {
@@ -42,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         // Helpers
         private BeepToggleLayoutHelper _layoutHelper;
         private BeepTogglePainterBase _painter;
+        private bool _isApplyingTheme = false; // Prevent re-entrancy during theme application
         #endregion
 
         #region Constructor
@@ -68,6 +71,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
 
             // Subscribe to mouse events for interaction
             Click += BeepToggle_Click;
+
+            // Apply initial accessibility settings
+            ApplyAccessibilitySettings();
+
+            // Initialize tooltip if auto-generate is enabled
+            if (AutoGenerateTooltip)
+            {
+                UpdateToggleTooltip();
+            }
         }
         #endregion
 
@@ -91,10 +103,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
                     // Update value based on IsOn state
                     UpdateValueFromIsOn();
                     
+                    // Update accessibility settings when state changes
+                    ApplyAccessibilitySettings();
+                    
+                    // Update tooltip text to reflect new state
+                    UpdateToggleTooltip();
+                    
                     OnIsOnChanged(EventArgs.Empty);
                     OnValueChanged(EventArgs.Empty);
                     
-                    if (_animateTransition && IsHandleCreated)
+                    // Check if animations should be disabled (reduced motion)
+                    bool shouldAnimate = _animateTransition && 
+                        !ToggleAccessibilityHelpers.ShouldDisableAnimations(_animateTransition);
+                    
+                    if (shouldAnimate && IsHandleCreated)
                     {
                         StartAnimation();
                     }
@@ -191,7 +213,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         public string OnText
         {
             get => _onText;
-            set { _onText = value; Invalidate(); }
+            set 
+            { 
+                _onText = value; 
+                // Update tooltip if auto-generate is enabled
+                if (AutoGenerateTooltip)
+                {
+                    UpdateToggleTooltip();
+                }
+                Invalidate(); 
+            }
         }
 
         /// <summary>
@@ -203,7 +234,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         public string OffText
         {
             get => _offText;
-            set { _offText = value; Invalidate(); }
+            set 
+            { 
+                _offText = value; 
+                // Update tooltip if auto-generate is enabled
+                if (AutoGenerateTooltip)
+                {
+                    UpdateToggleTooltip();
+                }
+                Invalidate(); 
+            }
         }
 
         /// <summary>
@@ -388,6 +428,192 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
                 _animationTimer?.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        #endregion
+
+        #region Theme Integration
+
+        /// <summary>
+        /// Apply theme colors to the toggle
+        /// Overrides BaseControl.ApplyTheme() to integrate with toggle-specific colors
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+
+            if (_isApplyingTheme) return;
+
+            _isApplyingTheme = true;
+            try
+            {
+                // Get current theme from BaseControl (set by ApplyTheme())
+                var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                var useTheme = UseThemeColors && theme != null;
+
+                if (useTheme && theme != null)
+                {
+                    // Apply theme colors using ToggleThemeHelpers
+                    ToggleThemeHelpers.ApplyThemeColors(this, theme, useTheme);
+                }
+
+                // Invalidate to redraw with new colors
+                Invalidate();
+            }
+            finally
+            {
+                _isApplyingTheme = false;
+            }
+        }
+
+        /// <summary>
+        /// Apply theme colors when theme changes
+        /// Called from BaseControl when theme is set
+        /// </summary>
+        public override void ApplyTheme(IBeepTheme theme)
+        {
+            base.ApplyTheme(theme);
+            
+            if (_isApplyingTheme) return;
+
+            _isApplyingTheme = true;
+            try
+            {
+                var useTheme = UseThemeColors && theme != null;
+
+                if (useTheme && theme != null)
+                {
+                    // Apply theme colors
+                    ToggleThemeHelpers.ApplyThemeColors(this, theme, useTheme);
+                }
+
+                // Apply font theme based on ControlStyle
+                ToggleFontHelpers.ApplyFontTheme(this, ControlStyle);
+
+                // Apply accessibility adjustments (high contrast, etc.)
+                ApplyAccessibilityAdjustments(theme, useTheme);
+
+                Invalidate();
+            }
+            finally
+            {
+                _isApplyingTheme = false;
+            }
+        }
+
+        #endregion
+
+        #region Tooltip Integration
+
+        /// <summary>
+        /// Gets or sets whether to auto-generate tooltip text based on toggle state
+        /// When true, tooltip text is automatically generated from OnText/OffText
+        /// </summary>
+        [Category("Beep")]
+        [Description("Auto-generate tooltip text based on toggle state")]
+        [DefaultValue(false)]
+        public bool AutoGenerateTooltip { get; set; } = false;
+
+        /// <summary>
+        /// Update tooltip text to reflect current toggle state
+        /// Called automatically when IsOn changes
+        /// </summary>
+        private void UpdateToggleTooltip()
+        {
+            if (!EnableTooltip)
+                return;
+
+            // If auto-generate is enabled and no explicit tooltip text is set
+            if (AutoGenerateTooltip && string.IsNullOrEmpty(TooltipText))
+            {
+                // Generate tooltip text from current state
+                string stateText = _isOn ? _onText : _offText;
+                string tooltipText = $"Toggle is currently {stateText}. Click to switch to {(_isOn ? _offText : _onText)}.";
+                
+                // Setting TooltipText will automatically call UpdateTooltip() via property setter
+                if (TooltipText != tooltipText)
+                {
+                    TooltipText = tooltipText;
+                }
+            }
+            // If explicit tooltip text is set, it will be updated automatically via TooltipText property
+            // when the state changes, since BaseControl.UpdateTooltip() is called by the property setter
+        }
+
+        /// <summary>
+        /// Set tooltip with toggle-specific content
+        /// Automatically includes current state information
+        /// Setting TooltipText will automatically trigger UpdateTooltip() via property setter
+        /// </summary>
+        public void SetToggleTooltip(string text, string title = null, ToolTipType type = ToolTipType.Default)
+        {
+            TooltipType = type; // Set type first
+            if (!string.IsNullOrEmpty(title))
+            {
+                TooltipTitle = title; // Set title second
+            }
+            TooltipText = text; // Setting TooltipText last will trigger UpdateTooltip() automatically
+        }
+
+        /// <summary>
+        /// Show a notification when toggle state changes
+        /// Useful for providing feedback to users
+        /// </summary>
+        public void ShowToggleNotification(bool showOnChange = true)
+        {
+            if (!showOnChange)
+                return;
+
+            string message = _isOn 
+                ? $"Turned {_onText}" 
+                : $"Turned {_offText}";
+            
+            ToolTipType notificationType = _isOn ? ToolTipType.Success : ToolTipType.Info;
+            
+            ShowNotification(message, notificationType, 1500);
+        }
+
+        #endregion
+
+        #region Accessibility Integration
+
+        /// <summary>
+        /// Apply accessibility settings to the toggle
+        /// Sets ARIA attributes for screen readers
+        /// </summary>
+        private void ApplyAccessibilitySettings()
+        {
+            ToggleAccessibilityHelpers.ApplyAccessibilitySettings(
+                this,
+                _isOn,
+                _onText,
+                _offText);
+        }
+
+        /// <summary>
+        /// Apply accessibility adjustments (high contrast, reduced motion, etc.)
+        /// </summary>
+        private void ApplyAccessibilityAdjustments(IBeepTheme theme = null, bool useThemeColors = false)
+        {
+            // Apply high contrast adjustments
+            if (ToggleAccessibilityHelpers.IsHighContrastMode())
+            {
+                ToggleAccessibilityHelpers.ApplyHighContrastAdjustments(this, theme, useThemeColors);
+            }
+
+            // Disable animations if reduced motion is enabled
+            if (ToggleAccessibilityHelpers.IsReducedMotionEnabled())
+            {
+                _animateTransition = false;
+                EnableFocusGlow = false;
+            }
+
+            // Ensure minimum accessible size
+            var accessibleMinSize = ToggleAccessibilityHelpers.GetAccessibleMinimumSize(MinimumSize);
+            if (accessibleMinSize.Width > MinimumSize.Width || accessibleMinSize.Height > MinimumSize.Height)
+            {
+                MinimumSize = accessibleMinSize;
+            }
         }
 
         #endregion

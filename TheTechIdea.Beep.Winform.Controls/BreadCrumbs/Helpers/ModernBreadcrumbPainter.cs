@@ -1,7 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
- 
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
@@ -29,20 +28,62 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         {
             string displayText = item?.Text ?? item?.Name ?? string.Empty;
             button.Text = displayText;
-            button.ImagePath = (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath)) ? item.ImagePath : string.Empty;
+            
+            // Don't set button.ImagePath - we'll paint icons using StyledImagePainter directly
+            button.ImagePath = string.Empty;
+            
             button.IsHovered = isHovered;
             button.IsSelected = isSelected;
+            
+            // Use BreadcrumbThemeHelpers for colors
+            var useTheme = Theme != null && Owner != null && Owner.UseThemeColors;
+            var (textColor, hoverBackColor, selectedBackColor, separatorColor, borderColor) = 
+                BreadcrumbThemeHelpers.GetThemeColors(Theme, useTheme, isLast, isHovered, isSelected);
+            
+            // Adjust colors for high contrast mode if enabled
+            if (BreadcrumbAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (hcTextColor, hcHoverBackColor, hcSeparatorColor, hcBorderColor) = 
+                    BreadcrumbAccessibilityHelpers.GetHighContrastColors();
+                textColor = hcTextColor;
+                hoverBackColor = hcHoverBackColor;
+                separatorColor = hcSeparatorColor;
+                borderColor = hcBorderColor;
+            }
+            
+            // Ensure text color meets WCAG contrast requirements
+            if (Owner is BeepBreadcrump breadcrumb)
+            {
+                Color backColor = breadcrumb.BackColor != Color.Empty ? breadcrumb.BackColor : Color.White;
+                textColor = BreadcrumbAccessibilityHelpers.AdjustForContrast(textColor, backColor, 4.5);
+            }
+            
             if (isHovered)
             {
                 using var path = Base.Helpers.ControlPaintHelper.GetRoundedRectPath(rect, 4);
-                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(40, Theme.ButtonHoverBackColor));
+                var brush = PaintersFactory.GetSolidBrush(hoverBackColor);
                 g.FillPath(brush, path);
             }
+            
+            if (isSelected)
+            {
+                using var path = Base.Helpers.ControlPaintHelper.GetRoundedRectPath(rect, 4);
+                var brush = PaintersFactory.GetSolidBrush(selectedBackColor);
+                g.FillPath(brush, path);
+            }
+            
             button.BackColor = Color.Transparent;
-            button.ForeColor = isLast ? Theme.ButtonForeColor : Theme.LinkColor;
+            button.ForeColor = textColor;
             button.IsRounded = true;
             button.BorderRadius = 4;
             button.Draw(g, rect);
+            
+            // Paint icon using StyledImagePainter (if ShowIcons is true)
+            // This ensures icons are painted with proper theme colors and tinting
+            if (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath))
+            {
+                PaintIcon(g, rect, item, isLast, isHovered);
+            }
         }
     }
 }

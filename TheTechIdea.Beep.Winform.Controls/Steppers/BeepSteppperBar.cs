@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
- 
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ToolTips;
  
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -31,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Stepper Bar")]
     [Description("An interactive step-by-step progress indicator optimized for business workflows with animations and multiple display modes.")]
-    public partial class BeepStepperBar : BeepControl
+    public partial class BeepStepperBar : BaseControl
     {
         #region Private Fields
         private Orientation orientation = Orientation.Horizontal;
@@ -62,6 +65,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color pendingStepColor = Color.FromArgb(156, 163, 175);  // Gray
         private Color errorStepColor = Color.FromArgb(239, 68, 68);      // Red
         private Color warningStepColor = Color.FromArgb(245, 158, 11);   // Orange
+        
+        private bool _isApplyingTheme = false;
+
+        // Tooltip support
+        private bool _autoGenerateTooltips = true;
+        private readonly Dictionary<int, string> _stepTooltips = new Dictionary<int, string>();
+        private readonly Dictionary<int, ToolTipConfig> _stepTooltipConfigs = new Dictionary<int, ToolTipConfig>();
+        private int _hoveredStepIndex = -1;
+        private string _currentTooltipKey = null;
         #endregion
 
         #region Events
@@ -89,7 +101,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Size ButtonSize
         {
             get => buttonSize;
-            set { buttonSize = value; Invalidate(); }
+            set 
+            { 
+                buttonSize = StepperAccessibilityHelpers.GetAccessibleStepButtonSize(value);
+                Invalidate(); 
+            }
         }
 
         [Browsable(true)]
@@ -141,8 +157,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Update step states
                     UpdateStepStates();
                     
-                    // Trigger animation
-                    StartStepAnimation(value);
+                    // Trigger animation (respect reduced motion)
+                    if (!StepperAccessibilityHelpers.ShouldDisableAnimations(highlightActiveStep))
+                    {
+                        StartStepAnimation(value);
+                    }
+                    else
+                    {
+                        selectedIndex = value;
+                    }
+                    
+                    // Update accessibility
+                    ApplyAccessibilitySettings();
+                    
+                    // Update tooltips
+                    UpdateStepperTooltip();
                     
                     // Fire events
                     StepChanged?.Invoke(this, new StepChangedEventArgs(oldStep, currentStep));
@@ -196,8 +225,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Whether to highlight the active step with animation")]
         public bool HighlightActiveStep
         {
-            get => highlightActiveStep;
-            set => highlightActiveStep = value;
+            get => highlightActiveStep && !StepperAccessibilityHelpers.IsReducedMotionEnabled();
+            set
+            {
+                if (value && StepperAccessibilityHelpers.IsReducedMotionEnabled())
+                {
+                    highlightActiveStep = false; // Cannot enable if reduced motion is on
+                }
+                else
+                {
+                    highlightActiveStep = value;
+                }
+            }
         }
 
         // Color properties for step states
@@ -239,6 +278,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Accessible name for screen readers")]
+        public string AccessibleName { get; set; }
+
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Accessible description for screen readers")]
+        public string AccessibleDescription { get; set; }
+
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Accessible role for screen readers")]
+        [DefaultValue(AccessibleRole.List)]
+        public AccessibleRole AccessibleRole { get; set; } = AccessibleRole.List;
         #endregion
 
         #region Constructor
@@ -251,11 +306,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             ListItems.ListChanged += (s, e) => {
                 SyncListItemsWithSteps();
+                ApplyAccessibilitySettings();
+                UpdateAllStepTooltips();
                 Invalidate();
             };
 
             InitializeAnimation();
             InitializeSteps();
+            ApplyAccessibilitySettings();
+            UpdateAllStepTooltips();
         }
 
         private void InitializeAnimation()
@@ -263,6 +322,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             animationTimer = new Timer { Interval = 16 }; // 60 FPS
             animationTimer.Tick += (s, e) =>
             {
+                // Respect reduced motion preferences
+                if (StepperAccessibilityHelpers.IsReducedMotionEnabled())
+                {
+                    animationTimer.Stop();
+                    selectedIndex = animatingToIndex;
+                    animationProgress = 1f;
+                    Invalidate();
+                    return;
+                }
+                
                 var elapsed = (DateTime.Now - animationStartTime).TotalMilliseconds;
                 animationProgress = (float)Math.Min(1, elapsed / animationDuration);
                 
@@ -507,6 +576,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Animation
         private void StartStepAnimation(int targetIndex)
         {
+            // Respect reduced motion preferences
+            if (StepperAccessibilityHelpers.IsReducedMotionEnabled())
+            {
+                selectedIndex = targetIndex;
+                animationProgress = 1f;
+                return;
+            }
+            
             if (targetIndex != animatingToIndex)
             {
                 animatingToIndex = targetIndex;
@@ -571,7 +648,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawConnectorLine(Graphics graphics, int stepIndex, Rectangle rect)
         {
             StepState currentStepState = GetStepState(stepIndex - 1);
-            Color lineColor = currentStepState == StepState.Completed ? completedStepColor : pendingStepColor;
+            
+            // Use theme helpers for connector line color
+            Color lineColor = StepperThemeHelpers.GetConnectorLineColor(
+                _currentTheme, 
+                UseThemeColors, 
+                currentStepState,
+                currentStepState == StepState.Completed ? completedStepColor : pendingStepColor);
             
             Point p1, p2;
             
@@ -586,7 +669,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 p2 = new Point(rect.Left + buttonSize.Width / 2, rect.Top);
             }
 
-            using (var pen = new Pen(lineColor, connectorLineWidth))
+            int accessibleLineWidth = StepperAccessibilityHelpers.GetAccessibleConnectorLineWidth(connectorLineWidth);
+            using (var pen = new Pen(lineColor, accessibleLineWidth))
             {
                 graphics.DrawLine(pen, p1, p2);
             }
@@ -607,14 +691,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 (int)(rect.Width * (scale - 1) / 2), 
                 (int)(rect.Height * (scale - 1) / 2));
             
-            // Get step color based on state
+            // Get step color based on state using theme helpers
             Color fillColor = state switch
             {
-                StepState.Completed => completedStepColor,
-                StepState.Active => activeStepColor,
-                StepState.Error => errorStepColor,
-                StepState.Warning => warningStepColor,
-                _ => pendingStepColor
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors, completedStepColor),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors, activeStepColor),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, UseThemeColors, errorStepColor),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, UseThemeColors, warningStepColor),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors, pendingStepColor)
             };
 
             // Draw step circle
@@ -623,10 +707,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 graphics.FillEllipse(fillBrush, inflated);
             }
 
-            // Draw border for active step
+            // Draw border for active step using theme helpers
             if (stepIndex == currentStep)
             {
-                using (var borderPen = new Pen(Color.White, 2))
+                Color borderColor = StepperThemeHelpers.GetStepBorderColor(_currentTheme, UseThemeColors, state, Color.White);
+                int borderWidth = StepperAccessibilityHelpers.GetAccessibleBorderWidth(2);
+                using (var borderPen = new Pen(borderColor, borderWidth))
                 {
                     graphics.DrawEllipse(borderPen, inflated);
                 }
@@ -690,12 +776,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawStepNumber(Graphics graphics, int stepIndex, Rectangle rect)
         {
             string text = (stepIndex + 1).ToString();
-            var font = this.Font ?? new Font("Segoe UI", 10, FontStyle.Bold);
-            var textSize = TextUtils.MeasureText(graphics,text, font);
+            
+            // Use font helpers for step number font
+            Font font = StepperFontHelpers.GetStepNumberFont(this, ControlStyle);
+            
+            var textSize = TextUtils.MeasureText(graphics, text, font);
             var textX = rect.Left + (rect.Width - textSize.Width) / 2;
             var textY = rect.Top + (rect.Height - textSize.Height) / 2;
             
-            using (var textBrush = new SolidBrush(Color.White))
+            // Use theme helpers for step number text color
+            StepState state = GetStepState(stepIndex);
+            Color textColor = StepperThemeHelpers.GetStepTextColor(_currentTheme, UseThemeColors, state, Color.White);
+            
+            // Get step fill color for contrast calculation
+            Color stepFillColor = state switch
+            {
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors, completedStepColor),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors, activeStepColor),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, UseThemeColors, errorStepColor),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, UseThemeColors, warningStepColor),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors, pendingStepColor)
+            };
+            
+            // Adjust text color for contrast if needed
+            if (StepperAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();
+                textColor = highContrastTextColor;
+            }
+            else
+            {
+                textColor = StepperAccessibilityHelpers.AdjustForContrast(textColor, stepFillColor);
+            }
+            
+            using (var textBrush = new SolidBrush(textColor))
             {
                 graphics.DrawString(text, font, textBrush, textX, textY);
             }
@@ -703,20 +817,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawCheckmark(Graphics graphics, Rectangle rect)
         {
-            // Draw a simple checkmark
-            using (var pen = new Pen(Color.White, 2))
-            {
-                var centerX = rect.Left + rect.Width / 2;
-                var centerY = rect.Top + rect.Height / 2;
-                var size = Math.Min(rect.Width, rect.Height) / 3;
-                
-                graphics.DrawLines(pen, new Point[]
-                {
-                    new Point(centerX - size/2, centerY),
-                    new Point(centerX - size/6, centerY + size/2),
-                    new Point(centerX + size/2, centerY - size/2)
-                });
-            }
+            // Use icon helpers for checkmark (fallback if icon path fails)
+            // This method is kept for backward compatibility but delegates to icon helpers
+            StepState state = StepState.Completed;
+            Color iconColor = StepperIconHelpers.GetIconColor(_currentTheme, UseThemeColors, state, Color.White);
+            StepperIconHelpers.PaintCheckmarkIcon(graphics, rect, iconColor, 1f);
         }
 
         private void DrawStepLabel(Graphics graphics, int stepIndex, Rectangle rect)
@@ -724,12 +829,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             string label = GetStepLabel(stepIndex);
             if (string.IsNullOrEmpty(label)) return;
             
-            var font = new Font(this.Font?.FontFamily ?? FontFamily.GenericSansSerif, 9, FontStyle.Regular);
-            var textSize = TextUtils.MeasureText(graphics,label, font);
+            // Use font helpers for step label font
+            StepState state = GetStepState(stepIndex);
+            Font font = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state);
             
-            Color textColor = GetStepState(stepIndex) == StepState.Active ? 
-                (_currentTheme?.CardTitleForeColor ?? Color.Black) :
-                (_currentTheme?.CardSubTitleForeColor ?? Color.Gray);
+            var textSize = TextUtils.MeasureText(graphics, label, font);
+            
+            // Use theme helpers for step label color
+            Color textColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, UseThemeColors, state);
+            
+            // Ensure WCAG contrast compliance
+            Color stepFillColor = state switch
+            {
+                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors, completedStepColor),
+                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors, activeStepColor),
+                StepState.Error => StepperThemeHelpers.GetStepErrorColor(_currentTheme, UseThemeColors, errorStepColor),
+                StepState.Warning => StepperThemeHelpers.GetStepWarningColor(_currentTheme, UseThemeColors, warningStepColor),
+                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors, pendingStepColor)
+            };
+            
+            // Adjust text color for contrast if needed
+            if (StepperAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();
+                textColor = highContrastTextColor;
+            }
+            else
+            {
+                textColor = StepperAccessibilityHelpers.AdjustForContrast(textColor, BackColor);
+            }
             
             float textX, textY;
             
@@ -752,6 +880,42 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Mouse Handling
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            
+            // Detect hovered step
+            int hoveredIndex = -1;
+            for (int i = 0; i < buttonBounds.Count; i++)
+            {
+                if (buttonBounds[i].Contains(e.Location))
+                {
+                    hoveredIndex = i;
+                    break;
+                }
+            }
+            
+            // Update tooltip for hovered step
+            if (hoveredIndex != _hoveredStepIndex)
+            {
+                _hoveredStepIndex = hoveredIndex;
+                UpdateTooltipForHoveredStep();
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            
+            // Hide tooltip when mouse leaves
+            _hoveredStepIndex = -1;
+            if (!string.IsNullOrEmpty(_currentTooltipKey))
+            {
+                _ = ToolTipManager.Instance.HideTooltipAsync(_currentTooltipKey);
+                _currentTooltipKey = null;
+            }
+        }
+
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
@@ -763,6 +927,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (buttonBounds[i].Contains(e.Location))
                 {
                     NavigateToStep(i);
+                    ShowStepNotification(i);
                     break;
                 }
             }
@@ -817,15 +982,373 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             
-            if (_currentTheme != null)
+            if (_isApplyingTheme) return;
+            
+            _isApplyingTheme = true;
+            try
             {
-                // Update colors based on theme
-                completedStepColor = _currentTheme.ButtonPressedBackColor;
-                activeStepColor = _currentTheme.ButtonBackColor;
-                pendingStepColor = _currentTheme.DisabledBackColor;
+                // Use theme helpers for centralized color management
+                if (_currentTheme != null && UseThemeColors)
+                {
+                    StepperThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
+                }
+                
+                // Apply font theme
+                StepperFontHelpers.ApplyFontTheme(this, ControlStyle);
+                
+                // Apply accessibility adjustments (high contrast, reduced motion)
+                ApplyAccessibilityAdjustments();
+            }
+            finally
+            {
+                _isApplyingTheme = false;
             }
             
             Invalidate();
+        }
+        #endregion
+
+        #region Accessibility
+        /// <summary>
+        /// Apply accessibility settings (ARIA attributes)
+        /// </summary>
+        public void ApplyAccessibilitySettings()
+        {
+            StepperAccessibilityHelpers.ApplyAccessibilitySettings(this, AccessibleName, AccessibleDescription);
+        }
+
+        /// <summary>
+        /// Apply accessibility adjustments (high contrast, reduced motion)
+        /// </summary>
+        public void ApplyAccessibilityAdjustments()
+        {
+            if (StepperAccessibilityHelpers.IsHighContrastMode())
+            {
+                StepperAccessibilityHelpers.ApplyHighContrastAdjustments(this, _currentTheme, UseThemeColors);
+            }
+        }
+
+        /// <summary>
+        /// Override MinimumSize to enforce accessible minimum size
+        /// </summary>
+        public override Size MinimumSize
+        {
+            get
+            {
+                var baseSize = base.MinimumSize;
+                return StepperAccessibilityHelpers.GetAccessibleMinimumSize(baseSize);
+            }
+            set
+            {
+                var accessibleSize = StepperAccessibilityHelpers.GetAccessibleMinimumSize(value);
+                base.MinimumSize = accessibleSize;
+            }
+        }
+        #endregion
+
+        #region Tooltip Integration
+
+        /// <summary>
+        /// Gets or sets whether tooltips are automatically generated for stepper steps
+        /// When true, tooltips are generated from step labels and states
+        /// </summary>
+        [Browsable(true)]
+        [Category("Tooltip")]
+        [Description("Automatically generate tooltips for stepper steps based on their labels and states")]
+        [DefaultValue(true)]
+        public bool AutoGenerateTooltips
+        {
+            get => _autoGenerateTooltips;
+            set
+            {
+                if (_autoGenerateTooltips != value)
+                {
+                    _autoGenerateTooltips = value;
+                    UpdateAllStepTooltips();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set a custom tooltip for a specific step
+        /// </summary>
+        /// <param name="stepIndex">The index of the step (0-based)</param>
+        /// <param name="tooltipText">The tooltip text to display</param>
+        public void SetStepTooltip(int stepIndex, string tooltipText)
+        {
+            if (stepIndex < 0 || stepIndex >= stepCount)
+                return;
+
+            if (string.IsNullOrEmpty(tooltipText))
+            {
+                _stepTooltips.Remove(stepIndex);
+            }
+            else
+            {
+                _stepTooltips[stepIndex] = tooltipText;
+            }
+
+            UpdateStepTooltip(stepIndex);
+        }
+
+        /// <summary>
+        /// Get the tooltip text for a specific step
+        /// </summary>
+        public string GetStepTooltip(int stepIndex)
+        {
+            if (stepIndex < 0 || stepIndex >= stepCount)
+                return string.Empty;
+
+            if (_stepTooltips.TryGetValue(stepIndex, out var customTooltip))
+            {
+                return customTooltip;
+            }
+
+            if (_autoGenerateTooltips)
+            {
+                return GenerateStepTooltip(stepIndex);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Remove tooltip for a specific step
+        /// </summary>
+        public void RemoveStepTooltip(int stepIndex)
+        {
+            if (stepIndex < 0 || stepIndex >= stepCount)
+                return;
+
+            _stepTooltips.Remove(stepIndex);
+            UpdateStepTooltip(stepIndex);
+        }
+
+        /// <summary>
+        /// Generate automatic tooltip text for a step
+        /// </summary>
+        private string GenerateStepTooltip(int stepIndex)
+        {
+            if (stepIndex < 0 || stepIndex >= stepCount)
+                return string.Empty;
+
+            string stepLabel = GetStepLabel(stepIndex);
+            StepState state = GetStepState(stepIndex);
+            bool isCurrentStep = stepIndex == currentStep;
+            bool isClickable = allowStepNavigation;
+
+            string stateText = state switch
+            {
+                StepState.Completed => "Completed",
+                StepState.Active => "Active",
+                StepState.Error => "Error",
+                StepState.Warning => "Warning",
+                _ => "Pending"
+            };
+
+            string tooltip = $"Step {stepIndex + 1} of {stepCount}";
+            
+            if (!string.IsNullOrEmpty(stepLabel))
+            {
+                tooltip += $": {stepLabel}";
+            }
+
+            tooltip += $", {stateText}";
+
+            if (isCurrentStep)
+            {
+                tooltip += " (Current)";
+            }
+
+            if (isClickable)
+            {
+                tooltip += ". Click to navigate";
+            }
+
+            return tooltip;
+        }
+
+        /// <summary>
+        /// Create tooltip configuration for a step
+        /// </summary>
+        private ToolTipConfig CreateStepTooltipConfig(int stepIndex)
+        {
+            string tooltipText = GetStepTooltip(stepIndex);
+            if (string.IsNullOrEmpty(tooltipText))
+                return null;
+
+            StepState state = GetStepState(stepIndex);
+            ToolTipType tooltipType = state switch
+            {
+                StepState.Error => ToolTipType.Error,
+                StepState.Warning => ToolTipType.Warning,
+                StepState.Completed => ToolTipType.Success,
+                StepState.Active => ToolTipType.Info,
+                _ => ToolTipType.Default
+            };
+
+            return new ToolTipConfig
+            {
+                Text = tooltipText,
+                Title = $"Step {stepIndex + 1}",
+                Type = tooltipType,
+                UseBeepThemeColors = UseThemeColors,
+                ControlStyle = ControlStyle,
+                ShowArrow = true,
+                ShowShadow = true,
+                Duration = 3000,
+                Placement = ToolTipPlacement.Top
+            };
+        }
+
+        /// <summary>
+        /// Update tooltip for a specific step
+        /// </summary>
+        private void UpdateStepTooltip(int stepIndex)
+        {
+            if (stepIndex < 0 || stepIndex >= stepCount)
+                return;
+
+            var config = CreateStepTooltipConfig(stepIndex);
+            if (config != null)
+            {
+                _stepTooltipConfigs[stepIndex] = config;
+            }
+            else
+            {
+                _stepTooltipConfigs.Remove(stepIndex);
+            }
+        }
+
+        /// <summary>
+        /// Update tooltips for all steps
+        /// </summary>
+        private void UpdateAllStepTooltips()
+        {
+            _stepTooltipConfigs.Clear();
+            for (int i = 0; i < stepCount; i++)
+            {
+                UpdateStepTooltip(i);
+            }
+        }
+
+        /// <summary>
+        /// Update tooltip for the hovered step
+        /// </summary>
+        private async void UpdateTooltipForHoveredStep()
+        {
+            // Hide existing tooltip first
+            if (!string.IsNullOrEmpty(_currentTooltipKey))
+            {
+                await ToolTipManager.Instance.HideTooltipAsync(_currentTooltipKey);
+                _currentTooltipKey = null;
+            }
+
+            if (_hoveredStepIndex >= 0 && _hoveredStepIndex < stepCount)
+            {
+                if (_stepTooltipConfigs.TryGetValue(_hoveredStepIndex, out var config))
+                {
+                    // Calculate position for the step button
+                    if (_hoveredStepIndex < buttonBounds.Count)
+                    {
+                        Rectangle stepBounds = buttonBounds[_hoveredStepIndex];
+                        Point tooltipPosition = new Point(
+                            stepBounds.Left + stepBounds.Width / 2,
+                            stepBounds.Top
+                        );
+
+                        // Convert to screen coordinates
+                        tooltipPosition = PointToScreen(tooltipPosition);
+                        config.Position = tooltipPosition;
+
+                        // Show tooltip and store the key
+                        _currentTooltipKey = await ToolTipManager.Instance.ShowTooltipAsync(config);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update tooltip for the main stepper control
+        /// </summary>
+        private void UpdateStepperTooltip()
+        {
+            if (!EnableTooltip)
+                return;
+
+            string tooltipText = GenerateStepperTooltip();
+            if (!string.IsNullOrEmpty(tooltipText))
+            {
+                TooltipText = tooltipText;
+                TooltipTitle = "Stepper";
+                TooltipType = ToolTipType.Info;
+                UpdateTooltip();
+            }
+        }
+
+        /// <summary>
+        /// Generate tooltip text for the main stepper control
+        /// </summary>
+        private string GenerateStepperTooltip()
+        {
+            string currentStepLabel = GetStepLabel(currentStep);
+            int percentage = stepCount > 0 ? (int)((float)(currentStep + 1) / stepCount * 100) : 0;
+
+            string tooltip = $"Step {currentStep + 1} of {stepCount} ({percentage}%)";
+            
+            if (!string.IsNullOrEmpty(currentStepLabel))
+            {
+                tooltip += $": {currentStepLabel}";
+            }
+
+            return tooltip;
+        }
+
+        /// <summary>
+        /// Show a notification when a step is clicked
+        /// </summary>
+        private void ShowStepNotification(int stepIndex)
+        {
+            if (stepIndex < 0 || stepIndex >= stepCount)
+                return;
+
+            string stepLabel = GetStepLabel(stepIndex);
+            StepState state = GetStepState(stepIndex);
+
+            ToolTipType notificationType = state switch
+            {
+                StepState.Error => ToolTipType.Error,
+                StepState.Warning => ToolTipType.Warning,
+                StepState.Completed => ToolTipType.Success,
+                _ => ToolTipType.Info
+            };
+
+            string message = $"Navigated to step {stepIndex + 1}";
+            if (!string.IsNullOrEmpty(stepLabel))
+            {
+                message += $": {stepLabel}";
+            }
+
+            ShowNotification(message, notificationType, 2000);
+        }
+
+        /// <summary>
+        /// Set tooltip for the stepper control itself
+        /// </summary>
+        public void SetStepperTooltip(string text, string title = null, ToolTipType type = ToolTipType.Default)
+        {
+            TooltipText = text;
+            TooltipTitle = title ?? "Stepper";
+            TooltipType = type;
+            UpdateTooltip();
+        }
+
+        /// <summary>
+        /// Show a stepper notification
+        /// </summary>
+        public void ShowStepperNotification(string message, ToolTipType type = ToolTipType.Info, int duration = 2000)
+        {
+            ShowNotification(message, type, duration);
         }
         #endregion
 

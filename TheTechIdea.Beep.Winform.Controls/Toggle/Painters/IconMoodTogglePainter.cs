@@ -165,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Get icon color based on state - use green for smile, gray/red for frown
+            // Get icon color based on state - use green for smile, red for frown (special case - semantic colors)
             Color iconColor;
             if (state == ControlState.Disabled)
             {
@@ -173,20 +173,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             }
             else if (Owner.IsOn)
             {
-                // Happy - use green or OnColor
+                // Happy - use green
                 iconColor = Color.FromArgb(255, 76, 175, 80); // Material Green
             }
             else
             {
-                // Sad - use red/orange or OffColor
+                // Sad - use red
                 iconColor = Color.FromArgb(255, 244, 67, 54); // Material Red
             }
 
-            // Get appropriate SVG icon path - smile when ON (happy), frown when OFF (sad)
-            string iconPath = Owner.IsOn ? SvgsUI.Smile : SvgsUI.Frown;
+            // Get icon path using helper
+            string iconPath = GetIconPath(Owner.IsOn);
+            if (string.IsNullOrEmpty(iconPath))
+                iconPath = Owner.IsOn ? SvgsUI.Smile : SvgsUI.Frown;
 
-            // Use StyledImagePainter to paint the SVG with tinting
-            StyledImagePainter.PaintWithTint(g, IconRegion, iconPath, iconColor, 1f, 0);
+            // Use StyledImagePainter with custom colors
+            using (var iconPathShape = GetRoundedRectPath(IconRegion, 0))
+            {
+                StyledImagePainter.PaintWithTint(g, iconPathShape, iconPath, iconColor, 1f, 0);
+            }
         }
 
         #endregion

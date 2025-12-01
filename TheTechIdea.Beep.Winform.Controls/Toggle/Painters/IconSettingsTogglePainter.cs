@@ -168,15 +168,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             // Calculate rotation angle based on thumb position (rotate 180 degrees during toggle)
             float rotationAngle = Owner.ThumbPosition * 180f;
 
-            // Get icon color based on state
-            Color iconColor = state == ControlState.Disabled 
-                ? Color.FromArgb(100, Color.Gray) 
-                : Owner.IsOn ? Owner.OnColor : Owner.OffColor;
+            // Get icon color using helper (supports theme)
+            var theme = Owner._currentTheme;
+            var useTheme = Owner.UseThemeColors && theme != null;
+            Color iconColor = ToggleIconHelpers.GetIconColor(Owner, Owner.IsOn, state, theme, useTheme);
 
-            // Use Tool icon for settings (gear/wrench icon)
-            string iconPath = SvgsUI.Tool;
+            // Get icon path using helper
+            string iconPath = GetIconPath(Owner.IsOn);
+            if (string.IsNullOrEmpty(iconPath))
+                iconPath = SvgsUI.Settings ?? SvgsUI.Sliders ?? SvgsUI.Tool;
 
-            // Save graphics state
+            // Save graphics state for rotation
             var graphicsState = g.Save();
             try
             {

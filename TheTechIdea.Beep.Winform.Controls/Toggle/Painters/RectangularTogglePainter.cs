@@ -106,7 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             if (!Owner.ShowLabels)
                 return;
 
-            using (var font = new Font(Owner.Font.FontFamily, Owner.Font.Size - 1, FontStyle.Bold))
+            // Use ToggleFontHelpers for consistent font management
+            using (var offFont = GetLabelFont(false))
+            using (var onFont = GetLabelFont(true))
             {
                 Color activeColor = Color.White;
                 Color inactiveColor = Color.FromArgb(150, Color.Gray);
@@ -114,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 // Draw OFF label
                 if (!OffLabelRegion.IsEmpty)
                 {
-                    DrawCenteredText(g, Owner.OffText, font, 
+                    DrawCenteredText(g, Owner.OffText, offFont, 
                         Owner.IsOn ? inactiveColor : activeColor, 
                         OffLabelRegion);
                 }
@@ -122,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 // Draw ON label
                 if (!OnLabelRegion.IsEmpty)
                 {
-                    DrawCenteredText(g, Owner.OnText, font, 
+                    DrawCenteredText(g, Owner.OnText, onFont, 
                         Owner.IsOn ? activeColor : inactiveColor, 
                         OnLabelRegion);
                 }

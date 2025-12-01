@@ -241,6 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Called when tooltip is shown
         /// </summary>
         public Action<string> OnShow { get; set; }
+        public BeepControlStyle ControlStyle { get; internal set; }
 
         #endregion
     }

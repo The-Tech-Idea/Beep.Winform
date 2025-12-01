@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     [Category("Beep Controls")]
     [DisplayName("Beep Control Advanced")]
     [Description("Advanced Beep control with full feature parity to BeepControl but using helper architecture.")]
-    public partial class BaseControl : ContainerControl, IBeepUIComponent, IDisposable
+    public partial class BaseControl : ContainerControl, IBeepUIComponent, IExternalDrawingProvider, IDisposable
     {
         #region Private Fields
         // Add these safety utilities at the class level in BaseControl
@@ -302,9 +302,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _toolTip?.Dispose();
 
                 // Clear external drawing from parent
-                if (Parent is BaseControl parentBeepControl)
+                if (Parent is IExternalDrawingProvider externalDrawingProvider)
                 {
-                    parentBeepControl.ClearChildExternalDrawing(this);
+                    externalDrawingProvider.ClearChildExternalDrawing(this);
                 }
 
                 // Unsubscribe from theme changes

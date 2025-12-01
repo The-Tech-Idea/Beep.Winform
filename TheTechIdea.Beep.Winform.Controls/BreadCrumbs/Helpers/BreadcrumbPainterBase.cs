@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
  
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
@@ -59,7 +60,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             }
             else
             {
-                TextFont = GetCachedFont(SystemFonts.DefaultFont.FontFamily, SystemFonts.DefaultFont.Size, SystemFonts.DefaultFont.Style);
+                // Fallback to BreadcrumbFontHelpers if no font provided
+                if (owner is BeepBreadcrump breadcrumb)
+                {
+                    var breadcrumbStyle = breadcrumb.BreadcrumbStyle;
+                    var controlStyle = breadcrumb.ControlStyle;
+                    var helperFont = BreadcrumbFontHelpers.GetBreadcrumbFont(breadcrumb, breadcrumbStyle, controlStyle);
+                    TextFont = GetCachedFont(helperFont.FontFamily, helperFont.Size, helperFont.Style);
+                }
+                else
+                {
+                    TextFont = GetCachedFont(SystemFonts.DefaultFont.FontFamily, SystemFonts.DefaultFont.Size, SystemFonts.DefaultFont.Style);
+                }
             }
         }
 
@@ -78,14 +90,79 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         public abstract Rectangle CalculateItemRect(Graphics g, SimpleItem item, int x, int y, int height, bool isHovered);
         public abstract void DrawItem(Graphics g, BeepButton button, SimpleItem item, Rectangle rect, bool isHovered, bool isSelected, bool isLast);
 
+        /// <summary>
+        /// Paints an icon for a breadcrumb item using BreadcrumbIconHelpers
+        /// </summary>
+        protected void PaintIcon(
+            Graphics g,
+            Rectangle itemRect,
+            SimpleItem item,
+            bool isLast,
+            bool isHovered)
+        {
+            if (!ShowIcons || string.IsNullOrEmpty(item?.ImagePath) || Owner == null)
+                return;
+
+            if (Owner is BeepBreadcrump breadcrumb)
+            {
+                // Calculate icon bounds
+                var iconBounds = BreadcrumbIconHelpers.CalculateIconBounds(itemRect, breadcrumb);
+                
+                // Resolve icon path
+                string iconPath = BreadcrumbIconHelpers.ResolveIconPath(item.ImagePath, item.Name);
+                
+                // Paint icon using BreadcrumbIconHelpers
+                BreadcrumbIconHelpers.PaintIcon(
+                    g,
+                    iconBounds,
+                    breadcrumb,
+                    iconPath,
+                    isLast,
+                    isHovered,
+                    Theme,
+                    breadcrumb.UseThemeColors,
+                    breadcrumb.ControlStyle);
+            }
+        }
+
+        /// <summary>
+        /// Gets the icon path for an item using BreadcrumbIconHelpers
+        /// </summary>
+        protected string GetIconPath(SimpleItem item)
+        {
+            if (item == null || string.IsNullOrEmpty(item.ImagePath))
+                return string.Empty;
+
+            if (Owner is BeepBreadcrump breadcrumb)
+            {
+                return BreadcrumbIconHelpers.ResolveIconPath(item.ImagePath, item.Name);
+            }
+
+            return item.ImagePath;
+        }
+
         public virtual int DrawSeparator(Graphics g, BeepLabel label, int x, int y, int height, string separatorText, Font textFont, Color separatorColor, int itemSpacing)
         {
             label.Text = separatorText;
             label.ForeColor = separatorColor;
             label.BackColor = Color.Transparent;
 
-            // Use cached font if provided
-            var useFont = textFont != null ? GetCachedFont(textFont.FontFamily, textFont.Size, textFont.Style) : (TextFont ?? SystemFonts.DefaultFont);
+            // Use BreadcrumbFontHelpers for separator font if owner is BeepBreadcrump
+            Font useFont;
+            if (textFont != null)
+            {
+                useFont = GetCachedFont(textFont.FontFamily, textFont.Size, textFont.Style);
+            }
+            else if (Owner is BeepBreadcrump breadcrumb)
+            {
+                var separatorFont = BreadcrumbFontHelpers.GetSeparatorFont(breadcrumb, breadcrumb.BreadcrumbStyle, breadcrumb.ControlStyle);
+                useFont = GetCachedFont(separatorFont.FontFamily, separatorFont.Size, separatorFont.Style);
+            }
+            else
+            {
+                useFont = TextFont ?? SystemFonts.DefaultFont;
+            }
+            
             var sepSize = TextRenderer.MeasureText(separatorText ?? string.Empty, useFont);
             var sepRect = new Rectangle(x + itemSpacing, y, sepSize.Width, height);
             label.Draw(g, sepRect);

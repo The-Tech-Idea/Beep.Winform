@@ -24,21 +24,53 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         {
             string displayText = item?.Text ?? item?.Name ?? string.Empty;
             button.Text = displayText;
-            button.ImagePath = (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath)) ? item.ImagePath : string.Empty;
+            
+            // Don't set button.ImagePath - we'll paint icons using StyledImagePainter directly
+            button.ImagePath = string.Empty;
+            
             button.IsHovered = isHovered;
             button.IsSelected = isSelected;
+
+            // Use BreadcrumbThemeHelpers for colors
+            var useTheme = Theme != null && Owner != null && Owner.UseThemeColors;
+            var (textColor, hoverBackColor, selectedBackColor, separatorColor, borderColor) = 
+                BreadcrumbThemeHelpers.GetThemeColors(Theme, useTheme, isLast, isHovered, isSelected);
+            
+            // Adjust colors for high contrast mode if enabled
+            if (BreadcrumbAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (hcTextColor, hcHoverBackColor, hcSeparatorColor, hcBorderColor) = 
+                    BreadcrumbAccessibilityHelpers.GetHighContrastColors();
+                textColor = hcTextColor;
+                hoverBackColor = hcHoverBackColor;
+                separatorColor = hcSeparatorColor;
+                borderColor = hcBorderColor;
+            }
+            
+            // Ensure text color meets WCAG contrast requirements
+            if (Owner is BeepBreadcrump breadcrumb)
+            {
+                Color backColor = breadcrumb.BackColor != Color.Empty ? breadcrumb.BackColor : Color.White;
+                textColor = BreadcrumbAccessibilityHelpers.AdjustForContrast(textColor, backColor, 4.5);
+            }
 
             // Chevron container background when hovered/selected
             if (isHovered || isSelected)
             {
                 using var path = CreateChevronPath(rect);
-                var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(isSelected ?90 :50, Theme.ButtonHoverBackColor));
+                var brush = PaintersFactory.GetSolidBrush(isSelected ? selectedBackColor : hoverBackColor);
                 g.FillPath(brush, path);
             }
 
             button.BackColor = Color.Transparent;
-            button.ForeColor = isLast ? Theme.ButtonForeColor : Theme.LinkColor;
+            button.ForeColor = textColor;
             button.Draw(g, rect);
+            
+            // Paint icon using StyledImagePainter
+            if (ShowIcons && !string.IsNullOrEmpty(item?.ImagePath))
+            {
+                PaintIcon(g, rect, item, isLast, isHovered);
+            }
         }
 
         private static GraphicsPath CreateChevronPath(Rectangle rect)

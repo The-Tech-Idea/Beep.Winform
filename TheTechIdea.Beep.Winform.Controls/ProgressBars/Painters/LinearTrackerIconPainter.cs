@@ -4,14 +4,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Models; // BeepImage
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
     internal sealed class LinearTrackerIconPainter : IProgressPainter
     {
         public string Key => nameof(ProgressPainterKind.LinearTrackerIcon);
-        private readonly BeepImage _icon = new BeepImage { IsChild = true, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true };
 
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
         {
@@ -36,11 +35,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
             if (!string.IsNullOrEmpty(iconPath))
             {
-                _icon.ImagePath = iconPath;
-                _icon.Size = new Size(iconSize, iconSize);
-                _icon.BackColor = owner.BackColor;
-                _icon.ForeColor = theme.PrimaryColor;
-                _icon.DrawImage(g, iconRect);
+                // Use ProgressBarIconHelpers to paint icon with StyledImagePainter
+                ProgressBarIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    owner,
+                    ProgressPainterKind.LinearTrackerIcon,
+                    iconPath,
+                    theme,
+                    owner.UseThemeColors,
+                    owner.Style);
             }
             else
             {

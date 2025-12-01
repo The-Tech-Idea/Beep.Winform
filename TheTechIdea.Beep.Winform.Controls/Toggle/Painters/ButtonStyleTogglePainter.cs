@@ -174,9 +174,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 }
             }
 
-            // Text
-            using (var font = new Font(Owner.Font.FontFamily, Owner.Font.Size, 
-                isActive ? FontStyle.Bold : FontStyle.Regular))
+            // Text - use ToggleFontHelpers for consistent font management
+            using (var font = GetButtonFont(isActive))
             {
                 DrawCenteredText(g, text, font, textColor, buttonRect);
             }

@@ -19,8 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private Rectangle _drawingRect;
         private Rectangle _borderRect;
         private Rectangle _contentRect;
-        private int _reserveTop;
-        private int _reserveBottom;
         
         // Cached label properties for shared use between drawing and border functions
         private int _labelLeft;
@@ -55,8 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 if (StyleShadows.HasShadow(owner.ControlStyle))
                 {
                     // Use a reasonable shadow offset based on style
-                    //shadow = Math.Max(2, StyleShadows.GetShadowBlur(owner.ControlStyle) / 2);
-                    shadow = 0;
+                    shadow = Math.Max(2, StyleShadows.GetShadowBlur(owner.ControlStyle) / 2);
+                  // shadow = 0;
                 }
             }
             else
@@ -113,94 +111,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 Math.Max(0, calculatedHeight)
             );
 
-            // Reserve space for label and helper when not material
-            // IMPORTANT: Also ensure content height can accommodate the control's text font
-            int reserveTop = 0;
-            int reserveBottom = 0;
-            try
-            {
-                using var g = owner.CreateGraphics();
-
-                if (!string.IsNullOrEmpty(owner.LabelText))
-                {
-                    float labelSize = 8f;
-                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
-                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                    reserveTop = h + 2;
-                }
-
-                string support = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
-                if (!string.IsNullOrEmpty(support))
-                {
-                    float supSize = 8f;
-                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
-                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                    reserveBottom = h + 4;
-                }
-
-                // Calculate minimum height needed for main control text
-                int mainTextHeight = 0;
-              
-                    var textSize = TextRenderer.MeasureText(g, "Ag", owner.TextFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
-                    mainTextHeight = textSize.Height;
-                
-
-                if (reserveTop > 0 || reserveBottom > 0)
-                {
-                    int availableHeight = inner.Height - reserveTop - reserveBottom;
-                    
-                    // Ensure available height is at least enough for the main text
-                    if (availableHeight < mainTextHeight)
-                    {
-                        // Not enough space - reduce reserved space proportionally or don't reserve
-                        // Priority: main text > label/helper
-                        if (inner.Height < mainTextHeight + reserveTop + reserveBottom)
-                        {
-                            // Not enough space for everything - prioritize main text
-                            reserveTop = 0;
-                            reserveBottom = 0;
-                        }
-                        else
-                        {
-                            // Scale down reserves to fit
-                            int totalReserves = reserveTop + reserveBottom;
-                            int neededSpace = mainTextHeight;
-                            int availableForReserves = inner.Height - neededSpace;
-                            
-                            if (totalReserves > 0 && availableForReserves > 0)
-                            {
-                                // Proportionally reduce reserves
-                                reserveTop = (int)(reserveTop * (availableForReserves / (float)totalReserves));
-                                reserveBottom = (int)(reserveBottom * (availableForReserves / (float)totalReserves));
-                            }
-                        }
-                    }
-                    
-                    inner = new Rectangle(
-                        inner.X,
-                        inner.Y + reserveTop,
-                        inner.Width,
-                        Math.Max(0, inner.Height - reserveTop - reserveBottom)
-                    );
-                }
-            }
-            catch { /* best-effort */ }
-
-            // Store reserves for use in Paint method
-            _reserveTop = reserveTop;
-            _reserveBottom = reserveBottom;
-
             // Border rectangle with rounded corner consideration
-            // Border Y should be positioned to cut through the middle of the label text
-            // So the label appears to sit ON the border
-            int borderY = shadow + (reserveTop > 0 ? reserveTop / 2 : 0);
-            int borderHeight = Math.Max(0, owner.Height - (shadow) * 2 - (borderY - shadow) - reserveBottom);
-            
             var borderRect = new Rectangle(
                 shadow,
-                borderY,
+                shadow,
                 Math.Max(0, owner.Width - (shadow) * 2),
-                borderHeight
+                Math.Max(0, owner.Height - (shadow) * 2)
             );
             
             // Adjust border rect for rounded corners
@@ -308,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
 
             // Draw label and helper text (always, regardless of styling mode)
-            DrawLabelAndHelperNonMaterial(g, owner);
+           // DrawLabelAndHelperNonMaterial(g, owner);
 
             // Draw icons if any
             bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
@@ -634,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 else
                 {
                     // Label above border (traditional position)
-                    labelTop = Math.Max(0, _borderRect.Top - _reserveTop);
+                    labelTop = Math.Max(0, _borderRect.Top);
                     
                     // Determine text format based on position
                     switch (owner.LabelPosition)
@@ -656,7 +572,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     _labelLeft, 
                     labelTop, 
                     _labelWidth, 
-                    _reserveTop > 0 ? _reserveTop : _labelHeight
+                    _labelHeight
                 );
 
                 Color labelColor = owner._currentTheme.AppBarTitleForeColor;

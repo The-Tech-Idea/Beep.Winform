@@ -110,13 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 listBox.ForeColor = Color.Black;
                 listBox.BorderStyle = BorderStyle.FixedSingle;
             }
-            else if (_editorControl is BeepListofValuesBox lov)
-            {
-                lov.ListItems = itemsToUse;
-                lov.GridMode = false;
-                lov.BackColor = Color.White;
-                lov.ForeColor = Color.Black;
-            }
+           
             else if (_currenteditorUIcomponent is BeepTextBox st)
             {
                 st.ShowAllBorders = false;

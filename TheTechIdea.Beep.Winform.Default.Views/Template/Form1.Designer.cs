@@ -507,16 +507,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepLogin1.Theme = "DefaultType";
             beepLogin1.ToolTipText = null;
             beepLogin1.TopoffsetForDrawingRect = 0;
-            beepLogin1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepLogin1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepLogin1.UICustomElevation = 0;
-            beepLogin1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepLogin1.UIDisabled = false;
-            beepLogin1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepLogin1.UIFullWidth = false;
-            beepLogin1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepLogin1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepLogin1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+       
             beepLogin1.UseExternalBufferedGraphics = false;
             beepLogin1.UseGlassmorphism = false;
             beepLogin1.UseGradientBackground = true;

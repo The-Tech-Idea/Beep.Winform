@@ -11,6 +11,8 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ToolTips;
  
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
@@ -26,6 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private int _minimum = 0;
         private int _maximum = 100;
         private int _step = 10;
+        
+        // Theme application guard
+        private bool _isApplyingTheme = false;
 
         // GDI resources
         private SolidBrush _textBrush;
@@ -99,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The visual Style/painter to use for rendering the sidebar.")]
+        [Description("The visual Style/painter to use for rendering the progress bar.")]
         [DefaultValue(BeepControlStyle.Material3)]
         public BeepControlStyle Style
         {
@@ -109,6 +114,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 if (_controlstyle != value)
                 {
                     _controlstyle = value;
+                    
+                    // Sync with BaseControl.ControlStyle
+                    if (ControlStyle != _controlstyle)
+                    {
+                        ControlStyle = _controlstyle;
+                    }
 
                     Invalidate();
                 }
@@ -146,6 +157,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 ValueChanged?.Invoke(this, System.EventArgs.Empty);
                 if (wasAtMinimum && _value > _minimum) ProgressStarted?.Invoke(this, System.EventArgs.Empty);
                 if (_value >= _maximum && _oldValue < _maximum) ProgressCompleted?.Invoke(this, System.EventArgs.Empty);
+                
+                // Update accessibility attributes when value changes
+                ApplyAccessibilitySettings();
+                
+                // Update tooltip if auto-generate is enabled
+                if (AutoGenerateTooltip)
+                {
+                    UpdateProgressTooltip();
+                }
             }
         }
 
@@ -198,7 +218,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         [Category("Appearance")]
         [DefaultValue(true)]
-        public bool ShowGlowEffect { get => _showGlowEffect; set { _showGlowEffect = value; Invalidate(); } }
+        public bool ShowGlowEffect 
+        { 
+            get => _showGlowEffect && !ProgressBarAccessibilityHelpers.IsReducedMotionEnabled(); 
+            set { _showGlowEffect = value; Invalidate(); } 
+        }
 
         [Category("Behavior")]
         [DefaultValue(false)]
@@ -235,6 +259,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         [Category("Appearance")] public Color SecondaryProgressColor { get => _secondaryProgressColor; set { _secondaryProgressColor = value; Invalidate(); } }
         [Category("Appearance")][DefaultValue(10)] public int StripeWidth { get => _stripeWidth; set { _stripeWidth = value; Invalidate(); } }
+
+        [Category("Tooltip")]
+        [DefaultValue(false)]
+        [Description("Automatically generate tooltip text based on progress state. When enabled, tooltip shows current progress percentage and status.")]
+        public bool AutoGenerateTooltip { get; set; } = false;
         #endregion
 
         #region Derived helpers
@@ -316,8 +345,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             _progressBrush = new SolidBrush(Color.FromArgb(52, 152, 219));
             _borderPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1);
             TextFont = new Font("Segoe UI", 10, FontStyle.Regular);
+            
+            // Apply accessibility settings
+            ApplyAccessibilitySettings();
+            
+            // Initialize tooltip if auto-generate is enabled
+            if (AutoGenerateTooltip)
+            {
+                UpdateProgressTooltip();
+            }
+            
             ApplyTheme();
             AddChildExternalDrawing(this, DrawHoverPressedOverlay, DrawingLayer.AfterAll);
+        }
+
+        /// <summary>
+        /// Apply accessibility settings (ARIA attributes)
+        /// </summary>
+        private void ApplyAccessibilitySettings()
+        {
+            ProgressBarAccessibilityHelpers.ApplyAccessibilitySettings(this);
+        }
+
+        /// <summary>
+        /// Apply accessibility adjustments (high contrast, reduced motion)
+        /// </summary>
+        private void ApplyAccessibilityAdjustments(IBeepTheme theme, bool useThemeColors)
+        {
+            if (ProgressBarAccessibilityHelpers.IsHighContrastMode())
+            {
+                ProgressBarAccessibilityHelpers.ApplyHighContrastAdjustments(this, theme, useThemeColors);
+            }
         }
 
         private int GetHeightForSize(ProgressBarSize size) => size switch { ProgressBarSize.Thin => 4, ProgressBarSize.Small => 8, ProgressBarSize.Medium => 12, ProgressBarSize.Large => 20, ProgressBarSize.ExtraLarge => 30, _ => 12 };
@@ -338,20 +396,60 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme(); if (_currentTheme == null) return;
-            BackColor = _currentTheme.ProgressBarBackColor;
-            TextColor = _currentTheme.ProgressBarInsideTextColor != Color.Empty ? _currentTheme.ProgressBarInsideTextColor : _currentTheme.PrimaryTextColor;
-            ProgressColor = _currentTheme.ProgressBarForeColor != Color.Empty ? _currentTheme.ProgressBarForeColor : _currentTheme.PrimaryColor;
-            _borderPen?.Dispose(); _borderPen = new Pen(_currentTheme.ProgressBarBorderColor != Color.Empty ? _currentTheme.ProgressBarBorderColor : _currentTheme.BorderColor, 1);
-            if (UseThemeFont)
+            base.ApplyTheme();
+            
+            if (_currentTheme == null || _isApplyingTheme) 
+                return;
+            
+            _isApplyingTheme = true;
+            try
             {
-                TextFont = _currentTheme.ProgressBarFont != null ? BeepThemesManager.ToFont(_currentTheme.ProgressBarFont) : new Font(_currentTheme.FontFamily, _currentTheme.FontSizeCaption, FontStyle.Regular);
-              
+                // Use theme helpers for centralized color management
+                if (UseThemeColors)
+                {
+                    ProgressBarThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
+                }
+                
+                // Apply border color using theme helpers
+                _borderPen?.Dispose();
+                Color borderColor = ProgressBarThemeHelpers.GetProgressBarBorderColor(
+                    _currentTheme, 
+                    UseThemeColors, 
+                    _borderPen?.Color);
+                _borderPen = new Pen(borderColor, 1);
+                
+                // Apply font if UseThemeFont is enabled
+                if (UseThemeFont)
+                {
+                    // Use font helpers for centralized font management
+                    ProgressBarFontHelpers.ApplyFontTheme(this, ControlStyle);
+                    
+                    // Fallback to theme font if helpers don't set it
+                    if (TextFont == null && _currentTheme.ProgressBarFont != null)
+                    {
+                        TextFont = BeepThemesManager.ToFont(_currentTheme.ProgressBarFont);
+                    }
+                    else if (TextFont == null)
+                    {
+                        TextFont = new Font(_currentTheme.FontFamily, _currentTheme.FontSizeCaption, FontStyle.Regular);
+                    }
+                }
+                
+                // Sync ControlStyle property with BaseControl
+                if (Style != ControlStyle)
+                {
+                    Style = ControlStyle;
+                }
+                
+                // Apply accessibility adjustments (high contrast, reduced motion)
+                ApplyAccessibilityAdjustments(_currentTheme, UseThemeColors);
+                
+                Invalidate();
             }
-            _secondaryProgressColor = Color.FromArgb(50, _currentTheme.SecondaryColor.R, _currentTheme.SecondaryColor.G, _currentTheme.SecondaryColor.B);
-            if (_currentTheme.ProgressBarSuccessColor != Color.Empty) _successColor = _currentTheme.ProgressBarSuccessColor;
-            if (_currentTheme.ProgressBarErrorColor != Color.Empty) _errorColor = _currentTheme.ProgressBarErrorColor;
-            Invalidate();
+            finally
+            {
+                _isApplyingTheme = false;
+            }
         }
         #endregion
 
@@ -457,6 +555,131 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             Color c = pct >= 0.66f ? _successColor : (pct >= 0.33f ? _warningColor : _errorColor);
             ProgressColor = c;
         }
+
+        #region Tooltip Integration
+
+        /// <summary>
+        /// Update tooltip text to reflect current progress state
+        /// Called automatically when AutoGenerateTooltip is enabled and progress changes
+        /// </summary>
+        private void UpdateProgressTooltip()
+        {
+            if (!EnableTooltip)
+                return;
+
+            // If auto-generate is enabled and no explicit tooltip text is set
+            if (AutoGenerateTooltip && string.IsNullOrEmpty(TooltipText))
+            {
+                GenerateProgressTooltip();
+            }
+            // If explicit tooltip text is set, it will be updated automatically via TooltipText property
+            // when the state changes, since BaseControl.UpdateTooltip() is called by the property setter
+        }
+
+        /// <summary>
+        /// Generate tooltip text based on current progress state
+        /// </summary>
+        private void GenerateProgressTooltip()
+        {
+            int percentage = (int)((float)(_value - _minimum) / Math.Max(1, _maximum - _minimum) * 100);
+            
+            string tooltipText;
+            string tooltipTitle = "Progress";
+            ToolTipType tooltipType = ToolTipType.Info;
+
+            // Generate text based on progress state
+            if (_value >= _maximum)
+            {
+                tooltipText = $"Progress complete ({percentage}%)";
+                tooltipTitle = "Completed";
+                tooltipType = ToolTipType.Success;
+            }
+            else if (_value <= _minimum)
+            {
+                tooltipText = $"Progress not started ({percentage}%)";
+                tooltipTitle = "Not Started";
+                tooltipType = ToolTipType.Info;
+            }
+            else
+            {
+                tooltipText = $"Progress: {percentage}% ({_value} of {_maximum})";
+                
+                // Add task count if enabled
+                if (_showTaskCount && _totalTasks > 0)
+                {
+                    tooltipText += $"\n{_completedTasks} of {_totalTasks} tasks completed";
+                }
+                
+                // Determine type based on progress percentage
+                if (percentage >= 90)
+                {
+                    tooltipType = ToolTipType.Success;
+                }
+                else if (percentage >= 50)
+                {
+                    tooltipType = ToolTipType.Info;
+                }
+                else if (percentage >= 25)
+                {
+                    tooltipType = ToolTipType.Warning;
+                }
+                else
+                {
+                    tooltipType = ToolTipType.Info;
+                }
+            }
+
+            // Update tooltip properties
+            TooltipText = tooltipText;
+            TooltipTitle = tooltipTitle;
+            TooltipType = tooltipType;
+            
+            // Update tooltip via BaseControl
+            UpdateTooltip();
+        }
+
+        /// <summary>
+        /// Set a custom tooltip for the progress bar
+        /// </summary>
+        /// <param name="text">Tooltip text content</param>
+        /// <param name="title">Tooltip title/header (optional)</param>
+        /// <param name="type">Tooltip type (optional, defaults to Info)</param>
+        public void SetProgressTooltip(string text, string title = null, ToolTipType type = ToolTipType.Info)
+        {
+            TooltipText = text;
+            if (!string.IsNullOrEmpty(title))
+            {
+                TooltipTitle = title;
+            }
+            TooltipType = type;
+            UpdateTooltip();
+        }
+
+        /// <summary>
+        /// Show a notification when progress reaches a milestone
+        /// </summary>
+        /// <param name="showOnComplete">Show notification when progress completes</param>
+        /// <param name="showOnStart">Show notification when progress starts</param>
+        public void ShowProgressNotification(bool showOnComplete = true, bool showOnStart = false)
+        {
+            int percentage = (int)((float)(_value - _minimum) / Math.Max(1, _maximum - _minimum) * 100);
+
+            if (showOnComplete && _value >= _maximum)
+            {
+                ShowSuccess($"Progress completed! ({percentage}%)", 2000);
+            }
+            else if (showOnStart && _value > _minimum && _oldValue == _minimum)
+            {
+                ShowInfo($"Progress started ({percentage}%)", 1500);
+            }
+            else if (percentage > 0 && percentage < 100)
+            {
+                // Show info notification for ongoing progress
+                ShowInfo($"Progress: {percentage}%", 1500);
+            }
+        }
+
+        #endregion
         #endregion
     }
 }

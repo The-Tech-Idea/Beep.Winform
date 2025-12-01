@@ -163,18 +163,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             if (IconRegion.IsEmpty)
                 return;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            // Use ToggleIconHelpers for consistent icon management
+            var theme = Owner._currentTheme;
+            var useTheme = Owner.UseThemeColors && theme != null;
 
-            // Get icon color based on state
-            Color iconColor = state == ControlState.Disabled 
-                ? Color.FromArgb(100, Color.Gray) 
-                : Owner.IsOn ? Owner.OnColor : Owner.OffColor;
-
-            // Get appropriate SVG icon path - lock when ON (locked), unlock when OFF (unlocked)
-            string iconPath = Owner.IsOn ? SvgsUI.Lock : SvgsUI.Unlock;
-
-            // Use StyledImagePainter to paint the SVG with tinting
-            StyledImagePainter.PaintWithTint(g, IconRegion, iconPath, iconColor, 1f, 0);
+            PaintIcon(g, IconRegion, Owner.IsOn, state, theme, useTheme);
         }
 
         #endregion

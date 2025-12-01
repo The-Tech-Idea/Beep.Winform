@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
     internal sealed class RingCenterImagePainter : IProgressPainter
     {
         public string Key => nameof(ProgressPainterKind.RingCenterImage);
-        private readonly BeepImage _center = new BeepImage { IsChild = true, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true };
 
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
         {
@@ -29,8 +28,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int iconSize = GetInt(p, "CenterIconSize", Math.Max(16, ringRect.Height/3));
             if (!string.IsNullOrEmpty(iconPath))
             {
-                var r = new Rectangle(ringRect.X + (ringRect.Width - iconSize)/2, ringRect.Y + (ringRect.Height - iconSize)/2, iconSize, iconSize);
-                _center.ImagePath = iconPath; _center.Size = new Size(iconSize, iconSize); _center.BackColor = Color.Transparent; _center.ForeColor = theme.PrimaryColor; _center.DrawImage(g, r);
+                var iconRect = new Rectangle(ringRect.X + (ringRect.Width - iconSize)/2, ringRect.Y + (ringRect.Height - iconSize)/2, iconSize, iconSize);
+                
+                // Use ProgressBarIconHelpers to paint icon with StyledImagePainter
+                ProgressBarIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    owner,
+                    ProgressPainterKind.RingCenterImage,
+                    iconPath,
+                    theme,
+                    owner.UseThemeColors,
+                    owner.Style);
             }
             string txt = GetString(p, "CenterText", string.Empty);
             if (!string.IsNullOrEmpty(txt))

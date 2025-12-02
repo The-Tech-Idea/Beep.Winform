@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// </summary>
         private void DrawGradientMesh(Graphics g, Rectangle rect)
         {
-            // Subtle diagonal gradient mesh
+            // Subtle diagonal gradient mesh (angle-based, keep original)
             using (var meshBrush = new LinearGradientBrush(
                 new Rectangle(rect.X - 10, rect.Y - 10, rect.Width + 20, rect.Height + 20),
                 Color.FromArgb(15, 255, 255, 255),

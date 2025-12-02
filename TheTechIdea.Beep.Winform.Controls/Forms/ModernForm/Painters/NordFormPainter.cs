@@ -45,15 +45,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
             
-            // Frost gradient overlay (subtle blue-white tint from top)
-            using (var frostBrush = new LinearGradientBrush(
-                new Rectangle(0, 0, owner.ClientRectangle.Width, owner.ClientRectangle.Height / 3),
-                Color.FromArgb(8, 200, 220, 240),  // Icy blue-white
+            // Frost gradient overlay (subtle blue-white tint from top - using helper)
+            var frostRect = new Rectangle(0, 0, owner.ClientRectangle.Width, owner.ClientRectangle.Height / 3);
+            FormPainterRenderHelper.PaintGradientBackground(g, frostRect,
+                Color.FromArgb(18, 200, 220, 240),  // Icy blue-white
                 Color.FromArgb(0, 200, 220, 240),
-                LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(frostBrush, 0, 0, owner.ClientRectangle.Width, owner.ClientRectangle.Height / 3);
-            }
+                LinearGradientMode.Vertical);
             
             // Subtle frost line at top (icy blue)
             using (var linePen = new Pen(Color.FromArgb(40, 180, 200, 230), 1))
@@ -70,14 +67,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Nord: frost gradient caption
-            using (var capBrush = new LinearGradientBrush(captionRect,
+            // Nord: frost gradient caption (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 Color.FromArgb(10, 200, 220, 240),
                 Color.FromArgb(5, 200, 220, 240),
-                LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(capBrush, captionRect);
-            }
+                LinearGradientMode.Vertical);
             
             // Base caption
             using (var baseBrush = new SolidBrush(metrics.CaptionColor))

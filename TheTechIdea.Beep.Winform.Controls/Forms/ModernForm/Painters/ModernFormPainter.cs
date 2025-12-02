@@ -38,15 +38,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
             
-            // Subtle gradient overlay for depth
-            using (var grad = new LinearGradientBrush(
-                owner.ClientRectangle,
+            // Subtle gradient overlay for depth (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                 Color.FromArgb(8, 255, 255, 255),
                 Color.FromArgb(0, 255, 255, 255),
-                LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(grad, owner.ClientRectangle);
-            }
+                LinearGradientMode.Vertical);
             
             // Restore original compositing mode
             g.CompositingMode = previousCompositing;
@@ -56,13 +52,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Subtle caption background
-            using var capBrush = new LinearGradientBrush(
-                captionRect,
+            // Subtle caption background (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 Color.FromArgb(250, 250, 250),
                 Color.FromArgb(245, 245, 245),
                 LinearGradientMode.Vertical);
-            g.FillRectangle(capBrush, captionRect);
 
             // Thin bottom divider
             using var divPen = new Pen(Color.FromArgb(230, 230, 230), 1f);

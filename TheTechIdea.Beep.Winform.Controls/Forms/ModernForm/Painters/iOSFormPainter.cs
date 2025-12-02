@@ -38,16 +38,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var previousCompositing = g.CompositingMode;
             g.CompositingMode = CompositingMode.SourceCopy;
             
-            // iOS: Smooth vertical gradient with vibrancy overlay
+            // iOS: Smooth vertical gradient with vibrancy overlay (using helper for base gradient)
             var topColor = ControlPaint.Light(metrics.BackgroundColor, 0.08f);
-            using (var gradBrush = new LinearGradientBrush(
-                owner.ClientRectangle,
-                topColor,
-                metrics.BackgroundColor,
-                LinearGradientMode.Vertical))
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var region = new Region(path))
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.FillPath(gradBrush, path);
+                var oldClip = g.Clip;
+                g.Clip = region;
+                FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
+                    topColor,
+                    metrics.BackgroundColor,
+                    LinearGradientMode.Vertical);
+                g.Clip = oldClip;
             }
             
             // Restore compositing mode for semi-transparent overlays

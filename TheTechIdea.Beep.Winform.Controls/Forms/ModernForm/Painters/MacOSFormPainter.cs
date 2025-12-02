@@ -44,28 +44,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
 
-            // Gentle macOS-like inner highlights/shading
+            // Gentle macOS-like inner highlights/shading (using helper)
             var r = owner.ClientRectangle;
             // Top highlight
-            var topBand = new Rectangle(r.Left, r.Top, r.Width, Math.Max(1, r.Height / 4));
-            using (var topGrad = new LinearGradientBrush(
-                topBand,
-                Color.FromArgb(40, 255, 255, 255),
-                Color.FromArgb(0, 255, 255, 255),
-                LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(topGrad, topBand);
-            }
+            FormPainterRenderHelper.PaintTopHighlight(g, r, Math.Max(1, r.Height / 4), 40);
             // Bottom shade
             var bottomBand = new Rectangle(r.Left, r.Bottom - Math.Max(1, r.Height / 6), r.Width, Math.Max(1, r.Height / 6));
-            using (var botGrad = new LinearGradientBrush(
-                bottomBand,
+            FormPainterRenderHelper.PaintGradientBackground(g, bottomBand,
                 Color.FromArgb(0, 0, 0, 0),
                 Color.FromArgb(16, 0, 0, 0),
-                LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(botGrad, bottomBand);
-            }
+                LinearGradientMode.Vertical);
             
             // Restore original compositing mode
             g.CompositingMode = previousCompositing;
@@ -75,21 +63,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // macOS title bar with subtle translucency
-            using var titleBrush = new LinearGradientBrush(
-                captionRect,
+            // macOS title bar with subtle translucency (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 Color.FromArgb(240, 240, 240), // Light gray
                 Color.FromArgb(220, 220, 220), // Slightly darker
                 LinearGradientMode.Vertical);
-            g.FillRectangle(titleBrush, captionRect);
 
-            // Add subtle inner shadow for depth
-            using var shadowBrush = new LinearGradientBrush(
-                captionRect,
+            // Add subtle inner shadow for depth (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 Color.FromArgb(60, 0, 0, 0),   // Top shadow
                 Color.FromArgb(0, 0, 0, 0),     // Fade to transparent
                 LinearGradientMode.Vertical);
-            g.FillRectangle(shadowBrush, captionRect);
 
             // Draw refined traffic light buttons with 3D effects
             DrawTrafficLights(g, captionRect);
@@ -175,16 +159,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         private void PaintBackgroundEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
         {
-            // Subtle translucent overlay and mild gradient for depth
-            using var translucentBrush = new SolidBrush(Color.FromArgb(15, 0, 0, 0));
-            g.FillRectangle(translucentBrush, owner.ClientRectangle);
+            // Subtle translucent overlay (using helper)
+            FormPainterRenderHelper.PaintSolidBackground(g, owner.ClientRectangle, Color.FromArgb(15, 0, 0, 0));
 
-            using var depth = new LinearGradientBrush(
-                owner.ClientRectangle,
+            // Mild gradient for depth (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                 Color.FromArgb(10, 255, 255, 255),
                 Color.FromArgb(0, 0, 0, 0),
                 LinearGradientMode.Vertical);
-            g.FillRectangle(depth, owner.ClientRectangle);
         }
 
         private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)

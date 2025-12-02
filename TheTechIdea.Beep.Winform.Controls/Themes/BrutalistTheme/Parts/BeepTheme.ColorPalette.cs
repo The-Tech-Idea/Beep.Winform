@@ -12,9 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyColorPalette()
         {
             // Brutalist theme - bold, high-contrast black and white
-            // Aligned with FormStyle.Brutalist: Background #FFFFFF, Border #000000
+            // SYNCED with StyleColors.Brutalist: Background (242,242,242), Primary (0,0,0)
             this.ForeColor = Color.FromArgb(0, 0, 0);  // Black text
-            this.BackColor = Color.FromArgb(255, 255, 255);  // Pure white background
+            this.BackColor = Color.FromArgb(242, 242, 242);  // Light gray (SYNCED with StyleColors.Brutalist!)
             this.PanelBackColor = BackColor;
             this.PanelGradiantStartColor = BackColor;
             this.PanelGradiantEndColor = BackColor;
@@ -27,11 +27,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.InactiveBorderColor = Color.FromArgb(0, 0, 0);
             
             // High contrast palette
-            this.PrimaryColor = Color.FromArgb(0, 0, 0);  // Black primary
-            this.SecondaryColor = Color.FromArgb(100, 100, 100);  // Medium gray
+            this.PrimaryColor = Color.FromArgb(0, 0, 0);  // Black primary (SYNCED with StyleColors)
+            this.SecondaryColor = Color.FromArgb(220, 220, 220);  // Light gray (SYNCED with StyleColors secondary)
             this.AccentColor = Color.FromArgb(255, 208, 0);  // Yellow accent for emphasis
-            this.BackgroundColor = BackColor;  // White
-            this.SurfaceColor = Color.FromArgb(250, 250, 250);  // Very light gray for elevated surfaces
+            this.BackgroundColor = BackColor;  // Light gray (242,242,242)
+            this.SurfaceColor = Color.FromArgb(250, 250, 250);  // Slightly lighter for elevated surfaces
             
             // Bold status colors
             this.ErrorColor = Color.FromArgb(220, 0, 0);  // Bright red

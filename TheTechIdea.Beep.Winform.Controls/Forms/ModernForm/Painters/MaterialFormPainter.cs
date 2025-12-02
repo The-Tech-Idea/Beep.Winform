@@ -36,15 +36,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             
-            // Subtle elevation tint from top (Material surface depth)
-            using (var elevation = new System.Drawing.Drawing2D.LinearGradientBrush(
-                owner.ClientRectangle,
+            // Subtle elevation tint from top (Material surface depth - using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                 Color.FromArgb(14, 0, 0, 0),
                 Color.FromArgb(0, 0, 0, 0),
-                System.Drawing.Drawing2D.LinearGradientMode.Vertical))
-            {
-                g.FillRectangle(elevation, owner.ClientRectangle);
-            }
+                System.Drawing.Drawing2D.LinearGradientMode.Vertical);
             
             // Restore original compositing mode
             g.CompositingMode = previousCompositing;
@@ -359,12 +355,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         // Material background effects (subtle elevation gradient) under controlled clipping
         private void PaintBackgroundEffects(Graphics g, BeepiFormPro owner, Rectangle rect, System.Drawing.Drawing2D.GraphicsPath path)
         {
-            using var elevationBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                rect,
-                Color.FromArgb(10, 0, 0, 0),
-                Color.FromArgb(0, 0, 0, 0),
-                System.Drawing.Drawing2D.LinearGradientMode.Vertical);
-            g.FillPath(elevationBrush, path);
+            // Use helper for gradient (fill path instead of rectangle for clipping)
+            using (var region = new Region(path))
+            {
+                var oldClip = g.Clip;
+                g.Clip = region;
+                FormPainterRenderHelper.PaintGradientBackground(g, rect,
+                    Color.FromArgb(10, 0, 0, 0),
+                    Color.FromArgb(0, 0, 0, 0),
+                    System.Drawing.Drawing2D.LinearGradientMode.Vertical);
+                g.Clip = oldClip;
+            }
         }
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)

@@ -23,12 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuMainItemHoverBackColor = SecondaryColor;
             this.MenuMainItemSelectedForeColor = ForeColor;
             this.MenuMainItemSelectedBackColor = SecondaryColor;
-            // Sub menu items
-            this.MenuItemForeColor = ForeColor;
-            this.MenuItemHoverForeColor = ForeColor;
-            this.MenuItemHoverBackColor = SecondaryColor;
-            this.MenuItemSelectedForeColor = ForeColor;
-            this.MenuItemSelectedBackColor = SecondaryColor;
+            // Sub menu items - FIXED: Text must contrast with BeepStyling painted backgrounds
+            // BeepStyling Brutalist paints Light gray background (242,242,242) in Normal state
+            this.MenuItemForeColor = PrimaryColor;  // Black text on light gray (good contrast!)
+            this.MenuItemHoverForeColor = PrimaryColor;  // Black text on gray hover
+            this.MenuItemHoverBackColor = SecondaryColor;  // Medium gray (100,100,100)
+            this.MenuItemSelectedForeColor = OnPrimaryColor;  // White on black when selected
+            this.MenuItemSelectedBackColor = PrimaryColor;  // Black (0,0,0)
             // No gradient for brutalist aesthetic
             this.MenuGradiantStartColor = SurfaceColor;
             this.MenuGradiantEndColor = SurfaceColor;

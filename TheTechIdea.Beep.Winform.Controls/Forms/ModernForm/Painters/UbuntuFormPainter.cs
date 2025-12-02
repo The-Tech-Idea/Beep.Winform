@@ -37,15 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var previousCompositing = g.CompositingMode;
             g.CompositingMode = CompositingMode.SourceCopy;
             
-            // Ubuntu warm gradient (subtle 6% lighter at top)
-            using (var gradBrush = new LinearGradientBrush(
-                owner.ClientRectangle,
+            // Ubuntu warm gradient (subtle 6% lighter at top - using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                 ControlPaint.Light(metrics.BackgroundColor, 0.06f),
                 metrics.BackgroundColor,
-                90f))
-            {
-                g.FillRectangle(gradBrush, owner.ClientRectangle);
-            }
+                LinearGradientMode.Vertical);
             
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
@@ -66,15 +62,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Caption with subtle gradient
-            using (var capBrush = new LinearGradientBrush(
-                captionRect,
+            // Caption with subtle gradient (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 ControlPaint.Light(metrics.CaptionColor, 0.04f),
                 metrics.CaptionColor,
-                90f))
-            {
-                g.FillRectangle(capBrush, captionRect);
-            }
+                LinearGradientMode.Vertical);
             
             // Ubuntu orange accent line at top of caption
             using (var accentPen = new Pen(Color.FromArgb(120, 233, 84, 32), 2))

@@ -37,15 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var previousCompositing = g.CompositingMode;
             g.CompositingMode = CompositingMode.SourceCopy;
             
-            // KDE Breeze subtle gradient (5% lighter at top)
-            using (var gradBrush = new LinearGradientBrush(
-                owner.ClientRectangle,
+            // KDE Breeze subtle gradient (5% lighter at top - using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                 ControlPaint.Light(metrics.BackgroundColor, 0.05f),
                 metrics.BackgroundColor,
-                90f))
-            {
-                g.FillRectangle(gradBrush, owner.ClientRectangle);
-            }
+                LinearGradientMode.Vertical);
             
             // Restore compositing mode for semi-transparent overlays
             g.CompositingMode = CompositingMode.SourceOver;
@@ -66,15 +62,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // KDE Breeze caption gradient (4% lighter at top)
-            using (var capBrush = new LinearGradientBrush(
-                captionRect,
+            // KDE Breeze caption gradient (4% lighter at top - using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 ControlPaint.Light(metrics.CaptionColor, 0.04f),
                 metrics.CaptionColor,
-                90f))
-            {
-                g.FillRectangle(capBrush, captionRect);
-            }
+                LinearGradientMode.Vertical);
             
             // KDE Breeze highlight line at top edge (signature feature)
             using (var highlightPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1))

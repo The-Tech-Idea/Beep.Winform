@@ -15,23 +15,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.MenuItemSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Bold);
             this.MenuItemUnSelectedFont = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12F, FontStyle.Regular);
             
-            this.MenuBackColor = BackgroundColor;  // Dark blue-green
-            this.MenuForeColor = ForeColor;  // Light beige text
-            this.MenuBorderColor = BorderColor;  // #586E75
+            // Menu colors - Solarized LIGHT mode (matches BeepStyling light backgrounds)
+            this.MenuBackColor = BackgroundColor;  // Light beige (253, 246, 227)
+            this.MenuForeColor = ForeColor;  // Dark gray-blue (88, 110, 117)
+            this.MenuBorderColor = BorderColor;  // Medium gray (147, 161, 161)
             
-            // Main menu items
-            this.MenuMainItemForeColor = ForeColor;
-            this.MenuMainItemHoverForeColor = SecondaryColor;  // Cyan on hover
-            this.MenuMainItemHoverBackColor = SurfaceColor;  // #073642
-            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // Light text
-            this.MenuMainItemSelectedBackColor = AccentColor;  // Orange
+            // Main menu items - Dark text on light backgrounds
+            this.MenuMainItemForeColor = ForeColor;  // Dark gray-blue (88, 110, 117)
+            this.MenuMainItemHoverForeColor = OnPrimaryColor;  // Light beige on colored hover
+            this.MenuMainItemHoverBackColor = PrimaryColor;  // Blue (38, 139, 210)
+            this.MenuMainItemSelectedForeColor = OnPrimaryColor;  // Light beige
+            this.MenuMainItemSelectedBackColor = AccentColor;  // Orange (203, 75, 22)
             
-            // Sub menu items
-            this.MenuItemForeColor = ForeColor;
-            this.MenuItemHoverForeColor = SecondaryColor;  // Cyan on hover
-            this.MenuItemHoverBackColor = SurfaceColor;  // #073642
-            this.MenuItemSelectedForeColor = OnPrimaryColor;  // Light text
-            this.MenuItemSelectedBackColor = AccentColor;  // Orange
+            // Sub menu items - Dark text on light painted backgrounds (matches BeepStyling)
+            this.MenuItemForeColor = ForeColor;  // Dark gray-blue (88, 110, 117) on light
+            this.MenuItemHoverForeColor = OnPrimaryColor;  // Light beige on colored background
+            this.MenuItemHoverBackColor = SecondaryColor;  // Cyan (42, 161, 152)
+            this.MenuItemSelectedForeColor = OnPrimaryColor;  // Light beige on colored
+            this.MenuItemSelectedBackColor = AccentColor;  // Orange (203, 75, 22)
             
             // Dark gradient based on background
             this.MenuGradiantStartColor = BackgroundColor;

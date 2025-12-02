@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Compute content height from font to ensure text fits (avoid Font.Height exceptions)
             int fontHeight = GetFontHeightSafe(_textFont, this);
-            int contentPadding = 8; // 4 top + 4 bottom - internal padding within content area
+            int contentPadding = GetVerticalPaddingForStyle(ControlStyle); // Use style-specific padding
             
             // Content height is just the text height + minimal internal padding
             int contentHeight = fontHeight + contentPadding;
@@ -568,14 +568,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isSelected) 
                     itemState = ControlState.Selected;
 
-                // // Paint control using BeepStyling (shadow → border → background). Returns content path
+                // Paint control using BeepStyling (shadow → border → background). Returns content path
+                // FIXED: Use control's UseThemeColors property (not hardcoded true!)
                 var contentPath = BeepStyling.PaintControl(
                     g,
                     itemPath,
                     ControlStyle,
                     theme,
-                    UseThemeColors,
-                    itemState,IsTransparentBackground ,ShowAllBorders
+                    UseThemeColors,  // Use control's property!
+                    itemState,
+                    false,
+                    ShowAllBorders
                 );
               //  var contentPath= itemPath;//BeepStyling.GetContentPath(GraphicsExtensions.GetRoundedRectPath(this.DrawingRect,BeepStyling.GetRadius(ControlStyle)), ControlStyle);
                 // Draw image and text within returned content area
@@ -609,17 +612,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.DrawRectangle(pen, rect);
             pen.Dispose();
 
-            // Add vertical buffer (padding) inside menu item for better spacing
-            int verticalPadding = 6; // 6 pixels top and bottom for more breathing room
-            Rectangle paddedRect = new Rectangle(
-                rect.X,
-                rect.Y + verticalPadding,
-                rect.Width,
-                rect.Height - (verticalPadding * 2)
-            );
-
-            // Draw text using Graphics.DrawString for transparent background support
-            // For transparent backgrounds, we need to use Graphics.DrawString instead of TextRenderer
+            // Draw text using full rect for proper vertical centering (NO extra padding)
             using (var textBrush = new SolidBrush(_currentTheme.MenuItemForeColor))
             using (var format = new StringFormat())
             {
@@ -628,8 +621,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 format.Trimming = StringTrimming.EllipsisCharacter;
                 format.FormatFlags = StringFormatFlags.NoWrap;
                 
-                // Use RectangleF for better precision with DrawString
-                RectangleF textRectF = paddedRect;
+                // Use full rect for proper vertical centering
+                RectangleF textRectF = rect;
                 g.DrawString(item.Text ?? "", _textFont, textBrush, textRectF, format);
             }
         }
@@ -651,26 +644,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 contentRect = Rectangle.Round(boundsF);
             }
 
-            // Add vertical buffer (padding) inside each menu item for better spacing
-            int verticalPadding = 6; // 6 pixels top and bottom for more breathing room
-            Rectangle paddedContentRect = new Rectangle(
-                contentRect.X,
-                contentRect.Y + verticalPadding,
-                contentRect.Width,
-                contentRect.Height - (verticalPadding * 2)
-            );
-
-            // Calculate layout areas inside padded content
+            // Calculate layout areas inside content (NO extra vertical padding - BeepStyling handles it!)
             int imageAreaWidth = !string.IsNullOrEmpty(item.ImagePath) ? _imagesize + 8 : 0;
-            int textStartX = paddedContentRect.X + 8 + imageAreaWidth;
-            int textWidth = paddedContentRect.Width - 16 - imageAreaWidth;
+            int textStartX = contentRect.X + 8 + imageAreaWidth;
+            int textWidth = contentRect.Width - 16 - imageAreaWidth;
 
-            // Draw image if available (centered vertically within padded area)
+            // Draw image if available (centered vertically in content area)
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 var imageRect = new Rectangle(
-                    paddedContentRect.X + 8,
-                    paddedContentRect.Y + (paddedContentRect.Height - _imagesize) / 2,
+                    contentRect.X + 8,
+                    contentRect.Y + (contentRect.Height - _imagesize) / 2,
                     _imagesize,
                     _imagesize
                 );
@@ -684,10 +668,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 imagePath.Dispose();
             }
 
-            // Draw text using Graphics.DrawString for transparent background support
-            var textRect = new Rectangle(textStartX, paddedContentRect.Y, textWidth, paddedContentRect.Height);
+            // Draw text - FIXED: Use full content area for proper vertical centering
+            var textRect = new Rectangle(textStartX, contentRect.Y, textWidth, contentRect.Height);
 
-            var textColor = UseThemeColors && theme != null ? theme.MenuItemForeColor : BeepStyling.GetForegroundColor(style);
+            // Get text color based on theme or style (fallback to theme always for consistency)
+            Color textColor;
+            if (theme != null)
+            {
+                textColor = theme.MenuItemForeColor;  // Always use theme color for consistency
+            }
+            else
+            {
+                textColor = BeepStyling.GetForegroundColor(style);  // Fallback to style
+            }
 
             TextRenderer.DrawText(
                 g,
@@ -841,11 +834,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return new Size(preferredWidth, Height);
             }
 
-            // Return fixed height based on MenuItemHeight - do not recalculate based on style changes
-            // This prevents the menu bar from growing when FormStyle changes
-            // Include vertical buffer (6 top + 6 bottom = 12 pixels total) for proper spacing
-            int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
-            int preferredHeight = ScaledMenuItemHeight + verticalBuffer; // Fixed height based on MenuItemHeight + buffer
+            // Calculate required height based on font and style
+            int fontHeight = GetFontHeightSafe(_textFont, this);
+            int contentPadding = GetVerticalPaddingForStyle(ControlStyle);
+            
+            int styleBorderWidth = (int)BeepStyling.GetBorderThickness(ControlStyle);
+            int stylePadding = BeepStyling.GetPadding(ControlStyle);
+            int styleShadowDepth = StyleShadows.HasShadow(ControlStyle) ? Math.Max(2, StyleShadows.GetShadowBlur(ControlStyle) / 2) : 0;
+            
+            int totalChromeHeight = (styleBorderWidth * 2) + (stylePadding * 2) + styleShadowDepth;
+            int outerItemHeight = fontHeight + contentPadding + totalChromeHeight;
+
+            int verticalBuffer = 12; 
+            int preferredHeight = Math.Max(ScaledMenuItemHeight + verticalBuffer, outerItemHeight + verticalBuffer);
             
             return new Size(preferredWidth, preferredHeight);
         }
@@ -1072,6 +1073,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // _menuLabel?.Dispose();
             }
             base.Dispose(disposing);
+        }
+        
+        /// <summary>
+        /// Gets style-specific vertical padding for menu items.
+        /// Some styles have larger borders/shadows and need more padding for proper centering.
+        /// </summary>
+        private int GetVerticalPaddingForStyle(BeepControlStyle style)
+        {
+            switch (style)
+            {
+                // Styles with larger borders/shadows need more padding
+                case BeepControlStyle.Fluent:
+                case BeepControlStyle.Fluent2:
+                    return 10; // Fluent has acrylic effects and larger padding
+                case BeepControlStyle.Gnome:
+                    return 12; // GNOME has rounded pill buttons with more vertical space
+                case BeepControlStyle.Neumorphism:
+                    return 14; // Neumorphism has soft shadows that need more space
+                case BeepControlStyle.iOS15:
+                    return 12; // iOS has larger padding for touch targets
+                case BeepControlStyle.Kde:
+                    return 10; // KDE Breeze has rounded corners with more space
+                case BeepControlStyle.Tokyo:
+                    return 12; // Tokyo has neon effects that need space
+                
+                // Default styles
+                default:
+                    return 8; // Standard padding
+            }
         }
         #endregion "Utility Methods"
 

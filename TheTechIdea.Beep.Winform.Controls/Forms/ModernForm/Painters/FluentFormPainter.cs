@@ -53,13 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Fluent reveal highlight effect
-            using var highlightBrush = new LinearGradientBrush(
-                captionRect,
+            // Fluent reveal highlight effect (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
                 Color.FromArgb(40, 255, 255, 255), // Top highlight
                 Color.FromArgb(0, 255, 255, 255),   // Fade to transparent
                 LinearGradientMode.Vertical);
-            g.FillRectangle(highlightBrush, captionRect);
 
             // Draw accent line with Fluent Design reveal effect
             using var accentPen = new Pen(Color.FromArgb(255, 0, 120, 215), 3f); // Fluent blue
@@ -414,13 +412,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Add acrylic noise texture
             DrawAcrylicNoise(g, owner.ClientRectangle);
 
-            // Add subtle gradient overlay for depth
-            using var gradientBrush = new LinearGradientBrush(
-                owner.ClientRectangle,
+            // Add subtle gradient overlay for depth (using helper)
+            FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
                 Color.FromArgb(60, 255, 255, 255), // Light acrylic overlay
                 Color.FromArgb(20, 0, 120, 215),   // Subtle blue tint
                 LinearGradientMode.Vertical);
-            g.FillRectangle(gradientBrush, owner.ClientRectangle);
         }
 
         private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)

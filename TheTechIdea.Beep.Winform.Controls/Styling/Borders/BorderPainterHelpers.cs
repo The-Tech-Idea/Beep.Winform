@@ -34,12 +34,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (glowWidth <= 0 || glowColor.A == 0) return;
 
-            int glowAlpha = (int)(glowColor.A * glowIntensity);
-            Color adjustedGlow = Color.FromArgb(Math.Max(0, Math.Min(255, glowAlpha)), glowColor);
+            // Draw multiple layers to simulate glow
+            // We draw from widest (faintest) to narrowest (brightest accumulation)
+            int layers = 8;
+            float step = glowWidth / layers;
+            
+            // Base alpha for each layer. 
+            // If we have 8 layers overlapping at the center, total alpha will be high.
+            // We want the edge to be very faint.
+            int baseAlpha = (int)(40 * glowIntensity); 
 
-            var glowPen = PaintersFactory.GetPen(adjustedGlow, glowWidth);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.DrawPath(glowPen, path);
+            for (int i = 0; i < layers; i++)
+            {
+                // Width decreases from glowWidth to near 0
+                float w = glowWidth - (i * step);
+                if (w <= 0.5f) continue;
+
+                int alpha = baseAlpha;
+                
+                using (var p = new Pen(Color.FromArgb(alpha, glowColor), w))
+                {
+                    p.LineJoin = LineJoin.Round;
+                    p.StartCap = LineCap.Round;
+                    p.EndCap = LineCap.Round;
+                    g.DrawPath(p, path);
+                }
+            }
         }
 
         /// <summary>

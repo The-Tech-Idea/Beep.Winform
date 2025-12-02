@@ -26,13 +26,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 ? theme.AccentColor 
                 : Color.White;
 
+            // Increased intensity for better visibility
             float intensity = state switch
             {
-                ControlState.Hovered => 0.4f,
-                ControlState.Pressed => 0.15f,
-                ControlState.Focused => 0.35f,
-                ControlState.Disabled => 0.1f,
-                _ => 0.25f
+                ControlState.Hovered => 0.6f,
+                ControlState.Pressed => 0.3f,
+                ControlState.Focused => 0.5f,
+                ControlState.Disabled => 0.2f,
+                _ => 0.4f
             };
 
             return ShadowPainterHelpers.PaintGlassShadow(

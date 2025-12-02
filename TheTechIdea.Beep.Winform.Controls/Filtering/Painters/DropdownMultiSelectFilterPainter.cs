@@ -73,6 +73,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
             // TODO: Paint expanded dropdown panel when control state indicates it's open
             // This would show the search box, checkbox list, and action buttons
+
+            // Phase 1: Paint filter count badge (inside dropdown button)
+            if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.AddFilterButtonRect.Right - 35,
+                    layout.AddFilterButtonRect.Y + (layout.AddFilterButtonRect.Height - 20) / 2
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
         }
 
         private void PaintDropdownButton(

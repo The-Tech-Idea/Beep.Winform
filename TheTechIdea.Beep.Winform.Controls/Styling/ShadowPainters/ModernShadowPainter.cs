@@ -33,19 +33,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 _ => 1.0f                      // Normal state
             };
 
-            // Modern shadow: Clean, subtle single-layer shadow
+            // Modern shadow: Clean, subtle multi-layer shadow
             // Apple/Tailwind style - not too dark, not too spread
             
-            // Use clean drop shadow for professional look
-            int offsetY = (int)(2 * intensityMultiplier);
-            int alpha = (int)(25 * intensityMultiplier); // Very subtle alpha (25 out of 255)
-            int spread = 2;
+            // Use soft shadow for professional look
+            int offsetY = (int)(4 * intensityMultiplier);
+            float opacity = 0.2f * intensityMultiplier; // Increased base opacity
 
-            return ShadowPainterHelpers.PaintCleanDropShadow(
+            return ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius,
                 0, offsetY,
-                Color.Black, alpha,
-                spread);
+                Color.Black, opacity,
+                6);
         }
     }
 }

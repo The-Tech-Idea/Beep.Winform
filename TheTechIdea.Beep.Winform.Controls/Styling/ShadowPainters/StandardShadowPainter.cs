@@ -26,17 +26,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Standard: Good default shadow
-            int alpha = state switch
+            // Increased alpha for visibility
+            float opacity = state switch
             {
-                ControlState.Hovered => 50,
-                ControlState.Pressed => 25,
-                ControlState.Focused => 45,
-                ControlState.Disabled => 15,
-                _ => 35
+                ControlState.Hovered => 0.4f,
+                ControlState.Pressed => 0.2f,
+                ControlState.Focused => 0.35f,
+                ControlState.Disabled => 0.1f,
+                _ => 0.25f
             };
 
-            return ShadowPainterHelpers.PaintCleanDropShadow(
-                g, path, radius, 0, offsetY, shadowColor, alpha, 2);
+            // Use soft shadow for better quality
+            return ShadowPainterHelpers.PaintSoftShadow(
+                g, path, radius, 0, offsetY, shadowColor, opacity, 4);
         }
     }
 }

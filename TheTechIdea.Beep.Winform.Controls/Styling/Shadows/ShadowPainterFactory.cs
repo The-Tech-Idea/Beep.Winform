@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         private readonly float _opacity;
         private readonly int _layers;
 
-        public SoftShadowPainterWrapper(int offsetX = 0, int offsetY = 4, Color? shadowColor = null, float opacity = 0.3f, int layers = 6)
+        public SoftShadowPainterWrapper(int offsetX = 0, int offsetY = 4, Color? shadowColor = null, float opacity = 0.4f, int layers = 6)
         {
             _offsetX = offsetX;
             _offsetY = offsetY;
@@ -366,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         private readonly int _spread;
         private readonly float _opacity;
 
-        public AmbientShadowPainterWrapper(int spread = 4, float opacity = 0.3f)
+        public AmbientShadowPainterWrapper(int spread = 4, float opacity = 0.4f)
         {
             _spread = spread;
             _opacity = opacity;
@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         private readonly Color _tintColor;
         private readonly float _opacity;
 
-        public GlassShadowPainterWrapper(Color tintColor, float opacity = 0.2f)
+        public GlassShadowPainterWrapper(Color tintColor, float opacity = 0.3f)
         {
             _tintColor = tintColor;
             _opacity = opacity;

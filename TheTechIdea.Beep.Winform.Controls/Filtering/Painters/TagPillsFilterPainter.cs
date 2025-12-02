@@ -150,6 +150,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 PaintAddFilterButton(g, layout.AddFilterButtonRect, owner);
             }
+
+            // Phase 1: Paint filter count badge (top-right corner)
+            if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.ContainerRect.Right - 40,
+                    layout.ContainerRect.Top + 8
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
         }
 
         private void PaintFilterPill(Graphics g, Rectangle rect, FilterCriteria criterion, Rectangle dragRect, Rectangle removeRect, BeepFilter owner)
@@ -178,12 +189,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 PaintDragHandle(g, dragRect, dotColor);
             }
 
+            // Phase 1: Column type icon (if enabled)
+            int textStartX = rect.X + (owner.EnableDragDrop ? 24 : 12);
+            if (owner.ShowColumnTypeIcons)
+            {
+                var iconRect = new Rectangle(textStartX, rect.Y + (rect.Height - 16) / 2, 16, 16);
+                // TODO: Get actual column type from EntityStructure
+                var columnType = Utilities.DbFieldCategory.String; // Default
+                PaintColumnTypeIcon(g, iconRect, columnType, colors.accent);
+                textStartX += 20;
+            }
+
             // Text: "Column Operator Value"
             var pillText = $"{criterion.ColumnName} {criterion.Operator.GetSymbol()} {criterion.Value}";
             var textRect = new Rectangle(
-                rect.X + (owner.EnableDragDrop ? 24 : 12),
+                textStartX,
                 rect.Y,
-                rect.Width - (owner.EnableDragDrop ? 60 : 48),
+                rect.Width - (textStartX - rect.X) - (owner.EnableDragDrop ? 36 : 24),
                 rect.Height
             );
 

@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             if (originalPath == null || originalPath.PointCount == 0)
                 return originalPath;
 
-            if (inset <= 0)
+            if (inset == 0)
                 return (GraphicsPath)originalPath.Clone();
 
             try
@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             if (originalPath == null || originalPath.PointCount == 0)
                 return originalPath;
 
-            if (inset <= 0)
+            if (inset == 0)
                 return (GraphicsPath)originalPath.Clone();
 
             try
@@ -484,6 +484,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         // Improved widening method
         private static GraphicsPath CreateInsetPathByWidening(GraphicsPath path, float inset)
         {
+            if (inset <= 0) return null;
             try
             {
                 using var pen = new Pen(Color.Black, inset * 2);

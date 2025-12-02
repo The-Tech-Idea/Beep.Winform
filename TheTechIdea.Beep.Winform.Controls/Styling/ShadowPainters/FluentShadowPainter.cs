@@ -27,24 +27,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // State-based shadow for Fluent layered depth
-            int alpha = state switch
+            float opacity = state switch
             {
-                ControlState.Hovered => 50,    // More prominent on hover (reveal effect)
-                ControlState.Pressed => 25,    // Reduced when pressed
-                ControlState.Focused => 45,    // Moderate focus
-                ControlState.Selected => 55,   // More for selection indication
-                ControlState.Disabled => 10,   // Minimal
-                _ => 35                        // Default subtle shadow
+                ControlState.Hovered => 0.4f,    // More prominent on hover (reveal effect)
+                ControlState.Pressed => 0.2f,    // Reduced when pressed
+                ControlState.Focused => 0.35f,    // Moderate focus
+                ControlState.Selected => 0.45f,   // More for selection indication
+                ControlState.Disabled => 0.1f,   // Minimal
+                _ => 0.3f                        // Default subtle shadow
             };
 
-            int spread = state == ControlState.Hovered ? 3 : 2;
-
-            // Use clean drop shadow (Fluent layered depth)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
+            // Use soft shadow with more layers for Fluent depth
+            return ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius,
                 0, offsetY,
-                shadowColor, alpha,
-                spread);
+                shadowColor, opacity,
+                6);
         }
     }
 }

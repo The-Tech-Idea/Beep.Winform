@@ -1,79 +1,69 @@
-using System.Linq;
+using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
-    /// <summary>
-    /// Pricing table-Style layout preset.
-    /// - Taller headers to allow plan badges/images (painter may draw images if provided by columns)
-    /// - First (feature) column left-aligned and sticky
-    /// - Plan columns centered (headers and cells)
-    /// - No row stripes, minimal grid lines
-    /// - Subtle elevation/gradient on headers for hierarchy
-    /// </summary>
-    public sealed class PricingTableLayoutHelper : IGridLayoutPreset
+    public sealed class PricingTableLayoutHelper : BaseLayoutPreset
     {
-        public void Apply(BeepGridPro grid)
+        public override string Name => "Pricing Table";
+        public override string Description => "Pricing comparison and subscription tier layout";
+        public override LayoutCategory Category => LayoutCategory.Specialty;
+
+        protected override void ConfigureDimensions(BeepGridPro grid)
         {
-            if (grid == null) return;
-
-            // Dimensions
-            grid.RowHeight = 28;                  // comfortable for feature lists
-            grid.ColumnHeaderHeight = 56;         // room for icon/badge + title
+            grid.RowHeight = 28;
             grid.ShowColumnHeaders = true;
+        }
 
-            // Render flags (structure only, not colors)
-            grid.Render.ShowGridLines = false;    // pricing tables are usually clean
-            grid.Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+        protected override void ConfigureVisualProperties(BeepGridPro grid)
+        {
+            grid.Render.ShowGridLines = true;
+            grid.Render.GridLineStyle = DashStyle.Solid;
             grid.Render.ShowRowStripes = false;
-            grid.Render.UseHeaderGradient = true; // subtle hierarchy
+            grid.Render.UseHeaderGradient = true;
             grid.Render.UseHeaderHoverEffects = true;
-            grid.Render.UseBoldHeaderText = true; // emphasize plan names
-            grid.Render.HeaderCellPadding = 6;    // more breathing room
-            grid.Render.UseElevation = true;      // slight elevation for header
+            grid.Render.UseBoldHeaderText = true;
+            grid.Render.HeaderCellPadding = 4;
+            grid.Render.UseElevation = true;
             grid.Render.CardStyle = false;
-            grid.Render.ShowSortIndicators = false; // pricing tables rarely sortable by columns
+        }
 
-            // Alignment heuristics
-            var cols = grid.Columns?.Where(c => c.Visible).ToList();
-            if (cols == null || cols.Count == 0) return;
-
-            // Identify the feature column (first visible non-system column)
-            var featureCol = cols.FirstOrDefault(c => !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID);
-
-            foreach (var c in cols)
+        protected override void CustomConfiguration(BeepGridPro grid)
+        {
+            // Center-align price/feature columns
+            if (grid?.Data?.Columns != null)
             {
-                bool isSystem = c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID;
-                if (isSystem)
+                foreach (var col in grid.Data.Columns)
                 {
-                    c.HeaderTextAlignment = ContentAlignment.MiddleCenter;
-                    c.CellTextAlignment = ContentAlignment.MiddleCenter;
-                    continue;
-                }
-
-                var name = (c.ColumnCaption ?? c.ColumnName ?? string.Empty).ToLowerInvariant();
-                bool isPrice = name.Contains("price") || name.Contains("cost") || name.Contains("amount") || name.Contains("monthly") || name.Contains("year");
-                bool isAction = name.Contains("action") || name.Contains("buy") || name.Contains("select") || name.Contains("subscribe") || name.Contains("upgrade");
-
-                if (c == featureCol)
-                {
-                    // Feature names on the left, sticky for better scanning
-                    c.HeaderTextAlignment = ContentAlignment.MiddleLeft;
-                    c.CellTextAlignment = ContentAlignment.MiddleLeft;
-                    c.Sticked = true; // keep features visible when scrolling horizontally
-                }
-                else if (isPrice || isAction)
-                {
-                    c.HeaderTextAlignment = ContentAlignment.MiddleCenter;
-                    c.CellTextAlignment = ContentAlignment.MiddleCenter;
-                }
-                else
-                {
-                    // Default: center plan columns
-                    c.HeaderTextAlignment = ContentAlignment.MiddleCenter;
-                    c.CellTextAlignment = ContentAlignment.MiddleCenter;
+                    if (!col.IsSelectionCheckBox && !col.IsRowNumColumn && !col.IsRowID)
+                    {
+                        // First column (feature name) left-aligned
+                        var isFirst = grid.Data.Columns.IndexOf(col) == 0;
+                        if (isFirst)
+                        {
+                            col.HeaderTextAlignment = ContentAlignment.MiddleLeft;
+                            col.CellTextAlignment = ContentAlignment.MiddleLeft;
+                        }
+                        else
+                        {
+                            // Price columns centered
+                            col.HeaderTextAlignment = ContentAlignment.MiddleCenter;
+                            col.CellTextAlignment = ContentAlignment.MiddleCenter;
+                        }
+                    }
                 }
             }
         }
+
+        public override IPaintGridHeader GetHeaderPainter() 
+            => HeaderPainterFactory.CreateHeaderPainter(navigationStyle.Material);
+
+        public override INavigationPainter GetNavigationPainter() 
+            => NavigationPainterFactory.CreatePainter(navigationStyle.Material);
+
+        public override int CalculateHeaderHeight(BeepGridPro grid) => 32;
+        public override int CalculateNavigatorHeight(BeepGridPro grid) => 52;
     }
 }

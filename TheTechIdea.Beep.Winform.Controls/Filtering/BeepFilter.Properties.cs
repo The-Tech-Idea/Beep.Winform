@@ -252,6 +252,72 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         public bool EnableDragDrop { get; set; } = false;
 
         #endregion
+
+        #region Phase 1 Enhancement Properties
+
+        /// <summary>
+        /// Gets or sets whether keyboard shortcuts are enabled
+        /// </summary>
+        [Category("Filter")]
+        [Description("Enable keyboard shortcuts (Ctrl+F, Ctrl+N, etc.)")]
+        [DefaultValue(true)]
+        public bool KeyboardShortcutsEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether autocomplete suggestions are enabled
+        /// </summary>
+        [Category("Filter")]
+        [Description("Enable smart autocomplete for filter values")]
+        [DefaultValue(true)]
+        public bool AutocompleteEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether filter validation is enabled
+        /// </summary>
+        [Category("Filter")]
+        [Description("Enable validation of filter criteria")]
+        [DefaultValue(true)]
+        public bool ValidationEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether to show filter count badge
+        /// </summary>
+        [Category("Filter")]
+        [Description("Show badge with active filter count")]
+        [DefaultValue(true)]
+        public bool ShowFilterCountBadge { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether to show validation indicators
+        /// </summary>
+        [Category("Filter")]
+        [Description("Show visual indicators for validation errors/warnings")]
+        [DefaultValue(true)]
+        public bool ShowValidationIndicators { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether to show column type icons
+        /// </summary>
+        [Category("Filter")]
+        [Description("Show icons indicating column data types")]
+        [DefaultValue(true)]
+        public bool ShowColumnTypeIcons { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the data source for autocomplete suggestions
+        /// </summary>
+        [Browsable(false)]
+        public object AutocompleteDataSource
+        {
+            get => _autocompleteDataSource;
+            set
+            {
+                _autocompleteDataSource = value;
+                _suggestionProvider?.SetDataSource(value);
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

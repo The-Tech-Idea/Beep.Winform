@@ -97,19 +97,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 PaintSearchInput(g, layout.SearchInputRect, searchText, owner);
             }
 
-            // Paint filter count badge
-            if (owner.ShowCountBadge)
+            // Phase 1: Paint filter count badge (using base class method)
+            if (owner.ShowFilterCountBadge)
             {
                 int count = config?.Criteria.Count(c => c.IsEnabled) ?? 0;
                 if (count > 0 && layout.RowRects.Length > 0)
                 {
-                    var badgeRect = new Rectangle(
+                    var badgeLocation = new Point(
                         layout.SearchInputRect.Right + ItemSpacing,
-                        layout.SearchInputRect.Y + (layout.SearchInputRect.Height - BadgeSize) / 2,
-                        BadgeSize,
-                        BadgeSize
+                        layout.SearchInputRect.Y + (layout.SearchInputRect.Height - 20) / 2
                     );
-                    PaintBadge(g, badgeRect, count, owner);
+                    var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                    PaintFilterCountBadge(g, count, badgeLocation, accentColor);
                 }
             }
         }

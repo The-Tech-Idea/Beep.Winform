@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Draw label above the control
             if (owner.LabelTextOn && !string.IsNullOrEmpty(owner.LabelText))
             {
-                float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                float labelSize = Math.Max(7f, owner.Font.Size - 2f);
                 using var labelFont = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
                 var labelHeight = TextRenderer.MeasureText(parentGraphics, "Ag", labelFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                 
@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
                 if (!string.IsNullOrEmpty(supporting))
                 {
-                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    float supSize = Math.Max(7f, owner.Font.Size - 2f);
                     using var supportFont = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
                     var supportHeight = TextRenderer.MeasureText(parentGraphics, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                     
@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         ErrorColor,
                         ForeColor,
                         Font);
-                    newExternalDrawingProvider.AddChildExternalDrawing(this, labelHandler, DrawingLayer.BeforeContent);
+                    newExternalDrawingProvider.AddChildExternalDrawing(this, labelHandler, DrawingLayer.AfterAll);
                 }
                 
                 try { Parent?.Invalidate(); } catch { }
@@ -346,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         ErrorColor,
                         ForeColor,
                         Font);
-                    externalDrawingProvider.AddChildExternalDrawing(this, labelHandler, DrawingLayer.BeforeContent);
+                    externalDrawingProvider.AddChildExternalDrawing(this, labelHandler, DrawingLayer.AfterAll);
                 }
                 
                 try { Parent?.Invalidate(); } catch { }

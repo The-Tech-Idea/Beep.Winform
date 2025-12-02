@@ -147,12 +147,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Kde => 1.0f,                   // KDE standard
                 BeepControlStyle.Cinnamon => 1.0f,              // Cinnamon standard
                 BeepControlStyle.Elementary => 1.0f,            // Elementary standard
-                BeepControlStyle.NeoBrutalist => 2.5f,          // Neo-Brutalist very thick aggressive border
+                BeepControlStyle.NeoBrutalist => 3.0f,          // Neo-Brutalist very thick aggressive border
                 BeepControlStyle.Gaming => 2.0f,                // Gaming thick borders
                 BeepControlStyle.HighContrast => 2.0f,          // High contrast thick for visibility
                 BeepControlStyle.Neon => 2.0f,                  // Neon thick for glow effect
                 BeepControlStyle.ArcLinux => 1.0f,
-                BeepControlStyle.Brutalist => 0f,             // Brutalist thin precise line (refined, not aggressive)
+                BeepControlStyle.Brutalist => 3.0f,             // Brutalist thin precise line (refined, not aggressive)
                 BeepControlStyle.Cartoon => 3.0f,
                 BeepControlStyle.ChatBubble => 2.0f,
                 BeepControlStyle.Cyberpunk => 2.0f,

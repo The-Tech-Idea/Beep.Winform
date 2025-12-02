@@ -31,14 +31,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int glowRadius = StyleShadows.GetShadowBlur(style);
 
             // Gaming: Intense state-based glow
+            // Increased intensity for "pop"
             float intensity = state switch
             {
-                ControlState.Hovered => 1.1f,   // Brighter on hover
-                ControlState.Pressed => 0.8f,   // Dimmer when pressed
-                ControlState.Focused => 1.2f,   // Bright on focus
-                ControlState.Selected => 1.0f,  // Normal when selected
-                ControlState.Disabled => 0.2f,  // Very dim when disabled
-                _ => 0.9f                       // Default
+                ControlState.Hovered => 1.5f,   // Brighter on hover
+                ControlState.Pressed => 1.0f,   // Dimmer when pressed
+                ControlState.Focused => 1.6f,   // Bright on focus
+                ControlState.Selected => 1.4f,  // Normal when selected
+                ControlState.Disabled => 0.4f,  // Very dim when disabled
+                _ => 1.3f                       // Default
             };
 
             // Use neon glow helper (gaming uses same technique)

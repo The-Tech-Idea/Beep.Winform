@@ -448,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Draw label above the control
                 if (!string.IsNullOrEmpty(labelText))
                 {
-                    float labelSize = Math.Max(8f, labelFont.Size - 1f);
+                    float labelSize = Math.Max(7f, labelFont.Size - 2f);
                     using var labelFontScaled = new Font(labelFont.FontFamily, labelSize, FontStyle.Regular);
                     var labelHeight = TextRenderer.MeasureText(parentGraphics, "Ag", labelFontScaled, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                     
@@ -515,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     string supporting = !string.IsNullOrEmpty(errorText) ? errorText : helperText;
                     if (!string.IsNullOrEmpty(supporting))
                     {
-                        float supSize = Math.Max(8f, helperFont.Size - 1f);
+                        float supSize = Math.Max(7f, helperFont.Size - 2f);
                         using var supportFont = new Font(helperFont.FontFamily, supSize, FontStyle.Regular);
                         var supportHeight = TextRenderer.MeasureText(parentGraphics, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                         

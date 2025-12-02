@@ -1,47 +1,56 @@
-using System.Linq;
-using System.Drawing;
+using System;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
-    public sealed class ComparisonTableLayoutHelper : IGridLayoutPreset
+    public sealed class ComparisonTableLayoutHelper : BaseLayoutPreset
     {
-        public void Apply(BeepGridPro grid)
+        public override string Name => "Comparison Table";
+        public override string Description => "Product comparison and feature matrix layout";
+        public override LayoutCategory Category => LayoutCategory.Matrix;
+
+        protected override void ConfigureDimensions(BeepGridPro grid)
         {
-            if (grid == null) return;
-
             grid.RowHeight = 26;
-            grid.ColumnHeaderHeight = 34; // more room
             grid.ShowColumnHeaders = true;
+        }
 
+        protected override void ConfigureVisualProperties(BeepGridPro grid)
+        {
             grid.Render.ShowGridLines = true;
-            grid.Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            grid.Render.ShowRowStripes = true;
-            grid.Render.UseHeaderGradient = false;
+            grid.Render.GridLineStyle = DashStyle.Solid;
+            grid.Render.ShowRowStripes = false;
+            grid.Render.UseHeaderGradient = true;
             grid.Render.UseHeaderHoverEffects = true;
-            grid.Render.UseBoldHeaderText = true; // emphasize
-            grid.Render.HeaderCellPadding = 6; // breathing room
+            grid.Render.UseBoldHeaderText = true; // Emphasized headers
+            grid.Render.HeaderCellPadding = 3;
             grid.Render.UseElevation = false;
             grid.Render.CardStyle = false;
+        }
 
-            // Left column (feature names) left aligned, others centered
-            var cols = grid.Columns?.Where(c => c.Visible).ToList();
-            if (cols != null && cols.Count > 0)
+        protected override void CustomConfiguration(BeepGridPro grid)
+        {
+            // Center-align columns for comparison (override common alignment)
+            if (grid?.Data?.Columns != null)
             {
-                var first = cols.First();
-                foreach (var c in cols)
+                foreach (var col in grid.Data.Columns)
                 {
-                    if (c == first)
+                    if (!col.IsSelectionCheckBox && !col.IsRowNumColumn && !col.IsRowID)
                     {
-                        c.HeaderTextAlignment = ContentAlignment.MiddleLeft;
-                        c.CellTextAlignment = ContentAlignment.MiddleLeft;
-                    }
-                    else
-                    {
-                        c.HeaderTextAlignment = ContentAlignment.MiddleCenter;
-                        c.CellTextAlignment = ContentAlignment.MiddleCenter;
+                        col.CellTextAlignment = System.Drawing.ContentAlignment.MiddleCenter;
                     }
                 }
             }
         }
+
+        public override IPaintGridHeader GetHeaderPainter() 
+            => HeaderPainterFactory.CreateHeaderPainter(navigationStyle.Standard);
+
+        public override INavigationPainter GetNavigationPainter() 
+            => NavigationPainterFactory.CreatePainter(navigationStyle.Standard);
+
+        public override int CalculateHeaderHeight(BeepGridPro grid) => 30;
+        public override int CalculateNavigatorHeight(BeepGridPro grid) => 48;
     }
 }

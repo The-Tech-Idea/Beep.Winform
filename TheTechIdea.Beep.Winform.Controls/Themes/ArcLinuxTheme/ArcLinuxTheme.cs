@@ -50,6 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ApplyIconography();
             ApplyLogin();
             ApplyCompany();
-            ApplyMiscellaneous();}
+            ApplyMiscellaneous();
+            
+            // Final validation after all components are configured
+            // This ensures ALL colors (including buttons, labels, etc.) meet WCAG AA contrast requirements
+            ThemeContrastUtilities.ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
+        }
     }
 }

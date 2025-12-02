@@ -138,7 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Draw glow layers (multiple passes for intense neon effect)
             for (int i = 5; i > 0; i--)
             {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 255, 0, 150)))
+                // Adjusted alpha: Outer layers (larger i) should be fainter
+                // i=5 (Widest): Alpha 15
+                // i=1 (Narrowest): Alpha 75
+                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 255, 0, 150)))
                 using (var starPath = CreateStarPath(cx, cy, starSize + i * 2))
                 {
                     g.FillPath(glowBrush, starPath);
@@ -174,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Cyan glow layers
             for (int i = 5; i > 0; i--)
             {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 0, 255, 255)))
+                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 0, 255, 255)))
                 using (var starPath = CreateStarPath(mx, my, starSize + i * 2))
                 {
                     g.FillPath(glowBrush, starPath);
@@ -209,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Green glow layers
             for (int i = 5; i > 0; i--)
             {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 0, 255, 100)))
+                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 0, 255, 100)))
                 using (var starPath = CreateStarPath(mnx, mny, starSize + i * 2))
                 {
                     g.FillPath(glowBrush, starPath);
@@ -246,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 // Purple glow layers
                 for (int i = 5; i > 0; i--)
                 {
-                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 150, 0, 255)))
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 150, 0, 255)))
                     using (var starPath = CreateStarPath(tx, ty, starSize + i * 2))
                     {
                         g.FillPath(glowBrush, starPath);
@@ -285,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 // Yellow glow layers
                 for (int i = 5; i > 0; i--)
                 {
-                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 255, 255, 0)))
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 255, 255, 0)))
                     using (var starPath = CreateStarPath(sx, sy, starSize + i * 2))
                     {
                         g.FillPath(glowBrush, starPath);

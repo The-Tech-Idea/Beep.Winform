@@ -61,6 +61,58 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Title displayed inside the panel at the top (overlay style)
         /// </summary>
-        Overlay
+        Overlay,
+
+        /// <summary>
+        /// Title displayed in a solid header bar at the top
+        /// </summary>
+        TopHeader
+    }
+
+    /// <summary>
+    /// Defines the horizontal position of the title text
+    /// </summary>
+    public enum TitlePosition
+    {
+        /// <summary>
+        /// Title aligned to the left
+        /// </summary>
+        Left,
+
+        /// <summary>
+        /// Title centered horizontally
+        /// </summary>
+        Center,
+
+        /// <summary>
+        /// Title aligned to the right
+        /// </summary>
+        Right
+    }
+
+    /// <summary>
+    /// Defines the display state of the panel (Phase 1 enhancement)
+    /// </summary>
+    public enum PanelState
+    {
+        /// <summary>
+        /// Normal state - display content
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        /// Loading state - show loading skeleton
+        /// </summary>
+        Loading,
+
+        /// <summary>
+        /// Empty state - show empty message
+        /// </summary>
+        Empty,
+
+        /// <summary>
+        /// Error state - show error message
+        /// </summary>
+        Error
     }
 }

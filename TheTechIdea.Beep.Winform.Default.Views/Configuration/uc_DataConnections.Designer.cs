@@ -7016,9 +7016,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.IsVisible = true;
             beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
             beepLabel1.LabelBackColor = Color.Empty;
-            beepLabel1.LabelErrorText = "";
-            beepLabel1.LabelHasError = false;
-            beepLabel1.LabelHelperText = "";
+          
             beepLabel1.LabelPosition = LabelPosition.Left;
             beepLabel1.LabelText = "";
             beepLabel1.LabelTextOn = false;

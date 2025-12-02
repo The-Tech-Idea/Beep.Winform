@@ -36,6 +36,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         private bool _isExpanded = true;
         private int _filterCount = 0;
 
+        // Phase 1 Enhancement Components
+        private FilterKeyboardHandler? _keyboardHandler;
+        private FilterSuggestionProvider? _suggestionProvider;
+        private FilterValidationHelper? _validationHelper;
+        private FilterAutocompletePopup? _autocompletePopup;
+        private object? _autocompleteDataSource;
+
         #endregion
 
         #region Constructor
@@ -69,8 +76,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 Criteria = new List<FilterCriteria>()
             };
 
+            // Initialize Phase 1 components
+            InitializePhase1Components();
+
             // Calculate initial layout
             RecalculateLayout();
+        }
+
+        /// <summary>
+        /// Initializes Phase 1 enhancement components
+        /// </summary>
+        private void InitializePhase1Components()
+        {
+            // Keyboard shortcuts
+            _keyboardHandler = new FilterKeyboardHandler(this);
+
+            // Smart suggestions
+            _suggestionProvider = new FilterSuggestionProvider();
+
+            // Validation
+            _validationHelper = new FilterValidationHelper();
+
+            // Autocomplete popup will be created on demand
         }
 
         #endregion
@@ -515,6 +542,262 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         private void OnSearchFocusRequested(Rectangle bounds)
         {
             SearchFocusRequested?.Invoke(this, new FilterSearchEventArgs(bounds));
+        }
+
+        #endregion
+
+        #region Phase 1: Keyboard Handling
+
+        /// <summary>
+        /// Processes keyboard commands (Ctrl+F, Ctrl+N, etc.)
+        /// </summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (KeyboardShortcutsEnabled && _keyboardHandler != null)
+            {
+                var e = new KeyEventArgs(keyData);
+                if (_keyboardHandler.ProcessKeyPress(e))
+                {
+                    return true;
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        #endregion
+
+        #region Phase 1: Public API Methods (Keyboard Handler Callbacks)
+
+        /// <summary>
+        /// Focuses the quick search field (Ctrl+F)
+        /// </summary>
+        internal void FocusQuickSearch()
+        {
+            // Find quick search hit area and raise event
+            OnSearchFocusRequested(ClientRectangle);
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Shows command palette (Ctrl+K)
+        /// </summary>
+        internal void ShowCommandPalette()
+        {
+            // TODO: Implement command palette popup
+            MessageBox.Show("Command Palette (Ctrl+K) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Adds a new blank filter - wrapper for Ctrl+N shortcut
+        /// </summary>
+        internal void AddNewFilterViaKeyboard()
+        {
+            // Call existing private method
+            AddNewFilter();
+        }
+
+        /// <summary>
+        /// Undoes the last change (Ctrl+Z)
+        /// </summary>
+        internal void UndoLastChange()
+        {
+            // TODO: Implement undo stack in Phase 2
+            MessageBox.Show("Undo (Ctrl+Z) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Redoes the last undone change (Ctrl+Y)
+        /// </summary>
+        internal void RedoLastChange()
+        {
+            // TODO: Implement redo stack in Phase 2
+            MessageBox.Show("Redo (Ctrl+Y) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Saves the current filter as a view (Ctrl+S)
+        /// </summary>
+        internal void SaveCurrentView()
+        {
+            // TODO: Implement saved views in Phase 2
+            MessageBox.Show("Save View (Ctrl+S) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Opens saved filter views (Ctrl+O)
+        /// </summary>
+        internal void OpenSavedView()
+        {
+            // TODO: Implement saved views in Phase 2
+            MessageBox.Show("Open View (Ctrl+O) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Selects all filters (Ctrl+A)
+        /// </summary>
+        internal void SelectAllFilters()
+        {
+            // TODO: Implement multi-select in Phase 2
+            MessageBox.Show("Select All (Ctrl+A) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Duplicates a filter (Ctrl+D)
+        /// </summary>
+        internal void DuplicateFilter(int index)
+        {
+            if (index >= 0 && index < _activeFilter.Criteria.Count)
+            {
+                var original = _activeFilter.Criteria[index];
+                var duplicate = new FilterCriteria
+                {
+                    ColumnName = original.ColumnName,
+                    Operator = original.Operator,
+                    Value = original.Value,
+                    Value2 = original.Value2,
+                    CaseSensitive = original.CaseSensitive
+                };
+
+                _activeFilter.Criteria.Insert(index + 1, duplicate);
+                _filterCount = _activeFilter.Criteria.Count;
+                
+                RecalculateLayout();
+                Invalidate();
+                OnFilterAdded();
+            }
+        }
+
+        /// <summary>
+        /// Shows advanced filter dialog (Ctrl+Shift+F)
+        /// </summary>
+        internal void ShowAdvancedFilterDialog()
+        {
+            // TODO: Implement advanced dialog in Phase 2
+            MessageBox.Show("Advanced Filter (Ctrl+Shift+F) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Clears all filters - wrapper for Ctrl+Shift+C shortcut
+        /// </summary>
+        internal void ClearAllFiltersViaKeyboard()
+        {
+            // Call existing private method
+            ClearAllFilters();
+        }
+
+        /// <summary>
+        /// Deletes selected filters (Ctrl+Shift+D)
+        /// </summary>
+        internal void DeleteSelectedFilters()
+        {
+            // TODO: Implement multi-select and delete in Phase 2
+            MessageBox.Show("Delete Selected (Ctrl+Shift+D) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Exports filters (Ctrl+Shift+E)
+        /// </summary>
+        internal void ExportFilters()
+        {
+            // TODO: Implement export in Phase 2
+            MessageBox.Show("Export Filters (Ctrl+Shift+E) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Imports filters (Ctrl+Shift+I)
+        /// </summary>
+        internal void ImportFilters()
+        {
+            // TODO: Implement import in Phase 2
+            MessageBox.Show("Import Filters (Ctrl+Shift+I) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Moves a filter up or down (Alt+Up/Down)
+        /// </summary>
+        internal void MoveFilter(int fromIndex, int toIndex)
+        {
+            if (fromIndex >= 0 && fromIndex < _activeFilter.Criteria.Count &&
+                toIndex >= 0 && toIndex < _activeFilter.Criteria.Count)
+            {
+                var item = _activeFilter.Criteria[fromIndex];
+                _activeFilter.Criteria.RemoveAt(fromIndex);
+                _activeFilter.Criteria.Insert(toIndex, item);
+                
+                RecalculateLayout();
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Activates a saved view by index (Alt+1-9)
+        /// </summary>
+        internal void ActivateSavedView(int viewIndex)
+        {
+            // TODO: Implement saved views in Phase 2
+            MessageBox.Show($"Activate View {viewIndex + 1} (Alt+{viewIndex + 1}) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Applies the current filters - wrapper for Enter key
+        /// </summary>
+        internal void ApplyFiltersViaKeyboard()
+        {
+            // Call existing private method
+            ApplyFilters();
+        }
+
+        /// <summary>
+        /// Removes a filter by index (Delete)
+        /// </summary>
+        internal void RemoveFilter(int index)
+        {
+            if (index >= 0 && index < _activeFilter.Criteria.Count)
+            {
+                _activeFilter.Criteria.RemoveAt(index);
+                _filterCount = _activeFilter.Criteria.Count;
+                
+                RecalculateLayout();
+                Invalidate();
+                OnFilterRemoved(index);
+            }
+        }
+
+        /// <summary>
+        /// Closes the filter UI (Escape when no filters)
+        /// </summary>
+        internal void CloseFilterUI()
+        {
+            // Collapse if in collapsible mode
+            if (DisplayMode == FilterDisplayMode.Collapsible)
+            {
+                IsExpanded = false;
+            }
+        }
+
+        /// <summary>
+        /// Edits a filter by index (F2)
+        /// </summary>
+        internal void EditFilter(int index)
+        {
+            if (index >= 0 && index < _activeFilter.Criteria.Count)
+            {
+                // Raise event to show edit UI for this filter
+                OnValueInputRequested(index, ClientRectangle);
+            }
+        }
+
+        /// <summary>
+        /// Shows keyboard shortcuts help (F1)
+        /// </summary>
+        internal void ShowKeyboardShortcutsHelp()
+        {
+            if (_keyboardHandler != null)
+            {
+                string help = _keyboardHandler.GetShortcutsHelp();
+                MessageBox.Show(help, "BeepFilter Keyboard Shortcuts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         #endregion

@@ -38,7 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BorderPainterHelpers.PaintSimpleBorder(g, path, neonColor, borderWidth, state);
 
             // Neon glow intensity varies with state/focus
-            float glowWidth = isFocused || state == ControlState.Selected ? 8.0f : 6.0f;
+            // Reduced glow width to prevent excessive area usage (was 8.0f/6.0f)
+            float glowWidth = isFocused || state == ControlState.Selected ? 5.0f : 3.0f;
             float glowIntensity = state == ControlState.Disabled ? 0.5f : 1.0f;
             BorderPainterHelpers.PaintGlowBorder(g, path, neonColor, glowWidth, glowIntensity);
 

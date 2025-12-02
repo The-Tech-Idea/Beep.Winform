@@ -59,7 +59,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowBackground = true,
                 ShowShadow = true,
                 BackgroundOpacity = 0.85f,
-                AnimationSpeed = 0.2f
+                AnimationSpeed = 0.2f,
+                ShowBadges = true,
+                ShowTooltips = true,
+                ShowRunningIndicator = true,
+                EnableContextMenu = true
             };
 
             // Initialize painter
@@ -76,6 +80,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = true;
             ShowAllBorders = false;
             IsBorderAffectedByTheme = false;
+
+            // Enable keyboard navigation
+            TabStop = true;
+            KeyboardNavigationEnabled = true;
+
+            // Initialize drag-drop support
+            InitializeDragDrop();
 
             // Hook up events
             _items.ListChanged += Items_ListChanged!;

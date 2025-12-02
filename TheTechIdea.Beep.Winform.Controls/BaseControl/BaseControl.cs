@@ -33,6 +33,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         protected virtual bool AllowBaseControlClear => true;
 
+        /// <summary>
+        /// When true, BaseControl will exclude child control bounds from painting to prevent flickering.
+        /// Override to true in container controls like BeepPanel.
+        /// </summary>
+        protected virtual bool IsContainerControl => false;
+
         private string _themeName;
         internal IBeepTheme _currentTheme; // defer initialization to runtime-safe paths
         private string _guidId = Guid.NewGuid().ToString();
@@ -144,8 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | 
-            ControlStyles.SupportsTransparentBackColor, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer , true);
 
             // Consider adding for large datasets:
             SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize

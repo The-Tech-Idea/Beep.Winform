@@ -53,8 +53,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 if (StyleShadows.HasShadow(owner.ControlStyle))
                 {
                     // Use a reasonable shadow offset based on style
-                    shadow = Math.Max(2, StyleShadows.GetShadowBlur(owner.ControlStyle) / 2);
-                  // shadow = 0;
+                    int blur = StyleShadows.GetShadowBlur(owner.ControlStyle);
+                    int offX = Math.Abs(StyleShadows.GetShadowOffsetX(owner.ControlStyle));
+                    int offY = Math.Abs(StyleShadows.GetShadowOffsetY(owner.ControlStyle));
+                    shadow = Math.Max(blur, Math.Max(offX, offY));
                 }
             }
             else
@@ -134,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             // Border rectangle like BeepControl
             if (border > 0)
             {
-                int halfPen = (int)Math.Ceiling(owner.BorderThickness / 2f);
+                int halfPen = (int)Math.Ceiling(border / 2f);
                 borderRect = new Rectangle(
                     borderRect.X + halfPen,
                     borderRect.Y + halfPen,

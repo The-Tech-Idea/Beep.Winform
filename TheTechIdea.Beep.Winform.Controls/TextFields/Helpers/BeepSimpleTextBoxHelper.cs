@@ -208,23 +208,27 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 
                 int selStart = Math.Min(_selectionStart, newPosition);
                 int selEnd = Math.Max(_selectionStart, newPosition);
-                _selectionStart = selStart;
+                
+                // Don't change _selectionStart - it's the anchor point!
                 _selectionLength = selEnd - selStart;
                 
                 // Sync with main control
-                _textBox.SelectionStart = _selectionStart;
+                _textBox.SelectionStart = selStart;
                 _textBox.SelectionLength = _selectionLength;
             }
             else
             {
-                ClearSelection();
+                // Not extending - clear selection and update anchor
+                _selectionLength = 0;
+                _selectionStart = newPosition;
+                
                 // Sync with main control
                 _textBox.SelectionStart = newPosition;
                 _textBox.SelectionLength = 0;
             }
             
+            // Update caret position
             _caretPosition = newPosition;
-            _selectionStart = newPosition;
             
             EnsureCaretVisible();
             _textBox.Invalidate();
@@ -245,13 +249,14 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             
             for (int i = 0; i < lines.Count; i++)
             {
+                int lineLength = lines[i].Length + (i < lines.Count - 1 ? Environment.NewLine.Length : 0);
                 if (_caretPosition <= currentPos + lines[i].Length)
                 {
                     currentLine = i;
                     columnIndex = _caretPosition - currentPos;
                     break;
                 }
-                currentPos += lines[i].Length + Environment.NewLine.Length;
+                currentPos += lineLength;
             }
             
             // Move to target line
@@ -275,16 +280,18 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 
                 int selStart = Math.Min(_selectionStart, newPos);
                 int selEnd = Math.Max(_selectionStart, newPos);
-                _selectionStart = selStart;
+                
+                // Don't change _selectionStart - it's the anchor!
                 _selectionLength = selEnd - selStart;
                 
                 // Sync with main control
-                _textBox.SelectionStart = _selectionStart;
+                _textBox.SelectionStart = selStart;
                 _textBox.SelectionLength = _selectionLength;
             }
             else
             {
-                ClearSelection();
+                // Clear selection and update anchor
+                _selectionLength = 0;
                 _selectionStart = newPos;
                 
                 // Sync with main control

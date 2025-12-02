@@ -158,6 +158,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 PaintPreviewSection(g, layout.AddGroupButtonRect, config, colors);
             }
 
+            // Phase 1: Paint filter count badge (top-right corner of dialog)
+            if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.ContainerRect.Right - 50,
+                    layout.ContainerRect.Top + 12
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
+
             // Paint action buttons at bottom
             PaintDialogButtons(g, layout.ContainerRect, colors);
         }

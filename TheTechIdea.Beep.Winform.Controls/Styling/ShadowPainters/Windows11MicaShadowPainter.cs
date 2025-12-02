@@ -27,21 +27,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Mica: Extremely subtle shadow (almost none)
-            int alpha = state switch
+            // Increased opacity slightly for visibility
+            float opacity = state switch
             {
-                ControlState.Hovered => 20,
-                ControlState.Pressed => 8,
-                ControlState.Focused => 15,
-                ControlState.Disabled => 0,
-                _ => 10
+                ControlState.Hovered => 0.25f,
+                ControlState.Pressed => 0.1f,
+                ControlState.Focused => 0.2f,
+                ControlState.Disabled => 0.05f,
+                _ => 0.15f
             };
 
-            if (alpha == 0) return path;
+            if (opacity <= 0) return path;
 
-            // Use subtle shadow (Mica minimalism)
-            return ShadowPainterHelpers.PaintSubtleShadow(
+            // Use soft shadow (Mica minimalism)
+            return ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius,
-                1, alpha);
+                0, 2, Color.Black, opacity, 4);
         }
     }
 }

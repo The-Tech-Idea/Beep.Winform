@@ -24,10 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             base.OnLocationChanged(e);
             
             // Invalidate parent background cache since our position changed
-            if (IsTransparentBackground)
-            {
-                InvalidateParentBackgroundCache();
-            }
+            InvalidateParentBackgroundCache();
             
             // Ensure parent redraws badge area when we move
             UpdateRegionForBadge();
@@ -44,30 +41,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _painter?.UpdateLayout(this);
             Invalidate();
         }
+        
+        /// <summary>
+        /// Excludes child control bounds from painting to prevent flickering in container controls.
+        /// DISABLED: This causes child controls to not paint initially - they need their own paint events
+        /// </summary>
+        private void ExcludeChildControlsFromClip(Graphics g)
+        {
+            // DISABLED - was causing child controls to not paint until hover/click
+            // if (!IsContainerControl) return;
+            // 
+            // foreach (Control child in Controls)
+            // {
+            //     if (child.Visible)
+            //     {
+            //         g.ExcludeClip(child.Bounds);
+            //     }
+            // }
+        }
+        
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            if (_istransparent)
+            // FIX: Don't exclude child controls - let them paint normally
+            // ExcludeChildControlsFromClip(e.Graphics);
+
+            if (Parent != null && IsChild)
             {
-                // Transparent: ask the parent to paint "behind" us.
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+
+            }
+            if(IsTransparentBackground )
+            {
+                // Paint parent background for transparency/rounded corners
                 PaintParentBackground(e.Graphics);
+                return;
             }
-            else
-            {
-                 if (IsChild)
-                    {
-                        ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
-                        BackColor = ParentBackColor;
-                    }
-                    else
-                    {
-                        if (_currentTheme != null)
-                            BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
-                        else
-                            BackColor = SystemColors.Control;
-                    }
-                // Opaque: normal background fill
-                base.OnPaintBackground(e);
-            }
+            base.OnPaintBackground(e);
+            
         }
 
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
@@ -154,51 +165,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (IsDisposed || !IsHandleCreated)
                 return;
             base.OnPaint(e);
+            
+            // FIX: Don't exclude child controls - was preventing initial paint
+            // ExcludeChildControlsFromClip(e.Graphics);
          
             // Always ensure clip rectangle is valid
-
-            if (UseExternalBufferedGraphics)
-            {
-                try
-                {
-                    BufferedGraphicsContext context = BufferedGraphicsManager.Current;
-                    if (context != null)
-                    {
-                    using (BufferedGraphics buffer = context.Allocate(e.Graphics, EnsureValidRectangle(this.ClientRectangle)))
-                        {
-                            Graphics g = buffer.Graphics;
-                        ClearDrawingSurface(g);
-
-                            // Paint the inner area using the new PaintInnerShape method
-                           // SafePaintInnerShape(g);
-
-                            // External drawing hooks BEFORE content
-                            SafeExternalDrawing(g, DrawingLayer.BeforeContent);
-
-                            // Main content and painter
-                            DrawContent(g);
-
-                            // After-all external drawings
-                            SafeExternalDrawing(g, DrawingLayer.AfterAll);
-
-                            // Effects
-                            SafeDrawEffects(g);
-
-                            buffer.Render(e.Graphics);
-                        }
-                    }
-                }
-                catch (Exception ex) when (ex is ArgumentException || ex is OutOfMemoryException)
-                {
-                    // Fall back to direct drawing if buffering fails
-                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint buffered error: {ex.Message}");
-                    SafeDraw(e.Graphics);
-                }
-            }
-            else
-            {
-                SafeDraw(e.Graphics);
-            }
+            SafeDraw(e.Graphics);
         }
 
         // Safe drawing without buffering
@@ -208,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 ClearDrawingSurface(g);
                 // Paint the inner area using the new PaintInnerShape method
-              //  SafePaintInnerShape(g);
+                //SafePaintInnerShape(g);
 
                 // External drawing hooks BEFORE content
                 SafeExternalDrawing(g, DrawingLayer.BeforeContent);
@@ -233,22 +205,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (g == null)
                 return;
 
-            // Skip clearing if transparent - parent background already painted in OnPaintBackground
-            if (IsTransparentBackground)
+         
+            // If the control is not transparent and not rounded, we can safely clear with BackColor
+            // This ensures a clean slate for drawing and prevents artifacts
+            if (!IsTransparentBackground)
             {
-                // Parent background was already copied using BitBlt in OnPaintBackground
-                // Don't clear it here or we'll wipe it out!
-                return;
+                g.Clear(BackColor);
             }
-
-            // For opaque controls, clear with appropriate color
-            var clearColor = BackColor;
-            if (clearColor.A == 0)
-            {
-                clearColor = Parent?.BackColor ?? SystemColors.Control;
-            }
-
-            g.Clear(clearColor);
+            // For rounded or transparent controls, we rely on OnPaintBackground to paint the parent background
+            // clearing here would overwrite the parent background and destroy the transparency/rounded corner effect
         }
 
         private void SafePaintInnerShape(Graphics g)
@@ -297,15 +262,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 // Invalidate parent background cache since our size changed
-                if (IsTransparentBackground)
+                if (IsTransparentBackground || (IsRounded && BorderRadius > 0))
                 {
-                    InvalidateParentBackgroundCache();
+                    // Invalidate parent background cache since our size changed
+                    InvalidateParentBackgroundCache(); bool isGrid = this is GridX.BeepGridPro;
                 }
-                
-                // Skip expensive operations for BeepGridPro - it manages its own layout
-                bool isGrid = this is GridX.BeepGridPro;
-                
-                if (!isGrid)
+                if (!GridMode)
                 {
                     UpdateDrawingRect();
                     UpdateControlRegion();
@@ -329,17 +291,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Region controlRegion;
                 var regionRect = new Rectangle(0, 0, Width, Height);
 
-                if (IsRounded && BorderRadius > 0)
-                {
-                    using (var path = GraphicsExtensions.GetRoundedRectPath(regionRect, BorderRadius))
-                    {
-                        controlRegion = new Region(path);
-                    }
-                }
-                else
-                {
-                    controlRegion = new Region(regionRect);
-                }
+                // Always use rectangular region to allow smooth anti-aliased corners
+                // Setting a rounded region causes jagged edges
+                controlRegion = new Region(regionRect);
 
                 // Include badge area if present
                 if (!string.IsNullOrEmpty(BadgeText))

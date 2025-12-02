@@ -770,7 +770,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             contentRect = DrawingRect;
           //  contentRect.Inflate(-2, -2);
-            DrawStateOverlays(g);   // <— subtle hover/press glaze
+           // DrawStateOverlays(g);   // <— subtle hover/press glaze
             DrawImageAndText(g);
             DrawSplashEffect(g);    // ripple on top
 

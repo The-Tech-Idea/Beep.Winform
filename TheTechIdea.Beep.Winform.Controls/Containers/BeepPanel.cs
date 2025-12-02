@@ -236,42 +236,128 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        #region Phase 1: Modern UX Properties
+
+        [Browsable(true)]
+        [Category("Scrolling")]
+        [Description("Enable automatic scrollbars when content overflows")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(false)]
+        public bool AutoScroll
+        {
+            get => _enableScrolling;
+            set
+            {
+                if (_enableScrolling != value)
+                {
+                    _enableScrolling = value;
+                    if (value)
+                        InitializeScrollBars();
+                    else
+                        RemoveScrollBars();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Enable collapsible panel with expand/collapse functionality")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(false)]
+        public bool Collapsible { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Current collapsed state of the panel")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(false)]
+        public bool IsCollapsed
+        {
+            get => _isCollapsed;
+            set
+            {
+                if (_isCollapsed != value)
+                {
+                    _isCollapsed = value;
+                    if (Collapsible)
+                    {
+                        if (value)
+                            Collapse(animate: true);
+                        else
+                            Expand(animate: true);
+                    }
+                }
+            }
+        }
+        private bool _isCollapsed = false;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Material Design elevation level (0-5), adds shadow depth")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(0)]
+        public int Elevation { get; set; } = 0;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Elevation level when hovering (0-5)")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(0)]
+        public int ElevationOnHover { get; set; } = 0;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Keep header visible when scrolling content")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(false)]
+        public bool StickyHeader { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("State")]
+        [Description("Current state of the panel (Normal, Loading, Empty, Error)")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(PanelState.Normal)]
+        public PanelState State { get; set; } = PanelState.Normal;
+
+        [Browsable(true)]
+        [Category("State")]
+        [Description("Message to display when panel is in Empty state")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string EmptyStateMessage { get; set; } = "No content to display";
+
+        [Browsable(true)]
+        [Category("Animation")]
+        [Description("Duration of collapse/expand animation in milliseconds")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(300)]
+        public int CollapseAnimationDuration { get; set; } = 300;
+
+        #endregion
+
         /// <summary>
         /// Override to prevent BaseControl from clearing the graphics surface over child controls.
         /// As a container control, we let Windows Forms handle child control painting naturally.
+        /// FIX: Allow clearing for container controls so background paints correctly
         /// </summary>
-        protected override bool AllowBaseControlClear => false;
-        
+        protected override bool AllowBaseControlClear => true;
+
         /// <summary>
-        /// Override OnPaintBackground to use BackgroundPainters, PathPainters, and BorderPainters separately
+        /// Override CreateParams to add WS_CLIPCHILDREN window style
+        /// This ensures children paint in their own regions and parent doesn't paint over them
         /// </summary>
-        //protected override void OnPaintBackground(PaintEventArgs e)
-        //{
-        //    if (IsDisposed || !IsHandleCreated) return;
-            
-        //    try
-        //    {
-        //        var g = e.Graphics;
-        //        g.SmoothingMode = SmoothingMode.AntiAlias;
-                
-        //        UpdateDrawingRect();
-        //        Rectangle bounds = DrawingRect;
-                
-        //        // 1. Get the shape path using PathPainters
-        //        GraphicsPath shapePath = GetShapePath(bounds);
-        //        if (shapePath == null) return;
-                
-        //        // 2. Paint background using BackgroundPainters
-        //        //PaintBackground(g, shapePath);
-                
-        //        // 3. Paint border using BorderPainters (with gap for GroupBox title if needed)
-        //        PaintBorder(g, shapePath, bounds);
-                
-        //        shapePath?.Dispose();
-        //    }
-        //    catch { }
-        //}
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED - Double buffer entire window
+                cp.Style |= 0x02000000;     // WS_CLIPCHILDREN - Exclude child areas from parent painting
+                return cp;
+            }
+        }
         
+
         /// <summary>
         /// Gets the shape path based on PanelShape using PathPainters
         /// </summary>
@@ -556,15 +642,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = false;
             CanBeHovered = false;
 
-            // Keep UserPaint enabled to use BaseControl's painting system
-            // We'll handle child controls properly in DrawContent
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | 
-                     ControlStyles.ResizeRedraw | 
-                     ControlStyles.ContainerControl |
-                     ControlStyles.AllPaintingInWmPaint, true);
+            // Container control styles - SIMPLIFIED for proper child control painting
+            // Use ONLY the essential styles that standard containers use
+            SetStyle(ControlStyles.ContainerControl, true);
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            SetStyle(ControlStyles.ResizeRedraw, true);
             
-            // Enable external buffered graphics for better rendering
-            UseExternalBufferedGraphics = true;
+            // FIX: Disable external buffered graphics for containers
+            // This was preventing child controls from painting
+            UseExternalBufferedGraphics = false;
             
             DoubleBuffered = true;
             UpdateStyles();
@@ -668,6 +754,337 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        }));
         //    }
         //}
+
+        #region Phase 1: Auto-Scroll Implementation
+
+        private void InitializeScrollBars()
+        {
+            if (_verticalScrollBar != null || _horizontalScrollBar != null)
+                return; // Already initialized
+
+            // Create modern thin vertical scrollbar
+            _verticalScrollBar = new VScrollBar
+            {
+                Dock = DockStyle.Right,
+                Width = 12,
+                Visible = false,
+                TabStop = false
+            };
+            _verticalScrollBar.Scroll += OnVerticalScroll;
+            _verticalScrollBar.MouseWheel += OnScrollBarMouseWheel;
+            Controls.Add(_verticalScrollBar);
+            _verticalScrollBar.BringToFront();
+
+            // Create modern thin horizontal scrollbar
+            _horizontalScrollBar = new HScrollBar
+            {
+                Dock = DockStyle.Bottom,
+                Height = 12,
+                Visible = false,
+                TabStop = false
+            };
+            _horizontalScrollBar.Scroll += OnHorizontalScroll;
+            Controls.Add(_horizontalScrollBar);
+            _horizontalScrollBar.BringToFront();
+
+            // Initial update
+            UpdateScrollBars();
+        }
+
+        private void RemoveScrollBars()
+        {
+            if (_verticalScrollBar != null)
+            {
+                _verticalScrollBar.Scroll -= OnVerticalScroll;
+                _verticalScrollBar.MouseWheel -= OnScrollBarMouseWheel;
+                Controls.Remove(_verticalScrollBar);
+                _verticalScrollBar.Dispose();
+                _verticalScrollBar = null;
+            }
+
+            if (_horizontalScrollBar != null)
+            {
+                _horizontalScrollBar.Scroll -= OnHorizontalScroll;
+                Controls.Remove(_horizontalScrollBar);
+                _horizontalScrollBar.Dispose();
+                _horizontalScrollBar = null;
+            }
+
+            _scrollOffset = 0;
+        }
+
+        private void UpdateScrollBars()
+        {
+            if (!AutoScroll || _verticalScrollBar == null || _horizontalScrollBar == null)
+                return;
+
+            // Calculate content size
+            int contentWidth = 0;
+            int contentHeight = 0;
+
+            foreach (Control child in Controls)
+            {
+                if (child == _verticalScrollBar || child == _horizontalScrollBar)
+                    continue;
+
+                contentWidth = Math.Max(contentWidth, child.Right + Padding.Right);
+                contentHeight = Math.Max(contentHeight, child.Bottom + Padding.Bottom);
+            }
+
+            // Add title height offset
+            contentHeight += _titleBottomY;
+
+            // Determine visible area
+            int visibleWidth = ClientSize.Width - (ShowVerticalScroll() ? _verticalScrollBar.Width : 0);
+            int visibleHeight = ClientSize.Height - (ShowHorizontalScroll() ? _horizontalScrollBar.Height : 0) - _titleBottomY;
+
+            // Update vertical scrollbar
+            bool needVerticalScroll = contentHeight > visibleHeight;
+            _verticalScrollBar.Visible = needVerticalScroll;
+            if (needVerticalScroll)
+            {
+                _verticalScrollBar.Maximum = contentHeight - visibleHeight + _verticalScrollBar.LargeChange - 1;
+                _verticalScrollBar.LargeChange = visibleHeight;
+                _verticalScrollBar.SmallChange = 20;
+            }
+
+            // Update horizontal scrollbar
+            bool needHorizontalScroll = contentWidth > visibleWidth;
+            _horizontalScrollBar.Visible = needHorizontalScroll;
+            if (needHorizontalScroll)
+            {
+                _horizontalScrollBar.Maximum = contentWidth - visibleWidth + _horizontalScrollBar.LargeChange - 1;
+                _horizontalScrollBar.LargeChange = visibleWidth;
+                _horizontalScrollBar.SmallChange = 20;
+            }
+        }
+
+        private bool ShowVerticalScroll() => _verticalScrollBar?.Visible ?? false;
+        private bool ShowHorizontalScroll() => _horizontalScrollBar?.Visible ?? false;
+
+        private void OnVerticalScroll(object sender, ScrollEventArgs e)
+        {
+            _scrollOffset = e.NewValue;
+            UpdateChildControlPositions();
+            Invalidate();
+        }
+
+        private void OnHorizontalScroll(object sender, ScrollEventArgs e)
+        {
+            // Horizontal scroll offset
+            UpdateChildControlPositions();
+            Invalidate();
+        }
+
+        private void OnScrollBarMouseWheel(object sender, MouseEventArgs e)
+        {
+            // Mouse wheel scrolling
+            if (_verticalScrollBar != null && _verticalScrollBar.Visible)
+            {
+                int newValue = _verticalScrollBar.Value - (e.Delta / 120) * _verticalScrollBar.SmallChange;
+                newValue = Math.Max(_verticalScrollBar.Minimum, Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange + 1, newValue));
+                _verticalScrollBar.Value = newValue;
+            }
+        }
+
+        private void UpdateChildControlPositions()
+        {
+            if (!AutoScroll) return;
+
+            int scrollOffset = _verticalScrollBar?.Value ?? 0;
+            int horizontalOffset = _horizontalScrollBar?.Value ?? 0;
+
+            foreach (Control child in Controls)
+            {
+                if (child == _verticalScrollBar || child == _horizontalScrollBar)
+                    continue;
+
+                // Adjust child position based on scroll
+                // Note: This is a simple implementation - might need AutoScrollPosition for better handling
+            }
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            if (AutoScroll && _verticalScrollBar != null && _verticalScrollBar.Visible)
+            {
+                int newValue = _verticalScrollBar.Value - (e.Delta / 120) * _verticalScrollBar.SmallChange;
+                newValue = Math.Max(_verticalScrollBar.Minimum, Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange + 1, newValue));
+                _verticalScrollBar.Value = newValue;
+            }
+        }
+
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+            if (AutoScroll)
+                UpdateScrollBars();
+        }
+
+        protected override void OnControlRemoved(ControlEventArgs e)
+        {
+            base.OnControlRemoved(e);
+            if (AutoScroll)
+                UpdateScrollBars();
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            if (AutoScroll)
+                UpdateScrollBars();
+        }
+
+        #endregion
+
+        #region Phase 1: Collapsible Implementation
+
+        public event EventHandler Collapsing;
+        public event EventHandler Collapsed;
+        public event EventHandler Expanding;
+        public event EventHandler Expanded;
+
+        private int _expandedHeight = 0;
+        private int _collapsedHeight = 40; // Height when collapsed (just header)
+
+        public void Collapse(bool animate = true)
+        {
+            if (_isCollapsed || !Collapsible) return;
+
+            Collapsing?.Invoke(this, EventArgs.Empty);
+
+            _expandedHeight = Height;
+
+            if (animate && CollapseAnimationDuration > 0)
+            {
+                AnimateCollapse();
+            }
+            else
+            {
+                Height = _collapsedHeight;
+                HideContent();
+            }
+
+            _isCollapsed = true;
+            Collapsed?.Invoke(this, EventArgs.Empty);
+            Invalidate();
+        }
+
+        public void Expand(bool animate = true)
+        {
+            if (!_isCollapsed || !Collapsible) return;
+
+            Expanding?.Invoke(this, EventArgs.Empty);
+
+            if (animate && CollapseAnimationDuration > 0)
+            {
+                AnimateExpand();
+            }
+            else
+            {
+                Height = _expandedHeight > 0 ? _expandedHeight : 300;
+                ShowContent();
+            }
+
+            _isCollapsed = false;
+            Expanded?.Invoke(this, EventArgs.Empty);
+            Invalidate();
+        }
+
+        public void Toggle(bool animate = true)
+        {
+            if (_isCollapsed)
+                Expand(animate);
+            else
+                Collapse(animate);
+        }
+
+        private void AnimateCollapse()
+        {
+            int startHeight = Height;
+            int endHeight = _collapsedHeight;
+            int steps = CollapseAnimationDuration / 16; // 60 FPS
+            int currentStep = 0;
+
+            Timer animTimer = new Timer { Interval = 16 };
+            animTimer.Tick += (s, e) =>
+            {
+                currentStep++;
+                float progress = (float)currentStep / steps;
+                progress = EaseInOutCubic(progress);
+
+                int newHeight = (int)(startHeight + (endHeight - startHeight) * progress);
+                Height = newHeight;
+
+                if (currentStep >= steps)
+                {
+                    Height = endHeight;
+                    HideContent();
+                    animTimer.Stop();
+                    animTimer.Dispose();
+                }
+            };
+            animTimer.Start();
+        }
+
+        private void AnimateExpand()
+        {
+            ShowContent();
+            int startHeight = Height;
+            int endHeight = _expandedHeight > 0 ? _expandedHeight : 300;
+            int steps = CollapseAnimationDuration / 16;
+            int currentStep = 0;
+
+            Timer animTimer = new Timer { Interval = 16 };
+            animTimer.Tick += (s, e) =>
+            {
+                currentStep++;
+                float progress = (float)currentStep / steps;
+                progress = EaseInOutCubic(progress);
+
+                int newHeight = (int)(startHeight + (endHeight - startHeight) * progress);
+                Height = newHeight;
+
+                if (currentStep >= steps)
+                {
+                    Height = endHeight;
+                    animTimer.Stop();
+                    animTimer.Dispose();
+                }
+            };
+            animTimer.Start();
+        }
+
+        private float EaseInOutCubic(float t)
+        {
+            return t < 0.5f ? 4 * t * t * t : 1 - (float)Math.Pow(-2 * t + 2, 3) / 2;
+        }
+
+        private void HideContent()
+        {
+            foreach (Control child in Controls)
+            {
+                if (child != _verticalScrollBar && child != _horizontalScrollBar)
+                {
+                    child.Visible = false;
+                }
+            }
+        }
+
+        private void ShowContent()
+        {
+            foreach (Control child in Controls)
+            {
+                if (child != _verticalScrollBar && child != _horizontalScrollBar)
+                {
+                    child.Visible = true;
+                }
+            }
+        }
+
+        #endregion
 
         // Override Dispose to properly clean up
         protected override void Dispose(bool disposing)
@@ -803,7 +1220,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void DrawContent(Graphics g)
         {
             if (_isDisposing || IsDisposed || !IsHandleCreated) return;
-            
+              base.DrawContent(g);
+            // Draw GroupBox-style title text (border is already drawn in OnPaintBackground)
+           /*  if (_titleStyle == PanelTitleStyle.GroupBox && _showTitle && !string.IsNullOrEmpty(_titleText))
+            {
+                DrawGroupBoxTitle(e.Graphics, DrawingRect);
+            } */
             try
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -822,22 +1244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch { }
         }
         
-        /// <summary>
-        /// Override OnPaint to draw title text for GroupBox style
-        /// </summary>
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            if (IsDisposed || !IsHandleCreated) return;
-            
-            // Call base to handle BaseControl painting
-            base.OnPaint(e);
-            
-            // Draw GroupBox-style title text (border is already drawn in OnPaintBackground)
-            if (_titleStyle == PanelTitleStyle.GroupBox && _showTitle && !string.IsNullOrEmpty(_titleText))
-            {
-                DrawGroupBoxTitle(e.Graphics, DrawingRect);
-            }
-        }
+      
         
         protected override void OnResize(EventArgs e)
         {

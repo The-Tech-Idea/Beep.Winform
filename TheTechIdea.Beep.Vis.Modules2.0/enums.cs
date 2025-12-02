@@ -28,14 +28,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         Stop,
         Continue
     }
-    public class DockItemState
-    {
-        public SimpleItem Item { get; set; }
-        public float CurrentScale { get; set; } = 1.0f;
-        public float TargetScale { get; set; } = 1.0f;
-        public bool IsHovered { get; set; }
-        public bool IsSelected { get; set; }
-    }
+   
     public enum FormStyle
     {
         Modern,         // Borderless, custom caption with rounded corners
@@ -127,7 +120,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         /// <summary>
         /// Borderless modern styling
         /// </summary>
-        Borderless
+        Borderless,
+
+      
+        Modern
+       
     }
 
     public enum ButtonType
@@ -225,20 +222,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     #region Supporting Classes and Enums
     
 
-    public enum DockPosition
-    {
-        Top,
-        Bottom,
-        Left,
-        Right,
-        Center
-    }
-
-    public enum DockOrientation
-    {
-        Horizontal,
-        Vertical
-    }
     #endregion
     /// <summary>
     /// Defines the color schemes for Material components

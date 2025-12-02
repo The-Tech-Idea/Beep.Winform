@@ -101,6 +101,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             {
                 PaintAddButton(g, layout.AddFilterButtonRect, owner);
             }
+
+            // Phase 1: Paint filter count badge (compact, top-right)
+            if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.ContainerRect.Right - 35,
+                    layout.ContainerRect.Top + 4
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
         }
 
         private void PaintInlineRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)

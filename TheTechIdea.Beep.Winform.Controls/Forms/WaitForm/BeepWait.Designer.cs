@@ -147,9 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.IsVisible = true;
             Title.Items = (List<object>)resources.GetObject("Title.Items");
             Title.LabelBackColor = Color.Empty;
-            Title.LabelErrorText = "";
-            Title.LabelHasError = false;
-            Title.LabelHelperText = "";
+         
             Title.LabelText = "";
             Title.LabelTextOn = false;
             Title.LeadingIconPath = "";
@@ -323,9 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.IsVisible = true;
             beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
             beepLabel1.LabelBackColor = Color.Empty;
-            beepLabel1.LabelErrorText = "";
-            beepLabel1.LabelHasError = false;
-            beepLabel1.LabelHelperText = "";
+          
             beepLabel1.LabelText = "";
             beepLabel1.LabelTextOn = false;
             beepLabel1.LeadingIconPath = "";

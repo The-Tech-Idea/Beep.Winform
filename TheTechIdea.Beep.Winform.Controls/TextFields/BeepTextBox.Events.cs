@@ -152,6 +152,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            
+            // FIX: Recalculate drawing rectangles now that handle exists
+            // This ensures _textRect is properly calculated for text rendering
+            UpdateDrawingRect();
+            UpdateLines();
+            _helper?.InvalidateAllCaches();
+            
+            // Force immediate paint to display initial text
+            if (!string.IsNullOrEmpty(_text))
+            {
+                Invalidate();
+                Update(); // Force immediate paint, don't wait for message queue
+            }
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            
+            // FIX: Force paint when control becomes visible
+            // Ensures text is displayed when form loads
+            if (Visible && !string.IsNullOrEmpty(_text))
+            {
+                Invalidate();
+            }
+        }
+
         #endregion
         
         #region "Paint Override"

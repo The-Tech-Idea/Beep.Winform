@@ -164,6 +164,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                     PaintActionButton(g, layout.AddGroupButtonRect, "Clear All", colors, false);
                 }
             }
+
+            // Phase 1: Paint filter count badge (top of sidebar)
+            if (owner.ShowFilterCountBadge && config != null && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.ContainerRect.Right - 40,
+                    layout.ContainerRect.Top + 12
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
         }
 
         private void PaintSectionHeader(

@@ -75,6 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Context menu for dynamic manipulation
         private ContextMenuStrip contextMenu = new ContextMenuStrip();
+        public object tableLayoutPanel;
 
         public BeepMultiSplitter()
         {

@@ -31,13 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int glowRadius = StyleShadows.GetShadowBlur(style);
 
             // Cyberpunk: Intense neon state-based
+            // Increased intensity for maximum neon effect
             float intensity = state switch
             {
-                ControlState.Hovered => 1.2f,   // Brighter on hover
-                ControlState.Pressed => 0.7f,   // Dimmer when pressed
-                ControlState.Focused => 1.4f,   // Brightest on focus
-                ControlState.Disabled => 0.25f, // Very dim when disabled
-                _ => 1.0f                       // Default bright
+                ControlState.Hovered => 1.6f,   // Brighter on hover
+                ControlState.Pressed => 1.0f,   // Dimmer when pressed
+                ControlState.Focused => 1.8f,   // Brightest on focus
+                ControlState.Disabled => 0.4f, // Very dim when disabled
+                _ => 1.4f                       // Default bright
             };
 
             // Use neon glow helper

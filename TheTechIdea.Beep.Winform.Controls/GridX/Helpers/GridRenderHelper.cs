@@ -519,7 +519,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try
                 {
-                    Console.WriteLine($"Drawing navigator... Rect: {_grid.Layout.NavigatorRect}, UsePainter: {_grid.NavigatorPainter.UsePainterNavigation}, Style: {_grid.NavigationStyle}");
+                //    if (_grid.NavigatorPainter.UsePainterNavigation)
+                //{
+                //    // Use the painter to draw the navigator
+                //    _grid.NavigatorPainter.PaintNavigation(g, _grid.Layout.NavigatorRect, _grid.NavigationStyle, _grid.Theme);
+                //}
                     DrawNavigatorArea(g);
                 }
                 catch (Exception ex)

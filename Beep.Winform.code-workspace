@@ -25,5 +25,7 @@
 			"path": "../BeepDM/DataManagementModelsStandard"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "Beep.Winform"
+	}
 }

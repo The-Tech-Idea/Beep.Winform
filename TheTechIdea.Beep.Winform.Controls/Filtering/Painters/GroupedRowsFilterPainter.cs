@@ -160,6 +160,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 if (!layout.AddGroupButtonRect.IsEmpty)
                     PaintAddFilterButton(g, layout.AddGroupButtonRect, "+ Add inner group", owner, true);
             }
+
+            // Phase 1: Paint filter count badge (top-right corner)
+            if (owner.ShowFilterCountBadge && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.ContainerRect.Right - 40,
+                    layout.ContainerRect.Top + 8
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
         }
 
         private void PaintFilterRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)

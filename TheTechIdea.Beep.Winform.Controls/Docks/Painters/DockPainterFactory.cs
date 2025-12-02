@@ -13,14 +13,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         static DockPainterFactory()
         {
             // Register all painters
+            // Modern OS styles
             _painters[DockStyle.AppleDock] = new AppleDockPainter();
             _painters[DockStyle.Windows11Dock] = new Windows11DockPainter();
+            _painters[DockStyle.iOSDock] = new iOSDockPainter();
+            
+            // Linux DE styles
+            _painters[DockStyle.GNOMEDock] = new GNOMEDockPainter();
+            _painters[DockStyle.PlasmaPanel] = new PlasmaPanelPainter();
+            _painters[DockStyle.PlankDock] = new PlankDockPainter();
+            
+            // Design systems
             _painters[DockStyle.Material3Dock] = new Material3DockPainter();
             _painters[DockStyle.MinimalDock] = new MinimalDockPainter();
+            
+            // Visual effects
             _painters[DockStyle.GlassmorphismDock] = new GlassmorphismDockPainter();
-            _painters[DockStyle.PillDock] = new FloatingDockPainter(); // Pill and Floating are the same style
+            _painters[DockStyle.PillDock] = new FloatingDockPainter();
             _painters[DockStyle.NeumorphismDock] = new NeumorphicDockPainter();
             _painters[DockStyle.NeonDock] = new NeonDockPainter();
+            
+            // Theme-based styles
+            _painters[DockStyle.NordDock] = new NordDockPainter();
+            
+            // Use Classic Taskbar as fallback for unimplemented styles
+            var classicPainter = new ClassicTaskbarDockPainter();
+            _painters[DockStyle.CyberpunkDock] = classicPainter;
+            _painters[DockStyle.TerminalDock] = classicPainter;
+            _painters[DockStyle.BubbleDock] = classicPainter;
+            _painters[DockStyle.ArcDock] = classicPainter;
+            _painters[DockStyle.DraculaDock] = classicPainter;
         }
 
         /// <summary>

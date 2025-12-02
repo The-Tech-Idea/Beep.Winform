@@ -35,13 +35,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Draw multiple expanding strokes with decreasing alpha to fake glow
+            // Draw from widest (faintest) to narrowest (brightest)
             for (int i = 4; i >= 1; i--)
             {
-                int alpha = 50 + (i * 30); // 170..50
-                float width = (size / 20f) + i * 1.5f;
+                // Adjusted alpha logic: Outer layers (larger i) should be fainter
+                // i=4 (Widest): Alpha ~40
+                // i=1 (Narrowest): Alpha ~160
+                int alpha = (int)(200 * (1.0f - (i / 5.0f))); 
+                
+                float width = (size / 20f) + i * 2.0f;
 
                 Color glowColor = Color.FromArgb(
-                    Math.Min(255, alpha),
+                    Math.Min(255, Math.Max(0, alpha)),
                     baseNeon.R,
                     baseNeon.G,
                     baseNeon.B);

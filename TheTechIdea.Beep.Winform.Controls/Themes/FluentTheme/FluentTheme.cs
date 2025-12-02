@@ -56,6 +56,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ApplyGradient();
             ApplyIconography();
             ApplyLogin();
-            ApplyMiscellaneous();}
+            ApplyMiscellaneous();
+            
+            // Final validation after all components are configured
+            ThemeContrastUtilities.ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
+        }
     }
 }

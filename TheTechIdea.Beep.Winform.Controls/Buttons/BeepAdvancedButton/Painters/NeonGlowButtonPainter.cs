@@ -86,7 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         {
             for (int i = layers; i > 0; i--)
             {
-                int offset = i * 3;
+                // Reduced spread multiplier from 3 to 1.5 for tighter glow
+                int offset = (int)(i * 1.5f);
                 int alpha = (intensity / layers) / (i + 1);
 
                 Rectangle glowBounds = new Rectangle(
@@ -113,25 +114,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         /// </summary>
         private void DrawGlowingBorder(Graphics g, Rectangle bounds, Color glowColor, int intensity)
         {
-            // Inner bright line
-            using (Pen brightPen = new Pen(Color.FromArgb(intensity, glowColor), 2))
+            // Inner bright line - reduce alpha slightly to blend
+            // Was solid intensity, now 80% to allow background blending
+            using (Pen brightPen = new Pen(Color.FromArgb((int)(intensity * 0.8), glowColor), 2))
             {
                 brightPen.Alignment = PenAlignment.Inset;
                 ButtonShapeHelper.DrawShape(g, ButtonShape.Pill, bounds, bounds.Height / 2, brightPen);
             }
 
-            // Outer glow line
-            Rectangle outerBounds = new Rectangle(
-                bounds.X - 1,
-                bounds.Y - 1,
-                bounds.Width + 2,
-                bounds.Height + 2
-            );
-
-            using (Pen glowPen = new Pen(Color.FromArgb(intensity / 2, glowColor), 3))
+            // Outer glow line - use multiple soft layers instead of one thick semi-solid line
+            // This creates a true glow gradient instead of a solid "double border" look
+            
+            // Layer 1: Wide, very transparent (outermost)
+            Rectangle outerBounds1 = new Rectangle(bounds.X - 2, bounds.Y - 2, bounds.Width + 4, bounds.Height + 4);
+            using (Pen glowPen1 = new Pen(Color.FromArgb((int)(intensity * 0.15), glowColor), 5))
             {
-                glowPen.Alignment = PenAlignment.Outset;
-                ButtonShapeHelper.DrawShape(g, ButtonShape.Pill, outerBounds, outerBounds.Height / 2, glowPen);
+                glowPen1.Alignment = PenAlignment.Center; // Center on the expanded bounds
+                ButtonShapeHelper.DrawShape(g, ButtonShape.Pill, outerBounds1, outerBounds1.Height / 2, glowPen1);
+            }
+            
+            // Layer 2: Narrower, slightly more visible (closer to core)
+            Rectangle outerBounds2 = new Rectangle(bounds.X - 1, bounds.Y - 1, bounds.Width + 2, bounds.Height + 2);
+            using (Pen glowPen2 = new Pen(Color.FromArgb((int)(intensity * 0.3), glowColor), 3))
+            {
+                glowPen2.Alignment = PenAlignment.Center;
+                ButtonShapeHelper.DrawShape(g, ButtonShape.Pill, outerBounds2, outerBounds2.Height / 2, glowPen2);
             }
         }
 

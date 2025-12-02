@@ -202,15 +202,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Ambient shadow (larger, softer, less opaque)
-            // Cap alpha at 30 for subtle professional appearance
-            int ambientAlpha = Math.Min(30, 10 + elevation * 3);
+            // Increased alpha caps for better visibility
+            int ambientAlpha = Math.Min(80, 20 + elevation * 5);
             int ambientOffsetY = elevation;
             int ambientSpread = Math.Min(6, elevation + 2);
             PaintCleanDropShadow(g, bounds, radius, 0, ambientOffsetY, color, ambientAlpha, ambientSpread);
 
             // Key shadow (tighter, more defined)
-            // Cap alpha at 35 for subtle professional appearance
-            int keyAlpha = Math.Min(35, 15 + elevation * 4);
+            // Increased alpha caps for better visibility
+            int keyAlpha = Math.Min(100, 30 + elevation * 6);
             int keyOffsetY = elevation + 1;
             int keySpread = Math.Min(4, elevation);
             PaintCleanDropShadow(g, bounds, radius, 0, keyOffsetY, color, keyAlpha, keySpread);
@@ -253,9 +253,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     
                     // Calculate alpha - use sqrt for smoother progression
                     // Base alpha from shadowColor (or 80 if not set), scaled by opacity
-                    int baseAlpha = Math.Min(80, (int)(shadowColor.A * opacity * 0.5f));
+                    // Increased base alpha for better visibility
+                    int baseAlpha = Math.Min(180, (int)(shadowColor.A * opacity));
                     float layerFade = (float)Math.Sqrt((float)i / layers); // sqrt for smoother progression
-                    int layerAlpha = Math.Max(3, Math.Min(80, (int)(baseAlpha * layerFade)));
+                    int layerAlpha = Math.Max(5, Math.Min(180, (int)(baseAlpha * layerFade)));
 
                     Color layerShadowColor = Color.FromArgb(layerAlpha, shadowColor.R, shadowColor.G, shadowColor.B);
 
@@ -300,9 +301,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             Color baseShadowTheme = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
 
             // Material Design shadow parameters based on elevation level
-            // Alpha values are subtle (15-35 range) for professional appearance
-            int ambientAlpha = Math.Min(25, 12 + elevationValue * 3);
-            int keyAlpha = Math.Min(30, 15 + elevationValue * 4);
+            // Alpha values increased for better visibility
+            int ambientAlpha = Math.Min(70, 20 + elevationValue * 5);
+            int keyAlpha = Math.Min(90, 30 + elevationValue * 6);
             
             int ambientOffsetY = Math.Max(1, elevationValue);
             int keyOffsetY = Math.Max(2, elevationValue + 1);
@@ -455,23 +456,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY, spread, alpha;
 
             // Use direct alpha values for cleaner, more predictable shadows
-            // PaintCleanDropShadow takes alpha directly, producing subtle professional shadows
+            // Increased alpha values for better visibility
             switch (style)
             {
                 case CardShadowStyle.Small:
-                    offsetY = 1; spread = 2; alpha = 15;
+                    offsetY = 1; spread = 2; alpha = 40;
                     break;
                 case CardShadowStyle.Medium:
-                    offsetY = 2; spread = 3; alpha = 20;
+                    offsetY = 2; spread = 3; alpha = 60;
                     break;
                 case CardShadowStyle.Large:
-                    offsetY = 4; spread = 5; alpha = 25;
+                    offsetY = 4; spread = 5; alpha = 80;
                     break;
                 case CardShadowStyle.XLarge:
-                    offsetY = 6; spread = 8; alpha = 30;
+                    offsetY = 6; spread = 8; alpha = 100;
                     break;
                 default:
-                    offsetY = 2; spread = 3; alpha = 20;
+                    offsetY = 2; spread = 3; alpha = 60;
                     break;
             }
 
@@ -504,11 +505,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             for (int i = 0; i < glowRadius; i++)
             {
                 float progress = 1f - ((float)i / glowRadius);
-                int alpha = (int)(120 * intensity * progress * progress); // Quadratic falloff
+                // Adjusted base intensity for a smoother, less solid glow
+                // Was 220 (too solid), now 100 (allows layering to create depth)
+                // Use cubic falloff (Math.Pow(progress, 3)) to make outer edges fade faster, reducing perceived size
+                int alpha = (int)(100 * intensity * Math.Pow(progress, 3)); 
 
                 if (alpha <= 0) continue;
+                alpha = Math.Min(255, alpha); // Clamp
+
                 if (bounds is null) return new GraphicsPath();
                 if (bounds.GetBounds().IsEmpty) return new GraphicsPath();
+                
+                // Use negative inset (outset)
                 using (var glowPath = bounds.CreateInsetPath(-i))
                 // Create NEW pen (not cached) so we can modify LineJoin property
                 using (var pen = new Pen(Color.FromArgb(alpha, glowColor), 2f))
@@ -532,12 +540,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = Math.Max(2, elevation / 2);
             
             // Ambient shadow (larger, softer, more spread)
-            int ambientAlpha = Math.Min(30, 10 + elevation);
+            // Increased alpha for visibility
+            int ambientAlpha = Math.Min(80, 20 + elevation * 2);
             int ambientSpread = Math.Max(3, elevation / 2);
             PaintCleanDropShadow(g, bounds, radius, 0, offsetY + 2, baseShadowTheme, ambientAlpha, ambientSpread);
 
             // Key shadow (tighter, more defined)
-            int keyAlpha = Math.Min(35, 15 + elevation);
+            // Increased alpha for visibility
+            int keyAlpha = Math.Min(100, 30 + elevation * 2);
             int keySpread = Math.Max(2, elevation / 3);
             PaintCleanDropShadow(g, bounds, radius, 0, offsetY, baseShadowTheme, keyAlpha, keySpread);
 

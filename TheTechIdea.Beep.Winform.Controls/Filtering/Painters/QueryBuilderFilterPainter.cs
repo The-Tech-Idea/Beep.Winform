@@ -231,6 +231,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                     PaintActionButton(g, layout.AddGroupButtonRect, "+ Add Group", colors);
                 }
             }
+
+            // Phase 1: Paint filter count badge (top-right corner)
+            if (owner.ShowFilterCountBadge && config != null && config.Criteria.Count > 0)
+            {
+                var badgeLocation = new Point(
+                    layout.ContainerRect.Right - 40,
+                    layout.ContainerRect.Top + 8
+                );
+                var accentColor = owner._currentTheme?.AccentColor ?? Color.FromArgb(33, 150, 243);
+                PaintFilterCountBadge(g, config.Criteria.Count, badgeLocation, accentColor);
+            }
         }
 
         private void PaintTreeConnectors(Graphics g, FilterLayoutInfo layout, (Color BackColor, Color ForeColor, Color BorderColor, Color AccentColor) colors)

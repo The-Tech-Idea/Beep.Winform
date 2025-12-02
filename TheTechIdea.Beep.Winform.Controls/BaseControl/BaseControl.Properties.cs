@@ -746,7 +746,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         [Browsable(true)] public Color BadgeBackColor { get; set; } = Color.Red;
         [Browsable(true)] public Color BadgeForeColor { get; set; } = Color.White;
-        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Segoe UI", 8, FontStyle.Bold);
+        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Segoe UI", 7, FontStyle.Bold);
         [Browsable(true)] public BadgeShape BadgeShape { get; set; } = BadgeShape.Circle;
 
         // State colors
@@ -1110,7 +1110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_controlstyle != value)
                 {
                     _controlstyle = value;
-                    
+
                     // CRITICAL: Synchronize BorderPainter with ControlStyle
                     // This ensures border style, color, and width update when ControlStyle changes
                     if (_borderPainterStyle != value)
@@ -1118,7 +1118,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         _borderPainterStyle = value;
                         UpdateBorderPainter();
                     }
-                    
+                    // Get corresponding FormStyle from ControlStyle
+
+                    Theme = BeepStyling.GetThemeStyle(_controlstyle);
                     // Update tooltip if it uses ControlStyle
                     UpdateTooltipTheme();
                     

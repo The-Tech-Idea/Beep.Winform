@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Hover states
         private string hoveredArea = null;
-        
+
         private TestimonialViewType _viewType = TestimonialViewType.Classic;
         private bool _isApplyingTheme = false;
         private bool _autoGenerateTooltip = true;

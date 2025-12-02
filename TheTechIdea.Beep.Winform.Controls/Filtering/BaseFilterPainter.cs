@@ -322,5 +322,169 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         }
 
         #endregion
+
+        #region Modern UX Helpers (Phase 1 Enhancements)
+
+        /// <summary>
+        /// Paints a modern filter count badge
+        /// </summary>
+        protected void PaintFilterCountBadge(Graphics g, int count, Point location, Color accentColor)
+        {
+            if (count == 0) return;
+
+            string badgeText = count > 99 ? "99+" : count.ToString();
+
+            // Measure badge
+            using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
+            {
+                var textSize = g.MeasureString(badgeText, font);
+                int badgeWidth = Math.Max(24, (int)textSize.Width + 12);
+                int badgeHeight = 20;
+
+                var badgeRect = new Rectangle(location.X, location.Y, badgeWidth, badgeHeight);
+
+                // Draw badge background
+                using (var path = CreateRoundedRectanglePath(badgeRect, badgeHeight / 2))
+                {
+                    using (var brush = new SolidBrush(accentColor))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    // Optional: subtle glow
+                    using (var glowPen = new Pen(Color.FromArgb(60, accentColor), 2f))
+                    {
+                        g.DrawPath(glowPen, path);
+                    }
+                }
+
+                // Draw count text
+                using (var brush = new SolidBrush(Color.White))
+                {
+                    var format = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(badgeText, font, brush, badgeRect, format);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Paints a validation indicator icon (error, warning, success)
+        /// </summary>
+        protected void PaintValidationIndicator(Graphics g, Rectangle bounds, FilterValidationLevel level, string tooltip = null)
+        {
+            Color indicatorColor;
+            string iconText;
+
+            switch (level)
+            {
+                case FilterValidationLevel.Error:
+                    indicatorColor = Color.FromArgb(220, 53, 69); // Red
+                    iconText = "✕";
+                    break;
+
+                case FilterValidationLevel.Warning:
+                    indicatorColor = Color.FromArgb(255, 193, 7); // Amber
+                    iconText = "⚠";
+                    break;
+
+                case FilterValidationLevel.Success:
+                    indicatorColor = Color.FromArgb(40, 167, 69); // Green
+                    iconText = "✓";
+                    break;
+
+                default:
+                    return;
+            }
+
+            // Draw circle background
+            using (var brush = new SolidBrush(indicatorColor))
+            {
+                g.FillEllipse(brush, bounds);
+            }
+
+            // Draw icon
+            using (var font = new Font("Segoe UI", bounds.Height * 0.6f, FontStyle.Bold))
+            using (var brush = new SolidBrush(Color.White))
+            {
+                var format = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString(iconText, font, brush, bounds, format);
+            }
+        }
+
+        /// <summary>
+        /// Paints a column type icon for filter pills
+        /// </summary>
+        protected void PaintColumnTypeIcon(Graphics g, Rectangle bounds, Utilities.DbFieldCategory columnType, Color color)
+        {
+            FilterIconProvider.DrawTypeIcon(g, bounds, columnType, color);
+        }
+
+        /// <summary>
+        /// Paints a keyboard shortcut hint
+        /// </summary>
+        protected void PaintKeyboardHint(Graphics g, Point location, string shortcut, Color backgroundColor, Color textColor)
+        {
+            using (var font = new Font("Segoe UI", 8f))
+            {
+                var textSize = g.MeasureString(shortcut, font);
+                var hintRect = new Rectangle(
+                    location.X,
+                    location.Y,
+                    (int)textSize.Width + 12,
+                    (int)textSize.Height + 6
+                );
+
+                // Draw rounded background
+                using (var path = CreateRoundedRectanglePath(hintRect, 4))
+                {
+                    using (var brush = new SolidBrush(Color.FromArgb(200, backgroundColor)))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    using (var pen = new Pen(Color.FromArgb(150, textColor), 1f))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+
+                // Draw text
+                using (var brush = new SolidBrush(textColor))
+                {
+                    var format = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(shortcut, font, brush, hintRect, format);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Paints a loading spinner animation
+        /// </summary>
+        protected void PaintLoadingSpinner(Graphics g, Rectangle bounds, Color color, float progress)
+        {
+            float rotation = progress * 360f;
+            float sweepAngle = 270f;
+
+            using (var pen = new Pen(color, 2f))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+                g.DrawArc(pen, bounds, rotation - 90, sweepAngle);
+            }
+        }
+
+        #endregion
     }
 }

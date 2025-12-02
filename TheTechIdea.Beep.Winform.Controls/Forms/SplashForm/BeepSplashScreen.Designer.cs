@@ -299,9 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.IsVisible = true;
             _titleLabel.Items = (List<object>)resources.GetObject("_titleLabel.Items");
             _titleLabel.LabelBackColor = Color.Empty;
-            _titleLabel.LabelErrorText = "";
-            _titleLabel.LabelHasError = false;
-            _titleLabel.LabelHelperText = "";
+           
             _titleLabel.LabelText = "";
             _titleLabel.LeadingIconPath = "";
             _titleLabel.LeadingImagePath = "";

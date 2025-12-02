@@ -27,25 +27,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Apple shadows are extremely subtle - "felt, not seen"
-            int alpha = state switch
+            // Increased opacity for better visibility while maintaining subtlety
+            float opacity = state switch
             {
-                ControlState.Hovered => 35,    // Slightly more visible
-                ControlState.Pressed => 15,    // Very subtle when pressed
-                ControlState.Focused => 30,    // Moderate
-                ControlState.Selected => 40,   // Slightly more for selection
-                ControlState.Disabled => 8,    // Almost invisible
-                _ => 25                        // Default - very subtle
+                ControlState.Hovered => 0.25f,    // Slightly more visible
+                ControlState.Pressed => 0.1f,    // Very subtle when pressed
+                ControlState.Focused => 0.2f,    // Moderate
+                ControlState.Selected => 0.3f,   // Slightly more for selection
+                ControlState.Disabled => 0.05f,    // Almost invisible
+                _ => 0.15f                        // Default - very subtle
             };
 
-            // Very minimal spread for Apple's refined look
-            int spread = 1;
-
-            // Use clean single-layer shadow (Apple refinement)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
+            // Use soft shadow with max layers for Apple's refined, diffused look
+            return ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius,
                 0, offsetY,
-                shadowColor, alpha,
-                spread);
+                shadowColor, opacity,
+                8);
         }
     }
 }

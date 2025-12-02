@@ -1,18 +1,25 @@
-using System.Drawing;
+using System;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
-    public sealed class DenseTableLayoutHelper : IGridLayoutPreset
+    public sealed class DenseTableLayoutHelper : BaseLayoutPreset
     {
-        public void Apply(BeepGridPro grid)
-        {
-            if (grid == null) return;
-            grid.RowHeight = 20;
-            grid.ColumnHeaderHeight = 24;
-            grid.ShowColumnHeaders = true;
+        public override string Name => "Dense";
+        public override string Description => "High-density layout for maximum data display";
+        public override LayoutCategory Category => LayoutCategory.Dense;
 
+        protected override void ConfigureDimensions(BeepGridPro grid)
+        {
+            grid.RowHeight = 20;
+            grid.ShowColumnHeaders = true;
+        }
+
+        protected override void ConfigureVisualProperties(BeepGridPro grid)
+        {
             grid.Render.ShowGridLines = true;
-            grid.Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            grid.Render.GridLineStyle = DashStyle.Solid;
             grid.Render.ShowRowStripes = false;
             grid.Render.UseHeaderGradient = false;
             grid.Render.UseHeaderHoverEffects = false;
@@ -20,8 +27,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
             grid.Render.HeaderCellPadding = 1;
             grid.Render.UseElevation = false;
             grid.Render.CardStyle = false;
-
-            LayoutCommon.ApplyAlignmentHeuristics(grid);
         }
+
+        public override IPaintGridHeader GetHeaderPainter() 
+            => HeaderPainterFactory.CreateHeaderPainter(navigationStyle.Minimal);
+
+        public override INavigationPainter GetNavigationPainter() 
+            => NavigationPainterFactory.CreatePainter(navigationStyle.Compact);
+
+        public override int CalculateHeaderHeight(BeepGridPro grid) => 24;
+        public override int CalculateNavigatorHeight(BeepGridPro grid) => 40;
     }
 }

@@ -223,6 +223,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
                     m.GlowBlur = 20;
                     break;
 
+                case DockStyle.iOSDock:
+                    m.ItemSize = 60;
+                    m.ItemSpacing = 8;
+                    m.CornerRadius = 24;
+                    m.ItemCornerRadius = 12;
+                    m.BackgroundOpacity = 0.75f;
+                    m.ShowReflection = false;
+                    m.ShowShadow = true;
+                    m.ShowGlow = false;
+                    m.MaxScale = 1.5f;
+                    m.BackgroundColor = Color.FromArgb(200, 250, 250, 255);
+                    m.BorderColor = Color.FromArgb(80, 255, 255, 255);
+                    break;
+
+                case DockStyle.GNOMEDock:
+                    m.ItemSize = 48;
+                    m.ItemSpacing = 8;
+                    m.CornerRadius = 12;
+                    m.ItemCornerRadius = 8;
+                    m.BackgroundOpacity = 0.85f;
+                    m.ShowReflection = false;
+                    m.ShowShadow = true;
+                    m.ShowGlow = false;
+                    m.MaxScale = 1.4f;
+                    m.BackgroundColor = Color.FromArgb(40, 40, 45);
+                    m.BorderColor = Color.FromArgb(60, 255, 255, 255);
+                    break;
+
+                case DockStyle.PlasmaPanel:
+                    m.ItemSize = 46;
+                    m.ItemSpacing = 6;
+                    m.CornerRadius = 8;
+                    m.ItemCornerRadius = 6;
+                    m.BackgroundOpacity = 0.95f;
+                    m.ShowReflection = false;
+                    m.ShowShadow = true;
+                    m.ShowGlow = false;
+                    m.MaxScale = 1.3f;
+                    m.BackgroundColor = Color.FromArgb(42, 46, 50);
+                    m.BorderColor = Color.FromArgb(80, 255, 255, 255);
+                    break;
+
+                case DockStyle.PlankDock:
+                    m.ItemSize = 48;
+                    m.ItemSpacing = 8;
+                    m.CornerRadius = 12;
+                    m.ItemCornerRadius = 8;
+                    m.BackgroundOpacity = 0.85f;
+                    m.ShowReflection = false;
+                    m.ShowShadow = true;
+                    m.ShowGlow = false;
+                    m.MaxScale = 1.3f;
+                    m.BackgroundColor = Color.FromArgb(60, 60, 65);
+                    m.BorderColor = Color.FromArgb(30, 0, 0, 0);
+                    break;
+
+                case DockStyle.NordDock:
+                    m.ItemSize = 50;
+                    m.ItemSpacing = 10;
+                    m.CornerRadius = 12;
+                    m.ItemCornerRadius = 10;
+                    m.BackgroundOpacity = 0.92f;
+                    m.ShowReflection = false;
+                    m.ShowShadow = true;
+                    m.ShowGlow = false;
+                    m.MaxScale = 1.35f;
+                    m.BackgroundColor = Color.FromArgb(59, 66, 82);  // Nord1
+                    m.BorderColor = Color.FromArgb(76, 86, 106);     // Nord3
+                    m.AccentColor = Color.FromArgb(136, 192, 208);    // Nord8
+                    break;
+
                 default:
                     // Use AppleDock as default
                     return DefaultFor(DockStyle.AppleDock, theme, useThemeColors);

@@ -583,7 +583,11 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private bool ShouldDrawPlaceholder()
         {
-            string actualText = GetActualText();
+            // FIX: Use _textBox.Text directly, not GetActualText()
+            // GetActualText() might filter out valid text
+            string actualText = _textBox.Text;
+            
+            // Only show placeholder if truly no text
             return string.IsNullOrEmpty(actualText) && !string.IsNullOrEmpty(_textBox.PlaceholderText);
         }
         
@@ -652,13 +656,21 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             string text = _textBox.Text;
             
-            // Filter out default/placeholder-like text
-            if (string.IsNullOrEmpty(text) ||
-                text.StartsWith("beepSimpleTextBox") ||
-                text.Equals((_textBox as Control)?.Name))
+            // FIX: Only filter out truly empty text or obvious designer defaults
+            // Don't filter out user text just because it starts with "beep"!
+            if (string.IsNullOrEmpty(text))
             {
                 return string.Empty;
             }
+            
+            // REMOVED: Do not filter out text if it matches control name.
+            // This causes issues at runtime if the user intentionally sets text equal to the name (e.g. "Search").
+            /*
+            if (text.Equals((_textBox as Control)?.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Empty;
+            }
+            */
             
             // Handle password characters
             if (_textBox.UseSystemPasswordChar && !string.IsNullOrEmpty(text))

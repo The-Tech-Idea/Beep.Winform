@@ -25,9 +25,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
-         }
+        }
 
-      
+
         DriversConfigViewModel viewModel;
 
         int currentidx = -1;
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // Wire grid events
             //beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;
             CycleBeepDataTimePickerModebeepButton.Click += CycleBeepDataTimePickerModebeepButton_Click;
-          //  CalendarnamebeepLabel.Text =  beepDateTimePicker1.Mode.ToString();
+            //  CalendarnamebeepLabel.Text =  beepDateTimePicker1.Mode.ToString();
         }
 
         private void CycleBeepDataTimePickerModebeepButton_Click(object? sender, EventArgs e)
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //int nextIndex = (currentIndex + 1) % modes.Length;
             //beepDateTimePicker1.Mode = (Winform.Controls.Dates.Models.DatePickerMode)modes.GetValue(nextIndex);
             //CalendarnamebeepLabel.Text = beepDateTimePicker1.Mode.ToString();
-            
+
             // Cycle through navigationStyle enum values
             var modes = Enum.GetValues(typeof(navigationStyle));
             int currentIndex = Array.IndexOf(modes, beepGridPro1.NavigationStyle);
@@ -101,6 +101,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         }
 
-     
+        private void beepPanel1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

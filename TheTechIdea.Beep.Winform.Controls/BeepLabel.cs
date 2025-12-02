@@ -17,6 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls
   //  [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepLabelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepLabel : BaseControl
     {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+        private const int WM_SETREDRAW = 0x000B;
 
         #region "Fields"
         private BeepImage beepImage;
@@ -307,42 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // Material Design convenience properties
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("The floating label text that appears above the label content.")]
-        public string LabelText
-        {
-            get => base.LabelText;
-            set => base.LabelText = value;
-        }
 
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Helper text that appears below the label.")]
-        public string LabelHelperText
-        {
-            get => HelperText;
-            set => HelperText = value;
-        }
-
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Error message to display when validation fails.")]
-        public string LabelErrorText
-        {
-            get => ErrorText;
-            set => ErrorText = value;
-        }
-
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Whether the label is in an error state.")]
-        public bool LabelHasError
-        {
-            get => HasError;
-            set => HasError = value;
-        }
 
     
 
@@ -411,10 +379,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Base content minimums
                 Size baseContentMin = new Size(Math.Max(80, contentW), Math.Max(20, contentH));
 
-                // 5) Effective minimum: material vs non-material
-                Size effectiveMin = PainterKind == BaseControlPainterKind.Material
-                    ? GetEffectiveMaterialMinimum(baseContentMin)
-                    : new Size(
+                // 5) Effective minimum
+                Size effectiveMin = new Size(
                         baseContentMin.Width + (BorderThickness + 2) * 2,
                         baseContentMin.Height + (BorderThickness + 2) * 2);
 
@@ -456,6 +422,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepLabel() : base()
         {
             DoubleBuffered = true;
+            SetStyle(ControlStyles.Selectable, false);
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             BoundProperty = "Text";
@@ -513,14 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateMinimumSize();
             Invalidate();
         }
-        // Track material-related property changes
-        protected override void OnMaterialPropertyChanged()
-        {
-            base.OnMaterialPropertyChanged();
-            UpdateMinimumSize();
-            Invalidate();
-        }
-
+     
         private void InitializeComponents()
         {
             beepImage = new BeepImage
@@ -535,6 +495,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(1);
             Margin = new Padding(0);
         }
+
+      
 
         protected override void DrawContent(Graphics g)
         {
@@ -737,7 +699,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
 
-        #region "Text and Alignment"
+        #region "Mouse Events"
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            // Suppress repaint on click to prevent flicker
+            SendMessage(Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
+            try
+            {
+                base.OnMouseDown(e);
+            }
+            finally
+            {
+                SendMessage(Handle, WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            // Suppress repaint on click to prevent flicker
+            SendMessage(Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
+            try
+            {
+                base.OnMouseUp(e);
+            }
+            finally
+            {
+                SendMessage(Handle, WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
+            }
+        }
+        #endregion "Mouse Events"
         /// <summary>
         /// Measures the preferred size of the label based on its current text, font, and constraints.
         /// </summary>
@@ -748,10 +738,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Use GetPreferredSize to calculate the size, passing the proposed constraints
             return GetPreferredSize(proposedSize);
         }
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
-        }
+
 
         public override Size GetPreferredSize(Size proposedSize)
         {
@@ -839,7 +826,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-
+        #region"Text and Alignment"
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -1052,22 +1039,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Text and Alignment"
 
-        #region "Mouse Events"
-        protected override void OnMouseHover(EventArgs e)
-        {
-            IsHovered = true;
-        }
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            IsHovered = false;
-        }
-
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            IsHovered = true;
-        }
-        #endregion "Mouse Events"
 
         #region "IBeep UI Component Implementation"
         public override void SetValue(object value)

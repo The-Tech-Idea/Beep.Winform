@@ -1,27 +1,41 @@
-using System.Drawing;
+using System;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
-    public sealed class CardTableLayoutHelper : IGridLayoutPreset
+    public sealed class CardTableLayoutHelper : BaseLayoutPreset
     {
-        public void Apply(BeepGridPro grid)
+        public override string Name => "Card";
+        public override string Description => "Card-based layout with elevation";
+        public override LayoutCategory Category => LayoutCategory.Modern;
+
+        protected override void ConfigureDimensions(BeepGridPro grid)
         {
-            if (grid == null) return;
-
             grid.RowHeight = 28;
-            grid.ColumnHeaderHeight = 32;
             grid.ShowColumnHeaders = true;
+        }
 
-            grid.Render.ShowGridLines = false; // card uses borders instead
+        protected override void ConfigureVisualProperties(BeepGridPro grid)
+        {
+            grid.Render.ShowGridLines = false; // Cards don't have grid lines
+            grid.Render.GridLineStyle = DashStyle.Solid;
             grid.Render.ShowRowStripes = false;
             grid.Render.UseHeaderGradient = true;
             grid.Render.UseHeaderHoverEffects = true;
             grid.Render.UseBoldHeaderText = false;
             grid.Render.HeaderCellPadding = 4;
-            grid.Render.UseElevation = true;
-            grid.Render.CardStyle = true; // outline for rows
-
-            LayoutCommon.ApplyAlignmentHeuristics(grid);
+            grid.Render.UseElevation = true; // Card elevation
+            grid.Render.CardStyle = true; // Enable card style
         }
+
+        public override IPaintGridHeader GetHeaderPainter() 
+            => HeaderPainterFactory.CreateHeaderPainter(navigationStyle.Card);
+
+        public override INavigationPainter GetNavigationPainter() 
+            => NavigationPainterFactory.CreatePainter(navigationStyle.Card);
+
+        public override int CalculateHeaderHeight(BeepGridPro grid) => 32;
+        public override int CalculateNavigatorHeight(BeepGridPro grid) => 52;
     }
 }

@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Flyout Menu")]
     [Category("Beep Controls")]
     [Description("A flyout menu control that displays a list of items.")]
-    public class BeepFlyoutMenu : BeepControl
+    public class BeepFlyoutMenu : BaseControl
     {
         private BeepButton _dropDownButton;
         private BeepLabel _dropDownLabel;

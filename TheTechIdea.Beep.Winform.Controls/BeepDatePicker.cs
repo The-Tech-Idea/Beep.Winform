@@ -648,11 +648,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Rectangle(x, y, _buttonWidth, h);
         }
 
-        // Remove full override of Draw and render content in DrawContent instead, like other controls
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+            Paint(g, DrawingRect);
+        }
 
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             if (_currentTheme == null) return;
 
             Rectangle contentRect = GetContentRectForDrawing();

@@ -180,7 +180,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }
         }
 
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
+        {
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
         {
             // Design-time placeholder rendering
             if (IsDesignModeSafe)
@@ -192,8 +212,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Get the actual content rectangle from BaseControl, like BeepComboBox does
-            Rectangle contentRect = GetContentRectForDrawing();
+            // Get the actual content rectangle
+            Rectangle contentRect = bounds.IsEmpty ? GetContentRectForDrawing() : bounds;
 
             if (_usePainterSystem && _stylePainter != null)
             {

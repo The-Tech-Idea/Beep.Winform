@@ -333,9 +333,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Drawing
+        
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
@@ -352,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
+                BeepStyling.PaintStyleBackground(g, bounds, ControlStyle);
             }
             
             if (_items.Count == 0) return;

@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 
@@ -6,16 +7,37 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepComboBox
     {
-        #region Drawing Override
+        #region Drawing
         
         /// <summary>
-        /// Main drawing method - delegates to painter based on ComboBoxType
+        /// DrawContent override - called by BaseControl
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-            if (Width <= 0 || Height <= 0) return;
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+            
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            
             UpdateLayout();
+            
             // Ensure painter exists for current type
             if (_comboBoxPainter == null)
             {
@@ -30,18 +52,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _needsLayoutUpdate = false;
             }
             
-            // Ensure DrawingRect is available from BaseControl painter
-            if (DrawingRect.IsEmpty || DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
-            {
-                // Fallback to ClientRectangle if DrawingRect not set yet
-                var rect = ClientRectangle;
-                rect.Inflate(-2, -2); // Small default padding
-                UpdateLayout();
-            }
-            var rectToDraw = DrawingRect;
-           // rectToDraw.Inflate(-2, -2);
             // Let the combo box painter draw everything
-            _comboBoxPainter.Paint(g, this, DrawingRect);
+            _comboBoxPainter.Paint(g, this, bounds);
             
             // Register hit areas for interaction
             RegisterHitAreas();

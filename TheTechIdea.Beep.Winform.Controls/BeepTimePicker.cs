@@ -816,12 +816,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             Height = _textBox.PreferredHeight + (_padding * 2);
         }
 
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
+        protected override void DrawContent(Graphics g)
+        {
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
         public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
         {
             try
             {
-                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
                 // Background color based on validation state
                 Color backgroundColor = !string.IsNullOrEmpty(_validationErrorMessage) 
@@ -830,7 +850,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 using (SolidBrush backgroundBrush = new SolidBrush(backgroundColor))
                 {
-                    graphics.FillRectangle(backgroundBrush, rectangle);
+                    g.FillRectangle(backgroundBrush, bounds);
                 }
 
                 if (BorderThickness > 0)
@@ -841,9 +861,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     using (Pen borderPen = new Pen(borderColor, BorderThickness))
                     {
-                        Rectangle borderRect = rectangle;
+                        Rectangle borderRect = bounds;
                         borderRect.Inflate(-BorderThickness / 2, -BorderThickness / 2);
-                        graphics.DrawRectangle(borderPen, borderRect);
+                        g.DrawRectangle(borderPen, borderRect);
                     }
                 }
             }

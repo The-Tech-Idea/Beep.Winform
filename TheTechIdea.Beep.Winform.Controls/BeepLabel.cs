@@ -498,13 +498,32 @@ namespace TheTechIdea.Beep.Winform.Controls
 
       
 
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             UpdateDrawingRect();
             // Apply a small inner inset to prevent clipping - framework handles DPI scaling
             var inset = Math.Max(1, 1);
-            var rect = DrawingRect;
+            var rect = bounds;
             rect.Inflate(-inset, -inset);
             contentRect = rect;
             DrawImageAndText(g);
@@ -1063,11 +1082,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return true;
         }
 
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            contentRect = rectangle;
-            DrawImageAndText(graphics);
-        }
+        // NOTE: Draw method now above (calls Paint function)
         #endregion "IBeep UI Component Implementation"
         #region "Badge"
         private BeepControl _lastBeepParent;

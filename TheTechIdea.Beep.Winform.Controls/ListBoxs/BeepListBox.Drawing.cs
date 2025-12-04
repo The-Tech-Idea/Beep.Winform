@@ -12,12 +12,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Drawing Override
         
         /// <summary>
-        /// Main drawing method - delegates to painter based on ListBoxType
+        /// DrawContent override - called by BaseControl
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-            if (Width <= 0 || Height <= 0) return;
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
             
             // Ensure painter exists for current type
             if (_listBoxPainter == null)
@@ -26,10 +42,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _listBoxPainter.Initialize(this, _currentTheme);
                 _listBoxPainter.Style = ControlStyle;
             }
-            if( _listBoxPainter.Style != ControlStyle)
+            if (_listBoxPainter.Style != ControlStyle)
             {
                 _listBoxPainter.Style = ControlStyle;
             }
+            
             // Update layout if needed
             if (_needsLayoutUpdate)
             {
@@ -38,15 +55,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _hitHelper.RegisterHitAreas();
                 _needsLayoutUpdate = false;
             }
-
-            // Use DrawingRect for drawing area
-            var drawingRect = DrawingRect;
-            //drawingRect.Inflate(-2, -2); // Small padding
             
             // Let the list box painter draw everything
-            _listBoxPainter.Paint(g, this, drawingRect);
-            
-            // Hit areas are registered by helpers above
+            _listBoxPainter.Paint(g, this, bounds);
         }
         
         #endregion

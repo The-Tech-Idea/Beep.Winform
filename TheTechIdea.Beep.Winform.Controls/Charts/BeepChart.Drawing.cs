@@ -9,10 +9,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
     public partial class BeepChart
     {
-      
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             UpdateDrawingRect();
             
             if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
@@ -40,14 +58,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 // Paint background based on selected Style
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
-            var bounds = ctx.PlotRect != Rectangle.Empty ? ctx.PlotRect : ctx.DrawingRect;
+            var plotBounds = ctx.PlotRect != Rectangle.Empty ? ctx.PlotRect : ctx.DrawingRect;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Draw title section
-            var currentY = DrawTitleSection(g, bounds);
+            var currentY = DrawTitleSection(g, plotBounds);
 
             // Draw axes and get plot area
-            var axisCtx = CreateAxisContext(bounds, currentY);
+            var axisCtx = CreateAxisContext(plotBounds, currentY);
             axisCtx = _axisPainter.AdjustPlotRect(g, axisCtx);
             _axisPainter.DrawAxes(g, axisCtx);
             _axisPainter.DrawTicks(g, axisCtx);

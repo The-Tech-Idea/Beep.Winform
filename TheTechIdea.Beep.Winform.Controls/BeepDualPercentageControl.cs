@@ -173,25 +173,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate(); // Redraw the control
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
+        protected override void DrawContent(Graphics g)
         {
-            base.OnPaint(e);
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             UpdateDrawingRect();
 
             // Draw a light border around the control
             using (Pen borderPen = new Pen(BorderColor, 1))
             {
-                e.Graphics.DrawRectangle(borderPen, 0, 0, Width - 1, Height - 1);
+                g.DrawRectangle(borderPen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
             }
 
             // Draw the colored background for the left section
             var sectionColor = LeftSectionColor != Color.Empty ? LeftSectionColor : (_currentTheme?.SuccessColor ?? Color.FromArgb(144, 238, 144));
             using (SolidBrush sectionBrush = new SolidBrush(Color.FromArgb(200, sectionColor)))
             {
-                int leftSectionWidth = Width / 2; // Split the control into two halves
-                using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(new Rectangle(0, 0, leftSectionWidth, Height), BorderRadius))
+                int leftSectionWidth = bounds.Width / 2; // Split the control into two halves
+                using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(new Rectangle(bounds.X, bounds.Y, leftSectionWidth, bounds.Height), BorderRadius))
                 {
-                    e.Graphics.FillPath(sectionBrush, path);
+                    g.FillPath(sectionBrush, path);
                 }
             }
         }

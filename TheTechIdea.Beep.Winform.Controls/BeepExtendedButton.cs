@@ -453,10 +453,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             ButtonClick?.Invoke(this, new BeepEventDataArgs("ButtonClick", MenuItem));
 
         }
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-            
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             // Calculate layout for current drawing
             CalculateLayout(out Rectangle mainButtonRect, out Rectangle extendButtonRect);
             

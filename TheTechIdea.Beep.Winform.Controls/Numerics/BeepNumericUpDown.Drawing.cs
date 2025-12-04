@@ -13,14 +13,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     public partial class BeepNumericUpDown
     {
         #region Drawing
+        
         /// <summary>
-        /// Paints the numeric control using BeepStyling for visual elements
+        /// DrawContent override - called by BaseControl
         /// </summary>
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void DrawContent(Graphics g)
         {
-            base.OnPaint(e);
+            Paint(g, DrawingRect);
+        }
 
-            Graphics g = e.Graphics;
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
 
@@ -37,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                 if (_currentPainter != null)
                 {
                     var context = new NumericUpDownPainterContext(this);
-                    var layout = _currentPainter.CalculateLayout(context, ClientRectangle);
+                    var layout = _currentPainter.CalculateLayout(context, bounds);
 
                     // Store button rectangles for hit testing
                     _upButtonRect = layout.UpButtonRect;
@@ -166,35 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             };
         }
 
-        /// <summary>
-        /// Legacy support for BaseControl Draw method - uses BeepStyling
-        /// </summary>
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            // Legacy support for BaseControl Draw method - use BeepStyling
-            using (var path = GetControlPath())
-            {
-                BeepStyling.PaintStyleBackground(graphics, path, Style);
-                BeepStyling.PaintStyleBorder(graphics, path, IsFocused, Style);
-
-                if (_currentPainter != null)
-                {
-                    var context = new NumericUpDownPainterContext(this);
-                    var layout = _currentPainter.CalculateLayout(context, rectangle);
-                    
-                    if (!_isEditing)
-                    {
-                        string formattedText = _currentPainter.FormatValue(context);
-                        _currentPainter.PaintValueText(graphics, context, layout.TextRect, formattedText);
-                    }
-
-                    if (layout.ShowButtons)
-                    {
-                        _currentPainter.PaintButtonIcons(graphics, context, layout.UpButtonRect, layout.DownButtonRect);
-                    }
-                }
-            }
-        }
+        // NOTE: Draw method now implemented above (calls Paint function)
         #endregion
     }
 }

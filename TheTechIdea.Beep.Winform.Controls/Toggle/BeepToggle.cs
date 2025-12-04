@@ -338,10 +338,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
             Toggled?.Invoke(this, new ToggleEventArgs(_isOn));
         }
 
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+            Paint(g, DrawingRect);
+        }
 
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
             if (_painter == null)
                 return;
 
@@ -355,8 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
                 state = ControlState.Hover;
 
             // Paint the toggle using the current painter
-            // Painter will calculate its own layout during Paint()
-            _painter.Paint(g, DrawingRect, state);
+            _painter.Paint(g, bounds, state);
         }
 
         #endregion

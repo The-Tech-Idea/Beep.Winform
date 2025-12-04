@@ -585,16 +585,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             return changed;
         }
     
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            // Ensure painter updates the layout and DrawingRect like BeepButton does
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
+            // Ensure painter updates the layout and DrawingRect
             UpdateDrawingRect();
 
             // Let BaseControl painter draw container (borders/background)
-            base.DrawContent(g);
+            // NOTE: base.DrawContent(g) is called via DrawContent, not here
 
-            // Now draw the checkbox content inside the latest DrawingRect
-            Draw(g, DrawingRect);
+            // Now draw the checkbox content
+            Draw(g, bounds);
         }
        private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
         {

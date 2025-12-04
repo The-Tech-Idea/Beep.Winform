@@ -23,6 +23,12 @@
 		},
 		{
 			"path": "../BeepDM/DataManagementModelsStandard"
+		},
+		{
+			"path": "../Beep.Shell"
+		},
+		{
+			"path": "../Beep.Branchs/TheTechIdea.Beep.TreeNodes"
 		}
 	],
 	"settings": {

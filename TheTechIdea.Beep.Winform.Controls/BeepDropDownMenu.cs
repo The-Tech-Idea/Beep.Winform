@@ -227,16 +227,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
-        /// Draw the content including the dropdown button
+        /// DrawContent override - called by BaseControl
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            // Draw the base control content first
-            base.DrawContent(g);
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
+            // Draw the base list content first (via base.DrawContent called from DrawContent)
 
             // Calculate the dropdown button rectangle
             Rectangle buttonRect = new Rectangle(
-                DrawingRect.Right - _buttonWidth - _padding,
+                bounds.Right - _buttonWidth - _padding,
                 2,
                 _buttonWidth,
                 _buttonWidth

@@ -12,21 +12,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
     /// </summary>
     public partial class BeepDateTimePicker
     {
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
-        {     // Setup graphics quality
-        
-            base.DrawContent(g);
+        {
+            Paint(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            
             UpdateDrawingRect();
+            
             if (_currentPainter == null)
             {
                 InitializePainter();
                 if (_currentPainter == null) return;
             }
-           
 
-            // Get the drawing rectangle (from BaseControl)
-            var drawingRect = DrawingRect;
-            if (drawingRect.Width <= 0 || drawingRect.Height <= 0) return;
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Update layout if needed
             if (_layout == null || _layout.CalendarGridRect.IsEmpty)
@@ -34,8 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 UpdateLayout();
             }
 
-            // Register hit areas with BaseControl's hit test system
-            // This maps all interactive calendar elements to BaseControl's input handling
+            // Register hit areas
             var props = GetCurrentProperties();
             if (_layout != null && _hitHelper != null)
             {
@@ -50,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
 
             // Let painter draw the complete calendar/picker interface
-            _currentPainter.PaintCalendar(g, drawingRect, props, _displayMonth, _hoverState);
+            _currentPainter.PaintCalendar(g, bounds, props, _displayMonth, _hoverState);
         }
 
         protected override void OnResize(EventArgs e)

@@ -952,31 +952,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Painting
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-        }
-
+        
+        /// <summary>
+        /// DrawContent override - called by BaseControl
+        /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-            Draw(g, DrawingRect);
+            Paint(g, DrawingRect);
         }
 
+        /// <summary>
+        /// Draw override - called by BeepGridPro and containers
+        /// </summary>
         public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Paint(graphics, rectangle);
+        }
+
+        /// <summary>
+        /// Main paint function - centralized painting logic
+        /// Called from both DrawContent and Draw
+        /// </summary>
+        private void Paint(Graphics g, Rectangle bounds)
         {
             if (_currentTheme == null || _painter == null)
                 return;
 
-            // Ensure DrawingRect is valid
-            if (rectangle.Width <= 0 || rectangle.Height <= 0)
+            // Ensure bounds are valid
+            if (bounds.Width <= 0 || bounds.Height <= 0)
                 return;
 
             // Create painter context
             var context = new RatingPainterContext
             {
-                Graphics = graphics,
-                Bounds = rectangle,
+                Graphics = g,
+                Bounds = bounds,
                 StarCount = _starCount,
                 SelectedRating = _selectedRating,
                 PreciseRating = _preciseRating,

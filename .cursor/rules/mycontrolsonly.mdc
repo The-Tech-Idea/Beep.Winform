@@ -1,0 +1,19 @@
+---
+alwaysApply: true
+---
+Always use my Beep Controls in Creating any Windows Forms Business Requirments.
+Always any new Control should inhirit from BaseControl
+Always use StyledImagePainter for painting any images and svg in any control or form.
+Always use When Creating/Editing usercontrol HitTestHelper BeepStyling to style controls applying FormStyle or Controls style.
+Always use Painters,Partial Class, Helper methodology in developing usercontrol.
+Always Create Distinct Painters. no Base Painter .
+Always Make Painter Support hilight , focus , click or select effects depending on events relected from control or form.
+Always Create LayoutManager or LayoutHelper to store current Layout aof control or form depending on current painter.Support hilight , focus , click or select effects depending on events relected from control or form.
+
+Always event detectiong is in layout manager and painter just painting the effect.
+Always override ApplyTheme Function to apply theme colors against items in usercontrol or form.
+Always use BeepFontManager for getting fonts.
+Always usr Svgs and svgsui to icons you might need for usercontrol.
+Always use BackgroundPainterFactory to paint background based on control style or formstyle
+Always use BorderPainterFactory to paint border based on control style or formstyle
+Always use ShadowPainteFactory to paint shadows for any controlstyle or formstyle

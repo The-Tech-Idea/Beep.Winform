@@ -5,24 +5,6 @@
 		},
 		{
 			"path": "../Beep.Winform.Sample/WinFormsApp.UI.Test"
-		},
-		{
-			"path": "../BeepDM"
-		},
-		{
-			"path": "../Beep.Containers"
-		},
-		{
-			"path": "../Beep.Desktop"
-		},
-		{
-			"path": "../BeepDataSources/InMemoryDB"
-		},
-		{
-			"path": "../BeepDataSources/DataSourcesPluginsCore/SqliteDatasourceCore"
-		},
-		{
-			"path": "../BeepDataSources/DataSourcesPlugins/RDBMSDataSource"
 		}
 	],
 	"settings": {

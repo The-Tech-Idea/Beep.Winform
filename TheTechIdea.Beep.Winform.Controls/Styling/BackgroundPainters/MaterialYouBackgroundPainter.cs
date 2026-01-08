@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 : StyleColors.GetPrimary(BeepControlStyle.MaterialYou);
 
             // Use MaterialYouColorSystem for dynamic palette generation
-            bool isDarkMode = theme?.IsDarkMode ?? false;
+            bool isDarkMode = theme?.IsDarkTheme ?? false;
             var palette = MaterialYouColorSystem.GenerateMaterialYouPalette(primaryColor, isDarkMode, ensureAccessibility: true);
 
             // Use ElevationSystem for state-aware elevation

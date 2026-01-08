@@ -45,7 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ColorSystems
                 SurfaceVariant = GenerateTonalVariant(basePalette.Surface, isDarkMode ? 0.1f : -0.05f),
                 OnSurfaceVariant = GetContrastColor(GenerateTonalVariant(basePalette.Surface, isDarkMode ? 0.1f : -0.05f)),
                 Outline = GenerateOutlineColor(basePalette.Surface, isDarkMode),
-                OutlineVariant = GenerateTonalVariant(GenerateOutlineColor(basePalette.Surface, isDarkMode), 0.1f)
+                OutlineVariant = GenerateTonalVariant(GenerateOutlineColor(basePalette.Surface, isDarkMode), 0.1f),
+                
+                // Add tonal colors from base palette for state variations
+                Tonal100 = basePalette.Tonal100,
+                Tonal300 = basePalette.Tonal300,
+                Tonal400 = basePalette.Tonal400,
+                Tonal700 = basePalette.Tonal700
             };
 
             // Ensure accessibility compliance if requested
@@ -218,5 +224,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ColorSystems
         public Color OnSurfaceVariant { get; set; }
         public Color Outline { get; set; }
         public Color OutlineVariant { get; set; }
+        
+        // Tonal colors for state variations (Material You uses tonal colors for interactive states)
+        public Color Tonal100 { get; set; }
+        public Color Tonal300 { get; set; }
+        public Color Tonal400 { get; set; }
+        public Color Tonal700 { get; set; }
     }
 }

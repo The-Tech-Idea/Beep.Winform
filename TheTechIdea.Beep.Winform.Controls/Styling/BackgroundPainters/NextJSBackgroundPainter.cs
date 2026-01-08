@@ -61,7 +61,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
 
             // Add very subtle top border for Next.js card style
-            var bounds = path.GetBounds();
             if (bounds.Width > 0 && bounds.Height > 0)
             {
                 var topBorderRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, 1);

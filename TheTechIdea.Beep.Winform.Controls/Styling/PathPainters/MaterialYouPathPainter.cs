@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             Color baseColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(103, 80, 164));
             
             // Use MaterialYouColorSystem for dynamic palette generation
-            bool isDarkMode = theme?.IsDarkMode ?? false;
+            bool isDarkMode = theme?.IsDarkTheme ?? false;
             var palette = MaterialYouColorSystem.GenerateMaterialYouPalette(baseColor, isDarkMode, ensureAccessibility: true);
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))

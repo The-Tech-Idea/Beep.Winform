@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -1457,8 +1458,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                     A(a.B, b.B));
             }
 
-            private static Color Darken(Color c, double by) => Blend(c, Color.Black, Math.Clamp(by, 0, 1));
-            private static Color Lighten(Color c, double by) => Blend(c, Color.White, Math.Clamp(by, 0, 1));
+            private static Color Darken(Color c, double by) 
+                => ColorAccessibilityHelper.DarkenColor(c, (float)Math.Clamp(by, 0, 1));
+            private static Color Lighten(Color c, double by) 
+                => ColorAccessibilityHelper.LightenColor(c, (float)Math.Clamp(by, 0, 1));
 
             private TypographyStyle TS(float size, FontStyle style, int weight, Color color)
                 => new TypographyStyle
@@ -1507,13 +1510,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                     else if (name.Contains("Success", StringComparison.OrdinalIgnoreCase))
                         p.SetValue(this, SuccessColor);
                     else if (name.Contains("Hover", StringComparison.OrdinalIgnoreCase) && name.EndsWith("BackColor"))
-                        p.SetValue(this, Blend(PrimaryColor, BackgroundColor, 0.94));
+                        p.SetValue(this, ColorAccessibilityHelper.LightenColor(BackgroundColor, 0.05f)); // Subtle lighten
                     else if (name.Contains("Hover", StringComparison.OrdinalIgnoreCase) && name.EndsWith("ForeColor"))
-                        p.SetValue(this, Darken(PrimaryColor, 0.35));
+                        p.SetValue(this, ForeColor); // Keep foreground readable
                     else if (name.Contains("Selected", StringComparison.OrdinalIgnoreCase) && name.EndsWith("BackColor"))
-                        p.SetValue(this, Blend(PrimaryColor, BackgroundColor, 0.88));
+                        p.SetValue(this, Blend(PrimaryColor, BackgroundColor, 0.15)); // Subtle tint (RGB blend is fine for tinting)
                     else if (name.Contains("Selected", StringComparison.OrdinalIgnoreCase) && name.EndsWith("ForeColor"))
-                        p.SetValue(this, Darken(PrimaryColor, 0.35));
+                        p.SetValue(this, ForeColor); // Keep foreground readable
                     else if (name.EndsWith("BorderColor"))
                         p.SetValue(this, BorderColor);
                     else if (name.EndsWith("BackColor"))

@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -19,11 +20,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             // Base neon color from style
             Color baseNeon = StyleColors.GetPrimary(BeepControlStyle.Neon);
 
-            // Slightly adjust for state
+            // Slightly adjust for state - use HSL for more natural neon glow
             baseNeon = state switch
             {
-                ControlState.Hovered => PathPainterHelpers.Lighten(baseNeon, 0.1f),
-                ControlState.Pressed => PathPainterHelpers.Darken(baseNeon, 0.1f),
+                ControlState.Hovered => ColorAccessibilityHelper.LightenColor(baseNeon, 0.1f),
+                ControlState.Pressed => ColorAccessibilityHelper.DarkenColor(baseNeon, 0.1f),
                 ControlState.Disabled => PathPainterHelpers.WithAlpha(baseNeon, 100),
                 _ => baseNeon
             };

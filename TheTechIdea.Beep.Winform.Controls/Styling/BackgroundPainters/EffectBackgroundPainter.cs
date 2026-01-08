@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -73,7 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             switch (state)
             {
                 case ControlState.Hovered:
-                    stateColor = BackgroundPainterHelpers.Lighten(baseColor, 0.20f);
+                    // Use HSL-based color manipulation for more natural results
+                    stateColor = ColorAccessibilityHelper.LightenColor(baseColor, 0.20f);
                     gradientEndColor = Color.FromArgb(baseColor.A,
                         Math.Min(255, baseColor.R + 77),
                         Math.Min(255, baseColor.G + 64),
@@ -81,7 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
 
                 case ControlState.Pressed:
-                    stateColor = BackgroundPainterHelpers.Darken(baseColor, 0.15f);
+                    // Use HSL-based color manipulation for more natural results
+                    stateColor = ColorAccessibilityHelper.DarkenColor(baseColor, 0.15f);
                     gradientEndColor = Color.FromArgb(baseColor.A,
                         Math.Max(0, stateColor.R - 10),
                         Math.Max(0, stateColor.G - 10),
@@ -102,11 +105,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 case ControlState.Disabled:
                     int gray = (baseColor.R + baseColor.G + baseColor.B) / 3;
                     stateColor = Color.FromArgb(baseColor.A, gray, gray, gray);
-                    gradientEndColor = BackgroundPainterHelpers.Darken(stateColor, 0.06f);
+                    // Use HSL-based color manipulation for more natural results
+                    gradientEndColor = ColorAccessibilityHelper.DarkenColor(stateColor, 0.06f);
                     break;
 
                 case ControlState.Focused:
-                    stateColor = BackgroundPainterHelpers.Lighten(baseColor, 0.25f);
+                    // Use HSL-based color manipulation for more natural results
+                    stateColor = ColorAccessibilityHelper.LightenColor(baseColor, 0.25f);
                     gradientEndColor = Color.FromArgb(baseColor.A,
                         Math.Min(255, stateColor.R + 20),
                         Math.Max(0, stateColor.G - 10),

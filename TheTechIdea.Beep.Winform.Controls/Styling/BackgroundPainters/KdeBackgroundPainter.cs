@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -44,10 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
         private static Color GetKdeStateFill(ControlState state, Color lightBackground, Color breezeBlue)
         {
+            // Use HSL for more natural results
             return state switch
             {
                 ControlState.Hovered => lightBackground, // Keep base (glow added separately)
-                ControlState.Pressed => BackgroundPainterHelpers.Darken(lightBackground, 0.08f),
+                ControlState.Pressed => ColorAccessibilityHelper.DarkenColor(lightBackground, 0.08f),
                 ControlState.Selected => BackgroundPainterHelpers.BlendColors(lightBackground, breezeBlue, 0.12f),
                 ControlState.Focused => lightBackground, // Keep base (glow added separately)
                 ControlState.Disabled => BackgroundPainterHelpers.WithAlpha(lightBackground, 100),

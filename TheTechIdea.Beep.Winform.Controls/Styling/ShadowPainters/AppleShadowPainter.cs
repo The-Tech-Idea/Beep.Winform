@@ -22,8 +22,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Apple shadow color - very subtle neutral
-            Color shadowColor = Color.Black;
+            // Apple shadow color - very subtle, slightly warm-tinted (Apple shadows are often warm)
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Apple shadows are often slightly warm-tinted, not pure black
+                shadowColor = Color.FromArgb(40, 35, 35);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Apple shadows are extremely subtle - "felt, not seen"

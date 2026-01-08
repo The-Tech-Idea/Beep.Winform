@@ -22,8 +22,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Cinnamon uses neutral shadows
-            Color shadowColor = Color.Black;
+            // Cinnamon uses neutral shadows - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
             int blur = StyleShadows.GetShadowBlur(style);
 

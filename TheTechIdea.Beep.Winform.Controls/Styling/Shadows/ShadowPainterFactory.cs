@@ -91,6 +91,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Terminal => new TerminalShadowPainterWrapper(),
                 BeepControlStyle.Tokyo => new TokyoShadowPainterWrapper(),
                 BeepControlStyle.Ubuntu => new UbuntuShadowPainterWrapper(),
+                BeepControlStyle.Shadcn => new ShadcnShadowPainterWrapper(),
+                BeepControlStyle.RadixUI => new RadixUIShadowPainterWrapper(),
+                BeepControlStyle.NextJS => new NextJSShadowPainterWrapper(),
+                BeepControlStyle.Linear => new LinearShadowPainterWrapper(),
                 _ => null
             };
         }
@@ -747,6 +751,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         }
     }
 
+    public class ShadcnShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public ShadcnShadowPainterWrapper() : base(BeepControlStyle.Shadcn) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath bounds, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return ShadcnShadowPainter.Paint(g, bounds, radius, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class RadixUIShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public RadixUIShadowPainterWrapper() : base(BeepControlStyle.RadixUI) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath bounds, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return RadixUIShadowPainter.Paint(g, bounds, radius, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NextJSShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public NextJSShadowPainterWrapper() : base(BeepControlStyle.NextJS) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath bounds, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return NextJSShadowPainter.Paint(g, bounds, radius, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class LinearShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public LinearShadowPainterWrapper() : base(BeepControlStyle.Linear) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath bounds, int radius,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return LinearShadowPainter.Paint(g, bounds, radius, style, theme, useThemeColors, state);
+        }
+    }
 
     #endregion
 

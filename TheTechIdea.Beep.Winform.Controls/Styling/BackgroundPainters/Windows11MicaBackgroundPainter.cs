@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -33,9 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             RectangleF bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Mica gradient effect (2% darker at bottom)
+            // Mica gradient effect (2% darker at bottom) - use HSL for more natural results
             Color topColor = stateColor;
-            Color bottomColor = BackgroundPainterHelpers.Darken(stateColor, 0.02f);
+            Color bottomColor = ColorAccessibilityHelper.DarkenColor(stateColor, 0.02f);
 
             var brush = PaintersFactory.GetLinearGradientBrush(
                 bounds, topColor, bottomColor, LinearGradientMode.Vertical);
@@ -58,10 +59,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Blend base with primary based on tint strength
             Color blended = BlendColors(baseColor, primaryColor, tintStrength);
 
-            // Additional modifications for specific states
+            // Additional modifications for specific states - use HSL for more natural results
             if (state == ControlState.Pressed)
             {
-                blended = BackgroundPainterHelpers.Darken(blended, 0.10f);
+                blended = ColorAccessibilityHelper.DarkenColor(blended, 0.10f);
             }
             else if (state == ControlState.Disabled)
             {

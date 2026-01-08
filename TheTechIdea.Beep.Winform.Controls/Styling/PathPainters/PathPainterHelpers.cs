@@ -5,6 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Caching;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -14,6 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
     /// </summary>
     public static class PathPainterHelpers
     {
+        // Static path cache for performance optimization
+        private static readonly PathCache _pathCache = new PathCache(100);
 
         /// <summary>
         /// Creates a chat bubble-style path (speech balloon shape)
@@ -46,30 +50,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         }
         /// <summary>
         /// Creates a rounded rectangle path
+        /// Uses PathCache for performance optimization when bounds and radius are reused
         /// </summary>
         public static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
         {
-            GraphicsPath path = new GraphicsPath();
-            if (radius == 0)
-            {
-                path.AddRectangle(bounds);
-                return path;
-            }
-
-            int diameter = radius * 2;
-            Size size = new Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
-
-            path.AddArc(arc, 180, 90);
-            arc.X = bounds.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = bounds.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = bounds.Left;
-            path.AddArc(arc, 90, 90);
-
-            path.CloseFigure();
-            return path;
+            // Use path cache for performance (returns a clone, caller must dispose)
+            return _pathCache.GetRoundedRectanglePath(bounds, radius);
         }
 
         /// <summary>
@@ -372,21 +358,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 
         /// <summary>
         /// Applies state-based color modifications
+        /// Uses HSL-based color manipulation for more natural results
         /// </summary>
         public static Color ApplyState(Color baseColor, ControlState state)
         {
             switch (state)
             {
                 case ControlState.Hovered:
-                    return Lighten(baseColor, 0.1f);
+                    return ColorAccessibilityHelper.LightenColor(baseColor, 0.1f);
                 case ControlState.Pressed:
-                    return Darken(baseColor, 0.15f);
+                    return ColorAccessibilityHelper.DarkenColor(baseColor, 0.15f);
                 case ControlState.Selected:
-                    return Lighten(baseColor, 0.15f);
+                    return ColorAccessibilityHelper.LightenColor(baseColor, 0.15f);
                 case ControlState.Disabled:
                     return WithAlpha(baseColor, 100);
                 case ControlState.Focused:
-                    return Lighten(baseColor, 0.05f);
+                    return ColorAccessibilityHelper.LightenColor(baseColor, 0.05f);
                 default:
                     return baseColor;
             }

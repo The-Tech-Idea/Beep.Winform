@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -24,6 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 ? theme.BackColor 
                 : StyleColors.GetBackground(BeepControlStyle.GlassAcrylic);
 
+            // Use enhanced blur for better glassmorphism effect
+            int blurRadius = 16; // Medium blur for glass acrylic
+            BackgroundPainterHelpers.PaintAdvancedBlurBackground(g, path, baseColor, blurRadius, state);
+
             // State-based alpha modulation
             int baseAlpha = state switch
             {
@@ -35,12 +40,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 _ => 200
             };
 
-            Color baseGlass = Color.FromArgb(baseAlpha, baseColor);
-            var baseBrush = PaintersFactory.GetSolidBrush(baseGlass);
-            g.FillPath(baseBrush, path);
+            // Also apply frosted glass effect for additional realism
+            BackgroundPainterHelpers.PaintFrostedGlassBackground(g, path, baseColor, baseAlpha, state);
 
             RectangleF bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Radial gradients enhance glass effect - add subtle radial highlight
+            Color centerColor = ColorAccessibilityHelper.LightenColor(baseColor, 0.08f);
+            Color edgeColor = baseColor;
+            BackgroundPainterHelpers.PaintRadialGradientBackground(g, path, centerColor, edgeColor, ControlState.Normal, BackgroundPainterHelpers.StateIntensity.Subtle);
 
             // Layer 2: Top highlight (top third)
             using (var highlightRegion = new Region(path))

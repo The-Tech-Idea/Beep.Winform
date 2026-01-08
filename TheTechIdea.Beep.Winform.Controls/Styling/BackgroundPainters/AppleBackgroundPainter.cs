@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -30,9 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Apple signature: subtle vertical gradient (lighter top to slightly darker bottom)
+            // Apple signature: subtle vertical gradient (lighter top to slightly darker bottom) - use HSL for more natural results
             Color topColor = stateColor;
-            Color bottomColor = BackgroundPainterHelpers.Darken(stateColor, 0.02f);
+            Color bottomColor = ColorAccessibilityHelper.DarkenColor(stateColor, 0.02f);
             
             var brush = PaintersFactory.GetLinearGradientBrush(
                 bounds, topColor, bottomColor, LinearGradientMode.Vertical);

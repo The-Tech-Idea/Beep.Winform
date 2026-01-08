@@ -23,8 +23,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Stripe uses neutral shadow with more prominence
-            Color shadowColor = Color.Black;
+            // Stripe uses neutral shadow - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Stripe elevation levels (more prominent than typical)
@@ -50,12 +59,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             int spread = Math.Max(3, (int)elevation + 2);
 
-            // Use clean drop shadow (Stripe premium style)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
-                g, path, radius,
-                0, offsetY,
-                shadowColor, alpha,
-                spread);
+            // Use enhanced dual-layer shadow for better depth (Stripe premium style)
+            // Stripe dashboard cards benefit from dual-layer shadows for premium feel
+            if ((int)elevation >= 2)
+            {
+                return ShadowPainterHelpers.PaintDualLayerShadow(
+                    g, path, radius,
+                    (int)elevation,
+                    shadowColor);
+            }
+            else
+            {
+                // Use clean drop shadow for lower elevations
+                return ShadowPainterHelpers.PaintCleanDropShadow(
+                    g, path, radius,
+                    0, offsetY,
+                    shadowColor, alpha,
+                    spread);
+            }
         }
     }
 }

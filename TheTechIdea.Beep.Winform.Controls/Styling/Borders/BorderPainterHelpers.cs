@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -194,5 +195,105 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
             return fallbackColor;
         }
+
+        #region Enhanced Focus Indicators
+
+        /// <summary>
+        /// Focus ring style options
+        /// </summary>
+        public enum FocusRingStyle
+        {
+            Outline,    // Simple outline border
+            Glow,       // Glowing effect around control
+            Inset       // Inset focus ring
+        }
+
+        /// <summary>
+        /// Paint a modern focus ring with multiple style options
+        /// Ensures 2px minimum width for accessibility compliance
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="path">Control path</param>
+        /// <param name="focusColor">Focus ring color (typically primary color)</param>
+        /// <param name="width">Focus ring width (minimum 2px for accessibility)</param>
+        /// <param name="style">Focus ring style</param>
+        public static void PaintFocusRing(Graphics g, GraphicsPath path, 
+            Color focusColor, float width = 2f, FocusRingStyle style = FocusRingStyle.Outline)
+        {
+            if (g == null || path == null || width <= 0) return;
+
+            // Ensure minimum 2px width for accessibility
+            float effectiveWidth = Math.Max(2f, width);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            switch (style)
+            {
+                case FocusRingStyle.Outline:
+                    PaintOutlineFocusRing(g, path, focusColor, effectiveWidth);
+                    break;
+                case FocusRingStyle.Glow:
+                    PaintGlowFocusRing(g, path, focusColor, effectiveWidth);
+                    break;
+                case FocusRingStyle.Inset:
+                    PaintInsetFocusRing(g, path, focusColor, effectiveWidth);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Paint outline-style focus ring (standard)
+        /// </summary>
+        private static void PaintOutlineFocusRing(Graphics g, GraphicsPath path, Color focusColor, float width)
+        {
+            var pen = PaintersFactory.GetPen(focusColor, width);
+            pen.LineJoin = LineJoin.Round;
+            g.DrawPath(pen, path);
+        }
+
+        /// <summary>
+        /// Paint glow-style focus ring (modern, prominent)
+        /// </summary>
+        private static void PaintGlowFocusRing(Graphics g, GraphicsPath path, Color focusColor, float width)
+        {
+            // Draw multiple layers for glow effect
+            int layers = 4;
+            for (int i = layers; i > 0; i--)
+            {
+                float layerWidth = width + (i * 1.5f);
+                int alpha = (int)(255 * (1.0f - (float)(layers - i) / layers));
+                alpha = Math.Max(30, alpha); // Minimum visibility
+
+                using (var pen = new Pen(Color.FromArgb(alpha, focusColor), layerWidth))
+                {
+                    pen.LineJoin = LineJoin.Round;
+                    g.DrawPath(pen, path);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Paint inset-style focus ring (subtle, inside border)
+        /// </summary>
+        private static void PaintInsetFocusRing(Graphics g, GraphicsPath path, Color focusColor, float width)
+        {
+            // Create inset path using extension method
+            var insetPath = path.CreateInsetPath(width);
+            if (insetPath != null && insetPath.PointCount > 0)
+            {
+                try
+                {
+                    var pen = PaintersFactory.GetPen(focusColor, width);
+                    pen.LineJoin = LineJoin.Round;
+                    g.DrawPath(pen, insetPath);
+                }
+                finally
+                {
+                    insetPath?.Dispose();
+                }
+            }
+        }
+
+        #endregion
     }
 }

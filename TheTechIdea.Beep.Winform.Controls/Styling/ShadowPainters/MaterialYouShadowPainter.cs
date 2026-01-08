@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.DesignTokens;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -24,25 +26,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Adjust elevation based on state
-            int effectiveLevel = (int)elevation;
-            switch (state)
-            {
-                case ControlState.Hovered:
-                    effectiveLevel = Math.Min(5, effectiveLevel + 1);
-                    break;
-                case ControlState.Pressed:
-                    effectiveLevel = Math.Max(0, effectiveLevel - 1);
-                    break;
-                case ControlState.Focused:
-                    effectiveLevel = Math.Min(5, effectiveLevel + 1);
-                    break;
-                case ControlState.Disabled:
-                    effectiveLevel = 0;
-                    break;
-            }
+            // Convert MaterialElevation to ElevationLevel and use ElevationSystem for state-aware elevation
+            ElevationLevel baseElevation = ConvertToElevationLevel(elevation);
+            ElevationLevel effectiveElevation = ElevationSystem.GetElevationForState(baseElevation, state);
 
-            if (effectiveLevel == 0) return path;
+            if (effectiveElevation == ElevationLevel.Level0) return path;
+            
+            int effectiveLevel = (int)effectiveElevation;
 
             // Material You: Dynamic shadow color from theme
             Color shadowColor = StyleShadows.GetShadowColor(style);
@@ -62,11 +52,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 }
             }
 
-            // Use dual-layer shadow for proper Material elevation
+            // Use enhanced dual-layer shadow for proper Material elevation
             return ShadowPainterHelpers.PaintDualLayerShadow(
                 g, path, radius,
                 effectiveLevel,
                 shadowColor);
+        }
+
+        /// <summary>
+        /// Convert MaterialElevation enum to ElevationLevel
+        /// </summary>
+        private static ElevationLevel ConvertToElevationLevel(MaterialElevation materialElevation)
+        {
+            return materialElevation switch
+            {
+                MaterialElevation.Level0 => ElevationLevel.Level0,
+                MaterialElevation.Level1 => ElevationLevel.Level1,
+                MaterialElevation.Level2 => ElevationLevel.Level2,
+                MaterialElevation.Level3 => ElevationLevel.Level4,  // Level3 maps to 4dp
+                MaterialElevation.Level4 => ElevationLevel.Level8,  // Level4 maps to 8dp
+                MaterialElevation.Level5 => ElevationLevel.Level12, // Level5 maps to 12dp
+                _ => ElevationLevel.Level2
+            };
         }
     }
 }

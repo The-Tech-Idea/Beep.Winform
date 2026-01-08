@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -34,9 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
                 PathPainterHelpers.PaintSolidPath(g, path, surface, state);
 
                 // Subtle border using accent color, stronger on hover/focus
+                // Use HSL for more natural color manipulation
                 Color borderColor = state switch
                 {
-                    ControlState.Hovered => PathPainterHelpers.Lighten(accent, 0.1f),
+                    ControlState.Hovered => ColorAccessibilityHelper.LightenColor(accent, 0.1f),
                     ControlState.Focused => accent,
                     ControlState.Selected => accent,
                     _ => PathPainterHelpers.WithAlpha(accent, 160)

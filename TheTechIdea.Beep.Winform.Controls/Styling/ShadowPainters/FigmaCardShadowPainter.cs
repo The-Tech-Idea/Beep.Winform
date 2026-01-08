@@ -22,8 +22,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Figma neutral shadow
-            Color shadowColor = Color.Black;
+            // Figma neutral shadow - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Figma state-based shadows
@@ -39,12 +48,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             int spread = 2;
 
-            // Use clean drop shadow (Figma modern style)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
+            // Use enhanced dual-layer shadow for better depth (Figma modern style)
+            // Figma cards benefit from dual-layer shadows for elevation
+            return ShadowPainterHelpers.PaintDualLayerShadow(
                 g, path, radius,
-                0, offsetY,
-                shadowColor, alpha,
-                spread);
+                2, // Default elevation for Figma cards
+                shadowColor);
         }
     }
 }

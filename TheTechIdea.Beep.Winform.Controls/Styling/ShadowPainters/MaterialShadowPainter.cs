@@ -47,11 +47,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             if (effectiveLevel == 0) return path;
 
-            // Get shadow color
-            Color shadowColor = Color.Black;
+            // Get shadow color - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
             if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
             {
                 shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
             }
 
             // Selected state: Add accent color tint to shadow

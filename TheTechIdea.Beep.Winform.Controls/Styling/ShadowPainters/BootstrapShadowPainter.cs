@@ -24,8 +24,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Bootstrap shadow color - neutral
-            Color shadowColor = Color.Black;
+            // Bootstrap shadow color - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Bootstrap elevation levels (shadow-sm, shadow, shadow-lg)
@@ -52,12 +61,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             int spread = (int)elevation + 1;
 
-            // Use clean drop shadow (Bootstrap card style)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
-                g, path, radius,
-                0, offsetY,
-                shadowColor, alpha,
-                spread);
+            // Use enhanced dual-layer shadow for better depth (Bootstrap card style)
+            // Bootstrap cards benefit from dual-layer shadows for elevation
+            if ((int)elevation >= 2)
+            {
+                return ShadowPainterHelpers.PaintDualLayerShadow(
+                    g, path, radius,
+                    (int)elevation,
+                    shadowColor);
+            }
+            else
+            {
+                // Use clean drop shadow for lower elevations
+                return ShadowPainterHelpers.PaintCleanDropShadow(
+                    g, path, radius,
+                    0, offsetY,
+                    shadowColor, alpha,
+                    spread);
+            }
         }
     }
 }

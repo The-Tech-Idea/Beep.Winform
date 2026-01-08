@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -40,8 +42,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 ? BackgroundPainterHelpers.WithAlpha(baseColor, 60)
                 : baseColor;
 
-            var baseBrush = PaintersFactory.GetSolidBrush(fillColor);
-            g.FillPath(baseBrush, path);
+            var bounds = path.GetBounds();
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // iOS 15 uses multi-stop gradients for smoother iOS-style transitions
+            // Create multi-stop gradient for authentic iOS look
+            var stops = new[]
+            {
+                (0.0f, fillColor), // Top
+                (0.3f, ColorAccessibilityHelper.LightenColor(fillColor, 0.02f)), // Upper
+                (0.7f, fillColor), // Middle
+                (1.0f, ColorAccessibilityHelper.DarkenColor(fillColor, 0.01f))  // Bottom
+            };
+
+            // Use multi-stop gradient helper for smoother iOS-style transitions
+            BackgroundPainterHelpers.PaintMultiStopGradientBackground(g, path, stops, LinearGradientMode.Vertical, state, BackgroundPainterHelpers.StateIntensity.Subtle);
 
             // iOS blur effect: translucent white overlay with state-aware intensity
             if (state != ControlState.Disabled)
@@ -50,6 +65,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 var overlayBrush = PaintersFactory.GetSolidBrush(
                     Color.FromArgb(overlayAlpha, Color.White));
                 g.FillPath(overlayBrush, path);
+
+                // iOS buttons often have radial highlights - add for button states
+                if (state == ControlState.Hovered || state == ControlState.Focused)
+                {
+                    Color centerColor = ColorAccessibilityHelper.LightenColor(fillColor, 0.04f);
+                    Color edgeColor = fillColor;
+                    BackgroundPainterHelpers.PaintRadialGradientBackground(g, path, centerColor, edgeColor, ControlState.Normal, BackgroundPainterHelpers.StateIntensity.Subtle);
+                }
             }
         }
     }

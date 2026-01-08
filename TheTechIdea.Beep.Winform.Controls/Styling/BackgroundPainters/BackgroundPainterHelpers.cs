@@ -1,7 +1,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -75,28 +77,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
         /// <summary>
         /// Lighten a color by a percentage
+        /// Delegates to ColorAccessibilityHelper for HSL-based color manipulation (more natural results)
+        /// Maintained for backward compatibility
         /// </summary>
         public static Color Lighten(Color color, float percent)
         {
-            return Color.FromArgb(
-                color.A,
-                Math.Min(255, color.R + (int)(255 * percent)),
-                Math.Min(255, color.G + (int)(255 * percent)),
-                Math.Min(255, color.B + (int)(255 * percent))
-            );
+            // Use HSL-based color manipulation for more natural results
+            return ColorAccessibilityHelper.LightenColor(color, percent);
         }
 
         /// <summary>
         /// Darken a color by a percentage
+        /// Delegates to ColorAccessibilityHelper for HSL-based color manipulation (more natural results)
+        /// Maintained for backward compatibility
         /// </summary>
         public static Color Darken(Color color, float percent)
         {
-            return Color.FromArgb(
-                color.A,
-                Math.Max(0, color.R - (int)(color.R * percent)),
-                Math.Max(0, color.G - (int)(color.G * percent)),
-                Math.Max(0, color.B - (int)(color.B * percent))
-            );
+            // Use HSL-based color manipulation for more natural results
+            return ColorAccessibilityHelper.DarkenColor(color, percent);
         }
 
         /// <summary>
@@ -286,6 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
         /// <summary>
         /// Paint a frosted glass background effect
+        /// Enhanced with better blur simulation and backdrop effects
         /// Best for: Glassmorphism, Acrylic, Mica styles
         /// </summary>
         public static void PaintFrostedGlassBackground(Graphics g, GraphicsPath path,
@@ -303,28 +302,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
+            // Enhanced blur simulation using multiple layers
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingMode = CompositingMode.SourceOver;
+
+            // Add subtle backdrop blur effect (multi-layer simulation)
+            int blurLayers = 3;
+            for (int i = 0; i < blurLayers; i++)
+            {
+                int blurAlpha = (int)(baseAlpha * 0.3f * (1.0f - i / (float)blurLayers));
+                if (blurAlpha > 0)
+                {
+                    using (var blurPath = (GraphicsPath)path.Clone())
+                    using (var matrix = new Matrix())
+                    {
+                        float offset = i * 0.5f;
+                        matrix.Translate(offset, offset);
+                        blurPath.Transform(matrix);
+                        
+                        var blurBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(blurAlpha, stateColor));
+                        g.FillPath(blurBrush, blurPath);
+                    }
+                }
+            }
+
             // Add frost pattern using clipping
             using (var clip = new ClipScope(g, path))
             {
-                // Dotted pattern for frost simulation
+                // Enhanced dotted pattern for better frost simulation
                 using (var frostBrush = new HatchBrush(HatchStyle.DottedGrid, 
-                    Color.FromArgb(15, Color.White), Color.Transparent))
+                    Color.FromArgb(20, Color.White), Color.Transparent))
                 {
                     g.FillRectangle(frostBrush, Rectangle.Round(bounds));
                 }
             }
 
-            // Top highlight for glass reflection
+            // Enhanced top highlight for glass reflection
             var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height / 3f);
             var highlight = PaintersFactory.GetLinearGradientBrush(
                 topRect,
-                Color.FromArgb(35, Color.White),
+                Color.FromArgb(45, Color.White),
                 Color.Transparent,
                 LinearGradientMode.Vertical);
             
             using (var clip = new ClipScope(g, path))
             {
                 g.FillRectangle(highlight, topRect);
+            }
+
+            // Add subtle border highlight for glass edge
+            using (var borderPath = (GraphicsPath)path.Clone())
+            {
+                var borderPen = PaintersFactory.GetPen(Color.FromArgb(60, Color.White), 1f);
+                g.DrawPath(borderPen, borderPath);
             }
         }
 
@@ -531,6 +561,236 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             public void Dispose()
             {
                 _graphics.SmoothingMode = _previousMode;
+            }
+        }
+
+        #endregion
+
+        #region Advanced Visual Effects
+
+        /// <summary>
+        /// Paint advanced blur background using multi-layer simulation
+        /// Better blur effect than simple transparency
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="path">Control path</param>
+        /// <param name="baseColor">Base color</param>
+        /// <param name="blurRadius">Blur radius in pixels (8, 16, 24 typical)</param>
+        /// <param name="state">Control state</param>
+        public static void PaintAdvancedBlurBackground(Graphics g, GraphicsPath path,
+            Color baseColor, int blurRadius, ControlState state)
+        {
+            if (g == null || path == null) return;
+
+            // Apply state to base color
+            Color stateColor = GetStateAdjustedColor(baseColor, state, StateIntensity.Subtle);
+            
+            // Multi-layer blur simulation
+            // Draw multiple offset layers with decreasing opacity
+            int layers = Math.Min(blurRadius / 2, 12); // Cap layers for performance
+            if (layers < 1) layers = 1;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingMode = CompositingMode.SourceOver;
+
+            for (int i = layers; i > 0; i--)
+            {
+                float offset = (blurRadius * i) / (float)layers;
+                int alpha = (int)(200 * (i / (float)layers));
+                alpha = Math.Max(10, Math.Min(255, alpha));
+
+                // Create offset path
+                using (var offsetPath = (GraphicsPath)path.Clone())
+                using (var matrix = new Matrix())
+                {
+                    // Slight random offset for more realistic blur
+                    float offsetX = offset * 0.3f;
+                    float offsetY = offset * 0.7f;
+                    matrix.Translate(offsetX, offsetY);
+                    offsetPath.Transform(matrix);
+
+                    var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, stateColor));
+                    g.FillPath(brush, offsetPath);
+                }
+            }
+
+            // Fill base path with semi-transparent color
+            Color fillColor = WithAlpha(stateColor, 200);
+            var baseBrush = PaintersFactory.GetSolidBrush(fillColor);
+            g.FillPath(baseBrush, path);
+        }
+
+        /// <summary>
+        /// Paint radial gradient background
+        /// Best for: Circular controls, buttons, badges, spotlight effects
+        /// </summary>
+        public static void PaintRadialGradientBackground(Graphics g, GraphicsPath path,
+            Color centerColor, Color edgeColor, ControlState state,
+            StateIntensity intensity = StateIntensity.Normal)
+        {
+            if (g == null || path == null) return;
+
+            Color fillCenter = GetStateAdjustedColor(centerColor, state, intensity);
+            Color fillEdge = GetStateAdjustedColor(edgeColor, state, intensity);
+
+            var bounds = path.GetBounds();
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            using (var gradientBrush = new PathGradientBrush(path))
+            {
+                gradientBrush.CenterColor = fillCenter;
+                gradientBrush.SurroundColors = new[] { fillEdge };
+                
+                // Set center point to middle of bounds
+                gradientBrush.CenterPoint = new PointF(
+                    bounds.X + bounds.Width / 2f,
+                    bounds.Y + bounds.Height / 2f
+                );
+
+                g.FillPath(gradientBrush, path);
+            }
+        }
+
+        /// <summary>
+        /// Paint conic (angular) gradient background
+        /// Best for: Circular progress indicators, color wheels, radial menus
+        /// </summary>
+        public static void PaintConicGradientBackground(Graphics g, GraphicsPath path,
+            Color[] colors, float startAngle, ControlState state)
+        {
+            if (g == null || path == null || colors == null || colors.Length < 2) return;
+
+            var bounds = path.GetBounds();
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Simulate conic gradient using multiple linear gradients
+            // This is an approximation since GDI+ doesn't support conic gradients natively
+            int segments = Math.Min(colors.Length * 4, 32); // More segments = smoother gradient
+            float angleStep = 360f / segments;
+
+            PointF center = new PointF(
+                bounds.X + bounds.Width / 2f,
+                bounds.Y + bounds.Height / 2f
+            );
+
+            float radius = Math.Max(bounds.Width, bounds.Height) / 2f;
+
+            for (int i = 0; i < segments; i++)
+            {
+                float angle1 = startAngle + (i * angleStep);
+                float angle2 = startAngle + ((i + 1) * angleStep);
+
+                // Get colors for this segment
+                int colorIndex1 = (i * (colors.Length - 1)) / segments;
+                int colorIndex2 = Math.Min(colors.Length - 1, colorIndex1 + 1);
+                Color color1 = colors[colorIndex1];
+                Color color2 = colors[colorIndex2];
+
+                // Create pie-shaped path for this segment
+                using (var segmentPath = new GraphicsPath())
+                {
+                    segmentPath.AddPie(
+                        bounds.X, bounds.Y,
+                        bounds.Width, bounds.Height,
+                        angle1, angleStep
+                    );
+
+                    // Clip to original path
+                    using (var region = new Region(path))
+                    {
+                        region.Intersect(segmentPath);
+                        g.SetClip(region, CombineMode.Replace);
+
+                        // Draw gradient for this segment
+                        var rect = segmentPath.GetBounds();
+                        if (rect.Width > 0 && rect.Height > 0)
+                        {
+                            var brush = PaintersFactory.GetLinearGradientBrush(
+                                rect, color1, color2, angle1);
+                            g.FillPath(brush, segmentPath);
+                        }
+
+                        g.ResetClip();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Paint multi-stop gradient background
+        /// Best for: Complex gradients with multiple color stops
+        /// </summary>
+        /// <param name="stops">Array of gradient stops (position 0.0-1.0, color)</param>
+        /// <param name="mode">Gradient direction</param>
+        public static void PaintMultiStopGradientBackground(Graphics g, GraphicsPath path,
+            (float position, Color color)[] stops, LinearGradientMode mode, ControlState state,
+            StateIntensity intensity = StateIntensity.Normal)
+        {
+            if (g == null || path == null || stops == null || stops.Length < 2) return;
+
+            // Sort stops by position
+            var sortedStops = stops.OrderBy(s => s.position).ToArray();
+
+            var bounds = path.GetBounds();
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Draw gradient segments between stops
+            for (int i = 0; i < sortedStops.Length - 1; i++)
+            {
+                var stop1 = sortedStops[i];
+                var stop2 = sortedStops[i + 1];
+
+                Color color1 = GetStateAdjustedColor(stop1.color, state, intensity);
+                Color color2 = GetStateAdjustedColor(stop2.color, state, intensity);
+
+                // Calculate segment bounds based on gradient mode
+                RectangleF segmentBounds = CalculateGradientSegmentBounds(bounds, stop1.position, stop2.position, mode);
+
+                if (segmentBounds.Width > 0 && segmentBounds.Height > 0)
+                {
+                    var brush = PaintersFactory.GetLinearGradientBrush(segmentBounds, color1, color2, mode);
+                    
+                    // Clip to segment area
+                    using (var clipPath = new GraphicsPath())
+                    {
+                        clipPath.AddRectangle(segmentBounds);
+                        using (var region = new Region(path))
+                        {
+                            region.Intersect(clipPath);
+                            g.SetClip(region, CombineMode.Replace);
+                            g.FillPath(brush, path);
+                            g.ResetClip();
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculate bounds for a gradient segment
+        /// </summary>
+        private static RectangleF CalculateGradientSegmentBounds(RectangleF bounds, float startPos, float endPos, LinearGradientMode mode)
+        {
+            switch (mode)
+            {
+                case LinearGradientMode.Vertical:
+                    float height = bounds.Height * (endPos - startPos);
+                    return new RectangleF(
+                        bounds.X,
+                        bounds.Y + (bounds.Height * startPos),
+                        bounds.Width,
+                        height
+                    );
+                case LinearGradientMode.Horizontal:
+                    float width = bounds.Width * (endPos - startPos);
+                    return new RectangleF(
+                        bounds.X + (bounds.Width * startPos),
+                        bounds.Y,
+                        width,
+                        bounds.Height
+                    );
+                default:
+                    return bounds;
             }
         }
 

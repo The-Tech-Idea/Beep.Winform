@@ -77,6 +77,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BeepControlStyle.Terminal => new TerminalBorderPainterWrapper(),
                 BeepControlStyle.Tokyo => new TokyoBorderPainterWrapper(),
                 BeepControlStyle.Ubuntu => new UbuntuBorderPainterWrapper(),
+                BeepControlStyle.Shadcn => new ShadcnBorderPainterWrapper(),
+                BeepControlStyle.RadixUI => new RadixUIBorderPainterWrapper(),
+                BeepControlStyle.NextJS => new NextJSBorderPainterWrapper(),
+                BeepControlStyle.Linear => new LinearBorderPainterWrapper(),
                 _ => null
             };
         }
@@ -689,6 +693,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             return UbuntuBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ShadcnBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public ShadcnBorderPainterWrapper() : base(BeepControlStyle.Shadcn) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return ShadcnBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class RadixUIBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public RadixUIBorderPainterWrapper() : base(BeepControlStyle.RadixUI) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return RadixUIBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NextJSBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public NextJSBorderPainterWrapper() : base(BeepControlStyle.NextJS) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return NextJSBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class LinearBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public LinearBorderPainterWrapper() : base(BeepControlStyle.Linear) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            return LinearBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
     #endregion

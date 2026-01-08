@@ -23,8 +23,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Tailwind uses neutral black shadows
-            Color shadowColor = Color.Black;
+            // Tailwind uses neutral shadows - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Tailwind shadow levels
@@ -50,12 +59,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             int spread = Math.Max(2, (int)elevation + 1);
 
-            // Use clean drop shadow (Tailwind modern style)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
-                g, path, radius,
-                0, offsetY,
-                shadowColor, alpha,
-                spread);
+            // Use enhanced dual-layer shadow for better depth (Tailwind modern style)
+            // Tailwind shadow-lg and above benefit from dual-layer shadows
+            if ((int)elevation >= 3)
+            {
+                return ShadowPainterHelpers.PaintDualLayerShadow(
+                    g, path, radius,
+                    (int)elevation,
+                    shadowColor);
+            }
+            else
+            {
+                // Use clean drop shadow for lower elevations
+                return ShadowPainterHelpers.PaintCleanDropShadow(
+                    g, path, radius,
+                    0, offsetY,
+                    shadowColor, alpha,
+                    spread);
+            }
         }
     }
 }

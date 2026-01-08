@@ -185,37 +185,213 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
         /// <summary>
         /// Paints a two-layer shadow (key + ambient) for Material-style elevation
+        /// Enhanced with proper Material Design 3 elevation specs
         /// Best for: Material Design, modern cards, elevated surfaces
         /// </summary>
         /// <param name="g">Graphics context</param>
         /// <param name="bounds">Control path</param>
         /// <param name="radius">Corner radius</param>
-        /// <param name="elevation">Elevation level (1-5 typical)</param>
-        /// <param name="shadowColor">Shadow base color</param>
+        /// <param name="elevation">Elevation level (1-5 typical, maps to Material dp levels)</param>
+        /// <param name="shadowColor">Shadow base color (uses darker base color, not pure black)</param>
         public static GraphicsPath PaintDualLayerShadow(Graphics g, GraphicsPath bounds, int radius,
             int elevation = 2, Color? shadowColor = null)
         {
             if (g == null || bounds == null) return bounds;
             if (elevation <= 0) return bounds;
 
-            Color color = shadowColor ?? Color.Black;
+            // Use darker version of base color for more realistic shadows
+            // If no color provided, use a dark gray instead of pure black
+            Color baseShadowColor = shadowColor ?? Color.FromArgb(30, 30, 30);
+            Color color = DarkenShadowColor(baseShadowColor);
+            
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
+            // Material Design 3 elevation shadow parameters
             // Ambient shadow (larger, softer, less opaque)
-            // Increased alpha caps for better visibility
-            int ambientAlpha = Math.Min(80, 20 + elevation * 5);
-            int ambientOffsetY = elevation;
-            int ambientSpread = Math.Min(6, elevation + 2);
+            int ambientAlpha = GetMaterialAmbientAlpha(elevation);
+            int ambientOffsetY = GetMaterialAmbientOffset(elevation);
+            int ambientSpread = GetMaterialAmbientSpread(elevation);
+            int ambientBlur = GetMaterialAmbientBlur(elevation);
+            
             PaintCleanDropShadow(g, bounds, radius, 0, ambientOffsetY, color, ambientAlpha, ambientSpread);
 
-            // Key shadow (tighter, more defined)
-            // Increased alpha caps for better visibility
-            int keyAlpha = Math.Min(100, 30 + elevation * 6);
-            int keyOffsetY = elevation + 1;
-            int keySpread = Math.Min(4, elevation);
-            PaintCleanDropShadow(g, bounds, radius, 0, keyOffsetY, color, keyAlpha, keySpread);
+            // Key shadow (tighter, more defined, directional)
+            int keyAlpha = GetMaterialKeyAlpha(elevation);
+            int keyOffsetY = GetMaterialKeyOffset(elevation);
+            int keyOffsetX = GetMaterialKeyOffsetX(elevation); // Slight horizontal offset for realism
+            int keySpread = GetMaterialKeySpread(elevation);
+            
+            PaintCleanDropShadow(g, bounds, radius, keyOffsetX, keyOffsetY, color, keyAlpha, keySpread);
 
             return bounds;
+        }
+
+        /// <summary>
+        /// Paint soft layered shadow for ultra-soft, realistic depth
+        /// Best for: Subtle elevation, refined designs
+        /// </summary>
+        public static GraphicsPath PaintSoftLayeredShadow(Graphics g, GraphicsPath bounds, int radius,
+            int offsetY = 4, float opacity = 0.3f, Color? shadowColor = null)
+        {
+            if (g == null || bounds == null) return bounds;
+
+            Color baseColor = shadowColor ?? Color.FromArgb(30, 30, 30);
+            Color color = DarkenShadowColor(baseColor);
+            
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Use multiple soft layers for ultra-smooth shadow
+            int layers = 6;
+            for (int i = layers; i > 0; i--)
+            {
+                float layerOpacity = opacity * (i / (float)layers);
+                int alpha = (int)(255 * layerOpacity);
+                int layerOffsetY = offsetY + (layers - i);
+                int layerSpread = i;
+
+                PaintCleanDropShadow(g, bounds, radius, 0, layerOffsetY, color, alpha, layerSpread);
+            }
+
+            return bounds;
+        }
+
+        /// <summary>
+        /// Darken shadow color for more realistic shadows (not pure black)
+        /// </summary>
+        private static Color DarkenShadowColor(Color baseColor)
+        {
+            // If it's already dark, use as-is; otherwise darken it
+            if (baseColor.R < 50 && baseColor.G < 50 && baseColor.B < 50)
+                return baseColor;
+            
+            // Create a darker, desaturated version
+            return Color.FromArgb(
+                Math.Max(0, baseColor.R - 40),
+                Math.Max(0, baseColor.G - 40),
+                Math.Max(0, baseColor.B - 40)
+            );
+        }
+
+        /// <summary>
+        /// Get Material Design ambient shadow alpha based on elevation
+        /// </summary>
+        private static int GetMaterialAmbientAlpha(int elevation)
+        {
+            // Material Design 3 elevation specs
+            return elevation switch
+            {
+                1 => 25,  // 1dp
+                2 => 30,  // 2dp
+                3 => 35,  // 4dp
+                4 => 40,  // 8dp
+                5 => 45,  // 12dp
+                _ => 30 + (elevation * 3)
+            };
+        }
+
+        /// <summary>
+        /// Get Material Design ambient shadow offset
+        /// </summary>
+        private static int GetMaterialAmbientOffset(int elevation)
+        {
+            return elevation switch
+            {
+                1 => 1,
+                2 => 2,
+                3 => 4,
+                4 => 6,
+                5 => 8,
+                _ => elevation
+            };
+        }
+
+        /// <summary>
+        /// Get Material Design ambient shadow spread
+        /// </summary>
+        private static int GetMaterialAmbientSpread(int elevation)
+        {
+            return elevation switch
+            {
+                1 => 1,
+                2 => 2,
+                3 => 3,
+                4 => 4,
+                5 => 5,
+                _ => elevation
+            };
+        }
+
+        /// <summary>
+        /// Get Material Design ambient shadow blur
+        /// </summary>
+        private static int GetMaterialAmbientBlur(int elevation)
+        {
+            return elevation switch
+            {
+                1 => 3,
+                2 => 4,
+                3 => 6,
+                4 => 8,
+                5 => 10,
+                _ => elevation * 2
+            };
+        }
+
+        /// <summary>
+        /// Get Material Design key shadow alpha
+        /// </summary>
+        private static int GetMaterialKeyAlpha(int elevation)
+        {
+            return elevation switch
+            {
+                1 => 20,
+                2 => 30,
+                3 => 40,
+                4 => 50,
+                5 => 60,
+                _ => 20 + (elevation * 8)
+            };
+        }
+
+        /// <summary>
+        /// Get Material Design key shadow Y offset
+        /// </summary>
+        private static int GetMaterialKeyOffset(int elevation)
+        {
+            return elevation switch
+            {
+                1 => 1,
+                2 => 2,
+                3 => 4,
+                4 => 6,
+                5 => 8,
+                _ => elevation
+            };
+        }
+
+        /// <summary>
+        /// Get Material Design key shadow X offset (slight horizontal offset for realism)
+        /// </summary>
+        private static int GetMaterialKeyOffsetX(int elevation)
+        {
+            // Very slight horizontal offset (0-1px) for more realistic directional light
+            return elevation >= 3 ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Get Material Design key shadow spread
+        /// </summary>
+        private static int GetMaterialKeySpread(int elevation)
+        {
+            return elevation switch
+            {
+                1 => 0,
+                2 => 1,
+                3 => 2,
+                4 => 3,
+                5 => 4,
+                _ => elevation - 1
+            };
         }
 
         #endregion

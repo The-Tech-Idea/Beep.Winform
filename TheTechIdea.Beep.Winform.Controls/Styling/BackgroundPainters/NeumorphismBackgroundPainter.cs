@@ -1,7 +1,9 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -25,6 +27,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Use the neumorphic helper
             BackgroundPainterHelpers.PaintNeumorphicBackground(g, path, baseColor, state);
+
+            // Radial gradients could enhance embossed effect - add subtle radial for smoother neumorphic appearance
+            var bounds = path.GetBounds();
+            if (bounds.Width > 0 && bounds.Height > 0)
+            {
+                Color centerColor = ColorAccessibilityHelper.LightenColor(baseColor, 0.02f);
+                Color edgeColor = baseColor;
+                BackgroundPainterHelpers.PaintRadialGradientBackground(g, path, centerColor, edgeColor, ControlState.Normal, BackgroundPainterHelpers.StateIntensity.Subtle);
+            }
         }
     }
 }

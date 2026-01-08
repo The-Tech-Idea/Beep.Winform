@@ -76,6 +76,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Tokyo => new TokyoBackgroundPainterWrapper(),
                 BeepControlStyle.Ubuntu => new UbuntuBackgroundPainterWrapper(),
                 BeepControlStyle.Retro => new RetroBackgroundPainterWrapper(),
+                BeepControlStyle.Shadcn => new ShadcnBackgroundPainterWrapper(),
+                BeepControlStyle.RadixUI => new RadixUIBackgroundPainterWrapper(),
+                BeepControlStyle.NextJS => new NextJSBackgroundPainterWrapper(),
+                BeepControlStyle.Linear => new LinearBackgroundPainterWrapper(),
                 _ => null
             };
         }
@@ -634,6 +638,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             UbuntuBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ShadcnBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public ShadcnBackgroundPainterWrapper() : base(BeepControlStyle.Shadcn) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            ShadcnBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class RadixUIBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public RadixUIBackgroundPainterWrapper() : base(BeepControlStyle.RadixUI) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            RadixUIBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NextJSBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public NextJSBackgroundPainterWrapper() : base(BeepControlStyle.NextJS) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            NextJSBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class LinearBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public LinearBackgroundPainterWrapper() : base(BeepControlStyle.Linear) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            LinearBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
         }
     }
     #endregion

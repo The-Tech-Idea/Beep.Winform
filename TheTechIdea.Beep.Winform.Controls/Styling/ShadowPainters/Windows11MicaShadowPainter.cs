@@ -39,10 +39,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             if (opacity <= 0) return path;
 
+            // Mica shadow - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
+
             // Use soft shadow (Mica minimalism)
             return ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius,
-                0, 2, Color.Black, opacity, 4);
+                0, 2, shadowColor, opacity, 4);
         }
     }
 }

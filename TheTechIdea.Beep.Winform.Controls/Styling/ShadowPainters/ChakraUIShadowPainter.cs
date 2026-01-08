@@ -23,8 +23,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Chakra uses neutral shadows
-            Color shadowColor = Color.Black;
+            // Chakra uses neutral shadows - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Chakra shadow tokens
@@ -50,12 +59,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             int spread = Math.Max(2, (int)elevation + 1);
 
-            // Use clean drop shadow (Chakra modern style)
-            return ShadowPainterHelpers.PaintCleanDropShadow(
-                g, path, radius,
-                0, offsetY,
-                shadowColor, alpha,
-                spread);
+            // Use enhanced dual-layer shadow for better depth (Chakra modern style)
+            // Chakra UI benefits from dual-layer shadows for elevation levels
+            if ((int)elevation >= 2)
+            {
+                return ShadowPainterHelpers.PaintDualLayerShadow(
+                    g, path, radius,
+                    (int)elevation,
+                    shadowColor);
+            }
+            else
+            {
+                // Use clean drop shadow for lower elevations
+                return ShadowPainterHelpers.PaintCleanDropShadow(
+                    g, path, radius,
+                    0, offsetY,
+                    shadowColor, alpha,
+                    spread);
+            }
         }
     }
 }

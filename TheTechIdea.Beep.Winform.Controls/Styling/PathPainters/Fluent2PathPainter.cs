@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -18,7 +19,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {
-                PathPainterHelpers.PaintSolidPath(g, path, fillColor, state);
+                // Fluent 2 buttons have subtle radial gradients for depth
+                Color centerColor = PathPainterHelpers.ApplyState(fillColor, state);
+                Color edgeColor = PathPainterHelpers.Darken(centerColor, 0.1f);
+                
+                // Use radial gradient for Fluent 2 button appearance
+                BackgroundPainterHelpers.PaintRadialGradientBackground(g, path, centerColor, edgeColor, state, BackgroundPainterHelpers.StateIntensity.Normal);
             }
         }
     }

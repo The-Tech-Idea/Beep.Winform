@@ -39,10 +39,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             if (alpha == 0) return path;
 
-            // Use subtle shadow (Notion minimalism)
-            return ShadowPainterHelpers.PaintSubtleShadow(
+            // Get shadow color
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
+
+            // Use soft layered shadow for premium quality (Notion minimalism needs refined shadows)
+            return ShadowPainterHelpers.PaintSoftLayeredShadow(
                 g, path, radius,
-                2, alpha);
+                2, alpha / 255.0f, shadowColor);
         }
     }
 }

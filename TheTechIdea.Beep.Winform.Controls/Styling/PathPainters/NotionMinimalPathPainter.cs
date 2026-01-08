@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -30,11 +31,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {
-                // Slightly darker on hover, pressed
+                // Slightly darker on hover, pressed - use HSL for more natural results
                 Color fill = state switch
                 {
-                    ControlState.Hovered => PathPainterHelpers.Darken(surface, 0.02f),
-                    ControlState.Pressed => PathPainterHelpers.Darken(surface, 0.05f),
+                    ControlState.Hovered => ColorAccessibilityHelper.DarkenColor(surface, 0.02f),
+                    ControlState.Pressed => ColorAccessibilityHelper.DarkenColor(surface, 0.05f),
                     _ => surface
                 };
 

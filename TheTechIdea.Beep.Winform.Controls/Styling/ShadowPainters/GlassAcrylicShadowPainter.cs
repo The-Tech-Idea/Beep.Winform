@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Glass Acrylic: Very subtle shadow
+            // Glass Acrylic: Very subtle shadow - use soft layered for glass effects
             int alpha = state switch
             {
                 ControlState.Hovered => 25,
@@ -32,8 +32,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 _ => 15
             };
 
-            return ShadowPainterHelpers.PaintSubtleShadow(
-                g, path, radius, 2, alpha);
+            // Get shadow color
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
+
+            // Use soft layered shadow for glass effects (needs soft shadows)
+            return ShadowPainterHelpers.PaintSoftLayeredShadow(
+                g, path, radius,
+                2, alpha / 255.0f, shadowColor);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -31,8 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {
                 // Fill with neutral surface; slightly darker when pressed
+                // Use HSL for more natural color manipulation
                 Color fill = state == ControlState.Pressed
-                    ? PathPainterHelpers.Darken(surface, 0.06f)
+                    ? ColorAccessibilityHelper.DarkenColor(surface, 0.06f)
                     : surface;
 
                 PathPainterHelpers.PaintSolidPath(g, path, fill, state);
@@ -42,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
                 {
                     ControlState.Focused => accent,
                     ControlState.Selected => accent,
-                    ControlState.Hovered => PathPainterHelpers.Lighten(accent, 0.08f),
+                    ControlState.Hovered => ColorAccessibilityHelper.LightenColor(accent, 0.08f),
                     _ => PathPainterHelpers.WithAlpha(accent, 170)
                 };
 

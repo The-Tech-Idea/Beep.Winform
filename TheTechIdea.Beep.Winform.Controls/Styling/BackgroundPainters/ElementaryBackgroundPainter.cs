@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -28,13 +29,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // elementary uses very subtle state changes (refined, not bold)
+            // elementary uses very subtle state changes (refined, not bold) - use HSL for more natural results
             Color fillColor = state switch
             {
-                ControlState.Hovered => BackgroundPainterHelpers.Darken(cleanWhite, 0.03f),
-                ControlState.Pressed => BackgroundPainterHelpers.Darken(cleanWhite, 0.06f),
+                ControlState.Hovered => ColorAccessibilityHelper.DarkenColor(cleanWhite, 0.03f),
+                ControlState.Pressed => ColorAccessibilityHelper.DarkenColor(cleanWhite, 0.06f),
                 ControlState.Selected => BackgroundPainterHelpers.BlendColors(cleanWhite, subtleBlue, 0.10f),
-                ControlState.Focused => BackgroundPainterHelpers.Darken(cleanWhite, 0.02f),
+                ControlState.Focused => ColorAccessibilityHelper.DarkenColor(cleanWhite, 0.02f),
                 ControlState.Disabled => BackgroundPainterHelpers.WithAlpha(cleanWhite, 100),
                 _ => cleanWhite
             };

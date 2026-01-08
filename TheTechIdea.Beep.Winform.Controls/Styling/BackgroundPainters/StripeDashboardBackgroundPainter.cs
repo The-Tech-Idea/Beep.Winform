@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -23,6 +24,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 ? theme.BackColor 
                 : StyleColors.GetBackground(BeepControlStyle.StripeDashboard);
 
+            // Ensure accessibility compliance for text containers
+            if (useThemeColors && theme != null && theme.ForeColor != Color.Empty)
+            {
+                Color accessibleColor = ColorAccessibilityHelper.EnsureContrastRatio(
+                    baseColor, theme.ForeColor, 
+                    ColorAccessibilityHelper.WCAG_AA_Normal);
+                if (accessibleColor != baseColor)
+                {
+                    baseColor = accessibleColor;
+                }
+            }
+
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
@@ -30,8 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color stateColor = BackgroundPainterHelpers.GetStateAdjustedColor(
                 baseColor, state, BackgroundPainterHelpers.StateIntensity.Subtle);
 
-            // Stripe signature: 3% lighter at top for professional polish
-            Color topColor = BackgroundPainterHelpers.Lighten(stateColor, 0.03f);
+            // Stripe signature: 3% lighter at top for professional polish - use HSL for more natural results
+            Color topColor = ColorAccessibilityHelper.LightenColor(stateColor, 0.03f);
 
             var brush = PaintersFactory.GetLinearGradientBrush(
                 bounds, topColor, stateColor, LinearGradientMode.Vertical);

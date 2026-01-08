@@ -23,8 +23,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // macOS Big Sur shadow color - soft neutral
-            Color shadowColor = Color.Black;
+            // macOS Big Sur shadow color - soft, slightly warm-tinted
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // macOS shadows are often slightly warm-tinted
+                shadowColor = Color.FromArgb(35, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // macOS shadow intensity - soft and vibrant

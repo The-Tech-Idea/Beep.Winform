@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -30,8 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             RectangleF bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Big Sur signature: vertical gradient (5% lighter at top)
-            Color topColor = BackgroundPainterHelpers.Lighten(stateColor, 0.05f);
+            // Big Sur signature: vertical gradient (5% lighter at top) - use HSL for more natural results
+            Color topColor = ColorAccessibilityHelper.LightenColor(stateColor, 0.05f);
             Color bottomColor = stateColor;
 
             var brush = PaintersFactory.GetLinearGradientBrush(

@@ -37,7 +37,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             // No shadow in normal/disabled state
             if (alpha == 0) return path;
 
-            Color shadowColor = Color.Black;
+            // Office shadow - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
             int offsetY = StyleShadows.GetShadowOffsetY(style);
 
             // Use clean drop shadow (Office professional)

@@ -39,10 +39,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             if (alpha == 0) return path;
 
-            // Use subtle shadow (Vercel stark minimalism)
-            return ShadowPainterHelpers.PaintSubtleShadow(
+            // Get shadow color
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
+
+            // Use soft layered shadow for premium quality (clean aesthetic needs smooth shadows)
+            return ShadowPainterHelpers.PaintSoftLayeredShadow(
                 g, path, radius,
-                1, alpha);
+                1, alpha / 255.0f, shadowColor);
         }
     }
 }

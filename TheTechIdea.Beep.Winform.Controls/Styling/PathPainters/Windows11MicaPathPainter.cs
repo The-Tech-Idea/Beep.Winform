@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -29,8 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {
                 // Subtle mica-like gradient: slightly tinted by accent, lighter at top, darker at bottom
-                Color top = PathPainterHelpers.Lighten(Color.FromArgb(220, surface), 0.06f);
-                Color bottom = PathPainterHelpers.Darken(Color.FromArgb(220, surface), 0.06f);
+                // Use HSL for more natural color manipulation
+                Color surfaceWithAlpha = Color.FromArgb(220, surface);
+                Color top = ColorAccessibilityHelper.LightenColor(surfaceWithAlpha, 0.06f);
+                Color bottom = ColorAccessibilityHelper.DarkenColor(surfaceWithAlpha, 0.06f);
 
                 // Light accent tint
                 top = Color.FromArgb(top.A, 

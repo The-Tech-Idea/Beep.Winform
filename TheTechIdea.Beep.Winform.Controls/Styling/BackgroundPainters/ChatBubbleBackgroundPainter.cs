@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
@@ -20,6 +21,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color baseColor = useThemeColors && theme != null 
                 ? theme.BackgroundColor 
                 : Color.FromArgb(0xE6, 0xF7, 0xFF);
+
+            // Ensure accessibility compliance for text containers
+            if (useThemeColors && theme != null && theme.ForeColor != Color.Empty)
+            {
+                Color accessibleColor = ColorAccessibilityHelper.EnsureContrastRatio(
+                    baseColor, theme.ForeColor, 
+                    ColorAccessibilityHelper.WCAG_AA_Normal);
+                if (accessibleColor != baseColor)
+                {
+                    baseColor = accessibleColor;
+                }
+            }
 
             // Solid background with normal state handling
             BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,

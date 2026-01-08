@@ -29,8 +29,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // iOS shadow - extremely subtle
-            Color shadowColor = Color.Black;
+            // iOS shadow - extremely subtle, slightly tinted (iOS shadows are often slightly warm)
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // iOS shadows are often slightly warm-tinted, not pure black
+                shadowColor = Color.FromArgb(35, 30, 30);
+            }
 
             // iOS uses very minimal shadow alpha
             int alpha = state switch
@@ -44,12 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             // Minimal offset for iOS flat aesthetic
             int offsetY = 1;
-            int spread = 1;
 
-            // Use subtle shadow (iOS minimalism)
-            return ShadowPainterHelpers.PaintSubtleShadow(
+            // Use soft layered shadow for premium quality (iOS values smooth, subtle shadows)
+            return ShadowPainterHelpers.PaintSoftLayeredShadow(
                 g, path, radius,
-                offsetY, alpha);
+                offsetY, alpha / 255.0f, shadowColor);
         }
     }
 }

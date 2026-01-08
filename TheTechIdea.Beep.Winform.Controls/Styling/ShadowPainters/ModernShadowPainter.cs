@@ -40,10 +40,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = (int)(4 * intensityMultiplier);
             float opacity = 0.2f * intensityMultiplier; // Increased base opacity
 
+            // Modern shadow - use darker theme color instead of pure black
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            if (useThemeColors && theme?.ShadowColor != null && theme.ShadowColor != Color.Empty)
+            {
+                shadowColor = theme.ShadowColor;
+            }
+            else
+            {
+                // Use darker gray for more realistic shadows
+                shadowColor = Color.FromArgb(30, 30, 30);
+            }
+
             return ShadowPainterHelpers.PaintSoftShadow(
                 g, path, radius,
                 0, offsetY,
-                Color.Black, opacity,
+                shadowColor, opacity,
                 6);
         }
     }

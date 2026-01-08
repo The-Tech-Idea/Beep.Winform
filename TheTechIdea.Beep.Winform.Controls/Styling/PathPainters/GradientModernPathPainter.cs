@@ -1,8 +1,11 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 {
@@ -19,7 +22,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
 
             using (var path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius))
             {
-                PathPainterHelpers.PaintGradientPath(g, path, color1, color2, 135f, state);
+                // Use multi-stop gradient for richer gradient (indigo to purple with intermediate stops)
+                var stops = new[]
+                {
+                    (0.0f, color1),
+                    (0.3f, Color.FromArgb(119, 97, 243)), // Intermediate stop
+                    (0.7f, Color.FromArgb(129, 94, 245)), // Intermediate stop
+                    (1.0f, color2)
+                };
+
+                // Apply state adjustments to stops
+                var stateStops = stops.Select(s => (
+                    s.Item1,
+                    PathPainterHelpers.ApplyState(s.Item2, state)
+                )).ToArray();
+
+                BackgroundPainterHelpers.PaintMultiStopGradientBackground(g, path, stateStops, LinearGradientMode.Vertical, state, BackgroundPainterHelpers.StateIntensity.Normal);
             }
         }
     }

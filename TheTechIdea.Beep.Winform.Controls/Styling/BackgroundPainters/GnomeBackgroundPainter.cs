@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -34,11 +35,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             RectangleF bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // GNOME Adwaita signature: subtle vertical gradient for depth
+            // GNOME Adwaita signature: subtle vertical gradient for depth - use HSL for more natural results
             if (state == ControlState.Normal || state == ControlState.Hovered)
             {
-                Color topColor = BackgroundPainterHelpers.Lighten(fillColor, 0.02f);
-                Color bottomColor = BackgroundPainterHelpers.Darken(fillColor, 0.02f);
+                Color topColor = ColorAccessibilityHelper.LightenColor(fillColor, 0.02f);
+                Color bottomColor = ColorAccessibilityHelper.DarkenColor(fillColor, 0.02f);
                 var brush = PaintersFactory.GetLinearGradientBrush(
                     bounds, topColor, bottomColor, LinearGradientMode.Vertical);
                 g.FillPath(brush, path);
@@ -52,12 +53,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
         private static Color GetGnomeStateFill(ControlState state, Color warmGray, Color blueAccent)
         {
+            // Use HSL for more natural results
             return state switch
             {
-                ControlState.Hovered => BackgroundPainterHelpers.Lighten(warmGray, 0.05f),
-                ControlState.Pressed => BackgroundPainterHelpers.Darken(warmGray, 0.08f),
+                ControlState.Hovered => ColorAccessibilityHelper.LightenColor(warmGray, 0.05f),
+                ControlState.Pressed => ColorAccessibilityHelper.DarkenColor(warmGray, 0.08f),
                 ControlState.Selected => BackgroundPainterHelpers.BlendColors(warmGray, blueAccent, 0.15f),
-                ControlState.Focused => BackgroundPainterHelpers.Lighten(warmGray, 0.03f),
+                ControlState.Focused => ColorAccessibilityHelper.LightenColor(warmGray, 0.03f),
                 ControlState.Disabled => BackgroundPainterHelpers.WithAlpha(warmGray, 100),
                 _ => warmGray
             };

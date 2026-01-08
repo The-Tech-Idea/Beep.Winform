@@ -153,6 +153,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         Paper = 53,
         Solarized = 54,
         Tokyo = 55,
-        Ubuntu = 56
+        Ubuntu = 56,
+
+        // Modern 2024-2025 Design Systems
+        /// <summary>Shadcn/ui - Clean, minimal, modern component library style</summary>
+        Shadcn = 57,
+        
+        /// <summary>Radix UI - Accessible, modern design system</summary>
+        RadixUI = 58,
+        
+        /// <summary>Next.js App Router - Contemporary web aesthetic</summary>
+        NextJS = 59,
+        
+        /// <summary>Linear - Clean, fast, modern SaaS look</summary>
+        Linear = 60
     }
 }

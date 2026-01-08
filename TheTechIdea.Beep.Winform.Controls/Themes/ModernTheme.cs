@@ -5,6 +5,8 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reflection;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -1476,6 +1478,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             // Fill any unset Typography/Colors to safe values (no transparency)
             FillTypographyDefaultsByConvention();
             FillColorDefaultsByConvention();
+            
+            // Validate and auto-fix contrast issues
+            ThemeContrastHelper.ValidateTheme(this, targetRatio: 4.5, autofix: true);
         }
 
         // Utility Methods (IBeepTheme)
@@ -1506,7 +1511,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             return Color.FromArgb(255, A(a.R, b.R), A(a.G, b.G), A(a.B, b.B));
         }
 
-        private static Color Darken(Color c, double by) => Blend(c, Color.Black, Math.Clamp(by, 0, 1));
+        private static Color Darken(Color c, double by) 
+            => ColorAccessibilityHelper.DarkenColor(c, (float)Math.Clamp(by, 0, 1));
 
         private TypographyStyle TS(float size, FontStyle style, int weight, Color color, bool mono = false)
             => new TypographyStyle

@@ -382,13 +382,42 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private string GetCurrentWord()
         {
-            // For autocomplete, we'll use the entire text for now
-            // You could modify this to get the word at caret position for more advanced scenarios
-            if (_parentControl is IBeepTextBox textBox)
+            if (!(_parentControl is IBeepTextBox textBox))
+                return "";
+
+            string text = textBox.Text ?? "";
+            int caretPosition = textBox.SelectionStart;
+            
+            if (string.IsNullOrEmpty(text) || caretPosition < 0)
+                return "";
+
+            // Find word boundaries
+            int start = caretPosition;
+            int end = caretPosition;
+
+            // Find start of word
+            while (start > 0 && IsWordCharacter(text[start - 1]))
             {
-                return textBox.Text?.Trim() ?? "";
+                start--;
             }
+
+            // Find end of word
+            while (end < text.Length && IsWordCharacter(text[end]))
+            {
+                end++;
+            }
+
+            if (start < end)
+            {
+                return text.Substring(start, end - start);
+            }
+
             return "";
+        }
+
+        private bool IsWordCharacter(char c)
+        {
+            return char.IsLetterOrDigit(c) || c == '_' || c == '-';
         }
         
         #endregion

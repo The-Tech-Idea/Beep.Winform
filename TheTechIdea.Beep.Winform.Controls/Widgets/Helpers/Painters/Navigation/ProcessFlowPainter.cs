@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var processes = ctx.ProcessFlowItems?.OfType<NavigationItem>().ToList() ?? CreateSampleProcessFlow();
+            var processes = ctx.ProcessFlowItems?.ToList() ?? CreateSampleProcessFlow();
             int activeProcess = ctx.ActiveProcessIndex;
 
             if (!processes.Any()) return;
@@ -49,18 +50,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             DrawFlowDiagram(g, ctx, processes, activeProcess);
         }
 
-        private List<NavigationItem> CreateSampleProcessFlow()
+        private List<ProcessFlowStep> CreateSampleProcessFlow()
         {
-            return new List<NavigationItem>
+            return new List<ProcessFlowStep>
             {
-                new NavigationItem { Text = "Input", IsActive = false },
-                new NavigationItem { Text = "Process", IsActive = true },
-                new NavigationItem { Text = "Validate", IsActive = false },
-                new NavigationItem { Text = "Output", IsActive = false }
+                new ProcessFlowStep { Label = "Input", Status = ProcessStepStatus.Pending },
+                new ProcessFlowStep { Label = "Process", Status = ProcessStepStatus.InProgress },
+                new ProcessFlowStep { Label = "Validate", Status = ProcessStepStatus.Pending },
+                new ProcessFlowStep { Label = "Output", Status = ProcessStepStatus.Pending }
             };
         }
 
-        private void DrawFlowDiagram(Graphics g, WidgetContext ctx, List<NavigationItem> processes, int activeIndex)
+        private void DrawFlowDiagram(Graphics g, WidgetContext ctx, List<ProcessFlowStep> processes, int activeIndex)
         {
             var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             var successColor = Color.FromArgb(76, 175, 80);
@@ -75,9 +76,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             for (int i = 0; i < processes.Count; i++)
             {
                 var process = processes[i];
-                bool isCompleted = i < activeIndex;
+                // Use process.IsCompleted if available, otherwise fall back to index-based logic
+                bool isCompleted = process.IsCompleted || i < activeIndex;
                 bool isActive = i == activeIndex;
-                bool isPending = i > activeIndex;
+                bool isPending = i > activeIndex && !process.IsCompleted;
 
                 int x = ctx.ContentRect.X + i * (nodeWidth + spacing);
                 int y = ctx.ContentRect.Y + (ctx.ContentRect.Height - nodeHeight) / 2;
@@ -103,14 +105,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
                 // Process icon
                 var iconRect = new Rectangle(x + (nodeWidth - 20) / 2, y + 8, 20, 20);
-                string iconName = GetProcessIcon(process.Text, i);
+                string iconName = GetProcessIcon(process.Label, i);
                 _imagePainter.DrawSvg(g, iconName, iconRect, nodeColor, 0.9f);
 
                 // Process label
                 using var textBrush = new SolidBrush(nodeColor);
                 var textRect = new Rectangle(x, y + 28, nodeWidth, 20);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(process.Text, processFont, textBrush, textRect, format);
+                g.DrawString(process.Label, processFont, textBrush, textRect, format);
 
                 // Flow arrow (except for last process)
                 if (i < processes.Count - 1)

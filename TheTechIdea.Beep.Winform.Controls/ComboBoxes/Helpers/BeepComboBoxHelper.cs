@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
 {
@@ -82,14 +83,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         #region Text Measurement
         
         /// <summary>
-        /// Measure text size for layout purposes
+        /// Measure text size for layout purposes (using cached TextUtils)
         /// </summary>
         public Size MeasureText(string text, Font font)
         {
             if (string.IsNullOrEmpty(text) || font == null)
                 return Size.Empty;
             
-            return TextRenderer.MeasureText(text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            SizeF sizeF = TextUtils.MeasureText(text, font, int.MaxValue);
+            return new Size((int)sizeF.Width, (int)sizeF.Height);
         }
         
         /// <summary>

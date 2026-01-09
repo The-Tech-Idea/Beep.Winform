@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
@@ -10,8 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     /// </summary>
     public class ClassicWizardForm : BaseWizardForm
     {
-        private Panel _sidebarPanel;
-        private ListBox _lstSteps;
+        private BeepPanel _sidebarPanel;
+        private BeepListBox _lstSteps;
 
         public ClassicWizardForm(WizardInstance instance) : base(instance)
         {
@@ -22,23 +24,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             base.InitializeComponents();
 
             // Sidebar with steps list
-            _sidebarPanel = new Panel
+            _sidebarPanel = new BeepPanel
             {
                 Dock = DockStyle.Left,
                 Width = 250,
-                BackColor = Color.FromArgb(0, 150, 215), // Blue sidebar
-                Padding = new Padding(20)
+                Padding = new Padding(20),
+                ShowTitle = false,  // No title for sidebar panel
+                ShowTitleLine = false
             };
+            _sidebarPanel.ApplyTheme();
 
-            _lstSteps = new ListBox
+            _lstSteps = new BeepListBox
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(0, 150, 215),
-                ForeColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                Font = new Font("Segoe UI", 10f),
-                SelectionMode = SelectionMode.None
+                BorderStyle = BorderStyle.None
             };
+            _lstSteps.ApplyTheme();
 
             _sidebarPanel.Controls.Add(_lstSteps);
 
@@ -66,7 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 _lstSteps.Items.Add($"{prefix}{step.Title}");
             }
 
-            _lstSteps.SelectedIndex = _instance.CurrentStepIndex;
+            if (_instance.CurrentStepIndex >= 0 && _instance.CurrentStepIndex < _lstSteps.Items.Count)
+            {
+                _lstSteps.SelectedIndex = _instance.CurrentStepIndex;
+            }
         }
     }
 }

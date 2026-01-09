@@ -13,6 +13,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using ContentAlignment = System.Drawing.ContentAlignment;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -526,11 +528,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 //}
                     DrawNavigatorArea(g);
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error drawing navigator: {ex.Message}");
-                    // Silently handle navigator drawing errors
-                }
+            catch (Exception)
+            {
+                // Silently handle navigator drawing errors
+            }
             }
             
             // Draw selection indicators
@@ -541,7 +542,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception)
             {
-                Console.WriteLine("Error drawing selection indicators.");
                 // Silently handle selection drawing errors
             }
 

@@ -351,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 CornerRadius = BorderRadius,
                 
                 // Calendar-specific typed properties
-                Events = _events.Cast<object>().ToList(),
+                Events = _events,
                 TimeSlots = _timeSlots.Cast<object>().ToList(),
                 SelectedDate = _selectedDate,
                 DisplayMonth = _displayMonth,

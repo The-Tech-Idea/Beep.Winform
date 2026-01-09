@@ -13,10 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private Dictionary<string, object> _parameters = new();
 
         [Category("Appearance")]
-        public ProgressPainterKind PainterKind { get => _painterKind; set { _painterKind = value; Invalidate(); } }
+        public ProgressPainterKind PainterKind { get => _painterKind; set { _painterKind = value; InvalidateLayoutCache(); Invalidate(); } }
 
         [Browsable(false)]
-        public Dictionary<string, object> Parameters { get => _parameters; set { _parameters = value ?? new(); Invalidate(); } }
+        public Dictionary<string, object> Parameters { get => _parameters; set { _parameters = value ?? new(); InvalidateLayoutCache(); Invalidate(); } }
 
         // Events
         public event System.EventHandler StepClicked; // generic

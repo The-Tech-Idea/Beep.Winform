@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 {
@@ -19,6 +20,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (ClientSize.Width <= 0 || ClientSize.Height <= 0)
                 return;
             // Don't call base.OnPaintBackground - we paint our own styled background in OnPaint
+        }
+        
+        /// <summary>
+        /// Override OnResize to recalculate region when form size changes
+        /// </summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            
+            // Recalculate region when size changes to maintain rounded corners
+            if (ClientSize.Width > 0 && ClientSize.Height > 0)
+            {
+                Invalidate(); // This will trigger OnPaint which will update the region
+            }
         }
         
         protected override void OnPaint(PaintEventArgs e)
@@ -77,6 +92,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             // Draw menu background+border+shadow with BeepStyling (outer frame/skin ONLY)
             var controlPath = BeepStyling.CreateControlStylePath(outerRect, effectiveStyle);
+            
+            // Set form region to clip to rounded path (hides sharp black corners)
+            UpdateFormRegion(controlPath, e.Graphics);
+            
             BeepStyling.PaintControl(
                 e.Graphics,
                 controlPath,
@@ -209,7 +228,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             int shortcutWidth = 0;
             if (hasShortcut)
             {
-                var shortcutSize = TextRenderer.MeasureText(item.ShortcutText, _textFont);
+                SizeF shortcutSizeF = TextUtils.MeasureText(item.ShortcutText, _textFont, int.MaxValue);
+                var shortcutSize = new Size((int)shortcutSizeF.Width, (int)shortcutSizeF.Height);
                 shortcutWidth = shortcutSize.Width + 16; // 16px padding (8px each side)
             }
 
@@ -341,6 +361,46 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Standard luminance formula: (0.299 * R + 0.587 * G + 0.114 * B)
             double luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B);
             return luminance < 128; // Threshold: 0-255 scale
+        }
+        
+        /// <summary>
+        /// Updates the form's Region to clip to the rounded path, hiding sharp corners
+        /// </summary>
+        private void UpdateFormRegion(GraphicsPath controlPath, Graphics g)
+        {
+            if (controlPath == null || g == null || ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return;
+            
+            try
+            {
+                // Dispose old region if it exists (properly clean up before creating new one)
+                if (Region != null)
+                {
+                    var oldRegion = Region;
+                    Region = null; // Clear reference first to prevent issues
+                    oldRegion.Dispose();
+                }
+                
+                // Create region from the rounded path to clip the form
+                // This ensures sharp corners are hidden when rounded borders are used
+                Region = new Region(controlPath);
+            }
+            catch
+            {
+                // If region creation fails, continue without clipping
+                // This can happen if the path is invalid or too complex
+                // Reset to null to ensure no invalid region is set
+                if (Region != null)
+                {
+                    try
+                    {
+                        var oldRegion = Region;
+                        Region = null;
+                        oldRegion.Dispose();
+                    }
+                    catch { }
+                }
+            }
         }
         
         #endregion

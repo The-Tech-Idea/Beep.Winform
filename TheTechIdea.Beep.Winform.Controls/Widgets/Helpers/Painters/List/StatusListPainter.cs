@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -65,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void DrawStatusItems(Graphics g, WidgetContext ctx, Rectangle rect, List<Dictionary<string, object>> items)
+        private void DrawStatusItems(Graphics g, WidgetContext ctx, Rectangle rect, List<ListItem> items)
         {
             if (!items.Any()) return;
             
@@ -93,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Status indicator dot
                 string status = overrides != null && overrides.ContainsKey(i)
                     ? overrides[i]
-                    : item.ContainsKey("Status") ? item["Status"].ToString() : "Unknown";
+                    : item.Status ?? "Unknown";
                 Color statusColor = GetStatusColor(status);
                 var dotRect = new Rectangle(rowRect.X + 8, y + itemHeight / 2 - 4, 8, 8);
                 using var dotBrush = new SolidBrush(statusColor);
@@ -101,11 +102,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
                 // Item name
                 var nameRect = new Rectangle(rowRect.X + 24, y, rowRect.Width - 120, itemHeight);
-                if (item.ContainsKey("Name"))
+                if (!string.IsNullOrEmpty(item.Title))
                 {
                     using var nameBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
                     var nameFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item["Name"].ToString(), nameFont, nameBrush, nameRect, nameFormat);
+                    g.DrawString(item.Title, nameFont, nameBrush, nameRect, nameFormat);
                 }
 
                 // Status text (toggle target)
@@ -176,8 +177,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     // Determine current status (override -> items)
                     string current;
                     if (map.ContainsKey(idx)) current = map[idx];
-                    else if (ctx.ListItems != null && idx < ctx.ListItems.Count && ctx.ListItems[idx].ContainsKey("Status"))
-                        current = ctx.ListItems[idx]["Status"]?.ToString() ?? "Unknown";
+                    else if (ctx.ListItems != null && idx < ctx.ListItems.Count && !string.IsNullOrEmpty(ctx.ListItems[idx].Status))
+                        current = ctx.ListItems[idx].Status;
                     else current = "Unknown";
 
                     string next = NextStatus(current);

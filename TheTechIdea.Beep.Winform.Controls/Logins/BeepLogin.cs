@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Logins.Painters;
 using TheTechIdea.Beep.Winform.Controls.Logins.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Logins.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

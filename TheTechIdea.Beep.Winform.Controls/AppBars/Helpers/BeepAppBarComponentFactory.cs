@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using static TheTechIdea.Beep.Winform.Controls.Base.BaseControl;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
 {

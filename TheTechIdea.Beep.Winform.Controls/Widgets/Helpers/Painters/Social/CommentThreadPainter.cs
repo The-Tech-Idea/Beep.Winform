@@ -6,6 +6,9 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
+using Comment = TheTechIdea.Beep.Winform.Controls.Widgets.Models.Comment;
+using VoteType = TheTechIdea.Beep.Winform.Controls.Widgets.Models.VoteType;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
@@ -81,7 +84,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             DrawThreadHeader(g, ctx.HeaderRect, ctx);
 
             // Draw comments
-            var comments = ctx.Comments?.Cast<Comment>().ToList() ?? CreateSampleComments();
+            var comments = ctx.Comments;
+            if (comments == null || comments.Count == 0)
+            {
+                comments = CreateSampleComments();
+            }
             
             DrawComments(g, ctx.ContentRect, comments, ctx);
 
@@ -105,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 new StringFormat { LineAlignment = StringAlignment.Center });
 
             // Comment count and stats
-            var comments = ctx.Comments?.Cast<Comment>().ToList() ?? new List<Comment>();
+            var comments = ctx.Comments;
             
             int totalComments = CountTotalComments(comments);
             var statsRect = new Rectangle(rect.X, rect.Y + 20, rect.Width, 12);
@@ -494,27 +501,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         }
     }
 
-    // Supporting classes for comment data
-    public class Comment
-    {
-        public string Id { get; set; }
-        public string AuthorName { get; set; }
-        public string AuthorAvatar { get; set; }
-        public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? EditedAt { get; set; }
-        public int VoteScore { get; set; }
-        public VoteType UserVote { get; set; }
-        public List<Comment> Replies { get; set; } = new List<Comment>();
-        public bool IsAuthor { get; set; }
-        public bool CanEdit { get; set; }
-        public bool IsDeleted { get; set; }
-    }
-
-    public enum VoteType
-    {
-        None,
-        Upvote,
-        Downvote
-    }
+    // Comment and VoteType are now in Widgets.Models namespace
 }

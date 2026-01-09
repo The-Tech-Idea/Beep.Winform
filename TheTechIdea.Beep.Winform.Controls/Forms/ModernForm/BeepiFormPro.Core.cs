@@ -148,7 +148,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_formstyle != value)
                 {
                     _formstyle = value;
-                    ApplyFormStyle();
+                    // Dispose old managed region when style changes (corner radius may change)
+                    if (IsHandleCreated && Region != null)
+                    {
+                        var oldRegion = Region;
+                        Region = null;
+                        oldRegion.Dispose();
+                    }
+                    ApplyFormStyle(); // This calls UpdateWindowRegion() internally
                     InvalidateLayout(); // Mark layout dirty - will recalculate on next paint
                     DebouncedInvalidate();
                 }
@@ -208,6 +215,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public FormRegion _styleButton;
         private FormRegion _profileButton;
         private FormRegion _searchBox;
+        
+       
 
         // Internal properties for manager access
         internal FormRegion IconRegion => _iconRegion;
@@ -230,6 +239,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private bool _showCloseButton = true;
         private bool _showMinMaxButtons = true;
         private bool _showCustomActionButton = false;
+        
+        // Search box state
+        private string _searchText = string.Empty;
+        private bool _searchBoxFocused = false;
 
         // Events for region interaction
         public event EventHandler<RegionEventArgs> RegionHover;
@@ -325,8 +338,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             get => _cornerRadius ?? (_cornerRadius = new CornerRadius(8));
             set
             {
-                _cornerRadius = value;
-                Invalidate();
+                if (_cornerRadius != value)
+                {
+                    _cornerRadius = value;
+                    // Invalidate region when corner radius changes (rounded corners will change)
+                    if (IsHandleCreated)
+                    {
+                        // Dispose old managed region if it exists
+                        if (Region != null)
+                        {
+                            var oldRegion = Region;
+                            Region = null;
+                            oldRegion.Dispose();
+                        }
+                        UpdateWindowRegion();
+                        UpdateFormRegion();
+                    }
+                    InvalidateLayout();
+                    Invalidate();
+                }
             }
         }
 
@@ -556,6 +586,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     _showSearchBox = value;
                     InvalidateLayout();
                     Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the search text in the search box
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue("")]
+        [System.ComponentModel.Description("Text in the search box")]
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value ?? string.Empty;
+                    if (ShowSearchBox && CurrentLayout.SearchBoxRect.Width > 0)
+                    {
+                        Invalidate(CurrentLayout.SearchBoxRect);
+                    }
+                    SearchBoxTextChanged?.Invoke(this, _searchText);
                 }
             }
         }
@@ -808,6 +861,129 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             };
+
+            // Search box region
+            _searchBox = new FormRegion
+            {
+                Id = "system:search",
+                Dock = RegionDock.Caption,
+                OnPaint = (g, r) =>
+                {
+                    if (!_showSearchBox || r.Width <= 0 || r.Height <= 0) return;
+                    
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("search")) ?? false;
+                    var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+                    
+                    // Background with rounded corners
+                    int radius = 4;
+                    using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+                    {
+                        path.AddArc(r.X, r.Y, radius * 2, radius * 2, 180, 90);
+                        path.AddArc(r.Right - radius * 2, r.Y, radius * 2, radius * 2, 270, 90);
+                        path.AddArc(r.Right - radius * 2, r.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+                        path.AddArc(r.X, r.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+                        path.CloseFigure();
+                        
+                        // Background color (slightly lighter than caption)
+                        var bgColor = _searchBoxFocused 
+                            ? Color.FromArgb(255, 255, 255)
+                            : (isHovered 
+                                ? Color.FromArgb(245, 245, 245)
+                                : Color.FromArgb(240, 240, 240));
+                        
+                        if (UseThemeColors && _currentTheme != null && _currentTheme.IsDarkTheme)
+                        {
+                            bgColor = _searchBoxFocused
+                                ? Color.FromArgb(60, 60, 60)
+                                : (isHovered
+                                    ? Color.FromArgb(50, 50, 50)
+                                    : Color.FromArgb(45, 45, 45));
+                        }
+                        
+                        using (var brush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(brush, path);
+                        }
+                        
+                        // Border
+                        var accentColor = _currentTheme?.AccentColor ?? Color.FromArgb(99, 102, 241); // Default indigo
+                        var borderColor = _searchBoxFocused
+                            ? accentColor
+                            : Color.FromArgb(200, 200, 200);
+                        
+                        if (UseThemeColors && _currentTheme != null && _currentTheme.IsDarkTheme)
+                        {
+                            borderColor = _searchBoxFocused
+                                ? accentColor
+                                : Color.FromArgb(80, 80, 80);
+                        }
+                        
+                        using (var pen = new Pen(borderColor, _searchBoxFocused ? 2f : 1f))
+                        {
+                            g.DrawPath(pen, path);
+                        }
+                    }
+                    
+                    // Search icon (magnifying glass) on the left
+                    int iconSize = 14;
+                    int iconPadding = 8;
+                    int iconX = r.X + iconPadding;
+                    int iconY = r.Y + (r.Height - iconSize) / 2;
+                    
+                    var iconColor = UseThemeColors && _currentTheme != null && _currentTheme.IsDarkTheme
+                        ? Color.FromArgb(180, 180, 180)
+                        : Color.FromArgb(120, 120, 120);
+                    
+                    using (var iconPen = new Pen(iconColor, 1.5f))
+                    {
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                        // Circle
+                        g.DrawEllipse(iconPen, iconX, iconY, iconSize, iconSize);
+                        // Handle
+                        int handleX = iconX + iconSize - 2;
+                        int handleY = iconY + iconSize - 2;
+                        g.DrawLine(iconPen, handleX, handleY, handleX + 4, handleY + 4);
+                    }
+                    
+                    // Text area (to the right of icon)
+                    int textX = iconX + iconSize + iconPadding;
+                    int textY = r.Y;
+                    int textWidth = r.Width - (textX - r.X) - iconPadding;
+                    var textRect = new Rectangle(textX, textY, textWidth, r.Height);
+                    
+                    if (string.IsNullOrEmpty(_searchText))
+                    {
+                        // Placeholder text
+                        var placeholderColor = UseThemeColors && _currentTheme != null && _currentTheme.IsDarkTheme
+                            ? Color.FromArgb(120, 120, 120)
+                            : Color.FromArgb(160, 160, 160);
+                        TextRenderer.DrawText(g, "Search...", Font, textRect, placeholderColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                    }
+                    else
+                    {
+                        // Actual search text
+                        var textColor = UseThemeColors && _currentTheme != null && _currentTheme.IsDarkTheme
+                            ? Color.FromArgb(220, 220, 220)
+                            : Color.FromArgb(50, 50, 50);
+                        TextRenderer.DrawText(g, _searchText, Font, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                        
+                        // Caret when focused
+                        if (_searchBoxFocused)
+                        {
+                            var textSize = TextRenderer.MeasureText(g, _searchText, Font);
+                            int caretX = textX + textSize.Width + 1;
+                            int caretY = textY + 4;
+                            int caretHeight = r.Height - 8;
+                            using (var caretPen = new Pen(textColor, 1f))
+                            {
+                                g.DrawLine(caretPen, caretX, caretY, caretX, caretY + caretHeight);
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         protected void OnRegionClicked(HitArea area)
@@ -826,6 +1002,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "theme": key = "region:system:theme"; break;
                 case "Style": key = "region:system:Style"; break;
                 case "customAction": key = "region:custom:action"; break;
+                case "search": key = "region:system:search"; break;
                 case "title": key = "caption"; break; // treat title hit as caption drag
 
                 // Accept semi-prefixed keys (without leading "region:")
@@ -834,6 +1011,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "system:minimize": key = "region:system:minimize"; break;
                 case "system:theme": key = "region:system:theme"; break;
                 case "system:Style": key = "region:system:Style"; break;
+                case "system:search": key = "region:system:search"; break;
                 case "custom:action": key = "region:custom:action"; break;
             }
 
@@ -875,12 +1053,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     ShowFormStyleMenu();
                     break;
 
+                case "region:system:search":
+                    // Search box clicked - focus it
+                    _searchBoxFocused = true;
+                    Focus(); // Focus the form to receive keyboard input
+                    Invalidate(CurrentLayout.SearchBoxRect);
+                    break;
+
                 case "caption":
                     // Allow window dragging
                     if (WindowState == FormWindowState.Normal)
                     {
                         ReleaseCapture();
                         SendMessage(Handle, 0xA1, 0x2, 0);
+                    }
+                    // Unfocus search box when clicking caption
+                    if (_searchBoxFocused)
+                    {
+                        _searchBoxFocused = false;
+                        Invalidate(CurrentLayout.SearchBoxRect);
                     }
                     break;
             }

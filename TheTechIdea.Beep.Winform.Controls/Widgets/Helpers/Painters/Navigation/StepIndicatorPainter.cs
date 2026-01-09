@@ -48,7 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var items = ctx.NavigationItems?.Cast<NavigationItem>().ToList() ?? CreateSampleSteps();
+            var items = ctx.NavigationItems;
+            if (items == null || items.Count == 0)
+            {
+                items = CreateSampleSteps();
+            }
             
             int currentIndex = ctx.CurrentIndex;
             
@@ -162,7 +166,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Optional: Draw progress percentage
-            var items = ctx.NavigationItems?.Cast<NavigationItem>().ToList() ?? CreateSampleSteps();
+            var items = ctx.NavigationItems;
+            if (items == null || items.Count == 0)
+            {
+                items = CreateSampleSteps();
+            }
             int currentIndex = ctx.CurrentIndex;
                 
             float progress = (float)currentIndex / Math.Max(items.Count - 1, 1);

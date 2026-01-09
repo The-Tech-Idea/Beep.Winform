@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using ContentAlignment = System.Drawing.ContentAlignment;
@@ -21,6 +22,17 @@ using TextImageRelation = System.Windows.Forms.TextImageRelation;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    /// <summary>
+    /// Easing functions for splash animation
+    /// </summary>
+    public enum SplashEasingFunction
+    {
+        Linear,
+        EaseOut,
+        EaseIn,
+        EaseInOut
+    }
+
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(Button))]
     [Category("Controls")]
@@ -36,13 +48,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float splashProgress; // 0.0f to 1.0f value representing animation progress
         private Point splashCenter;   // The point at which the click occurred (local coordinates)
         private bool splashActive=false;    // Whether the splash animation is currently active
+        private DateTime lastSplashFrame = DateTime.MinValue;
+        private const int MinFrameInterval = 16; // ~60 FPS max
 
-        // Constants to control the animation speed and size:
-        private const float SplashSpeed = 0.05f;     // Increase in progress per tick (adjust as needed)
-        private const float MaxSplashRadius = 150f;  // Maximum radius for the splash effect
+        // Splash customization properties (defaults match original constants)
+        private float _splashSpeed = 0.05f;
+        private float _maxSplashRadius = 150f;
+        private float _splashColorOpacity = 150f;
+        private SplashEasingFunction _splashEasing = SplashEasingFunction.EaseOut;
+
+        // Loading state
+        private bool _isLoading = false;
+        private Timer _loadingAnimationTimer;
+        private float _loadingRotationAngle = 0f;
 
         private string _imagePath = string.Empty;
         private int borderSize = 1;
+        
+        // Cached measurements for performance
+        private Size? _cachedImageSize;
+        private Size? _cachedTextSize;
+        private string _cachedImagePath;
+        private Size _cachedMaxImageSize;
+        private string _cachedText;
+        private Font _cachedFont;
+        private bool _measurementsDirty = true;
 
         private Color borderColor = Color.Black;
         private Color selectedBorderColor = Color.Blue;
@@ -99,6 +129,87 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Browsable(true)]
     [Category("Appearance")]
     public Color SplashColor { get; set; } = Color.Gray;
+
+    /// <summary>
+    /// Indicates whether the button is in a loading state. When true, shows a spinner and disables interaction.
+    /// </summary>
+    [Browsable(true)]
+    [Category("Behavior")]
+    [DefaultValue(false)]
+    [Description("Indicates whether the button is in a loading state. When true, shows a spinner and disables interaction.")]
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            if (_isLoading != value)
+            {
+                _isLoading = value;
+                if (_isLoading)
+                {
+                    StartLoadingAnimation();
+                }
+                else
+                {
+                    StopLoadingAnimation();
+                }
+                Invalidate();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Speed of splash animation (0.01 to 0.2 recommended). Higher values = faster animation.
+    /// </summary>
+    [Browsable(true)]
+    [Category("Appearance")]
+    [DefaultValue(0.05f)]
+    [Description("Speed of splash animation. Higher values = faster animation.")]
+    public float SplashSpeed
+    {
+        get => _splashSpeed;
+        set => _splashSpeed = Math.Max(0.01f, Math.Min(0.2f, value));
+    }
+
+    /// <summary>
+    /// Maximum radius of splash effect in pixels.
+    /// </summary>
+    [Browsable(true)]
+    [Category("Appearance")]
+    [DefaultValue(150f)]
+    [Description("Maximum radius of splash effect in pixels.")]
+    public float MaxSplashRadius
+    {
+        get => _maxSplashRadius;
+        set => _maxSplashRadius = Math.Max(10f, Math.Min(500f, value));
+    }
+
+    /// <summary>
+    /// Maximum opacity of splash color (0-255).
+    /// </summary>
+    [Browsable(true)]
+    [Category("Appearance")]
+    [DefaultValue(150f)]
+    [Description("Maximum opacity of splash color (0-255).")]
+    public float SplashColorOpacity
+    {
+        get => _splashColorOpacity;
+        set => _splashColorOpacity = Math.Max(0f, Math.Min(255f, value));
+    }
+
+    /// <summary>
+    /// Easing function for splash animation.
+    /// </summary>
+    [Browsable(true)]
+    [Category("Appearance")]
+    [DefaultValue(SplashEasingFunction.EaseOut)]
+    [Description("Easing function for splash animation.")]
+    public SplashEasingFunction SplashEasingFunction
+    {
+        get => _splashEasing;
+        set => _splashEasing = value;
+    }
+
         #region "Long press properties"
         private Timer longPressTimer;
         private bool isLongPressTriggered = false;
@@ -176,7 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _selectedItemIndex;
             set
             {
-                if (value == null) return;
+                if (value < 0) return;
                 if (value >= 0 && value < _listItems.Count)
                 {
                     SelectedItem = _listItems[value];
@@ -314,6 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _imagePath = value ?? string.Empty;
+                _measurementsDirty = true; // Invalidate cached measurements
                 Invalidate();
             }
         }
@@ -367,6 +479,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _maxImageSize = value;
+                _measurementsDirty = true; // Invalidate cached measurements
                 Invalidate(); // Repaint when the max image size changes
             }
         }
@@ -549,8 +662,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 1) Create beepListBox
            
             #endregion "Popup List Initialization"
+            
+            // Enable keyboard navigation
+            SetStyle(ControlStyles.Selectable, true);
+            TabStop = true;
+            
             splashTimer = new Timer();
-            splashTimer.Interval = 30; // Update every 30 ms (about 33 frames per second)
+            splashTimer.Interval = 16; // ~60 FPS for smoother animation
             splashTimer.Tick += SplashTimer_Tick;
 
         }
@@ -583,13 +701,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Close any existing popup before showing a new one
             ClosePopup();
-            Debug.WriteLine("1");
             menuDialog = new BeepPopupListForm(ListItems.ToList());
-            Debug.WriteLine("1.1");
             menuDialog.Theme = Theme;
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
-            // Use a timer to call debug after form is fully rendered
-            Debug.WriteLine("1.2");
             // Use the synchronous ShowPopup method
             SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
             _isPopupOpen = true;
@@ -615,13 +729,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
           SelectedItem = e.SelectedItem;
-          if(SelectedItem.Children.Count==0)
+          if(SelectedItem?.Children.Count == 0)
             {
                 ClosePopup();
             }
             else
             {
-                if(SelectedItem.MethodName != null)
+                if(SelectedItem?.MethodName != null)
                 {
                     RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
                 }
@@ -652,15 +766,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
      //       base.OnFontChanged(e);
             _textFont = Font;
-            
-        
-            
-          // // Console.WriteLine("Font Changed");
+            _measurementsDirty = true; // Invalidate cached measurements
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
                 Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
+        }
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+            _measurementsDirty = true; // Invalidate cached measurements
         }
      
         public override void ApplyTheme()
@@ -773,6 +890,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            // DrawStateOverlays(g);   // <— subtle hover/press glaze
             DrawImageAndText(g);
             DrawSplashEffect(g);    // ripple on top
+            DrawLoadingIndicator(g); // loading spinner on top
 
         }
 
@@ -780,13 +898,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!EnableSplashEffect || !splashActive) return;
 
-            // Calculate the current radius based on the animation progress
-            float currentRadius = splashProgress * MaxSplashRadius;
+            // Apply easing function to progress
+            float easedProgress = ApplyEasing(splashProgress, _splashEasing);
+
+            // Calculate the current radius based on the eased animation progress
+            float currentRadius = easedProgress * _maxSplashRadius;
             // Compute an alpha value so that the ripple fades out
-            int alpha = (int)((1f - splashProgress) * 150);
+            int alpha = (int)((1f - easedProgress) * _splashColorOpacity);
             alpha = Math.Max(0, Math.Min(255, alpha));
 
-            using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(alpha, SplashColor)))
+            // Use theme accent color if available, otherwise use SplashColor
+            Color splashColor = SplashColor;
+            if (_currentTheme != null && IsColorFromTheme)
+            {
+                // Try to use theme accent color for splash
+                try
+                {
+                    var accentColor = _currentTheme.AccentColor;
+                    if (accentColor != Color.Empty)
+                    {
+                        splashColor = accentColor;
+                    }
+                }
+                catch { /* Fall back to SplashColor */ }
+            }
+
+            using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(alpha, splashColor)))
             {
                 // Calculate the rectangle for the splash circle centered on splashCenter
                 Rectangle rippleRect = new Rectangle(
@@ -812,6 +949,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.ResetClip();
                 }
             }
+        }
+
+        /// <summary>
+        /// Applies easing function to animation progress
+        /// </summary>
+        private float ApplyEasing(float t, SplashEasingFunction easing)
+        {
+            t = Math.Max(0f, Math.Min(1f, t)); // Clamp to [0, 1]
+
+            return easing switch
+            {
+                SplashEasingFunction.Linear => t,
+                SplashEasingFunction.EaseOut => 1f - (float)Math.Pow(1f - t, 3), // Cubic ease-out
+                SplashEasingFunction.EaseIn => t * t * t, // Cubic ease-in
+                SplashEasingFunction.EaseInOut => t < 0.5f
+                    ? 4f * t * t * t
+                    : 1f - (float)Math.Pow(-2f * t + 2f, 3) / 2f, // Cubic ease-in-out
+                _ => t
+            };
         }
 
         private void DrawStateOverlays(Graphics g)
@@ -1093,7 +1249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void PerformClick()
         {
-            if (!Enabled || !Visible)
+            if (!Enabled || !Visible || _isLoading)
                 return;
 
             // Simulate press state
@@ -1128,7 +1284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <param name="rippleCenter">Ripple origin; ignored if splash effect is disabled.</param>
         public void PerformClick(Point rippleCenter)
         {
-            if (!Enabled || !Visible)
+            if (!Enabled || !Visible || _isLoading)
                 return;
 
             IsPressed = true;
@@ -1165,6 +1321,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
     protected override void OnMouseDown(MouseEventArgs e)
         {
+            if (_isLoading) return; // Disable interaction when loading
+            
             base.OnMouseDown(e);
            
 
@@ -1224,7 +1382,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Binding and Control Type"
         #region Splash Animation
-        // Add the timer event handler method:
+        // Add the timer event handler method with frame rate limiting:
         private void SplashTimer_Tick(object sender, EventArgs e)
         {
             if (!EnableSplashEffect)
@@ -1234,7 +1392,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 splashProgress = 0f;
                 return;
             }
-            splashProgress += SplashSpeed; // Increase the progress
+
+            // Frame rate limiting
+            var now = DateTime.Now;
+            var elapsed = (now - lastSplashFrame).TotalMilliseconds;
+            if (elapsed < MinFrameInterval)
+            {
+                return; // Skip this frame to maintain frame rate
+            }
+            lastSplashFrame = now;
+
+            splashProgress += _splashSpeed; // Increase the progress
             if (splashProgress >= 1f)
             {
                 splashTimer.Stop();
@@ -1244,6 +1412,120 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate(); // Request the control be redrawn
         }
         #endregion Splash Animation
+        #region "Loading State"
+
+        /// <summary>
+        /// Starts the loading animation timer
+        /// </summary>
+        private void StartLoadingAnimation()
+        {
+            if (_loadingAnimationTimer == null)
+            {
+                _loadingAnimationTimer = new Timer();
+                _loadingAnimationTimer.Interval = 50; // 20 FPS for smooth rotation
+                _loadingAnimationTimer.Tick += LoadingAnimationTimer_Tick;
+            }
+            _loadingRotationAngle = 0f;
+            _loadingAnimationTimer.Start();
+        }
+
+        /// <summary>
+        /// Stops the loading animation timer
+        /// </summary>
+        private void StopLoadingAnimation()
+        {
+            if (_loadingAnimationTimer != null)
+            {
+                _loadingAnimationTimer.Stop();
+            }
+            _loadingRotationAngle = 0f;
+        }
+
+        /// <summary>
+        /// Timer tick handler for loading animation
+        /// </summary>
+        private void LoadingAnimationTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_isLoading)
+            {
+                StopLoadingAnimation();
+                return;
+            }
+
+            _loadingRotationAngle += 15f; // Rotate 15 degrees per tick
+            if (_loadingRotationAngle >= 360f)
+            {
+                _loadingRotationAngle = 0f;
+            }
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Draws the loading spinner indicator
+        /// </summary>
+        private void DrawLoadingIndicator(Graphics g)
+        {
+            if (!_isLoading) return;
+
+            // Calculate spinner size and position
+            int spinnerSize = Math.Min(20, Math.Min(contentRect.Width, contentRect.Height) / 3);
+            if (spinnerSize < 8) return; // Too small to draw
+
+            Point center = new Point(
+                contentRect.X + contentRect.Width / 2,
+                contentRect.Y + contentRect.Height / 2);
+
+            // Get spinner color from theme or use default
+            Color spinnerColor = SplashColor;
+            if (_currentTheme != null && IsColorFromTheme)
+            {
+                try
+                {
+                    var accentColor = _currentTheme.AccentColor;
+                    if (accentColor != Color.Empty)
+                    {
+                        spinnerColor = accentColor;
+                    }
+                }
+                catch { /* Fall back to SplashColor */ }
+            }
+
+            // Draw rotating spinner using arcs
+            using (Pen spinnerPen = new Pen(spinnerColor, 2f))
+            {
+                spinnerPen.StartCap = LineCap.Round;
+                spinnerPen.EndCap = LineCap.Round;
+
+                // Save graphics state
+                var state = g.Save();
+                try
+                {
+                    g.TranslateTransform(center.X, center.Y);
+                    g.RotateTransform(_loadingRotationAngle);
+                    g.TranslateTransform(-center.X, -center.Y);
+
+                    // Draw 4 arcs to create spinner effect
+                    Rectangle spinnerRect = new Rectangle(
+                        center.X - spinnerSize / 2,
+                        center.Y - spinnerSize / 2,
+                        spinnerSize,
+                        spinnerSize);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float alpha = 255f * (1f - i * 0.25f);
+                        spinnerPen.Color = Color.FromArgb((int)alpha, spinnerColor);
+                        g.DrawArc(spinnerPen, spinnerRect, i * 90f, 60f);
+                    }
+                }
+                finally
+                {
+                    g.Restore(state);
+                }
+            }
+        }
+
+        #endregion "Loading State"
         #region "Badge"
         // after you change BadgeText, or on Resize, or on LocationChanged:
        
@@ -1362,21 +1644,51 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Framework handles DPI scaling automatically - use font directly
             Font scaledFont = _textFont;
 
-            Size imageSize = !string.IsNullOrEmpty(_imagePath) ? _maxImageSize : Size.Empty;
+            // Check if measurements need recalculation
+            bool needsRecalc = _measurementsDirty ||
+                _cachedImagePath != _imagePath ||
+                _cachedMaxImageSize != _maxImageSize ||
+                _cachedText != Text ||
+                _cachedFont != scaledFont;
 
-            // Limit image size to MaxImageSize (already done, but kept for consistency)
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+            Size imageSize;
+            Size textSize;
+
+            if (needsRecalc || !_cachedImageSize.HasValue || !_cachedTextSize.HasValue)
             {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
+                // Calculate image size
+                imageSize = !string.IsNullOrEmpty(_imagePath) ? _maxImageSize : Size.Empty;
 
-            // Measure text with Graphics for accurate sizing
-            Size textSize = TextRenderer.MeasureText(g, Text ?? "", scaledFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                // Limit image size to MaxImageSize (already done, but kept for consistency)
+                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+                {
+                    float scaleFactor = Math.Min(
+                        (float)_maxImageSize.Width / imageSize.Width,
+                        (float)_maxImageSize.Height / imageSize.Height);
+                    imageSize = new Size(
+                        (int)(imageSize.Width * scaleFactor),
+                        (int)(imageSize.Height * scaleFactor));
+                }
+
+                // Measure text with Graphics for accurate sizing (using cached TextUtils)
+                SizeF textSizeF = TextUtils.MeasureText(g, Text ?? "", scaledFont, int.MaxValue);
+                textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
+
+                // Cache the results
+                _cachedImageSize = imageSize;
+                _cachedTextSize = textSize;
+                _cachedImagePath = _imagePath;
+                _cachedMaxImageSize = _maxImageSize;
+                _cachedText = Text;
+                _cachedFont = scaledFont;
+                _measurementsDirty = false;
+            }
+            else
+            {
+                // Use cached values
+                imageSize = _cachedImageSize.Value;
+                textSize = _cachedTextSize.Value;
+            }
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -1398,7 +1710,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error drawing image: {ex.Message}");
+                    // Log error silently - image drawing failed, continue without image
                 }
             }
 
@@ -1407,8 +1719,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 
-                // Measure text to ensure it fits in the rectangle
-                var measuredSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                // Measure text to ensure it fits in the rectangle (using cached TextUtils)
+                var measuredSizeF = TextUtils.MeasureText(g, Text, scaledFont, int.MaxValue);
+                var measuredSize = new Size((int)measuredSizeF.Width, (int)measuredSizeF.Height);
                 textRect.Width = Math.Min(measuredSize.Width, textRect.Width);
                 textRect.Height = Math.Min(measuredSize.Height, textRect.Height);
                 
@@ -1428,8 +1741,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ForceMaterialSizeCompensation()
         {
-            Console.WriteLine($"BeepButton: Force compensation called. EnableMaterialStyle: {PainterKind == BaseControlPainterKind.Material}, AutoSize: {ButtonAutoSizeForMaterial}, PreventExpansion: {ButtonPreventAutoExpansion}");
-            
             // Temporarily enable auto size and disable expansion prevention if needed
             bool originalAutoSize = ButtonAutoSizeForMaterial;
             bool originalPreventExpansion = ButtonPreventAutoExpansion;
@@ -1448,6 +1759,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnClick(EventArgs e)
         {
+            if (_isLoading) return; // Disable clicks when loading
+            
             if (isLongPressTriggered)
             {
                 // swallow the click that follows a long press
@@ -1457,10 +1770,146 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnClick(e);
         }
 
+        #region "Keyboard Navigation"
+
+        /// <summary>
+        /// Handles dialog keys (Enter, Space, Tab, Arrow keys)
+        /// </summary>
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            if (!Enabled || _isLoading) return base.ProcessDialogKey(keyData);
+
+            switch (keyData)
+            {
+                case Keys.Enter:
+                case Keys.Space:
+                    if (Focused || TabStop)
+                    {
+                        // Simulate mouse click
+                        IsPressed = true;
+                        Invalidate();
+                        Application.DoEvents(); // Brief visual feedback
+                        IsPressed = false;
+                        OnClick(EventArgs.Empty);
+                        return true;
+                    }
+                    break;
+                case Keys.Down:
+                    if (PopupMode && !_isPopupOpen)
+                    {
+                        ShowPopup();
+                        return true;
+                    }
+                    break;
+                case Keys.Escape:
+                    if (_isPopupOpen)
+                    {
+                        ClosePopup();
+                        return true;
+                    }
+                    break;
+            }
+
+            return base.ProcessDialogKey(keyData);
+        }
+
+        /// <summary>
+        /// Handles key down events for additional keyboard support
+        /// </summary>
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (!Enabled) 
+            {
+                base.OnKeyDown(e);
+                return;
+            }
+
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                case Keys.Space:
+                    if (!e.Handled)
+                    {
+                        IsPressed = true;
+                        Invalidate();
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.Down:
+                case Keys.Up:
+                    if (PopupMode && !e.Handled)
+                    {
+                        if (!_isPopupOpen)
+                        {
+                            ShowPopup();
+                        }
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.Escape:
+                    if (_isPopupOpen && !e.Handled)
+                    {
+                        ClosePopup();
+                        e.Handled = true;
+                    }
+                    break;
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        /// <summary>
+        /// Handles key up events to trigger click on Enter/Space
+        /// </summary>
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (!Enabled)
+            {
+                base.OnKeyUp(e);
+                return;
+            }
+
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                case Keys.Space:
+                    if (IsPressed && !e.Handled)
+                    {
+                        IsPressed = false;
+                        Invalidate();
+                        OnClick(EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
+            }
+
+            base.OnKeyUp(e);
+        }
+
+        /// <summary>
+        /// Ensures button can receive focus for keyboard navigation
+        /// </summary>
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate(); // Redraw to show focus indicator
+        }
+
+        /// <summary>
+        /// Redraws when focus is lost to remove focus indicator
+        /// </summary>
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate(); // Redraw to remove focus indicator
+        }
+
+        #endregion "Keyboard Navigation"
+
         /// <summary>
       
+        
 
-      
         
         #endregion "Material Design Support"
     }

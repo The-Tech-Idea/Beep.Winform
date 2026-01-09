@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
-using System.Collections.Generic;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -70,10 +72,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string? IconPath { get; internal set; }
 
         // NAVIGATION PROPERTIES
-        public List<object> NavigationItems { get; set; } = new List<object>(); // Can be List<string> or List<NavigationItem>
+        public List<NavigationItem> NavigationItems { get; set; } = new List<NavigationItem>();
+        
         public List<(string, List<string>)>? NavigationGroups { get; set; }
-        public List<object> QuickActions { get; set; } = new List<object>();
-        public List<object> ProcessFlowItems { get; set; } = new List<object>();
+        public List<QuickAction> QuickActions { get; set; } = new List<QuickAction>();
+        
+        public List<ProcessFlowStep> ProcessFlowItems { get; set; } = new List<ProcessFlowStep>();
         public int ActiveIndex { get; set; }
         public int CurrentIndex { get; set; }
         public int ActiveProcessIndex { get; set; } = 1;
@@ -84,21 +88,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool ShowTabSeparators { get; set; }
 
         // SOCIAL/COMMUNICATION PROPERTIES
-        public List<object> ChatMessages { get; set; } = new List<object>(); // List<ChatMessage> or List<Dictionary<string, object>>
+        public List<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
         public int MessageCount { get; set; }
         public int UnreadCount { get; set; }
         public bool IsTyping { get; set; }
+        // Note: ChatParticipant is defined in ChatWidgetPainter.cs, so we keep it as List<object> for now
         public List<object> ChatParticipants { get; set; } = new List<object>();
         public string CurrentUserId { get; set; } = "current_user";
         public string InputText { get; set; } = "";
-        public List<object> Comments { get; set; } = new List<object>();
+        public List<Comment> Comments { get; set; } = new List<Comment>();
         public string CommentText { get; set; } = "";
         public bool HasNewComments { get; set; }
-        public List<object> ActivityItems { get; set; } = new List<object>();
+        public List<ActivityItem> ActivityItems { get; set; } = new List<ActivityItem>();
         public string UserName { get; set; } = "User";
         public string UserRole { get; set; } = "Role";
         public string UserStatus { get; set; } = "Offline";
         public object? ContactInfo { get; set; }
+        // SocialItems can be various types, keep as List<object> for flexibility
         public List<object> SocialItems { get; set; } = new List<object>();
         public int OnlineCount { get; set; }
         public int TotalCount { get; set; }
@@ -119,14 +125,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool HideAction { get; set; }
         public bool ShowProgress { get; set; }
         public float Progress { get; set; }
-        public List<object>? NotificationMessages { get; set; } // List of notification message objects
+        public List<NotificationMessage> NotificationMessages { get; set; } = new List<NotificationMessage>();
 
         // MEDIA/DISPLAY PROPERTIES
         public Image? Image { get; set; }
         public bool ShowImageOverlay { get; set; }
         public bool ShowBadge { get; set; }
         public string OverlayText { get; set; } = "";
-        public List<object>? MediaItems { get; set; } // List of media items (avatars, images, etc.)
+        public List<MediaItem> MediaItems { get; set; } = new List<MediaItem>();
 
         // LOCATION/MAP PROPERTIES
         public string Address { get; set; } = "Unknown Location";
@@ -137,8 +143,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public DateTime LastUpdated { get; set; } = DateTime.Now;
-        public List<object> MapLocations { get; set; } = new List<object>();
-        public List<object>? MapRoutes { get; set; } // List of route objects
+        public List<MapMarker> MapMarkers { get; set; } = new List<MapMarker>();
+        public List<MapRoute> MapRoutes { get; set; } = new List<MapRoute>();
         public Color RouteColor { get; set; } = Color.Blue;
 
         // METRIC PROPERTIES
@@ -146,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool ShowPercentage { get; set; }
 
         // LIST/ITEM PROPERTIES
-        public List<Dictionary<string, object>> ListItems { get; set; } = new List<Dictionary<string, object>>();
+        public List<ListItem> ListItems { get; set; } = new List<ListItem>();
         public int PageIndex { get; set; } = 0;
         public int PageSize { get; set; } = 10;
         public int SortColumnIndex { get; set; } = -1;
@@ -170,7 +176,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string CryptoName { get; set; } = "";
         public string CryptoSymbol { get; set; } = "";
         public Color CryptoColor { get; set; } = Color.FromArgb(255, 193, 7);
-        public List<object>? FinanceItems { get; set; }
+        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public List<PortfolioItem> PortfolioItems { get; set; } = new List<PortfolioItem>();
         public bool ShowCurrency { get; set; } = true;
         public string Trend { get; set; } = "";
         public string Merchant { get; set; } = "";
@@ -305,8 +312,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         // Calendar category properties
         public DateTime SelectedDate { get; set; } = DateTime.Today;
         public DateTime DisplayMonth { get; set; } = DateTime.Now;
-        public List<object>? Events { get; set; }
-        public List<object>? ScheduleEvents { get; set; }
+        public List<CalendarEvent> Events { get; set; } = new List<CalendarEvent>();
+        
+        public List<CalendarEvent> ScheduleEvents { get; set; } = new List<CalendarEvent>();
         public int Completed { get; set; }
         public int Total { get; set; }
         public Color EventColor { get; set; } = Color.Blue;
@@ -324,8 +332,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool PrevMonth { get; set; }
         public bool NextMonth { get; set; }
         public bool CalendarGridClicked { get; set; }
+        // TimeSlot is defined in BeepCalendarWidget.cs, keep as List<object> for now
         public List<object>? TimeSlots { get; set; }
-        public List<object>? WeekEvents { get; set; }
+        public List<CalendarEvent> WeekEvents { get; set; } = new List<CalendarEvent>();
         public string SelectedDayHeader { get; set; } = "";
         public string SelectedEventDay { get; set; } = "";
         public bool WeekGridClicked { get; set; }
@@ -344,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool BarChartClicked { get; set; }
 
         // Dashboard category properties
-        public List<object>? Metrics { get; set; }
+        public List<DashboardMetric> Metrics { get; set; } = new List<DashboardMetric>();
         public int Columns { get; set; } = 2;
         public int Rows { get; set; } = 2;
         public bool StatusHeaderClicked { get; set; }

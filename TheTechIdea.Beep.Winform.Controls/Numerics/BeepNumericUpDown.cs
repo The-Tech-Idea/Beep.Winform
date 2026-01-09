@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -633,21 +633,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             base.ApplyTheme();
             if (_currentTheme == null) return;
 
-            BackColor = _currentTheme.TextBoxBackColor;
-            ForeColor = _currentTheme.TextBoxForeColor;
-            BorderColor = _currentTheme.TextBoxBorderColor;
-            HoverBackColor = _currentTheme.TextBoxHoverBackColor;
-            HoverForeColor = _currentTheme.TextBoxHoverForeColor;
-            HoverBorderColor = _currentTheme.TextBoxHoverBorderColor;
+            // Apply font theme based on ControlStyle
+            Numerics.Helpers.NumericFontHelpers.ApplyFontTheme(ControlStyle);
+
+            // Use theme helpers for consistent color retrieval
+            BackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
+                _currentTheme, UseThemeColors);
+            ForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
+                _currentTheme, UseThemeColors);
+            BorderColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBorderColor(
+                _currentTheme, UseThemeColors);
+            HoverBackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
+                _currentTheme, UseThemeColors, isHovered: true);
+            HoverForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
+                _currentTheme, UseThemeColors, isHovered: true);
+            HoverBorderColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBorderColor(
+                _currentTheme, UseThemeColors, isHovered: true);
             
             if (_textBox != null)
             {
-                _textBox.BackColor = _currentTheme.TextBoxBackColor;
-                _textBox.ForeColor = _currentTheme.TextBoxForeColor;
-                _textBox.Font = SystemFonts.DefaultFont;
+                _textBox.BackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
+                    _currentTheme, UseThemeColors);
+                _textBox.ForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
+                    _currentTheme, UseThemeColors);
+                _textBox.Font = Numerics.Helpers.NumericFontHelpers.GetNumericFont(ControlStyle);
             }
             
-            _invalidInputColor = _currentTheme.ErrorColor;
+            _invalidInputColor = Numerics.Helpers.NumericThemeHelpers.GetErrorColor(
+                _currentTheme, UseThemeColors);
             Invalidate();
         }
         #endregion

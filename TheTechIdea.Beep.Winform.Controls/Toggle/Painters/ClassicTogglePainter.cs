@@ -61,12 +61,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 return;
 
             Color trackColor = GetTrackColor(state);
-            int radius = trackRect.Height / 2;
+            // Use ToggleStyleHelpers for border radius
+            int radius = GetBorderRadius();
+            // Ensure radius doesn't exceed half the height for pill shape
+            radius = Math.Min(radius, trackRect.Height / 2);
 
             using (var path = GetRoundedRectPath(trackRect, radius))
             using (var brush = new SolidBrush(trackColor))
             {
                 g.FillPath(brush, path);
+
+                // Add shadow if enabled
+                if (ShouldShowShadow() && state != ControlState.Disabled)
+                {
+                    var shadowOffset = GetShadowOffset();
+                    var shadowRect = new Rectangle(
+                        trackRect.X + shadowOffset.X,
+                        trackRect.Y + shadowOffset.Y,
+                        trackRect.Width,
+                        trackRect.Height);
+                    
+                    using (var shadowPath = GetRoundedRectPath(shadowRect, radius))
+                    using (var shadowBrush = new SolidBrush(GetShadowColor(Owner.IsOn)))
+                    {
+                        g.FillPath(shadowBrush, shadowPath);
+                    }
+                }
 
                 // Add subtle inner shadow for depth
                 if (state != ControlState.Disabled)
@@ -74,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                     using (var innerPath = GetRoundedRectPath(
                         new Rectangle(trackRect.X + 1, trackRect.Y + 1, 
                                     trackRect.Width - 2, trackRect.Height - 2), 
-                        radius - 1))
+                        Math.Max(0, radius - 1)))
                     using (var pen = new Pen(Color.FromArgb(30, Color.Black), 1))
                     {
                         g.DrawPath(pen, innerPath);

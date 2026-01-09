@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -57,7 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         private Size DrawChip(Graphics g, string text, int x, int y)
         {
-            var textSize = System.Windows.Forms.TextRenderer.MeasureText(text, _owner.TextFont);
+            SizeF textSizeF = TextUtils.MeasureText(g, text, _owner.TextFont);
+            var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
             int chipWidth = textSize.Width + 32;
             int chipHeight = 24;
 

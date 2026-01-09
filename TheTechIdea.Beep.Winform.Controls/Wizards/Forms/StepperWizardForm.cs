@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
@@ -11,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     /// </summary>
     public class StepperWizardForm : BaseWizardForm
     {
-        private Panel _stepperPanel;
+        private BeepPanel _stepperPanel;
 
         public StepperWizardForm(WizardInstance instance) : base(instance)
         {
@@ -22,14 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             base.InitializeComponents();
 
             // Stepper panel at top
-            _stepperPanel = new Panel
+            _stepperPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
                 Height = 100,
-                BackColor = Color.White,
-                Padding = new Padding(40, 20, 40, 20)
+                Padding = new Padding(40, 20, 40, 20),
+                ShowTitle = false,  // No title for stepper panel
+                ShowTitleLine = false
             };
-
+            _stepperPanel.ApplyTheme();
             _stepperPanel.Paint += StepperPanel_Paint;
 
             _headerPanel.Height = 100;

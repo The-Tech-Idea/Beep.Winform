@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
@@ -49,9 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             _headerRectCache = ctx.HeaderRect;
             _cellRects.Clear();
 
-            if (ctx.Metrics != null)
+            var metrics = ctx.Metrics;
+            if (metrics != null && metrics.Count > 0)
             {
-                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics.Count, ctx.Columns, ctx.Rows));
             }
             
@@ -79,9 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
             
             // Draw enhanced metrics grid
-            if (ctx.Metrics != null)
+            var metrics = ctx.Metrics;
+            if (metrics != null && metrics.Count > 0)
             {
-                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawMetricsGrid(g, ctx.ContentRect, metrics, ctx.Columns, ctx.Rows, ctx.AccentColor);
             }
         }
@@ -110,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             g.DrawString(ctx.Title, titleFont, titleTextBrush, titleTextRect, format);
         }
 
-        private void DrawMetricsGrid(Graphics g, Rectangle rect, List<Dictionary<string, object>> metrics, int columns, int rows, Color accentColor)
+        private void DrawMetricsGrid(Graphics g, Rectangle rect, List<DashboardMetric> metrics, int columns, int rows, Color accentColor)
         {
             if (!metrics.Any()) return;
             
@@ -142,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
                 if (i < _cellRects.Count) _cellRects[i] = cellRect; else _cellRects.Add(cellRect);
                 
-                Color cellColor = metric.ContainsKey("Color") ? (Color)metric["Color"] : accentColor;
+                Color cellColor = metric.Color != Color.Empty ? metric.Color : accentColor;
                 
                 // Enhanced cell background with gradient
                 using var cellBrush = new LinearGradientBrush(
@@ -168,34 +169,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 var headerRect = new Rectangle(cellRect.X + 10, cellRect.Y + 10, cellRect.Width - 20, 20);
                 var iconRect = new Rectangle(headerRect.X, headerRect.Y + 2, 16, 16);
                 
-                string iconName = metric.ContainsKey("Icon") ? metric["Icon"].ToString() : 
+                string iconName = !string.IsNullOrEmpty(metric.IconPath) ? metric.IconPath : 
                                 metricIcons[i % metricIcons.Length];
                 _imagePainter.DrawSvg(g, iconName, iconRect, cellColor, 0.8f);
                 
                 // Metric title
-                if (metric.ContainsKey("Title"))
+                if (!string.IsNullOrEmpty(metric.Title))
                 {
                     var titleTextRect = new Rectangle(iconRect.Right + 6, headerRect.Y, 
                         headerRect.Width - iconRect.Width - 6, headerRect.Height);
                     using var titleBrush = new SolidBrush(Color.FromArgb(130, Theme?.ForeColor ?? Color.Black));
                     var titleFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                    g.DrawString(metric["Title"].ToString(), titleFont, titleBrush, titleTextRect, titleFormat);
+                    g.DrawString(metric.Title, titleFont, titleBrush, titleTextRect, titleFormat);
                 }
                 
                 // Value section (centered)
                 var valueRect = new Rectangle(cellRect.X + 10, headerRect.Bottom + 8, cellRect.Width - 20, 28);
-                if (metric.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(metric.Value))
                 {
                     using var valueBrush = new SolidBrush(cellColor);
                     var valueFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(metric["Value"].ToString(), valueFont, valueBrush, valueRect, valueFormat);
+                    g.DrawString(metric.Value, valueFont, valueBrush, valueRect, valueFormat);
                 }
                 
                 // Trend section with icon
-                if (metric.ContainsKey("Trend"))
+                if (!string.IsNullOrEmpty(metric.Trend))
                 {
                     var trendRect = new Rectangle(cellRect.X + 10, valueRect.Bottom + 4, cellRect.Width - 20, 16);
-                    string trend = metric["Trend"].ToString();
+                    string trend = metric.Trend;
                     bool isPositive = trend.StartsWith("+");
                     bool isNegative = trend.StartsWith("-");
                     

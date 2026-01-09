@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -7,6 +7,7 @@ using System.Drawing;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

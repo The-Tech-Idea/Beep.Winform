@@ -18,9 +18,13 @@
   <ItemGroup>
     <!-- Use latest available preview (restore previously showed 1.13.0-preview.2.24575.3) -->
     <PackageReference Include="Microsoft.WinForms.Designer.SDK" Version="1.13.0-preview.2.24575.3" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Beep.Winform\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
   </ItemGroup>
 </Project>

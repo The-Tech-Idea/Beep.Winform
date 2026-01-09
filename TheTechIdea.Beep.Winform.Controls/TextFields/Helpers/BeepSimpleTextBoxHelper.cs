@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
@@ -91,7 +93,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             string key = $"{font.Name}_{font.Size}_{font.Style}";
             if (!_fontMetricsCache.ContainsKey(key))
             {
-                _fontMetricsCache[key] = TextRenderer.MeasureText(g, "Ag", font).Height;
+                SizeF sizeF = TextUtils.MeasureText(g, "Ag", font);
+                _fontMetricsCache[key] = (int)sizeF.Height;
             }
         }
         
@@ -109,7 +112,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 return (int)value;
             }
             
-            int height = TextRenderer.MeasureText(g, "Ag", font).Height;
+            SizeF sizeF = TextUtils.MeasureText(g, "Ag", font);
+            int height = (int)sizeF.Height;
             _fontMetricsCache[key] = height;
             return height;
         }
@@ -379,7 +383,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Size fullTextSize = Size.Empty;
             if (!string.IsNullOrEmpty(text))
             {
-                fullTextSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF fullTextSizeF = TextUtils.MeasureText(g, text, font);
+                fullTextSize = new Size((int)fullTextSizeF.Width, (int)fullTextSizeF.Height);
                 if (_textBox.TextAlignment == HorizontalAlignment.Center)
                 {
                     baseX = actualTextRect.X + Math.Max(0, (actualTextRect.Width - fullTextSize.Width) / 2);
@@ -404,7 +409,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             for (int i = 0; i <= text.Length; i++)
             {
                 string upTo = i == 0 ? string.Empty : text.Substring(0, i);
-                Size size = TextRenderer.MeasureText(g, upTo, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF sizeF = TextUtils.MeasureText(g, upTo, font);
+                Size size = new Size((int)sizeF.Width, (int)sizeF.Height);
                 int delta = Math.Abs(size.Width - relativeX);
                 if (delta < bestDelta)
                 {
@@ -681,10 +687,15 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 UndoRedo.AddUndoAction("Insert", oldText, _textBox.Text, oldCaret, Caret.CaretPosition);
             }
             
-            // Trigger autocomplete for visible characters
+            // Trigger autocomplete for word characters
             if (!char.IsControl(text[0]))
             {
-                AutoComplete.TriggerSmartAutoComplete(_textBox.Text);
+                // Check if we should trigger autocomplete based on character type
+                bool shouldTrigger = ShouldTriggerAutoComplete(text[0]);
+                if (shouldTrigger)
+                {
+                    AutoComplete.TriggerSmartAutoComplete(_textBox.Text);
+                }
             }
             
             // Ensure caret is visible
@@ -844,6 +855,16 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 
                 _disposed = true;
             }
+        }
+        
+        /// <summary>
+        /// Determine if autocomplete should be triggered based on character type
+        /// </summary>
+        private bool ShouldTriggerAutoComplete(char c)
+        {
+            // Trigger on word characters (letters, digits, underscore, hyphen)
+            // This allows autocomplete to work as user types words
+            return char.IsLetterOrDigit(c) || c == '_' || c == '-';
         }
         
         #endregion

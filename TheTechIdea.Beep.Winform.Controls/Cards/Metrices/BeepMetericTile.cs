@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -175,7 +175,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size titleSize;
             using (var titleFont = MetricTileFontHelpers.GetTitleFont(this, ControlStyle))
             {
-                titleSize = TextRenderer.MeasureText(g, _titleText ?? "", titleFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF titleSizeF = TextUtils.MeasureText(_titleText ?? "", titleFont, int.MaxValue);
+                titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
             }
             titleRect = MetricTileLayoutHelpers.CalculateTitleBounds(drawingRect, Padding);
             titleRect.Width = Math.Min(titleSize.Width, drawingRect.Width - titleRect.Left - Padding.Right - 30); // Account for icon
@@ -215,7 +216,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size metricSize;
             using (var metricFont = MetricTileFontHelpers.GetMetricValueFont(this, ControlStyle))
             {
-                metricSize = TextRenderer.MeasureText(g, _metricValue ?? "", metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF metricSizeF = TextUtils.MeasureText(_metricValue ?? "", metricFont, int.MaxValue);
+                metricSize = new Size((int)metricSizeF.Width, (int)metricSizeF.Height);
             }
             metricRect = MetricTileLayoutHelpers.CalculateMetricValueBounds(drawingRect, titleRect.Size, Padding);
             metricRect.Width = Math.Min(metricSize.Width, drawingRect.Width - metricRect.Left - Padding.Right);
@@ -236,7 +238,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size deltaSize;
             using (var deltaFont = MetricTileFontHelpers.GetDeltaFont(this, ControlStyle))
             {
-                deltaSize = TextRenderer.MeasureText(g, _deltaValue ?? "", deltaFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF deltaSizeF = TextUtils.MeasureText(_deltaValue ?? "", deltaFont, int.MaxValue);
+                deltaSize = new Size((int)deltaSizeF.Width, (int)deltaSizeF.Height);
             }
             deltaRect = MetricTileLayoutHelpers.CalculateDeltaBounds(drawingRect, metricRect.Size, Padding);
             deltaRect.Width = Math.Min(deltaSize.Width, drawingRect.Width - deltaRect.Left - Padding.Right);

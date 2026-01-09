@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
@@ -621,8 +622,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             // Calculate cursor position
             string textBeforeCursor = text.Substring(0, Math.Min(_textBox.SelectionStart, text.Length));
-            var textSize = TextRenderer.MeasureText(g, textBeforeCursor, _terminalFont, 
-                new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            SizeF textSizeF = TextUtils.MeasureText(g, textBeforeCursor, _terminalFont);
+            var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
             int cursorX = textRect.X + textSize.Width;
             int cursorY = textRect.Y;

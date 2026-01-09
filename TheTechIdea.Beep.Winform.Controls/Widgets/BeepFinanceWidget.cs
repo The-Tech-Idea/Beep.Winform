@@ -2,10 +2,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
@@ -320,7 +322,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 CornerRadius = BorderRadius,
                 
                 // Finance-specific typed properties
-                FinanceItems = _financeItems.Cast<object>().ToList(),
+                // Convert FinanceItem to appropriate typed collections based on widget style
+                PortfolioItems = _style == FinanceWidgetStyle.PortfolioCard 
+                    ? _financeItems.Select(f => new PortfolioItem 
+                    { 
+                        Symbol = f.Name, 
+                        Value = f.Value, 
+                        Change = f.Percentage, 
+                        ChangePercent = f.Percentage 
+                    }).ToList() 
+                    : new List<PortfolioItem>(),
+                Transactions = _style == FinanceWidgetStyle.TransactionCard || _style == FinanceWidgetStyle.FinancialChart || _style == FinanceWidgetStyle.ExpenseCard || _style == FinanceWidgetStyle.RevenueCard
+                    ? _financeItems.Select(f => new Transaction 
+                    { 
+                        Description = f.Name, 
+                        Amount = f.Value, 
+                        Category = f.Category ?? "",
+                        Date = DateTime.Now 
+                    }).ToList() 
+                    : new List<Transaction>(),
                 PrimaryValue = _primaryValue,
                 SecondaryValue = _secondaryValue,
                 Percentage = _percentage,

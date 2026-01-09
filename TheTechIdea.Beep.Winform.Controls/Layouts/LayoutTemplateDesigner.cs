@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using System;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Layouts
 {
+    /// <summary>
+    /// Designer-time helper for applying layout templates.
+    /// This class delegates to the runtime layout helpers to avoid code duplication.
+    /// </summary>
     public static class LayoutTemplateDesigner
     {
         // Supported layout template types.
@@ -25,36 +26,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
 
         /// <summary>
         /// Applies the requested layout template to the given parent control.
+        /// Uses the runtime layout helpers with default options.
         /// </summary>
         /// <param name="parent">The container control (form or panel) where the template is injected.</param>
         /// <param name="templateType">The desired layout template type.</param>
+        /// <param name="options">Optional layout configuration. If null, uses default options.</param>
         /// <returns>The main control representing the injected layout.</returns>
-        public static Control ApplyTemplate(Control parent, TemplateType templateType)
+        public static Control ApplyTemplate(Control parent, TemplateType templateType, LayoutOptions options = null)
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
+            // Use default options if not provided
+            var layoutOptions = options ?? LayoutOptions.Default;
+
             switch (templateType)
             {
                 case TemplateType.Invoice:
-                    return AddInvoiceLayout(parent);
+                    return InvoiceLayoutHelper.Build(parent, layoutOptions);
                 case TemplateType.Product:
-                    return AddProductLayout(parent);
+                    return ProductLayoutHelper.Build(parent, layoutOptions);
                 case TemplateType.Profile:
-                    return AddProfileLayout(parent);
+                    return ProfileLayoutHelper.Build(parent, layoutOptions);
                 case TemplateType.Report:
-                    return AddReportLayout(parent);
+                    return ReportLayoutHelper.Build(parent, layoutOptions);
                 case TemplateType.VerticalStack:
-                    return AddVerticalStackLayout(parent);
+                    return VerticalStackLayoutHelper.Build(parent, layoutOptions);
                 case TemplateType.HorizontalStack:
-                    return AddHorizontalStackLayout(parent);
+                    return HorizontalStackLayoutHelper.Build(parent, layoutOptions);
                 case TemplateType.Grid:
                     // Defaulting to a 3x3 grid – modify as necessary.
-                    return AddGridLayout(parent, 3, 3);
+                    return GridLayoutHelper.Build(parent, 3, 3, layoutOptions);
                 case TemplateType.SplitContainer:
-                    return AddSplitContainerLayout(parent, Orientation.Vertical);
+                    return SplitContainerLayoutHelper.Build(parent, Orientation.Vertical, layoutOptions);
                 case TemplateType.Dock:
-                    return AddDockLayout(parent);
+                    return DockLayoutHelper.Build(parent, layoutOptions);
                 default:
                     throw new ArgumentException("Unknown TemplateType", nameof(templateType));
             }

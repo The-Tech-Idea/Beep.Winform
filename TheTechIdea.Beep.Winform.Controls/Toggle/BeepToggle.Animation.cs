@@ -87,12 +87,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         /// </summary>
         public enum AnimationEasing
         {
+            Linear,
+            EaseIn,
+            EaseOut,
+            EaseInOut,
             EaseOutCubic,
             EaseInOutCubic,
             EaseOutElastic,
             EaseOutBounce,
             EaseOutBack,
-            Linear
+            EaseInQuad,
+            EaseOutQuad,
+            EaseInOutQuad,
+            EaseInOutExpo,
+            EaseInOutSine
         }
 
         private AnimationEasing _animationEasing = AnimationEasing.EaseOutCubic;
@@ -108,19 +116,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
 
         /// <summary>
         /// Apply the selected easing function
+        /// Uses ToggleAnimationHelpers for consistent easing calculations
         /// </summary>
         private float ApplyEasing(float linearProgress)
         {
-            return _animationEasing switch
-            {
-                AnimationEasing.EaseOutCubic => EaseOutCubic(linearProgress),
-                AnimationEasing.EaseInOutCubic => EaseInOutCubic(linearProgress),
-                AnimationEasing.EaseOutElastic => EaseOutElastic(linearProgress),
-                AnimationEasing.EaseOutBounce => EaseOutBounce(linearProgress),
-                AnimationEasing.EaseOutBack => EaseOutBack(linearProgress),
-                AnimationEasing.Linear => linearProgress,
-                _ => EaseOutCubic(linearProgress)
-            };
+            return ToggleAnimationHelpers.GetEasingFunction(_animationEasing)(linearProgress);
+        }
+
+        /// <summary>
+        /// Get easing function delegate (for backward compatibility)
+        /// </summary>
+        private Func<float, float> GetEasingFunction()
+        {
+            return ToggleAnimationHelpers.GetEasingFunction(_animationEasing);
         }
 
         #endregion
@@ -143,20 +151,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
 
         /// <summary>
         /// Interpolate between two colors
+        /// Uses ToggleAnimationHelpers for consistent color transitions
         /// </summary>
         private Color InterpolateColor(Color from, Color to, float progress)
         {
-            int r = (int)(from.R + (to.R - from.R) * progress);
-            int g = (int)(from.G + (to.G - from.G) * progress);
-            int b = (int)(from.B + (to.B - from.B) * progress);
-            int a = (int)(from.A + (to.A - from.A) * progress);
-
-            return Color.FromArgb(
-                Math.Max(0, Math.Min(255, a)),
-                Math.Max(0, Math.Min(255, r)),
-                Math.Max(0, Math.Min(255, g)),
-                Math.Max(0, Math.Min(255, b))
-            );
+            return ToggleAnimationHelpers.CalculateColorTransition(from, to, progress);
         }
 
         #endregion

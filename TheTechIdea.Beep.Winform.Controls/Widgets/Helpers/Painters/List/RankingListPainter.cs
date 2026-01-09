@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -61,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void DrawRankingItems(Graphics g, Rectangle rect, List<Dictionary<string, object>> items)
+        private void DrawRankingItems(Graphics g, Rectangle rect, List<ListItem> items)
         {
             if (!items.Any()) return;
             
@@ -97,18 +98,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var contentRect = new Rectangle(rowRect.X + 32, rowRect.Y, rowRect.Width - 100, rowRect.Height);
                 var valueRect = new Rectangle(rowRect.Right - 60, rowRect.Y, 60, rowRect.Height);
                 
-                if (item.ContainsKey("Name"))
+                if (!string.IsNullOrEmpty(item.Title))
                 {
                     using var nameBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
                     var nameFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item["Name"].ToString(), nameFont, nameBrush, contentRect, nameFormat);
+                    g.DrawString(item.Title, nameFont, nameBrush, contentRect, nameFormat);
                 }
                 
-                if (item.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(item.Subtitle))
                 {
                     using var valueBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                     var valueFormat = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
-                    g.DrawString(item["Value"].ToString(), valueFont, valueBrush, valueRect, valueFormat);
+                    g.DrawString(item.Subtitle, valueFont, valueBrush, valueRect, valueFormat);
                 }
             }
         }

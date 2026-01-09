@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -31,7 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 if (labels != null && i < labels.Length)
                 {
                     using var small =  BeepThemesManager.ToFont(theme.SmallText);
-                    var sz = TextRenderer.MeasureText(labels[i], small);
+                    SizeF szF = TextUtils.MeasureText(labels[i], small);
+                    var sz = new Size((int)szF.Width, (int)szF.Height);
                     TextRenderer.DrawText(g, labels[i], small, new Point(cx - sz.Width/2, cy + radius), theme.CardTextForeColor);
                 }
             }

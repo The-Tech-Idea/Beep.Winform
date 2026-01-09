@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
 {
@@ -49,8 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             Color headerColor = StatCardThemeHelpers.GetHeaderColor(theme, owner?.UseThemeColors ?? true, null);
             using var brush = new SolidBrush(headerColor);
             var textRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, (int)(font.Size * 1.6f));
-            // Measure text to ensure it fits
-            var textSize = TextRenderer.MeasureText(g, header, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            // Measure text to ensure it fits (using cached TextUtils)
+            SizeF textSizeF = TextUtils.MeasureText(header, font, int.MaxValue);
+            var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
             textRect.Width = Math.Min(textSize.Width, textRect.Width);
             TextRenderer.DrawText(g, header, font, textRect, brush.Color, TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
         }
@@ -61,8 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             using var font = StatCardFontHelpers.GetValueFont(owner, owner?.Style ?? BeepControlStyle.Material3, scale);
             Color valueColor = StatCardThemeHelpers.GetValueColor(theme, owner?.UseThemeColors ?? true, null);
             using var brush = new SolidBrush(valueColor);
-            // Measure text to ensure it fits
-            var textSize = TextRenderer.MeasureText(g, valueText, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            // Measure text to ensure it fits (using cached TextUtils)
+            SizeF textSizeF = TextUtils.MeasureText(valueText, font, int.MaxValue);
+            var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
             var textRect = new Rectangle(bounds.X, bounds.Y, Math.Min(textSize.Width, bounds.Width), bounds.Height);
             TextRenderer.DrawText(g, valueText, font, textRect, brush.Color, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
         }

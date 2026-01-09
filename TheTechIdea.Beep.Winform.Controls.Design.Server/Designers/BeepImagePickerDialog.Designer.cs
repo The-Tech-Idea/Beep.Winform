@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
+﻿using TheTechIdea.Beep.Winform.Controls.Images;
+
+namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     partial class BeepImagePickerDialog
     {
@@ -12,7 +14,7 @@
         private System.Windows.Forms.Button _btnCancel;
         private System.Windows.Forms.CheckBox _chkLimit;
         private System.Windows.Forms.GroupBox _grpPreview;
-        private TheTechIdea.Beep.Winform.Controls.BeepImage _preview;
+        private BeepImage _preview;
         private System.Windows.Forms.Label _lblPath;
         private System.Windows.Forms.Label _lblSearch;
         private System.Windows.Forms.Panel _bottomPanel;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -32,6 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _hoveredItemName;
         private SimpleItem _selectedItem;
         private int _selectedIndex = -1;
+        private int _focusedItemIndex = -1;
+
+        // Layout caching
+        private Dictionary<int, Rectangle> _itemRectCache = new Dictionary<int, Rectangle>();
+        private bool _layoutCacheValid = false;
 
         private int _itemSpacing = 8;
         private int _separatorWidth = 20;
@@ -100,6 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _itemSpacing = BreadcrumbAccessibilityHelpers.IsHighContrastMode() 
                     ? BreadcrumbAccessibilityHelpers.GetAccessibleItemSpacing(value)
                     : value;
+                InvalidateLayoutCache();
                 Invalidate();
             }
         }
@@ -113,6 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _separatorText = value ?? ">";
+                InvalidateLayoutCache();
                 Invalidate();
             }
         }
@@ -129,6 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _style = value;
                     InitializePainter();
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -143,6 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showIcons = value;
+                InvalidateLayoutCache();
                 Invalidate();
             }
         }
@@ -156,6 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showHomeIcon = value;
+                InvalidateLayoutCache();
                 Invalidate();
             }
         }
@@ -166,10 +177,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _selectedItem;
             set
             {
+                if (_selectedItem == value) return; // Avoid redundant updates
+
                 _selectedItem = value;
                 if (_selectedItem != null)
                 {
-                    OnCrumbClicked(new CrumbClickedEventArgs(_selectedIndex, _selectedItem.Name, _selectedItem.Text));
+                    _selectedIndex = _items.IndexOf(_selectedItem);
+                    if (_selectedIndex >= 0)
+                    {
+                        OnCrumbClicked(new CrumbClickedEventArgs(_selectedIndex, _selectedItem.Name, _selectedItem.Text));
+                    }
+                }
+                else
+                {
+                    _selectedIndex = -1;
                 }
                 Invalidate();
             }
@@ -210,6 +231,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = new Font("Segoe UI", 9);
             BorderRadius = 8;
             Height = 36;
+
+            // Enable keyboard navigation
+            SetStyle(ControlStyles.Selectable, true);
+            TabStop = true;
 
             InitializeDrawingComponents();
             _items.ListChanged += Items_ListChanged;
@@ -308,6 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeItems()
         {
             _itemStates.Clear();
+            InvalidateLayoutCache(); // Invalidate cache when items change
 
             foreach (var item in _items)
             {
@@ -329,6 +355,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateAllItemTooltips();
 
             Invalidate();
+        }
+
+        /// <summary>
+        /// Invalidates the layout cache, forcing recalculation on next paint
+        /// </summary>
+        private void InvalidateLayoutCache()
+        {
+            _layoutCacheValid = false;
+            _itemRectCache.Clear();
         }
         #endregion
 
@@ -409,12 +444,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bool isHovered = state?.IsHovered ?? false;
                 bool isSelected = state?.IsSelected ?? false;
                 bool isLast = i == _items.Count - 1;
+                bool isFocused = Focused && _focusedItemIndex == i;
 
-                // Calculate item dimensions
-                var itemRect = _painter.CalculateItemRect(g, item, x, y, itemHeight, isHovered);
+                // Calculate item dimensions (use cache if valid)
+                Rectangle itemRect;
+                if (_layoutCacheValid && _itemRectCache.TryGetValue(i, out var cachedRect))
+                {
+                    // Use cached rectangle but update X position based on current layout
+                    itemRect = new Rectangle(x, cachedRect.Y, cachedRect.Width, cachedRect.Height);
+                }
+                else
+                {
+                    itemRect = _painter.CalculateItemRect(g, item, x, y, itemHeight, isHovered);
+                    // Cache only width and height (position is relative to current x)
+                    _itemRectCache[i] = new Rectangle(0, itemRect.Y, itemRect.Width, itemRect.Height);
+                }
 
                 // Draw the breadcrumb item
                 _painter.DrawItem(g, button, item, itemRect, isHovered, isSelected, isLast);
+
+                // Draw focus indicator if item is focused
+                if (isFocused)
+                {
+                    DrawFocusIndicator(g, itemRect);
+                }
 
                 // Add hit area
                 AddHitArea(
@@ -458,6 +511,43 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     x += _painter.DrawSeparator(g, label, x, y, itemHeight, _separatorText, _textFont ?? Font, sepColor, _itemSpacing);
                 }
+            }
+
+            // Mark layout cache as valid after first complete paint
+            _layoutCacheValid = true;
+        }
+
+        /// <summary>
+        /// Draws a focus indicator around the focused breadcrumb item
+        /// </summary>
+        private void DrawFocusIndicator(Graphics g, Rectangle itemRect)
+        {
+            if (!Focused) return;
+
+            var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+            var useTheme = UseThemeColors && theme != null;
+
+            // Get focus color from theme or use system highlight color
+            Color focusColor = SystemColors.Highlight;
+            if (useTheme && theme != null)
+            {
+                // Use primary color with reduced opacity for focus indicator
+                if (theme.PrimaryColor != Color.Empty)
+                {
+                    focusColor = Color.FromArgb(200, theme.PrimaryColor);
+                }
+            }
+
+            // Draw focus rectangle (dashed border)
+            using (var pen = new Pen(focusColor, 2f))
+            {
+                pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                var focusRect = new Rectangle(
+                    itemRect.X - 2,
+                    itemRect.Y - 2,
+                    itemRect.Width + 4,
+                    itemRect.Height + 4);
+                g.DrawRectangle(pen, focusRect);
             }
         }
         #endregion
@@ -593,6 +683,100 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             OnCrumbClicked(new CrumbClickedEventArgs(index, item?.Name, item?.Text));
+            Invalidate();
+        }
+        #endregion
+
+        #region Keyboard Navigation
+        /// <summary>
+        /// Handles dialog keys (Arrow keys, Enter, Space, Home, End) for keyboard navigation
+        /// </summary>
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            if (!Enabled) return base.ProcessDialogKey(keyData);
+
+            switch (keyData)
+            {
+                case Keys.Left:
+                    if (_items.Count > 0)
+                    {
+                        if (_focusedItemIndex > 0)
+                        {
+                            _focusedItemIndex--;
+                        }
+                        else
+                        {
+                            _focusedItemIndex = _items.Count - 1; // Wrap to end
+                        }
+                        Invalidate();
+                        return true;
+                    }
+                    break;
+                case Keys.Right:
+                    if (_items.Count > 0)
+                    {
+                        if (_focusedItemIndex < _items.Count - 1)
+                        {
+                            _focusedItemIndex++;
+                        }
+                        else
+                        {
+                            _focusedItemIndex = 0; // Wrap to beginning
+                        }
+                        Invalidate();
+                        return true;
+                    }
+                    break;
+                case Keys.Enter:
+                case Keys.Space:
+                    if (_focusedItemIndex >= 0 && _focusedItemIndex < _items.Count)
+                    {
+                        var item = _items[_focusedItemIndex];
+                        OnItemClicked(item, _focusedItemIndex);
+                        return true;
+                    }
+                    break;
+                case Keys.Home:
+                    if (_items.Count > 0)
+                    {
+                        _focusedItemIndex = 0;
+                        Invalidate();
+                        return true;
+                    }
+                    break;
+                case Keys.End:
+                    if (_items.Count > 0)
+                    {
+                        _focusedItemIndex = _items.Count - 1;
+                        Invalidate();
+                        return true;
+                    }
+                    break;
+            }
+
+            return base.ProcessDialogKey(keyData);
+        }
+
+        /// <summary>
+        /// Redraws when focus is gained to show focus indicator
+        /// </summary>
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            // Initialize focus to first item if no item is focused
+            if (_focusedItemIndex < 0 && _items.Count > 0)
+            {
+                _focusedItemIndex = 0;
+            }
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Redraws when focus is lost to remove focus indicator
+        /// </summary>
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
             Invalidate();
         }
         #endregion
@@ -973,6 +1157,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowNotification(message, ToolTipType.Info, 1500);
         }
 
+        /// <summary>
+        /// Invalidates layout cache when control is resized
+        /// </summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            InvalidateLayoutCache();
+        }
         #endregion
 
         #region Cleanup

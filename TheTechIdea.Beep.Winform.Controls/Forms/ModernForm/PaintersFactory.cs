@@ -73,6 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 FormStyle.Cyberpunk => new CyberpunkFormPainter(),
                 FormStyle.Neon => new NeonFormPainter(),
                 FormStyle.Holographic => new HolographicFormPainter(),
+                FormStyle.Shadcn => new ShadcnFormPainter(),
+                FormStyle.RadixUI => new RadixUIFormPainter(),
+                FormStyle.NextJS => new NextJSFormPainter(),
+                FormStyle.Linear => new LinearFormPainter(),
+                FormStyle.MaterialYou => new MaterialYouFormPainter(),
                 FormStyle.Custom => new CustomFormPainter(),
                 _ => new MinimalFormPainter()
             };

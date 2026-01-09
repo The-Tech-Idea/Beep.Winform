@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -657,11 +657,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         #region Theming
         public override void ApplyTheme()
         {
-            _titleColor = _currentTheme.CardTitleForeColor;
-            BackColor = _currentTheme.ButtonBackColor;
-            _renderOptions.Theme = _currentTheme;
-            _painter?.UpdateTheme(_currentTheme);
-            ApplyThemeToChips();
+            base.ApplyTheme();
+
+            // Apply font theme based on ControlStyle
+            Helpers.ChipFontHelpers.ApplyFontTheme(ControlStyle, _chipSize);
+
+            if (_currentTheme != null)
+            {
+                // Use theme helpers for consistent color retrieval
+                _titleColor = Helpers.ChipThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors);
+                BackColor = Helpers.ChipThemeHelpers.GetGroupBackgroundColor(_currentTheme, UseThemeColors);
+                
+                _renderOptions.Theme = _currentTheme;
+                _painter?.UpdateTheme(_currentTheme);
+                ApplyThemeToChips();
+            }
+
             Invalidate();
         }
 

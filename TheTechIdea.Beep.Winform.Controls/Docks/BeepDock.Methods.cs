@@ -63,15 +63,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
 
+            // Apply font theme based on ControlStyle
+            Docks.Helpers.DockFontHelpers.ApplyFontTheme(ControlStyle);
+
             if (_currentTheme != null)
             {
+                // Use theme helpers for consistent color retrieval
                 // Apply theme colors to config if not set
                 if (!_config.BackgroundColor.HasValue)
                 {
-                    BackColor = _currentTheme.PanelBackColor;
+                    BackColor = Docks.Helpers.DockThemeHelpers.GetDockBackgroundColor(
+                        _currentTheme, UseThemeColors, null, _config.BackgroundOpacity);
+                }
+                else
+                {
+                    BackColor = Docks.Helpers.DockThemeHelpers.GetDockBackgroundColor(
+                        _currentTheme, UseThemeColors, _config.BackgroundColor, _config.BackgroundOpacity);
                 }
 
-                ForeColor = _currentTheme.LabelForeColor;
+                ForeColor = Docks.Helpers.DockThemeHelpers.GetDockForegroundColor(
+                    _currentTheme, UseThemeColors);
             }
 
             // Maintain frameless appearance

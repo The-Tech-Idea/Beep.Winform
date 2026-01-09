@@ -8,6 +8,8 @@ using TheTechIdea.Beep.Winform.Controls.Trees.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Painters;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Images;
 using System.Drawing.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls

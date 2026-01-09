@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -459,7 +460,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_data?.IsDirty == true)
             {
-                _data.Commit().Wait();
+                // Use enhanced Unit of Work helper for commit
+                var commitResult = DataBlockUnitOfWorkHelper.CommitAsync(_data).Result;
+                if (commitResult.Flag != Errors.Ok)
+                {
+                    Status = $"Commit failed: {commitResult.Message}";
+                }
             }
         }
         private void Units_CurrentChanged(object sender, EventArgs e)
@@ -872,100 +878,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!IsInQueryMode)
                 return;
 
+            // Use enhanced Unit of Work helper
             var filters = GetQueryFiltersFromControls();
-            if (Data is IUnitofWork unitOfWork)
-            {
-                var getWithFilters = unitOfWork.GetType().GetMethod("Get", new[] { typeof(List<AppFilter>) });
-                if (getWithFilters != null)
-                {
-                    var task = (Task)getWithFilters.Invoke(unitOfWork, new object[] { filters });
-                    await task;
-                }
-            }
-            Data?.Units.MoveFirst();
-            await SwitchBlockModeAsync(DataBlockMode.CRUD);
+            await ExecuteQueryWithUnitOfWorkAsync(filters, null);
             IsInQueryMode = false;
-            // Refresh all child blocks after query
-            foreach (var childBlock in ChildBlocks)
-            {
-                childBlock.SetMasterRecord(Data?.Units.Current);
-            }
         }
         #endregion
         #region "Record Navigation Methods"
         public async Task MoveNextAsync()
         {
-            if (!await CheckAndHandleUnsavedChangesRecursiveAsync())
-                return;
-            Data?.MoveNext();
-            foreach (var childBlock in ChildBlocks)
-            {
-                childBlock.SetMasterRecord(Data?.Units.Current);
-            }
+            // Use enhanced Unit of Work helper
+            await MoveNextWithUnitOfWorkAsync();
         }
 
         public async Task MovePreviousAsync()
         {
-            if (!await CheckAndHandleUnsavedChangesRecursiveAsync())
-                return;
-            Data?.MovePrevious();
-            foreach (var childBlock in ChildBlocks)
-            {
-                childBlock.SetMasterRecord(Data?.Units.Current);
-            }
+            // Use enhanced Unit of Work helper
+            await MovePreviousWithUnitOfWorkAsync();
         }
 
         public async Task InsertRecordAsync(Entity newRecord)
         {
-            // Check for unsaved changes if there are child blocks
-            if (ChildBlocks.Count > 0 && !await CheckAndHandleUnsavedChangesRecursiveAsync())
-                return;
-            if (Data != null && newRecord != null)
-            {
-                var args = new UnitofWorkParams();
-                OnPreInsert?.Invoke(this, args);
-                if (args.Cancel) { Status = "Insert cancelled by trigger."; return; }
-                await Data.InsertAsync(newRecord);
-                OnPostInsert?.Invoke(this, args);
-                Status = "Insert completed.";
-                // After insert, update child blocks
-                foreach (var childBlock in ChildBlocks)
-                {
-                    childBlock.SetMasterRecord(Data?.Units.Current);
-                }
-            }
+            // Use enhanced Unit of Work helper
+            await InsertRecordWithUnitOfWorkAsync(newRecord);
         }
 
         public async Task DeleteCurrentRecordAsync()
         {
-            // Check for unsaved changes if there are child blocks
-            if (ChildBlocks.Count > 0 && !await CheckAndHandleUnsavedChangesRecursiveAsync())
-                return;
-            if (Data != null && Data.Units.Current != null)
-            {
-                await Data.DeleteAsync(Data.Units.Current);
-                // After delete, update child blocks
-                foreach (var childBlock in ChildBlocks)
-                {
-                    childBlock.SetMasterRecord(Data?.Units.Current);
-                }
-            }
+            // Use enhanced Unit of Work helper
+            await DeleteCurrentRecordWithUnitOfWorkAsync();
         }
 
         public async Task RollbackAsync()
         {
-            if (Data != null)
-            {
-                try
-                {
-                    await Data.Rollback();
-                    Status = "Rollback successful.";
-                }
-                catch (Exception ex)
-                {
-                    Status = $"Rollback failed: {ex.Message}";
-                }
-            }
+            // Use enhanced Unit of Work helper
+            await RollbackWithUnitOfWorkAsync();
         }
 
         public void UndoLastChange()

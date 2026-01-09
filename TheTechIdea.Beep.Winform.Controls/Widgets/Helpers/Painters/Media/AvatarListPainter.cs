@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -57,6 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			int itemHeight = avatarSize + 8;
 			int maxItems = Math.Max(0, ctx.ContentRect.Height / itemHeight);
 			int dataCount = 0;
+			// AvatarListPainter uses different structure (Name, Role, Status), so keep using Dictionary for now
 			var users = ctx.SocialItems?.Cast<Dictionary<string, object>>().ToList();
 			if (users != null)
 			{

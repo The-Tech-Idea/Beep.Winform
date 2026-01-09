@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
@@ -68,6 +68,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private RatingStyle _ratingStyle = RatingStyle.ClassicStar;
         private IRatingPainter _painter;
         private bool _isApplyingTheme = false; // Prevent re-entrancy during theme application
+
+        // Layout cache for performance
+        private bool _layoutCacheValid = false;
+        private Dictionary<int, Rectangle> _starRectCache = new Dictionary<int, Rectangle>();
+        private Dictionary<string, SizeF> _textMeasurementCache = new Dictionary<string, SizeF>();
+        private (int startX, int startY, int starSize)? _cachedStarLayout = null;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -165,6 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value > 0 && _starSize != value)
                 {
                     _starSize = value;
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -182,6 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value >= 0 && _spacing != value)
                 {
                     _spacing = value;
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -314,6 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showLabels != value)
                 {
                     _showLabels = value;
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -330,6 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ratingLabels = value;
                 if (_showLabels)
                 {
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -349,6 +359,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _labelFont = value;
                     if (_showLabels)
                     {
+                        InvalidateLayoutCache();
                         Invalidate();
                     }
                 }
@@ -368,6 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _labelColor = value;
                     if (_showLabels)
                     {
+                        InvalidateLayoutCache();
                         Invalidate();
                     }
                 }
@@ -470,6 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showRatingCount != value)
                 {
                     _showRatingCount = value;
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -489,6 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _ratingCount = value;
                     if (_showRatingCount)
                     {
+                        InvalidateLayoutCache();
                         Invalidate();
                     }
                     if (_autoGenerateTooltip)
@@ -511,6 +525,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showAverage != value)
                 {
                     _showAverage = value;
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -529,6 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _averageRating = value;
                     if (_showAverage)
                     {
+                        InvalidateLayoutCache();
                         Invalidate();
                     }
                     if (_autoGenerateTooltip)
@@ -587,6 +603,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _ratingStyle = value;
                     UpdatePainter();
+                    InvalidateLayoutCache();
                     Invalidate();
                 }
             }
@@ -698,6 +715,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float Lerp(float start, float end, float amount)
         {
             return start + (end - start) * amount;
+        }
+
+        private void InvalidateLayoutCache()
+        {
+            _layoutCacheValid = false;
+            _starRectCache.Clear();
+            _textMeasurementCache.Clear();
+            _cachedStarLayout = null;
         }
         #endregion
 
@@ -1021,6 +1046,30 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Delegate to painter
             _painter.Paint(context);
+
+            // Draw focus indicator after painter rendering
+            DrawFocusIndicator(g, bounds);
+        }
+
+        private void DrawFocusIndicator(Graphics g, Rectangle bounds)
+        {
+            if (Focused && _keyboardFocusedStar >= 0)
+            {
+                // Get the focused star's rectangle
+                var context = CreatePainterContext();
+                Rectangle starRect = _painter?.GetHitTestRect(context, _keyboardFocusedStar) ?? Rectangle.Empty;
+                
+                if (!starRect.IsEmpty)
+                {
+                    using (var pen = new Pen(_currentTheme?.PrimaryColor ?? SystemColors.Highlight, 2))
+                    {
+                        // Draw focus rectangle around the focused star
+                        var focusRect = starRect;
+                        focusRect.Inflate(2, 2);
+                        g.DrawRectangle(pen, focusRect);
+                    }
+                }
+            }
         }
 
         #endregion

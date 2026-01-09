@@ -24,9 +24,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.General_ConnectionNamebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.General_ConnectionStringbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.General_CategorybeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
-            this.General_FavouritebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.General_IsDefaultbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.General_DrawnbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
+            this.General_FavouritebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.General_IsDefaultbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.General_DrawnbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
             this.General_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -138,8 +138,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox General_ConnectionNamebeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox General_ConnectionStringbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepComboBox General_CategorybeepComboBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool General_FavouritebeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool General_IsDefaultbeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool General_DrawnbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool General_FavouritebeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool General_IsDefaultbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool General_DrawnbeepCheckBox;
     }
 }

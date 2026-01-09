@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -13,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
     /// <summary>
     /// Style 1 painter for vertical table: Card-style columns with hover/selection effects.
     /// Similar to modern pricing table layout with elevation and visual feedback.
+    /// Enhanced with theme integration.
     /// </summary>
     public class VerticalTableStyle1Painter : IVerticalTablePainter
     {
@@ -88,8 +91,21 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             g.SmoothingMode = SmoothingMode.HighQuality;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Background
-            using (var backBrush = new SolidBrush(BeepStyling.GetBackgroundColor(BeepStyling.GetControlStyle(FormStyle.Modern))))
+            // Get theme information from owner
+            IBeepTheme? theme = null;
+            bool useThemeColors = false;
+            BeepControlStyle controlStyle = BeepControlStyle.Material3;
+
+            if (owner is BeepVerticalTable table)
+            {
+                theme = table._currentTheme ?? (table.UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                useThemeColors = table.UseThemeColors;
+                controlStyle = table.ControlStyle;
+            }
+
+            // Background using theme helpers
+            Color tableBg = VerticalTableThemeHelpers.GetTableBackgroundColor(theme, useThemeColors);
+            using (var backBrush = new SolidBrush(tableBg))
             {
                 g.FillRectangle(backBrush, bounds);
             }
@@ -105,46 +121,40 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 bool isColumnSelected = (layout.SelectedColumnIndex == col.ColumnIndex);
                 bool isFeatured = column.IsSelected; // Use IsSelected on column item itself for "featured" state
 
-                DrawColumnCard(g, col, column, isColumnHovered, isColumnSelected, isFeatured, layout);
+                DrawColumnCard(g, col, column, isColumnHovered, isColumnSelected, isFeatured, layout, owner);
             }
         }
 
-        private void DrawColumnCard(Graphics g, VerticalColumnLayout col, SimpleItem column, bool isHovered, bool isSelected, bool isFeatured, VerticalTableLayoutHelper layout)
+        private void DrawColumnCard(Graphics g, VerticalColumnLayout col, SimpleItem column, bool isHovered, bool isSelected, bool isFeatured, VerticalTableLayoutHelper layout, object owner)
         {
             var cardRect = col.ColumnBounds;
+
+            // Get theme information from owner
+            IBeepTheme? theme = null;
+            bool useThemeColors = false;
+            BeepControlStyle controlStyle = BeepControlStyle.Material3;
+
+            if (owner is BeepVerticalTable table)
+            {
+                theme = table._currentTheme ?? (table.UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                useThemeColors = table.UseThemeColors;
+                controlStyle = table.ControlStyle;
+            }
 
             // Determine elevation based on state
             int elevation = ShadowOffset;
             if (isSelected || isFeatured) elevation = SelectedElevation;
             else if (isHovered) elevation = HoverElevation;
 
-            // Draw shadow (elevation effect)
-            DrawCardShadow(g, cardRect, elevation, isSelected || isFeatured);
+            // Draw shadow (elevation effect) using theme helpers
+            Color shadowColor = VerticalTableThemeHelpers.GetShadowColor(theme, useThemeColors, elevation);
+            DrawCardShadow(g, cardRect, elevation, isSelected || isFeatured, shadowColor);
 
-            // Determine card colors
-            Color cardBg, headerBg, borderColor;
-            int borderWidth = 1;
-
-            if (isFeatured || isSelected)
-            {
-                cardBg = Color.White;
-                headerBg = BeepStyling.GetThemeColor("accent");
-                borderColor = BeepStyling.GetThemeColor("accent");
-                borderWidth = 2;
-            }
-            else if (isHovered)
-            {
-                cardBg = Color.White;
-                headerBg = Color.FromArgb(230, 235, 245);
-                borderColor = BeepStyling.GetThemeColor("secondary");
-                borderWidth = 2;
-            }
-            else
-            {
-                cardBg = Color.White;
-                headerBg = Color.FromArgb(245, 247, 250);
-                borderColor = Color.FromArgb(220, 225, 230);
-            }
+            // Determine card colors using theme helpers
+            Color cardBg = VerticalTableThemeHelpers.GetCellBackgroundColor(theme, useThemeColors, isHovered, isSelected);
+            Color headerBg = VerticalTableThemeHelpers.GetHeaderBackgroundColor(theme, useThemeColors, isSelected, isFeatured);
+            Color borderColor = VerticalTableThemeHelpers.GetBorderColor(theme, useThemeColors, isSelected, isFeatured);
+            int borderWidth = VerticalTableStyleHelpers.GetBorderWidth(VerticalTablePainterStyle.Style1, controlStyle, isSelected, isFeatured);
 
             // Draw card background with rounded corners
             using (var path = CreateRoundedRectPath(cardRect, CornerRadius))
@@ -160,12 +170,12 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             }
 
             // Draw header section
-            DrawColumnHeader(g, col, column, isHovered, isSelected, isFeatured, headerBg);
+            DrawColumnHeader(g, col, column, isHovered, isSelected, isFeatured, headerBg, theme, useThemeColors, controlStyle);
 
             // Draw "Featured" or "Most Popular" badge if applicable
             if (isFeatured && !string.IsNullOrEmpty(column.SubText))
             {
-                DrawFeaturedBadge(g, col, column.SubText);
+                DrawFeaturedBadge(g, col, column.SubText, theme, useThemeColors, controlStyle);
             }
 
             // Draw rows (cells) within the column
@@ -182,17 +192,17 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 bool isRowSelected = layout.IsRowSelected(cell.RowIndex);
                 bool isColSelected = layout.IsColumnSelected(col.ColumnIndex);
 
-                DrawCell(g, cell, item, isCellHovered, isRowHovered, isColHovered, isCellSelected, isRowSelected, isColSelected, isSelected || isFeatured);
+                DrawCell(g, cell, item, isCellHovered, isRowHovered, isColHovered, isCellSelected, isRowSelected, isColSelected, isSelected || isFeatured, theme, useThemeColors, controlStyle);
             }
         }
 
-        private void DrawCardShadow(Graphics g, Rectangle rect, int elevation, bool isAccented)
+        private void DrawCardShadow(Graphics g, Rectangle rect, int elevation, bool isAccented, Color? shadowColor = null)
         {
             if (elevation <= 0) return;
 
-            Color shadowColor = isAccented
-                ? Color.FromArgb(40, BeepStyling.GetThemeColor("accent"))
-                : Color.FromArgb(30, 0, 0, 0);
+            Color actualShadowColor = shadowColor ?? (isAccented
+                ? Color.FromArgb(40, Color.Black)
+                : Color.FromArgb(30, 0, 0, 0));
 
             // Draw multiple layers for soft shadow
             for (int i = elevation; i > 0; i -= 2)
@@ -206,14 +216,14 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 );
 
                 using (var path = CreateRoundedRectPath(shadowRect, CornerRadius + 2))
-                using (var brush = new SolidBrush(Color.FromArgb(alpha, shadowColor)))
+                using (var brush = new SolidBrush(Color.FromArgb(alpha, actualShadowColor)))
                 {
                     g.FillPath(brush, path);
                 }
             }
         }
 
-        private void DrawColumnHeader(Graphics g, VerticalColumnLayout col, SimpleItem column, bool isHovered, bool isSelected, bool isFeatured, Color headerBg)
+        private void DrawColumnHeader(Graphics g, VerticalColumnLayout col, SimpleItem column, bool isHovered, bool isSelected, bool isFeatured, Color headerBg, IBeepTheme? theme = null, bool useThemeColors = false, BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             var rect = col.HeaderBounds;
 
@@ -223,8 +233,10 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 // Fill header with gradient for featured/selected
                 if (isFeatured || isSelected)
                 {
-                    var accent = BeepStyling.GetThemeColor("accent");
-                    using (var brush = new LinearGradientBrush(rect, accent, Color.FromArgb(200, accent), 90f))
+                    Color accentColor = theme != null && useThemeColors && theme.AccentColor != Color.Empty
+                        ? theme.AccentColor
+                        : Color.FromArgb(52, 168, 83);
+                    using (var brush = new LinearGradientBrush(rect, accentColor, Color.FromArgb(200, accentColor), 90f))
                     {
                         g.FillPath(brush, path);
                     }
@@ -238,13 +250,13 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 }
             }
 
-            // Draw header content
-            Color textColor = (isFeatured || isSelected) ? Color.White : Color.FromArgb(40, 50, 70);
+            // Draw header content using theme helpers
+            Color textColor = VerticalTableThemeHelpers.GetHeaderTextColor(theme, useThemeColors, isSelected, isFeatured);
             int padding = 12;
             int yOffset = rect.Top + padding;
 
-            // Plan name (title)
-            using (var titleFont = new Font("Segoe UI", 14, FontStyle.Bold))
+            // Plan name (title) using font helpers
+            using (var titleFont = VerticalTableFontHelpers.GetHeaderFont(controlStyle, isFeatured))
             {
                 var titleRect = new Rectangle(rect.Left + padding, yOffset, rect.Width - padding * 2, 28);
                 using (var brush = new SolidBrush(textColor))
@@ -259,8 +271,8 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             string? priceValue = column.Value?.ToString();
             if (!string.IsNullOrEmpty(priceValue))
             {
-                using (var priceFont = new Font("Segoe UI", 28, FontStyle.Bold))
-                using (var suffixFont = new Font("Segoe UI", 11, FontStyle.Regular))
+                using (var priceFont = VerticalTableFontHelpers.GetPriceFont(controlStyle, isFeatured))
+                using (var suffixFont = VerticalTableFontHelpers.GetSubtextFont(controlStyle))
                 {
                     var priceRect = new Rectangle(rect.Left + padding, yOffset, rect.Width - padding * 2, 40);
                     using (var brush = new SolidBrush(textColor))
@@ -285,41 +297,53 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             }
         }
 
-        private void DrawFeaturedBadge(Graphics g, VerticalColumnLayout col, string badgeText)
+        private void DrawFeaturedBadge(Graphics g, VerticalColumnLayout col, string badgeText, IBeepTheme? theme = null, bool useThemeColors = false, BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             var badgeHeight = 24;
-            var badgeWidth = (int)g.MeasureString(badgeText, new Font("Segoe UI", 9, FontStyle.Bold)).Width + 20;
-            var badgeRect = new Rectangle(
-                col.HeaderBounds.Left + (col.HeaderBounds.Width - badgeWidth) / 2,
-                col.HeaderBounds.Top - badgeHeight / 2,
-                badgeWidth,
-                badgeHeight
-            );
-
-            using (var path = CreateRoundedRectPath(badgeRect, badgeHeight / 2))
+            using (var badgeFont = VerticalTableFontHelpers.GetBadgeFont(controlStyle))
             {
-                var accent = BeepStyling.GetThemeColor("accent");
-                using (var brush = new SolidBrush(accent))
+                var badgeWidth = (int)g.MeasureString(badgeText, badgeFont).Width + 20;
+                var badgeRect = new Rectangle(
+                    col.HeaderBounds.Left + (col.HeaderBounds.Width - badgeWidth) / 2,
+                    col.HeaderBounds.Top - badgeHeight / 2,
+                    badgeWidth,
+                    badgeHeight
+                );
+
+                    using (var path = CreateRoundedRectPath(badgeRect, badgeHeight / 2))
                 {
-                    g.FillPath(brush, path);
+                    Color accentColor = theme != null && useThemeColors && theme.AccentColor != Color.Empty
+                        ? theme.AccentColor
+                        : Color.FromArgb(52, 168, 83);
+                    using (var brush = new SolidBrush(accentColor))
+                    {
+                        g.FillPath(brush, path);
+                    }
                 }
-            }
 
-            using (var font = new Font("Segoe UI", 9, FontStyle.Bold))
-            using (var brush = new SolidBrush(Color.White))
-            {
-                var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(badgeText, font, brush, badgeRect, sf);
+                using (var brush = new SolidBrush(Color.White))
+                {
+                    var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                    g.DrawString(badgeText, badgeFont, brush, badgeRect, sf);
+                }
             }
         }
 
         private void DrawCell(Graphics g, VerticalCellLayout cell, SimpleItem item, 
             bool isCellHovered, bool isRowHovered, bool isColHovered,
             bool isCellSelected, bool isRowSelected, bool isColSelected, 
-            bool isColumnFeatured)
+            bool isColumnFeatured, IBeepTheme? theme = null, bool useThemeColors = false, BeepControlStyle controlStyle = BeepControlStyle.Material3)
         {
             var rect = cell.Bounds;
             int padding = 12;
+
+            // Get cell background color using theme helpers
+            Color cellBg = VerticalTableThemeHelpers.GetCellBackgroundColor(
+                theme, 
+                useThemeColors, 
+                isCellHovered || isRowHovered || isColHovered,
+                isCellSelected || isRowSelected || isColSelected,
+                false); // Alternate row not implemented yet
 
             // Determine background based on selection/hover priority:
             // 1. Exact cell selected (intersection) - strongest
@@ -329,7 +353,10 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             if (isCellSelected)
             {
                 // Intersection of row and column selection - strongest highlight
-                using (var brush = new SolidBrush(Color.FromArgb(60, BeepStyling.GetThemeColor("accent"))))
+                Color accentColor = theme != null && useThemeColors && theme.AccentColor != Color.Empty
+                    ? theme.AccentColor
+                    : Color.FromArgb(52, 168, 83);
+                using (var brush = new SolidBrush(Color.FromArgb(60, accentColor)))
                 {
                     g.FillRectangle(brush, rect);
                 }
@@ -337,23 +364,25 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             else if (isRowSelected || isColSelected)
             {
                 // Row or column is selected - medium highlight
+                Color accentColor = theme != null && useThemeColors && theme.AccentColor != Color.Empty
+                    ? theme.AccentColor
+                    : Color.FromArgb(52, 168, 83);
                 int alpha = (isRowSelected && isColSelected) ? 40 : 25;
-                using (var brush = new SolidBrush(Color.FromArgb(alpha, BeepStyling.GetThemeColor("accent"))))
+                using (var brush = new SolidBrush(Color.FromArgb(alpha, accentColor)))
                 {
                     g.FillRectangle(brush, rect);
                 }
             }
             else if (isCellHovered)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(35, BeepStyling.GetThemeColor("secondary"))))
+                using (var brush = new SolidBrush(cellBg))
                 {
                     g.FillRectangle(brush, rect);
                 }
             }
             else if (isRowHovered || isColHovered)
             {
-                int alpha = (isRowHovered && isColHovered) ? 25 : 15;
-                using (var brush = new SolidBrush(Color.FromArgb(alpha, BeepStyling.GetThemeColor("secondary"))))
+                using (var brush = new SolidBrush(cellBg))
                 {
                     g.FillRectangle(brush, rect);
                 }
@@ -371,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
             int iconY = rect.Top + (rect.Height - iconSize) / 2;
 
             Color checkColor = isColumnFeatured
-                ? BeepStyling.GetThemeColor("accent")
+                ? (theme != null && useThemeColors && theme.AccentColor != Color.Empty ? theme.AccentColor : Color.FromArgb(52, 168, 83))
                 : Color.FromArgb(100, 180, 100);
 
             // Draw checkmark circle
@@ -386,13 +415,11 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
                 g.DrawLine(pen, iconX + 7, iconY + 11, iconX + 12, iconY + 5);
             }
 
-            // Draw text
+            // Draw text using theme helpers
             var textRect = new Rectangle(iconX + iconSize + 8, rect.Top, rect.Width - padding * 2 - iconSize - 8, rect.Height);
-            Color textColor = (isCellSelected || isRowSelected || isColSelected)
-                ? BeepStyling.GetThemeColor("accent")
-                : Color.FromArgb(60, 70, 90);
+            Color textColor = VerticalTableThemeHelpers.GetCellTextColor(theme, useThemeColors, isCellSelected || isRowSelected || isColSelected);
 
-            using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
+            using (var font = VerticalTableFontHelpers.GetCellFont(controlStyle, isCellSelected || isRowSelected || isColSelected))
             using (var brush = new SolidBrush(textColor))
             {
                 var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };

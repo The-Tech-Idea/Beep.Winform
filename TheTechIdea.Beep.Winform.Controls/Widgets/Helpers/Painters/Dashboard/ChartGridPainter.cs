@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
@@ -35,10 +36,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
             // Precompute grid cell rectangles for hit testing
             _cellRects.Clear();
-            if (ctx.Metrics != null)
+            var metrics = ctx.Metrics;
+            if (metrics != null && metrics.Count > 0)
             {
-                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
-                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics?.Count ?? 0, ctx.Columns, ctx.Rows));
+                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics.Count, ctx.Columns, ctx.Rows));
             }
 
             // Expand button location (if expandable)
@@ -68,9 +69,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
             
             // Draw enhanced chart grid
-            if (ctx.Metrics != null)
+            var metrics = ctx.Metrics;
+            if (metrics != null && metrics.Count > 0)
             {
-                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 int columns = ctx.Columns;
                 int rows = ctx.Rows;
                 
@@ -102,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             g.DrawString(ctx.Title, titleFont, titleTextBrush, titleTextRect, format);
         }
 
-        private void DrawChartsGrid(Graphics g, Rectangle rect, List<Dictionary<string, object>> metrics, int columns, int rows, Color accentColor)
+        private void DrawChartsGrid(Graphics g, Rectangle rect, List<DashboardMetric> metrics, int columns, int rows, Color accentColor)
         {
             if (!metrics.Any()) return;
             
@@ -131,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 if (i < _cellRects.Count) _cellRects[i] = cellRect;
                 
                 // Enhanced cell background with gradient
-                Color cellColor = metric.ContainsKey("Color") ? (Color)metric["Color"] : accentColor;
+                Color cellColor = metric.Color != Color.Empty ? metric.Color : accentColor;
                 using var cellBrush = new LinearGradientBrush(
                     cellRect,
                     Color.FromArgb(15, cellColor),
@@ -155,28 +156,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 var headerRect = new Rectangle(cellRect.X + 8, cellRect.Y + 8, cellRect.Width - 16, 20);
                 var iconRect = new Rectangle(headerRect.X, headerRect.Y + 2, 16, 16);
                 
-                string iconName = metric.ContainsKey("Icon") ? metric["Icon"].ToString() : chartIcons[i % chartIcons.Length];
+                string iconName = !string.IsNullOrEmpty(metric.IconPath) ? metric.IconPath : chartIcons[i % chartIcons.Length];
                 _imagePainter.DrawSvg(g, iconName, iconRect, cellColor, 0.8f);
                 
                 // Chart title
-                if (metric.ContainsKey("Title"))
+                if (!string.IsNullOrEmpty(metric.Title))
                 {
                     var titleTextRect = new Rectangle(iconRect.Right + 6, headerRect.Y, 
                         headerRect.Width - iconRect.Width - 6, headerRect.Height);
                     using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f,FontStyle.Bold);
                     using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                     var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                    g.DrawString(metric["Title"].ToString(), titleFont, titleBrush, titleTextRect, format);
+                    g.DrawString(metric.Title, titleFont, titleBrush, titleTextRect, format);
                 }
                 
                 // Value display area
-                if (metric.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(metric.Value))
                 {
                     var valueRect = new Rectangle(cellRect.X + 8, headerRect.Bottom + 4, cellRect.Width - 16, 18);
                     using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
                     using var valueBrush = new SolidBrush(cellColor);
                     var valueFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                    g.DrawString(metric["Value"].ToString(), valueFont, valueBrush, valueRect, valueFormat);
+                    g.DrawString(metric.Value, valueFont, valueBrush, valueRect, valueFormat);
                 }
                 
                 // Mini chart area (bottom portion)

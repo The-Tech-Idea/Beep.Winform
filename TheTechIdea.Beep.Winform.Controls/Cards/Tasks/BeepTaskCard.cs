@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -250,7 +250,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size titleSize;
             using (var titleFont = TaskCardFontHelpers.GetTitleFont(this, ControlStyle))
             {
-                titleSize = TextRenderer.MeasureText(g, _titleText ?? "", titleFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF titleSizeF = TextUtils.MeasureText(_titleText ?? "", titleFont, int.MaxValue);
+                titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
             }
             titleRect = TaskCardLayoutHelpers.CalculateTitleBounds(clientRect, new Size(avatarSize * 3, avatarSize), Padding);
             titleRect.Width = Math.Min(titleSize.Width, clientRect.Width - titleRect.Left - Padding.Right - iconSize - 10);
@@ -268,7 +269,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size subtitleSize;
             using (var subtitleFont = TaskCardFontHelpers.GetSubtitleFont(this, ControlStyle))
             {
-                subtitleSize = TextRenderer.MeasureText(g, _subtitleText ?? "", subtitleFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF subtitleSizeF = TextUtils.MeasureText(_subtitleText ?? "", subtitleFont, int.MaxValue);
+                subtitleSize = new Size((int)subtitleSizeF.Width, (int)subtitleSizeF.Height);
             }
             subtitleRect = TaskCardLayoutHelpers.CalculateSubtitleBounds(clientRect, titleRect.Size, Padding);
             subtitleRect.Width = Math.Min(subtitleSize.Width, clientRect.Width - subtitleRect.Left - Padding.Right);
@@ -283,11 +285,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // 4) Draw the metric text near the bottom - measure to prevent clipping
+            // 4) Draw the metric text near the bottom - measure to prevent clipping (using cached TextUtils)
             Size metricSize;
             using (var metricFont = TaskCardFontHelpers.GetMetricFont(this, ControlStyle))
             {
-                metricSize = TextRenderer.MeasureText(g, _metricText ?? "", metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF metricSizeF = TextUtils.MeasureText(_metricText ?? "", metricFont, int.MaxValue);
+                metricSize = new Size((int)metricSizeF.Width, (int)metricSizeF.Height);
             }
             metricRect = TaskCardLayoutHelpers.CalculateMetricBounds(clientRect, Padding);
             metricRect.Width = Math.Min(metricSize.Width, clientRect.Width - metricRect.Left - Padding.Right);

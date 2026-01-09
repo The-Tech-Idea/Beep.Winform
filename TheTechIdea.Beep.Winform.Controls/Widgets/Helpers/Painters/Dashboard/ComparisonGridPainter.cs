@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
@@ -68,9 +69,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 DrawComparisonTitle(g, ctx);
             }
             
-            if (ctx.Metrics != null)
+            var metrics = ctx.Metrics;
+            if (metrics != null && metrics.Count > 0)
             {
-                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawComparisonPanels(g, _leftPanelRect, _rightPanelRect, metrics);
             }
         }
@@ -99,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             g.DrawString(ctx.Title, titleFont, titleTextBrush, titleTextRect, format);
         }
 
-        private void DrawComparisonPanels(Graphics g, Rectangle leftRect, Rectangle rightRect, List<Dictionary<string, object>> metrics)
+        private void DrawComparisonPanels(Graphics g, Rectangle leftRect, Rectangle rightRect, List<DashboardMetric> metrics)
         {
             if (metrics.Count < 2) return;
             
@@ -117,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 vsHovered ? (Theme?.PrimaryColor ?? Color.Blue) : Color.FromArgb(150, Theme?.ForeColor ?? Color.Gray), 0.8f);
         }
 
-        private void DrawComparisonPanel(Graphics g, Rectangle rect, Dictionary<string, object> metric, Color accentColor, string label, bool isCurrent)
+        private void DrawComparisonPanel(Graphics g, Rectangle rect, DashboardMetric metric, Color accentColor, string label, bool isCurrent)
         {
             // Enhanced gradient background
             using var panelBrush = new LinearGradientBrush(
@@ -147,19 +148,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             
             // Value section
             var valueRect = new Rectangle(rect.X + 12, headerRect.Bottom + 8, rect.Width - 24, 40);
-            if (metric.ContainsKey("Value"))
+            if (!string.IsNullOrEmpty(metric.Value))
             {
                 using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 18f, FontStyle.Bold);
                 using var valueBrush = new SolidBrush(accentColor);
                 var valueFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(metric["Value"].ToString(), valueFont, valueBrush, valueRect, valueFormat);
+                g.DrawString(metric.Value, valueFont, valueBrush, valueRect, valueFormat);
             }
             
             // Trend section with enhanced styling
-            if (metric.ContainsKey("Trend"))
+            if (!string.IsNullOrEmpty(metric.Trend))
             {
                 var trendRect = new Rectangle(rect.X + 12, valueRect.Bottom + 4, rect.Width - 24, 24);
-                string trend = metric["Trend"].ToString();
+                string trend = metric.Trend;
                 bool isPositive = trend.StartsWith("+");
                 bool isNegative = trend.StartsWith("-");
                 

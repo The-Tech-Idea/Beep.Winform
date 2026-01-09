@@ -162,25 +162,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
         {
             if (string.IsNullOrEmpty(iconName)) return;
             
-            int iconSize = (int)(thumbRect.Width * 0.55f);
-            var iconRect = new Rectangle(
-                thumbRect.X + (thumbRect.Width - iconSize) / 2,
-                thumbRect.Y + (thumbRect.Height - iconSize) / 2,
-                iconSize,
-                iconSize
-            );
+            // Use icon helpers for consistent icon rendering
+            string iconPath = TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.SwitchIconHelpers.GetSwitchIconPath(
+                iconName, 
+                isOn: true);
             
-            var iconProperty = typeof(SvgsUI).GetProperty(iconName.Replace("-", "").Replace("_", ""), 
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-            string iconPath = iconProperty?.GetValue(null) as string;
-            if (!string.IsNullOrEmpty(iconPath))
-            {
-                using (var iconPath2 = new GraphicsPath())
-                {
-                    iconPath2.AddEllipse(iconRect);
-                    StyledImagePainter.PaintWithTint(g, iconPath2, iconPath, iconColor, opacity: 1.0f);
-                }
-            }
+            Rectangle iconRect = TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.SwitchIconHelpers.CalculateThumbIconBounds(
+                thumbRect, 
+                thumbRect.Width);
+            
+            TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.SwitchIconHelpers.PaintIcon(
+                g,
+                iconRect,
+                iconPath,
+                iconColor,
+                _owner._currentTheme,
+                _owner.UseThemeColors,
+                _owner.ControlStyle,
+                1.0f);
         }
 
         public void PaintLabels(Graphics g, BeepSwitch owner, Rectangle onLabelRect, Rectangle offLabelRect)
@@ -201,9 +200,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
         }
 
-        public int GetAnimationDuration() => 200;
-        public float GetTrackSizeRatio() => 52f / 32f;  // 1.625
-        public float GetThumbSizeRatio() => 0.88f;
+        public int GetAnimationDuration() => TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.SwitchStyleHelpers.GetAnimationDuration(_owner.ControlStyle);
+        public float GetTrackSizeRatio() => TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.SwitchStyleHelpers.GetTrackSizeRatio(_owner.ControlStyle);
+        public float GetThumbSizeRatio() => TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.SwitchStyleHelpers.GetThumbSizeRatio(_owner.ControlStyle);
 
         private ControlState ConvertToControlState(SwitchState state)
         {

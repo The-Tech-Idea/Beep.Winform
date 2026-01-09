@@ -65,6 +65,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Paint Modern beveled buttons (UNIQUE SKIN)
             PaintModernBeveledButtons(g, owner, captionRect, metrics);
 
+            // Paint search box if visible (using FormRegion for consistency)
+            if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
+            {
+                owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
+            }
+
             // Draw title text
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
@@ -371,6 +377,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
+            }
+            
+            // Search box (between title and buttons)
+            int searchBoxWidth = DpiScalingHelper.ScaleValue(200, dpiScale);
+            int searchBoxPadding = DpiScalingHelper.ScaleValue(8, dpiScale);
+            if (owner.ShowSearchBox)
+            {
+                layout.SearchBoxRect = new Rectangle(buttonX - searchBoxWidth - searchBoxPadding, buttonY + searchBoxPadding / 2, 
+                    searchBoxWidth, captionHeight - searchBoxPadding);
+                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
+                buttonX -= searchBoxWidth + searchBoxPadding;
+            }
+            else
+            {
+                layout.SearchBoxRect = Rectangle.Empty;
             }
             
             int iconSize = DpiScalingHelper.ScaleValue(16, dpiScale);

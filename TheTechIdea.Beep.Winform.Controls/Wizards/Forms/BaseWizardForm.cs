@@ -1,8 +1,13 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Threading.Tasks;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Animations;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Localization;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
@@ -12,13 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     public abstract class BaseWizardForm : BeepiFormPro, IWizardForm
     {
         protected readonly WizardInstance _instance;
-        protected Panel _contentPanel;
-        protected Panel _buttonPanel;
-        protected Panel _headerPanel;
-        protected Button _btnNext;
-        protected Button _btnBack;
-        protected Button _btnCancel;
-        protected Button _btnHelp;
+        protected BeepPanel _contentPanel;
+        protected BeepPanel _buttonPanel;
+        protected BeepPanel _headerPanel;
+        protected BeepButton _btnNext;
+        protected BeepButton _btnBack;
+        protected BeepButton _btnCancel;
+        protected BeepButton _btnHelp;
 
         public BaseWizardForm(WizardInstance instance)
         {
@@ -26,6 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             
             InitializeComponents();
             LayoutControls();
+            SetupAccessibility();
+            SetupKeyboardNavigation();
             UpdateUI();
         }
 
@@ -35,84 +42,74 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         protected virtual void InitializeComponents()
         {
             // Header panel (override in derived classes)
-            _headerPanel = new Panel
+            _headerPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
                 Height = 80,
-                BackColor = Color.White
+                ShowTitle = false,  // No title for header panel (title is handled by labels)
+                ShowTitleLine = false
             };
+            _headerPanel.ApplyTheme();
 
             // Content panel (where step controls are displayed)
-            _contentPanel = new Panel
+            _contentPanel = new BeepPanel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.White,
-                Padding = new Padding(20)
+                Padding = new Padding(20),
+                ShowTitle = false,  // No title for content panel
+                ShowTitleLine = false
             };
+            _contentPanel.ApplyTheme();
 
             // Button panel
-            _buttonPanel = new Panel
+            _buttonPanel = new BeepPanel
             {
                 Dock = DockStyle.Bottom,
                 Height = 60,
-                BackColor = _instance.Config.Theme?.PanelBackColor ?? Color.Empty,
-                Padding = new Padding(20, 10, 20, 10)
+                Padding = new Padding(20, 10, 20, 10),
+                ShowTitle = false,  // No title for button panel
+                ShowTitleLine = false
             };
+            _buttonPanel.ApplyTheme();
 
             // Buttons
-            _btnNext = new Button
+            _btnNext = new BeepButton
             {
                 Text = _instance.Config.NextButtonText,
                 Size = new Size(100, 36),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = _instance.Config.Theme?.AccentColor ?? Color.Empty,
-                ForeColor = _instance.Config.Theme?.OnPrimaryColor ?? Color.Empty,
-                Font = new Font("Segoe UI", 9f),
-                Cursor = Cursors.Hand
+                ButtonType = ButtonType.Normal
             };
-            _btnNext.FlatAppearance.BorderSize = 0;
+            _btnNext.ApplyTheme();
             _btnNext.Click += BtnNext_Click;
 
-            _btnBack = new Button
+            _btnBack = new BeepButton
             {
                 Text = _instance.Config.BackButtonText,
                 Size = new Size(100, 36),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White,
-                ForeColor = Color.FromArgb(100, 100, 100),
-                Font = new Font("Segoe UI", 9f),
-                Cursor = Cursors.Hand,
+                ButtonType = ButtonType.Normal,
                 Enabled = false
             };
-            _btnBack.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            _btnBack.ApplyTheme();
             _btnBack.Click += BtnBack_Click;
 
-            _btnCancel = new Button
+            _btnCancel = new BeepButton
             {
                 Text = _instance.Config.CancelButtonText,
                 Size = new Size(100, 36),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White,
-                ForeColor = Color.FromArgb(100, 100, 100),
-                Font = new Font("Segoe UI", 9f),
-                Cursor = Cursors.Hand
+                ButtonType = ButtonType.Normal
             };
-            _btnCancel.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            _btnCancel.ApplyTheme();
             _btnCancel.Click += BtnCancel_Click;
 
             if (_instance.Config.ShowHelp)
             {
-                _btnHelp = new Button
+                _btnHelp = new BeepButton
                 {
                     Text = "?",
                     Size = new Size(36, 36),
-                    FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.White,
-                    ForeColor = Color.FromArgb(100, 100, 100),
-                    Font = new Font("Segoe UI", 12f, FontStyle.Bold),
-                    Cursor = Cursors.Hand
+                    ButtonType = ButtonType.Normal
                 };
-                _btnHelp.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+                _btnHelp.ApplyTheme();
                 _btnHelp.Click += BtnHelp_Click;
             }
         }
@@ -157,7 +154,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             _btnBack.Enabled = _instance.Config.AllowBack && currentIndex > 0;
             
             var isLastStep = currentIndex >= totalSteps - 1;
-            _btnNext.Text = isLastStep ? _instance.Config.FinishButtonText : _instance.Config.NextButtonText;
+            _btnNext.Text = isLastStep 
+                ? (_instance.Config.FinishButtonText ?? WizardLocalizer.FinishButton)
+                : (_instance.Config.NextButtonText ?? WizardLocalizer.NextButton);
 
             // Update content panel
             _contentPanel.Controls.Clear();
@@ -186,6 +185,92 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         protected abstract void UpdateHeader();
 
+        /// <summary>
+        /// Setup accessibility features
+        /// </summary>
+        protected virtual void SetupAccessibility()
+        {
+            // Set accessible names
+            if (_btnNext != null)
+            {
+                _btnNext.AccessibleName = _instance.Config.NextButtonText;
+                _btnNext.AccessibleDescription = "Navigate to the next step";
+            }
+
+            if (_btnBack != null)
+            {
+                _btnBack.AccessibleName = _instance.Config.BackButtonText;
+                _btnBack.AccessibleDescription = "Navigate to the previous step";
+            }
+
+            if (_btnCancel != null)
+            {
+                _btnCancel.AccessibleName = _instance.Config.CancelButtonText;
+                _btnCancel.AccessibleDescription = "Cancel the wizard";
+            }
+
+            // Set form accessible properties
+            this.AccessibleName = _instance.Config.Title;
+            this.AccessibleDescription = _instance.Config.Description ?? "Wizard dialog";
+            this.AccessibleRole = AccessibleRole.Dialog;
+        }
+
+        /// <summary>
+        /// Setup keyboard navigation
+        /// </summary>
+        protected virtual void SetupKeyboardNavigation()
+        {
+            this.KeyPreview = true;
+            this.KeyDown += BaseWizardForm_KeyDown;
+        }
+
+        private void BaseWizardForm_KeyDown(object? sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    if (e.Control)
+                    {
+                        // Ctrl+Enter to finish
+                        if (_instance.CurrentStepIndex >= _instance.Config.Steps.Count - 1)
+                        {
+                            BtnNext_Click(this, EventArgs.Empty);
+                            e.Handled = true;
+                        }
+                    }
+                    else
+                    {
+                        // Enter to go to next
+                        BtnNext_Click(this, EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Escape:
+                    // Escape to cancel
+                    BtnCancel_Click(this, EventArgs.Empty);
+                    e.Handled = true;
+                    break;
+
+                case Keys.Left:
+                case Keys.Back:
+                    if (_btnBack != null && _btnBack.Enabled)
+                    {
+                        BtnBack_Click(this, EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Right:
+                    if (_btnNext != null && _btnNext.Enabled)
+                    {
+                        BtnNext_Click(this, EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
+            }
+        }
+
         #region Event Handlers
 
         protected virtual void BtnNext_Click(object sender, EventArgs e)
@@ -213,8 +298,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         protected virtual void BtnCancel_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-                "Are you sure you want to cancel?",
-                "Cancel Wizard",
+                WizardLocalizer.CancelConfirmation,
+                WizardLocalizer.CancelTitle,
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 

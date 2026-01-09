@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -121,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawFinancialData(Graphics g, WidgetContext ctx)
         {
-            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList();
+            var financeItems = ctx.Transactions;
 
             if (financeItems == null || financeItems.Count == 0)
             {
@@ -162,13 +163,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             }
         }
 
-        private void DrawActualChart(Graphics g, WidgetContext ctx, List<FinanceItem> financeItems)
+        private void DrawActualChart(Graphics g, WidgetContext ctx, List<Transaction> financeItems)
         {
             if (financeItems.Count < 2) return;
 
             var points = new List<PointF>();
-            decimal maxValue = financeItems.Max(item => Math.Abs(item.Value));
-            decimal minValue = financeItems.Min(item => item.Value);
+            decimal maxValue = financeItems.Max(item => Math.Abs(item.Amount));
+            decimal minValue = financeItems.Min(item => item.Amount);
             decimal range = maxValue - minValue;
             if (range == 0) range = 1; // avoid division by zero
 
@@ -176,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             {
                 var item = financeItems[i];
                 float x = ctx.ChartRect.Left + (i * ctx.ChartRect.Width / (float)(financeItems.Count - 1));
-                float normalizedValue = (float)((item.Value - minValue) / range);
+                float normalizedValue = (float)((item.Amount - minValue) / range);
                 float y = ctx.ChartRect.Bottom - (normalizedValue * ctx.ChartRect.Height * 0.8f) - (ctx.ChartRect.Height * 0.1f);
 
                 points.Add(new PointF(x, y));

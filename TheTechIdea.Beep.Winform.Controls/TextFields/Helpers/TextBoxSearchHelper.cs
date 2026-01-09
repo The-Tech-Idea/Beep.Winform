@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
@@ -183,7 +184,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             catch (Exception ex)
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"Search error: {ex.Message}");
+#endif
             }
 
             stopwatch.Stop();
@@ -301,7 +304,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             catch (ArgumentException ex)
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"Invalid regex: {ex.Message}");
+#endif
             }
 
             return matches;

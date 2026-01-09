@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,6 +64,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         Paper,          // Flat paper material design
         Neon,           // Vibrant neon glow effects
         Holographic,    // Iridescent holographic effects
+        Shadcn,         // Shadcn/ui design system
+        RadixUI,        // Radix UI component library style
+        NextJS,         // Next.js/Vercel design aesthetic
+        Linear,         // Linear app design system
+        MaterialYou,    // Material You (Material 3) dynamic theming
 
         Custom,          // Fully custom rendering by user
         Terminal

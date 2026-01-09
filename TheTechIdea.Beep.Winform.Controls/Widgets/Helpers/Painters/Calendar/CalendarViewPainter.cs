@@ -70,7 +70,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         {
             var displayMonth = ctx.DisplayMonth;
             var selectedDate = ctx.SelectedDate;
-            var events = ctx.Events?.Cast<CalendarEvent>().ToList() ?? new List<CalendarEvent>();
+            var events = ctx.Events;
+            if (events == null || events.Count == 0)
+            {
+                events = new List<CalendarEvent>();
+            }
             var todayColor = ctx.TodayColor != Color.Empty ? ctx.TodayColor : (Theme?.PrimaryColor ?? Color.Red);
             var selectedColor = ctx.SelectedColor != Color.Empty ? ctx.SelectedColor : (Theme?.AccentColor ?? Color.Blue);
             var showEvents = ctx.ShowEvents;

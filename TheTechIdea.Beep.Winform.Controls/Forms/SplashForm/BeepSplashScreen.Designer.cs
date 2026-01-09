@@ -1,4 +1,5 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

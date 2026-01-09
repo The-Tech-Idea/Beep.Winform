@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -6,6 +6,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
  
  
 using TheTechIdea.Beep.Winform.Controls.Models;

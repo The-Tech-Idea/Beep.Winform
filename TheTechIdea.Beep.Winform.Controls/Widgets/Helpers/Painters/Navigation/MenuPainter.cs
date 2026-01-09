@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - pad * 2);
 
             _itemRects.Clear();
-            var items = ctx.NavigationItems?.OfType<string>().ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
+            var items = ctx.NavigationItems?.Select(n => n.Text).ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
             _itemsCount = items.Count;
             _activeIndex = ctx.ActiveIndex > 0 ? Math.Clamp(ctx.ActiveIndex, 0, Math.Max(0, _itemsCount - 1)) : 0;
 
@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             _lastCtx = ctx;
-            var items = ctx.NavigationItems?.OfType<string>().ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
+            var items = ctx.NavigationItems?.Select(n => n.Text).ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
             int active = _activeIndex;
             using var font = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
 

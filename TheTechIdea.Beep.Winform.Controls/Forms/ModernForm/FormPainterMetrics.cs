@@ -416,6 +416,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.BorderRadius = 4;
                     m.AccentBarWidth = 0;
                     break;
+                case FormStyle.Shadcn:
+                    m.CaptionHeight = 32;
+                    m.ButtonWidth = 32;
+                    m.IconSize = 20;
+                    m.ButtonsPlacement = SystemButtonsSide.Right;
+                    m.BorderWidth = 1;
+                    m.BorderRadius = 8;
+                    m.AccentBarWidth = 0;
+                    break;
+                case FormStyle.RadixUI:
+                    m.CaptionHeight = 36;
+                    m.ButtonWidth = 36;
+                    m.IconSize = 18;
+                    m.ButtonsPlacement = SystemButtonsSide.Right;
+                    m.BorderWidth = 2;
+                    m.BorderRadius = 6;
+                    m.AccentBarWidth = 0;
+                    break;
+                case FormStyle.NextJS:
+                    m.CaptionHeight = 34;
+                    m.ButtonWidth = 32;
+                    m.IconSize = 20;
+                    m.ButtonsPlacement = SystemButtonsSide.Right;
+                    m.BorderWidth = 1;
+                    m.BorderRadius = 10;
+                    m.AccentBarWidth = 0;
+                    break;
+                case FormStyle.Linear:
+                    m.CaptionHeight = 28;
+                    m.ButtonWidth = 28;
+                    m.IconSize = 14;
+                    m.ButtonsPlacement = SystemButtonsSide.Right;
+                    m.BorderWidth = 1;
+                    m.BorderRadius = 4;
+                    m.AccentBarWidth = 0;
+                    break;
+                case FormStyle.MaterialYou:
+                    m.CaptionHeight = 36;
+                    m.ButtonWidth = 40;
+                    m.IconSize = 24;
+                    m.ButtonsPlacement = SystemButtonsSide.Right;
+                    m.BorderWidth = 0;
+                    m.BorderRadius = 12;
+                    m.AccentBarWidth = 6;
+                    break;
               
                 default:
                     // Fallback to Modern Style metrics

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -113,6 +113,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Layout rectangles computed by painter
         private LayoutContext _layoutContext;
+        private bool _layoutCacheValid = false;
+        private Rectangle _cachedDrawingRect = Rectangle.Empty;
         
         // Hover tracking
         private string _hoveredArea = null;
@@ -153,6 +155,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.Size = new Size(320, 200);
             ApplyThemeToChilds = false;
             CanBeHovered = true;
+            
+            // Set accessibility properties
+            AccessibleRole = AccessibleRole.Grouping;
+            AccessibleName = "Card";
+            AccessibleDescription = $"Card: {CardStyle}";
+            
+            // Enable keyboard navigation
+            SetStyle(ControlStyles.Selectable, true);
+            TabStop = true;
             
             InitializePainter();
             ApplyDesignTimeData(); // Add dummy data in designer
@@ -243,12 +254,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.DrawContent(g);
             UpdateDrawingRect();
-            // Build layout context
-            _layoutContext = BuildLayoutContext();
             
-            // Let painter adjust layout
-            _painter?.Initialize(this, _currentTheme);
-            _layoutContext = _painter?.AdjustLayout(DrawingRect, _layoutContext) ?? _layoutContext;
+            // Check if layout needs recalculation
+            bool needsRecalculation = !_layoutCacheValid || 
+                                     _cachedDrawingRect != DrawingRect ||
+                                     _cachedDrawingRect.Size != DrawingRect.Size;
+            
+            if (needsRecalculation)
+            {
+                // Build layout context
+                _layoutContext = BuildLayoutContext();
+                
+                // Let painter adjust layout
+                _painter?.Initialize(this, _currentTheme);
+                _layoutContext = _painter?.AdjustLayout(DrawingRect, _layoutContext) ?? _layoutContext;
+                
+                // Cache the layout
+                _layoutCacheValid = true;
+                _cachedDrawingRect = DrawingRect;
+            }
 
             // Draw background
             if (UseThemeColors && _currentTheme != null)
@@ -331,6 +355,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Only keep DrawingRect calculation; painters decide internal layout
             Padding = new Padding(3);
             UpdateDrawingRect();
+            InvalidateLayoutCache();
+        }
+
+        /// <summary>
+        /// Invalidates the layout cache, forcing recalculation on next paint
+        /// </summary>
+        private void InvalidateLayoutCache()
+        {
+            _layoutCacheValid = false;
         }
 
         private void RefreshHitAreas(LayoutContext ctx)
@@ -558,6 +591,59 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _hoveredArea = newHoveredArea;
                 Invalidate();
             }
+        }
+
+        /// <summary>
+        /// Handles dialog keys (Enter, Space, Tab) for better dialog integration
+        /// </summary>
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            if (!Enabled) return base.ProcessDialogKey(keyData);
+
+            switch (keyData)
+            {
+                case Keys.Enter:
+                case Keys.Space:
+                    if (Focused || TabStop)
+                    {
+                        // Trigger primary button click if available
+                        if (_layoutContext.ShowButton && !_layoutContext.ButtonRect.IsEmpty)
+                        {
+                            ButtonClicked?.Invoke(this, new BeepEventDataArgs("ButtonClicked", this));
+                            return true;
+                        }
+                    }
+                    break;
+            }
+
+            return base.ProcessDialogKey(keyData);
+        }
+
+        /// <summary>
+        /// Redraws when focus is gained to show focus indicator
+        /// </summary>
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate(); // Redraw to show focus indicator
+        }
+
+        /// <summary>
+        /// Redraws when focus is lost to remove focus indicator
+        /// </summary>
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate(); // Redraw to remove focus indicator
+        }
+
+        /// <summary>
+        /// Invalidates layout cache when control is resized
+        /// </summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            InvalidateLayoutCache();
         }
 
         #endregion
@@ -1252,9 +1338,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _style;
             set 
             { 
-                _style = value; 
+                _style = value;
+                // Update accessible description when style changes
+                AccessibleDescription = $"Card: {value}";
                 InitializePainter(); 
                 ApplyDesignTimeData(); // Refresh dummy data when Style changes
+                InvalidateLayoutCache();
                 Invalidate(); 
             }
         }
@@ -1380,7 +1469,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowSecondaryButton
         {
             get => showSecondaryButton;
-            set { showSecondaryButton = value; Invalidate(); }
+            set { showSecondaryButton = value; InvalidateLayoutCache(); Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -1424,7 +1513,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 imagePath = value;
-              Invalidate();
+                InvalidateLayoutCache();
+                Invalidate();
             }
         }
 
@@ -1450,6 +1540,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get => textAlignment;
             set { textAlignment = value; Invalidate(); }
+        }
+
+        /// <summary>
+        /// Accessible name for screen readers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Name of the control for accessibility and screen readers.")]
+        public new string AccessibleName
+        {
+            get => base.AccessibleName;
+            set
+            {
+                base.AccessibleName = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Accessible description for screen readers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Description of the control for accessibility and screen readers.")]
+        public new string AccessibleDescription
+        {
+            get => base.AccessibleDescription;
+            set
+            {
+                base.AccessibleDescription = value;
+                Invalidate();
+            }
         }
         #endregion
 

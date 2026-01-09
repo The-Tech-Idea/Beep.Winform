@@ -1,3 +1,5 @@
+using TheTechIdea.Beep.Winform.Controls.Switchs.Helpers;
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     /// <summary>
@@ -8,6 +10,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            
+            // Apply font theme based on ControlStyle
+            SwitchFontHelpers.ApplyFontTheme(ControlStyle);
             
             // Reinitialize painter when theme changes
             InitializePainter();

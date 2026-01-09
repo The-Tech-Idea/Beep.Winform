@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
@@ -82,9 +83,18 @@ if (ClientRectangle.Contains(clientPos))
     UpdateHoveredItem(GetItemAtPoint(clientPos));
 }
 
-// Start fade-in (if you use it)
-_opacity = 0;
-_fadeTimer.Start();
+// Start fade-in animation if enabled
+if (_enableAnimations)
+{
+    _opacity = 0;
+    Opacity = 0;
+    _fadeTimer.Start();
+}
+else
+{
+    _opacity = 1.0;
+    Opacity = 1.0;
+}
 
 // Keep focus for keyboard
 try { Activate(); Focus(); } catch { }
@@ -102,15 +112,10 @@ try { Activate(); Focus(); } catch { }
             { 
                 Activate();
                 Focus();
-                
-                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Menu shown: TopMost={TopMost}, Visible={Visible}, Focused={Focused}, Bounds={Bounds}");
-                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Owner: {(parentForm != null ? parentForm.GetType().Name : "null")}");
-                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Mouse position: {Cursor.Position}");
-                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Contains mouse: {Bounds.Contains(Cursor.Position)}");
             } 
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Failed to activate menu: {ex.Message}");
+                // Silently handle activation failures
             }
         }
         
@@ -268,9 +273,27 @@ try { Activate(); Focus(); } catch { }
         /// - Matches exact drawing logic in DrawMenuItemsSimple
         /// - Eliminates the mysterious "+10" hack
         /// - Forces handle creation BEFORE CreateGraphics() to prevent rare hangs
+        /// - Optimized with dirty flags to avoid unnecessary recalculations
         /// </summary>
         public void RecalculateSize()
         {
+            // Check if recalculation is needed
+            bool needsRecalc = !_sizeCacheValid ||
+                _cachedItemCount != (_menuItems?.Count ?? 0) ||
+                _cachedWidth != Width ||
+                _cachedMenuItemHeight != _menuItemHeight ||
+                _cachedImageSize != _imageSize ||
+                _cachedShowCheckBox != _showCheckBox ||
+                _cachedShowImage != _showImage ||
+                _cachedShowShortcuts != _showShortcuts ||
+                _cachedShowSearchBox != _showSearchBox ||
+                _cachedSearchBoxHeight != SearchBoxHeight;
+            
+            if (!needsRecalc)
+            {
+                return; // Cache is still valid
+            }
+            
             // Force handle creation FIRST - this prevents CreateGraphics() hangs on some systems
             if (!IsHandleCreated)
             {
@@ -325,7 +348,8 @@ try { Activate(); Focus(); } catch { }
                 {
                     if (IsSeparator(item)) continue;
 
-                    var textSize = TextRenderer.MeasureText(g, item.DisplayField ?? "", _textFont);
+                    SizeF textSizeF = TextUtils.MeasureText(item.DisplayField ?? "", _textFont, int.MaxValue);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
                     int itemWidth = 8; // Left margin (matches your draw code)
 
@@ -335,7 +359,8 @@ try { Activate(); Focus(); } catch { }
 
                     if (_showShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
                     {
-                        var shortcutSize = TextRenderer.MeasureText(g, item.KeyCombination, _shortcutFont);
+                        SizeF shortcutSizeF = TextUtils.MeasureText(item.KeyCombination, _shortcutFont, int.MaxValue);
+                        var shortcutSize = new Size((int)shortcutSizeF.Width, (int)shortcutSizeF.Height);
                         itemWidth += shortcutSize.Width + 16;
                     }
                     else if (ContextMenuManager.HasChildren(item)) // Use manager's HasChildren for consistency
@@ -429,6 +454,26 @@ try { Activate(); Focus(); } catch { }
                 beepInsets + internalPadding + (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0),
                 contentWidth,
                 Height - (beepInsets * 2) - (internalPadding * 2) - (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0));
+            
+            // Update cache tracking
+            _cachedItemCount = _menuItems?.Count ?? 0;
+            _cachedWidth = Width;
+            _cachedMenuItemHeight = _menuItemHeight;
+            _cachedImageSize = _imageSize;
+            _cachedShowCheckBox = _showCheckBox;
+            _cachedShowImage = _showImage;
+            _cachedShowShortcuts = _showShortcuts;
+            _cachedShowSearchBox = _showSearchBox;
+            _cachedSearchBoxHeight = SearchBoxHeight;
+            _sizeCacheValid = true;
+        }
+        
+        /// <summary>
+        /// Invalidates the size cache, forcing next RecalculateSize() to recalculate
+        /// </summary>
+        private void InvalidateSizeCache()
+        {
+            _sizeCacheValid = false;
         }
 
         private int GetItemHeight(SimpleItem item)
@@ -491,6 +536,7 @@ try { Activate(); Focus(); } catch { }
                 _hoveredIndex = -1;
                 _submenuTimer.Stop();
                 _fadeTimer.Stop();
+                _opacity = 1.0;
                 Opacity = 1.0;
                 
                 // Fire Closed event before hiding
@@ -506,6 +552,8 @@ try { Activate(); Focus(); } catch { }
         
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            if (!Enabled) return base.ProcessCmdKey(ref msg, keyData);
+
             switch (keyData)
             {
                 case Keys.Up:
@@ -517,6 +565,42 @@ try { Activate(); Focus(); } catch { }
                     SelectNextItem();
                     EnsureIndexVisible(_hoveredIndex);
                     return true;
+                    
+                case Keys.Home:
+                    if (_menuItems.Count > 0)
+                    {
+                        SelectFirstItem();
+                        EnsureIndexVisible(_hoveredIndex);
+                        return true;
+                    }
+                    break;
+                    
+                case Keys.End:
+                    if (_menuItems.Count > 0)
+                    {
+                        SelectLastItem();
+                        EnsureIndexVisible(_hoveredIndex);
+                        return true;
+                    }
+                    break;
+                    
+                case Keys.PageUp:
+                    if (_menuItems.Count > 0)
+                    {
+                        SelectPageUp();
+                        EnsureIndexVisible(_hoveredIndex);
+                        return true;
+                    }
+                    break;
+                    
+                case Keys.PageDown:
+                    if (_menuItems.Count > 0)
+                    {
+                        SelectPageDown();
+                        EnsureIndexVisible(_hoveredIndex);
+                        return true;
+                    }
+                    break;
                     
                 case Keys.Enter:
                     if (_hoveredItem != null && _hoveredItem.IsEnabled)
@@ -551,6 +635,80 @@ try { Activate(); Focus(); } catch { }
             }
             
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+        
+        private void SelectFirstItem()
+        {
+            for (int i = 0; i < _menuItems.Count; i++)
+            {
+                var item = _menuItems[i];
+                if (!IsSeparator(item) && item.IsEnabled)
+                {
+                    _hoveredItem = item;
+                    _hoveredIndex = i;
+                    OnItemHovered(item);
+                    Invalidate();
+                    return;
+                }
+            }
+        }
+        
+        private void SelectLastItem()
+        {
+            for (int i = _menuItems.Count - 1; i >= 0; i--)
+            {
+                var item = _menuItems[i];
+                if (!IsSeparator(item) && item.IsEnabled)
+                {
+                    _hoveredItem = item;
+                    _hoveredIndex = i;
+                    OnItemHovered(item);
+                    Invalidate();
+                    return;
+                }
+            }
+        }
+        
+        private void SelectPageUp()
+        {
+            if (_menuItems.Count == 0) return;
+            
+            int pageSize = Math.Max(1, _menuItems.Count / 10); // 10% of list
+            int targetIndex = Math.Max(0, _hoveredIndex - pageSize);
+            
+            for (int i = targetIndex; i >= 0; i--)
+            {
+                var item = _menuItems[i];
+                if (!IsSeparator(item) && item.IsEnabled)
+                {
+                    _hoveredItem = item;
+                    _hoveredIndex = i;
+                    OnItemHovered(item);
+                    Invalidate();
+                    return;
+                }
+            }
+        }
+        
+        private void SelectPageDown()
+        {
+            if (_menuItems.Count == 0) return;
+            
+            int pageSize = Math.Max(1, _menuItems.Count / 10); // 10% of list
+            int targetIndex = Math.Min(_menuItems.Count - 1, _hoveredIndex + pageSize);
+            
+            for (int i = targetIndex; i < _menuItems.Count; i++)
+            {
+                var item = _menuItems[i];
+                if (!IsSeparator(item) && item.IsEnabled)
+                {
+                    _hoveredItem = item;
+                    _hoveredIndex = i;
+                    OnItemHovered(item);
+                    Invalidate();
+                    return;
+                }
+            }
         }
         
         private void SelectPreviousItem()

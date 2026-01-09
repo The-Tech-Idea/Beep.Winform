@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -74,13 +75,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
         
         /// <summary>
         /// Measure text size without creating Graphics object
+        /// Uses TextUtils for caching performance
         /// </summary>
         public Size MeasureText(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return Size.Empty;
             
-            return TextRenderer.MeasureText(text, font);
+            SizeF textSizeF = TextUtils.MeasureText(text, font);
+            return new Size((int)textSizeF.Width, (int)textSizeF.Height);
         }
         
         /// <summary>

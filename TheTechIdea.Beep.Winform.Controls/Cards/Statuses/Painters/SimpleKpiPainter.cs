@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
 {
@@ -38,8 +39,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
                 ? StatCardThemeHelpers.GetTrendUpColor(theme, owner?.UseThemeColors ?? true, null)
                 : StatCardThemeHelpers.GetTrendDownColor(theme, owner?.UseThemeColors ?? true, null);
             using var deltaBrush = new SolidBrush(deltaColor);
-            // Measure text to ensure it fits
-            var deltaSize = TextRenderer.MeasureText(g, deltaText, smallFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+            // Measure text to ensure it fits (using cached TextUtils)
+            SizeF deltaSizeF = TextUtils.MeasureText(deltaText, smallFont, int.MaxValue);
+            var deltaSize = new Size((int)deltaSizeF.Width, (int)deltaSizeF.Height);
             var deltaRect = new Rectangle(Math.Max(valueArea.Left, valueArea.Right - deltaSize.Width), valueArea.Y + 4, Math.Min(deltaSize.Width, valueArea.Width), deltaSize.Height);
             TextRenderer.DrawText(g, deltaText, smallFont, deltaRect, deltaBrush.Color, TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
 
@@ -52,8 +54,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             {
                 using var infoFont = StatCardFontHelpers.GetInfoFont(owner, owner?.Style ?? BeepControlStyle.Material3);
                 var infoRect = new Rectangle(inner.X, inner.Bottom - infoFont.Height - 2, inner.Width, infoFont.Height + 2);
-                // Measure text to ensure it fits
-                var infoSize = TextRenderer.MeasureText(g, info, infoFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+                // Measure text to ensure it fits (using cached TextUtils)
+                SizeF infoSizeF = TextUtils.MeasureText(info, infoFont, int.MaxValue);
+                var infoSize = new Size((int)infoSizeF.Width, (int)infoSizeF.Height);
                 infoRect.Width = Math.Min(infoSize.Width, infoRect.Width);
                 Color infoColor = StatCardThemeHelpers.GetInfoColor(theme, owner?.UseThemeColors ?? true, null);
                 using var infoBrush = new SolidBrush(infoColor);

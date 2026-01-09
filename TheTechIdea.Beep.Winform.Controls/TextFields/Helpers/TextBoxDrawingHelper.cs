@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
@@ -397,10 +398,13 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Size beforeSize = Size.Empty;
             if (!string.IsNullOrEmpty(beforeSelection))
             {
-                beforeSize = TextRenderer.MeasureText(g, beforeSelection, font, actualTextRect.Size, GetTextFormatFlags());
+                // Use TextUtils for cached measurement (TextFormatFlags handled by GetTextFormatFlags in TextRenderer if needed)
+                SizeF beforeSizeF = TextUtils.MeasureText(g, beforeSelection, font, actualTextRect.Width);
+                beforeSize = new Size((int)beforeSizeF.Width, (int)beforeSizeF.Height);
             }
             
-            Size selectedSize = TextRenderer.MeasureText(g, selectedText, font, actualTextRect.Size, GetTextFormatFlags());
+            SizeF selectedSizeF = TextUtils.MeasureText(g, selectedText, font, actualTextRect.Width);
+            Size selectedSize = new Size((int)selectedSizeF.Width, (int)selectedSizeF.Height);
             
             Rectangle selectionRect = new Rectangle(
                 actualTextRect.X + beforeSize.Width,
@@ -457,7 +461,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Size fullTextSize = Size.Empty;
             if (!string.IsNullOrEmpty(text))
             {
-                fullTextSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF fullTextSizeF = TextUtils.MeasureText(g, text, font);
+                fullTextSize = new Size((int)fullTextSizeF.Width, (int)fullTextSizeF.Height);
                 if (_textBox.TextAlignment == HorizontalAlignment.Center)
                 {
                     baseX = actualTextRect.X + Math.Max(0, (actualTextRect.Width - fullTextSize.Width) / 2);
@@ -473,7 +478,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             if (!string.IsNullOrEmpty(text) && caretPosition > 0)
             {
                 string textBeforeCaret = text.Substring(0, Math.Min(caretPosition, text.Length));
-                Size textSize = TextRenderer.MeasureText(g, textBeforeCaret, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF textSizeF = TextUtils.MeasureText(g, textBeforeCaret, font);
+                Size textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                 caretX = baseX + textSize.Width;
             }
             
@@ -641,7 +647,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             if (string.IsNullOrEmpty(displayText)) return Size.Empty;
             
             Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
-            return TextRenderer.MeasureText(g, displayText, font);
+            SizeF sizeF = TextUtils.MeasureText(g, displayText, font);
+            return new Size((int)sizeF.Width, (int)sizeF.Height);
         }
         
         private string GetDisplayText()
@@ -780,7 +787,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             if (_performance != null)
                 return (int)_performance.GetCachedLineHeight(g, font);
             
-            return TextRenderer.MeasureText(g, "Ag", font).Height;
+            SizeF sizeF = TextUtils.MeasureText(g, "Ag", font);
+            return (int)sizeF.Height;
         }
         
         #endregion

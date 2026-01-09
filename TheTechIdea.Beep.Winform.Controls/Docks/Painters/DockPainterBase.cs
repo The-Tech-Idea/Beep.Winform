@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
 {
@@ -278,18 +279,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             if (string.IsNullOrEmpty(imagePath))
                 return;
 
-            using (var path = CreateRoundedPath(bounds, config.CornerRadius / 2))
-            {
-                if (config.ApplyThemeToIcons && theme != null)
-                {
-                    var tintColor = GetColor(config.ForegroundColor, theme.ForeColor);
-                    StyledImagePainter.PaintWithTint(g, path, imagePath, tintColor, opacity, config.CornerRadius / 2);
-                }
-                else
-                {
-                    StyledImagePainter.Paint(g, path, imagePath);
-                }
-            }
+            // Use icon helpers for consistent icon rendering
+            var iconColor = TheTechIdea.Beep.Winform.Controls.Docks.Helpers.DockIconHelpers.GetIconColor(
+                theme, 
+                theme != null, // Assume UseThemeColors if theme is available
+                config.ApplyThemeToIcons,
+                false, // isHovered - could be enhanced
+                false); // isSelected - could be enhanced
+
+            TheTechIdea.Beep.Winform.Controls.Docks.Helpers.DockIconHelpers.PaintIcon(
+                g,
+                bounds,
+                imagePath,
+                iconColor,
+                theme,
+                theme != null,
+                config.ApplyThemeToIcons,
+                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3,
+                opacity,
+                config.CornerRadius / 2);
         }
 
         protected void PaintShadow(Graphics g, Rectangle bounds, DockConfig config, IBeepTheme theme)

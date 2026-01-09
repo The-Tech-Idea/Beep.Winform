@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Validation;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
@@ -65,6 +66,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 return false;
 
             var currentStep = _config.Steps[_currentStepIndex];
+
+            // Validate current step before navigating
+            var validationResult = currentStep.Validate(_context);
+            if (!validationResult.IsValid)
+            {
+                // Show validation error (could be enhanced with a message box or inline error display)
+                return false;
+            }
 
             // Check if can navigate
             if (currentStep.CanNavigateNext != null && !currentStep.CanNavigateNext(_context))

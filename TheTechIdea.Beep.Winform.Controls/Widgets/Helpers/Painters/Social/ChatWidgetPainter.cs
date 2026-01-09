@@ -6,6 +6,10 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
+using ChatMessage = TheTechIdea.Beep.Winform.Controls.Widgets.Models.ChatMessage;
+using MessageStatus = TheTechIdea.Beep.Winform.Controls.Widgets.Models.MessageStatus;
+using MessageType = TheTechIdea.Beep.Winform.Controls.Widgets.Models.MessageType;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -94,7 +98,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             DrawChatHeader(g, ctx.HeaderRect, ctx);
 
             // Draw messages area
-            var messages = ctx.ChatMessages?.Cast<ChatMessage>().ToList() ?? CreateSampleMessages();
+            var messages = ctx.ChatMessages;
+            if (messages == null || messages.Count == 0)
+            {
+                messages = CreateSampleMessages();
+            }
             
             DrawMessages(g, ctx.ContentRect, messages, ctx);
 
@@ -112,6 +120,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawChatHeader(Graphics g, Rectangle rect, WidgetContext ctx)
         {
             string chatTitle = ctx.Title ?? "Chat";
+            // Note: ChatParticipants doesn't have a typed helper yet, so keep using Cast for now
+            // ChatParticipant is defined in this file, so use Cast for now
             var participants = ctx.ChatParticipants?.Cast<ChatParticipant>().ToList() ?? new List<ChatParticipant>();
             
             // Chat icon or participant avatar
@@ -611,18 +621,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         }
     }
 
-    // Supporting classes for chat data
-    public class ChatMessage
-    {
-        public string SenderId { get; set; }
-        public string SenderName { get; set; }
-        public string SenderAvatar { get; set; }
-        public string Content { get; set; }
-        public DateTime Timestamp { get; set; }
-        public MessageStatus Status { get; set; }
-        public MessageType Type { get; set; } = MessageType.Text;
-    }
-
+    // ChatParticipant is still defined here as it's specific to this painter
     public class ChatParticipant
     {
         public string Id { get; set; }
@@ -631,21 +630,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         public bool IsOnline { get; set; }
         public DateTime LastSeen { get; set; }
     }
-
-    public enum MessageStatus
-    {
-        Sending,
-        Sent,
-        Delivered,
-        Read,
-        Failed
-    }
-
-    public enum MessageType
-    {
-        Text,
-        Image,
-        File,
-        System
-    }
+    
+    // ChatMessage, MessageStatus, and MessageType are now in Widgets.Models namespace
 }

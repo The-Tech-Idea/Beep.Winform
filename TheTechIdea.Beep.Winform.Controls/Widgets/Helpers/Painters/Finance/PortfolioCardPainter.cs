@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -71,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.ApplyThemeOnImage = true;
 
-            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList() ?? new List<FinanceItem>();
+            var financeItems = ctx.PortfolioItems;
             decimal totalValue = ctx.PrimaryValue ?? 250000m;
             decimal percentage = ctx.Percentage ?? 12.5m;
             string currencySymbol = ctx.CurrencySymbol ?? "$";
@@ -127,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.DrawString(perfText, perfFont, perfBrush, textRect, perfFormat);
         }
 
-        private void DrawPortfolioBreakdown(Graphics g, Rectangle rect, List<FinanceItem> items, Color accentColor)
+        private void DrawPortfolioBreakdown(Graphics g, Rectangle rect, List<PortfolioItem> items, Color accentColor)
         {
             int y = rect.Y + 25;
             decimal totalValue = items.Sum(x => x.Value);
@@ -139,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 g.FillEllipse(categoryBrush, rect.X, y, 8, 8);
                 using var categoryFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var categoryBrush2 = new SolidBrush(Color.FromArgb(140, Color.Black));
-                string categoryText = $"{item.Name} ({allocation:F1}%)";
+                string categoryText = $"{item.Symbol} ({allocation:F1}%)";
                 g.DrawString(categoryText, categoryFont, categoryBrush2, rect.X + 12, y - 2);
                 y += 16;
             }

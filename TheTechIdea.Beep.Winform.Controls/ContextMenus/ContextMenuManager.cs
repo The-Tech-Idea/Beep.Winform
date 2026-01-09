@@ -139,9 +139,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     // Click is outside all menus - close them
                     CloseAllMenus();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ClickOutsideFilter] Error: {ex.Message}");
+                    // Silently handle click outside filter errors
                 }
                 
                 return false; // Don't consume the message
@@ -368,9 +368,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] CloseMenu error: {ex.Message}");
+                // Silently handle close menu errors
             }
         }
         
@@ -545,9 +545,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 {
                     ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] Error showing sub-menu: {ex.Message}");
+                    // Silently handle sub-menu errors
                 }
             };
             
@@ -770,9 +770,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 
                 return menuId;
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"[ContextMenuManager] ShowChildMenu error: {ex.Message}");
                 CleanupMenuContext(menuId);
                 return null;
             }

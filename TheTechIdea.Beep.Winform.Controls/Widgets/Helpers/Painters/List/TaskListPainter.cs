@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -68,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void DrawTaskItems(Graphics g, Rectangle rect, List<Dictionary<string, object>> items)
+        private void DrawTaskItems(Graphics g, Rectangle rect, List<ListItem> items)
         {
             if (!items.Any()) return;
             
@@ -91,7 +92,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 }
                 
                 // Checkbox
-                bool isCompleted = item.ContainsKey("Status") && item["Status"].ToString().ToLower() == "completed";
+                // Check if it's a TaskItem and if it's completed
+                bool isCompleted = item is TaskItem taskItem && taskItem.IsCompleted;
                 using var checkboxPen = new Pen(Color.FromArgb(IsAreaHovered($"TaskList_Check_{i}") ? 200 : 150, Color.Gray), 1);
                 g.DrawRectangle(checkboxPen, checkboxRect);
                 
@@ -110,14 +112,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 
                 // Task text
                 var taskRect = new Rectangle(itemRect.X + 28, y, itemRect.Width - 36, itemHeight);
-                if (item.ContainsKey("Name"))
+                if (!string.IsNullOrEmpty(item.Title))
                 {
                     Color textColor = isCompleted ? Color.FromArgb(120, Color.Gray) : Color.FromArgb(180, Color.Black);
                     FontStyle fontStyle = isCompleted ? FontStyle.Strikeout : FontStyle.Regular;
                     using var taskTextFont = new Font(Owner.Font.FontFamily, 9f, fontStyle);
                     using var taskBrush = new SolidBrush(textColor);
                     var taskFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item["Name"].ToString(), taskTextFont, taskBrush, taskRect, taskFormat);
+                    g.DrawString(item.Title, taskTextFont, taskBrush, taskRect, taskFormat);
                 }
             }
         }

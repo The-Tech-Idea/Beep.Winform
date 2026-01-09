@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -205,6 +205,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 FormStyle.Paper => BeepControlStyle.Paper,
                 FormStyle.Neon => BeepControlStyle.Neon,
                 FormStyle.Holographic => BeepControlStyle.Holographic,
+                FormStyle.Shadcn => BeepControlStyle.Shadcn,
+                FormStyle.RadixUI => BeepControlStyle.RadixUI,
+                FormStyle.NextJS => BeepControlStyle.NextJS,
+                FormStyle.Linear => BeepControlStyle.Linear,
+                FormStyle.MaterialYou => BeepControlStyle.MaterialYou,
                 FormStyle.Terminal => BeepControlStyle.Terminal,
                 FormStyle.Custom => BeepControlStyle.None,
                 _ => BeepControlStyle.Minimal
@@ -245,10 +250,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 BeepControlStyle.Paper => FormStyle.Paper,
                 BeepControlStyle.Neon => FormStyle.Neon,
                 BeepControlStyle.Holographic => FormStyle.Holographic,
+                BeepControlStyle.Shadcn => FormStyle.Shadcn,
+                BeepControlStyle.RadixUI => FormStyle.RadixUI,
+                BeepControlStyle.NextJS => FormStyle.NextJS,
+                BeepControlStyle.Linear => FormStyle.Linear,
+                BeepControlStyle.MaterialYou => FormStyle.MaterialYou,
                 BeepControlStyle.Terminal => FormStyle.Terminal,
                 // Control-only styles default to Custom
                 BeepControlStyle.Material3 => FormStyle.Material,
-                BeepControlStyle.MaterialYou => FormStyle.Material,
                 BeepControlStyle.AntDesign => FormStyle.Custom,
                 BeepControlStyle.Fluent2 => FormStyle.Fluent,
                 BeepControlStyle.Windows11Mica => FormStyle.Custom,
@@ -836,6 +845,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
                 case FormStyle.Holographic:
                     path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 14));
+                    break;
+
+                // New modern styles
+                case FormStyle.Shadcn:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 8));
+                    break;
+
+                case FormStyle.RadixUI:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 6));
+                    break;
+
+                case FormStyle.NextJS:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 10));
+                    break;
+
+                case FormStyle.Linear:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(safeRadius, 4));
+                    break;
+
+                case FormStyle.MaterialYou:
+                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(safeRadius, 12));
                     break;
 
                 // Terminal/Console - sharp, technical

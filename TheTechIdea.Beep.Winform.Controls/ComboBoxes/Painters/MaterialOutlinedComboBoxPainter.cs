@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -69,7 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
             
             string labelText = _owner.LabelText;
-            var labelSize = TextRenderer.MeasureText(labelText, labelFont);
+            SizeF labelSizeF = TextUtils.MeasureText(labelText, labelFont, int.MaxValue);
+            var labelSize = new Size((int)labelSizeF.Width, (int)labelSizeF.Height);
             
             // Position label
             int labelX = rect.X + 12;

@@ -23,10 +23,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.WebApi_TimeoutMsbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.WebApi_MaxRetriesbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.WebApi_RetryIntervalMsbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.WebApi_IgnoreSSLErrorsbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.WebApi_ValidateServerCertbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.WebApi_RequiresAuthbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.WebApi_RequiresTokenRefreshbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
+            this.WebApi_IgnoreSSLErrorsbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.WebApi_ValidateServerCertbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.WebApi_RequiresAuthbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.WebApi_RequiresTokenRefreshbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
             this.WebApi_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -134,9 +134,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApi_TimeoutMsbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApi_MaxRetriesbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApi_RetryIntervalMsbeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool WebApi_IgnoreSSLErrorsbeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool WebApi_ValidateServerCertbeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool WebApi_RequiresAuthbeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool WebApi_RequiresTokenRefreshbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool WebApi_IgnoreSSLErrorsbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool WebApi_ValidateServerCertbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool WebApi_RequiresAuthbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool WebApi_RequiresTokenRefreshbeepCheckBox;
     }
 }

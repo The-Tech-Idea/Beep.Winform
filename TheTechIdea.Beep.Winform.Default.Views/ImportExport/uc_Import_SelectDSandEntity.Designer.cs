@@ -2,6 +2,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
@@ -39,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepComboBox1 = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
             beepLabel2 = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             AddSourcebeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
-            beepCheckBoxBool1 = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
+            beepCheckBoxBool1 = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
             SuspendLayout();
             // 
             // SourcebeepComboBox
@@ -796,6 +797,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private BeepComboBox beepComboBox1;
         private Controls.BeepLabel beepLabel2;
         private BeepButton AddSourcebeepButton;
-        private Controls.BeepCheckBoxBool beepCheckBoxBool1;
+        private BeepCheckBoxBool beepCheckBoxBool1;
     }
 }

@@ -1,11 +1,14 @@
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard;
 
@@ -31,7 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private DashboardWidgetStyle _style = DashboardWidgetStyle.MultiMetric;
         private IWidgetPainter _painter;
         private string _title = "Dashboard";
-        private List<Dictionary<string, object>> _metrics = new List<Dictionary<string, object>>();
+        private List<DashboardMetric> _metrics = new List<DashboardMetric>();
+        [Obsolete("Use Metrics property with DashboardMetric instead. This property will be removed in a future version.")]
+        private List<Dictionary<string, object>> _metricsLegacy = new List<Dictionary<string, object>>();
         private Color _accentColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty;
         private Color _cardBackColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.DashboardCardBackColor ?? Color.Empty;
         private Color _cardHoverBackColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.DashboardCardHoverBackColor ?? Color.Empty;
@@ -67,10 +72,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         {
             _metrics.AddRange(new[]
             {
-                new Dictionary<string, object> { ["Title"] = "Revenue", ["Value"] = "$127K", ["Trend"] = "+12%", ["Color"] = Color.Green },
-                new Dictionary<string, object> { ["Title"] = "Users", ["Value"] = "23,456", ["Trend"] = "+8%", ["Color"] = Color.Blue },  
-                new Dictionary<string, object> { ["Title"] = "Orders", ["Value"] = "1,234", ["Trend"] = "-2%", ["Color"] = Color.Red },
-                new Dictionary<string, object> { ["Title"] = "Growth", ["Value"] = "15.7%", ["Trend"] = "+5%", ["Color"] = Color.Orange }
+                new DashboardMetric { Title = "Revenue", Value = "$127K", Trend = "+12%", Color = Color.Green },
+                new DashboardMetric { Title = "Users", Value = "23,456", Trend = "+8%", Color = Color.Blue },
+                new DashboardMetric { Title = "Orders", Value = "1,234", Trend = "-2%", Color = Color.Red },
+                new DashboardMetric { Title = "Growth", Value = "15.7%", Trend = "+5%", Color = Color.Orange }
             });
         }
 
@@ -122,11 +127,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         }
 
         [Category("Dashboard")]
-        [Description("Metrics data for the dashboard.")]
-        public List<Dictionary<string, object>> Metrics
+        [Description("Metrics data for the dashboard (strongly-typed).")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor("System.ComponentModel.Design.CollectionEditor, System.Design", typeof(System.Drawing.Design.UITypeEditor))]
+        public List<DashboardMetric> Metrics
         {
             get => _metrics;
-            set { _metrics = value ?? new List<Dictionary<string, object>>(); Invalidate(); }
+            set { _metrics = value ?? new List<DashboardMetric>(); Invalidate(); }
+        }
+
+        [Category("Dashboard")]
+        [Description("Metrics data for the dashboard (legacy dictionary format).")]
+        [Obsolete("Use Metrics property with DashboardMetric instead. This property will be removed in a future version.")]
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public List<Dictionary<string, object>> MetricsLegacy
+        {
+            get
+            {
+                // Convert typed metrics to dictionaries for backward compatibility
+                return _metrics.Select(m => m.ToDictionary()).ToList();
+            }
+            set
+            {
+                // Convert dictionaries to typed metrics
+                _metrics = value?.Select(d => DashboardMetric.FromDictionary(d)).ToList() ?? new List<DashboardMetric>();
+                Invalidate();
+            }
         }
 
         [Category("Appearance")]
@@ -177,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 CornerRadius = BorderRadius,
                 
                 // Dashboard-specific typed properties
-                Metrics = _metrics.Cast<object>().ToList(),
+                Metrics = _metrics,
                 Columns = _columns,
                 Rows = _rows
             };

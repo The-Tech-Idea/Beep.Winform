@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -335,7 +335,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             ApplyStyletoChildControls();
             
             // CRITICAL: Update window region to match new Style's corner radius
-            UpdateWindowRegion();
+            if (IsHandleCreated)
+            {
+                UpdateWindowRegion();
+                UpdateFormRegion();
+            }
 
             // Note: We no longer clear the cache here - painters are reused across style changes
             // Only clear cache when theme changes (handled in Theme setter)

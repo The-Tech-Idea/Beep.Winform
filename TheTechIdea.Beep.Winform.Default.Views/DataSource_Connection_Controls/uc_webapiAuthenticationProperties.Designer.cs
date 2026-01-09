@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.OAuth_ApiKeyHeaderbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.OAuth_RedirectUribeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.OAuth_AuthCodebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
-            this.OAuth_UseProxybeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
+            this.OAuth_UseProxybeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
             this.OAuth_ProxyUrlbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.OAuth_ProxyPortbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.OAuth_ProxyUserbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ApiKeyHeaderbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_RedirectUribeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_AuthCodebeepTextBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool OAuth_UseProxybeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool OAuth_UseProxybeepCheckBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyUrlbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyPortbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox OAuth_ProxyUserbeepTextBox;

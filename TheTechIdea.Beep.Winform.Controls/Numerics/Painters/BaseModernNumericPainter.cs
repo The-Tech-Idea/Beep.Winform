@@ -89,15 +89,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 
         protected virtual Color GetTextColor(INumericUpDownPainterContext context)
         {
-            if (!context.IsEnabled)
-                return context.Theme?.DisabledForeColor ?? Color.Gray;
-            
-            return context.Theme?.TextBoxForeColor ?? Color.FromArgb(33, 33, 33);
+            // Use theme helpers for consistent color retrieval
+            return TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
+                context.Theme,
+                context.Theme != null, // Assume UseThemeColors if theme is available
+                context.IsHovered,
+                context.IsFocused,
+                !context.IsEnabled);
         }
 
         protected virtual Font GetFont(INumericUpDownPainterContext context)
         {
-            return new Font("Segoe UI", 10f, FontStyle.Regular);
+            // Use font helpers for consistent font retrieval
+            // Note: We need ControlStyle from context, but it's not available
+            // For now, use default Material3 style
+            return TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericFontHelpers.GetValueFont(
+                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3,
+                context.IsEditing);
         }
 
         /// <summary>
@@ -107,13 +115,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         {
             if (rect.IsEmpty || rect.Width <= 0 || rect.Height <= 0) return;
 
-            // Use SVG icons for arrows
-            string svgPath = isUp ? SvgsUI.ChevronUp : SvgsUI.ChevronDown;
+            // Use icon helpers for consistent icon rendering
+            string svgPath = isUp 
+                ? TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.GetUpIconPath()
+                : TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.GetDownIconPath();
             
-            using (var iconPath = GraphicsExtensions.GetRoundedRectPath(rect, 0))
-            {
-                StyledImagePainter.PaintWithTint(g, iconPath, svgPath, color, 1f, 0);
-            }
+            TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.PaintIcon(
+                g, rect, svgPath, color, null, false, 
+                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3, 1.0f);
         }
 
         /// <summary>
@@ -123,13 +132,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         {
             if (rect.IsEmpty || rect.Width <= 0 || rect.Height <= 0) return;
 
-            // Use SVG icons for plus/minus
-            string svgPath = isPlus ? Svgs.Plus : Svgs.Minus;
+            // Use icon helpers for consistent icon rendering
+            string svgPath = isPlus 
+                ? TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.GetPlusIconPath()
+                : TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.GetMinusIconPath();
             
-            using (var iconPath = GraphicsExtensions.GetRoundedRectPath(rect, 0))
-            {
-                StyledImagePainter.PaintWithTint(g, iconPath, svgPath, color, 1f, 0);
-            }
+            TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericIconHelpers.PaintIcon(
+                g, rect, svgPath, color, null, false, 
+                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3, 1.0f);
         }
 
         /// <summary>

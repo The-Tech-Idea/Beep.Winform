@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -95,9 +96,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw message list
-            if (ctx.NotificationMessages != null)
+            var messages = ctx.NotificationMessages;
+            if (messages != null && messages.Count > 0)
             {
-                var messages = ctx.NotificationMessages.Cast<Dictionary<string, object>>().ToList();
                 DrawMessageList(g, ctx.ContentRect, messages);
             }
             else if (ctx.MessageCount > 0)
@@ -130,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.DrawLine(envelopePen, rect.X + 22, rect.Y + 8, rect.X + 12, rect.Y + 14);
         }
 
-        private void DrawMessageList(Graphics g, Rectangle rect, List<Dictionary<string, object>> messages)
+        private void DrawMessageList(Graphics g, Rectangle rect, List<NotificationMessage> messages)
         {
             if (!messages.Any()) return;
 
@@ -151,36 +152,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     g.FillRectangle(itemBrush, rect.X, y, rect.Width, itemHeight);
                 }
 
-                // Sender
-                if (message.ContainsKey("Sender"))
+                // Sender (using Title as sender)
+                if (!string.IsNullOrEmpty(message.Title))
                 {
                     using var senderBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.Empty);
                     Rectangle senderRect = new Rectangle(rect.X + 8, y + 4, rect.Width - 80, 14);
-                    g.DrawString(message["Sender"].ToString(), senderFont, senderBrush, senderRect);
+                    g.DrawString(message.Title, senderFont, senderBrush, senderRect);
                 }
 
-                // Subject
-                if (message.ContainsKey("Subject"))
+                // Subject (using Message as subject)
+                if (!string.IsNullOrEmpty(message.Message))
                 {
                     using var subjectBrush = new SolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
                     Rectangle subjectRect = new Rectangle(rect.X + 8, y + 18, rect.Width - 80, 12);
-                    string subject = message["Subject"].ToString();
+                    string subject = message.Message;
                     if (subject.Length > 30) subject = subject.Substring(0, 27) + "...";
                     g.DrawString(subject, subjectFont, subjectBrush, subjectRect);
                 }
 
                 // Time
-                if (message.ContainsKey("Time"))
+                if (message.Timestamp != default(DateTime))
                 {
                     var timeBase = Theme?.SubLabelForColor ?? Color.Empty;
                     using var timeBrush = new SolidBrush(Color.FromArgb(80, timeBase.R, timeBase.G, timeBase.B));
                     Rectangle timeRect = new Rectangle(rect.Right - 70, y + 4, 70, 12);
-                    g.DrawString(message["Time"].ToString(), timeFont, timeBrush, timeRect);
+                    g.DrawString(message.Timestamp.ToString("HH:mm"), timeFont, timeBrush, timeRect);
                 }
 
                 // Unread indicator
-                bool isUnread = message.ContainsKey("IsUnread") && (bool)message["IsUnread"];
-                if (isUnread)
+                if (!message.IsRead)
                 {
                     using var unreadBrush = new SolidBrush(Theme?.AccentColor ?? Color.Empty);
                     g.FillEllipse(unreadBrush, rect.X + rect.Width - 12, y + 6, 6, 6);

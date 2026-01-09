@@ -1,5 +1,6 @@
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
@@ -1562,7 +1563,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
        
         private BeepComboBox beepComboBox1;
-        private Controls.BeepCheckBoxBool beepCheckBoxBool1;
+        private BeepCheckBoxBool beepCheckBoxBool1;
         private Controls.BeepLogin beepLogin1;
         private Controls.BeepListBox beepListBox1;
         private BeepChevronButton beepChevronButton1;

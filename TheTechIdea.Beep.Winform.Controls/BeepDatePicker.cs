@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Images;
 using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls

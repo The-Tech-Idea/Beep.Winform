@@ -19,15 +19,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         {
             base.InitializeComponent();
             this.Flags_propertiesPanel = new TheTechIdea.Beep.Winform.Controls.BeepPanel();
-            this.Flags_IsLocalbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsRemotebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsWebApibeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsFilebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsDatabasebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsCompositebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsCloudbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsFavouritebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
-            this.Flags_IsInMemorybeepCheckBox = new TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool();
+            this.Flags_IsLocalbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsRemotebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsWebApibeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsFilebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsDatabasebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsCompositebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsCloudbeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsFavouritebeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            this.Flags_IsInMemorybeepCheckBox = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
             this.Flags_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -135,14 +135,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         #endregion
 
         private TheTechIdea.Beep.Winform.Controls.BeepPanel Flags_propertiesPanel;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsLocalbeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsRemotebeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsWebApibeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsFilebeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsDatabasebeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsCompositebeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsCloudbeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsFavouritebeepCheckBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepCheckBoxBool Flags_IsInMemorybeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsLocalbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsRemotebeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsWebApibeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsFilebeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsDatabasebeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsCompositebeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsCloudbeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsFavouritebeepCheckBox;
+        private TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool Flags_IsInMemorybeepCheckBox;
     }
 }

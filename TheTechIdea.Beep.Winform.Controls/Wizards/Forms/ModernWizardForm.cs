@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
@@ -11,10 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     /// </summary>
     public class ModernWizardForm : BaseWizardForm
     {
-        private Label _lblTitle;
-        private Label _lblDescription;
-        private Panel _progressPanel;
-        private Label _lblProgress;
+        private BeepLabel _lblTitle;
+        private BeepLabel _lblDescription;
+        private BeepProgressBar _progressBar;
+        private BeepLabel _lblProgress;
 
         public ModernWizardForm(WizardInstance instance) : base(instance)
         {
@@ -25,52 +27,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             base.InitializeComponents();
 
             // Title
-            _lblTitle = new Label
+            _lblTitle = new BeepLabel
             {
                 AutoSize = false,
-                Font = new Font("Segoe UI", 16f, FontStyle.Bold),
-                ForeColor = _currentTheme?.PrimaryTextColor ?? Color.Empty,
                 Location = new Point(20, 15),
                 Size = new Size(600, 30),
                 Text = _instance.Config.Title
             };
+            _lblTitle.ApplyTheme();
 
             // Description
-            _lblDescription = new Label
+            _lblDescription = new BeepLabel
             {
                 AutoSize = false,
-                Font = new Font("Segoe UI", 9f),
-                ForeColor = _currentTheme?.SecondaryTextColor ?? Color.Empty,
                 Location = new Point(20, 50),
                 Size = new Size(600, 20),
                 Text = _instance.Config.Description ?? ""
             };
+            _lblDescription.ApplyTheme();
 
-            // Progress panel
-            _progressPanel = new Panel
+            // Progress bar
+            _progressBar = new BeepProgressBar
             {
                 Location = new Point(0, 75),
                 Size = new Size(ClientSize.Width, 4),
-                BackColor = _currentTheme?.PanelBackColor ?? Color.Empty,
+                Height = 4,
+                Minimum = 0,
+                Maximum = 100,
+                Value = 0,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
+            _progressBar.ApplyTheme();
 
             // Progress percentage label
-            _lblProgress = new Label
+            _lblProgress = new BeepLabel
             {
                 AutoSize = false,
-                Font = new Font("Segoe UI", 8f),
-                ForeColor = _currentTheme?.SecondaryTextColor ?? Color.Empty,
                 Location = new Point(ClientSize.Width - 80, 50),
                 Size = new Size(60, 20),
                 TextAlign = ContentAlignment.MiddleRight,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
+            _lblProgress.ApplyTheme();
 
             _headerPanel.Controls.Add(_lblTitle);
             _headerPanel.Controls.Add(_lblDescription);
             _headerPanel.Controls.Add(_lblProgress);
-            _headerPanel.Controls.Add(_progressPanel);
+            _headerPanel.Controls.Add(_progressBar);
 
             // Adjust header height
             _headerPanel.Height = 80;
@@ -92,28 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             var percentage = WizardHelpers.GetCompletionPercentage(currentIndex, totalSteps);
             _lblProgress.Text = $"{percentage}%";
 
-            // Redraw progress bar
-            _progressPanel.Invalidate();
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-
-            // Custom paint for progress bar
-            _progressPanel.Paint += (s, pe) =>
+            // Update progress bar value
+            if (_progressBar != null)
             {
-                var currentIndex = _instance.CurrentStepIndex;
-                var totalSteps = _instance.Config.Steps.Count;
-                var accentColor = _instance.Config.Theme?.AccentColor ?? Color.Empty;
-
-                WizardHelpers.DrawProgressBar(
-                    pe.Graphics,
-                    _progressPanel.ClientRectangle,
-                    currentIndex + 1,
-                    totalSteps,
-                    accentColor);
-            };
+                _progressBar.Maximum = totalSteps;
+                _progressBar.Value = currentIndex + 1;
+            }
         }
     }
 }

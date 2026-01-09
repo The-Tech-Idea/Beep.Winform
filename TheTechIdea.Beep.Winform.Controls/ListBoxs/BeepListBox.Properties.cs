@@ -189,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _searchText = value ?? string.Empty;
                     OnSearchTextChanged();
-                    RequestDelayedInvalidate();
+                    InvalidateLayoutCache();
                 }
             }
         }
@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showCheckBox != value)
                 {
                     _showCheckBox = value;
-                    RequestDelayedInvalidate();
+                    InvalidateLayoutCache();
                 }
             }
         }
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showImage != value)
                 {
                     _showImage = value;
-                    RequestDelayedInvalidate();
+                    InvalidateLayoutCache();
                 }
             }
         }
@@ -313,8 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_menuItemHeight != value && value > 0)
                 {
                     _menuItemHeight = value;
-                    _needsLayoutUpdate = true;
-                    RequestDelayedInvalidate();
+                    InvalidateLayoutCache();
                 }
             }
         }

@@ -399,6 +399,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (useTheme && theme != null)
                 {
                     ToolTipThemeHelpers.ApplyThemeColors(config, theme, useTheme);
+                    
+                    // Use ToolTipStyleHelpers for recommended sizes if not specified
+                    if (config.MaxSize == null || config.MaxSize.Value.Width == 0)
+                    {
+                        config.MaxSize = new Size(
+                            TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers.ToolTipStyleHelpers.GetRecommendedMaxWidth(config.Style),
+                            0 // Height calculated automatically
+                        );
+                    }
                 }
 
                 // Register with ToolTipManager

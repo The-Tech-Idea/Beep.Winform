@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -237,7 +238,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
             foreach (var s in _selected)
             {
                 string text = string.IsNullOrEmpty(s.DisplayField) ? s.Text ?? s.Name : s.DisplayField;
-                Size sz = TextRenderer.MeasureText(text, this.Font);
+                SizeF szF = TextUtils.MeasureText(text, this.Font, int.MaxValue);
+                Size sz = new Size((int)szF.Width, (int)szF.Height);
                 int chipW = Math.Max(40, sz.Width + 28);
                 if (usedW + chipW > maxW && usedW > 0)
                 {

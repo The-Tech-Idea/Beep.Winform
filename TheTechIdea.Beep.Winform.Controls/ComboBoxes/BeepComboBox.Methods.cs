@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ShowDropdown()
         {
-            if (_isDropdownOpen || BeepContextMenu == null || _listItems.Count == 0)
+            if (_isDropdownOpen || BeepContextMenu == null || _listItems.Count == 0 || _isLoading)
                 return;
             
             _isDropdownOpen = true;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using System.Windows.Forms;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Images;
  
  
 

@@ -60,39 +60,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                      ControlStyles.ResizeRedraw , true);
             SetStyle(ControlStyles.Selectable, true);
             UpdateStyles();
-           // Console.WriteLine("BeepGridPro constructor called");
+            
             // Disable base-frame right border and borders so DrawingRect uses full client area
             //ShowRightBorder = false;
             //ShowAllBorders = false;
             //IsFrameless = true;
-           // Console.WriteLine("BeepGridPro base constructor completed");
+            
             // Create a dedicated host layer for editors (kept only over active cell)
-          
-           // Console.WriteLine("BeepGridPro editor host created");
             Layout = new Helpers.GridLayoutHelper(this);
-           // Console.WriteLine("BeepGridPro layout helper created");
             Data = new Helpers.GridDataHelper(this);
-           // Console.WriteLine("BeepGridPro data helper created");
             Render = new Helpers.GridRenderHelper(this);
-           // Console.WriteLine("BeepGridPro render helper created");
             Selection = new Helpers.GridSelectionHelper(this);
-           // Console.WriteLine("BeepGridPro selection helper created");
             Input = new Helpers.GridInputHelper(this);
-           // Console.WriteLine("BeepGridPro input helper created");
             Scroll = new Helpers.GridScrollHelper(this);
-           // Console.WriteLine("BeepGridPro scroll helper created");
             ScrollBars = new Helpers.GridScrollBarsHelper(this);
-           // Console.WriteLine("BeepGridPro scrollbars helper created"); 
             SortFilter = new Helpers.GridSortFilterHelper(this);
-           // Console.WriteLine("BeepGridPro sort/filter helper created");
             Edit = new Helpers.GridEditHelper(this);
-           // Console.WriteLine("BeepGridPro edit helper created");
             ThemeHelper = new Helpers.GridThemeHelper(this);
-           // Console.WriteLine("BeepGridPro theme helper created");
             Navigator = new Helpers.GridNavigatorHelper(this);
-           // Console.WriteLine("BeepGridPro navigator helper created");
             NavigatorPainter = new Helpers.GridNavigationPainterHelper(this);
-           // Console.WriteLine("BeepGridPro navigator painter helper created");
             
             // Sync navigation painter properties
             NavigatorPainter.UsePainterNavigation = _usePainterNavigation;
@@ -112,13 +98,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
             
             Sizing = new Helpers.GridSizingHelper(this);
-           // Console.WriteLine("BeepGridPro sizing helper created");
             Dialog = new Helpers.GridDialogHelper(this);
-           // Console.WriteLine("BeepGridPro dialog helper created");
             Clipboard = new Helpers.GridClipboardHelper(this);
-           // Console.WriteLine("BeepGridPro clipboard helper created");
             ColumnReorder = new Helpers.GridColumnReorderHelper(this);
-           // Console.WriteLine("BeepGridPro column reorder helper created");
             // Only setup complex initialization if not in design mode
             if (!DesignMode)
             {
@@ -132,6 +114,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
+
+            // Set accessibility properties
+            AccessibleRole = AccessibleRole.Table;
+            AccessibleName = "Data Grid";
+            AccessibleDescription = "Data grid with rows and columns";
         }
         #endregion
 
@@ -227,8 +214,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             //    return;
             //}
 
-            // Console.WriteLine("BeepGridPro DrawContent START");
-
             // Call base for graphics setup and UpdateDrawingRect (now handled by BaseControl)
             //  base.DrawContent(g);
             UpdateDrawingRect();
@@ -236,11 +221,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             var drawingRect = DrawingRect;
             if (drawingRect.Width <= 0 || drawingRect.Height <= 0)
             {
-               // Console.WriteLine("BeepGridPro DrawContent - Invalid DrawingRect, skipping draw");
                 return;
             }
-
-           // Console.WriteLine("BeepGridPro DrawContent - DrawingRect: " + drawingRect.ToString());
 
             // Save the current graphics state
             var graphicsState = g.Save();
@@ -251,16 +233,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                g.SetClip(drawingRect);
 
                 // Now do our custom grid drawing within the clipped area
-               // Console.WriteLine("BeepGridPro DrawContent called");
-               // Console.WriteLine("BeepGridPro DrawContent - Starting layout calculation");
                 Layout?.EnsureCalculated();
-               // Console.WriteLine("BeepGridPro Layout calculated");
                Render?.Draw(g);
-                // Console.WriteLine("BeepGridPro Render completed");
 
                 // Draw custom scrollbars after grid content
                 ScrollBars?.DrawScrollBars(g);
-                // Console.WriteLine("BeepGridPro ScrollBars drawn");
             }
             catch
             {
@@ -277,8 +254,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                ScrollBars?.UpdateBars();
             }
-
-            // Console.WriteLine("BeepGridPro DrawContent END");
         }
         #endregion
 

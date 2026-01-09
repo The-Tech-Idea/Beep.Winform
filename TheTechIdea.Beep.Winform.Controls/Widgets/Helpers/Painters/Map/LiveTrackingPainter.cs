@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
 {
@@ -66,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var locations = ctx.MapLocations?.Cast<MapLocation>().ToList() ?? new List<MapLocation>();
+            var locations = ctx.MapMarkers ?? new List<MapMarker>();
             double latitude = ctx.Latitude;
             double longitude = ctx.Longitude;
             var lastUpdated = ctx.LastUpdated;
@@ -112,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             g.DrawString(timeText, timeFont, timeBrush, ctx.FooterRect.Right - timeSize.Width, ctx.FooterRect.Y);
         }
 
-        private void DrawLiveTrackingMap(Graphics g, Rectangle rect, List<MapLocation> locations, Color accentColor)
+        private void DrawLiveTrackingMap(Graphics g, Rectangle rect, List<MapMarker> locations, Color accentColor)
         {
             if (rect.Width < 20 || rect.Height < 20) return;
 
@@ -153,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             g.DrawRectangle(borderPen, rect);
         }
 
-        private void DrawTrackingPath(Graphics g, Rectangle rect, List<MapLocation> locations, Color accentColor)
+        private void DrawTrackingPath(Graphics g, Rectangle rect, List<MapMarker> locations, Color accentColor)
         {
             if (locations.Count < 2) return;
 

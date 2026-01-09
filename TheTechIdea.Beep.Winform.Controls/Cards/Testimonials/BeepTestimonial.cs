@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -291,7 +291,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 testimonialRect = layout.TestimonialBounds;
                 using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _testimonial, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, int.MaxValue);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
                     using (var brush = new SolidBrush(testimonialColor))
                     {
@@ -315,7 +316,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 nameRect = layout.NameBounds;
                 using (var font = TestimonialFontHelpers.GetNameFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _name, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_name, font, int.MaxValue);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     nameRect.Width = Math.Min(textSize.Width, nameRect.Width);
                     using (var brush = new SolidBrush(nameColor))
                     {
@@ -331,7 +333,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 positionRect = layout.PositionBounds;
                 using (var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _position, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_position, font, int.MaxValue);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     positionRect.Width = Math.Min(textSize.Width, positionRect.Width);
                     using (var brush = new SolidBrush(detailsColor))
                     {
@@ -347,7 +350,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 usernameRect = layout.UsernameBounds;
                 using (var font = TestimonialFontHelpers.GetDetailsFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _username, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_username, font, int.MaxValue);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     usernameRect.Width = Math.Min(textSize.Width, usernameRect.Width);
                     using (var brush = new SolidBrush(detailsColor))
                     {
@@ -373,7 +377,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 testimonialRect = layout.TestimonialBounds;
                 using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _testimonial, font, new Size(testimonialRect.Width, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
                     using (var brush = new SolidBrush(testimonialColor))
                     {
@@ -405,7 +410,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 testimonialRect = layout.TestimonialBounds;
                 using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _testimonial, font, new Size(testimonialRect.Width, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
                     using (var brush = new SolidBrush(testimonialColor))
                     {
@@ -450,7 +456,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 testimonialRect = layout.TestimonialBounds;
                 using (var font = TestimonialFontHelpers.GetTestimonialFont(this, ControlStyle, _viewType))
                 {
-                    var textSize = TextRenderer.MeasureText(g, _testimonial, font, new Size(testimonialRect.Width, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+                    SizeF textSizeF = TextUtils.MeasureText(_testimonial, font, testimonialRect.Width);
+                    var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                     testimonialRect.Height = Math.Min(textSize.Height, testimonialRect.Height);
                     using (var brush = new SolidBrush(testimonialColor))
                     {
@@ -485,7 +492,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             using (font)
             {
-                var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF textSizeF = TextUtils.MeasureText(text, font, int.MaxValue);
+                var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                 bounds.Width = Math.Min(textSize.Width, bounds.Width);
                 using (var brush = new SolidBrush(color))
                 {
@@ -501,7 +509,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             using (font)
             {
-                var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF textSizeF = TextUtils.MeasureText(text, font, int.MaxValue);
+                var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
                 int centerX = bounds.Left + bounds.Width / 2;
                 bounds = new Rectangle(centerX - textSize.Width / 2, bounds.Top, textSize.Width, bounds.Height);
                 using (var brush = new SolidBrush(color))

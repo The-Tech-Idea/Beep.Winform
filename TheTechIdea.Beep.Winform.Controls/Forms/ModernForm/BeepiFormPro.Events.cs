@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -80,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 // Use cached layout - only recalculates when necessary (size/style/property changes)
                 // This dramatically improves performance vs. recalculating on every paint
                 EnsureLayoutCalculated();
+                
                 // Apply backdrop effects (Acrylic, Mica, etc.)
                 if (BackdropEffect != BackdropEffect.None)
                 {
@@ -132,5 +133,82 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 PerformExternalDrawing(e.Graphics, DrawingLayer.AfterAll);
             }
         }
+
+        /// <summary>
+        /// Called when the form is resized. Updates the window region to match the new size.
+        /// </summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            
+            // Update window region when form is resized to ensure rounded corners are maintained
+            if (IsHandleCreated && ClientSize.Width > 0 && ClientSize.Height > 0)
+            {
+                UpdateWindowRegion();
+                UpdateFormRegion();
+            }
+        }
+
+        /// <summary>
+        /// Handles keyboard input for the search box
+        /// </summary>
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            
+            if (!_searchBoxFocused || !ShowSearchBox) return;
+            
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    // Trigger search (event already fired via SearchText property)
+                    e.Handled = true;
+                    break;
+                    
+                case Keys.Escape:
+                    // Clear search and unfocus
+                    SearchText = string.Empty;
+                    _searchBoxFocused = false;
+                    if (CurrentLayout.SearchBoxRect.Width > 0)
+                    {
+                        Invalidate(CurrentLayout.SearchBoxRect);
+                    }
+                    e.Handled = true;
+                    break;
+                    
+                case Keys.Back:
+                    // Remove last character
+                    if (_searchText.Length > 0)
+                    {
+                        SearchText = _searchText.Substring(0, _searchText.Length - 1);
+                    }
+                    e.Handled = true;
+                    break;
+                    
+                case Keys.Delete:
+                    // Clear search text
+                    SearchText = string.Empty;
+                    e.Handled = true;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Handles printable character input for the search box
+        /// </summary>
+        protected override void OnKeyPress(KeyPressEventArgs e)
+        {
+            base.OnKeyPress(e);
+            
+            if (!_searchBoxFocused || !ShowSearchBox) return;
+            
+            // Handle printable characters (ignore control characters)
+            if (!char.IsControl(e.KeyChar))
+            {
+                SearchText = _searchText + e.KeyChar;
+                e.Handled = true;
+            }
+        }
+
     }
 }

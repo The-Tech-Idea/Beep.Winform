@@ -16,6 +16,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private TextBoxSearchHelper _searchHelper;
         private bool _searchHighlightEnabled = true;
+        private bool _incrementalSearchEnabled = false;
+        private Timer _incrementalSearchTimer;
+        private string _pendingSearchText = "";
 
         #endregion
 
@@ -106,6 +109,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         [Browsable(false)]
         public System.Collections.Generic.IReadOnlyList<string> SearchHistory => SearchHelper.SearchHistory;
+
+        /// <summary>
+        /// Enable incremental search (search as you type)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Search")]
+        [DefaultValue(false)]
+        [Description("Enable incremental search (search as you type).")]
+        public bool IncrementalSearchEnabled
+        {
+            get => _incrementalSearchEnabled;
+            set
+            {
+                _incrementalSearchEnabled = value;
+                if (!value)
+                {
+                    _incrementalSearchTimer?.Stop();
+                    _pendingSearchText = "";
+                }
+            }
+        }
 
         #endregion
 
@@ -252,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public virtual void ShowFindDialog()
         {
-            // Default implementation - can be overridden
+            // Enhanced implementation with options
             string searchText = Microsoft.VisualBasic.Interaction.InputBox(
                 "Enter text to find:",
                 "Find",
@@ -260,8 +284,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (!string.IsNullOrEmpty(searchText))
             {
-                Search(searchText);
+                // Use current options but update search text
+                var options = SearchHelper.Options.Clone();
+                options.SearchText = searchText;
+                Search(options);
                 FindNext();
+                
+                // Show match count if available
+                if (SearchResult.HasMatches)
+                {
+                    // Could show a status message or update UI
+                    // For now, the highlighting will show matches
+                }
             }
         }
 
@@ -270,8 +304,51 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public virtual void ShowFindReplaceDialog()
         {
-            // Default implementation - can be overridden
-            ShowFindDialog();
+            // Enhanced implementation - get both search and replace text
+            string searchText = Microsoft.VisualBasic.Interaction.InputBox(
+                "Enter text to find:",
+                "Find and Replace",
+                SearchHelper.Options.SearchText);
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                string replaceText = Microsoft.VisualBasic.Interaction.InputBox(
+                    "Enter replacement text:",
+                    "Find and Replace",
+                    SearchHelper.Options.ReplaceText);
+
+                // Use current options but update search and replace text
+                var options = SearchHelper.Options.Clone();
+                options.SearchText = searchText;
+                options.ReplaceText = replaceText;
+                Search(options);
+                FindNext();
+            }
+        }
+
+        /// <summary>
+        /// Trigger incremental search if enabled
+        /// </summary>
+        private void TriggerIncrementalSearch()
+        {
+            if (!_incrementalSearchEnabled || !IsSearchActive) return;
+            
+            _incrementalSearchTimer?.Stop();
+            _pendingSearchText = Text;
+            
+            if (!string.IsNullOrEmpty(_pendingSearchText))
+            {
+                _incrementalSearchTimer?.Start();
+            }
+        }
+
+        private void IncrementalSearchTimer_Tick(object sender, EventArgs e)
+        {
+            _incrementalSearchTimer?.Stop();
+            if (!string.IsNullOrEmpty(_pendingSearchText))
+            {
+                Search(_pendingSearchText);
+            }
         }
 
         #endregion

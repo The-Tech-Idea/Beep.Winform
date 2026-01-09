@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
+using TheTechIdea.Beep.Winform.Controls.Lovs.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -394,28 +395,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             
+            // Apply font theme based on ControlStyle
+            LovFontHelpers.ApplyFontTheme(ControlStyle);
+            
             if (_keyTextBox == null || _valueTextBox == null || _dropdownButton == null) 
                 return;
 
             // Apply theme to key textbox
-            _keyTextBox.Theme = _currentTheme.ThemeName ?? Theme;
+            _keyTextBox.Theme = _currentTheme?.ThemeName ?? Theme;
             _keyTextBox.UseThemeColors = UseThemeColors;
             _keyTextBox.ApplyTheme();
             
             // Apply theme to value textbox (read-only display)
-            _valueTextBox.Theme = _currentTheme.ThemeName ?? Theme;
+            _valueTextBox.Theme = _currentTheme?.ThemeName ?? Theme;
             _valueTextBox.UseThemeColors = UseThemeColors;
             _valueTextBox.ApplyTheme();
             
             // Apply theme to dropdown button
-            _dropdownButton.Theme = _currentTheme.ThemeName ?? Theme;
+            _dropdownButton.Theme = _currentTheme?.ThemeName ?? Theme;
             _dropdownButton.UseThemeColors = UseThemeColors;
             _dropdownButton.ApplyTheme();
             
             // Apply theme to context menu
             if (_lovContextMenu != null)
             {
-                _lovContextMenu.Theme = _currentTheme.ThemeName ?? Theme;
+                _lovContextMenu.Theme = _currentTheme?.ThemeName ?? Theme;
             }
 
             Invalidate();

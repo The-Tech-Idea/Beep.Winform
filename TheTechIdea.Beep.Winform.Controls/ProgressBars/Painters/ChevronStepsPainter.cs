@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -30,7 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 g.FillPath(b, pth);
                 using var small =  BeepThemesManager.ToFont(theme.SmallText);
                 var text = labels[i] ?? $"Step {i+1}";
-                var sz = TextRenderer.MeasureText(text, small);
+                SizeF szF = TextUtils.MeasureText(text, small);
+                var sz = new Size((int)szF.Width, (int)szF.Height);
                 TextRenderer.DrawText(g, text, small, new Rectangle(x, bounds.Y + (chevronH - sz.Height)/2 + 2, chevronW, sz.Height), Color.White, TextFormatFlags.HorizontalCenter);
                 x += chevronW - 8; // slight overlap
             }

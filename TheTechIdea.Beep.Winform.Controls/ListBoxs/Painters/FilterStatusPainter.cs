@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -130,7 +131,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawCountBadge(Graphics g, Rectangle itemRect, int count, Color badgeColor)
         {
             string countText = count.ToString();
-            var textSize = System.Windows.Forms.TextRenderer.MeasureText(countText, _owner.TextFont);
+            SizeF textSizeF = TextUtils.MeasureText(g, countText, _owner.TextFont);
+            var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
             int badgeWidth = Math.Max(textSize.Width + 8, 24);
             int badgeHeight = 20;
             

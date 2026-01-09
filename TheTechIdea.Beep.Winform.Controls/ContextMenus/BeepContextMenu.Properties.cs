@@ -51,6 +51,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_controlStyle != value)
                 {
                     _controlStyle = value;
+                    // Invalidate region when style changes (rounded corners may change)
+                    if (Region != null)
+                    {
+                        Region.Dispose();
+                        Region = null;
+                    }
                     Invalidate();
                 }
             }
@@ -114,6 +120,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_cornerRadius != value)
                 {
                     _cornerRadius = value;
+                    // Invalidate region when corner radius changes (rounded corners will change)
+                    if (Region != null)
+                    {
+                        Region.Dispose();
+                        Region = null;
+                    }
                     Invalidate();
                 }
             }
@@ -197,10 +209,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     _menuItems = value ?? new BindingList<SimpleItem>();
                     _fullMenuItems = _menuItems.ToList();
                     _menuItems.ListChanged += MenuItems_ListChanged;
+                    InvalidateLayoutCache();
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
             }
+        }
+        
+        /// <summary>
+        /// Invalidates the layout helper cache
+        /// </summary>
+        private void InvalidateLayoutCache()
+        {
+            _layoutHelper?.InvalidateCache();
         }
         
         /// <summary>
@@ -290,6 +312,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_showCheckBox != value)
                 {
                     _showCheckBox = value;
+                    InvalidateLayoutCache();
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -311,6 +335,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_showImage != value)
                 {
                     _showImage = value;
+                    InvalidateLayoutCache();
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -352,6 +378,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_showShortcuts != value)
                 {
                     _showShortcuts = value;
+                    InvalidateLayoutCache();
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -394,6 +422,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_imageSize != value && value > 0)
                 {
                     _imageSize = value;
+                    InvalidateLayoutCache();
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -415,6 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 if (_menuWidth != value && value >= _minWidth && value <= _maxWidth)
                 {
                     _menuWidth = value;
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -479,6 +510,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     if (_textFont != value)
                     {
                         _textFont = value;
+                        InvalidateSizeCache();
                         RecalculateSize();
                         Invalidate();
                     }
@@ -628,6 +660,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private void MenuItems_ListChanged(object sender, ListChangedEventArgs e)
         {
             _fullMenuItems = _menuItems.ToList();
+            InvalidateLayoutCache();
+            InvalidateSizeCache();
             RecalculateSize();
             Invalidate();
         }
@@ -656,6 +690,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     {
                         EnsureSearchTextBox(); // will dispose/hide the search control
                     }
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -667,6 +702,112 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         [Browsable(false)]
         public int SearchBoxHeight => _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
+        
+        /// <summary>
+        /// Accessible name for screen readers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Name of the control for accessibility and screen readers.")]
+        public new string AccessibleName
+        {
+            get => base.AccessibleName;
+            set => base.AccessibleName = value;
+        }
+
+        /// <summary>
+        /// Accessible description for screen readers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Description of the control for accessibility and screen readers.")]
+        public new string AccessibleDescription
+        {
+            get => base.AccessibleDescription;
+            set => base.AccessibleDescription = value;
+        }
+
+        /// <summary>
+        /// Duration of animations in milliseconds (fade-in/fade-out, item selection)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Duration of animations in milliseconds (fade-in/fade-out, item selection).")]
+        [DefaultValue(200)]
+        public int AnimationDuration
+        {
+            get => _animationDuration;
+            set
+            {
+                if (_animationDuration != value && value >= 0)
+                {
+                    _animationDuration = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether animations are enabled
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Whether animations are enabled.")]
+        [DefaultValue(true)]
+        public bool EnableAnimations
+        {
+            get => _enableAnimations;
+            set
+            {
+                if (_enableAnimations != value)
+                {
+                    _enableAnimations = value;
+                    if (!_enableAnimations)
+                    {
+                        _opacity = 1.0;
+                        Opacity = 1.0;
+                        _fadeTimer?.Stop();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Duration of fade-in animation in milliseconds
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Duration of fade-in animation in milliseconds.")]
+        [DefaultValue(150)]
+        public int FadeInDuration
+        {
+            get => _fadeInDuration;
+            set
+            {
+                if (_fadeInDuration != value && value >= 0)
+                {
+                    _fadeInDuration = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Duration of fade-out animation in milliseconds
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Duration of fade-out animation in milliseconds.")]
+        [DefaultValue(100)]
+        public int FadeOutDuration
+        {
+            get => _fadeOutDuration;
+            set
+            {
+                if (_fadeOutDuration != value && value >= 0)
+                {
+                    _fadeOutDuration = value;
+                }
+            }
+        }
         
         #endregion
     }

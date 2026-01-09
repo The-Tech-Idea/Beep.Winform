@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards
 {
@@ -22,13 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             _headerPanel.Height = 60;
             _headerPanel.Controls.Clear();
 
-            var lblTitle = new Label
+            var lblTitle = new BeepLabel
             {
                 Text = _instance.Config.Title,
-                Font = new Font("Segoe UI", 14f, FontStyle.Bold),
                 Location = new Point(20, 20),
                 AutoSize = true
             };
+            lblTitle.ApplyTheme();
 
             _headerPanel.Controls.Add(lblTitle);
         }

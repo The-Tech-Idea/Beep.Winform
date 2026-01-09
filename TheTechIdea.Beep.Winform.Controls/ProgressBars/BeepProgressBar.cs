@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -31,6 +31,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         
         // Theme application guard
         private bool _isApplyingTheme = false;
+
+        // Layout cache for performance
+        private bool _layoutCacheValid = false;
+        private Dictionary<string, SizeF> _textMeasurementCache = new Dictionary<string, SizeF>();
 
         // GDI resources
         private SolidBrush _textBrush;
@@ -166,20 +170,36 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 {
                     UpdateProgressTooltip();
                 }
+                
+                // Invalidate layout cache
+                InvalidateLayoutCache();
             }
         }
 
         [Category("Behavior")]
         [DefaultValue(0)]
-        public int Minimum { get => _minimum; set { _minimum = value; if (_value < _minimum) _value = _minimum; Invalidate(); } }
+        public int Minimum { get => _minimum; set { _minimum = value; if (_value < _minimum) _value = _minimum; InvalidateLayoutCache(); Invalidate(); } }
 
         [Category("Behavior")]
         [DefaultValue(100)]
-        public int Maximum { get => _maximum; set { _maximum = value; if (_value > _maximum) _value = _maximum; Invalidate(); } }
+        public int Maximum { get => _maximum; set { _maximum = value; if (_value > _maximum) _value = _maximum; InvalidateLayoutCache(); Invalidate(); } }
 
         [Description("Font for the displayed text")]
         [Category("Appearance")]
-        public Font TextFont { get; set; }
+        public Font TextFont 
+        { 
+            get => _textFont; 
+            set 
+            { 
+                if (_textFont != value)
+                {
+                    _textFont = value;
+                    InvalidateLayoutCache();
+                    Invalidate();
+                }
+            } 
+        }
+        private Font _textFont;
 
         [Category("Appearance")]
         [DefaultValue(typeof(Color), "White")]
@@ -202,15 +222,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarSize.Medium)]
-        public ProgressBarSize BarSize { get => _barSize; set { _barSize = value; UpdateSizeForStyle(); Invalidate(); } }
+        public ProgressBarSize BarSize { get => _barSize; set { _barSize = value; UpdateSizeForStyle(); InvalidateLayoutCache(); Invalidate(); } }
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarDisplayMode.CurrProgress)]
-        public ProgressBarDisplayMode VisualMode { get; set; } = ProgressBarDisplayMode.CurrProgress;
+        public ProgressBarDisplayMode VisualMode { get => _visualMode; set { if (_visualMode != value) { _visualMode = value; InvalidateLayoutCache(); Invalidate(); } } }
+        private ProgressBarDisplayMode _visualMode = ProgressBarDisplayMode.CurrProgress;
 
         [Category("Appearance")]
         [DefaultValue("")]
-        public string CustomText { get; set; } = string.Empty;
+        public string CustomText { get => _customText; set { if (_customText != value) { _customText = value; InvalidateLayoutCache(); Invalidate(); } } }
+        private string _customText = string.Empty;
 
         [Category("Appearance")]
         [DefaultValue(true)]
@@ -229,17 +251,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         public bool IsPulsating { get => _isPulsating; set { if (_isPulsating == value) return; _isPulsating = value; if (_isPulsating) StartPulsating(); else StopPulsating(); } }
 
         [Category("Task Management")]
-        public int CompletedTasks { get => _completedTasks; set { _completedTasks = value; if (_showTaskCount) UpdateTaskProgress(); Invalidate(); } }
+        public int CompletedTasks { get => _completedTasks; set { _completedTasks = value; if (_showTaskCount) UpdateTaskProgress(); InvalidateLayoutCache(); Invalidate(); } }
 
         [Category("Task Management")]
-        public int TotalTasks { get => _totalTasks; set { _totalTasks = value; if (_showTaskCount) UpdateTaskProgress(); Invalidate(); } }
+        public int TotalTasks { get => _totalTasks; set { _totalTasks = value; if (_showTaskCount) UpdateTaskProgress(); InvalidateLayoutCache(); Invalidate(); } }
 
         [Category("Task Management")]
-        public string TaskText { get => _taskText; set { _taskText = value; Invalidate(); } }
+        public string TaskText { get => _taskText; set { _taskText = value; InvalidateLayoutCache(); Invalidate(); } }
 
         [Category("Task Management")]
         [DefaultValue(false)]
-        public bool ShowTaskCount { get => _showTaskCount; set { _showTaskCount = value; if (_showTaskCount) UpdateTaskProgress(); Invalidate(); } }
+        public bool ShowTaskCount { get => _showTaskCount; set { _showTaskCount = value; if (_showTaskCount) UpdateTaskProgress(); InvalidateLayoutCache(); Invalidate(); } }
 
         [Category("Appearance")]
         [DefaultValue(false)]
@@ -344,7 +366,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             _textBrush = new SolidBrush(Color.White);
             _progressBrush = new SolidBrush(Color.FromArgb(52, 152, 219));
             _borderPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1);
-            TextFont = new Font("Segoe UI", 10, FontStyle.Regular);
+            _textFont = new Font("Segoe UI", 10, FontStyle.Regular);
+            
+            // Enable keyboard navigation
+            SetStyle(ControlStyles.Selectable, true);
+            TabStop = true;
             
             // Apply accessibility settings
             ApplyAccessibilitySettings();
@@ -383,7 +409,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         {
             // Do not mutate Width/Height here to avoid re-entrant layout and designer issues.
             base.OnResize(e);
+            InvalidateLayoutCache();
             Invalidate();
+        }
+
+        private void InvalidateLayoutCache()
+        {
+            _layoutCacheValid = false;
+            _textMeasurementCache.Clear();
         }
 
         private void UpdateSizeForStyle()
@@ -468,6 +501,84 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); if (_pressedArea != null) { _pressedArea = null; SetChildExternalDrawingRedraw(this, true); Invalidate(); } }
         #endregion
 
+        #region Keyboard Navigation
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            // Handle arrow keys for step-based painters (StepperCircles, ChevronSteps)
+            if (PainterKind == ProgressPainterKind.StepperCircles || 
+                PainterKind == ProgressPainterKind.ChevronSteps)
+            {
+                if (keyData == Keys.Left || keyData == Keys.Up)
+                {
+                    // Navigate to previous step
+                    if (Parameters != null && Parameters.TryGetValue("Current", out var currentObj))
+                    {
+                        int current = currentObj is IConvertible ? Convert.ToInt32(currentObj) : 0;
+                        if (current > 0)
+                        {
+                            var newParams = new Dictionary<string, object>(Parameters);
+                            newParams["Current"] = current - 1;
+                            Parameters = newParams;
+                            Invalidate();
+                            return true;
+                        }
+                    }
+                    return true;
+                }
+                else if (keyData == Keys.Right || keyData == Keys.Down)
+                {
+                    // Navigate to next step
+                    if (Parameters != null)
+                    {
+                        int steps = Parameters.TryGetValue("Steps", out var stepsObj) && stepsObj is IConvertible 
+                            ? Convert.ToInt32(stepsObj) 
+                            : 4;
+                        int current = Parameters.TryGetValue("Current", out var currentObj) && currentObj is IConvertible
+                            ? Convert.ToInt32(currentObj)
+                            : 0;
+                        if (current < steps - 1)
+                        {
+                            var newParams = new Dictionary<string, object>(Parameters);
+                            newParams["Current"] = current + 1;
+                            Parameters = newParams;
+                            Invalidate();
+                            return true;
+                        }
+                    }
+                    return true;
+                }
+            }
+            
+            return base.ProcessDialogKey(keyData);
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate(); // Redraw to show focus indicator
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate(); // Redraw to hide focus indicator
+        }
+
+        private void DrawFocusIndicator(Graphics g, Rectangle bounds)
+        {
+            if (Focused)
+            {
+                using (var pen = new Pen(_currentTheme?.PrimaryColor ?? SystemColors.Highlight, 2))
+                {
+                    // Draw focus rectangle with some padding
+                    var focusRect = bounds;
+                    focusRect.Inflate(-2, -2);
+                    g.DrawRectangle(pen, focusRect);
+                }
+            }
+        }
+        #endregion
+
         #region Painter pipeline
         protected override void DrawContent(Graphics g)
         {
@@ -502,6 +613,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                     if (LicenseManager.UsageMode != LicenseUsageMode.Designtime) throw;
                     return;
                 }
+
+                // Draw focus indicator after painter rendering
+                DrawFocusIndicator(g, rect);
 
                 _areaRects.Clear();
                 ClearHitList();

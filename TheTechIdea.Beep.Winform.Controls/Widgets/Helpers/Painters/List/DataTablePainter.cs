@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -111,8 +112,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 if (sortedCol >= 0 && sortedCol < ctx.Labels.Count && itemsToRender.Count > 1)
                 {
                     string key = ctx.Labels[sortedCol];
-                    Func<Dictionary<string, object>, object?> sel = d => d.ContainsKey(key) ? d[key] : null;
-                    IOrderedEnumerable<Dictionary<string, object>> ordered = sortDir == "desc"
+                    Func<ListItem, object?> sel = item => GetListItemProperty(item, key);
+                    IOrderedEnumerable<ListItem> ordered = sortDir == "desc"
                         ? itemsToRender.OrderByDescending(x => sel(x))
                         : itemsToRender.OrderBy(x => sel(x));
                     itemsToRender = ordered.ToList();
@@ -123,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 if (skip >= 0 && skip < itemsToRender.Count)
                     itemsToRender = itemsToRender.Skip(skip).Take(pageSize).ToList();
                 else
-                    itemsToRender = new List<Dictionary<string, object>>();
+                    itemsToRender = new List<ListItem>();
 
                 _visibleRowCount = itemsToRender.Count;
                 if (_visibleRowCount == 0)
@@ -236,7 +237,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void DrawTableRows(Graphics g, Rectangle rect, List<Dictionary<string, object>> items, List<string> columns)
+        private object? GetListItemProperty(ListItem item, string propertyName)
+        {
+            return propertyName.ToLowerInvariant() switch
+            {
+                "id" => item.Id,
+                "title" => item.Title,
+                "subtitle" => item.Subtitle,
+                "status" => item.Status,
+                "timestamp" => item.Timestamp,
+                "iconpath" => item.IconPath,
+                _ => null
+            };
+        }
+
+        private void DrawTableRows(Graphics g, Rectangle rect, List<ListItem> items, List<string> columns)
         {
             if (!items.Any() || !columns.Any()) return;
             
@@ -263,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 {
                     var cellRect = new Rectangle(rect.X + col * colWidth + 4, y, colWidth - 8, rowHeight);
                     string key = columns[col];
-                    string cellValue = item.ContainsKey(key) ? item[key]?.ToString() ?? "" : "";
+                    string cellValue = GetListItemProperty(item, key)?.ToString() ?? "";
 
                     // Align numbers to the right, others to the near
                     var fmt = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };

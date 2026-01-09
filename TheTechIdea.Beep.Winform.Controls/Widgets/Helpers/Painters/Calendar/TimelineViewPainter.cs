@@ -55,7 +55,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var events = ctx.Events?.Cast<CalendarEvent>().ToList() ?? new List<CalendarEvent>();
+            var events = ctx.Events;
+            if (events == null || events.Count == 0)
+            {
+                events = new List<CalendarEvent>();
+            }
             var displayMonth = ctx.DisplayMonth;
             var eventColor = ctx.EventColor != Color.Empty ? ctx.EventColor : Color.Blue;
             var showToday = ctx.ShowToday;

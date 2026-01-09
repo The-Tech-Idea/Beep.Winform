@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -38,6 +39,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                     // Trigger events and updates
                     OnTextChangedInternal(oldText, _text);
+                    
+                    // Trigger incremental search if enabled
+                    TriggerIncrementalSearch();
                     
                     // Use immediate invalidation instead of delayed timer during normal operation
                     if (!_isInitializing)

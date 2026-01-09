@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
 {
@@ -71,7 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
                 if (labels != null && i < labels.Length)
                 {
                     var label = labels[i];
-                    var size = TextRenderer.MeasureText(label, fnt);
+                    SizeF sizeF = TextUtils.MeasureText(label, fnt, int.MaxValue);
+                    var size = new Size((int)sizeF.Width, (int)sizeF.Height);
                     TextRenderer.DrawText(g, label, fnt, new System.Drawing.Point(area.X, barY - size.Height), theme.CardTextForeColor);
                 }
                 y += rowH;

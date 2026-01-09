@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,6 +12,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Painters;
+using TheTechIdea.Beep.Winform.Controls.Tabs.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Images;
  
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -842,13 +844,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ForeColor = Color.Black;
                 return;
             }
-            BackColor = _currentTheme.TabBackColor;
-            ForeColor = _currentTheme.TabForeColor;
+            
+            // Apply theme colors using theme helpers
+            BackColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
+            ForeColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabTextColor(_currentTheme, true);
+            
             if (_painter != null) _painter.Theme = _currentTheme;
             foreach (TabPage page in TabPages)
             {
-                page.BackColor = _currentTheme.TabBackColor;
-                page.ForeColor = _currentTheme.TabForeColor;
+                page.BackColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
+                page.ForeColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabTextColor(_currentTheme, true);
                 if (page.Controls.Count >0)
                 {
                     foreach (Control ctrl in page.Controls)

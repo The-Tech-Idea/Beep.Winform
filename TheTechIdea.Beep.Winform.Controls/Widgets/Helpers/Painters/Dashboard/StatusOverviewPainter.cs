@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 {
@@ -31,17 +32,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             _rowRects.Clear();
 
             // Precompute row rects if metrics count is known
-            if (ctx.Metrics is List<object> raw)
+            var services = ctx.Metrics;
+            if (services != null && services.Count > 0)
             {
-                var services = raw.Cast<Dictionary<string, object>>().ToList();
-                if (services.Count > 0)
+                int serviceHeight = Math.Min(40, ctx.ContentRect.Height / Math.Max(services.Count, 1));
+                for (int i = 0; i < services.Count; i++)
                 {
-                    int serviceHeight = Math.Min(40, ctx.ContentRect.Height / Math.Max(services.Count, 1));
-                    for (int i = 0; i < services.Count; i++)
-                    {
-                        int y = ctx.ContentRect.Y + i * serviceHeight;
-                        _rowRects.Add(new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, serviceHeight));
-                    }
+                    int y = ctx.ContentRect.Y + i * serviceHeight;
+                    _rowRects.Add(new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, serviceHeight));
                 }
             }
 
@@ -68,14 +66,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
 
             // Draw status overview
-            if (ctx.Metrics != null)
+            var services = ctx.Metrics;
+            if (services != null && services.Count > 0)
             {
-                var services = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawStatusOverview(g, ctx.ContentRect, services);
             }
         }
 
-        private void DrawStatusOverview(Graphics g, Rectangle rect, List<Dictionary<string, object>> services)
+        private void DrawStatusOverview(Graphics g, Rectangle rect, List<DashboardMetric> services)
         {
             if (!services.Any()) return;
 
@@ -104,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 }
 
                 // Status indicator
-                string status = service.ContainsKey("Title") ? service["Title"].ToString() : "Unknown";
+                string status = !string.IsNullOrEmpty(service.Title) ? service.Title : "Unknown";
                 Color statusColor = GetServiceStatusColor(status);
 
                 var statusDot = new Rectangle(rowRect.X + 8, rowRect.Y + rowRect.Height / 2 - 8, 16, 16);
@@ -113,11 +111,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
                 // Service name (Value)
                 var nameRect = new Rectangle(rowRect.X + 32, rowRect.Y, rowRect.Width - 120, rowRect.Height);
-                if (service.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(service.Value))
                 {
                     using var nameBrush = new SolidBrush(Color.FromArgb(180, Theme?.ForeColor ?? Color.Black));
                     var nameFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(service["Value"].ToString(), serviceFont, nameBrush, nameRect, nameFormat);
+                    g.DrawString(service.Value, serviceFont, nameBrush, nameRect, nameFormat);
                 }
 
                 // Status text

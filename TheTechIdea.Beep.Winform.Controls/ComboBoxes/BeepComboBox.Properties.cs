@@ -8,6 +8,17 @@ using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    /// <summary>
+    /// Auto-complete matching mode
+    /// </summary>
+    public enum BeepAutoCompleteMode
+    {
+        None,
+        Prefix,
+        Fuzzy,
+        Full
+    }
+
     public partial class BeepComboBox
     {
         #region List and Selection Properties
@@ -133,9 +144,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-                _textFont = value ?? new Font("Segoe UI", 9f);
-                UseThemeFont = false;
-                InvalidateLayout();
+                if (_textFont != value)
+                {
+                    _textFont = value ?? new Font("Segoe UI", 9f);
+                    UseThemeFont = false;
+                    InvalidateLayout();
+                }
             }
         }
         
@@ -143,6 +157,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Placeholder text shown when no item is selected.")]
         public string PlaceholderText { get; set; } = "Select an item...";
+
+        /// <summary>
+        /// Accessible name for screen readers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Name of the control for accessibility and screen readers.")]
+        public new string AccessibleName
+        {
+            get => base.AccessibleName;
+            set => base.AccessibleName = value;
+        }
+
+        /// <summary>
+        /// Accessible description for screen readers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Description of the control for accessibility and screen readers.")]
+        public new string AccessibleDescription
+        {
+            get => base.AccessibleDescription;
+            set => base.AccessibleDescription = value;
+        }
         
         //[Browsable(true)]
         //[Category("Appearance")]
@@ -215,6 +253,88 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Whether to auto-complete as the user types.")]
         [DefaultValue(true)]
         public bool AutoComplete { get; set; } = true;
+
+        /// <summary>
+        /// The mode for auto-complete matching
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("The mode for auto-complete matching.")]
+        [DefaultValue(BeepAutoCompleteMode.Prefix)]
+        public BeepAutoCompleteMode AutoCompleteMode { get; set; } = BeepAutoCompleteMode.Prefix;
+
+        /// <summary>
+        /// Minimum length of input before triggering auto-complete
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Minimum length of input before triggering auto-complete.")]
+        [DefaultValue(1)]
+        public int AutoCompleteMinLength { get; set; } = 1;
+
+        /// <summary>
+        /// Maximum number of suggestions to show
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Maximum number of suggestions to show.")]
+        [DefaultValue(10)]
+        public int MaxSuggestions { get; set; } = 10;
+
+        /// <summary>
+        /// Delay in milliseconds before triggering auto-complete (for debouncing)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Delay in milliseconds before triggering auto-complete (for debouncing).")]
+        [DefaultValue(0)]
+        public int AutoCompleteDelay { get; set; } = 0;
+
+        /// <summary>
+        /// Duration of animations in milliseconds (dropdown open/close, item selection)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Duration of animations in milliseconds (dropdown open/close, item selection).")]
+        [DefaultValue(200)]
+        public int AnimationDuration { get; set; } = 200;
+
+        /// <summary>
+        /// Whether animations are enabled
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Whether animations are enabled.")]
+        [DefaultValue(true)]
+        public bool EnableAnimations { get; set; } = true;
+
+        /// <summary>
+        /// Indicates whether the combo box is in a loading state. When true, shows a spinner and disables interaction.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(false)]
+        [Description("Indicates whether the combo box is in a loading state. When true, shows a spinner and disables interaction.")]
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    if (_isLoading)
+                    {
+                        StartLoadingAnimation();
+                    }
+                    else
+                    {
+                        StopLoadingAnimation();
+                    }
+                    Invalidate();
+                }
+            }
+        }
         
         [Browsable(true)]
         [Category("Behavior")]
@@ -310,12 +430,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Layout")]
         [Description("Width of the dropdown button in pixels.")]
         [DefaultValue(32)]
-        public int DropdownButtonWidth { get; set; } = 32;
+        public int DropdownButtonWidth 
+        { 
+            get => _dropdownButtonWidth; 
+            set 
+            { 
+                if (_dropdownButtonWidth != value)
+                {
+                    _dropdownButtonWidth = value;
+                    InvalidateLayout();
+                }
+            }
+        }
+        private int _dropdownButtonWidth = 32;
         
         [Browsable(true)]
         [Category("Layout")]
         [Description("Padding inside the combo box.")]
-        public Padding InnerPadding { get; set; } = new Padding(8, 4, 8, 4);
+        public Padding InnerPadding 
+        { 
+            get => _innerPadding; 
+            set 
+            { 
+                if (_innerPadding != value)
+                {
+                    _innerPadding = value;
+                    InvalidateLayout();
+                }
+            }
+        }
+        private Padding _innerPadding = new Padding(8, 4, 8, 4);
         
         #endregion
     }

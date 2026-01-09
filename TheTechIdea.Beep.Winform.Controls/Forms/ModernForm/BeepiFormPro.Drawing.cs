@@ -58,6 +58,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (!ShowThemeButton && !ShowStyleButton)
                 _customActionButton?.OnPaint?.Invoke(g, CurrentLayout.CustomActionButtonRect);
 
+            // Draw search box if visible
+            if (ShowSearchBox && CurrentLayout.SearchBoxRect.Width > 0)
+                _searchBox?.OnPaint?.Invoke(g, CurrentLayout.SearchBoxRect);
+
             // System buttons (skip default buttons for macOS which draws traffic lights)
             if (FormStyle != FormStyle.MacOS)
             {
@@ -341,6 +345,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnMouseDown(e);
             
+            // Handle search box unfocus when clicking outside
+            if (ShowSearchBox && _searchBoxFocused)
+            {
+                // Check if click is outside search box
+                if (CurrentLayout.SearchBoxRect.Width > 0 && !CurrentLayout.SearchBoxRect.Contains(e.Location))
+                {
+                    _searchBoxFocused = false;
+                    Invalidate(CurrentLayout.SearchBoxRect);
+                }
+            }
+            
             // Skip interaction in design mode or if control is disposed
             if (InDesignMode || IsDisposed || !IsHandleCreated) return;
             
@@ -377,6 +392,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (!_layout.ContentRect.Contains(pos))
             {
                 _interact.OnMouseUp(pos);
+            }
+        }
+        
+        /// <summary>
+        /// Updates the form's managed Region property to clip to the rounded BorderShape path
+        /// This provides additional clipping at the managed level, complementing the Win32 window region
+        /// </summary>
+        private void UpdateFormRegion()
+        {
+            if (!IsHandleCreated || ClientSize.Width <= 0 || ClientSize.Height <= 0 || ActivePainter == null)
+                return;
+            
+            try
+            {
+                // Get the BorderShape path which already has the correct rounded corners
+                using (var borderPath = BorderShape)
+                {
+                    if (borderPath == null || borderPath.PointCount == 0)
+                        return;
+                    
+                    // Dispose old region if it exists (properly clean up before creating new one)
+                    if (Region != null)
+                    {
+                        var oldRegion = Region;
+                        Region = null; // Clear reference first to prevent issues
+                        oldRegion.Dispose();
+                    }
+                    
+                    // Create region from the rounded path to clip the form
+                    // This ensures sharp corners are hidden when rounded borders are used
+                    Region = new Region(borderPath);
+                }
+            }
+            catch
+            {
+                // If region creation fails, continue without clipping
+                // This can happen if the path is invalid or too complex
+                // Reset to null to ensure no invalid region is set
+                if (Region != null)
+                {
+                    try
+                    {
+                        var oldRegion = Region;
+                        Region = null;
+                        oldRegion.Dispose();
+                    }
+                    catch { }
+                }
             }
         }
     }

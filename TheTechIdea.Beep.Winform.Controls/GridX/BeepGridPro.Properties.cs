@@ -406,5 +406,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [DefaultValue(true)]
         [Description("Whether to use DPI-aware scaling for row height calculations")]
         public bool UseDpiAwareRowHeights { get; set; } = true;
+        /// <summary>
+        /// Gets or sets the accessible name for the grid control
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Name of the control used by accessibility client applications")]
+        public new string AccessibleName
+        {
+            get => base.AccessibleName;
+            set
+            {
+                base.AccessibleName = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the accessible description for the grid control
+        /// </summary>
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [Description("Description of the control used by accessibility client applications")]
+        public new string AccessibleDescription
+        {
+            get => base.AccessibleDescription;
+            set
+            {
+                base.AccessibleDescription = value;
+                Invalidate();
+            }
+        }
     }
 }

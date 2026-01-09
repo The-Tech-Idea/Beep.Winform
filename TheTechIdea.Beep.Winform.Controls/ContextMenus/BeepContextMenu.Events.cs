@@ -79,21 +79,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_MouseMove(object sender, MouseEventArgs e)
         {
-            //System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] MouseMove: Location={e.Location}, Button={e.Button}");
-
-            //var item = _inputHelper.HitTest(e.Location);
-
-            //if (item != _hoveredItem)
-            //{
-            //    _hoveredItem = item;
-            //    _hoveredIndex = item != null ? _menuItems.IndexOf(item) : -1;
-
-            //    System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] Hover changed: Item={item?.DisplayField ?? "null"}, Index={_hoveredIndex}");
-
-            //    // Fire ItemHovered event - ContextMenuManager will handle sub-menu logic
-            //    OnItemHovered(item);
-            //    Invalidate();
-            //}
             UpdateHoveredItem(GetItemAtPoint(e.Location));
         }
         
@@ -201,12 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_MouseLeave(object sender, EventArgs e)
         {
-            //System.Diagnostics.Debug.WriteLine($"[BeepContextMenu] MouseLeave event fired");
-
-            //_hoveredItem = null;
-            //_hoveredIndex = -1;
-
-            //// Fire ItemHovered with null to cancel any pending sub-menus
+            // Mouse leave handling is done via UpdateHoveredItem with null
             //OnItemHovered(null);
             //Invalidate();
             UpdateHoveredItem(null);
@@ -243,15 +223,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void FadeTimer_Tick(object sender, EventArgs e)
         {
-            _opacity += 1.0 / FADE_STEPS;
+            if (!_enableAnimations)
+            {
+                _opacity = 1.0;
+                Opacity = 1.0;
+                _fadeTimer.Stop();
+                return;
+            }
+            
+            // Calculate step size based on fade-in duration
+            double stepSize = (double)FADE_INTERVAL / _fadeInDuration;
+            _opacity += stepSize;
+            
+            // Apply easing from theme if available
+            if (_currentTheme?.AnimationEasingFunction != null)
+            {
+                double easedProgress = TheTechIdea.Beep.Winform.Controls.Helpers.AnimationEasingHelper.Evaluate(
+                    _currentTheme.AnimationEasingFunction, 
+                    (float)Math.Min(1.0, _opacity));
+                Opacity = (float)easedProgress;
+            }
+            else
+            {
+                Opacity = Math.Min(1.0, _opacity);
+            }
             
             if (_opacity >= 1.0)
             {
                 _opacity = 1.0;
+                Opacity = 1.0;
                 _fadeTimer.Stop();
             }
-            
-            Opacity = _opacity;
         }
         
         private void ScrollBar_Scroll(object sender, ScrollEventArgs e)

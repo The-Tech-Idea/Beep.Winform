@@ -125,6 +125,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // iOS: Paint circular traffic light buttons (distinct!)
             PaintiOSButtons(g, owner, captionRect);
 
+            // Paint search box if visible (using FormRegion for consistency)
+            if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
+            {
+                owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
+            }
+
             // Paint icon, theme/Style buttons (iOS only paints traffic lights, not system buttons)
             owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
             
@@ -348,6 +354,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
                
                 rightX -= buttonWidth;
+            }
+            
+            // Search box (between title and right-side buttons)
+            int searchBoxWidth = 200;
+            int searchBoxPadding = 8;
+            if (owner.ShowSearchBox)
+            {
+                layout.SearchBoxRect = new Rectangle(rightX - searchBoxWidth - searchBoxPadding, searchBoxPadding / 2, 
+                    searchBoxWidth, captionHeight - searchBoxPadding);
+                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
+                rightX -= searchBoxWidth + searchBoxPadding;
+            }
+            else
+            {
+                layout.SearchBoxRect = Rectangle.Empty;
             }
             
             // Icon positioning (after traffic lights)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
@@ -19,6 +19,8 @@ using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 
 

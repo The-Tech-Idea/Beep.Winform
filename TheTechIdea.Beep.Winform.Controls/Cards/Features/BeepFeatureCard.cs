@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -407,17 +408,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate layout
             logoRect = new Rectangle(clientRect.Left + padding, clientRect.Top + padding, logoSize, logoSize);
             
-            // Title and subtitle - measure text to prevent clipping
+            // Title and subtitle - measure text to prevent clipping (using cached TextUtils)
             Size titleSize;
             Size subtitleSize;
             using (var titleFont = FeatureCardFontHelpers.GetTitleFont(this, ControlStyle))
             {
-                titleSize = TextRenderer.MeasureText(g, titleText ?? "", titleFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF titleSizeF = TextUtils.MeasureText(titleText ?? "", titleFont, int.MaxValue);
+                titleSize = new Size((int)titleSizeF.Width, (int)titleSizeF.Height);
             }
             
             using (var subtitleFont = FeatureCardFontHelpers.GetSubtitleFont(this, ControlStyle))
             {
-                subtitleSize = TextRenderer.MeasureText(g, subtitleText ?? "", subtitleFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                SizeF subtitleSizeF = TextUtils.MeasureText(subtitleText ?? "", subtitleFont, int.MaxValue);
+                subtitleSize = new Size((int)subtitleSizeF.Width, (int)subtitleSizeF.Height);
             }
             
             // Calculate available width for text (accounting for icons on right)

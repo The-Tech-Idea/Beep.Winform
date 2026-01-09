@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form;
 using TheTechIdea.Beep.Editor;
 
@@ -642,8 +644,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public string Name { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
         public FormFieldType Type { get; set; } = FormFieldType.Text;
+        
+        [Obsolete("Use typed value properties (TextFieldData, NumberFieldData, etc.) based on Type. This property will be removed in a future version.")]
         public object Value { get; set; }
+        
+        [Obsolete("Use typed value properties (TextFieldData, NumberFieldData, etc.) based on Type. This property will be removed in a future version.")]
         public object DefaultValue { get; set; }
+        
         public string Placeholder { get; set; } = string.Empty;
         public string HelpText { get; set; } = string.Empty;
         public bool IsRequired { get; set; } = false;
@@ -652,8 +659,121 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public List<string> Options { get; set; } = new List<string>(); // For dropdown/radio
         public int MaxLength { get; set; } = 0; // 0 = no limit
         public string ValidationPattern { get; set; } = string.Empty; // Regex pattern
+        
+        [Obsolete("Use TypedAttributes property with FormFieldAttributes instead. This property will be removed in a future version.")]
         public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+        
+        /// <summary>
+        /// Strongly-typed attributes replacing Dictionary&lt;string, object&gt;
+        /// </summary>
+        public FormFieldAttributes TypedAttributes
+        {
+            get
+            {
+                if (_typedAttributes == null)
+                {
+                    _typedAttributes = Attributes != null && Attributes.Count > 0
+                        ? FormFieldAttributes.FromDictionary(Attributes)
+                        : new FormFieldAttributes();
+                }
+                return _typedAttributes;
+            }
+            set
+            {
+                _typedAttributes = value;
+                if (value != null) Attributes = value.ToDictionary();
+            }
+        }
+        private FormFieldAttributes? _typedAttributes;
+        
         public object Tag { get; set; }
+        
+        // Typed value properties based on field type
+        public TextFieldData? TextData
+        {
+            get
+            {
+                if (Type != FormFieldType.Text && Type != FormFieldType.Email && Type != FormFieldType.Password && Type != FormFieldType.Phone && Type != FormFieldType.TextArea) return null;
+                return new TextFieldData { Value = Value?.ToString() ?? string.Empty, MaxLength = MaxLength };
+            }
+            set
+            {
+                if (value != null)
+                {
+                    Value = value.Value;
+                    MaxLength = value.MaxLength;
+                }
+            }
+        }
+        
+        public NumberFieldData? NumberData
+        {
+            get
+            {
+                if (Type != FormFieldType.Number && Type != FormFieldType.Range) return null;
+                return new NumberFieldData { Value = Value != null ? Convert.ToDecimal(Value) : 0m };
+            }
+            set
+            {
+                if (value != null) Value = value.Value;
+            }
+        }
+        
+        public DateFieldData? DateData
+        {
+            get
+            {
+                if (Type != FormFieldType.Date) return null;
+                return new DateFieldData { Value = Value is DateTime dt ? dt : (DateTime?)null };
+            }
+            set
+            {
+                if (value != null) Value = value.Value;
+            }
+        }
+        
+        public SelectFieldData? SelectData
+        {
+            get
+            {
+                if (Type != FormFieldType.Dropdown && Type != FormFieldType.Radio) return null;
+                return new SelectFieldData { SelectedValue = Value?.ToString() ?? string.Empty, Options = Options };
+            }
+            set
+            {
+                if (value != null)
+                {
+                    Value = value.SelectedValue;
+                    Options = value.Options;
+                }
+            }
+        }
+        
+        public CheckboxFieldData? CheckboxData
+        {
+            get
+            {
+                if (Type != FormFieldType.Checkbox) return null;
+                return new CheckboxFieldData { Value = Value is bool b ? b : Convert.ToBoolean(Value) };
+            }
+            set
+            {
+                if (value != null) Value = value.Value;
+            }
+        }
+        
+        public FileFieldData? FileData
+        {
+            get
+            {
+                if (Type != FormFieldType.File) return null;
+                return new FileFieldData { FilePath = Value?.ToString() ?? string.Empty };
+            }
+            set
+            {
+                if (value != null) Value = value.FilePath;
+            }
+        }
     }
 
     /// <summary>

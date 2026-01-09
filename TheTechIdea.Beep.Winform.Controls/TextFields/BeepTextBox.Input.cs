@@ -41,6 +41,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnKeyDown(e);
             
+            // Handle search keyboard shortcuts first (works even in read-only mode)
+            if (HandleSearchKeyDown(e))
+            {
+                return; // Search handled the key
+            }
+            
             if (_readOnly) return;
             
             // Start typing indicator

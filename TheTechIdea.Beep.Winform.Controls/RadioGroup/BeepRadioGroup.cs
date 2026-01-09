@@ -226,6 +226,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             base.ApplyTheme();
             
+            // Apply font theme based on ControlStyle
+            RadioGroupFontHelpers.ApplyFontTheme(Style);
+            
             // Update current renderer with new theme
             _currentRenderer?.UpdateTheme(_currentTheme);
             

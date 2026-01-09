@@ -90,8 +90,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             try
             {
-                Console.WriteLine($"DrawPainterNavigation called - Style: {_navigationStyle}, Painter null: {_currentPainter == null}, Rect: {navRect}");
-                
                 // Handle None Style - paint blank background only
                 if (_navigationStyle == navigationStyle.None)
                 {
@@ -105,23 +103,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Ensure we have a theme
                 if (_grid._currentTheme == null)
                 {
-                    Console.WriteLine("Theme was null, getting default");
                     _grid._currentTheme = BeepThemesManager.GetTheme(_grid.Theme) ?? BeepThemesManager.GetDefaultTheme();
                 }
                 
                 // ALWAYS create painter to ensure it exists
                 if (_currentPainter == null || _currentPainter.Style != _navigationStyle)
                 {
-                    Console.WriteLine($"Creating painter for Style: {_navigationStyle}");
                     _currentPainter = NavigationPainterFactory.CreatePainter(_navigationStyle);
-                    Console.WriteLine($"Painter created: {_currentPainter != null}, Type: {_currentPainter?.GetType().Name}");
                 }
 
                 if (_currentPainter == null)
                 {
-                    Console.WriteLine("ERROR: Painter is still null after creation!");
-                    // Fallback - paint a red background so we know there's an issue
-                    using (var brush = new SolidBrush(Color.Red))
+                    // Fallback - paint background using theme color
+                    using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
                     {
                         g.FillRectangle(brush, navRect);
                     }
@@ -129,14 +123,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 // Delegate to painter with guaranteed theme
-                IBeepTheme theme = _grid._currentTheme  ;
-                Console.WriteLine($"Calling painter PaintNavigation with theme: {theme != null}");
+                IBeepTheme theme = _grid._currentTheme;
                 _currentPainter.PaintNavigation(g, navRect, _grid, theme);
-                Console.WriteLine("Painter PaintNavigation completed");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERROR in DrawPainterNavigation: {ex.Message}\n{ex.StackTrace}");
+                // Silently handle navigation drawing errors
                 // Paint error indicator
                 using (var brush = new SolidBrush(Color.Orange))
                 {
@@ -314,7 +306,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
                 : "0 - 0";
             var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
-            Size textSize = TextRenderer.MeasureText(recordCounter, headerFont);
+            SizeF textSizeF = TextUtils.MeasureText(recordCounter, headerFont);
+            Size textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
             int compactCenterTotal = buttonWidth * 4 + textSize.Width + spacing * 4;
             int centerStart = (navRect.Left + navRect.Right) / 2 - compactCenterTotal / 2;
@@ -373,14 +366,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
                 : "0 - 0";
             var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
-            Size textSize = TextRenderer.MeasureText(recordCounter, headerFont);
+            SizeF textSizeF = TextUtils.MeasureText(recordCounter, headerFont);
+            Size textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
             int leftOccupied = cancelRect.Right + spacing;
 
             int rightTemp = navRect.Right - padding;
             if (showPageInfo && _lblPageInfo != null)
             {
-                Size pageInfoSize = TextRenderer.MeasureText(_lblPageInfo.Text, headerFont);
+                SizeF pageInfoSizeF = TextUtils.MeasureText(_lblPageInfo.Text, headerFont);
+                Size pageInfoSize = new Size((int)pageInfoSizeF.Width, (int)pageInfoSizeF.Height);
                 rightTemp -= pageInfoSize.Width + sectionSpacing;
             }
             rightTemp -= (buttonWidth * 3 + spacing * 2);
@@ -424,7 +419,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (showPageInfo && _lblPageInfo != null)
             {
-                Size pageInfoSize = TextRenderer.MeasureText(_lblPageInfo.Text, headerFont);
+                SizeF pageInfoSizeF = TextUtils.MeasureText(_lblPageInfo.Text, headerFont);
+                Size pageInfoSize = new Size((int)pageInfoSizeF.Width, (int)pageInfoSizeF.Height);
                 var pageInfoRect = new Rectangle(rightX - pageInfoSize.Width, y, pageInfoSize.Width, buttonHeight);
                 _grid.AddHitArea("PageInfo", pageInfoRect, _lblPageInfo);
                 _lblPageInfo.Draw(g, pageInfoRect);

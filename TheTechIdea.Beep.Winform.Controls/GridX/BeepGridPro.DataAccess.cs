@@ -110,7 +110,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     }
                     catch (Exception ex)
                     {
+#if DEBUG
                         System.Diagnostics.Debug.WriteLine($"Error syncing row data to grid: {ex.Message}");
+#endif
                     }
                 }
             }

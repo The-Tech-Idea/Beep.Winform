@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Menus.Helpers;
 
 
 
@@ -942,34 +943,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
             
+            // Apply font theme based on ControlStyle
+            MenuFontHelpers.ApplyFontTheme(ControlStyle, _currentTheme);
           
-            ForeColor = _currentTheme.MenuForeColor;
-            BorderColor = _currentTheme.MenuBorderColor;
-            BackColor = _currentTheme.MenuBackColor;
+            // Use theme helpers for consistent color retrieval
+            ForeColor = MenuThemeHelpers.GetMenuBarForegroundColor(_currentTheme, UseThemeColors);
+            BorderColor = MenuThemeHelpers.GetMenuBarBorderColor(_currentTheme, UseThemeColors);
+            BackColor = MenuThemeHelpers.GetMenuBarBackgroundColor(_currentTheme, UseThemeColors);
+            
             // Apply gradient if configured
-            if (_currentTheme.MenuGradiantStartColor != Color.Empty &&
-                _currentTheme.MenuGradiantEndColor != Color.Empty && UseGradientBackground)
+            var gradientStart = MenuThemeHelpers.GetMenuBarGradientStartColor(_currentTheme, UseThemeColors);
+            var gradientEnd = MenuThemeHelpers.GetMenuBarGradientEndColor(_currentTheme, UseThemeColors);
+            if (gradientStart != Color.Empty && gradientEnd != Color.Empty && UseGradientBackground)
             {
-                GradientStartColor = _currentTheme.MenuGradiantStartColor;
-                GradientEndColor = _currentTheme.MenuGradiantEndColor;
+                GradientStartColor = gradientStart;
+                GradientEndColor = gradientEnd;
                 GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
             }
 
             // Apply font from theme ONLY if UseThemeFont is true AND developer hasn't explicitly set it
             // This prevents font changes when FormStyle changes, which would cause height changes
-            if (UseThemeFont )
+            if (UseThemeFont)
             {
                 try
                 {
-                    Font newFont = null;
-                    if (_currentTheme.MenuItemUnSelectedFont != null)
-                    {
-                        newFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
-                    }
-                    else if (_currentTheme.LabelFont != null)
-                    {
-                        newFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
-                    }
+                    Font newFont = MenuFontHelpers.GetMenuItemFont(ControlStyle, _currentTheme);
 
                     // Only update if we got a valid font
                     if (newFont != null && newFont.FontFamily != null)

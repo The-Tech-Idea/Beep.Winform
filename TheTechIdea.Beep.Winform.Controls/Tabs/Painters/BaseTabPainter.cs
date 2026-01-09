@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
@@ -112,9 +113,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         
         protected void DrawTabText(Graphics g, RectangleF tabRect, string text, bool isSelected, bool vertical, float alpha = 1.0f)
         {
-             Color baseColor = isSelected ? Theme.TabSelectedForeColor : Theme.TabForeColor;
+             // Use theme helpers for consistent color retrieval
+             Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabTextColor(
+                 Theme, 
+                 Theme != null, 
+                 isSelected);
              Color textColor = Color.FromArgb((int)(alpha * 255), baseColor.R, baseColor.G, baseColor.B);
 
+             // Use font helpers for consistent font retrieval
+             // Note: We use TabControl.Font as base, but could enhance with TabFontHelpers
              using (Font font = new Font(TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
              {
                 var textBrush = PaintersFactory.GetSolidBrush(textColor);

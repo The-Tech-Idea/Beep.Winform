@@ -72,6 +72,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Paint Minimal Japanese Zen circle buttons (ENHANCED UNIQUE SKIN)
             PaintZenCircleButtons(g, owner, captionRect, metrics);
 
+            // Paint search box if visible (using FormRegion for consistency)
+            if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
+            {
+                owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
+            }
+
             // Draw title text with 8px padding
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
@@ -380,6 +386,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
+            }
+            
+            // Search box (between title and buttons)
+            int searchBoxWidth = 200;
+            int searchBoxPadding = 8;
+            if (owner.ShowSearchBox)
+            {
+                layout.SearchBoxRect = new Rectangle(buttonX - searchBoxWidth - searchBoxPadding, buttonY + searchBoxPadding / 2, 
+                    searchBoxWidth, captionHeight - searchBoxPadding);
+                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
+                buttonX -= searchBoxWidth + searchBoxPadding;
+            }
+            else
+            {
+                layout.SearchBoxRect = Rectangle.Empty;
             }
             
             // Icon and title areas (left side of caption)

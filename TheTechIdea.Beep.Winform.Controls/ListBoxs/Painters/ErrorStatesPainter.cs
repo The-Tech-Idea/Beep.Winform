@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -125,7 +126,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             string badgeText = "Error state!";
             Font badgeFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
-            var textSize = System.Windows.Forms.TextRenderer.MeasureText(badgeText, badgeFont);
+            SizeF textSizeF = TextUtils.MeasureText(g, badgeText, badgeFont);
+            var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
             int badgeWidth = textSize.Width + 16;
             int badgeHeight = 22;

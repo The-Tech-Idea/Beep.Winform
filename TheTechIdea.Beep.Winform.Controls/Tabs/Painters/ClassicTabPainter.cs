@@ -10,10 +10,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
         public override void PaintTab(Graphics g, RectangleF tabRect, int index, bool isSelected, bool isHovered, float alpha = 1.0f)
         {
-            Color baseColor = isSelected ? Theme.TabSelectedBackColor : Theme.TabBackColor;
+            // Use theme helpers for consistent color retrieval
+            Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(
+                Theme, 
+                Theme != null, 
+                isSelected, 
+                isHovered);
             Color backgroundColor = Color.FromArgb((int)(alpha * 255), baseColor.R, baseColor.G, baseColor.B);
             
-            using (GraphicsPath path = GetRoundedRect(tabRect, 4))
+            // Get border radius from style helpers
+            int borderRadius = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabStyleHelpers.GetBorderRadius(
+                TabControl.TabStyle, 
+                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3);
+            
+            using (GraphicsPath path = GetRoundedRect(tabRect, borderRadius))
             {
                 var brush = PaintersFactory.GetSolidBrush(backgroundColor);
                 g.FillPath(brush, path);

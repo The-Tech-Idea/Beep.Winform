@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Models;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

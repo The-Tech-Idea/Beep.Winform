@@ -91,6 +91,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private int _minWidth = 150;
         private int _maxWidth = 400;
         
+        // RecalculateSize cache invalidation tracking
+        private bool _sizeCacheValid = false;
+        private int _cachedItemCount = -1;
+        private int _cachedWidth = -1;
+        private int _cachedMenuItemHeight = -1;
+        private int _cachedImageSize = -1;
+        private bool _cachedShowCheckBox = false;
+        private bool _cachedShowImage = false;
+        private bool _cachedShowShortcuts = false;
+        private bool _cachedShowSearchBox = false;
+        private int _cachedSearchBoxHeight = -1;
+        
         // Search support
         private bool _showSearchBox = false;
         private string _searchText = string.Empty;
@@ -141,6 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private double _opacity = 0;
         private const int FADE_STEPS = 10;
         private const int FADE_INTERVAL = 20;
+        private int _animationDuration = 200;
+        private bool _enableAnimations = true;
+        private int _fadeInDuration = 150;
+        private int _fadeOutDuration = 100;
 
     // Lifecycle behavior: by default, hide instead of disposing on Close
     private bool _destroyOnClose = false;
@@ -190,6 +206,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             // CRITICAL: Enable focus and mouse events
             TabStop = true;
+            
+            // Set accessibility properties
+            AccessibleRole = AccessibleRole.MenuBar;
+            AccessibleName = "Context menu";
+            AccessibleDescription = "Right-click context menu";
 
             Padding = new Padding(1);
             
@@ -221,6 +242,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             _fadeTimer = new Timer();
             _fadeTimer.Interval = FADE_INTERVAL;
             _fadeTimer.Tick += FadeTimer_Tick;
+            
+            // Set initial opacity based on animation settings
+            if (!_enableAnimations)
+            {
+                _opacity = 1.0;
+                Opacity = 1.0;
+            }
             
             // Initialize scrollbar - prefer BeepScrollBar if available
             try
@@ -482,9 +510,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 try { if (_searchTextBox != null) { _searchTextBox.Theme = _themeName; _searchTextBox.ApplyTheme(); _searchTextBox.BorderRadius = _currentTheme?.BorderRadius ?? _searchTextBox.BorderRadius; }} catch { }
                 Invalidate();
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"BeepContextMenu: OnGlobalThemeChanged error: {ex.Message}");
+                // Silently handle theme change errors
             }
         }
 

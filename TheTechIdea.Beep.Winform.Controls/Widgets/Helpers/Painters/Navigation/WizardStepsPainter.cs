@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
@@ -40,7 +41,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var items = ctx.NavigationItems?.Cast<NavigationItem>().ToList() ?? CreateSampleSteps();
+            var items = ctx.NavigationItems;
+            if (items == null || items.Count == 0)
+            {
+                items = CreateSampleSteps();
+            }
 
             // Support both CurrentIndex and ActiveIndex keys
             int currentIndex = ctx.CurrentIndex;

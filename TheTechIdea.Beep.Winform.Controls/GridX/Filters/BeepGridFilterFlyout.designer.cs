@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
 {

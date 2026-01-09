@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
  
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
@@ -18,8 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         protected Font TextFont;
         protected bool ShowIcons;
 
-        // small cache for measured text
-        private readonly Dictionary<(string, int), Size> _textMeasureCache = new();
+        // Text measurement now uses TextUtils which has built-in caching
 
         // Shared font cache to avoid recreating fonts during painting
         private static readonly ConcurrentDictionary<string, Font> _fontCache = new();
@@ -51,7 +51,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             Owner = owner;
             Theme = theme;
             ShowIcons = showIcons;
-            _textMeasureCache.Clear();
 
             // Use cached font instance when possible
             if (textFont != null)
@@ -78,12 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         protected Size MeasureText(Graphics g, string text)
         {
             text ??= string.Empty;
-            int key = TextFont?.GetHashCode() ?? 0;
-            var cacheKey = (text, key);
-            if (_textMeasureCache.TryGetValue(cacheKey, out var size))
-                return size;
-            size = TextRenderer.MeasureText(text, TextFont ?? SystemFonts.DefaultFont);
-            _textMeasureCache[cacheKey] = size;
+            // Use TextUtils for cached text measurement
+            SizeF sizeF = TextUtils.MeasureText(text, TextFont ?? SystemFonts.DefaultFont);
+            var size = new Size((int)sizeF.Width, (int)sizeF.Height);
             return size;
         }
 
@@ -163,7 +159,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 useFont = TextFont ?? SystemFonts.DefaultFont;
             }
             
-            var sepSize = TextRenderer.MeasureText(separatorText ?? string.Empty, useFont);
+            // Use TextUtils for cached text measurement
+            SizeF sepSizeF = TextUtils.MeasureText(separatorText ?? string.Empty, useFont);
+            var sepSize = new Size((int)sepSizeF.Width, (int)sepSizeF.Height);
             var sepRect = new Rectangle(x + itemSpacing, y, sepSize.Width, height);
             label.Draw(g, sepRect);
             return sepRect.Width + itemSpacing;

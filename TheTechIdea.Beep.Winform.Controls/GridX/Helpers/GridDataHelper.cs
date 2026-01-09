@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -594,7 +594,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     catch (Exception ex)
                     {
                         // Log error but don't throw to maintain grid stability
+#if DEBUG
                         System.Diagnostics.Debug.WriteLine($"Error updating cell value: {ex.Message}");
+#endif
                     }
                 }
             }
@@ -806,7 +808,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"Error handling property change: {ex.Message}");
+#endif
             }
         }
 

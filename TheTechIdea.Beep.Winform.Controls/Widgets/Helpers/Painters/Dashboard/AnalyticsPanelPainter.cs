@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Base; // Added for BaseControl
 using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
@@ -88,9 +89,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             DrawMainChart(g, ctx.ChartRect);
 
             // Draw bottom metrics with icons
-            if (ctx.Metrics != null)
+            var metrics = ctx.Metrics;
+            if (metrics != null && metrics.Count > 0)
             {
-                var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawBottomMetrics(g, ctx.ContentRect, metrics);
             }
         }
@@ -172,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
         }
 
-        private void DrawBottomMetrics(Graphics g, Rectangle rect, List<Dictionary<string, object>> metrics)
+        private void DrawBottomMetrics(Graphics g, Rectangle rect, List<DashboardMetric> metrics)
         {
             if (!metrics.Any()) return;
 
@@ -207,29 +208,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
                 // Icon area
                 var iconRect = new Rectangle(metricRect.X + 8, metricRect.Y + 8, 20, 20);
-                string iconName = metric.ContainsKey("Icon") ? metric["Icon"].ToString() : defaultIcons[i % defaultIcons.Length];
-                Color iconColor = metric.ContainsKey("Color") ? (Color)metric["Color"] : Theme?.PrimaryColor ?? Color.Empty;
+                string iconName = !string.IsNullOrEmpty(metric.IconPath) ? metric.IconPath : defaultIcons[i % defaultIcons.Length];
+                Color iconColor = metric.Color != Color.Empty ? metric.Color : Theme?.PrimaryColor ?? Color.Empty;
                 
                 _imagePainter.DrawSvg(g, iconName, iconRect, iconColor, hovered ? 0.85f : 0.7f);
 
                 // Value area
                 var valueRect = new Rectangle(metricRect.X + 8, iconRect.Bottom + 4, metricRect.Width - 16, 20);
-                if (metric.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(metric.Value))
                 {
                     using var valueBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                     var valueFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                    string valueText = metric["Value"].ToString();
+                    string valueText = metric.Value;
                     if (hovered) valueText += "  ›";
                     g.DrawString(valueText, valueFont, valueBrush, valueRect, valueFormat);
                 }
 
                 // Label area
                 var labelRect = new Rectangle(metricRect.X + 8, valueRect.Bottom + 2, metricRect.Width - 16, 16);
-                if (metric.ContainsKey("Title"))
+                if (!string.IsNullOrEmpty(metric.Title))
                 {
                     using var labelBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                     var labelFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                    g.DrawString(metric["Title"].ToString(), labelFont, labelBrush, labelRect, labelFormat);
+                    g.DrawString(metric.Title, labelFont, labelBrush, labelRect, labelFormat);
                 }
             }
         }
@@ -279,8 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         private List<Rectangle> CalculateMetricRects(Rectangle area, WidgetContext ctx)
         {
             var result = new List<Rectangle>();
-            if (ctx.Metrics == null) return result;
-            var metrics = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
+            var metrics = ctx.Metrics;
             if (metrics == null || metrics.Count == 0) return result;
             int count = Math.Min(metrics.Count, 4);
             int metricWidth = area.Width / count;

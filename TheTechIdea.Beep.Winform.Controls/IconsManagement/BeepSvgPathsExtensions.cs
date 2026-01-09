@@ -1,4 +1,4 @@
-﻿using Svg;
+using Svg;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
  
 using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {

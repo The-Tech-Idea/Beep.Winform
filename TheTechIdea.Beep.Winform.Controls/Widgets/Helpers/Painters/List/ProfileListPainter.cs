@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -65,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void DrawProfileItems(Graphics g, Rectangle rect, List<Dictionary<string, object>> items, Color accentColor)
+        private void DrawProfileItems(Graphics g, Rectangle rect, List<ListItem> items, Color accentColor)
         {
             if (!items.Any()) return;
             
@@ -87,18 +88,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var nameRect = _nameRects.Count > i ? _nameRects[i] : new Rectangle(rect.X + itemHeight + 8, y + 8, rect.Width - itemHeight - 16, (itemHeight - 16) / 2);
                 var roleRect = new Rectangle(nameRect.X, nameRect.Bottom, nameRect.Width, (itemHeight - 16) / 2);
                 
-                if (item.ContainsKey("Name"))
+                if (!string.IsNullOrEmpty(item.Title))
                 {
                     using var nameBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
                     var nameFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item["Name"].ToString(), nameFont, nameBrush, nameRect, nameFormat);
+                    g.DrawString(item.Title, nameFont, nameBrush, nameRect, nameFormat);
                 }
                 
-                if (item.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(item.Subtitle))
                 {
                     using var roleBrush = new SolidBrush(Color.FromArgb(120, Color.Gray));
                     var roleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item["Value"].ToString(), roleFont, roleBrush, roleRect, roleFormat);
+                    g.DrawString(item.Subtitle, roleFont, roleBrush, roleRect, roleFormat);
                 }
             }
         }

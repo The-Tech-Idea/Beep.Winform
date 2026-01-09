@@ -6,6 +6,9 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
+using ActivityItem = TheTechIdea.Beep.Winform.Controls.Widgets.Models.ActivityItem;
+using ActivityType = TheTechIdea.Beep.Winform.Controls.Widgets.Models.ActivityType;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -72,13 +75,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             if (!string.IsNullOrEmpty(ctx.Title) && !ctx.HeaderRect.IsEmpty)
             {
                 // Determine activities first so count can be shown in header
-                var activitiesForHeader = ctx.ActivityItems?.Cast<ActivityItem>().ToList() ?? new List<ActivityItem>();
+                var activitiesForHeader = ctx.ActivityItems;
 
                 DrawActivityHeader(g, ctx.HeaderRect, ctx.Title, ctx.AccentColor, activitiesForHeader.Count);
             }
             
             // Draw activity items
-            var activities = ctx.ActivityItems?.Cast<ActivityItem>().ToList() ?? CreateSampleActivities();
+            var activities = ctx.ActivityItems;
+            if (activities == null || activities.Count == 0)
+            {
+                activities = CreateSampleActivities();
+            }
             
             DrawActivityTimeline(g, ctx.ContentRect, activities);
         }
@@ -345,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw activity status indicator
-            var activities = ctx.ActivityItems?.Cast<ActivityItem>().ToList() ?? new List<ActivityItem>();
+            var activities = ctx.ActivityItems;
             
             if (activities.Any(a => (DateTime.Now - a.Timestamp).TotalMinutes < 5))
             {
@@ -368,29 +375,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         }
     }
 
-    // Supporting classes for activity data
-    public class ActivityItem
-    {
-        public ActivityType Type { get; set; }
-        public string UserName { get; set; }
-        public string UserAvatar { get; set; }
-        public string Action { get; set; }
-        public string Target { get; set; }
-        public string Details { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
-
-    public enum ActivityType
-    {
-        Login,
-        Logout,
-        Create,
-        Update,
-        Delete,
-        View,
-        Download,
-        Upload,
-        Share,
-        Comment
-    }
+    // ActivityItem and ActivityType are now in Widgets.Models namespace
 }

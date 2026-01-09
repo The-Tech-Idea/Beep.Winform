@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Reflection;
@@ -16,6 +16,8 @@ using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 
 

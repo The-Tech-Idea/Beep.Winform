@@ -67,6 +67,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Paint Solarized diamond buttons (UNIQUE)
             PaintSolarizedDiamondButtons(g, owner, captionRect, metrics);
 
+            // Paint search box if visible (using FormRegion for consistency)
+            if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
+            {
+                owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
+            }
+
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
@@ -348,6 +354,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
                 buttonX -= buttonWidth;
+            }
+            
+            // Search box (between title and buttons)
+            int searchBoxWidth = 200;
+            int searchBoxPadding = 8;
+            if (owner.ShowSearchBox)
+            {
+                layout.SearchBoxRect = new Rectangle(buttonX - searchBoxWidth - searchBoxPadding, searchBoxPadding / 2, 
+                    searchBoxWidth, captionHeight - searchBoxPadding);
+                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
+                buttonX -= searchBoxWidth + searchBoxPadding;
+            }
+            else
+            {
+                layout.SearchBoxRect = Rectangle.Empty;
             }
             
             int iconX = metrics.IconLeftPadding;

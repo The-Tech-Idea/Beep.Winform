@@ -1,8 +1,8 @@
-﻿
-using System.ComponentModel;
 
+using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Marquees.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -233,5 +233,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnResize(e);
             // You can reset or re-calc offset here if needed, but typically not necessary.
         }
+
+        #region Theme Integration
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            
+            // Apply font theme based on ControlStyle
+            MarqueeFontHelpers.ApplyFontTheme(ControlStyle);
+            
+            // Use theme helpers for consistent color retrieval
+            if (_currentTheme != null && UseThemeColors)
+            {
+                BackColor = MarqueeThemeHelpers.GetMarqueeBackgroundColor(
+                    _currentTheme, UseThemeColors);
+            }
+            
+            Invalidate();
+        }
+        #endregion
     }
 }

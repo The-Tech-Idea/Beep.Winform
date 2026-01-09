@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -67,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private void DrawActivityItems(Graphics g, WidgetContext ctx, Rectangle rect, List<Dictionary<string, object>> items)
+        private void DrawActivityItems(Graphics g, WidgetContext ctx, Rectangle rect, List<ListItem> items)
         {
             if (!items.Any()) return;
             
@@ -112,20 +113,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var descRect = new Rectangle(contentRect.X, contentRect.Y + contentRect.Height / 2, contentRect.Width, contentRect.Height / 2);
                 
                 // Draw name and time
-                if (item.ContainsKey("Name"))
+                if (!string.IsNullOrEmpty(item.Title))
                 {
-                    g.DrawString(item["Name"].ToString(), nameFont, nameBrush, nameRect);
+                    g.DrawString(item.Title, nameFont, nameBrush, nameRect);
                 }
                 
-                if (item.ContainsKey("Time"))
+                if (item.Timestamp != default(DateTime))
                 {
                     var timeFormat = new StringFormat { Alignment = StringAlignment.Far };
-                    g.DrawString(item["Time"].ToString(), timeFont, timeBrush, timeRect, timeFormat);
+                    g.DrawString(item.Timestamp.ToString("HH:mm"), timeFont, timeBrush, timeRect, timeFormat);
                 }
                 
-                if (item.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(item.Subtitle))
                 {
-                    g.DrawString(item["Value"].ToString(), timeFont, timeBrush, descRect);
+                    g.DrawString(item.Subtitle, timeFont, timeBrush, descRect);
                 }
             }
         }

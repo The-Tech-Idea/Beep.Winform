@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -53,14 +54,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             }
             
             // Draw timeline
-            if (ctx.Metrics != null)
+            var events = ctx.Metrics;
+            if (events != null && events.Count > 0)
             {
-                var events = ctx.Metrics.Cast<Dictionary<string, object>>().ToList();
                 DrawTimeline(g, ctx.ContentRect, events, ctx.AccentColor);
             }
         }
 
-        private void DrawTimeline(Graphics g, Rectangle rect, List<Dictionary<string, object>> events, Color accentColor)
+        private void DrawTimeline(Graphics g, Rectangle rect, List<DashboardMetric> events, Color accentColor)
         {
             if (!events.Any()) return;
             
@@ -89,17 +90,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 var descRect = new Rectangle(contentRect.X, titleRect.Bottom, contentRect.Width, contentRect.Height / 2);
                 
                 // Draw event title
-                if (eventData.ContainsKey("Title"))
+                if (!string.IsNullOrEmpty(eventData.Title))
                 {
                     using var titleBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
-                    g.DrawString(eventData["Title"].ToString(), titleFont, titleBrush, titleRect);
+                    g.DrawString(eventData.Title, titleFont, titleBrush, titleRect);
                 }
                 
                 // Draw event description or time
-                if (eventData.ContainsKey("Value"))
+                if (!string.IsNullOrEmpty(eventData.Value))
                 {
                     using var descBrush = new SolidBrush(Color.FromArgb(120, Color.Gray));
-                    g.DrawString(eventData["Value"].ToString(), descFont, descBrush, descRect);
+                    g.DrawString(eventData.Value, descFont, descBrush, descRect);
                 }
             }
         }

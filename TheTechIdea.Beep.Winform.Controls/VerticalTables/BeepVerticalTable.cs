@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters;
 
@@ -31,6 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
         private int _columnWidth = 150;
         private int _padding = 8;
         private bool _showImage = true;
+        private VerticalTablePainterStyle _tableStyle = VerticalTablePainterStyle.Style1;
+        private bool _isApplyingTheme = false; // Prevent re-entrancy during theme application
         #endregion
 
         #region Painters
@@ -65,6 +69,9 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
             _columns.ListChanged += (s, e) => { CalculateLayout(); Invalidate(); };
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.AllPaintingInWmPaint, true);
+
+            // Initialize painter based on style
+            UpdatePainter();
         }
         #endregion
 
@@ -105,6 +112,24 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
         [Category("Behavior")]
         [Description("Show image for each column header")]
         public bool ShowImage { get => _showImage; set { _showImage = value; CalculateLayout(); Invalidate(); } }
+
+        [Category("Appearance")]
+        [Description("Visual style of the vertical table")]
+        [DefaultValue(VerticalTablePainterStyle.Style1)]
+        public VerticalTablePainterStyle TableStyle
+        {
+            get => _tableStyle;
+            set
+            {
+                if (_tableStyle != value)
+                {
+                    _tableStyle = value;
+                    UpdatePainter();
+                    CalculateLayout();
+                    Invalidate();
+                }
+            }
+        }
 
         [Browsable(false)]
         public SimpleItem? SelectedItem => _selectedItem;
@@ -236,6 +261,90 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
                     break;
             }
         }
+        #endregion
+
+        #region Theme Integration
+
+        /// <summary>
+        /// Apply theme colors to the vertical table
+        /// Overrides BaseControl.ApplyTheme() to integrate with table-specific colors
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+
+            if (_isApplyingTheme) return;
+
+            _isApplyingTheme = true;
+            try
+            {
+                // Get current theme from BaseControl (set by ApplyTheme())
+                var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
+                var useTheme = UseThemeColors && theme != null;
+
+                // Apply font theme based on ControlStyle
+                VerticalTableFontHelpers.ApplyFontTheme(ControlStyle);
+
+                // Invalidate to redraw with new colors
+                Invalidate();
+            }
+            finally
+            {
+                _isApplyingTheme = false;
+            }
+        }
+
+        /// <summary>
+        /// Apply theme colors when theme changes
+        /// Called from BaseControl when theme is set
+        /// </summary>
+        public override void ApplyTheme(IBeepTheme theme)
+        {
+            base.ApplyTheme(theme);
+            
+            if (_isApplyingTheme) return;
+
+            _isApplyingTheme = true;
+            try
+            {
+                var useTheme = UseThemeColors && theme != null;
+
+                // Apply font theme based on ControlStyle
+                VerticalTableFontHelpers.ApplyFontTheme(ControlStyle);
+
+                Invalidate();
+            }
+            finally
+            {
+                _isApplyingTheme = false;
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Update painter based on current table style
+        /// </summary>
+        private void UpdatePainter()
+        {
+            _painter = _tableStyle switch
+            {
+                VerticalTablePainterStyle.Style1 => new VerticalTableStyle1Painter(),
+                VerticalTablePainterStyle.Style2 => new VerticalTableStyle2Painter(),
+                VerticalTablePainterStyle.Style3 => new VerticalTableStyle3Painter(),
+                VerticalTablePainterStyle.Style4 => new VerticalTableStyle4Painter(),
+                VerticalTablePainterStyle.Style5 => new VerticalTableStyle5Painter(),
+                VerticalTablePainterStyle.Style6 => new VerticalTableStyle6Painter(),
+                VerticalTablePainterStyle.Style7 => new VerticalTableStyle7Painter(),
+                VerticalTablePainterStyle.Style8 => new VerticalTableStyle8Painter(),
+                VerticalTablePainterStyle.Style9 => new VerticalTableStyle9Painter(),
+                VerticalTablePainterStyle.Style10 => new VerticalTableStyle10Painter(),
+                _ => new VerticalTableStyle1Painter() // Default
+            };
+        }
+
         #endregion
     }
 }

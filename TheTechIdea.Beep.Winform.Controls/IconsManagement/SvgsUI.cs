@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
  
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Icons
 {

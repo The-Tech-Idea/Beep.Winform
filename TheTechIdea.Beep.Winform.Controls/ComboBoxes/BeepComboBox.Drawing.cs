@@ -55,8 +55,77 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Let the combo box painter draw everything
             _comboBoxPainter.Paint(g, this, bounds);
             
-            // Register hit areas for interaction
-            RegisterHitAreas();
+            // Draw loading indicator if loading
+            if (_isLoading)
+            {
+                DrawLoadingIndicator(g, bounds);
+            }
+            
+            // Register hit areas for interaction (disabled when loading)
+            if (!_isLoading)
+            {
+                RegisterHitAreas();
+            }
+        }
+        
+        /// <summary>
+        /// Draws the loading spinner indicator
+        /// </summary>
+        private void DrawLoadingIndicator(Graphics g, Rectangle bounds)
+        {
+            if (!_isLoading) return;
+
+            // Calculate spinner size and position (in dropdown button area)
+            var buttonRect = GetDropdownButtonRect();
+            if (buttonRect.IsEmpty) return;
+            
+            int spinnerSize = Math.Min(16, Math.Min(buttonRect.Width, buttonRect.Height) / 2);
+            if (spinnerSize < 6) return; // Too small to draw
+
+            Point center = new Point(
+                buttonRect.Left + buttonRect.Width / 2,
+                buttonRect.Top + buttonRect.Height / 2);
+
+            // Get spinner color from theme or use default
+            Color spinnerColor = _currentTheme?.PrimaryColor ?? Color.Gray;
+            if (spinnerColor == Color.Empty)
+            {
+                spinnerColor = Color.Gray;
+            }
+
+            // Draw rotating spinner using arcs
+            using (Pen spinnerPen = new Pen(spinnerColor, 2f))
+            {
+                spinnerPen.StartCap = LineCap.Round;
+                spinnerPen.EndCap = LineCap.Round;
+
+                // Save graphics state
+                var state = g.Save();
+                try
+                {
+                    g.TranslateTransform(center.X, center.Y);
+                    g.RotateTransform(_loadingRotationAngle);
+                    g.TranslateTransform(-center.X, -center.Y);
+
+                    // Draw 4 arcs to create spinner effect
+                    Rectangle spinnerRect = new Rectangle(
+                        center.X - spinnerSize / 2,
+                        center.Y - spinnerSize / 2,
+                        spinnerSize,
+                        spinnerSize);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float alpha = 255f * (1f - i * 0.25f);
+                        spinnerPen.Color = Color.FromArgb((int)alpha, spinnerColor);
+                        g.DrawArc(spinnerPen, spinnerRect, i * 90f, 60f);
+                    }
+                }
+                finally
+                {
+                    g.Restore(state);
+                }
+            }
         }
         
         #endregion

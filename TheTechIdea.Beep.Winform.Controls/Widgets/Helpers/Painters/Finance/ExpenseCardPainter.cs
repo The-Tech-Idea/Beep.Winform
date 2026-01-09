@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawExpenseData(Graphics g, WidgetContext ctx)
         {
-            var financeItems = ctx.FinanceItems?.Cast<FinanceItem>().ToList();
+            var financeItems = ctx.Transactions;
 
             string currencySymbol = ctx.CurrencySymbol ?? "$";
 
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
             if (financeItems != null && financeItems.Count > 0)
             {
-                double totalExpenses = financeItems.Where(item => item.Value < 0).Sum(item => Math.Abs((double)item.Value));
+                double totalExpenses = financeItems.Where(item => item.Amount < 0).Sum(item => Math.Abs((double)item.Amount));
 
                 bool amountHovered = IsAreaHovered("Expense_Amount");
                 using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, amountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
@@ -154,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
                 g.DrawString(amountText, amountFont, amountBrush, _amountRect);
 
-                int expenseCount = financeItems.Count(item => item.Value < 0);
+                int expenseCount = financeItems.Count(item => item.Amount < 0);
                 bool countHovered = IsAreaHovered("Expense_Count");
                 using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, countHovered ? FontStyle.Underline : FontStyle.Regular);
                 using var countBrush = new SolidBrush(countHovered ? (Theme?.PrimaryColor ?? Color.Red) : Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));

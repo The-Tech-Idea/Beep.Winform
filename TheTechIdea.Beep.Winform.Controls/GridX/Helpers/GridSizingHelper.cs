@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -284,10 +285,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             
             try
             {
-                // First check if text fits in single line
-                Size singleLineSize = TextRenderer.MeasureText(g, text, measureFont, 
-                    new Size(availableWidth, int.MaxValue), 
-                    TextFormatFlags.NoPrefix | TextFormatFlags.PreserveGraphicsClipping);
+                // First check if text fits in single line (using cached TextUtils)
+                SizeF singleLineSizeF = TextUtils.MeasureText(g, text, measureFont, availableWidth);
+                Size singleLineSize = new Size((int)singleLineSizeF.Width, (int)singleLineSizeF.Height);
                 
                 // If text fits in single line, use single line height with configurable padding
                 if (singleLineSize.Width <= availableWidth)
@@ -295,10 +295,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     return singleLineSize.Height + _grid.RowAutoSizePadding;
                 }
                 
-                // For multi-line text, use TextRenderer for more accurate measurement
-                Size multiLineSize = TextRenderer.MeasureText(g, text, measureFont,
-                    new Size(availableWidth, int.MaxValue),
-                    TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix | TextFormatFlags.PreserveGraphicsClipping);
+                // For multi-line text, use TextUtils for cached measurement
+                // TextUtils handles word breaking internally when maxWidth is specified
+                SizeF multiLineSizeF = TextUtils.MeasureText(g, text, measureFont, availableWidth);
+                Size multiLineSize = new Size((int)multiLineSizeF.Width, (int)multiLineSizeF.Height);
                 
                 return multiLineSize.Height + _grid.RowAutoSizePadding + 2; // Extra 2px for multi-line readability
             }

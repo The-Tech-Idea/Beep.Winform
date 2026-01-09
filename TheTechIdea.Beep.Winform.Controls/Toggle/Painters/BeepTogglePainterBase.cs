@@ -1,5 +1,7 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
@@ -140,7 +142,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected Color GetTrackColor(ControlState state)
         {
-            Color baseColor = Owner.IsOn ? Owner.OnColor : Owner.OffColor;
+            // Use ToggleThemeHelpers for theme-aware colors
+            var theme = Owner._currentTheme;
+            var useThemeColors = Owner.UseThemeColors;
+
+            Color baseColor = ToggleThemeHelpers.GetToggleTrackColor(
+                theme,
+                useThemeColors,
+                Owner.IsOn,
+                Owner.OnColor,
+                Owner.OffColor);
 
             // Apply high contrast adjustments if enabled
             if (ToggleAccessibilityHelpers.IsHighContrastMode())
@@ -160,9 +171,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected Color GetThumbColor(ControlState state)
         {
-            Color baseColor = Owner.IsOn ? 
-                (Owner.OnThumbColor != Color.White ? Owner.OnThumbColor : Owner.ThumbColor) :
-                (Owner.OffThumbColor != Color.White ? Owner.OffThumbColor : Owner.ThumbColor);
+            // Use ToggleThemeHelpers for theme-aware colors
+            var theme = Owner._currentTheme;
+            var useThemeColors = Owner.UseThemeColors;
+
+            Color? customOnColor = Owner.OnThumbColor != Color.White ? Owner.OnThumbColor : null;
+            Color? customOffColor = Owner.OffThumbColor != Color.White ? Owner.OffThumbColor : null;
+
+            Color baseColor = ToggleThemeHelpers.GetToggleThumbColor(
+                theme,
+                useThemeColors,
+                Owner.IsOn,
+                customOnColor,
+                customOffColor);
 
             // Apply high contrast adjustments if enabled
             if (ToggleAccessibilityHelpers.IsHighContrastMode())
@@ -175,6 +196,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             {
                 ControlState.Hover => LightenColor(baseColor, 0.05f),
                 ControlState.Pressed => DarkenColor(baseColor, 0.05f),
+                ControlState.Disabled => Color.FromArgb(180, baseColor),
+                _ => baseColor
+            };
+        }
+
+        protected Color GetTextColor(ControlState state, bool isOn)
+        {
+            // Use ToggleThemeHelpers for theme-aware text colors
+            var theme = Owner._currentTheme;
+            var useThemeColors = Owner.UseThemeColors;
+
+            Color baseColor = ToggleThemeHelpers.GetToggleTextColor(theme, useThemeColors, isOn);
+
+            // Apply high contrast adjustments if enabled
+            if (ToggleAccessibilityHelpers.IsHighContrastMode())
+            {
+                var (onColor, offColor, thumbColor, textColor) = ToggleAccessibilityHelpers.GetHighContrastColors();
+                baseColor = textColor;
+            }
+
+            return state switch
+            {
                 ControlState.Disabled => Color.FromArgb(180, baseColor),
                 _ => baseColor
             };
@@ -356,6 +399,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
             path.CloseFigure();
             return path;
+        }
+
+        /// <summary>
+        /// Gets border radius using ToggleStyleHelpers
+        /// </summary>
+        protected int GetBorderRadius()
+        {
+            return ToggleStyleHelpers.GetBorderRadius(Owner.ToggleStyle, Owner.ControlStyle);
+        }
+
+        /// <summary>
+        /// Gets track shape using ToggleStyleHelpers
+        /// </summary>
+        protected ToggleTrackShape GetTrackShape()
+        {
+            return ToggleStyleHelpers.GetTrackShape(Owner.ToggleStyle);
+        }
+
+        /// <summary>
+        /// Gets thumb shape using ToggleStyleHelpers
+        /// </summary>
+        protected ToggleThumbShape GetThumbShape()
+        {
+            return ToggleStyleHelpers.GetThumbShape(Owner.ToggleStyle);
+        }
+
+        /// <summary>
+        /// Should show shadow using ToggleStyleHelpers
+        /// </summary>
+        protected bool ShouldShowShadow()
+        {
+            return ToggleStyleHelpers.ShouldShowShadow(Owner.ToggleStyle, Owner.ControlStyle);
+        }
+
+        /// <summary>
+        /// Gets shadow color using ToggleStyleHelpers
+        /// </summary>
+        protected Color GetShadowColor(bool isOn)
+        {
+            var theme = Owner._currentTheme;
+            var useThemeColors = Owner.UseThemeColors;
+            return ToggleStyleHelpers.GetShadowColor(theme, useThemeColors, isOn);
+        }
+
+        /// <summary>
+        /// Gets shadow offset using ToggleStyleHelpers
+        /// </summary>
+        protected Point GetShadowOffset()
+        {
+            return ToggleStyleHelpers.GetShadowOffset(Owner.ToggleStyle, Owner.ControlStyle);
         }
 
         #endregion

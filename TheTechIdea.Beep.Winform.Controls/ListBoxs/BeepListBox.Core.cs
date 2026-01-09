@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 
 namespace TheTechIdea.Beep.Winform.Controls;
     /// <summary>
@@ -282,6 +283,15 @@ namespace TheTechIdea.Beep.Winform.Controls;
             CanBeSelected = false;
             CanBePressed = false;
             BorderRadius = 3;
+            
+            // Accessibility properties
+            AccessibleRole = AccessibleRole.List;
+            AccessibleName = "List Box";
+            AccessibleDescription = "List box with selectable items";
+            
+            // Enable focus handling for keyboard navigation
+            SetStyle(ControlStyles.Selectable, true);
+            TabStop = true;
            
             // Get DPI scaling
             using (var g = CreateGraphics())
@@ -549,6 +559,17 @@ namespace TheTechIdea.Beep.Winform.Controls;
         
         private void ListItems_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
         {
+            _needsLayoutUpdate = true;
+            InvalidateLayoutCache();
+            RequestDelayedInvalidate();
+        }
+        
+        /// <summary>
+        /// Invalidates the layout cache when properties that affect layout change
+        /// </summary>
+        private void InvalidateLayoutCache()
+        {
+            _layoutHelper?.Clear();
             _needsLayoutUpdate = true;
             RequestDelayedInvalidate();
         }

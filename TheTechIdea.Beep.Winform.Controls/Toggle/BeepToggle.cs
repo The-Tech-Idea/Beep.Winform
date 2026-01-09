@@ -412,13 +412,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
             var elapsed = (DateTime.Now - _animationStart).TotalMilliseconds;
             var progress = Math.Min(1f, (float)(elapsed / _animationDuration));
 
-            // Apply selected easing function
-            float easedProgress = ApplyEasing(progress);
+            // Use ToggleAnimationHelpers for consistent easing
+            float easedProgress = ToggleAnimationHelpers.GetEasingFunction(_animationEasing)(progress);
 
-            // Calculate thumb position
-            float targetPosition = _isOn ? 1f : 0f;
-            float startPosition = _isOn ? 0f : 1f;
-            _thumbPosition = startPosition + (targetPosition - startPosition) * easedProgress;
+            // Calculate thumb position using helper
+            _thumbPosition = ToggleAnimationHelpers.CalculateThumbPosition(progress, _animationEasing, _isOn);
 
             // Update glow effect if enabled
             if (_enableFocusGlow && Focused)
@@ -430,7 +428,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
 
             if (progress >= 1f)
             {
-                _thumbPosition = targetPosition;
+                // Final position
+                _thumbPosition = _isOn ? 1f : 0f;
                 _isAnimating = false;
                 _animationTimer.Stop();
                 Invalidate();

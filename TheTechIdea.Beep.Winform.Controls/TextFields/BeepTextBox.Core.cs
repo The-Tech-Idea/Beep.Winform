@@ -6,6 +6,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -160,6 +162,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Interval = 1000 // 1 second
             };
             _typingTimer.Tick += TypingTimer_Tick;
+            
+            // Incremental search timer
+            _incrementalSearchTimer = new Timer()
+            {
+                Interval = 300 // 300ms delay for incremental search
+            };
+            _incrementalSearchTimer.Tick += IncrementalSearchTimer_Tick;
         }
         
         protected override Size DefaultSize => new Size(200, 34);
@@ -171,8 +180,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                // Use TextRenderer (no Graphics needed)
+                // Use TextUtils for cached measurement (no Graphics needed, but TextUtils can work without Graphics)
                 var fontToUse = _textFont ?? Font ?? SystemFonts.MessageBoxFont;
+                // TextUtils requires Graphics, so use TextRenderer here for initialization (before Graphics is available)
                 var sz = TextRenderer.MeasureText("Aj", fontToUse, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                 _cachedTextHeightPx = Math.Max(1, sz.Height);
                 _cachedMinHeightPx = _cachedTextHeightPx + Padding.Vertical + (_borderWidth * 2);
@@ -206,6 +216,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _animationTimer?.Dispose();
                 _typingTimer?.Stop();
                 _typingTimer?.Dispose();
+                _incrementalSearchTimer?.Stop();
+                _incrementalSearchTimer?.Dispose();
                 
                 _helper?.Dispose();
                 _textFont?.Dispose();

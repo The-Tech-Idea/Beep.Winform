@@ -10,6 +10,7 @@ using System.Windows.Forms.Design;
 using System.Xml.Linq;
 using Svg;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Design.Server; // ProjectResourceEmbedder
 using TheTechIdea.Beep.Winform.Controls.Models; // SimpleItem
 

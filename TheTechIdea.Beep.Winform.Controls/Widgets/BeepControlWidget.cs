@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control;
 
@@ -37,6 +39,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private object _value = false;
         private object _minValue = 0;
         private object _maxValue = 100;
+        // Strongly-typed value properties
+        private ToggleValue? _toggleValue;
+        private SliderValue? _sliderValue;
+        private RangeValue? _rangeValue;
+        private DateValue? _dateValue;
+        private ColorValue? _colorValue;
+        private NumberValue? _numberValue;
         private List<string> _options = new List<string> { "Option 1", "Option 2", "Option 3" };
         private Color _accentColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
         private Color _buttonBackColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ButtonBackColor ?? Color.Empty;
@@ -121,7 +130,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public ControlWidgetStyle Style
         {
             get => _style;
-            set { _style = value; InitializePainter(); Invalidate(); }
+            set
+            {
+                _style = value;
+                // Clear typed values when style changes
+                _toggleValue = null;
+                _sliderValue = null;
+                _rangeValue = null;
+                _dateValue = null;
+                _colorValue = null;
+                _numberValue = null;
+                InitializePainter();
+                Invalidate();
+            }
         }
 
         [Category("Control")]
@@ -133,27 +154,219 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         }
 
         [Category("Control")]
-        [Description("Current value of the control.")]
+        [Description("Current value of the control (legacy object type).")]
+        [Obsolete("Use typed value properties (ToggleValue, SliderValue, etc.) based on Style. This property will be removed in a future version.")]
         public object Value
         {
             get => _value;
-            set { _value = value; Invalidate(); OnValueChanged(); }
+            set { _value = value; SyncTypedValues(); Invalidate(); OnValueChanged(); }
         }
 
         [Category("Control")]
-        [Description("Minimum value for range controls.")]
+        [Description("Minimum value for range controls (legacy object type).")]
+        [Obsolete("Use typed value properties (SliderValue, RangeValue, etc.) based on Style. This property will be removed in a future version.")]
         public object MinValue
         {
             get => _minValue;
-            set { _minValue = value; Invalidate(); }
+            set { _minValue = value; SyncTypedValues(); Invalidate(); }
         }
 
         [Category("Control")]
-        [Description("Maximum value for range controls.")]
+        [Description("Maximum value for range controls (legacy object type).")]
+        [Obsolete("Use typed value properties (SliderValue, RangeValue, etc.) based on Style. This property will be removed in a future version.")]
         public object MaxValue
         {
             get => _maxValue;
-            set { _maxValue = value; Invalidate(); }
+            set { _maxValue = value; SyncTypedValues(); Invalidate(); }
+        }
+
+        // Strongly-typed value properties
+        [Category("Control")]
+        [Description("Toggle switch value (for ToggleSwitch style).")]
+        public ToggleValue? ToggleValue
+        {
+            get
+            {
+                if (_style != ControlWidgetStyle.ToggleSwitch) return null;
+                if (_toggleValue == null) _toggleValue = new ToggleValue { IsOn = Convert.ToBoolean(_value) };
+                return _toggleValue;
+            }
+            set
+            {
+                _toggleValue = value;
+                if (value != null) { _value = value.IsOn; Invalidate(); OnValueChanged(); }
+            }
+        }
+
+        [Category("Control")]
+        [Description("Slider value (for Slider style).")]
+        public SliderValue? SliderValue
+        {
+            get
+            {
+                if (_style != ControlWidgetStyle.Slider) return null;
+                if (_sliderValue == null)
+                {
+                    _sliderValue = new SliderValue
+                    {
+                        Value = Convert.ToDouble(_value),
+                        MinValue = Convert.ToDouble(_minValue),
+                        MaxValue = Convert.ToDouble(_maxValue)
+                    };
+                }
+                return _sliderValue;
+            }
+            set
+            {
+                _sliderValue = value;
+                if (value != null)
+                {
+                    _value = value.Value;
+                    _minValue = value.MinValue;
+                    _maxValue = value.MaxValue;
+                    Invalidate();
+                    OnValueChanged();
+                }
+            }
+        }
+
+        [Category("Control")]
+        [Description("Range selector value (for RangeSelector style).")]
+        public RangeValue? RangeValue
+        {
+            get
+            {
+                if (_style != ControlWidgetStyle.RangeSelector) return null;
+                if (_rangeValue == null)
+                {
+                    _rangeValue = new RangeValue
+                    {
+                        MinValue = Convert.ToDouble(_minValue),
+                        MaxValue = Convert.ToDouble(_maxValue),
+                        CurrentValue = Convert.ToDouble(_value)
+                    };
+                }
+                return _rangeValue;
+            }
+            set
+            {
+                _rangeValue = value;
+                if (value != null)
+                {
+                    _minValue = value.MinValue;
+                    _maxValue = value.MaxValue;
+                    _value = value.CurrentValue;
+                    Invalidate();
+                    OnValueChanged();
+                }
+            }
+        }
+
+        [Category("Control")]
+        [Description("Date picker value (for DatePicker style).")]
+        public DateValue? DateValue
+        {
+            get
+            {
+                if (_style != ControlWidgetStyle.DatePicker) return null;
+                if (_dateValue == null) _dateValue = new DateValue { Value = _value is DateTime dt ? dt : DateTime.Now };
+                return _dateValue;
+            }
+            set
+            {
+                _dateValue = value;
+                if (value != null) { _value = value.Value; Invalidate(); OnValueChanged(); }
+            }
+        }
+
+        [Category("Control")]
+        [Description("Color picker value (for ColorPicker style).")]
+        public ColorValue? ColorValue
+        {
+            get
+            {
+                if (_style != ControlWidgetStyle.ColorPicker) return null;
+                if (_colorValue == null) _colorValue = new ColorValue { Value = _value is Color c ? c : Color.Black };
+                return _colorValue;
+            }
+            set
+            {
+                _colorValue = value;
+                if (value != null) { _value = value.Value; Invalidate(); OnValueChanged(); }
+            }
+        }
+
+        [Category("Control")]
+        [Description("Number spinner value (for NumberSpinner style).")]
+        public NumberValue? NumberValue
+        {
+            get
+            {
+                if (_style != ControlWidgetStyle.NumberSpinner) return null;
+                if (_numberValue == null)
+                {
+                    _numberValue = new NumberValue
+                    {
+                        Value = Convert.ToDecimal(_value),
+                        MinValue = _minValue != null ? Convert.ToDecimal(_minValue) : null,
+                        MaxValue = _maxValue != null ? Convert.ToDecimal(_maxValue) : null
+                    };
+                }
+                return _numberValue;
+            }
+            set
+            {
+                _numberValue = value;
+                if (value != null)
+                {
+                    _value = value.Value;
+                    _minValue = value.MinValue;
+                    _maxValue = value.MaxValue;
+                    Invalidate();
+                    OnValueChanged();
+                }
+            }
+        }
+
+        private void SyncTypedValues()
+        {
+            // Sync typed values when object values change
+            switch (_style)
+            {
+                case ControlWidgetStyle.ToggleSwitch:
+                    if (_toggleValue != null) _toggleValue.IsOn = Convert.ToBoolean(_value);
+                    break;
+                case ControlWidgetStyle.Slider:
+                    if (_sliderValue != null)
+                    {
+                        _sliderValue.Value = Convert.ToDouble(_value);
+                        _sliderValue.MinValue = Convert.ToDouble(_minValue);
+                        _sliderValue.MaxValue = Convert.ToDouble(_maxValue);
+                    }
+                    break;
+                case ControlWidgetStyle.RangeSelector:
+                    if (_rangeValue != null)
+                    {
+                        _rangeValue.CurrentValue = Convert.ToDouble(_value);
+                        _rangeValue.MinValue = Convert.ToDouble(_minValue);
+                        _rangeValue.MaxValue = Convert.ToDouble(_maxValue);
+                    }
+                    break;
+                case ControlWidgetStyle.DatePicker:
+                    if (_dateValue != null) _dateValue.Value = _value is DateTime dt ? dt : DateTime.Now;
+                    break;
+                case ControlWidgetStyle.ColorPicker:
+                    if (_colorValue != null) _colorValue.Value = _value is Color c ? c : Color.Black;
+                    break;
+                case ControlWidgetStyle.NumberSpinner:
+                    if (_numberValue != null)
+                    {
+                        _numberValue.Value = Convert.ToDecimal(_value);
+                        _numberValue.MinValue = _minValue != null ? Convert.ToDecimal(_minValue) : null;
+                        _numberValue.MaxValue = _maxValue != null ? Convert.ToDecimal(_maxValue) : null;
+                    }
+                    break;
+            }
         }
 
         [Category("Control")]

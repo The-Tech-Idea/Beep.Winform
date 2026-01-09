@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 {
@@ -148,12 +149,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         private void DrawWeekEvents(Graphics g, WidgetContext ctx)
         {
             // Sample events throughout the week (replace with ctx.CustomData if present)
-            var events = ctx.WeekEvents ?? new List<object>
+            var events = ctx.WeekEvents ?? new List<CalendarEvent>
             {
-                new { Day = 1, StartHour = 9, Duration = 1, Title = "Meeting", Color = Color.FromArgb(76, 175, 80) },
-                new { Day = 2, StartHour = 14, Duration = 2, Title = "Project Review", Color = Color.FromArgb(33, 150, 243) },
-                new { Day = 3, StartHour = 10, Duration = 1, Title = "Client Call", Color = Color.FromArgb(255, 193, 7) },
-                new { Day = 5, StartHour = 16, Duration = 1, Title = "Team Sync", Color = Color.FromArgb(156, 39, 176) }
+                new CalendarEvent { StartTime = DateTime.Today.AddDays(1).AddHours(9), EndTime = DateTime.Today.AddDays(1).AddHours(10), Title = "Meeting", Color = Color.FromArgb(76, 175, 80) },
+                new CalendarEvent { StartTime = DateTime.Today.AddDays(2).AddHours(14), EndTime = DateTime.Today.AddDays(2).AddHours(16), Title = "Project Review", Color = Color.FromArgb(33, 150, 243) },
+                new CalendarEvent { StartTime = DateTime.Today.AddDays(3).AddHours(10), EndTime = DateTime.Today.AddDays(3).AddHours(11), Title = "Client Call", Color = Color.FromArgb(255, 193, 7) },
+                new CalendarEvent { StartTime = DateTime.Today.AddDays(5).AddHours(16), EndTime = DateTime.Today.AddDays(5).AddHours(17), Title = "Team Sync", Color = Color.FromArgb(156, 39, 176) }
             };
 
             int timeSlotWidth = 60;

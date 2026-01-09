@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -46,25 +47,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
-            var actions = ctx.QuickActions?.OfType<NavigationItem>().ToList() ?? CreateSampleQuickActions();
+            var actions = ctx.QuickActions?.ToList() ?? CreateSampleQuickActions();
 
             if (!actions.Any()) return;
 
             DrawQuickActionGrid(g, ctx, actions);
         }
 
-        private List<NavigationItem> CreateSampleQuickActions()
+        private List<QuickAction> CreateSampleQuickActions()
         {
-            return new List<NavigationItem>
+            return new List<QuickAction>
             {
-                new NavigationItem { Text = "New", IsActive = false },
-                new NavigationItem { Text = "Save", IsActive = false },
-                new NavigationItem { Text = "Print", IsActive = false },
-                new NavigationItem { Text = "Share", IsActive = false }
+                new QuickAction { Label = "New" },
+                new QuickAction { Label = "Save" },
+                new QuickAction { Label = "Print" },
+                new QuickAction { Label = "Share" }
             };
         }
 
-        private void DrawQuickActionGrid(Graphics g, WidgetContext ctx, List<NavigationItem> actions)
+        private void DrawQuickActionGrid(Graphics g, WidgetContext ctx, List<QuickAction> actions)
         {
             var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
             int cols = Math.Min(actions.Count, 4); // Max 4 columns
@@ -97,14 +98,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Action icon
                 var iconSize = buttonSize / 2;
                 var iconRect = new Rectangle(x + (buttonSize - iconSize) / 2, y + 8, iconSize, iconSize);
-                string iconName = GetQuickActionIcon(action.Text);
+                string iconName = GetQuickActionIcon(action.Label);
                 _imagePainter.DrawSvg(g, iconName, iconRect, primaryColor, 0.9f);
                 
                 // Action label
                 using var textBrush = new SolidBrush(Theme?.ForeColor ?? Color.Empty);
                 var textRect = new Rectangle(x, y + iconRect.Bottom + 4, buttonSize, 20);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(action.Text, actionFont, textBrush, textRect, format);
+                g.DrawString(action.Label, actionFont, textBrush, textRect, format);
             }
         }
 

@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
 {
@@ -104,7 +105,8 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
                 for (int i = 0, xi = plot.X + gap; i < n && i < labels.Length; i++, xi += barW + gap)
                 {
                     var txt = labels[i];
-                    var size = TextRenderer.MeasureText(txt, small);
+                    SizeF sizeF = TextUtils.MeasureText(txt, small, int.MaxValue);
+                    var size = new Size((int)sizeF.Width, (int)sizeF.Height);
                     var pt = new Point(xi + (barW - size.Width) / 2, plot.Bottom + 2);
                     TextRenderer.DrawText(g, txt, small, pt, theme.CardTextForeColor);
                 }

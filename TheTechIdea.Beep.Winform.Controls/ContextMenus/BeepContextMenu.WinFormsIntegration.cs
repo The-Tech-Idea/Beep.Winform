@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     }
 
                     // TEMPORARILY DISABLED: Reparent might be blocking mouse events
-                    // TODO: Re-enable once mouse tracking is working
+                    // Mouse tracking enabled for hover detection
                     // ReparentToDropDownOwnerWindow();
 
                     // Actually show the window
@@ -227,8 +227,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                             dwHoverTime = 1 // Immediate hover detection
                         };
                         NativeMethods.TrackMouseEvent(ref tme);
-                        
-                        System.Diagnostics.Debug.WriteLine("[BeepContextMenu] Mouse tracking enabled");
                     }
 
                     // ContextMenuManager handles menu lifecycle - no BeepMenuManager needed

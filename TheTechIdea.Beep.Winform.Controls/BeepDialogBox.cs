@@ -1,7 +1,8 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
  
 using BeepDialogResult=TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

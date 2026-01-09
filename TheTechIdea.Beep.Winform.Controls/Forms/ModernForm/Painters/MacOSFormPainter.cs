@@ -78,6 +78,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Draw refined traffic light buttons with 3D effects
             DrawTrafficLights(g, captionRect);
 
+            // Paint search box if visible (using FormRegion for consistency)
+            if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
+            {
+                owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
+            }
+
             // Draw title text with macOS typography
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect,
@@ -347,6 +353,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
               
                 rightX -= rightButtonWidth;
+            }
+            
+            // Search box (between title and right-side buttons)
+            int searchBoxWidth = 200;
+            int searchBoxPadding = 8;
+            if (owner.ShowSearchBox)
+            {
+                layout.SearchBoxRect = new Rectangle(rightX - searchBoxWidth - searchBoxPadding, searchBoxPadding / 2, 
+                    searchBoxWidth, captionHeight - searchBoxPadding);
+                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
+                rightX -= searchBoxWidth + searchBoxPadding;
+            }
+            else
+            {
+                layout.SearchBoxRect = Rectangle.Empty;
             }
             
             // Icon and title areas: start after traffic lights, end before right-side buttons

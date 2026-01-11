@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "../Beep.Winform.Sample/WinFormsApp.UI.Test"
+		},
+		{
+			"path": "../Beep.Winform.Sample"
+		},
+		{
+			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
 		}
 	],
 	"settings": {

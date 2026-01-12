@@ -11,6 +11,12 @@
 		},
 		{
 			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
+		},
+		{
+			"path": "../Beep.Shell"
+		},
+		{
+			"path": "../BeepDM"
 		}
 	],
 	"settings": {

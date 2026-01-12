@@ -2,28 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
-	  <Nullable>enable</Nullable>
-	  <UseWindowsForms>true</UseWindowsForms>
-	  <ImplicitUsings>enable</ImplicitUsings>
-	  <LangVersion>12.0</LangVersion>
-	  <Authors>The Tech Idea</Authors>
-	  <Company>The Tech Idea</Company>
-	  <Copyright>2022</Copyright>
-	  <PackageIcon>SimpleODM.png</PackageIcon>
-	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <IncludeSymbols>False</IncludeSymbols>
-	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <PackageId>TheTechIdea.Beep.Winform.Controls.Integrated</PackageId>
-	  <Title>TheTechIdea.Beep.Winform.Controls.Integrated</Title>
-	  <Product>TheTechIdea.Beep.Winform.Controls.Integrated</Product>
-	  <AssemblyName>TheTechIdea.Beep.Winform.Controls.Integrated</AssemblyName>
-  
-	  <Version>1.0.1</Version>
-	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
+    <Authors>The Tech Idea</Authors>
+    <Company>The Tech Idea</Company>
+    <Copyright>2022</Copyright>
+    <PackageIcon>SimpleODM.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>False</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>TheTechIdea.Beep.Winform.Controls.Integrated</PackageId>
+    <Title>TheTechIdea.Beep.Winform.Controls.Integrated</Title>
+    <Product>TheTechIdea.Beep.Winform.Controls.Integrated</Product>
+    <AssemblyName>TheTechIdea.Beep.Winform.Controls.Integrated</AssemblyName>
+   
+    <Version>1.0.1</Version>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  
   </PropertyGroup>
 	<PropertyGroup>
-		<!-- Don’t pack on design-time builds -->
+		<!-- Don't pack on design-time builds -->
 		<GeneratePackageOnBuild Condition="'$(DesignTimeBuild)' != 'true'">True</GeneratePackageOnBuild>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack" Condition="'$(DesignTimeBuild)' != 'true'">
@@ -41,7 +42,7 @@
 		<Copy SourceFiles="$(_PkgPath)" DestinationFolder="$(_Dest)" SkipUnchangedFiles="true" Condition="Exists('$(_PkgPath)')" />
 	</Target>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
   </Target>
   <ItemGroup>
     <Compile Remove="Designer\**" />
@@ -55,12 +56,12 @@
     <Compile Remove="Helpers\LoadEnvironmentServices.cs" />
     <Compile Remove="Helpers\MenuGenerators.cs" />
   </ItemGroup>
-  <ItemGroup>
-	  <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-	  </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.1" />

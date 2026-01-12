@@ -1,1 +1,0 @@
-$pattern = '^(\s*//\s*)?(<{7}|>{7}|\|{7}|={7})' ; Get-ChildItem -Path . -Include *.cs -Recurse | ForEach-Object { $path = $_.FullName; $content = Get-Content $path; $new = $content | Where-Object { -not ($_ -match $pattern) }; if ($content.Count -ne $new.Count) { Write-Host "Cleaning: $path"; $new | Set-Content -Path $path } }

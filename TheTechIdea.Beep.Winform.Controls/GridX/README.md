@@ -2,7 +2,7 @@
 
 ## Overview
 
-BeepGridPro is a high-performance, fully customizable data grid control for WinForms applications. It follows a clean architecture pattern with separation of concerns through helper-based design, inspired by modern JavaScript frameworks while maintaining WinForms best practices.
+BeepGridPro is a high-performance, fully customizable data grid control for WinForms applications. It follows a clean architecture pattern with separation of concerns through helper-based design, featuring complete painter systems for both navigation bars and column headers, inspired by modern JavaScript frameworks while maintaining WinForms best practices.
 
 ## Architecture
 
@@ -76,13 +76,30 @@ Contains all helper classes that manage grid functionality. Each helper is respo
 - **GridColumnHeadersPainterHelper**: Handles column header rendering with sort/filter indicators
 
 ### /Painters
-Contains painter implementations for different visual styles, particularly for navigation bars. Uses the Strategy pattern to allow runtime style switching.
+Contains painter implementations for different visual styles, using Strategy pattern for both navigation bars and column headers.
 
-**Navigation Painters:**
+**Navigation Painters (12 styles):**
 - Material, Bootstrap, Tailwind, Fluent, AG Grid, DataTables, Ant Design, Telerik, Compact, Minimal, Card, Standard
 
+**Header Painters (12 styles):**
+- MaterialHeaderPainter - Material Design with gradients and elevation
+- BootstrapHeaderPainter - Bootstrap-inspired styling
+- FluentHeaderPainter - Fluent Design (Microsoft) style
+- AGGridHeaderPainter - AG Grid inspired modern styling
+- DataTablesHeaderPainter - DataTables (jQuery) style
+- AntDesignHeaderPainter - Ant Design clean professional look
+- TelerikHeaderPainter - Telerik/Kendo UI inspired
+- CompactHeaderPainter - Space-saving compact design
+- MinimalHeaderPainter - Minimal icon-focused styling
+- CardHeaderPainter - Card-based modern appearance
+- TailwindHeaderPainter - Tailwind CSS inspired flat design
+- StandardHeaderPainter - Classic Windows Forms style
+
+**Factory Classes:**
+- HeaderPainterFactory - Creates header painters based on navigationStyle
+- NavigationPainterFactory - Creates navigation painters based on navigationStyle
+
 **Future:**
-- Header painters (currently integrated in GridColumnHeadersPainterHelper)
 - Cell painters for custom cell rendering
 
 ### /Layouts
@@ -109,9 +126,11 @@ Reserved for filter-specific implementations and filter UI components.
 - UnitOfWork pattern integration for enterprise scenarios
 
 ### 2. Visual Styles
+- **12 Header Styles**: Full painter system for column headers matching 12 framework designs
 - **12 Navigation Styles**: Material, Bootstrap, Tailwind, Fluent, AG Grid, DataTables, Ant Design, Telerik, Compact, Minimal, Card, Standard
 - **10 Grid Styles**: Default, Clean, Bootstrap, Material, Flat, Compact, Corporate, Minimal, Card, Borderless
-- **12 Layout Presets**: Structural presets for spacing and appearance
+- **12 Layout Presets**: Structural presets with automatic header and navigation painter coordination
+- **Coordinated Styling**: Layout presets automatically configure matching header and navigation painters
 
 ### 3. Performance Features
 - Double buffering with WM_SETREDRAW optimization
@@ -162,14 +181,17 @@ DrawContent(Graphics g)
     │   │   └── Draw selection highlight
     │   │
     │   ├── GridColumnHeadersPainterHelper.DrawColumnHeaders(g)
-    │   │   ├── Draw header background
+    │   │   ├── Get header painter from HeaderPainterFactory (based on NavigationStyle)
     │   │   ├── Draw select-all checkbox
-    │   │   ├── For each visible column
-    │   │   │   ├── Draw header background (with hover effects)
-    │   │   │   ├── Draw header text
-    │   │   │   ├── Draw sort indicator (if sorted)
-    │   │   │   └── Draw filter icon (on hover)
-    │   │   └── Draw sticky column separator
+    │   │   ├── Call painter.PaintHeaders(g, headerRect, grid, theme)
+    │   │   │   ├── For each visible column
+    │   │   │   │   ├── Call painter.PaintHeaderCell(g, cellRect, column, index, grid, theme)
+    │   │   │   │   ├── Draw header background (with hover/elevation effects)
+    │   │   │   │   ├── Draw header text (styled per painter)
+    │   │   │   │   ├── Draw sort indicator (if sorted)
+    │   │   │   │   └── Draw filter icon (on hover)
+    │   │   │   └── Draw sticky column separator
+    │   │   └── painter.RegisterHeaderHitAreas(grid)
     │   │
     │   └── GridNavigationPainterHelper.DrawNavigatorArea(g)
     │       ├── If UsePainterNavigation
@@ -288,10 +310,17 @@ ApplyGridStyle(BeepGridStyle style)
 ApplyLayoutPreset(IGridLayoutPreset preset)
     ├── Get preset implementation (DefaultTableLayoutHelper, etc.)
     ├── preset.Apply(grid)
-    │   ├── Set RowHeight
-    │   ├── Set ColumnHeaderHeight
-    │   ├── Configure Render properties
-    │   └── Apply alignment heuristics
+    │   ├── ConfigureDimensions(grid)
+    │   ├── ConfigurePainters(grid)
+    │   │   ├── Get header painter from preset.GetHeaderPainter()
+    │   │   ├── Get navigation painter from preset.GetNavigationPainter()
+    │   │   └── Store painter references in grid.Tag for use during rendering
+    │   ├── ConfigureHeights(grid)
+    │   │   ├── grid.ColumnHeaderHeight = painter.CalculateHeaderHeight(grid)
+    │   │   └── grid.Layout.NavigatorHeight = navPainter.RecommendedHeight
+    │   ├── ConfigureVisualProperties(grid)
+    │   ├── LayoutCommon.ApplyAlignmentHeuristics(grid)
+    │   └── CustomConfiguration(grid)
     └── Invalidate() → Trigger redraw
 
 NavigationStyle = navigationStyle.Material

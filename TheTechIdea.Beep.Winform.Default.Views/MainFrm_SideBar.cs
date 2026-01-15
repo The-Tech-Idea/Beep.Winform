@@ -30,8 +30,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         public MainFrm_SideBar(IServiceProvider service) : base(service)
         {
             InitializeComponent();
-            beepService.vis.Container = beepDisplayContainer1;
-            beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
+            appManager.Container = beepDisplayContainer1;
+            appManager.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
 
 
      

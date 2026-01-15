@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 {

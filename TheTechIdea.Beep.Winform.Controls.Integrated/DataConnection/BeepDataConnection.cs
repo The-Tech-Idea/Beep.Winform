@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Drawing.Design;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Services;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls

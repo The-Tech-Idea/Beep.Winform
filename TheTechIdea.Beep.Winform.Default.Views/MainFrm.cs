@@ -1,6 +1,5 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
-using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
@@ -32,10 +31,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             InitializeComponent();
 
 
-            beepService.vis.Container = beepDisplayContainer1;
-            beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
+            appManager.Container = beepDisplayContainer1;
+            appManager.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
 
-            beepAppTree1.init(beepService);
+            beepAppTree1.init(beepService,appManager);
             beepAppTree1.CreateRootTree();
             FormStyle = BeepThemesManager.CurrentStyle;
 

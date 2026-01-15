@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.ConfigUtil; // ensure LINQ available
 using TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls;
 using TheTechIdea.Beep.Helpers;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
@@ -236,26 +237,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             // Validate based on category
             switch (ConnectionProperties.Category)
             {
-                case DatasourceCategory.Database:
+                case DatasourceCategory.RDBMS:
                     // For database connections, require either connection string or server name
                     if (string.IsNullOrWhiteSpace(ConnectionProperties.ConnectionString) &&
-                        string.IsNullOrWhiteSpace(ConnectionProperties.ServerName))
+                        string.IsNullOrWhiteSpace(ConnectionProperties.Host))
                     {
                         errorMessage += "Connection string or server name is required for database connections.\n";
                         isValid = false;
                     }
                     // Database name is often required for database connections
-                    if (string.IsNullOrWhiteSpace(ConnectionProperties.DatabaseName) &&
-                        (ConnectionProperties.DatabaseType == DataSourceType.SQLServer ||
-                         ConnectionProperties.DatabaseType == DataSourceType.MySQL ||
-                         ConnectionProperties.DatabaseType == DataSourceType.PostgreSQL))
+                    if (string.IsNullOrWhiteSpace(ConnectionProperties.Database) &&
+                        (ConnectionProperties.DatabaseType == DataSourceType.SqlServer ||
+                         ConnectionProperties.DatabaseType == DataSourceType.Mysql ||
+                         ConnectionProperties.DatabaseType == DataSourceType.Postgre))
                     {
                         errorMessage += "Database name is required for this database type.\n";
                         isValid = false;
                     }
                     break;
                     
-                case DatasourceCategory.File:
+                case DatasourceCategory.FILE:
                     // For file connections, file path is required
                     if (string.IsNullOrWhiteSpace(ConnectionProperties.FilePath))
                     {
@@ -264,9 +265,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                     }
                     break;
                     
-                case DatasourceCategory.WebAPI:
+                case DatasourceCategory.WEBAPI:
                     // For Web API connections, URL is required
-                    if (string.IsNullOrWhiteSpace(ConnectionProperties.URL))
+                    if (string.IsNullOrWhiteSpace(ConnectionProperties.Url))
                     {
                         errorMessage += "URL is required for Web API connections.\n";
                         isValid = false;
@@ -275,19 +276,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
             
             // Additional validation based on DatabaseType
-            if (ConnectionProperties.DatabaseType == DataSourceType.SQLServer ||
-                ConnectionProperties.DatabaseType == DataSourceType.MySQL ||
-                ConnectionProperties.DatabaseType == DataSourceType.PostgreSQL)
+            if (ConnectionProperties.DatabaseType == DataSourceType.SqlServer ||
+                ConnectionProperties.DatabaseType == DataSourceType.Mysql ||
+                ConnectionProperties.DatabaseType == DataSourceType.Postgre)
             {
                 // For these database types, authentication is typically required
-                if (ConnectionProperties.AuthenticationType == AuthenticationType.WindowsAuthentication &&
+                if (ConnectionProperties.AuthenticationTypeEnum == AuthTypeEnum.Windows &&
                     string.IsNullOrWhiteSpace(ConnectionProperties.UserID))
                 {
                     // Windows auth might not require UserID, but SQL auth does
                     // This is handled below
                 }
-                else if (ConnectionProperties.AuthenticationType == AuthenticationType.SQLAuthentication ||
-                         ConnectionProperties.AuthenticationType == AuthenticationType.BasicAuthentication)
+                else if (ConnectionProperties.AuthenticationTypeEnum == AuthTypeEnum.UserPassword ||
+                         ConnectionProperties.AuthenticationTypeEnum == AuthTypeEnum.Basic)
                 {
                     if (string.IsNullOrWhiteSpace(ConnectionProperties.UserID))
                     {
@@ -457,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             {
                 // Basic validation - check if connection string is provided or can be built
                 if (string.IsNullOrWhiteSpace(ConnectionProperties.ConnectionString) && 
-                    string.IsNullOrWhiteSpace(ConnectionProperties.ServerName))
+                    string.IsNullOrWhiteSpace(ConnectionProperties.Host))
                 {
                     MessageBox.Show("Connection string or server name is required.", "Validation Error", 
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -527,7 +528,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                             driveritem.Value = item.PackageName;
 
                             // Add versions for this driver from config
-                            if (item.Versions != null && item.Versions.Count > 0)
+                            if (item.version != null && item.Versions.Count > 0)
                             {
                                 foreach (var version in item.Versions)
                                 {
@@ -615,28 +616,28 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             // Add common default drivers based on database type
             switch (databaseType)
             {
-                case DataSourceType.SQLServer:
+                case DataSourceType.SqlServer:
                     defaultDrivers.Add(new ConnectionDriversConfig 
                     { 
                         PackageName = "Microsoft.Data.SqlClient",
                         DatasourceType = databaseType
                     });
                     break;
-                case DataSourceType.MySQL:
+                case DataSourceType.Mysql:
                     defaultDrivers.Add(new ConnectionDriversConfig 
                     { 
                         PackageName = "MySql.Data",
                         DatasourceType = databaseType
                     });
                     break;
-                case DataSourceType.PostgreSQL:
+                case DataSourceType.Postgre:
                     defaultDrivers.Add(new ConnectionDriversConfig 
                     { 
                         PackageName = "Npgsql",
                         DatasourceType = databaseType
                     });
                     break;
-                case DataSourceType.SQLite:
+                case DataSourceType.SqlLite:
                     defaultDrivers.Add(new ConnectionDriversConfig 
                     { 
                         PackageName = "System.Data.SQLite",

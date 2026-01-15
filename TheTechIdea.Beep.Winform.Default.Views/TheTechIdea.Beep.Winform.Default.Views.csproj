@@ -74,8 +74,6 @@
 		</None>
 	</ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
-    <ProjectReference Include="..\..\Beep.Containers\Beep.Container\TheTechIdea.Beep.Container.csproj" />
     <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common.Util\TheTechIdea.Beep.Desktop.Common.Util.csproj" />
     <ProjectReference Include="..\..\Beep.Shared\Beep.Shared\TheTechIdea.Beep.Shared.csproj" />
     <ProjectReference Include="..\..\Beep.ViewModels\TheTechIdea.Beep.MVVM\TheTechIdea.Beep.MVVM.csproj" />
@@ -95,6 +93,7 @@
     <Folder Include="ETL\" />
     <Folder Include="DDL\" />
     <Folder Include="docs\" />
+    <Folder Include="NuggetsManage\" />
   </ItemGroup>
 
   <ItemGroup>

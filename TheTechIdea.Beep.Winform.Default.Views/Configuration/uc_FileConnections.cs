@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new FileConnectionViewModel(Editor, beepService.vis);
+            viewModel = new FileConnectionViewModel(Editor, appManager);
 
             BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
             beepSimpleGrid1.CellValueChanged += BeepSimpleGrid1_CellValueChanged;

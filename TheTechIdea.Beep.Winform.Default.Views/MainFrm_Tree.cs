@@ -26,10 +26,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         public MainFrm_Tree(IServiceProvider services) : base(services)
         {
             InitializeComponent();
-            beepService.vis.Container = beepDisplayContainer1;
-            beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
+            appManager.Container = beepDisplayContainer1;
+            appManager.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
 
-            beepAppTree1.init(beepService);
+            beepAppTree1.init(beepService,appManager);
             beepAppTree1.CreateRootTree();
 
 

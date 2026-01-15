@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new EntityManagerViewModel(beepService.DMEEditor, beepService.vis);
+            viewModel = new EntityManagerViewModel(beepService.DMEEditor, appManager);
 
             DatasourcebeepComboBox.SelectedItemChanged += DatasourcebeepComboBox_SelectedItemChanged;
             foreach (var item in beepService.Config_editor.DataConnections)

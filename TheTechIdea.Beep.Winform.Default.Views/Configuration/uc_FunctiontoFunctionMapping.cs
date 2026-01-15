@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            //viewModel = new FunctionToFunctionMappingViewModel(beepservice.DMEEditor, beepservice.vis);
+            //viewModel = new FunctionToFunctionMappingViewModel(beepservice.DMEEditor, appManager);
            
         }
         public override void OnNavigatedTo(Dictionary<string, object> parameters)

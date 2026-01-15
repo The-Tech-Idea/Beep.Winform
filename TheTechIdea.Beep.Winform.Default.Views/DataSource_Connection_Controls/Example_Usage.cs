@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Examples
 {
@@ -26,8 +27,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
             ConnectionProperties newConnection = new ConnectionProperties
             {
                 ConnectionName = "My New SQL Server Connection",
-                DatabaseType = DataSourceType.SQLServer,
-                Category = DatasourceCategory.Database
+                DatabaseType = DataSourceType.SqlServer,
+                Category = DatasourceCategory.RDBMS
             };
             
             // Step 2: Create the dialog control
@@ -120,8 +121,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
             ConnectionProperties connection = new ConnectionProperties
             {
                 ConnectionName = "MySQL Connection with Defaults",
-                DatabaseType = DataSourceType.MySQL,
-                Category = DatasourceCategory.Database
+                DatabaseType = DataSourceType.Mysql,
+                Category = DatasourceCategory.RDBMS
             };
             
             uc_DataConnectionBase dialog = new uc_DataConnectionBase();
@@ -163,8 +164,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
                 ConnectionProperties newConnection = new ConnectionProperties
                 {
                     ConnectionName = "New Connection",
-                    DatabaseType = DataSourceType.SQLServer,
-                    Category = DatasourceCategory.Database
+                    DatabaseType = DataSourceType.SqlServer,
+                    Category = DatasourceCategory.RDBMS
                 };
                 
                 if (ShowConnectionDialog(newConnection, "New Connection"))
@@ -211,8 +212,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
                     connection.ConnectionName = updated.ConnectionName;
                     connection.DatabaseType = updated.DatabaseType;
                     connection.Category = updated.Category;
-                    connection.ServerName = updated.ServerName;
-                    connection.DatabaseName = updated.DatabaseName;
+                    connection.Host = updated.Host;
+                    connection.Database = updated.Database;
                     connection.ConnectionString = updated.ConnectionString;
                     connection.UserID = updated.UserID;
                     connection.Password = updated.Password;
@@ -239,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
         /// <summary>
         /// Helper method to create a dialog form
         /// </summary>
-        private Form CreateDialogForm(uc_DataConnectionBase connectionControl, string title)
+        private static Form CreateDialogForm(uc_DataConnectionBase connectionControl, string title)
         {
             Form dialogForm = new Form
             {
@@ -261,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
         /// <summary>
         /// Helper method to clone a connection
         /// </summary>
-        private ConnectionProperties CloneConnection(ConnectionProperties original)
+        private static ConnectionProperties CloneConnection(ConnectionProperties original)
         {
             if (original == null) return null;
             
@@ -271,8 +272,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
                 ConnectionName = original.ConnectionName,
                 DatabaseType = original.DatabaseType,
                 Category = original.Category,
-                ServerName = original.ServerName,
-                DatabaseName = original.DatabaseName,
+                Host = original.Host,
+                Database = original.Database,
                 Port = original.Port,
                 ConnectionString = original.ConnectionString,
                 UserID = original.UserID,
@@ -281,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
                 DriverName = original.DriverName,
                 DriverVersion = original.DriverVersion,
                 FilePath = original.FilePath,
-                URL = original.URL,
+                Url = original.Url,
                 // ... copy other properties as needed
             };
             
@@ -297,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
         /// <summary>
         /// Placeholder for save connection logic
         /// </summary>
-        private void SaveConnection(ConnectionProperties connection)
+        private static void SaveConnection(ConnectionProperties connection)
         {
             // Implement your save logic here
             // e.g., save to database, file, configuration, etc.
@@ -306,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Examples
         /// <summary>
         /// Placeholder for update connection logic
         /// </summary>
-        private void UpdateConnection(ConnectionProperties connection)
+        private static void UpdateConnection(ConnectionProperties connection)
         {
             // Implement your update logic here
             // e.g., update in database, file, configuration, etc.

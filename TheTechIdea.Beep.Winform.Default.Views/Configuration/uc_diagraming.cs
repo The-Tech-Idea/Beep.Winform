@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
+            viewModel = new DriversConfigViewModel(beepService.DMEEditor, appManager);
 
             // Wire grid events
             //beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;

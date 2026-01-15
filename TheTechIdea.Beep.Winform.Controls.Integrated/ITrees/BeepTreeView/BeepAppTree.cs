@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common.Helpers;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Services;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 
@@ -82,9 +83,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             // (Nodes.Add does not auto-refresh in the new BeepTree)
             // Caller will also call base.RefreshTree() in constructor.
         }
-        public void init(IBeepService service)
+        public void init(IBeepService service,IAppManager vis)
         {
-            VisManager = service.vis;
+            VisManager = vis;
             VisManager.Tree = this;
             DMEEditor = service.DMEEditor;
             Treebranchhandler = new BeepTreeBranchHandler(service, this);

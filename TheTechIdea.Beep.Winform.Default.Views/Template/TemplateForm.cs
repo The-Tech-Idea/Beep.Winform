@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Services;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
     {
 
         protected readonly IBeepService? beepService;
-
+        protected readonly IAppManager? appManager;
         private IDMEEditor Editor { get; }
 
         public TemplateForm()
@@ -48,13 +48,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             FormStyle = BeepThemesManager.CurrentStyle;
             ApplyTheme();
             beepService = ServiceProviderServiceExtensions.GetService<IBeepService>(services);
+            appManager= ServiceProviderServiceExtensions.GetService<IAppManager>(services);
             if (beepService != null)
             {
                 Dependencies.DMEEditor = beepService.DMEEditor;
 
                 beepFormuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;
-                beepFormuiManager1.LogoImage = beepService.vis.LogoUrl;
-                beepFormuiManager1.Title = beepService.vis.Title;
+                beepFormuiManager1.LogoImage = appManager.LogoUrl;
+                beepFormuiManager1.Title = appManager.Title;
             }
         }
 

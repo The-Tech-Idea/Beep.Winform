@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Helpers;
+using TheTechIdea.Beep.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

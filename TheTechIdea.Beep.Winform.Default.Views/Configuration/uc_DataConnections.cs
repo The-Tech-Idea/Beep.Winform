@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
+            viewModel = new DataConnectionViewModel(beepService.DMEEditor, appManager);
             //viewModel.DBWork.Units.Filter = "Category = " + DatasourceCategory.RDBMS;
             BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
             beepSimpleGrid1.CellValueChanged += BeepSimpleGrid1_CellValueChanged;

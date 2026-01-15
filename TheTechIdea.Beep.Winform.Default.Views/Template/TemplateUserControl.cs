@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Container.Services;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis.Modules;
@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Editor.UOW;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Services;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
@@ -48,12 +49,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public TemplateUserControl(IServiceProvider services) : this()
         {
             beepService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<IBeepService>(services);
+            appManager = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<IAppManager>(services);
             if (beepService != null)
             {
                 Dependencies.DMEEditor = beepService.DMEEditor;
                 Dependencies.Logger = beepService.lg;
                 Editor = beepService.DMEEditor;
-                appManager = beepService.vis;
+              
 
                 BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
                 BeepThemesManager.FormStyleChanged+= BeepThemesManager_FormStyleChanged;

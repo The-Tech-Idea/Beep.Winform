@@ -311,21 +311,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Navigation
 
         #region CRUD Methods
 
-        private async void InsertRecord()
+        private void InsertRecord()
         {
             try
             {
                 if (_parentBlock?.Data == null) return;
                 
                 // Check if block allows insert based on BlockMode
-                if (_parentBlock.BlockMode == DataBlockMode.QueryOnly ||
+                if (_parentBlock.BlockMode == DataBlockMode.Query ||
                     _parentBlock.BlockMode == DataBlockMode.ReadOnly)
                 {
                     MessageBox.Show("Insert operation not allowed in this block mode.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                await _parentBlock.Data.CreateAsync();
+                _parentBlock.Data.New();
                 UpdateButtonStates();
             }
             catch (Exception ex)
@@ -391,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Navigation
             {
                 if (_parentBlock?.Data == null) return;
                 
-                await _parentBlock.Data.CommitAsync();
+                await _parentBlock.Data.Commit();
                 UpdateButtonStates();
                 MessageBox.Show("Changes saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -525,8 +525,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Navigation
 
             // CRUD buttons - based on BlockMode
             bool allowModify = _parentBlock.BlockMode == DataBlockMode.CRUD || 
-                               _parentBlock.BlockMode == DataBlockMode.InsertOnly ||
-                               _parentBlock.BlockMode == DataBlockMode.UpdateOnly;
+                               _parentBlock.BlockMode == DataBlockMode.Insert;
 
             bool isInQueryMode = (bool)(_parentBlock.GetType().GetProperty("IsInQueryMode")?.GetValue(_parentBlock) ?? false);
 
@@ -535,8 +534,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Navigation
             _btnDelete.Enabled = ShowCRUDButtons && allowModify && count > 0 && !isInQueryMode;
 
             // Action buttons
-            _btnSave.Enabled = _parentBlock.Data?.HasChanges ?? false;
-            _btnCancel.Enabled = _parentBlock.Data?.HasChanges ?? false;
+            _btnSave.Enabled = _parentBlock.Data?.IsDirty ?? false;
+            _btnCancel.Enabled = _parentBlock.Data?.IsDirty ?? false;
 
             // Query button
             _btnQuery.Visible = ShowQueryButton;

@@ -66,11 +66,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            if (beepService.vis.Tree != null)
+            if (appManager.Tree != null)
             {
-                TreeObject = (ITree)beepService.vis.Tree;
+                TreeObject = (ITree)appManager.Tree;
             }
-            viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
+            viewModel = new DataConnectionViewModel(beepService.DMEEditor, appManager);
 
 
             foreach (var item in beepService.Config_editor.DataConnections)

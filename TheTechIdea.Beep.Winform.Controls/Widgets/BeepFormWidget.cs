@@ -143,11 +143,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
             _validationResults.AddRange(new[]
             {
-                new ValidationResult { FieldName = "firstName", IsValid = true, Message = "" },
-                new ValidationResult { FieldName = "lastName", IsValid = true, Message = "" },
-                new ValidationResult { FieldName = "email", IsValid = true, Message = "" },
-                new ValidationResult { FieldName = "phone", IsValid = true, Message = "" },
-                new ValidationResult { FieldName = "department", IsValid = true, Message = "" }
+                new ValidationResult {FieldName = "firstName", IsValid = true, Message = "" },
+                new ValidationResult {FieldName = "lastName", IsValid = true, Message = "" },
+                new ValidationResult {FieldName = "email", IsValid = true, Message = "" },
+                new ValidationResult {FieldName = "phone", IsValid = true, Message = "" },
+                new ValidationResult {FieldName = "department", IsValid = true, Message = "" }
             });
         }
 
@@ -448,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         /// </summary>
         private ValidationResult ValidateField(FormField field)
         {
-            var result = new ValidationResult { FieldName = field.Name, IsValid = true, Message = "" };
+            var result = new ValidationResult {FieldName = field.Name, IsValid = true, Message = "" };
 
             // Required field validation
             if (field.IsRequired && string.IsNullOrWhiteSpace(field.Value?.ToString()))

@@ -107,7 +107,7 @@ public override AppFilter ToFilter()
 {
     return new AppFilter
     {
-        FieldName = BoundProperty,
+       FieldName = BoundProperty,
         FilterValue = State.ToString(),  // ✅ Uses State (enum)
         Operator = "="
     };

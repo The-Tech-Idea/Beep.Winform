@@ -345,7 +345,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                 return string.Empty;
 
             // 1) Replace underscores with spaces
-            fieldName = fieldName.Replace('_', ' ');
+           string FieldName = fieldName.Replace('_', ' ');
 
             // 2) Split on spaces so we can handle each "word" or "token" individually.
             //    E.g. "Contact Phone DOB" -> ["Contact", "Phone", "DOB"]

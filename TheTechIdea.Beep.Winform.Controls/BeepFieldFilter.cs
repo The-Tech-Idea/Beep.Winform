@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Filter = new AppFilter
             {
-                FieldName = fieldName,
+               FieldName = fieldName,
                 valueType = fieldType
             };
 

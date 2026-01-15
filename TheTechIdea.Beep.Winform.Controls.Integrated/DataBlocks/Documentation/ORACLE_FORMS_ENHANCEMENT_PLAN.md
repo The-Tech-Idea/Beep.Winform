@@ -432,7 +432,7 @@ public partial class BeepDataBlock
             Item = item,
             OldValue = oldValue,
             NewValue = newValue,
-            FieldName = item.BoundProperty,
+           FieldName = item.BoundProperty,
             TriggerType = TriggerType.WhenValidateItem
         };
         return await ExecuteTriggers(TriggerType.WhenValidateItem, context);
@@ -944,7 +944,7 @@ public partial class BeepDataBlock
         {
             RuleName = $"{fieldName}_Required",
             Scope = ValidationScope.Field,
-            FieldName = fieldName,
+           FieldName = fieldName,
             RuleType = ValidationRuleType.Required,
             ErrorMessage = errorMessage ?? $"{fieldName} is required",
             Validator = (value, context) => value != null && !string.IsNullOrEmpty(value.ToString())
@@ -957,7 +957,7 @@ public partial class BeepDataBlock
         {
             RuleName = $"{fieldName}_Range",
             Scope = ValidationScope.Field,
-            FieldName = fieldName,
+           FieldName = fieldName,
             RuleType = ValidationRuleType.Range,
             ErrorMessage = errorMessage ?? $"{fieldName} must be between {min} and {max}",
             Validator = (value, context) =>
@@ -1561,9 +1561,9 @@ block.RegisterLOV("CustomerID", new BeepDataBlockLOV
     ReturnField = "CustomerID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-        new LOVColumn { FieldName = "ContactName", DisplayName = "Contact", Width = 150 }
+        new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+        new LOVColumn {FieldName = "ContactName", DisplayName = "Contact", Width = 150 }
     },
     ValidationType = LOVValidationType.ListOnly
 });
@@ -1760,8 +1760,8 @@ ordersBlock.RegisterLOV("CustomerID", new BeepDataBlockLOV
     ReturnField = "CustomerID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
+        new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
     }
 });
 

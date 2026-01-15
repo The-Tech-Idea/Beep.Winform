@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             return new AppFilter
             {
-                FieldName = field,
+               FieldName = field,
                 FilterValue = value?.ToString(),
                 Operator = "=",
                 valueType = "string"

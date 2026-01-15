@@ -65,12 +65,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                     if (value != null && !string.IsNullOrEmpty(value.ToString()))
                     {
-                        var fieldName = component.BoundProperty;
-                        var op = GetQueryOperator(fieldName);
+                        var pFieldName = component.BoundProperty;
+                        var op = GetQueryOperator(pFieldName);
                         
                         filters.Add(new AppFilter
                         {
-                            FieldName = fieldName,
+                           FieldName = pFieldName,
                             Operator = GetOperatorString(op),
                             FilterValue = value.ToString()
                         });

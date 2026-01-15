@@ -553,9 +553,9 @@ ordersBlock.RegisterLOV("CustomerID", new BeepDataBlockLOV
     ReturnField = "CustomerID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-        new LOVColumn { FieldName = "ContactName", DisplayName = "Contact", Width = 150 }
+        new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+        new LOVColumn {FieldName = "ContactName", DisplayName = "Contact", Width = 150 }
     },
     ValidationType = LOVValidationType.ListOnly
 });
@@ -570,13 +570,13 @@ orderItemsBlock.RegisterLOV("ProductID", new BeepDataBlockLOV
     ReturnField = "ProductID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "ProductID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "ProductName", DisplayName = "Product", Width = 200 },
-        new LOVColumn { FieldName = "UnitPrice", DisplayName = "Price", Width = 100 }
+        new LOVColumn {FieldName = "ProductID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "ProductName", DisplayName = "Product", Width = 200 },
+        new LOVColumn {FieldName = "UnitPrice", DisplayName = "Price", Width = 100 }
     },
     Filters = new List<AppFilter>
     {
-        new AppFilter { FieldName = "IsActive", Operator = "=", FilterValue = "true" }
+        new AppFilter {FieldName = "IsActive", Operator = "=", FilterValue = "true" }
     }
 });
 

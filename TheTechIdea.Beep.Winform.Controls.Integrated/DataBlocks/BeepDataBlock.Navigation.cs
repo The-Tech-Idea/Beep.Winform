@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Block = this,
                     TriggerType = TriggerType.WhenItemFocus,
-                    FieldName = itemName
+                   FieldName = itemName
                 };
                 
                 _ = ExecuteTriggers(TriggerType.WhenItemFocus, postContext);
@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         Block = this,
                         TriggerType = TriggerType.WhenItemFocus,
-                        FieldName = item.ComponentName
+                       FieldName = item.ComponentName
                     };
                     
                     _ = ExecuteTriggers(TriggerType.WhenItemFocus, context);
@@ -253,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         Block = this,
                         TriggerType = TriggerType.WhenItemBlur,
-                        FieldName = item.ComponentName
+                       FieldName = item.ComponentName
                     };
                     
                     _ = ExecuteTriggers(TriggerType.WhenItemBlur, context);

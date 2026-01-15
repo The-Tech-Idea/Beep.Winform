@@ -40,11 +40,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Validation
         /// <summary>
         /// Create a failure validation result
         /// </summary>
-        protected WizardValidationResult Failure(string errorMessage, string fieldName = "", string errorCode = "")
+        protected WizardValidationResult Failure(string errorMessage, string pFieldName = "", string errorCode = "")
         {
             return WizardValidationResult.Failure(
                 errorMessage ?? ErrorMessage,
-                fieldName ?? FieldName,
+                FieldName ?? pFieldName,
                 errorCode ?? ErrorCode);
         }
     }

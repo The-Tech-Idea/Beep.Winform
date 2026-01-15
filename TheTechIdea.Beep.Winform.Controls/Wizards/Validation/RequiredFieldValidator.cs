@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Validation
         {
             FieldKey = fieldKey;
             ErrorMessage = errorMessage;
-            FieldName = fieldKey;
+           FieldName = fieldKey;
         }
 
         public override WizardValidationResult Validate(WizardContext context, WizardStep step)

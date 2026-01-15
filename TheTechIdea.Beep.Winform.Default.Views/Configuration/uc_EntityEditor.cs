@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //foreach (var item in viewModel.PackageVersions)
             //{
             //    SimpleItem driveritem = new SimpleItem();
-            //    driveritem.DisplayField = item;
+            //    driveritem.IsDisplayField = item;
             //    driveritem.Value = idx++;
             //    driveritem.Text = item;
             //    driveritem.Name = item;

@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            beepSimpleGrid1.DataSource=Editor.ETL.Script.ScriptDTL;
+            beepSimpleGrid1.DataSource=Editor.ETL.Script.ScriptDetails;
 
 
         }

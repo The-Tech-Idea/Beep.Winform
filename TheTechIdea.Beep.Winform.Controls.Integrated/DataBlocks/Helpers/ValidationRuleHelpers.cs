@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Email",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Format,
                 Pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
                 ErrorMessage = $"{fieldName} must be a valid email address"
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Phone",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Format,
                 Pattern = @"^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$",
                 ErrorMessage = $"{fieldName} must be a valid phone number (e.g., (555) 123-4567)"
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_URL",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Format,
                 Pattern = @"^https?://[^\s]+$",
                 ErrorMessage = $"{fieldName} must be a valid URL"
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Positive",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Range,
                 MinValue = 0,
                 ErrorMessage = $"{fieldName} must be a positive number"
@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Percentage",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Range,
                 MinValue = 0,
                 MaxValue = 100,
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Future",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Range,
                 MinValue = DateTime.Today,
                 ErrorMessage = $"{fieldName} must be today or in the future"
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Past",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Range,
                 MaxValue = DateTime.Today,
                 ErrorMessage = $"{fieldName} must be today or in the past"
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_CreditCard",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Format,
                 ValidationFunction = (value, context) =>
                 {
@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_USZip",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Format,
                 Pattern = @"^\d{5}(-\d{4})?$",
                 ErrorMessage = $"{fieldName} must be a valid US ZIP code (e.g., 12345 or 12345-6789)"
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_SSN",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.Format,
                 Pattern = @"^\d{3}-\d{2}-\d{4}$",
                 ErrorMessage = $"{fieldName} must be a valid SSN (e.g., 123-45-6789)"
@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_Unique",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.BusinessRule,
                 ValidationFunction = (value, context) => checkUnique(value),
                 ErrorMessage = $"{fieldName} must be unique"
@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
             return new ValidationRule
             {
                 RuleName = $"{fieldName}_ConditionalRequired",
-                FieldName = fieldName,
+               FieldName = fieldName,
                 ValidationType = ValidationType.BusinessRule,
                 ConditionalExpression = condition,
                 ValidationFunction = (value, context) =>

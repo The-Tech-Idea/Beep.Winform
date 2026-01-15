@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         {
             return new AppFilter
             {
-                FieldName = BoundProperty,
+               FieldName = BoundProperty,
                 FilterValue = State.ToString(),
                 Operator = "="
             };

@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Helpers
 
                     filters.Add(new AppFilter
                     {
-                        FieldName = kvp.Key,
+                       FieldName = kvp.Key,
                         Operator = operatorStr,
                         FilterValue = kvp.Value.ToString()
                     });

@@ -314,12 +314,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (parts.Length == 0)
                 return data;
                 
-            var fieldName = parts[0];
+            var FieldName = parts[0];
             var ascending = parts.Length == 1 || parts[1].ToUpper() != "DESC";
             
             try
             {
-                var property = data.First()?.GetType().GetProperty(fieldName);
+                var property = data.First()?.GetType().GetProperty(FieldName);
                 if (property != null)
                 {
                     return ascending

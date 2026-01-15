@@ -456,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Block = this,
                 Item = item,
-                FieldName = item?.BoundProperty,
+               FieldName = item?.BoundProperty,
                 OldValue = oldValue,
                 NewValue = newValue,
                 TriggerType = TriggerType.WhenValidateItem,
@@ -481,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Block = this,
                 Item = item,
-                FieldName = item?.BoundProperty,
+               FieldName = item?.BoundProperty,
                 NewValue = newValue,
                 TriggerType = TriggerType.PostTextItem,
                 RecordValues = GetCurrentRecordValues()

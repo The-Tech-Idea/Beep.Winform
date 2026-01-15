@@ -206,9 +206,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                 return EntityStructure.Fields
                     .Select(f => new FilterColumnInfo
                     {
-                        ColumnName = f.fieldname,
-                        DisplayName = f.Originalfieldname ?? f.fieldname,
-                        DataType = Type.GetType(f.fieldtype) ?? typeof(string),
+                        ColumnName = f.FieldName,
+                        DisplayName = f.Originalfieldname ?? f.FieldName,
+                        DataType = Type.GetType(f.Fieldtype) ?? typeof(string),
                         IsFilterable = true
                     })
                     .ToList();

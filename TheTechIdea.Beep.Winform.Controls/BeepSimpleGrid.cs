@@ -2175,52 +2175,52 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Update existing columns or add new ones for entity fields
                 foreach (var field in Entity.Fields)
                 {
-                    if (string.IsNullOrEmpty(field.fieldname))
+                    if (string.IsNullOrEmpty(field.FieldName))
                         continue;
 
-                    processedFields.Add(field.fieldname);
+                    processedFields.Add(field.FieldName);
 
-                    if (existingColumns.TryGetValue(field.fieldname, out BeepColumnConfig existingColumn))
+                    if (existingColumns.TryGetValue(field.FieldName, out BeepColumnConfig existingColumn))
                     {
                         // Update properties of existing column
-                        existingColumn.PropertyTypeName = field.fieldtype;
-                        existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(field.fieldtype);
-                        existingColumn.CellEditor = MapPropertyTypeToCellEditor(field.fieldtype);
+                        existingColumn.PropertyTypeName = field.Fieldtype;
+                        existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(field.Fieldtype);
+                        existingColumn.CellEditor = MapPropertyTypeToCellEditor(field.Fieldtype);
 
                         // Only update display properties if they aren't customized
                         if (string.IsNullOrEmpty(existingColumn.ColumnCaption) ||
                             existingColumn.ColumnCaption == existingColumn.ColumnName)
                         {
-                            existingColumn.ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname);
+                            existingColumn.ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.FieldName);
                         }
 
                         // Update format for date/time fields if not already set
                         if (string.IsNullOrEmpty(existingColumn.Format))
                         {
-                            Type fieldType = Type.GetType(field.fieldtype, throwOnError: false) ?? typeof(object);
-                            if (fieldType == typeof(DateTime))
+                            Type Fieldtype = Type.GetType(field.Fieldtype, throwOnError: false) ?? typeof(object);
+                            if (Fieldtype == typeof(DateTime))
                             {
                                 existingColumn.Format = "g";
                             }
                         }
 
                         // Update enum items if applicable
-                        Type fieldType2 = Type.GetType(field.fieldtype, throwOnError: false);
+                        Type fieldType2 = Type.GetType(field.Fieldtype, throwOnError: false);
                         if (fieldType2?.IsEnum == true && (existingColumn.Items == null || !existingColumn.Items.Any()))
                         {
                             existingColumn.Items = CreateEnumItems(fieldType2);
                         }
 
-                        //MiscFunctions.SendLog($"CreateColumnsForEntity: Updated existing column {field.fieldname}");
+                        //MiscFunctions.SendLog($"CreateColumnsForEntity: Updated existing column {field.FieldName}");
                     }
                     else
                     {
                         // Create a new column for this field
                         var colConfig = new BeepColumnConfig
                         {
-                            ColumnName = field.fieldname,
-                            ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),
-                            PropertyTypeName = field.fieldtype,
+                            ColumnName = field.FieldName,
+                            ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.FieldName),
+                            PropertyTypeName = field.Fieldtype,
                             GuidID = Guid.NewGuid().ToString(),
                             Visible = true,
                             Width = 100,
@@ -2233,18 +2233,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                         colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
                         colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
 
-                        Type fieldType = Type.GetType(colConfig.PropertyTypeName, throwOnError: false);
-                        if (fieldType == typeof(DateTime))
+                        Type Fieldtype = Type.GetType(colConfig.PropertyTypeName, throwOnError: false);
+                        if (Fieldtype == typeof(DateTime))
                         {
                             colConfig.Format = "g";
                         }
-                        else if (fieldType?.IsEnum == true)
+                        else if (Fieldtype?.IsEnum == true)
                         {
-                            colConfig.Items = CreateEnumItems(fieldType);
+                            colConfig.Items = CreateEnumItems(Fieldtype);
                         }
 
                         _columns.Add(colConfig);
-                        //MiscFunctions.SendLog($"CreateColumnsForEntity: Added new column {field.fieldname}");
+                        //MiscFunctions.SendLog($"CreateColumnsForEntity: Added new column {field.FieldName}");
                     }
                 }
 

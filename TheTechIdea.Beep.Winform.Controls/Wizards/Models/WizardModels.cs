@@ -82,13 +82,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Models
             return new WizardValidationResult { IsValid = true };
         }
 
-        public static WizardValidationResult Failure(string errorMessage, string fieldName = "", string errorCode = "")
+        public static WizardValidationResult Failure(string errorMessage, string pFieldName = "", string errorCode = "")
         {
             return new WizardValidationResult
             {
                 IsValid = false,
                 ErrorMessage = errorMessage,
-                FieldName = fieldName,
+               FieldName = pFieldName,
                 ErrorCode = errorCode
             };
         }

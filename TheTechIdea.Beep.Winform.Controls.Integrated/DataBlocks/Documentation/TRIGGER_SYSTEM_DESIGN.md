@@ -195,7 +195,7 @@ block.RegisterTrigger(TriggerType.WhenValidateItem, async (context) =>
     
     // Access item
     var itemName = context.ItemName;
-    var fieldName = context.FieldName;
+    var FieldName = context.FieldName;
     
     // Access values
     var oldValue = context.OldValue;

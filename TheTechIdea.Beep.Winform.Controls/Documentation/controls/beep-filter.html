@@ -1078,7 +1078,7 @@ this.Controls.Add(filter);</code></pre>
         {
             Conditions = filter.Conditions.Select(c => new
             {
-                FieldName = c.FieldName,
+               FieldName = c.FieldName,
                 Operator = c.Operator.ToString(),
                 Value = c.Value?.ToString(),
                 Value2 = c.Value2?.ToString(),

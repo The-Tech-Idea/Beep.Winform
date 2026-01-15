@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var context = new ValidationContext
             {
                 Block = this,
-                FieldName = fieldName,
+               FieldName = fieldName,
                 NewValue = value,
                 RecordValues = GetCurrentRecordValues(),
                 Mode = this.BlockMode
@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _block = block;
             _fieldName = fieldName;
-            _rule = new ValidationRule { FieldName = fieldName };
+            _rule = new ValidationRule {FieldName = fieldName };
         }
         
         public ValidationRuleBuilder Required(string errorMessage = null)

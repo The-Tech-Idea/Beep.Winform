@@ -674,7 +674,7 @@ customerBlock.RegisterLOV("StateID", new BeepDataBlockLOV
     {
         new AppFilter
         {
-            FieldName = "CountryID",
+           FieldName = "CountryID",
             Operator = "=",
             FilterValue = () => customerBlock.GetItemValue("CountryID")?.ToString()
         }

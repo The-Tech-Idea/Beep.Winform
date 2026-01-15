@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             return new AppFilter
             {
-                FieldName = _owner.BoundProperty,
+               FieldName = _owner.BoundProperty,
                 FilterValue = GetValue()?.ToString(),
                 Operator = "=",
                 valueType = "string"

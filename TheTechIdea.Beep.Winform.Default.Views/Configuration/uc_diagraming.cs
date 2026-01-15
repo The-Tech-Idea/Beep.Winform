@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //foreach (var item in viewModel.DBAssemblyClasses)
             //{
             //    SimpleItem item1 = new SimpleItem();
-            //    item1.DisplayField = item.className;
+            //    item1.IsDisplayField = item.className;
             //    item1.Value = idx++;
             //    item1.Text = item.className;
             //    item1.Name = item.className;

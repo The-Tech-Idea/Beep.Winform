@@ -127,8 +127,8 @@ var formTemplate = new FormStepTemplate(
     "Enter your details",
     new List<FormField>
     {
-        new FormField { Key = "username", Label = "Username", FieldType = FormFieldType.Text, IsRequired = true },
-        new FormField { Key = "email", Label = "Email", FieldType = FormFieldType.Email, IsRequired = true }
+        new FormField { Key = "username", Label = "Username", Fieldtype = FormFieldType.Text, IsRequired = true },
+        new FormField { Key = "email", Label = "Email", Fieldtype = FormFieldType.Email, IsRequired = true }
     }
 );
 

@@ -711,7 +711,7 @@ var activeOnlySwitch = new BeepSwitch
 
 // Create filter from switch state
 var filter = activeOnlySwitch.ToFilter();
-// Result: AppFilter { FieldName = "IsActive", FilterValue = "True", Operator = "=" }
+// Result: AppFilter {FieldName = "IsActive", FilterValue = "True", Operator = "=" }
 
 // Use in data queries
 var filteredData = dataSource.Where(filter.ToExpression());</code></pre>

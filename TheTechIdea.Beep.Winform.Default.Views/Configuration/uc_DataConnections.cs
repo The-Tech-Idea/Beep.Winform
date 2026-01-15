@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //foreach (var item in viewModel.PackageVersions)
             //{
             //    SimpleItem driveritem = new SimpleItem();
-            //    driveritem.DisplayField = item;
+            //    driveritem.IsDisplayField = item;
             //    driveritem.Value = idx++;
             //    driveritem.Text = item;
             //    driveritem.Name = item;
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //    foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == e.Cell.CellValue.ToString()))
             //    {
             //        SimpleItem itemversion = new SimpleItem();
-            //        itemversion.DisplayField = DriversClasse.version;
+            //        itemversion.IsDisplayField = DriversClasse.version;
             //        itemversion.Value = DriversClasse.version;
             //        itemversion.Text = DriversClasse.version;
             //        itemversion.Name = DriversClasse.version;

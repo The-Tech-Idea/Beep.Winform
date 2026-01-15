@@ -110,7 +110,7 @@ block.AddLookupRule("ProductID",
     keyField: "ProductID",
     additionalFilters: new List<AppFilter>
     {
-        new AppFilter { FieldName = "IsActive", Operator = "=", FilterValue = "true" }
+        new AppFilter {FieldName = "IsActive", Operator = "=", FilterValue = "true" }
     },
     errorMessage: "Product not found or inactive");
 ```
@@ -200,7 +200,7 @@ block.AddValidationRule(new ValidationRule
 {
     RuleName = "Quantity_Positive",
     Scope = ValidationScope.Field,
-    FieldName = "Quantity",
+   FieldName = "Quantity",
     RuleType = ValidationRuleType.Range,
     ErrorMessage = "Quantity must be greater than zero",
     Validator = (value, context) => Convert.ToInt32(value) > 0

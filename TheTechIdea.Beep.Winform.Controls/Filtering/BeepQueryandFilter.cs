@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Create Label
                 var label = new Label
                 {
-                    Text = field.fieldname,
+                    Text = field.FieldName,
                     AutoSize = true,
                     Anchor = AnchorStyles.Left
                 };
@@ -79,8 +79,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Create Filter object and tag controls
                 var filter = new AppFilter
                 {
-                    FieldName = field.fieldname,
-                    valueType = field.fieldtype
+                   FieldName = field.FieldName,
+                    valueType = field.Fieldtype
                 };
                 Filters.Add(filter);
                 if (controlFrom != null) controlFrom.Tag = (filter, true); // "From" input
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private Control CreateInputControl(EntityField field, bool isFrom)
         {
-            switch (Type.GetType(field.fieldtype))
+            switch (Type.GetType(field.Fieldtype))
             {
                 case Type type when type == typeof(DateTime):
                     return new DateTimePicker
@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool IsRangeSupported(EntityField field)
         {
             // Allow ranges for numeric and date fields
-            var type = Type.GetType(field.fieldtype);
+            var type = Type.GetType(field.Fieldtype);
             return type == typeof(DateTime) || type == typeof(int) || type == typeof(decimal) || type == typeof(double) || type == typeof(float);
         }
         public List<AppFilter> GetFilters()

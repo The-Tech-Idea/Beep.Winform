@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             foreach (var item in viewModel.EmbeddedDatabaseTypes)
             {
                 SimpleItem driveritem = new SimpleItem();
-               // driveritem.DisplayField =item.classHandler +" - " +item.DriverClass +" - " + item.version;
+               // driveritem.IsDisplayField =item.classHandler +" - " +item.DriverClass +" - " + item.version;
                 driveritem.Text = item.classHandler + " - " + item.DriverClass + " - " + item.version;
                 driveritem.Name = item.PackageName;
                 driveritem.Value = item;

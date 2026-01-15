@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             filters.Add(new AppFilter
                             {
-                                FieldName = rel.EntityColumnID,
+                               FieldName = rel.EntityColumnID,
                                 Operator = "=",
                                 FilterValue = masterValue
                             });
@@ -491,22 +491,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 foreach (var field in EntityStructure.Fields)
                 {
                     // Check if the field already exists in the Components list
-                    var existingComponent = Components.FirstOrDefault(c => c.Name == field.fieldname);
+                    var existingComponent = Components.FirstOrDefault(c => c.Name == field.FieldName);
 
                     if (existingComponent == null)
                     {
                         // Create a new component entry for this field if it doesn't exist
                         var newComponent = new BeepComponents
                         {
-                            Name = field.fieldname,
-                            TypeFullName = ControlExtensions.GetDefaultControlType(field.fieldCategory).FullName,
+                            Name = field.FieldName,
+                            TypeFullName = ControlExtensions.GetDefaultControlType(field.FieldCategory).FullName,
                             GUID = Guid.NewGuid().ToString(),
                             Left = 10,  // Default position
                             Top = 10 + Components.Count * 30,  // Stack vertically
                             Width = 200,  // Default width
                             Height = 25,  // Default height
-                            BoundProperty = field.fieldname,
-                            DataSourceProperty = field.fieldname,
+                            BoundProperty = field.FieldName,
+                            DataSourceProperty = field.FieldName,
                             LinkedProperty = string.Empty
                         };
 
@@ -520,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Type componentType = Type.GetType(existingComponent.TypeFullName);
                     if (componentType == null)
                     {
-                       // Console.WriteLine($"Cannot find type {existingComponent.TypeFullName} for field {field.fieldname}.");
+                       // Console.WriteLine($"Cannot find type {existingComponent.TypeFullName} for field {field.FieldName}.");
                         continue;
                     }
 
@@ -864,7 +864,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         filters.Add(new AppFilter
                         {
-                            FieldName = component.BoundProperty,
+                           FieldName = component.BoundProperty,
                             Operator = "=", // You can enhance this to support other operators
                             FilterValue = value.ToString()
                         });

@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             filters.Add(new AppFilter
                             {
-                                FieldName = rel.EntityColumnID,
+                               FieldName = rel.EntityColumnID,
                                 Operator = "=",
                                 FilterValue = masterValue
                             });

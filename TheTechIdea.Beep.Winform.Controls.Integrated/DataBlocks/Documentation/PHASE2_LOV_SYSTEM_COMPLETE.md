@@ -95,8 +95,8 @@ block.RegisterLOV("CustomerID", new BeepDataBlockLOV
     ReturnField = "CustomerID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
+        new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
     }
 });
 ```
@@ -192,8 +192,8 @@ ordersBlock.RegisterLOV("CustomerID", new BeepDataBlockLOV
     ReturnField = "CustomerID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
+        new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
     }
 });
 
@@ -377,8 +377,8 @@ ordersBlock.RegisterLOV("CustomerID", new BeepDataBlockLOV
     ReturnField = "CustomerID",
     Columns = new List<LOVColumn>
     {
-        new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-        new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
+        new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+        new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
     }
 });
 

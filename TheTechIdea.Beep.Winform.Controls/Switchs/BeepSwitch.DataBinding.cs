@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return new AppFilter
             {
-                FieldName = BoundProperty ?? "Checked",
+               FieldName = BoundProperty ?? "Checked",
                 FilterValue = Checked.ToString(),
                 Operator = "="
             };

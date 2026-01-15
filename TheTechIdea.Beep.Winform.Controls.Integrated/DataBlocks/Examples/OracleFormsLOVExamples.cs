@@ -30,9 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "CustomerID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-                    new LOVColumn { FieldName = "ContactName", DisplayName = "Contact", Width = 150 }
+                    new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+                    new LOVColumn {FieldName = "ContactName", DisplayName = "Contact", Width = 150 }
                 },
                 ValidationType = LOVValidationType.ListOnly  // Must select from list
             });
@@ -62,11 +62,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "CustomerID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-                    new LOVColumn { FieldName = "ContactName", DisplayName = "Contact", Width = 150 },
-                    new LOVColumn { FieldName = "Phone", DisplayName = "Phone", Width = 120 },
-                    new LOVColumn { FieldName = "Address", DisplayName = "Address", Width = 200 }
+                    new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+                    new LOVColumn {FieldName = "ContactName", DisplayName = "Contact", Width = 150 },
+                    new LOVColumn {FieldName = "Phone", DisplayName = "Phone", Width = 120 },
+                    new LOVColumn {FieldName = "Address", DisplayName = "Address", Width = 200 }
                 },
                 ValidationType = LOVValidationType.ListOnly,
                 AutoPopulateRelatedFields = true,
@@ -107,14 +107,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "CustomerID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-                    new LOVColumn { FieldName = "Status", DisplayName = "Status", Width = 100 }
+                    new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+                    new LOVColumn {FieldName = "Status", DisplayName = "Status", Width = 100 }
                 },
                 Filters = new List<AppFilter>
                 {
-                    new AppFilter { FieldName = "IsActive", Operator = "=", FilterValue = "true" },
-                    new AppFilter { FieldName = "Status", Operator = "=", FilterValue = "Active" }
+                    new AppFilter {FieldName = "IsActive", Operator = "=", FilterValue = "true" },
+                    new AppFilter {FieldName = "Status", Operator = "=", FilterValue = "Active" }
                 },
                 OrderByClause = "CompanyName ASC"
             });
@@ -141,8 +141,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "CustomerID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
+                    new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
                 }
             };
             
@@ -201,9 +201,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 AllowMultiSelect = true,  // Enable multi-select
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-                    new LOVColumn { FieldName = "City", DisplayName = "City", Width = 120 }
+                    new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+                    new LOVColumn {FieldName = "City", DisplayName = "City", Width = 120 }
                 }
             });
             
@@ -230,9 +230,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "ProductID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "ProductID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "ProductName", DisplayName = "Product", Width = 200 },
-                    new LOVColumn { FieldName = "UnitPrice", DisplayName = "Price", Width = 100, Format = "C2" }
+                    new LOVColumn {FieldName = "ProductID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "ProductName", DisplayName = "Product", Width = 200 },
+                    new LOVColumn {FieldName = "UnitPrice", DisplayName = "Price", Width = 100, Format = "C2" }
                 },
                 UseCache = true,  // Enable caching
                 CacheDurationMinutes = 30,  // Cache for 30 minutes
@@ -270,8 +270,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ValidationType = LOVValidationType.ListOnly,  // Strict validation
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "StatusCode", DisplayName = "Code", Width = 80 },
-                    new LOVColumn { FieldName = "StatusName", DisplayName = "Status", Width = 150 }
+                    new LOVColumn {FieldName = "StatusCode", DisplayName = "Code", Width = 80 },
+                    new LOVColumn {FieldName = "StatusName", DisplayName = "Status", Width = 150 }
                 }
             });
             
@@ -287,7 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ValidationType = LOVValidationType.Unrestricted,  // No validation
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "NoteText", DisplayName = "Note", Width = 300 }
+                    new LOVColumn {FieldName = "NoteText", DisplayName = "Note", Width = 300 }
                 }
             });
         }
@@ -313,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 SearchMode = LOVSearchMode.Contains,  // Searches anywhere in string
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 }
                 }
             });
             
@@ -329,8 +329,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 SearchMode = LOVSearchMode.StartsWith,  // Searches at start of string
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "ProductCode", DisplayName = "Code", Width = 100 },
-                    new LOVColumn { FieldName = "ProductName", DisplayName = "Product", Width = 200 }
+                    new LOVColumn {FieldName = "ProductCode", DisplayName = "Code", Width = 100 },
+                    new LOVColumn {FieldName = "ProductName", DisplayName = "Product", Width = 200 }
                 }
             });
         }
@@ -361,14 +361,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "CustomerID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
-                    new LOVColumn { FieldName = "ContactName", DisplayName = "Contact", Width = 150 },
-                    new LOVColumn { FieldName = "Phone", DisplayName = "Phone", Width = 120 }
+                    new LOVColumn {FieldName = "CustomerID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "CompanyName", DisplayName = "Company", Width = 200 },
+                    new LOVColumn {FieldName = "ContactName", DisplayName = "Contact", Width = 150 },
+                    new LOVColumn {FieldName = "Phone", DisplayName = "Phone", Width = 120 }
                 },
                 Filters = new List<AppFilter>
                 {
-                    new AppFilter { FieldName = "IsActive", Operator = "=", FilterValue = "true" }
+                    new AppFilter {FieldName = "IsActive", Operator = "=", FilterValue = "true" }
                 },
                 OrderByClause = "CompanyName ASC",
                 AutoPopulateRelatedFields = true,
@@ -393,16 +393,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "ProductID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "ProductID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "ProductCode", DisplayName = "Code", Width = 100 },
-                    new LOVColumn { FieldName = "ProductName", DisplayName = "Product", Width = 200 },
-                    new LOVColumn { FieldName = "UnitPrice", DisplayName = "Price", Width = 100, Format = "C2" },
-                    new LOVColumn { FieldName = "StockQuantity", DisplayName = "In Stock", Width = 100 }
+                    new LOVColumn {FieldName = "ProductID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "ProductCode", DisplayName = "Code", Width = 100 },
+                    new LOVColumn {FieldName = "ProductName", DisplayName = "Product", Width = 200 },
+                    new LOVColumn {FieldName = "UnitPrice", DisplayName = "Price", Width = 100, Format = "C2" },
+                    new LOVColumn {FieldName = "StockQuantity", DisplayName = "In Stock", Width = 100 }
                 },
                 Filters = new List<AppFilter>
                 {
-                    new AppFilter { FieldName = "IsActive", Operator = "=", FilterValue = "true" },
-                    new AppFilter { FieldName = "StockQuantity", Operator = ">", FilterValue = "0" }
+                    new AppFilter {FieldName = "IsActive", Operator = "=", FilterValue = "true" },
+                    new AppFilter {FieldName = "StockQuantity", Operator = ">", FilterValue = "0" }
                 },
                 OrderByClause = "ProductName ASC",
                 AutoPopulateRelatedFields = true,
@@ -427,9 +427,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "DiscountCode",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "DiscountCode", DisplayName = "Code", Width = 100 },
-                    new LOVColumn { FieldName = "CodeName", DisplayName = "Name", Width = 150 },
-                    new LOVColumn { FieldName = "DiscountPercent", DisplayName = "Discount %", Width = 100 }
+                    new LOVColumn {FieldName = "DiscountCode", DisplayName = "Code", Width = 100 },
+                    new LOVColumn {FieldName = "CodeName", DisplayName = "Name", Width = 150 },
+                    new LOVColumn {FieldName = "DiscountPercent", DisplayName = "Discount %", Width = 100 }
                 },
                 ValidationType = LOVValidationType.Unrestricted,  // Can type custom code
                 AutoPopulateRelatedFields = true,
@@ -460,9 +460,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Examples
                 ReturnField = "ProductID",
                 Columns = new List<LOVColumn>
                 {
-                    new LOVColumn { FieldName = "ProductID", DisplayName = "ID", Width = 80 },
-                    new LOVColumn { FieldName = "ProductName", DisplayName = "Product", Width = 200 },
-                    new LOVColumn { FieldName = "UnitPrice", DisplayName = "Price", Width = 100, Format = "C2" }
+                    new LOVColumn {FieldName = "ProductID", DisplayName = "ID", Width = 80 },
+                    new LOVColumn {FieldName = "ProductName", DisplayName = "Product", Width = 200 },
+                    new LOVColumn {FieldName = "UnitPrice", DisplayName = "Price", Width = 100, Format = "C2" }
                 },
                 AutoPopulateRelatedFields = true,
                 RelatedFieldMappings = new Dictionary<string, string>

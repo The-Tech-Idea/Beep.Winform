@@ -148,6 +148,13 @@ This plan outlines the refactoring of all connection controls in the DataSource_
 
 **Total: 117 connection controls** (excluding base class)
 
+## Skill-Aware Guidance
+
+- Refer to the `beep-winform-ui` skill (SKILL.md + references/controls-overview.md) for how the WinForms controls share `BaseControl`, `Styling`, `ThemeManagement`, and `FontManagement`. Treat this folder as part of that ecosystem and keep theming consistent with `BeepThemesManager`, `BeepControl.ApplyTheme`, and `BeepGlobalThemeManager`.
+- When refactoring dialogues, look at how `BaseControl` defines the shared properties/methods and flow. This matches the same pattern the skill documents for `BeepPanel`/`BeepButton` combos: always apply theme updates through the theme manager before returning to the caller.
+- Use the `Styling` and `FontManagement` helpers when you customize tabs (especially for icons or themed fonts) so the controls stay consistent with the rest of the library; the skill highlights the importance of calling `ApplyThemeOnImage` on `BeepImage` instances.
+
+
 ## Refactoring Steps
 
 1. **Refactor DataConnectionBase**

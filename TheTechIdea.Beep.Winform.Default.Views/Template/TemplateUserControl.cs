@@ -31,11 +31,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         protected string? EntityName;
         protected UnitOfWorkWrapper? uow;
 
+        private bool _themeEventsRegistered;
+
         public TemplateUserControl()
         {
             InitializeComponent();
             Details = new AddinDetails { ObjectType = "UserControl" };
             Dependencies = new Dependencies();
+            RegisterThemeEvents();
             
             // Enable double buffering to prevent flickering and ensure proper rendering
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
@@ -55,13 +58,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
                 Dependencies.DMEEditor = beepService.DMEEditor;
                 Dependencies.Logger = beepService.lg;
                 Editor = beepService.DMEEditor;
-              
-
-                BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
-                BeepThemesManager.FormStyleChanged+= BeepThemesManager_FormStyleChanged;
-                Theme = BeepThemesManager.CurrentThemeName;
-            
             }
+            // Ensure the current theme is honored even when services supply theme changes later.
+            Theme = BeepThemesManager.CurrentThemeName;
         }
 
         private void BeepThemesManager_FormStyleChanged(object? sender, StyleChangeEventArgs e)
@@ -156,13 +155,48 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public void ApplyTheme()
         {
-            foreach (Control item in Controls)
+            ApplyThemeToControls(this.Controls);
+        }
+
+        private void ApplyThemeToControls(Control.ControlCollection controls)
+        {
+            foreach (Control child in controls)
             {
-                if (item is IBeepUIComponent ui)
+                if (child is IBeepUIComponent ui)
                 {
                     ui.Theme = Theme;
                 }
+                if (child.HasChildren)
+                {
+                    ApplyThemeToControls(child.Controls);
+                }
             }
+        }
+
+        private void RegisterThemeEvents()
+        {
+            if (_themeEventsRegistered) return;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            BeepThemesManager.FormStyleChanged += BeepThemesManager_FormStyleChanged;
+            _themeEventsRegistered = true;
+            Theme = BeepThemesManager.CurrentThemeName;
+        }
+
+        private void UnregisterThemeEvents()
+        {
+            if (!_themeEventsRegistered) return;
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager.FormStyleChanged -= BeepThemesManager_FormStyleChanged;
+            _themeEventsRegistered = false;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                UnregisterThemeEvents();
+            }
+            base.Dispose(disposing);
         }
     }
 }

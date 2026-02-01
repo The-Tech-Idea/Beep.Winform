@@ -194,7 +194,7 @@
         d2luZy5Qb2ludEYCAAAAAXgBeQAACwsCAAAAAAAAPwAAAD8L
 </value>
   </data>
-  <data name="nordTheme1.ChartDefaultSeriesColors" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="ubuntuTheme1.ChartDefaultSeriesColors" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFFTeXN0ZW0uRHJhd2luZywgVmVyc2lvbj00LjAuMC4wLCBDdWx0
         dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWIwM2Y1ZjdmMTFkNTBhM2EEAQAAAIwBU3lzdGVtLkNv
@@ -203,8 +203,8 @@
         ZjExZDUwYTNhXV0DAAAABl9pdGVtcwVfc2l6ZQhfdmVyc2lvbgQAABZTeXN0ZW0uRHJhd2luZy5Db2xv
         cltdAgAAAAgICQMAAAAEAAAABAAAAAcDAAAAAAEAAAAEAAAABBRTeXN0ZW0uRHJhd2luZy5Db2xvcgIA
         AAAF/P///xRTeXN0ZW0uRHJhd2luZy5Db2xvcgQAAAAEbmFtZQV2YWx1ZQprbm93bkNvbG9yBXN0YXRl
-        AQAAAAkHBwIAAAAK0MCI/wAAAAAAAAIAAfv////8////CqyBXv8AAAAAAAACAAH6/////P///wqLy+v/
-        AAAAAAAAAgAB+f////z///8KrIFe/wAAAAAAAAIACw==
+        AQAAAAkHBwIAAAAKIFTp/wAAAAAAAAIAAfv////8////Cm8hd/8AAAAAAAACAAH6/////P///wpCxfT/
+        AAAAAAAAAgAB+f////z///8K3tra/wAAAAAAAAIACw==
 </value>
   </data>
   <data name="beepComboBox1.Items" mimetype="application/x-microsoft.net.object.binary.base64">
@@ -225,7 +225,7 @@
   <data name="beepComboBox1.SelectedItems" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFRUaGVUZWNoSWRlYS5CZWVwLlZpcy5Nb2R1bGVzLCBWZXJzaW9u
-        PTIuMC4zMy4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwEAQAAAJwBU3lzdGVt
+        PTIuMC4zNC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwEAQAAAJwBU3lzdGVt
         LkNvbGxlY3Rpb25zLkdlbmVyaWMuTGlzdGAxW1tUaGVUZWNoSWRlYS5CZWVwLldpbmZvcm0uQ29udHJv
         bHMuTW9kZWxzLlNpbXBsZUl0ZW0sIFRoZVRlY2hJZGVhLkJlZXAuVmlzLk1vZHVsZXMsIEN1bHR1cmU9
         bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbF1dAwAAAAZfaXRlbXMFX3NpemUIX3ZlcnNpb24EAAA1

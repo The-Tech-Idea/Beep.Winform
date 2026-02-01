@@ -288,12 +288,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             try
             {
-                Region controlRegion;
-                var regionRect = new Rectangle(0, 0, Width, Height);
+                // Ensure painter shapes are up to date
+                _painter?.UpdateLayout(this);
 
-                // Always use rectangular region to allow smooth anti-aliased corners
-                // Setting a rounded region causes jagged edges
-                controlRegion = new Region(regionRect);
+                Region controlRegion;
+                if (BorderPath != null)
+                {
+                     controlRegion = new Region(BorderPath);
+                }
+                else
+                {
+                     controlRegion = new Region(new Rectangle(0, 0, Width, Height));
+                }
 
                 // Include badge area if present
                 if (!string.IsNullOrEmpty(BadgeText))

@@ -10,24 +10,23 @@ using TheTechIdea.Beep.Winform.Controls.Wizards.Layout;
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 {
     /// <summary>
-    /// Vertical stepper wizard form with timeline on left side
+    /// Minimal wizard form with simple progress indicator
     /// </summary>
-    public class VerticalStepperWizardForm : BeepiFormPro, IWizardFormHost
+    public class MinimalWizardForm : BeepiFormPro, IWizardFormHost
     {
         #region Fields
 
         private WizardInstance _instance;
-        private VerticalStepperPainter _painter;
-        private VerticalStepperLayout _layoutManager;
+        private MinimalPainter _painter;
+        private MinimalLayout _layoutManager;
         
-        private Panel _sidePanel;
+        private Panel _headerPanel;
         private Panel _contentPanel;
         private Panel _buttonPanel;
         
         private BeepButton _btnNext;
         private BeepButton _btnBack;
         private BeepButton _btnCancel;
-        private BeepButton _btnSkip;
 
         #endregion
 
@@ -39,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         #region Constructor
 
-        public VerticalStepperWizardForm()
+        public MinimalWizardForm()
         {
             // Designer Mode Setup
             var config = new WizardConfig { Title = "Wizard Design Mode" };
@@ -50,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _instance = new WizardInstance(config);
             _instance.BindFormHost(this);
             
-            _painter = new VerticalStepperPainter();
-            _layoutManager = new VerticalStepperLayout();
+            _painter = new MinimalPainter();
+            _layoutManager = new MinimalLayout();
 
             InitializeForm();
             InitializeControls();
@@ -60,13 +59,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             UpdateUI();
         }
 
-        public VerticalStepperWizardForm(WizardInstance instance)
+        public MinimalWizardForm(WizardInstance instance)
         {
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
             _instance.BindFormHost(this);
             
-            _painter = new VerticalStepperPainter();
-            _layoutManager = new VerticalStepperLayout();
+            _painter = new MinimalPainter();
+            _layoutManager = new MinimalLayout();
 
             InitializeForm();
             InitializeControls();
@@ -98,42 +97,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void InitializeControls()
         {
-            // Side panel for step timeline (left)
-            _sidePanel = new Panel
+            // Header panel with minimal progress (top)
+            _headerPanel = new Panel
             {
-                Dock = DockStyle.Left,
-                Width = 280,
+                Dock = DockStyle.Top,
+                Height = 60,
                 BackColor = Color.Transparent
             };
-            _sidePanel.Paint += SidePanel_Paint;
+            _headerPanel.Paint += HeaderPanel_Paint;
 
             // Button panel (bottom)
             _buttonPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 70,
-                Padding = new Padding(20, 15, 20, 15)
+                Height = 60,
+                Padding = new Padding(20, 10, 20, 10)
             };
 
             // Content panel (fill)
             _contentPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(30, 30, 30, 20)
+                Padding = new Padding(40, 20, 40, 20)
             };
 
             // Navigation buttons
             _btnNext = new BeepButton
             {
                 Text = _instance.Config.NextButtonText,
-                Size = new Size(130, 40),
+                Size = new Size(120, 36),
                 Anchor = AnchorStyles.Right | AnchorStyles.Bottom
             };
 
             _btnBack = new BeepButton
             {
                 Text = _instance.Config.BackButtonText,
-                Size = new Size(100, 40),
+                Size = new Size(100, 36),
                 Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
                 Enabled = false
             };
@@ -141,47 +140,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _btnCancel = new BeepButton
             {
                 Text = _instance.Config.CancelButtonText,
-                Size = new Size(100, 40),
+                Size = new Size(100, 36),
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
-
-            if (_instance.Config.AllowSkip)
-            {
-                _btnSkip = new BeepButton
-                {
-                    Text = _instance.Config.SkipButtonText,
-                    Size = new Size(100, 40),
-                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
-                    Visible = false
-                };
-            }
 
             _painter.Initialize(this, CurrentTheme, _instance);
         }
 
         private void LayoutControls()
         {
-            // Layout buttons
             int rightEdge = _buttonPanel.ClientSize.Width - _buttonPanel.Padding.Right;
             int buttonY = (_buttonPanel.Height - _btnNext.Height) / 2;
 
             _btnNext.Location = new Point(rightEdge - _btnNext.Width, buttonY);
             _btnBack.Location = new Point(_btnNext.Left - _btnBack.Width - 10, buttonY);
-            _btnCancel.Location = new Point(_sidePanel.Width + 20, buttonY);
+            _btnCancel.Location = new Point(_buttonPanel.Padding.Left, buttonY);
 
             _buttonPanel.Controls.Add(_btnNext);
             _buttonPanel.Controls.Add(_btnBack);
             _buttonPanel.Controls.Add(_btnCancel);
 
-            if (_btnSkip != null)
-            {
-                _btnSkip.Location = new Point(_btnCancel.Right + 10, buttonY);
-                _buttonPanel.Controls.Add(_btnSkip);
-            }
-
             Controls.Add(_contentPanel);
             Controls.Add(_buttonPanel);
-            Controls.Add(_sidePanel);
+            Controls.Add(_headerPanel);
         }
 
         private void SetupEventHandlers()
@@ -189,9 +170,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _btnNext.Click += BtnNext_Click;
             _btnBack.Click += BtnBack_Click;
             _btnCancel.Click += BtnCancel_Click;
-            if (_btnSkip != null)
-                _btnSkip.Click += BtnSkip_Click;
-
             KeyDown += Form_KeyDown;
             Resize += Form_Resize;
         }
@@ -210,11 +188,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 ?? (_instance.IsLastStep ? _instance.Config.FinishButtonText : _instance.Config.NextButtonText);
             _btnNext.Text = nextText;
 
-            if (_btnSkip != null)
-            {
-                _btnSkip.Visible = currentStep?.IsOptional ?? false;
-            }
-
             _contentPanel.Controls.Clear();
             if (currentStep?.Content != null)
             {
@@ -228,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 }
             }
 
-            _sidePanel.Invalidate();
+            _headerPanel.Invalidate();
         }
 
         public void ShowValidationError(string message)
@@ -274,15 +247,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _instance.Cancel();
         }
 
-        private void BtnSkip_Click(object sender, EventArgs e)
-        {
-            if (_instance.CurrentStep?.IsOptional == true)
-            {
-                _instance.CurrentStep.State = StepState.Skipped;
-                _instance.NavigateNext();
-            }
-        }
-
         private void StepContent_ValidationStateChanged(object sender, StepValidationEventArgs e)
         {
             _btnNext.Enabled = e.IsValid;
@@ -308,13 +272,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private void Form_Resize(object sender, EventArgs e)
         {
-            _sidePanel.Invalidate();
+            _headerPanel.Invalidate();
         }
 
-        private void SidePanel_Paint(object sender, PaintEventArgs e)
+        private void HeaderPanel_Paint(object sender, PaintEventArgs e)
         {
-            _painter.PaintStepTimeline(e.Graphics, _sidePanel.ClientRectangle,
-                _instance.CurrentStepIndex, _instance.Config.Steps);
+            _painter.PaintMinimalProgress(e.Graphics, _headerPanel.ClientRectangle,
+                _instance.CurrentStepIndex, _instance.Config.Steps.Count, _instance.Config.Steps);
         }
 
         #endregion
@@ -330,20 +294,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 BackColor = CurrentTheme.BackColor;
                 _contentPanel.BackColor = CurrentTheme.BackColor;
                 _buttonPanel.BackColor = CurrentTheme.BackColor;
-                
-                // Side panel with slightly different background
-                var sidePanelColor = ControlPaint.Dark(CurrentTheme.BackColor, 0.05f);
-                _sidePanel.BackColor = sidePanelColor;
+                _headerPanel.BackColor = CurrentTheme.BackColor;
 
                 _btnNext.Theme = CurrentTheme.ThemeName;
                 _btnBack.Theme = CurrentTheme.ThemeName;
                 _btnCancel.Theme = CurrentTheme.ThemeName;
-                if (_btnSkip != null) _btnSkip.Theme = CurrentTheme.ThemeName;
 
                 _btnNext.ApplyTheme();
                 _btnBack.ApplyTheme();
                 _btnCancel.ApplyTheme();
-                _btnSkip?.ApplyTheme();
 
                 _painter.Initialize(this, CurrentTheme, _instance);
             }

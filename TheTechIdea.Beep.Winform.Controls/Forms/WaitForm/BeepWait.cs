@@ -1,7 +1,8 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using System.Threading;
+using System.ComponentModel;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
@@ -87,10 +88,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(3000)]
         public int AnimationWaitTimeout { get; set; } = 3000;
         
+        /// <summary>
+        /// UI thread synchronization context (captured when form is created on UI thread).
+        /// Used to marshal Config() and SafeInvoke() from background threads without touching the control from a non-UI thread.
+        /// Same pattern as WinFormsApp.UI.Test: wait form is shown/updated via AppManager (ShowWaitForm, PasstoWaitForm, CloseWaitForm).
+        /// </summary>
+        private readonly SynchronizationContext _uiSyncContext;
+
         public BeepWait() : base()
         {
-
             InitializeComponent();
+
+            // Capture UI thread context so Config()/SafeInvoke() can marshal from any thread without accessing this control
+            _uiSyncContext = SynchronizationContext.Current ?? new System.Windows.Forms.WindowsFormsSynchronizationContext();
 
             Progress.ProgressChanged += (sender, args) =>
             {
@@ -246,31 +256,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             SafeInvoke(() => _spinnerImage.IsSpinning = false);
         }
 
+        /// <summary>
+        /// Run action on the UI thread. Safe to call from any thread (e.g. Progress callbacks, PasstoWaitForm).
+        /// Uses SynchronizationContext so we never touch the control from a non-UI thread (avoids cross-thread exception).
+        /// </summary>
         public void SafeInvoke(Action action)
         {
-            if (this.IsDisposed)
+            if (action == null) return;
+            if (_uiSyncContext == null)
             {
-                //Debug.WriteLine("Form is disposed. Action skipped.");
+                action();
                 return;
             }
-
-            // Force handle creation if it doesn't exist
-            if (!this.IsHandleCreated)
+            _uiSyncContext.Post(_ =>
             {
-                //Debug.WriteLine("Form handle not created. Forcing handle creation.");
-                var forceHandle = this.Handle; // Force handle creation
-            }
-
-            if (this.InvokeRequired)
-            {
-                //Debug.WriteLine("Invoking action on UI thread.");
-                this.Invoke(action);
-            }
-            else
-            {
-                //Debug.WriteLine("Executing action directly.");
-                action();
-            }
+                try
+                {
+                    if (!IsDisposed)
+                        action();
+                }
+                catch (ObjectDisposedException) { }
+            }, null);
         }
 
         public async void CloseForm()
@@ -380,30 +386,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             });
         }
 
+        /// <summary>
+        /// Configure wait form (title, message, image). Called from AppManager.ShowWaitForm() which may run on a background thread.
+        /// Marshal all UI updates to the UI thread via SynchronizationContext (same logic as WinFormsApp.UI.Test / BeepAppServices).
+        /// </summary>
         public IErrorsInfo Config(PassedArgs Passedarguments)
         {
+            if (_uiSyncContext == null)
+            {
+                ApplyConfigOnUiThread(Passedarguments);
+                return new ErrorsInfo { Flag = Errors.Ok, Message = "Wait form shown successfully." };
+            }
+            _uiSyncContext.Send(_ =>
+            {
+                ApplyConfigOnUiThread(Passedarguments);
+            }, null);
+            return new ErrorsInfo { Flag = Errors.Ok, Message = "Wait form shown successfully." };
+        }
 
+        private void ApplyConfigOnUiThread(PassedArgs Passedarguments)
+        {
+            if (IsDisposed) return;
             this.TopMost = true;
             this.ShowInTaskbar = false;
             this.StartPosition = FormStartPosition.CenterScreen;
-
-            SafeInvoke(() =>
-            {
-                StartSpinner();
-                if (!string.IsNullOrEmpty(Passedarguments?.Title))
-                {
-                    SetTitle(Passedarguments.Title);
-                }
-                if (!string.IsNullOrEmpty(Passedarguments?.Messege))
-                {
-                    SetText(Passedarguments.Messege);
-                }
-                if (!string.IsNullOrEmpty(Passedarguments?.ImagePath))
-                {
-                    SetImage(Passedarguments.ImagePath);
-                }
-            });
-            return new ErrorsInfo { Flag = Errors.Ok, Message = "Wait form shown successfully." };
+            StartSpinner();
+            if (!string.IsNullOrEmpty(Passedarguments?.Title))
+                SetTitle(Passedarguments.Title);
+            if (!string.IsNullOrEmpty(Passedarguments?.Messege))
+                SetText(Passedarguments.Messege);
+            if (!string.IsNullOrEmpty(Passedarguments?.ImagePath))
+                SetImage(Passedarguments.ImagePath);
         }
 
         public void UpdateProgress(int progress, string text = null)

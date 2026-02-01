@@ -366,16 +366,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
             int padding = _compactMode ? 8 : 12;
             int currentY = clientRect.Top + padding;
 
-            if (UseThemeColors && _currentTheme != null)
-            {
-                BackColor = _currentTheme.CardBackColor;
-                g.Clear(BackColor);
-            }
-            else
-            {
-                // Paint background based on selected Style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
-            }
+            //if (UseThemeColors && _currentTheme != null)
+            //{
+            //    BackColor = _currentTheme.CardBackColor;
+            //    g.Clear(BackColor);
+            //}
+            //else
+            //{
+            //    // Paint background based on selected Style
+            //    BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            //}
             // Draw in sections
             currentY = DrawHeader(g, clientRect, padding, currentY);
             currentY = DrawContent(g, clientRect, padding, currentY);

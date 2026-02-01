@@ -1285,6 +1285,557 @@ public async Task<EntityStructure> GetEntityStructureAsync(string entityName)
 }
 ```
 
+## ETL Patterns
+
+### ETLEditor Overview
+
+**ETLEditor** orchestrates Extract, Transform, and Load operations: script generation, entity creation, data copying, and imports. It provides a comprehensive workflow for migrating data between data sources.
+
+### Basic ETL Workflow
+
+```csharp
+var etl = new ETLEditor(dmeEditor);
+
+// 1) Build script header from source
+etl.CreateScriptHeader(
+    sourceDs, 
+    new Progress<PassedArgs>(p => Console.WriteLine(p.Messege)), 
+    token);
+
+// 2) Optionally filter/modify scripts
+// etl.Script.ScriptDetails = etl.Script.ScriptDetails.Where(...).ToList();
+
+// 3) Execute (create entities, then optionally copy data)
+var result = await etl.RunCreateScript(
+    progress, 
+    token, 
+    copydata: true, 
+    useEntityStructure: true);
+```
+
+### ETL Import Workflow
+
+```csharp
+// Prepare mapping
+var mapTuple = MappingManager.CreateEntityMap(
+    dmeEditor, 
+    "LegacyCustomers", 
+    "LegacyDB", 
+    "Customers", 
+    "MainDB");
+var entityMap = mapTuple.Item2;
+var selected = entityMap.MappedEntities.First();
+
+// Create and run import script
+etl.CreateImportScript(entityMap, selected);
+var importResult = await etl.RunImportScript(progress, token);
+```
+
+### ETL Notes
+
+- Entity creation uses destination datasource's `CreateEntityAs`
+- CopyData steps call internal `RunCopyEntityScript` which fetches, maps, applies defaults, and inserts
+- Use `StopErrorCount` to guard execution
+- Check `LoadDataLogs` for detailed run logs
+
+### ETLDataCopier Pattern
+
+**ETLDataCopier** provides high-throughput data copying with batching, optional parallelism, and retry capabilities.
+
+```csharp
+var copier = new ETLDataCopier(dmeEditor);
+
+var result = await copier.CopyEntityDataAsync(
+    sourceDs: dmeEditor.GetDataSource("Legacy"),
+    destDs: dmeEditor.GetDataSource("Modern"),
+    srcEntity: "Customers",
+    destEntity: "Customers",
+    progress: new Progress<PassedArgs>(p => Console.WriteLine(p.Messege)),
+    token: CancellationToken.None,
+    map_DTL: selectedMapping,     // optional EntityDataMap_DTL
+    customTransformation: r => r,  // optional transformation delegate
+    batchSize: 200,
+    enableParallel: true,
+    maxRetries: 2);
+```
+
+### ETLDataCopier Features
+
+- **Defaults Application**: Defaults are applied per transformed record using `MappingDefaultsHelper.ApplyDefaultsToObject`
+- **Mapping Preservation**: Only null/default destination fields are filled; mapped values are preserved
+- **Defaults Resolution**: Goes through `DefaultsManager` (static values and rule-based values)
+- **Performance**: Use `batchSize` and `enableParallel` according to dataset size and destination capabilities
+- **Transformation**: Provide a `customTransformation` for last-mile enrichment/cleansing after mapping/defaults
+
+### ETLEntityProcessor Pattern
+
+**ETLEntityProcessor** provides record validation, transformation, and batch processing capabilities.
+
+```csharp
+var processor = new ETLEntityProcessor();
+
+// Validate records
+var (validRecords, invalidRecords) = processor.ValidateRecords(
+    records,
+    record => record != null && !string.IsNullOrEmpty(record.Name));
+
+// Transform records
+var transformedRecords = processor.TransformRecords(
+    records,
+    record => 
+    {
+        // Custom transformation logic
+        record.ProcessedDate = DateTime.Now;
+        return record;
+    });
+
+// Process records with optional parallelism
+await processor.ProcessRecordsAsync(
+    records,
+    async record => 
+    {
+        await ProcessRecordAsync(record);
+    },
+    parallel: true);
+```
+
+## Data Import Patterns
+
+### DataImportManager Overview
+
+**DataImportManager** provides enhanced data import functionality with helper-based architecture, DefaultsManager integration, and comprehensive validation and transformation capabilities.
+
+### Basic Import (Backward Compatible)
+
+```csharp
+using var importManager = new DataImportManager(dmeEditor);
+
+// Configure using familiar properties
+importManager.SourceEntityName = "SourceCustomers";
+importManager.SourceDataSourceName = "ExternalCRM";
+importManager.DestEntityName = "Customers";
+importManager.DestDataSourceName = "MainDatabase";
+
+// Load destination structure (auto-loads defaults)
+var loadResult = importManager.LoadDestEntityStructure("Customers", "MainDatabase");
+
+// Execute import
+var progress = new Progress<IPassedArgs>(args => Console.WriteLine(args.Messege));
+using var cts = new CancellationTokenSource();
+var result = await importManager.RunImportAsync(progress, cts.Token, null, 100);
+```
+
+### Enhanced Configuration Import
+
+```csharp
+using var importManager = new DataImportManager(dmeEditor);
+
+// Create enhanced configuration
+var config = importManager.CreateImportConfiguration(
+    "ProductsExport", 
+    "ExternalSystem",
+    "Products", 
+    "MainDatabase");
+
+// Configure advanced options
+config.SourceFilters.Add(new AppFilter 
+{ 
+    FieldName = "ModifiedDate", 
+    Operator = ">=", 
+    FilterValue = DateTime.Today.AddDays(-7).ToString() 
+});
+
+config.SelectedFields = new List<string> { "ProductCode", "ProductName", "Price" };
+config.BatchSize = 200;
+config.ApplyDefaults = true; // Uses DefaultsManager automatically
+
+// Custom transformation
+config.CustomTransformation = (record) => 
+{
+    // Apply business logic
+    if (record is Dictionary<string, object> dict)
+    {
+        dict["ImportedDate"] = DateTime.Now;
+        dict["ImportedBy"] = Environment.UserName;
+    }
+    return record;
+};
+
+// Execute with enhanced features
+var result = await importManager.RunImportAsync(config, progress, cancellationToken);
+```
+
+### DataImportManager Helpers
+
+```csharp
+using var importManager = new DataImportManager(dmeEditor);
+
+// Use helpers directly for fine-grained control
+var validation = importManager.ValidationHelper.ValidateImportConfiguration(config);
+var optimalBatchSize = importManager.BatchHelper.CalculateOptimalBatchSize(50000, 2048);
+var metrics = importManager.ProgressHelper.CalculatePerformanceMetrics(startTime, processed, total);
+
+// Access detailed logging
+var errors = importManager.ProgressHelper.GetLogEntriesByLevel(ImportLogLevel.Error);
+var logText = importManager.ProgressHelper.ExportLogToText();
+```
+
+### DataImportManager Features
+
+- **Helper-Based Architecture**: ValidationHelper, TransformationHelper, BatchHelper, ProgressHelper
+- **DefaultsManager Integration**: Automatic loading and application of default values
+- **Performance Optimization**: Intelligent batch size calculation based on data characteristics
+- **Advanced Monitoring**: Real-time progress reporting with performance metrics
+- **Comprehensive Logging**: Different log levels (Info, Warning, Error, Success, Debug)
+
+### Import Control Operations
+
+```csharp
+// Pause/Resume Import
+importManager.PauseImport();  // Pauses current operation
+importManager.ResumeImport(); // Resumes paused operation
+
+// Cancel Import
+importManager.CancelImport(); // Requests cancellation
+
+// Check Status
+var status = importManager.GetImportStatus();
+Console.WriteLine($"Running: {status.IsRunning}, Paused: {status.IsPaused}");
+```
+
+## Data Synchronization Patterns
+
+### BeepSyncManager Overview
+
+**BeepSyncManager** provides modern, clean synchronization functionality with helper-based architecture, following Single Responsibility Principle. It consolidates functionality from `DataSyncManager` and `DataSyncService`.
+
+### Basic Synchronization
+
+```csharp
+// Initialize the manager
+var syncManager = new BeepSyncManager(dmeEditor);
+
+// Create a sync schema
+var schema = new DataSyncSchema
+{
+    Id = Guid.NewGuid().ToString(),
+    SourceDataSourceName = "SourceDB",
+    DestinationDataSourceName = "DestinationDB",
+    SourceEntityName = "Customers",
+    DestinationEntityName = "Customers",
+    SourceSyncDataField = "CustomerId",
+    DestinationSyncDataField = "CustomerId",
+    SyncType = "Full",
+    SyncDirection = "SourceToDestination"
+};
+
+// Add field mappings
+schema.MappedFields.Add(new FieldSyncData
+{
+    SourceField = "Name",
+    DestinationField = "CustomerName"
+});
+
+// Add schema and sync
+syncManager.AddSyncSchema(schema);
+var result = await syncManager.SyncDataAsync(schema, progress: progressReporter);
+
+// Save schemas
+await syncManager.SaveSchemasAsync();
+```
+
+### BeepSyncManager Helpers
+
+- **DataSourceHelper**: Manages all `IDataSource` operations, handles connection validation
+- **FieldMappingHelper**: Handles field mapping between source and destination, creates destination entities
+- **SyncValidationHelper**: Validates sync schemas, data source accessibility, entity existence
+- **SyncProgressHelper**: Progress reporting, comprehensive logging, sync run tracking
+- **SchemaPersistenceHelper**: Async schema persistence to JSON files, schema backup functionality
+
+### Sync Features
+
+- **Clean Architecture**: Helper-based design vs. monolithic classes
+- **Async Operations**: Full async support throughout
+- **Better Error Handling**: Detailed error information and logging
+- **Progress Reporting**: Rich progress information for UI integration
+- **Testability**: Clean interfaces allow easy mocking for unit tests
+- **Resource Management**: Proper disposal and resource cleanup
+- **Validation**: Comprehensive pre-sync validation
+- **Persistence**: Robust schema persistence with backup support
+
+## Migration Patterns
+
+### MigrationManager Overview
+
+**MigrationManager** provides schema migration capabilities, allowing you to ensure entities exist, add missing columns, and manage schema evolution.
+
+### Basic Migration Operations
+
+```csharp
+var migrationManager = new MigrationManager(dmeEditor);
+migrationManager.MigrateDataSource = dmeEditor.GetDataSource("TargetDatabase");
+
+// Ensure entity exists (create if missing, add missing columns)
+var result = migrationManager.EnsureEntity(
+    entityStructure, 
+    createIfMissing: true, 
+    addMissingColumns: true);
+
+// Ensure entity from POCO type
+var result = migrationManager.EnsureEntity(
+    typeof(Customer), 
+    createIfMissing: true, 
+    addMissingColumns: true, 
+    detectRelationships: true);
+
+// Get missing columns
+var missingColumns = migrationManager.GetMissingColumns(currentEntity, desiredEntity);
+```
+
+### Migration Operations
+
+```csharp
+// Create entity
+var result = migrationManager.CreateEntity(entityStructure);
+
+// Drop entity
+var result = migrationManager.DropEntity("OldTableName");
+
+// Truncate entity
+var result = migrationManager.TruncateEntity("TableName");
+
+// Rename entity
+var result = migrationManager.RenameEntity("OldName", "NewName");
+
+// Alter column
+var result = migrationManager.AlterColumn("TableName", "ColumnName", newColumnField);
+
+// Drop column
+var result = migrationManager.DropColumn("TableName", "ColumnName");
+
+// Rename column
+var result = migrationManager.RenameColumn("TableName", "OldColumnName", "NewColumnName");
+
+// Create index
+var result = migrationManager.CreateIndex(
+    "TableName", 
+    "IndexName", 
+    new[] { "Column1", "Column2" },
+    options: new Dictionary<string, object> { { "Unique", true } });
+```
+
+### Migration Best Practices
+
+- **Use EnsureEntity**: For schema evolution scenarios where you want to add columns without dropping data
+- **Test First**: Always test migrations on a copy of production data
+- **Version Control**: Track schema changes in version control
+- **Backup**: Always backup before running destructive operations (Drop, Truncate)
+- **Incremental**: Use incremental migrations rather than full schema replacements
+
+## Mapping Patterns
+
+### MappingManager Overview
+
+**MappingManager** provides utility methods to create and manage entity mappings between source and destination entities, enabling data transformation and migration.
+
+### Creating Entity Mappings
+
+```csharp
+// Create mapping for migration between two entities
+var mapTuple = MappingManager.CreateEntityMap(
+    dmeEditor,
+    "LegacyCustomers",      // Source entity name
+    "LegacyDB",             // Source data source name
+    "Customers",            // Destination entity name
+    "MainDB");              // Destination data source name
+
+var entityMap = mapTuple.Item2;
+if (mapTuple.Item1.Flag == Errors.Ok)
+{
+    // Mapping created successfully
+}
+
+// Create mapping for destination entity only
+var mapTuple = MappingManager.CreateEntityMap(
+    dmeEditor,
+    "Customers",            // Destination entity name
+    "MainDB");              // Destination data source name
+
+// Add source entity to existing mapping
+var detail = MappingManager.AddEntityToMappedEntities(
+    dmeEditor,
+    "SourceDB",             // Source data source name
+    "SourceCustomers",      // Source entity name
+    destinationEntity);     // Destination entity structure
+```
+
+### Mapping Usage Patterns
+
+```csharp
+// Load existing mapping
+var mapping = MappingManager.LoadMapping(dmeEditor, "Customers", "MainDB");
+
+// Save mapping
+MappingManager.SaveMapping(dmeEditor, "Customers", "MainDB", mapping);
+
+// Get field mappings
+var fieldMappings = mapping.MappedEntities.First().FieldMappings;
+
+// Use mapping in ETL operations
+var etl = new ETLEditor(dmeEditor);
+etl.CreateImportScript(mapping, mapping.MappedEntities.First());
+```
+
+### Mapping Best Practices
+
+- **Field Mapping**: Explicitly map fields that have different names or types
+- **Type Conversion**: MappingManager handles type conversion automatically
+- **Default Values**: Use MappingDefaultsHelper to apply defaults during transformation
+- **Validation**: Validate mappings before running large data operations
+- **Reusability**: Save mappings for reuse across multiple operations
+
+## UnitOfWork Advanced Patterns
+
+### UnitOfWork Helpers
+
+**UnitOfWork** uses a helper-based architecture for enhanced functionality:
+
+- **IUnitofWorkDefaults<T>**: Default value operations and DefaultsManager integration
+- **IUnitofWorkValidation<T>**: Validation operations and business rule enforcement
+- **IUnitofWorkDataHelper<T>**: Data operations and query building
+- **IUnitofWorkStateHelper<T>**: State management and change tracking
+
+### UnitOfWork with DefaultsManager
+
+```csharp
+using var unitOfWork = new UnitofWork<Customer>(
+    editor, 
+    "MyDatabase", 
+    "Customers", 
+    "ID"
+);
+
+// DefaultsManager automatically applies:
+// - CreatedDate = DateTime.UtcNow (on new entities)
+// - CreatedBy = currentUserId (on new entities)
+// - ModifiedDate = DateTime.UtcNow (on updates)
+// - ModifiedBy = currentUserId (on updates)
+// - Active = true (if configured)
+// - Status = "Active" (if configured)
+
+unitOfWork.New(); // Defaults applied automatically
+var result = await unitOfWork.Commit();
+```
+
+### UnitOfWork Change Tracking
+
+```csharp
+using var unitOfWork = new UnitofWork<Customer>(
+    editor, 
+    "MyDatabase", 
+    "Customers", 
+    "ID"
+);
+
+// Check if there are changes
+bool isDirty = unitOfWork.IsDirty;
+
+// Get modified entities
+var modifiedEntities = unitOfWork.GetModifiedEntities();
+
+// Get added entities
+var addedEntities = unitOfWork.GetAddedEntities();
+
+// Get deleted entities
+var deletedEntities = unitOfWork.GetDeletedEntities();
+
+// Get entity state
+var state = unitOfWork.GetEntityState(entity);
+```
+
+### UnitOfWork Validation
+
+```csharp
+using var unitOfWork = new UnitofWork<Customer>(
+    editor, 
+    "MyDatabase", 
+    "Customers", 
+    "ID"
+);
+
+// Validate before commit
+var validationResult = unitOfWork.Validate();
+if (!validationResult.IsValid)
+{
+    foreach (var error in validationResult.Errors)
+    {
+        Console.WriteLine($"Validation Error: {error.Message}");
+    }
+    return;
+}
+
+var result = await unitOfWork.Commit();
+```
+
+## ClassCreator and Code Generation Patterns
+
+### ClassCreator Overview
+
+**ClassCreator** provides comprehensive code generation capabilities for creating classes from database schemas, POCOs, and entity structures.
+
+### Generate Classes from Entity Structure
+
+```csharp
+var classCreator = new ClassCreator(dmeEditor);
+
+// Generate class from entity structure
+var entityStructure = dataSource.GetEntityStructure("Customers");
+var classCode = classCreator.CreateClassFromEntityStructure(
+    entityStructure,
+    namespaceName: "MyApp.Models",
+    className: "Customer");
+
+// Generate POCO from entity structure
+var pocoCode = classCreator.CreatePocoFromEntityStructure(
+    entityStructure,
+    namespaceName: "MyApp.Models",
+    className: "Customer");
+```
+
+### Generate Entity Structure from POCO
+
+```csharp
+var classCreator = new ClassCreator(dmeEditor);
+
+// Create entity structure from POCO type
+var entityStructure = classCreator.CreateEntityStructureFromPoco(typeof(Customer));
+
+// Use entity structure for migration or ETL
+var migrationManager = new MigrationManager(dmeEditor);
+migrationManager.EnsureEntity(typeof(Customer), createIfMissing: true);
+```
+
+### Generate Web API Controllers
+
+```csharp
+var webApiGenerator = new WebApiGenerator(dmeEditor);
+
+// Generate controller from entity
+var controllerCode = webApiGenerator.GenerateController(
+    entityStructure,
+    namespaceName: "MyApp.Controllers",
+    controllerName: "CustomersController",
+    baseRoute: "api/customers");
+```
+
+### ClassCreator Helpers
+
+- **PocoClassGeneratorHelper**: Generate POCO classes
+- **DatabaseClassGeneratorHelper**: Generate classes from database schemas
+- **WebApiGeneratorHelper**: Generate Web API controllers
+- **UiComponentGeneratorHelper**: Generate UI components
+- **ValidationAndTestingGeneratorHelper**: Generate validation and test code
+
 ## References
 
 - See `ARCHITECTURE.md` for system architecture
@@ -1293,3 +1844,9 @@ public async Task<EntityStructure> GetEntityStructureAsync(string entityName)
 - See BeepDM/Docs/UnitOfWork.rst for detailed UnitOfWork documentation
 - See BeepDM/Docs/MultiDataSourceUnitOfWork.rst for distributed transaction patterns
 - See BeepDM/DataManagementEngineStandard/Caching/README.md for comprehensive caching documentation
+- See BeepDM/DataManagementEngineStandard/Editor/ETL/ for ETL documentation
+- See BeepDM/DataManagementEngineStandard/Editor/Importing/README_DataImportManager.md for DataImportManager documentation
+- See BeepDM/DataManagementEngineStandard/Editor/BeepSync/README.md for BeepSyncManager documentation
+- See BeepDM/DataManagementEngineStandard/Editor/Migration/ for MigrationManager documentation
+- See BeepDM/DataManagementEngineStandard/Editor/Mapping/ for MappingManager documentation
+- See BeepDM/DataManagementEngineStandard/Tools/ for ClassCreator documentation

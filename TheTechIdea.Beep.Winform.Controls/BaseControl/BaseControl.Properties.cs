@@ -891,21 +891,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
-        // Drawing rect and offsets
-        [Browsable(false)] 
-        public Rectangle DrawingRect
+      
+     
+        private GraphicsPath _borderpath;
+
+        [Browsable(false)]
+        public GraphicsPath BorderPath
         {
-            get { return _drawingRect; }
-            set 
-            { 
-                if (_drawingRect == value) return;
-                _drawingRect = value;
-                // Do not Invalidate here; drawing pipeline sets this every frame
+            get { return _borderpath; }
+            set
+            {
+                _borderpath = value;
+                //Invalidate();
             }
         }
-        private Rectangle _drawingRect;
-        private Rectangle _borderRect;
-        private Rectangle _contentRect;
+        private GraphicsPath _outerShape;
+        [Browsable(false)]
+        public GraphicsPath OuterShape
+        {
+            get { return _outerShape; }
+            set
+            {
+                _outerShape = value;
+                //Invalidate();
+            }
+        }
+
         private GraphicsPath _innerShape;
         // Drawing rect and offsets
         [Browsable(false)]
@@ -918,7 +929,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 //Invalidate();
             }
         }
+        private GraphicsPath _contentShape;
+        [Browsable(false)]
+        public GraphicsPath ContentShape
+        {
+            get { return _contentShape; }
+            set
+            {
+                _contentShape = value;
+                //Invalidate();
+            }
+        }
+        //used for child controls drawing area inside _innerShape
+        private Rectangle _drawingRect;
+        [Browsable(false)]
+        public Rectangle DrawingRect
+        {
+            get { return _drawingRect; }
+            set
+            {
+                if (_drawingRect == value) return;
+                _drawingRect = value;
+                // Do not Invalidate here; drawing pipeline sets this every frame
+            }
+        }
+        
+        private Rectangle _borderRect;
+        [Browsable(false)]
+        public Rectangle BorderRect
+        {
+            get { return _borderRect; }
+            set { _borderRect = value; }
+        }
 
+        private Rectangle _contentRect;
+        [Browsable(false)]
+        public Rectangle ContentRect
+        {
+            get { return _contentRect; }
+            set { _contentRect = value; }
+        }
         [Browsable(false)] public int LeftoffsetForDrawingRect { get; set; } = 0;
         [Browsable(false)] public int TopoffsetForDrawingRect { get; set; } = 0;
         [Browsable(false)] public int RightoffsetForDrawingRect { get; set; } = 0;

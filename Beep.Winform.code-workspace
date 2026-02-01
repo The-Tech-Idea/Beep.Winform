@@ -7,9 +7,6 @@
 			"path": "../Beep.Winform.Sample/WinFormsApp.UI.Test"
 		},
 		{
-			"path": "../Beep.Winform.Sample"
-		},
-		{
 			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
 		},
 		{
@@ -17,6 +14,15 @@
 		},
 		{
 			"path": "../BeepDM"
+		},
+		{
+			"path": "../Beep.Sample"
+		},
+		{
+			"path": "../BeepDataSources/DataSourcesPlugins/RDBMSDataSource"
+		},
+		{
+			"path": "../BeepDataSources/DataSourcesPluginsCore/SqliteDatasourceCore"
 		}
 	],
 	"settings": {

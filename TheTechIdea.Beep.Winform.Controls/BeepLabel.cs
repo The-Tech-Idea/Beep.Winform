@@ -33,6 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment _textAlign = ContentAlignment.MiddleLeft;
         private bool _useScaledfont = false;
         private bool _multiline = false;
+        private bool _autoEllipsis = false;
+        private bool _wordWrap = false;
         private Rectangle contentRect;
         private Font _textFont;
         // Add subheader field
@@ -311,6 +313,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description("When true, text that does not fit is truncated with an ellipsis (...).")]
+        public bool AutoEllipsis
+        {
+            get => _autoEllipsis;
+            set
+            {
+                _autoEllipsis = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description("When true, text wraps to multiple lines within the control bounds.")]
+        public bool WordWrap
+        {
+            get => _wordWrap;
+            set
+            {
+                _wordWrap = value;
+                Invalidate();
+                if (AutoSize)
+                {
+                    this.Size = GetPreferredSize(new Size(this.Width, 0));
+                }
+            }
+        }
+
 
 
     
@@ -553,34 +587,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            // Measure header text
+            // Measure header text (use bounded width when wrapping)
+            bool wrapText = _multiline || _wordWrap;
             Size headerTextSize;
-            if (_multiline)
+            if (wrapText)
             {
                 headerTextSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(contentRect.Width, int.MaxValue),
-                    GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                    GetTextFormatFlags(TextAlign));
             }
             else
             {
                 headerTextSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue),
-                    GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                    GetTextFormatFlags(TextAlign));
             }
 
             // Measure subheader text if present
             Size subHeaderTextSize = Size.Empty;
             if (hasSubHeader)
             {
-                if (_multiline)
+                if (wrapText)
                 {
                     subHeaderTextSize = TextRenderer.MeasureText(g, SubHeaderText, scaledSubHeaderFont,
                         new Size(contentRect.Width, int.MaxValue),
-                        GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                        GetTextFormatFlags(TextAlign));
                 }
                 else
                 {
                     subHeaderTextSize = TextRenderer.MeasureText(g, SubHeaderText, scaledSubHeaderFont,
                         new Size(int.MaxValue, int.MaxValue),
-                        GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                        GetTextFormatFlags(TextAlign));
                 }
             }
 
@@ -620,14 +655,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     headerTextSize.Height);
 
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                if (_multiline)
-                {
-                    flags |= TextFormatFlags.WordBreak;
-                }
-                else
-                {
-                    flags |= TextFormatFlags.SingleLine;
-                }
 
                 // Draw header text
                 TextRenderer.DrawText(g, Text, scaledFont, headerTextRect, ForeColor, flags);
@@ -767,20 +794,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
 
-            // Use the control's current width as the constraint for multi-line text
+            // Use the control's current width as the constraint when wrapping
+            bool wrapText = _multiline || _wordWrap;
             int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (DrawingRect.Width > 0 ? DrawingRect.Width : 200);
 
             // Measure header text size
             Size headerTextSize;
-            if (_multiline)
+            if (wrapText)
             {
                 headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(maxWidth, int.MaxValue),
-                    GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                    GetTextFormatFlags(TextAlign));
             }
             else
             {
                 headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue),
-                    GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                    GetTextFormatFlags(TextAlign));
             }
 
             // Measure subheader text size
@@ -789,17 +817,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (hasSubHeader)
             {
-                if (_multiline)
+                if (wrapText)
                 {
                     subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
                         new Size(maxWidth, int.MaxValue),
-                        GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                        GetTextFormatFlags(TextAlign));
                 }
                 else
                 {
                     subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
                         new Size(int.MaxValue, int.MaxValue),
-                        GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                        GetTextFormatFlags(TextAlign));
                 }
             }
 
@@ -1015,13 +1043,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             TextFormatFlags flags = TextFormatFlags.PreserveGraphicsClipping;
 
-            if (_multiline)
+            if (_multiline || _wordWrap)
             {
                 flags |= TextFormatFlags.WordBreak;
             }
             else
             {
                 flags |= TextFormatFlags.SingleLine;
+            }
+
+            if (_autoEllipsis)
+            {
+                flags |= TextFormatFlags.EndEllipsis;
             }
 
             switch (alignment)

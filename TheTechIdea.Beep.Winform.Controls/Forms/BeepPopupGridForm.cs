@@ -2,7 +2,7 @@
 using System.Collections;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
- 
+using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls

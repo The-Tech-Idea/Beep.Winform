@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             if (other == null)
                 return false;
 
-            return this.Name == other.Name; // Assuming Name is unique
+            return this.GuidId == other.GuidId;
         }
         public Guid Guid { get; set; } 
         // Override Equals

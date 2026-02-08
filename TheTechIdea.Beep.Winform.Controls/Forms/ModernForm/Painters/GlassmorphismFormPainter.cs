@@ -146,18 +146,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var styleRect = owner.CurrentLayout.StyleButtonRect;
             
             int circleSize = 22;
-            int circleY = (captionRect.Height - circleSize) / 2;
+
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Close button: Frosted translucent red circle
-            int cx = closeRect.X + closeRect.Width / 2;
-            var closeCircle = new Rectangle(cx - circleSize/2, circleY, circleSize, circleSize);
+            PaintGlassButton(g, closeRect, Color.FromArgb(220, 80, 80), circleSize, "close", closeHovered);
             
-            // Translucent fill
-            using (var circleBrush = new SolidBrush(Color.FromArgb(150, 220, 80, 80)))
+            // Maximize button: Frosted translucent circle
+            PaintGlassButton(g, maxRect, Color.FromArgb(200, 200, 200), circleSize, "maximize", maxHovered);
+            
+            // Minimize button: Frosted translucent circle
+            PaintGlassButton(g, minRect, Color.FromArgb(200, 200, 200), circleSize, "minimize", minHovered);
+            
+            // Theme button: Frosted cyan/blue circle with palette icon
+            if (!themeRect.IsEmpty)
             {
-                g.FillEllipse(circleBrush, closeCircle);
+                PaintGlassButton(g, themeRect, Color.FromArgb(100, 180, 255), circleSize, "theme", themeHovered);
+            }
+            
+            // Style button: Frosted purple circle with brush icon
+            if (!styleRect.IsEmpty)
+            {
+                PaintGlassButton(g, styleRect, Color.FromArgb(180, 100, 255), circleSize, "Style", styleHovered);
+            }
+        }
+
+        private void PaintGlassButton(Graphics g, Rectangle rect, Color baseColor, int size, string type, bool isHovered)
+        {
+            int cx = rect.X + rect.Width / 2;
+            int cy = rect.Y + rect.Height / 2;
+            var circleRect = new Rectangle(cx - size/2, cy - size/2, size, size);
+            
+            // Hover effect: Increase opacity/brightness
+            int alpha = isHovered ? 200 : 120; // More opaque on hover
+            if (type == "close") alpha = isHovered ? 220 : 150; // Close button slightly more opaque
+            
+            Color fill = Color.FromArgb(alpha, baseColor);
+            if (isHovered) fill = ControlPaint.Light(fill, 0.2f);
+
+            // Translucent fill
+            using (var circleBrush = new SolidBrush(fill))
+            {
+                g.FillEllipse(circleBrush, circleRect);
             }
             
             // Frosted texture
@@ -165,141 +202,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 Color.FromArgb(30, 255, 255, 255), 
                 Color.Transparent))
             {
-                g.FillEllipse(hatchBrush, closeCircle);
+                g.FillEllipse(hatchBrush, circleRect);
             }
             
             // Glass border
-            using (var borderPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2))
+            // Hover effect: Brighter border
+            Color borderColor = isHovered ? Color.FromArgb(120, 255, 255, 255) : Color.FromArgb(80, 255, 255, 255);
+            using (var borderPen = new Pen(borderColor, 2))
             {
-                g.DrawEllipse(borderPen, closeCircle);
+                g.DrawEllipse(borderPen, circleRect);
             }
             
-            // X icon
+            // Icon
             using (var iconPen = new Pen(Color.White, 1.5f))
             {
                 int iconSize = 7;
-                int cy = circleY + circleSize / 2;
-                g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
-                g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
-            }
-            
-            // Maximize button: Frosted translucent circle
-            int mx = maxRect.X + maxRect.Width / 2;
-            var maxCircle = new Rectangle(mx - circleSize/2, circleY, circleSize, circleSize);
-            
-            using (var circleBrush = new SolidBrush(Color.FromArgb(120, 200, 200, 200)))
-            {
-                g.FillEllipse(circleBrush, maxCircle);
-            }
-            
-            using (var hatchBrush = new HatchBrush(HatchStyle.DottedGrid, 
-                Color.FromArgb(30, 255, 255, 255), 
-                Color.Transparent))
-            {
-                g.FillEllipse(hatchBrush, maxCircle);
-            }
-            
-            using (var borderPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2))
-            {
-                g.DrawEllipse(borderPen, maxCircle);
-            }
-            
-            using (var iconPen = new Pen(Color.White, 1.3f))
-            {
-                int my = circleY + circleSize / 2;
-                g.DrawRectangle(iconPen, mx - 3, my - 3, 6, 6);
-            }
-            
-            // Minimize button: Frosted translucent circle
-            int mnx = minRect.X + minRect.Width / 2;
-            var minCircle = new Rectangle(mnx - circleSize/2, circleY, circleSize, circleSize);
-            
-            using (var circleBrush = new SolidBrush(Color.FromArgb(120, 200, 200, 200)))
-            {
-                g.FillEllipse(circleBrush, minCircle);
-            }
-            
-            using (var hatchBrush = new HatchBrush(HatchStyle.DottedGrid, 
-                Color.FromArgb(30, 255, 255, 255), 
-                Color.Transparent))
-            {
-                g.FillEllipse(hatchBrush, minCircle);
-            }
-            
-            using (var borderPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2))
-            {
-                g.DrawEllipse(borderPen, minCircle);
-            }
-            
-            using (var iconPen = new Pen(Color.White, 1.3f))
-            {
-                int mny = circleY + circleSize / 2;
-                g.DrawLine(iconPen, mnx - 3, mny, mnx + 3, mny);
-            }
-            
-            // Theme button: Frosted cyan/blue circle with palette icon
-            if (!themeRect.IsEmpty)
-            {
-                int tx = themeRect.X + themeRect.Width / 2;
-                var themeCircle = new Rectangle(tx - circleSize/2, circleY, circleSize, circleSize);
                 
-                using (var circleBrush = new SolidBrush(Color.FromArgb(150, 100, 180, 255)))
+                switch (type)
                 {
-                    g.FillEllipse(circleBrush, themeCircle);
-                }
-                
-                using (var hatchBrush = new HatchBrush(HatchStyle.DottedGrid, 
-                    Color.FromArgb(30, 255, 255, 255), 
-                    Color.Transparent))
-                {
-                    g.FillEllipse(hatchBrush, themeCircle);
-                }
-                
-                using (var borderPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2))
-                {
-                    g.DrawEllipse(borderPen, themeCircle);
-                }
-                
-                // Palette icon
-                using (var iconBrush = new SolidBrush(Color.White))
-                {
-                    int ty = circleY + circleSize / 2;
-                    g.FillEllipse(iconBrush, tx - 3, ty - 2, 3, 3);
-                    g.FillEllipse(iconBrush, tx + 1, ty - 2, 3, 3);
-                    g.FillEllipse(iconBrush, tx - 1, ty + 2, 3, 3);
-                }
-            }
-            
-            // Style button: Frosted purple circle with brush icon
-            if (!styleRect.IsEmpty)
-            {
-                int sx = styleRect.X + styleRect.Width / 2;
-                var styleCircle = new Rectangle(sx - circleSize/2, circleY, circleSize, circleSize);
-                
-                using (var circleBrush = new SolidBrush(Color.FromArgb(150, 180, 100, 255)))
-                {
-                    g.FillEllipse(circleBrush, styleCircle);
-                }
-                
-                using (var hatchBrush = new HatchBrush(HatchStyle.DottedGrid, 
-                    Color.FromArgb(30, 255, 255, 255), 
-                    Color.Transparent))
-                {
-                    g.FillEllipse(hatchBrush, styleCircle);
-                }
-                
-                using (var borderPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2))
-                {
-                    g.DrawEllipse(borderPen, styleCircle);
-                }
-                
-                // Brush icon
-                using (var iconPen = new Pen(Color.White, 1.2f))
-                {
-                    int sy = circleY + circleSize / 2;
-                    g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
-                    g.DrawLine(iconPen, sx, sy - 2, sx, sy + 2);
-                    g.DrawLine(iconPen, sx + 2, sy - 2, sx + 2, sy + 2);
+                    case "close":
+                        g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, cx - 3, cy - 3, 6, 6);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, cx - 3, cy + 3, cx + 3, cy + 3);  // Fixed vertical position for minimize
+                        break;
+                    case "theme": // Palette dots
+                        using (var iconBrush = new SolidBrush(Color.White))
+                        {
+                            g.FillEllipse(iconBrush, cx - 3, cy - 2, 3, 3);
+                            g.FillEllipse(iconBrush, cx + 1, cy - 2, 3, 3);
+                            g.FillEllipse(iconBrush, cx - 1, cy + 2, 3, 3);
+                        }
+                        break;
+                    case "Style": // Brush icon
+                         g.DrawLine(iconPen, cx - 2, cy - 2, cx - 2, cy + 2);
+                        g.DrawLine(iconPen, cx, cy - 2, cx, cy + 2);
+                        g.DrawLine(iconPen, cx + 2, cy - 2, cx + 2, cy + 2);
+                        break;
                 }
             }
         }

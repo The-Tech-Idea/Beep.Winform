@@ -1289,7 +1289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 switch (_titleStyle)
                 {
                     case PanelTitleStyle.Above:
-                        textTop = DrawingRect.Top + padding;
+                        textTop = this.ContentRect.Top + padding;
                         switch (_titleAlignment)
                         {
                             case ContentAlignment.TopLeft:

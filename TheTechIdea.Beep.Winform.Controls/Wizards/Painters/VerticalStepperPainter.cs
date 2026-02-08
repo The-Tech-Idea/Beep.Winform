@@ -61,6 +61,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _sidePanelColor = Color.FromArgb(245, 245, 250);
             }
 
+            // Dispose old fonts before creating new ones to prevent memory leaks
+            _titleFont?.Dispose();
+            _descFont?.Dispose();
+            _numberFont?.Dispose();
+
             _titleFont = new Font("Segoe UI Semibold", 11f);
             _descFont = new Font("Segoe UI", 9f);
             _numberFont = new Font("Segoe UI Semibold", 10f);
@@ -116,11 +121,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             int topMargin = 40;
             int itemHeight = Math.Min(80, (bounds.Height - topMargin * 2) / stepCount);
 
-            // Draw title
-            using (var titleFont = new Font("Segoe UI Semibold", 14f))
+            // Draw title (using cached _titleFont to avoid allocations)
             using (var brush = new SolidBrush(_textColor))
             {
-                g.DrawString(_instance?.Config?.Title ?? "Wizard", titleFont, brush, leftMargin, 15);
+                g.DrawString(_instance?.Config?.Title ?? "Wizard", _titleFont, brush, leftMargin, 15);
             }
 
             // Draw connecting lines first

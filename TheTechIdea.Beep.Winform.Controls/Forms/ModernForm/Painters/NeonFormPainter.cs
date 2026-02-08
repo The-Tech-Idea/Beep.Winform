@@ -140,14 +140,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Close button: Pink neon star with intense glow
             int cx = closeRect.X + closeRect.Width / 2;
             int cy = starY + starSize / 2;
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            int glowIntensity = closeHovered ? 25 : 15; // Intensify glow on hover
+            int glowLayers = closeHovered ? 7 : 5; // More layers on hover
             
             // Draw glow layers (multiple passes for intense neon effect)
-            for (int i = 5; i > 0; i--)
+            for (int i = glowLayers; i > 0; i--)
             {
                 // Adjusted alpha: Outer layers (larger i) should be fainter
-                // i=5 (Widest): Alpha 15
-                // i=1 (Narrowest): Alpha 75
-                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 255, 0, 150)))
+                using (var glowBrush = new SolidBrush(Color.FromArgb(glowIntensity * (glowLayers + 1 - i), 255, 0, 150)))
                 using (var starPath = CreateStarPath(cx, cy, starSize + i * 2))
                 {
                     g.FillPath(glowBrush, starPath);
@@ -179,11 +180,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Maximize button: Cyan neon star with glow
             int mx = maxRect.X + maxRect.Width / 2;
             int my = starY + starSize / 2;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            int maxGlowIntensity = maxHovered ? 25 : 15;
+            int maxGlowLayers = maxHovered ? 7 : 5;
             
             // Cyan glow layers
-            for (int i = 5; i > 0; i--)
+            for (int i = maxGlowLayers; i > 0; i--)
             {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 0, 255, 255)))
+                using (var glowBrush = new SolidBrush(Color.FromArgb(maxGlowIntensity * (maxGlowLayers + 1 - i), 0, 255, 255)))
                 using (var starPath = CreateStarPath(mx, my, starSize + i * 2))
                 {
                     g.FillPath(glowBrush, starPath);
@@ -214,11 +218,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Minimize button: Green neon star with glow
             int mnx = minRect.X + minRect.Width / 2;
             int mny = starY + starSize / 2;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            int minGlowIntensity = minHovered ? 25 : 15;
+            int minGlowLayers = minHovered ? 7 : 5;
             
             // Green glow layers
-            for (int i = 5; i > 0; i--)
+            for (int i = minGlowLayers; i > 0; i--)
             {
-                using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 0, 255, 100)))
+                using (var glowBrush = new SolidBrush(Color.FromArgb(minGlowIntensity * (minGlowLayers + 1 - i), 0, 255, 100)))
                 using (var starPath = CreateStarPath(mnx, mny, starSize + i * 2))
                 {
                     g.FillPath(glowBrush, starPath);
@@ -251,11 +258,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 int tx = themeRect.X + themeRect.Width / 2;
                 int ty = starY + starSize / 2;
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                int themeGlowIntensity = themeHovered ? 25 : 15;
+                int themeGlowLayers = themeHovered ? 7 : 5;
                 
                 // Purple glow layers
-                for (int i = 5; i > 0; i--)
+                for (int i = themeGlowLayers; i > 0; i--)
                 {
-                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 150, 0, 255)))
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(themeGlowIntensity * (themeGlowLayers + 1 - i), 150, 0, 255)))
                     using (var starPath = CreateStarPath(tx, ty, starSize + i * 2))
                     {
                         g.FillPath(glowBrush, starPath);
@@ -290,11 +300,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 int sx = styleRect.X + styleRect.Width / 2;
                 int sy = starY + starSize / 2;
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                int styleGlowIntensity = styleHovered ? 25 : 15;
+                int styleGlowLayers = styleHovered ? 7 : 5;
                 
                 // Yellow glow layers
-                for (int i = 5; i > 0; i--)
+                for (int i = styleGlowLayers; i > 0; i--)
                 {
-                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * (6 - i), 255, 255, 0)))
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(styleGlowIntensity * (styleGlowLayers + 1 - i), 255, 255, 0)))
                     using (var starPath = CreateStarPath(sx, sy, starSize + i * 2))
                     {
                         g.FillPath(glowBrush, starPath);

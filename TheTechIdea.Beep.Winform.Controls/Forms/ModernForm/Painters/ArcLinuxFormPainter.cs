@@ -87,6 +87,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// <summary>
         /// Paint Arc Linux hexagonal buttons (UNIQUE)
         /// </summary>
+        /// <summary>
+        /// Paint Arc Linux hexagonal buttons (UNIQUE)
+        /// </summary>
         private void PaintArcHexButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
             var closeRect = owner.CurrentLayout.CloseButtonRect;
@@ -96,13 +99,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int hexSize = 20; // Hexagon size
             int hexY = (captionRect.Height - hexSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
             // Close button: Red hexagon with X
             int cx = closeRect.X + closeRect.Width / 2;
             using (var hexPath = CreateHexagonPath(cx, hexY + hexSize/2, hexSize/2))
             {
-                using (var hexBrush = new SolidBrush(Color.FromArgb(200, 60, 60)))
+                // Hover: brighter fill
+                Color closeColor = closeHovered ? Color.FromArgb(230, 80, 80) : Color.FromArgb(200, 60, 60);
+                using (var hexBrush = new SolidBrush(closeColor))
                 {
                     g.FillPath(hexBrush, hexPath);
+                }
+                
+                // Hover: glow outline
+                if (closeHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(100, 255, 255, 255), 2f))
+                    {
+                        g.DrawPath(glowPen, hexPath);
+                    }
                 }
                 
                 // X icon (7px, white)
@@ -120,9 +141,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mx = maxRect.X + maxRect.Width / 2;
             using (var hexPath = CreateHexagonPath(mx, hexY + hexSize/2, hexSize/2))
             {
-                using (var hexBrush = new SolidBrush(Color.FromArgb(80, 80, 80)))
+                // Hover: lighter gray fill
+                Color maxColor = maxHovered ? Color.FromArgb(110, 110, 110) : Color.FromArgb(80, 80, 80);
+                using (var hexBrush = new SolidBrush(maxColor))
                 {
                     g.FillPath(hexBrush, hexPath);
+                }
+                
+                if (maxHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                    {
+                        g.DrawPath(glowPen, hexPath);
+                    }
                 }
                 
                 // Square icon (6px)
@@ -137,9 +168,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mnx = minRect.X + minRect.Width / 2;
             using (var hexPath = CreateHexagonPath(mnx, hexY + hexSize/2, hexSize/2))
             {
-                using (var hexBrush = new SolidBrush(Color.FromArgb(80, 80, 80)))
+                // Hover: lighter gray fill
+                Color minColor = minHovered ? Color.FromArgb(110, 110, 110) : Color.FromArgb(80, 80, 80);
+                using (var hexBrush = new SolidBrush(minColor))
                 {
                     g.FillPath(hexBrush, hexPath);
+                }
+                
+                if (minHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                    {
+                        g.DrawPath(glowPen, hexPath);
+                    }
                 }
                 
                 // Line icon (7px)
@@ -158,9 +199,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int tx = themeRect.X + themeRect.Width / 2;
                 using (var hexPath = CreateHexagonPath(tx, hexY + hexSize/2, hexSize/2))
                 {
-                    using (var hexBrush = new SolidBrush(Color.FromArgb(95, 129, 157))) // Arc blue
+                    // Hover: brighter Arc blue
+                    Color themeColor = themeHovered ? Color.FromArgb(115, 149, 177) : Color.FromArgb(95, 129, 157);
+                    using (var hexBrush = new SolidBrush(themeColor)) 
                     {
                         g.FillPath(hexBrush, hexPath);
+                    }
+                    
+                    if (themeHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, hexPath);
+                        }
                     }
                     
                     // Palette icon
@@ -179,9 +230,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int sx = styleRect.X + styleRect.Width / 2;
                 using (var hexPath = CreateHexagonPath(sx, hexY + hexSize/2, hexSize/2))
                 {
-                    using (var hexBrush = new SolidBrush(Color.FromArgb(95, 129, 157))) // Arc blue
+                    // Hover: brighter Arc blue
+                    Color styleColor = styleHovered ? Color.FromArgb(115, 149, 177) : Color.FromArgb(95, 129, 157);
+                    using (var hexBrush = new SolidBrush(styleColor))
                     {
                         g.FillPath(hexBrush, hexPath);
+                    }
+                    
+                    if (styleHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, hexPath);
+                        }
                     }
                     
                     // Brush icon

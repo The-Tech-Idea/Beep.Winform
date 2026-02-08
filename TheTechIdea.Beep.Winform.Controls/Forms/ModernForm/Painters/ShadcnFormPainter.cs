@@ -95,30 +95,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 18;
             int padding = (captionRect.Height - buttonSize) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button - subtle red
-            PaintShadcnButton(g, closeRect, Color.FromArgb(239, 68, 68), padding, buttonSize, "close");
+            PaintShadcnButton(g, closeRect, Color.FromArgb(239, 68, 68), padding, buttonSize, "close", closeHovered);
 
             // Maximize button - subtle green
-            PaintShadcnButton(g, maxRect, Color.FromArgb(34, 197, 94), padding, buttonSize, "maximize");
+            PaintShadcnButton(g, maxRect, Color.FromArgb(34, 197, 94), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button - subtle blue
-            PaintShadcnButton(g, minRect, Color.FromArgb(59, 130, 246), padding, buttonSize, "minimize");
+            PaintShadcnButton(g, minRect, Color.FromArgb(59, 130, 246), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintShadcnButton(g, styleRect, Color.FromArgb(139, 92, 246), padding, buttonSize, "Style");
+                PaintShadcnButton(g, styleRect, Color.FromArgb(139, 92, 246), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintShadcnButton(g, themeRect, Color.FromArgb(245, 158, 11), padding, buttonSize, "theme");
+                PaintShadcnButton(g, themeRect, Color.FromArgb(245, 158, 11), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintShadcnButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintShadcnButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -129,20 +136,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Subtle background with rounded corners (6px)
             using (var buttonPath = CreateRoundedRectanglePath(rect, new CornerRadius(6)))
             {
-                // Neutral background
-                using (var bgBrush = new SolidBrush(Color.FromArgb(245, 245, 245)))
+                // Neutral background - slightly darker on hover
+                Color bgColor = isHovered ? Color.FromArgb(240, 240, 240) : Color.FromArgb(250, 250, 250);
+                using (var bgBrush = new SolidBrush(bgColor))
                 {
                     g.FillPath(bgBrush, buttonPath);
                 }
 
-                // Subtle border
-                using (var borderPen = new Pen(Color.FromArgb(229, 229, 229), 1f))
+                // Subtle border - darker on hover
+                Color borderColor = isHovered ? Color.FromArgb(200, 200, 200) : Color.FromArgb(229, 229, 229);
+                using (var borderPen = new Pen(borderColor, 1f))
                 {
                     g.DrawPath(borderPen, buttonPath);
                 }
 
-                // Subtle hover glow effect (inner glow)
-                using (var glowBrush = new SolidBrush(Color.FromArgb(20, baseColor)))
+                // Hover glow effect (inner glow) - stronger and colored on hover
+                int glowAlpha = isHovered ? 40 : 20;
+                using (var glowBrush = new SolidBrush(Color.FromArgb(glowAlpha, baseColor)))
                 {
                     g.FillPath(glowBrush, buttonPath);
                 }

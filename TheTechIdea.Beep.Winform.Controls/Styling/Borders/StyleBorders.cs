@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Fluent2 => 1.0f,               // Fluent standard
                 BeepControlStyle.Minimal => 1.0f,               // Standard
                 BeepControlStyle.AntDesign => 1.0f,             // Standard
-                BeepControlStyle.MaterialYou => 0.0f,           // No border (filled)
+                BeepControlStyle.MaterialYou => 0.0f,           // No border (filled - Material You spec)
                 BeepControlStyle.Windows11Mica => 1.0f,         // Standard
                 BeepControlStyle.MacOSBigSur => 1.0f,           // Thin (was 0.5f, changed for GDI+ compatibility)
                 BeepControlStyle.ChakraUI => 1.0f,              // Standard
@@ -280,10 +280,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         {
             return style switch
             {
-                BeepControlStyle.TailwindCard => 3.0f,          // Tailwind ring
-                BeepControlStyle.ChakraUI => 2.0f,              // Chakra ring
-                BeepControlStyle.HighContrast => 3.0f,          // High contrast focus ring
-                _ => 0.0f                                       // No ring
+                BeepControlStyle.Material3 => 2.5f,             // Material focus ring
+                BeepControlStyle.Material => 2.5f,               // Material focus ring
+                BeepControlStyle.MaterialYou => 2.5f,            // Material You focus ring
+                BeepControlStyle.Fluent => 2.0f,                 // Fluent focus ring
+                BeepControlStyle.Fluent2 => 2.0f,                // Fluent 2 focus ring
+                BeepControlStyle.iOS15 => 2.5f,                  // iOS focus ring
+                BeepControlStyle.Apple => 2.5f,                  // Apple focus ring
+                BeepControlStyle.MacOSBigSur => 2.5f,            // macOS focus ring
+                BeepControlStyle.Modern => 2.0f,                 // Modern focus ring
+                BeepControlStyle.TailwindCard => 3.0f,           // Tailwind ring
+                BeepControlStyle.ChakraUI => 2.0f,               // Chakra ring
+                BeepControlStyle.HighContrast => 3.0f,           // High contrast focus ring
+                _ => 0.0f                                        // No ring
             };
         }
 
@@ -294,10 +303,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
         {
             return style switch
             {
-                BeepControlStyle.TailwindCard => 2.0f,          // Tailwind offset
-                BeepControlStyle.ChakraUI => 1.5f,              // Chakra offset
-                BeepControlStyle.HighContrast => 2.0f,          // High contrast ring offset
-                _ => 0.0f                                       // No offset
+                BeepControlStyle.Material3 => 2.0f,             // Material ring offset
+                BeepControlStyle.Material => 2.0f,               // Material ring offset
+                BeepControlStyle.MaterialYou => 2.0f,            // Material You ring offset
+                BeepControlStyle.Fluent => 1.0f,                 // Fluent ring offset
+                BeepControlStyle.Fluent2 => 1.0f,                // Fluent 2 ring offset
+                BeepControlStyle.iOS15 => 1.0f,                  // iOS ring offset
+                BeepControlStyle.Apple => 1.0f,                  // Apple ring offset
+                BeepControlStyle.MacOSBigSur => 1.0f,            // macOS ring offset
+                BeepControlStyle.Modern => 1.0f,                 // Modern ring offset
+                BeepControlStyle.TailwindCard => 2.0f,           // Tailwind offset
+                BeepControlStyle.ChakraUI => 1.5f,               // Chakra offset
+                BeepControlStyle.HighContrast => 2.0f,           // High contrast ring offset
+                _ => 0.0f                                        // No offset
             };
         }
     }

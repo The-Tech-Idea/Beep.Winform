@@ -157,50 +157,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Close button: Red ASCII [X]
-            PaintTerminalButton(g, closeRect, Color.FromArgb(255, 80, 80), padding, buttonSize, "close");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            PaintTerminalButton(g, closeRect, Color.FromArgb(255, 80, 80), padding, buttonSize, "close", closeHovered);
 
             // Maximize button: Green ASCII [□]
-            PaintTerminalButton(g, maxRect, Color.FromArgb(80, 255, 80), padding, buttonSize, "maximize");
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            PaintTerminalButton(g, maxRect, Color.FromArgb(80, 255, 80), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button: Yellow ASCII [-]
-            PaintTerminalButton(g, minRect, Color.FromArgb(255, 255, 80), padding, buttonSize, "minimize");
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            PaintTerminalButton(g, minRect, Color.FromArgb(255, 255, 80), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintTerminalButton(g, styleRect, Color.FromArgb(128, 128, 255), padding, buttonSize, "Style");
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                PaintTerminalButton(g, styleRect, Color.FromArgb(128, 128, 255), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintTerminalButton(g, themeRect, Color.FromArgb(255, 128, 255), padding, buttonSize, "theme");
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                PaintTerminalButton(g, themeRect, Color.FromArgb(255, 128, 255), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintTerminalButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintTerminalButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
 
             g.SmoothingMode = SmoothingMode.None; // Pixel-perfect
+            
+            // Brighten color on hover
+            Color effectiveColor = isHovered ? ControlPaint.Light(baseColor, 0.3f) : baseColor;
+            int bgAlpha = isHovered ? 80 : 40;
 
             // Terminal: Simple solid rectangle background
-            using (var bgBrush = new SolidBrush(Color.FromArgb(40, baseColor)))
+            using (var bgBrush = new SolidBrush(Color.FromArgb(bgAlpha, effectiveColor)))
             {
                 g.FillRectangle(bgBrush, rect);
             }
 
-            // ASCII-Style border (double-line effect)
-            using (var borderPen = new Pen(baseColor, 2))
+            // ASCII-Style border (double-line effect) - thicker on hover
+            float borderWidth = isHovered ? 3f : 2f;
+            using (var borderPen = new Pen(effectiveColor, borderWidth))
             {
                 g.DrawRectangle(borderPen, rect.X, rect.Y, rect.Width, rect.Height);
             }
 
             // Inner border for double-line effect
-            using (var innerPen = new Pen(Color.FromArgb(180, baseColor), 1))
+            using (var innerPen = new Pen(Color.FromArgb(isHovered ? 220 : 180, effectiveColor), 1))
             {
                 g.DrawRectangle(innerPen, rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
             }

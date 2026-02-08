@@ -102,29 +102,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Close button: Red Zen circle
-            PaintZenButton(g, closeRect, Color.FromArgb(200, 80, 80), metrics.BorderColor, padding, buttonSize, "close");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            PaintZenButton(g, closeRect, Color.FromArgb(200, 80, 80), metrics.BorderColor, padding, buttonSize, "close", closeHovered);
 
             // Maximize button: Green Zen circle
-            PaintZenButton(g, maxRect, Color.FromArgb(100, 160, 100), metrics.BorderColor, padding, buttonSize, "maximize");
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            PaintZenButton(g, maxRect, Color.FromArgb(100, 160, 100), metrics.BorderColor, padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button: Blue Zen circle
-            PaintZenButton(g, minRect, Color.FromArgb(100, 140, 180), metrics.BorderColor, padding, buttonSize, "minimize");
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            PaintZenButton(g, minRect, Color.FromArgb(100, 140, 180), metrics.BorderColor, padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintZenButton(g, styleRect, Color.FromArgb(140, 120, 160), metrics.BorderColor, padding, buttonSize, "Style");
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                PaintZenButton(g, styleRect, Color.FromArgb(140, 120, 160), metrics.BorderColor, padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintZenButton(g, themeRect, Color.FromArgb(180, 140, 100), metrics.BorderColor, padding, buttonSize, "theme");
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                PaintZenButton(g, themeRect, Color.FromArgb(180, 140, 100), metrics.BorderColor, padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintZenButton(Graphics g, Rectangle buttonRect, Color baseColor, Color accentColor, int padding, int size, string buttonType)
+        private void PaintZenButton(Graphics g, Rectangle buttonRect, Color baseColor, Color accentColor, int padding, int size, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -132,14 +137,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Negative space: draw only the outer circle outline (Zen minimalism)
-            using (var zenPen = new Pen(Color.FromArgb(40, baseColor), 1))
+            // Negative space: draw only the outer circle outline (Zen minimalism) - intensify on hover
+            int outerAlpha = isHovered ? 80 : 40;
+            using (var zenPen = new Pen(Color.FromArgb(outerAlpha, baseColor), 1))
             {
                 g.DrawEllipse(zenPen, centerX - radius, centerY - radius, size, size);
             }
 
             // Ultra-thin inner circle (Japanese calligraphy aesthetic)
-            using (var innerPen = new Pen(Color.FromArgb(80, baseColor), 0.5f))
+            int innerAlpha = isHovered ? 120 : 80;
+            using (var innerPen = new Pen(Color.FromArgb(innerAlpha, baseColor), 0.5f))
             {
                 int innerRadius = radius - 2;
                 g.DrawEllipse(innerPen, centerX - innerRadius, centerY - innerRadius, innerRadius * 2, innerRadius * 2);
@@ -148,8 +155,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Accent point (enso circle - incomplete circle, Zen philosophy)
             DrawEnsoAccent(g, centerX, centerY, radius, accentColor);
 
-            // Calm monochromatic fill (very subtle, almost transparent)
-            using (var fillBrush = new SolidBrush(Color.FromArgb(15, baseColor)))
+            // Calm monochromatic fill (very subtle) - more visible on hover
+            int fillAlpha = isHovered ? 40 : 15;
+            using (var fillBrush = new SolidBrush(Color.FromArgb(fillAlpha, baseColor)))
             {
                 g.FillEllipse(fillBrush, centerX - radius, centerY - radius, size, size);
             }

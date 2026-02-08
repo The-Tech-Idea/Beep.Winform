@@ -126,13 +126,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int crossY = (captionRect.Height - crossSize) / 2;
             
             // Close button: Red cross with neon glow
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
             int cx = closeRect.X + closeRect.Width / 2;
             int cy = crossY + crossSize / 2;
             
-            // Draw glow first (outer to inner for layering)
-            for (int i = 3; i > 0; i--)
+            // Draw glow first (outer to inner for layering) - intensify on hover
+            int maxGlowLayers = closeHovered ? 4 : 3;
+            for (int i = maxGlowLayers; i > 0; i--)
             {
-                using (var glowPen = new Pen(Color.FromArgb(20 * i, 255, 100, 120), 2 * i))
+                int glowAlpha = closeHovered ? 30 * i : 20 * i;
+                using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 255, 100, 120), 2 * i))
                 {
                     // Horizontal bar of cross
                     g.DrawLine(glowPen, cx - crossSize/2, cy, cx + crossSize/2, cy);
@@ -159,13 +162,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Maximize button: Cyan cross with glow
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
             int mx = maxRect.X + maxRect.Width / 2;
             int my = crossY + crossSize / 2;
             
-            // Draw cyan glow
-            for (int i = 3; i > 0; i--)
+            // Draw cyan glow - intensify on hover
+            int maxGlowMax = maxHovered ? 4 : 3;
+            for (int i = maxGlowMax; i > 0; i--)
             {
-                using (var glowPen = new Pen(Color.FromArgb(20 * i, 125, 207, 255), 2 * i))
+                int glowAlpha = maxHovered ? 30 * i : 20 * i;
+                using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 125, 207, 255), 2 * i))
                 {
                     g.DrawLine(glowPen, mx - crossSize/2, my, mx + crossSize/2, my);
                     g.DrawLine(glowPen, mx, my - crossSize/2, mx, my + crossSize/2);
@@ -187,13 +193,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Minimize button: Purple cross with glow
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
             int mnx = minRect.X + minRect.Width / 2;
             int mny = crossY + crossSize / 2;
             
-            // Draw purple glow
-            for (int i = 3; i > 0; i--)
+            // Draw purple glow - intensify on hover
+            int minGlowMax = minHovered ? 4 : 3;
+            for (int i = minGlowMax; i > 0; i--)
             {
-                using (var glowPen = new Pen(Color.FromArgb(20 * i, 187, 154, 247), 2 * i))
+                int glowAlpha = minHovered ? 30 * i : 20 * i;
+                using (var glowPen = new Pen(Color.FromArgb(glowAlpha, 187, 154, 247), 2 * i))
                 {
                     g.DrawLine(glowPen, mnx - crossSize/2, mny, mnx + crossSize/2, mny);
                     g.DrawLine(glowPen, mnx, mny - crossSize/2, mnx, mny + crossSize/2);

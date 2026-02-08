@@ -184,41 +184,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             int buttonSize = 18;
             int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Close button: Red with user-selected shape
             PaintShapedButton(g, closeRect, Color.FromArgb(ButtonFillOpacity, 232, 17, 35), 
-                metrics.BorderColor, padding, buttonSize, "close");
+                metrics.BorderColor, padding, buttonSize, "close", closeHovered);
 
             // Maximize button: Green with user-selected shape
             PaintShapedButton(g, maxRect, Color.FromArgb(ButtonFillOpacity, 80, 160, 80), 
-                metrics.BorderColor, padding, buttonSize, "maximize");
+                metrics.BorderColor, padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button: Blue with user-selected shape
             PaintShapedButton(g, minRect, Color.FromArgb(ButtonFillOpacity, 80, 140, 200), 
-                metrics.BorderColor, padding, buttonSize, "minimize");
+                metrics.BorderColor, padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
                 PaintShapedButton(g, styleRect, Color.FromArgb(ButtonFillOpacity, 150, 120, 180), 
-                    metrics.BorderColor, padding, buttonSize, "Style");
+                    metrics.BorderColor, padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
                 PaintShapedButton(g, themeRect, Color.FromArgb(ButtonFillOpacity, 200, 150, 100), 
-                    metrics.BorderColor, padding, buttonSize, "theme");
+                    metrics.BorderColor, padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintShapedButton(Graphics g, Rectangle buttonRect, Color baseColor, Color borderColor, int padding, int size, string buttonType)
+        private void PaintShapedButton(Graphics g, Rectangle buttonRect, Color baseColor, Color borderColor, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
+
+            // Hover effect: slight size increase
+            if (isHovered)
+            {
+                size += 2;
+                // Brighten the color
+                baseColor = ControlPaint.Light(baseColor, 0.2f);
+            }
 
             // Create shape path based on current mode
             using (var shapePath = CreateButtonShapePath(centerX, centerY, size))
@@ -228,9 +243,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 {
                     var lightColor = ControlPaint.Light(baseColor);
                     var bounds = shapePath.GetBounds();
-                    using (var brush = new LinearGradientBrush(bounds, lightColor, baseColor, LinearGradientMode.Vertical))
+                    // Prevent potential invalid rectangle
+                    if (bounds.Width > 0 && bounds.Height > 0)
                     {
-                        g.FillPath(brush, shapePath);
+                        using (var brush = new LinearGradientBrush(bounds, lightColor, baseColor, LinearGradientMode.Vertical))
+                        {
+                            g.FillPath(brush, shapePath);
+                        }
+                    }
+                    else
+                    {
+                         using (var brush = new SolidBrush(baseColor))
+                        {
+                            g.FillPath(brush, shapePath);
+                        }
                     }
                 }
                 else
@@ -242,16 +268,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
 
                 // Draw border
-                using (var pen = new Pen(Color.FromArgb(180, borderColor), ButtonBorderThickness))
+                // Hover effect: Thicker border or brighter custom border color
+                float borderThick = isHovered ? ButtonBorderThickness + 0.5f : ButtonBorderThickness;
+                Color currentBorderColor = isHovered ? ControlPaint.Light(borderColor, 0.3f) : Color.FromArgb(180, borderColor);
+                
+                using (var pen = new Pen(currentBorderColor, borderThick))
                 {
                     g.DrawPath(pen, shapePath);
                 }
             }
 
             // Draw icon (standard icons for all shapes)
-            using (var iconPen = new Pen(Color.FromArgb(220, Color.White), 1.5f))
+            // Hover effect: Brighter white icon
+            using (var iconPen = new Pen(isHovered ? Color.White : Color.FromArgb(220, Color.White), 1.5f))
             {
-                int iconSize = 6;
+                int iconSize = 6 + (isHovered ? 1 : 0);
 
                 switch (buttonType)
                 {

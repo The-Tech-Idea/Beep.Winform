@@ -143,40 +143,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int btnY = (captionRect.Height - btnSize) / 2;
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
             
             // Close button: Embossed soft rectangle
             var closeBtn = new Rectangle(closeRect.X + (closeRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
-            PaintEmbossedButton(g, closeBtn, metrics.BackgroundColor, Color.FromArgb(200, 80, 80), "X");
+            PaintEmbossedButton(g, closeBtn, metrics.BackgroundColor, Color.FromArgb(200, 80, 80), "X", closeHovered);
             
             // Maximize button: Embossed soft rectangle
             var maxBtn = new Rectangle(maxRect.X + (maxRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
-            PaintEmbossedButton(g, maxBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "□");
+            PaintEmbossedButton(g, maxBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "□", maxHovered);
             
             // Minimize button: Embossed soft rectangle
             var minBtn = new Rectangle(minRect.X + (minRect.Width - btnSize) / 2, btnY, btnSize, btnSize);
-            PaintEmbossedButton(g, minBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "─");
+            PaintEmbossedButton(g, minBtn, metrics.BackgroundColor, metrics.CaptionTextColor, "─", minHovered);
         }
         
         /// <summary>
         /// Paint single embossed button with soft 3D depth
         /// </summary>
-        private void PaintEmbossedButton(Graphics g, Rectangle rect, Color baseColor, Color iconColor, string iconType)
+        private void PaintEmbossedButton(Graphics g, Rectangle rect, Color baseColor, Color iconColor, string iconType, bool isHovered = false)
         {
+            // Hover: slightly lighter base
+            Color effectiveBase = isHovered ? ControlPaint.Light(baseColor, 0.05f) : baseColor;
+
             // Base fill (same as background for monochromatic)
-            using (var baseBrush = new SolidBrush(baseColor))
+            using (var baseBrush = new SolidBrush(effectiveBase))
             {
                 g.FillRectangle(baseBrush, rect);
             }
             
-            // Light shadow (top-left) for raised effect
-            using (var lightPen = new Pen(Color.FromArgb(40, 255, 255, 255), 2))
+            // Light shadow (top-left) for raised effect - stronger on hover
+            int lightAlpha = isHovered ? 80 : 40;
+            using (var lightPen = new Pen(Color.FromArgb(lightAlpha, 255, 255, 255), 2))
             {
                 g.DrawLine(lightPen, rect.Left, rect.Bottom - 2, rect.Left, rect.Top + 2);
                 g.DrawLine(lightPen, rect.Left + 2, rect.Top, rect.Right - 2, rect.Top);
             }
             
-            // Dark shadow (bottom-right) for depth
-            using (var darkPen = new Pen(Color.FromArgb(40, 0, 0, 0), 2))
+            // Dark shadow (bottom-right) for depth - stronger on hover
+            int darkAlpha = isHovered ? 60 : 40;
+            using (var darkPen = new Pen(Color.FromArgb(darkAlpha, 0, 0, 0), 2))
             {
                 g.DrawLine(darkPen, rect.Right - 1, rect.Top + 2, rect.Right - 1, rect.Bottom - 1);
                 g.DrawLine(darkPen, rect.Right - 2, rect.Bottom - 1, rect.Left + 2, rect.Bottom - 1);

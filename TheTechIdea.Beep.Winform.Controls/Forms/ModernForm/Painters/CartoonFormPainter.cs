@@ -96,8 +96,118 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
             // Built-in caption elements
-            owner.PaintBuiltInCaptionElements(g);
+            // Paint custom Cartoon buttons (Playful, bold, vibrant)
+            PaintCartoonButtons(g, owner, captionRect, metrics);
         }
+
+        /// <summary>
+        /// Paint Cartoon buttons (Playful, bold, thick outlines, vibrant colors)
+        /// </summary>
+        private void PaintCartoonButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            int buttonSize = 24; // Slightly larger for cartoon feel
+            int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
+            // Close button: Red, wiggly/offset
+            PaintCartoonButton(g, closeRect, Color.FromArgb(255, 99, 71), "close", closeHovered);
+            
+            // Maximize button: Green/Blue
+            PaintCartoonButton(g, maxRect, Color.FromArgb(50, 205, 50), "maximize", maxHovered);
+            
+            // Minimize button: Blue/Yellow
+            PaintCartoonButton(g, minRect, Color.FromArgb(30, 144, 255), "minimize", minHovered);
+            
+            // Theme/Style buttons
+            if (owner.ShowStyleButton)
+            {
+                PaintCartoonButton(g, owner.CurrentLayout.StyleButtonRect, Color.FromArgb(255, 105, 180), "Style", styleHovered);
+            }
+            
+            if (owner.ShowThemeButton)
+            {
+                PaintCartoonButton(g, owner.CurrentLayout.ThemeButtonRect, Color.FromArgb(255, 165, 0), "theme", themeHovered);
+            }
+        }
+        
+        private void PaintCartoonButton(Graphics g, Rectangle rect, Color baseColor, string type, bool isHovered)
+        {
+            int cx = rect.X + rect.Width / 2;
+            int cy = rect.Y + rect.Height / 2;
+            int size = 20;
+            
+            // Hover effect: Scale up slightly (Cartoon pop)
+            if (isHovered)
+            {
+                size += 4;
+            }
+            
+            int radius = size / 2;
+            
+            // Draw playful offset shadow (solid black)
+            using (var shadowBrush = new SolidBrush(Color.Black))
+            {
+                g.FillEllipse(shadowBrush, cx - radius + 3, cy - radius + 3, size, size);
+            }
+            
+            // Draw main circle
+            using (var brush = new SolidBrush(baseColor))
+            {
+                g.FillEllipse(brush, cx - radius, cy - radius, size, size);
+            }
+            
+            // Draw thick outline
+            using (var outlinePen = new Pen(Color.Black, 2.5f))
+            {
+                g.DrawEllipse(outlinePen, cx - radius, cy - radius, size, size);
+            }
+            
+            // Draw highlight (shiny cartoon spot)
+            using (var glossBrush = new SolidBrush(Color.FromArgb(180, 255, 255, 255)))
+            {
+                g.FillEllipse(glossBrush, cx - radius + 4, cy - radius + 4, size / 3, size / 3);
+            }
+
+            // Draw Icon
+            using (var iconPen = new Pen(Color.Black, 2.5f))
+            {
+                iconPen.StartCap = LineCap.Round;
+                iconPen.EndCap = LineCap.Round;
+                
+                int iconSize = 8 + (isHovered ? 2 : 0);
+                
+                switch (type)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, cx - iconSize/2, cy - iconSize/2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, cx - iconSize/2, cy + iconSize/2, cx + iconSize/2, cy + iconSize/2); // Lower line
+                        break;
+                    case "Style": // Paintbrush-ish line
+                         g.DrawLine(iconPen, cx - iconSize/2, cy + iconSize/2, cx + iconSize/2, cy - iconSize/2);
+                        break;
+                    case "theme": // Layers / Circle
+                         g.DrawEllipse(iconPen, cx - iconSize/2, cy - iconSize/2, iconSize, iconSize);
+                        break;
+                }
+            }
+        }
+        
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {

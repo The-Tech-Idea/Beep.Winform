@@ -226,7 +226,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
 
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return ShadowPainterHelpers.PaintMaterialShadow(g, bounds, radius, _elevation);
+            // Use PaintDualLayerShadow with proper Material 3 elevation parameters
+            Color shadowColor = theme?.ShadowColor ?? Color.FromArgb(30, 30, 30);
+            return ShadowPainterHelpers.PaintDualLayerShadow(g, bounds, radius, (int)_elevation, shadowColor);
         }
     }
 

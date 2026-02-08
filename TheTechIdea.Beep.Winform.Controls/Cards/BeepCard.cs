@@ -85,7 +85,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         ImageCard,          // Full-width image card with overlay text
         VideoCard,          // Video thumbnail card with play button
         DownloadCard,       // File download card with icon, name, size, download button
-        ContactCard         // Contact information card with phone, email, location
+        ContactCard,         // Contact information card with phone, email, location
+        BlankCard,         // Blank card with no content
+        HeaderOnlyCard,    // Card with only header text
+        ParagraphOnlyCard, // Card with only paragraph text
+        ButtonOnlyCard,    // Card with only button
+        SecondaryButtonOnlyCard, // Card with only secondary button
+        BadgeOnlyCard,     // Card with only badge
+        RatingOnlyCard,    // Card with only rating
+        StatusOnlyCard,    // Card with only status
+        ImageOnlyCard,     // Card with only image
+        VideoOnlyCard,     // Card with only video
+        DownloadOnlyCard,  // Card with only download
+        ContactOnlyCard,   // Card with only contact
     }
 
 
@@ -105,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment headerAlignment = ContentAlignment.TopLeft;
         private ContentAlignment imageAlignment = ContentAlignment.TopCenter;
         private ContentAlignment textAlignment = ContentAlignment.TopLeft;
-        private CardStyle _style = CardStyle.BasicCard;
+        private CardStyle _style = CardStyle.BlankCard;
         private bool showButton = true;
         private string imagePath = string.Empty;
         private ICardPainter _painter;
@@ -242,7 +254,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CardStyle.ImageCard => new MediaCardPainter(), // Image uses Media style
                 CardStyle.VideoCard => new VideoCardPainter(),
                 
-                _ => new BasicCardPainter()
+                // Single-element "Only" Cards
+                CardStyle.BlankCard => new BlankCardPainter(),
+                CardStyle.HeaderOnlyCard => new HeaderOnlyCardPainter(),
+                CardStyle.ParagraphOnlyCard => new ParagraphOnlyCardPainter(),
+                CardStyle.ButtonOnlyCard => new ButtonOnlyCardPainter(),
+                CardStyle.SecondaryButtonOnlyCard => new SecondaryButtonOnlyCardPainter(),
+                CardStyle.BadgeOnlyCard => new BadgeOnlyCardPainter(),
+                CardStyle.RatingOnlyCard => new RatingOnlyCardPainter(),
+                CardStyle.StatusOnlyCard => new StatusOnlyCardPainter(),
+                CardStyle.ImageOnlyCard => new ImageOnlyCardPainter(),
+                CardStyle.VideoOnlyCard => new VideoOnlyCardPainter(),
+                CardStyle.DownloadOnlyCard => new DownloadOnlyCardPainter(),
+                CardStyle.ContactOnlyCard => new ContactOnlyCardPainter(),
+                
+                _ => new BlankCardPainter()
             };
             
             _painter?.Initialize(this, _currentTheme);

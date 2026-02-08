@@ -106,36 +106,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonWidth = 28;
             int padding = (captionRect.Height - buttonHeight) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button: Red pill
-            PaintPillButton(g, closeRect, Color.FromArgb(246, 97, 81), padding, buttonWidth, buttonHeight, "close");
+            PaintPillButton(g, closeRect, Color.FromArgb(246, 97, 81), padding, buttonWidth, buttonHeight, "close", closeHovered);
 
             // Maximize button: Green pill
-            PaintPillButton(g, maxRect, Color.FromArgb(51, 209, 122), padding, buttonWidth, buttonHeight, "maximize");
+            PaintPillButton(g, maxRect, Color.FromArgb(51, 209, 122), padding, buttonWidth, buttonHeight, "maximize", maxHovered);
 
             // Minimize button: Blue pill
-            PaintPillButton(g, minRect, Color.FromArgb(53, 132, 228), padding, buttonWidth, buttonHeight, "minimize");
+            PaintPillButton(g, minRect, Color.FromArgb(53, 132, 228), padding, buttonWidth, buttonHeight, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintPillButton(g, styleRect, Color.FromArgb(145, 65, 172), padding, buttonWidth, buttonHeight, "Style");
+                PaintPillButton(g, styleRect, Color.FromArgb(145, 65, 172), padding, buttonWidth, buttonHeight, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintPillButton(g, themeRect, Color.FromArgb(230, 97, 0), padding, buttonWidth, buttonHeight, "theme");
+                PaintPillButton(g, themeRect, Color.FromArgb(230, 97, 0), padding, buttonWidth, buttonHeight, "theme", themeHovered);
             }
         }
 
-        private void PaintPillButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int width, int height, string buttonType)
+        private void PaintPillButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int width, int height, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - width / 2, centerY - height / 2, width, height);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Hover effect: Brighten color
+            if (isHovered)
+            {
+                baseColor = ControlPaint.Light(baseColor, 0.2f);
+            }
 
             // Gradient mesh overlay (subtle GNOME effect)
             DrawGradientMesh(g, rect);
@@ -167,14 +180,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
 
                 // Pill border (subtle, 1px)
-                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.2f), 1))
+                // Hover effect: Slightly brighter border
+                Color borderColor = isHovered ? ControlPaint.Light(baseColor, 0.4f) : ControlPaint.Dark(baseColor, 0.2f);
+                using (var borderPen = new Pen(borderColor, 1))
                 {
                     g.DrawPath(borderPen, pillPath);
                 }
             }
 
             // Draw icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
+            // Hover effect: Bright white
+            using (var iconPen = new Pen(isHovered ? Color.White : Color.FromArgb(230, 230, 230), 1.5f))
             {
                 int iconSize = 8;
                 int iconCenterX = rect.X + rect.Width / 2;
@@ -202,14 +218,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                             {
                                 int x = iconCenterX - iconSize / 3 + i * iconSize / 2;
                                 int y = iconCenterY - iconSize / 3 + j * iconSize / 2;
-                                g.FillRectangle(Brushes.White, x, y, 3, 3);
+                                g.FillRectangle(isHovered ? Brushes.White : Brushes.LightGray, x, y, 3, 3);
                             }
                         }
                         break;
                     case "theme":
                         // Contrast icon (GNOME accessibility)
                         g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
-                        using (var fillBrush = new SolidBrush(Color.White))
+                        using (var fillBrush = new SolidBrush(isHovered ? Color.White : Color.LightGray))
                         {
                             g.FillPie(fillBrush, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, 
                                 iconSize, iconSize, 270, 180);

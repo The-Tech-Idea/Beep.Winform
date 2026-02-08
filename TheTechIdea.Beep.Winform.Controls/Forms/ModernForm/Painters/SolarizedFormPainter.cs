@@ -96,13 +96,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int diamondSize = 16;
             int diamondY = (captionRect.Height - diamondSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
             // Close button: Red diamond with X
             int cx = closeRect.X + closeRect.Width / 2;
             using (var diamondPath = CreateDiamondPath(cx, diamondY + diamondSize/2, diamondSize/2))
             {
-                using (var diamondBrush = new SolidBrush(Color.FromArgb(220, 50, 47)))
+                // Hover: brighter fill
+                Color closeColor = closeHovered ? Color.FromArgb(240, 70, 67) : Color.FromArgb(220, 50, 47);
+                using (var diamondBrush = new SolidBrush(closeColor))
                 {
                     g.FillPath(diamondBrush, diamondPath);
+                }
+                
+                // Hover: subtle glow outline
+                if (closeHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                    {
+                        g.DrawPath(glowPen, diamondPath);
+                    }
                 }
                 
                 // X icon (6px)
@@ -119,7 +137,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mx = maxRect.X + maxRect.Width / 2;
             using (var diamondPath = CreateDiamondPath(mx, diamondY + diamondSize/2, diamondSize/2))
             {
-                using (var outlinePen = new Pen(metrics.CaptionTextColor, 1.5f))
+                // Hover: subtle fill
+                if (maxHovered)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(40, metrics.CaptionTextColor)))
+                    {
+                        g.FillPath(hoverBrush, diamondPath);
+                    }
+                }
+                
+                float outlineWidth = maxHovered ? 2f : 1.5f;
+                using (var outlinePen = new Pen(metrics.CaptionTextColor, outlineWidth))
                 {
                     g.DrawPath(outlinePen, diamondPath);
                 }
@@ -137,7 +165,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mnx = minRect.X + minRect.Width / 2;
             using (var diamondPath = CreateDiamondPath(mnx, diamondY + diamondSize/2, diamondSize/2))
             {
-                using (var outlinePen = new Pen(metrics.CaptionTextColor, 1.5f))
+                // Hover: subtle fill
+                if (minHovered)
+                {
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(40, metrics.CaptionTextColor)))
+                    {
+                        g.FillPath(hoverBrush, diamondPath);
+                    }
+                }
+                
+                float outlineWidth = minHovered ? 2f : 1.5f;
+                using (var outlinePen = new Pen(metrics.CaptionTextColor, outlineWidth))
                 {
                     g.DrawPath(outlinePen, diamondPath);
                 }
@@ -157,9 +195,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int tx = themeRect.X + themeRect.Width / 2;
                 using (var diamondPath = CreateDiamondPath(tx, diamondY + diamondSize/2, diamondSize/2))
                 {
-                    using (var diamondBrush = new SolidBrush(Color.FromArgb(38, 139, 210)))
+                    Color themeColor = themeHovered ? Color.FromArgb(58, 159, 230) : Color.FromArgb(38, 139, 210);
+                    using (var diamondBrush = new SolidBrush(themeColor))
                     {
                         g.FillPath(diamondBrush, diamondPath);
+                    }
+                    
+                    if (themeHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, diamondPath);
+                        }
                     }
                     
                     // Palette icon (circles)
@@ -179,9 +226,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int sx = styleRect.X + styleRect.Width / 2;
                 using (var diamondPath = CreateDiamondPath(sx, diamondY + diamondSize/2, diamondSize/2))
                 {
-                    using (var diamondBrush = new SolidBrush(Color.FromArgb(211, 54, 130)))
+                    Color styleColor = styleHovered ? Color.FromArgb(231, 74, 150) : Color.FromArgb(211, 54, 130);
+                    using (var diamondBrush = new SolidBrush(styleColor))
                     {
                         g.FillPath(diamondBrush, diamondPath);
+                    }
+                    
+                    if (styleHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, diamondPath);
+                        }
                     }
                     
                     // Brush icon (triangle + line)

@@ -122,33 +122,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Close button: Red neon hexagon
-            PaintNeonHexagonButton(g, closeRect, Color.FromArgb(255, 0, 100), "close");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            PaintNeonHexagonButton(g, closeRect, Color.FromArgb(255, 0, 100), "close", closeHovered);
 
             // Maximize button: Cyan neon hexagon
-            PaintNeonHexagonButton(g, maxRect, Color.FromArgb(0, 255, 255), "maximize");
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            PaintNeonHexagonButton(g, maxRect, Color.FromArgb(0, 255, 255), "maximize", maxHovered);
 
             // Minimize button: Magenta neon hexagon
-            PaintNeonHexagonButton(g, minRect, Color.FromArgb(255, 0, 255), "minimize");
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            PaintNeonHexagonButton(g, minRect, Color.FromArgb(255, 0, 255), "minimize", minHovered);
 
             // Theme button (if shown)
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintNeonHexagonButton(g, themeRect, Color.FromArgb(0, 255, 150), "theme");
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                PaintNeonHexagonButton(g, themeRect, Color.FromArgb(0, 255, 150), "theme", themeHovered);
             }
 
             // Style button (if shown)
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintNeonHexagonButton(g, styleRect, Color.FromArgb(255, 200, 0), "Style");
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                PaintNeonHexagonButton(g, styleRect, Color.FromArgb(255, 200, 0), "Style", styleHovered);
             }
         }
 
         /// <summary>
         /// Paint a single neon hexagon button with multi-layer glow effect
         /// </summary>
-        private void PaintNeonHexagonButton(Graphics g, Rectangle buttonRect, Color neonColor, string buttonType)
+        private void PaintNeonHexagonButton(Graphics g, Rectangle buttonRect, Color neonColor, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -156,22 +161,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             // Create hexagon path
             var hexPath = CreateHexagonPath(centerX, centerY, size);
+            
+            // Hover: intensify outer glow
+            int glowWidth1 = isHovered ? 16 : 12;
+            int glowWidth2 = isHovered ? 9 : 6;
+            int glowWidth3 = isHovered ? 5 : 3;
+            int glowAlpha1 = isHovered ? 50 : 30;
+            int glowAlpha2 = isHovered ? 90 : 60;
+            int glowAlpha3 = isHovered ? 140 : 100;
 
             // Multi-layer neon glow (3 layers)
-            // Layer 1: Outer glow (blur 12)
-            using (var glowPen1 = new Pen(Color.FromArgb(30, neonColor), 12))
+            // Layer 1: Outer glow
+            using (var glowPen1 = new Pen(Color.FromArgb(glowAlpha1, neonColor), glowWidth1))
             {
                 g.DrawPath(glowPen1, hexPath);
             }
 
-            // Layer 2: Mid glow (blur 6)
-            using (var glowPen2 = new Pen(Color.FromArgb(60, neonColor), 6))
+            // Layer 2: Mid glow
+            using (var glowPen2 = new Pen(Color.FromArgb(glowAlpha2, neonColor), glowWidth2))
             {
                 g.DrawPath(glowPen2, hexPath);
             }
 
-            // Layer 3: Inner glow (blur 3)
-            using (var glowPen3 = new Pen(Color.FromArgb(100, neonColor), 3))
+            // Layer 3: Inner glow
+            using (var glowPen3 = new Pen(Color.FromArgb(glowAlpha3, neonColor), glowWidth3))
             {
                 g.DrawPath(glowPen3, hexPath);
             }

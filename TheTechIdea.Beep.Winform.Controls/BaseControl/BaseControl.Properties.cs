@@ -473,6 +473,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         private int _borderThickness = 1;
 
+        /// <summary>
+        /// Custom padding added on top of style padding for additional spacing control.
+        /// Allows asymmetric padding (e.g., only top padding for title labels).
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Additional custom padding to add on top of style padding (supports asymmetric values)")]
+        public Padding CustomPadding
+        {
+            get => _customPadding;
+            set
+            {
+                if (_customPadding == value) return;
+                _customPadding = value;
+                UpdateControlRegion();
+                Invalidate();
+            }
+        }
+        private Padding _customPadding = Padding.Empty;
+
         [Browsable(true)]
         public int BorderRadius
         {

@@ -94,30 +94,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button - high contrast red
-            PaintRadixUIButton(g, closeRect, Color.FromArgb(220, 38, 38), padding, buttonSize, "close");
+            PaintRadixUIButton(g, closeRect, Color.FromArgb(220, 38, 38), padding, buttonSize, "close", closeHovered);
 
             // Maximize button - high contrast green
-            PaintRadixUIButton(g, maxRect, Color.FromArgb(22, 163, 74), padding, buttonSize, "maximize");
+            PaintRadixUIButton(g, maxRect, Color.FromArgb(22, 163, 74), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button - high contrast blue
-            PaintRadixUIButton(g, minRect, Color.FromArgb(37, 99, 235), padding, buttonSize, "minimize");
+            PaintRadixUIButton(g, minRect, Color.FromArgb(37, 99, 235), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintRadixUIButton(g, styleRect, Color.FromArgb(124, 58, 237), padding, buttonSize, "Style");
+                PaintRadixUIButton(g, styleRect, Color.FromArgb(124, 58, 237), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintRadixUIButton(g, themeRect, Color.FromArgb(234, 88, 12), padding, buttonSize, "theme");
+                PaintRadixUIButton(g, themeRect, Color.FromArgb(234, 88, 12), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintRadixUIButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintRadixUIButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -125,12 +132,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Focus ring (outer ring for accessibility)
+            // Hover: darken base color slightly
+            if (isHovered)
+            {
+                baseColor = ControlPaint.Dark(baseColor, 0.1f);
+            }
+
+            // Focus ring (outer ring for accessibility) - stronger on hover
+            int focusAlpha = isHovered ? 60 : 30;
             using (var focusPath = CreateRoundedRectanglePath(
                 new Rectangle(rect.X - 2, rect.Y - 2, rect.Width + 4, rect.Height + 4), 
                 new CornerRadius(6)))
             {
-                using (var focusBrush = new SolidBrush(Color.FromArgb(30, baseColor)))
+                using (var focusBrush = new SolidBrush(Color.FromArgb(focusAlpha, baseColor)))
                 {
                     g.FillPath(focusBrush, focusPath);
                 }
@@ -152,7 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
 
                 // Hover state indication
-                using (var hoverBrush = new SolidBrush(Color.FromArgb(40, baseColor)))
+                int hoverAlpha = isHovered ? 80 : 40;
+                using (var hoverBrush = new SolidBrush(Color.FromArgb(hoverAlpha, baseColor)))
                 {
                     g.FillPath(hoverBrush, buttonPath);
                 }

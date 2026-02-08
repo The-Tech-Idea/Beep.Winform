@@ -129,10 +129,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int fangY = (captionRect.Height - fangHeight) / 2;
             
             // Close button: Red fang with X
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
             int cx = closeRect.X + closeRect.Width / 2;
             using (var fangPath = CreateFangPath(cx, fangY, fangHeight))
             {
-                using (var fangBrush = new SolidBrush(Color.FromArgb(200, 80, 80)))
+                int alpha = closeHovered ? 255 : 200;
+                using (var fangBrush = new SolidBrush(Color.FromArgb(alpha, 80, 80)))
                 {
                     g.FillPath(fangBrush, fangPath);
                 }
@@ -150,10 +152,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Maximize button: Dark fang with square
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
             int mx = maxRect.X + maxRect.Width / 2;
             using (var fangPath = CreateFangPath(mx, fangY, fangHeight))
             {
-                using (var fangBrush = new SolidBrush(Color.FromArgb(90, 90, 90)))
+                int grayVal = maxHovered ? 120 : 90;
+                using (var fangBrush = new SolidBrush(Color.FromArgb(grayVal, grayVal, grayVal)))
                 {
                     g.FillPath(fangBrush, fangPath);
                 }
@@ -168,10 +172,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Minimize button: Dark fang with line
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
             int mnx = minRect.X + minRect.Width / 2;
             using (var fangPath = CreateFangPath(mnx, fangY, fangHeight))
             {
-                using (var fangBrush = new SolidBrush(Color.FromArgb(90, 90, 90)))
+                int grayVal = minHovered ? 120 : 90;
+                using (var fangBrush = new SolidBrush(Color.FromArgb(grayVal, grayVal, grayVal)))
                 {
                     g.FillPath(fangBrush, fangPath);
                 }
@@ -188,10 +194,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Theme button: Purple fang with palette icon (Dracula purple #bd93f9)
             if (!themeRect.IsEmpty)
             {
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
                 int tx = themeRect.X + themeRect.Width / 2;
                 using (var fangPath = CreateFangPath(tx, fangY, fangHeight))
                 {
-                    using (var fangBrush = new SolidBrush(Color.FromArgb(189, 147, 249)))
+                    int alpha = themeHovered ? 255 : 189;
+                    using (var fangBrush = new SolidBrush(Color.FromArgb(alpha, 147, 249)))
                     {
                         g.FillPath(fangBrush, fangPath);
                     }
@@ -210,10 +218,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Style button: Pink fang with brush icon (Dracula pink #ff79c6)
             if (!styleRect.IsEmpty)
             {
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
                 int sx = styleRect.X + styleRect.Width / 2;
                 using (var fangPath = CreateFangPath(sx, fangY, fangHeight))
                 {
-                    using (var fangBrush = new SolidBrush(Color.FromArgb(255, 121, 198)))
+                    int alpha = styleHovered ? 255 : 121;
+                    using (var fangBrush = new SolidBrush(Color.FromArgb(255, alpha, 198)))
                     {
                         g.FillPath(fangBrush, fangPath);
                     }

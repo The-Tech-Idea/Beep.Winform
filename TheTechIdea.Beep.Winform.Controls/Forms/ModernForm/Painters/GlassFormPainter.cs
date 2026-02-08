@@ -104,29 +104,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Close button - red glass with refraction
-            PaintGlassButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            PaintGlassButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close", closeHovered);
 
             // Maximize button - green glass with refraction
-            PaintGlassButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            PaintGlassButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button - blue glass with refraction
-            PaintGlassButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            PaintGlassButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintGlassButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                PaintGlassButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintGlassButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                PaintGlassButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintGlassButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintGlassButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -134,17 +139,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Draw caustic pattern background (underwater light effect)
+            // Draw caustic pattern background (underwater light effect) - more intense on hover
+            if (isHovered)
+            {
+                DrawCausticPattern(g, new Rectangle(centerX - radius - 8, centerY - radius - 8, size + 16, size + 16));
+            }
             DrawCausticPattern(g, new Rectangle(centerX - radius - 5, centerY - radius - 5, size + 10, size + 10));
 
-            // Glass circle with transparency
-            using (var glassBrush = new SolidBrush(Color.FromArgb(140, baseColor)))
+            // Glass circle with transparency - brighter on hover
+            int glassAlpha = isHovered ? 180 : 140;
+            using (var glassBrush = new SolidBrush(Color.FromArgb(glassAlpha, baseColor)))
             {
                 g.FillEllipse(glassBrush, centerX - radius, centerY - radius, size, size);
             }
 
-            // Refraction effect (lighter inner layer)
-            using (var refractionBrush = new SolidBrush(Color.FromArgb(80, 255, 255, 255)))
+            // Refraction effect (lighter inner layer) - more prominent on hover
+            int refractionAlpha = isHovered ? 120 : 80;
+            using (var refractionBrush = new SolidBrush(Color.FromArgb(refractionAlpha, 255, 255, 255)))
             {
                 int refractionRadius = radius - 2;
                 g.FillEllipse(refractionBrush, centerX - refractionRadius, centerY - refractionRadius, 

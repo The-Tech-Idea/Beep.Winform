@@ -84,10 +84,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             using (var ringPath = (GraphicsPath)path.Clone())
             {
-                // Widen the path to create the ring effect
+                // Get path center for proper scaling around center, not origin
+                RectangleF pathBounds = path.GetBounds();
+                float centerX = pathBounds.X + pathBounds.Width / 2;
+                float centerY = pathBounds.Y + pathBounds.Height / 2;
+
                 using (var wideMatrix = new Matrix())
                 {
-                    wideMatrix.Scale(1 + (ringOffset / 100f), 1 + (ringOffset / 100f));
+                    // Translate to origin, scale, translate back - this scales around center
+                    wideMatrix.Translate(-centerX, -centerY, MatrixOrder.Append);
+                    wideMatrix.Scale(1 + (ringOffset / Math.Max(pathBounds.Width, 50f)), 
+                                     1 + (ringOffset / Math.Max(pathBounds.Height, 50f)), MatrixOrder.Append);
+                    wideMatrix.Translate(centerX, centerY, MatrixOrder.Append);
                     ringPath.Transform(wideMatrix);
                 }
 

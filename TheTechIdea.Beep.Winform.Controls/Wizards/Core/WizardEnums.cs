@@ -10,7 +10,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// <summary>Vertical stepper with timeline on left side</summary>
         VerticalStepper,
         /// <summary>Minimal clean progress indicator</summary>
-        Minimal
+        Minimal,
+        /// <summary>Card-based step selection with clickable cards on the left</summary>
+        Cards
     }
 
     /// <summary>

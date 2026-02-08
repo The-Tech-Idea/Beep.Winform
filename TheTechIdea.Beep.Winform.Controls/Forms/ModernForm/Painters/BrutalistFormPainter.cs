@@ -74,7 +74,110 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
             // Paint all built-in caption elements (icon, minimize, maximize, close, theme, style buttons)
-            owner.PaintBuiltInCaptionElements(g);
+            // Paint custom Brutalist buttons (Bold, high contrast, hard edges)
+            PaintBrutalistButtons(g, owner, captionRect, metrics);
+        }
+
+        /// <summary>
+        /// Paint Brutalist buttons (Bold, high contrast, hard edges, no smoothing)
+        /// </summary>
+        private void PaintBrutalistButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            int buttonSize = 20;
+            int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
+            // Shared pen for borders
+            using (var borderPen = new Pen(metrics.BorderColor, 2))
+            {
+                // Close button: Red block on hover, X icon
+                PaintBrutalistButton(g, closeRect, Color.FromArgb(255, 60, 60), borderPen, "close", closeHovered);
+                
+                // Maximize button: Block on hover, Square icon
+                PaintBrutalistButton(g, maxRect, metrics.BorderColor, borderPen, "maximize", maxHovered);
+                
+                // Minimize button: Block on hover, Line icon
+                PaintBrutalistButton(g, minRect, metrics.BorderColor, borderPen, "minimize", minHovered);
+                
+                // Theme/Style buttons
+                if (owner.ShowStyleButton)
+                {
+                    PaintBrutalistButton(g, owner.CurrentLayout.StyleButtonRect, metrics.BorderColor, borderPen, "Style", styleHovered);
+                }
+                
+                if (owner.ShowThemeButton)
+                {
+                    PaintBrutalistButton(g, owner.CurrentLayout.ThemeButtonRect, metrics.BorderColor, borderPen, "theme", themeHovered);
+                }
+            }
+        }
+        
+        private void PaintBrutalistButton(Graphics g, Rectangle rect, Color hoverColor, Pen borderPen, string type, bool isHovered)
+        {
+            // Brutalist: No smoothing
+            g.SmoothingMode = SmoothingMode.None;
+            
+            // Draw background only on hover (Brutalist interaction style: interaction reveals form)
+            if (isHovered)
+            {
+                using (var brush = new SolidBrush(hoverColor))
+                {
+                    // Draw box with hard shadow offset
+                    g.FillRectangle(brush, rect);
+                    
+                    // Offset border for "pressed" or "active" feel
+                    g.DrawRectangle(borderPen, rect);
+                    
+                    // Hard shadow
+                    using (var shadowBrush = new SolidBrush(Color.Black))
+                    {
+                        g.FillRectangle(shadowBrush, rect.Right, rect.Bottom, 4, 4);
+                    }
+                }
+            }
+            
+            // Draw Icon
+            // Inverse color on hover for contrast
+            Color iconColor = isHovered ? Color.White : borderPen.Color;
+            
+            using (var iconPen = new Pen(iconColor, 2))
+            {
+                int cx = rect.X + rect.Width / 2;
+                int cy = rect.Y + rect.Height / 2;
+                int size = 10;
+                
+                switch (type)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, cx - size/2, cy - size/2, cx + size/2, cy + size/2);
+                        g.DrawLine(iconPen, cx + size/2, cy - size/2, cx - size/2, cy + size/2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, cx - size/2, cy - size/2, size, size);
+                        g.FillRectangle(isHovered ? Brushes.White : Brushes.Black, cx - size/2, cy - size/2, size, 2); // Header bar
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, cx - size/2, cy + size/2, cx + size/2, cy + size/2);
+                        break;
+                    case "Style": // Brush/Palette
+                         g.FillRectangle(isHovered ? Brushes.White : new SolidBrush(iconColor), cx - size/2, cy - size/2, size, size);
+                        break;
+                    case "theme": // Layers
+                         g.DrawRectangle(iconPen, cx - size/2, cy - size/2, size, size);
+                         g.DrawLine(iconPen, cx - size/2 + 2, cy - size/2 + size/2, cx + size/2 - 2, cy - size/2 + size/2);
+                        break;
+                }
+            }
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)

@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 LinearGradientMode.Vertical);
 
             // Draw refined traffic light buttons with 3D effects
-            DrawTrafficLights(g, captionRect);
+            DrawTrafficLights(g, captionRect, owner);
 
             // Paint search box if visible (using FormRegion for consistency)
             if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// <summary>
         /// Draws macOS-Style traffic light buttons with 3D effects
         /// </summary>
-        private void DrawTrafficLights(Graphics g, Rectangle captionRect)
+        private void DrawTrafficLights(Graphics g, Rectangle captionRect, BeepiFormPro owner)
         {
             var buttonSize = 12;
             var spacing = 8;
@@ -250,32 +250,74 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var yellow = Color.FromArgb(255, 189, 46);
             var green = Color.FromArgb(39, 201, 63);
 
-            // Draw each button with 3D effect
-            DrawTrafficLightButton(g, captionRect.Left + leftOffset, captionRect.Top + topOffset, buttonSize, red);
-            DrawTrafficLightButton(g, captionRect.Left + leftOffset + spacing + buttonSize, captionRect.Top + topOffset, buttonSize, yellow);
-            DrawTrafficLightButton(g, captionRect.Left + leftOffset + (spacing + buttonSize) * 2, captionRect.Top + topOffset, buttonSize, green);
+            // Draw each button with 3D effect - check hover
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            
+            DrawTrafficLightButton(g, captionRect.Left + leftOffset, captionRect.Top + topOffset, buttonSize, red, closeHovered, "close");
+            DrawTrafficLightButton(g, captionRect.Left + leftOffset + spacing + buttonSize, captionRect.Top + topOffset, buttonSize, yellow, minHovered, "minimize");
+            DrawTrafficLightButton(g, captionRect.Left + leftOffset + (spacing + buttonSize) * 2, captionRect.Top + topOffset, buttonSize, green, maxHovered, "maximize");
         }
 
         /// <summary>
         /// Draws a single traffic light button with highlight and shadow
         /// </summary>
-        private void DrawTrafficLightButton(Graphics g, int x, int y, int size, Color color)
+        private void DrawTrafficLightButton(Graphics g, int x, int y, int size, Color color, bool isHovered, string buttonType)
         {
-            // Main button
-            using var buttonBrush = new SolidBrush(color);
+            // Main button - brighter on hover
+            Color fillColor = isHovered ? ControlPaint.Light(color, 0.15f) : color;
+            using var buttonBrush = new SolidBrush(fillColor);
             g.FillEllipse(buttonBrush, x, y, size, size);
 
-            // Highlight (top-left)
-            using var highlightBrush = new SolidBrush(Color.FromArgb(100, 255, 255, 255));
-            g.FillEllipse(highlightBrush, x, y, size * 0.6f, size * 0.6f);
+            // Highlight (top-left) - larger on hover
+            int highlightAlpha = isHovered ? 140 : 100;
+            float highlightSize = isHovered ? 0.7f : 0.6f;
+            using var highlightBrush = new SolidBrush(Color.FromArgb(highlightAlpha, 255, 255, 255));
+            g.FillEllipse(highlightBrush, x, y, size * highlightSize, size * highlightSize);
 
             // Shadow (bottom-right)
             using var shadowBrush = new SolidBrush(Color.FromArgb(80, 0, 0, 0));
             g.FillEllipse(shadowBrush, x + size * 0.4f, y + size * 0.4f, size * 0.6f, size * 0.6f);
 
-            // Border
-            using var borderPen = new Pen(Color.FromArgb(60, 0, 0, 0), 0.5f);
+            // Border - thicker on hover
+            float borderWidth = isHovered ? 1f : 0.5f;
+            using var borderPen = new Pen(Color.FromArgb(60, 0, 0, 0), borderWidth);
             g.DrawEllipse(borderPen, x, y, size, size);
+
+            // Symbol on hover
+            if (isHovered)
+            {
+                using (var symbolPen = new Pen(Color.FromArgb(180, 0, 0, 0), 1.5f))
+                {
+                    int cx = x + size / 2;
+                    int cy = y + size / 2;
+                    int symSize = 6;
+                    
+                    switch (buttonType)
+                    {
+                        case "close":
+                            // X icon
+                            g.DrawLine(symbolPen, cx - 2, cy - 2, cx + 2, cy + 2);
+                            g.DrawLine(symbolPen, cx + 2, cy - 2, cx - 2, cy + 2);
+                            break;
+                            
+                        case "minimize":
+                            // Minus icon
+                            g.DrawLine(symbolPen, cx - 3, cy, cx + 3, cy);
+                            break;
+                            
+                        case "maximize":
+                            // Plus/Zoom icon - usually two arrows or a plus in old macOS, simply + or arrows in new
+                            // Modern macOS shows a + for fullscreen/maximize behavior or arrows
+                            // Let's use arrows (diagonal) style or simple +
+                            // Simple + is easier to read at small size
+                            g.DrawLine(symbolPen, cx - 3, cy, cx + 3, cy); // Horizontal
+                            g.DrawLine(symbolPen, cx, cy - 3, cx, cy + 3); // Vertical
+                            break;
+                    }
+                }
+            }
         }
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)

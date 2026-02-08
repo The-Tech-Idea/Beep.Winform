@@ -107,15 +107,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 14;
             int buttonY = (captionRect.Height - buttonSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button: Ubuntu orange circle with X
             int closeX = closeRect.X + (closeRect.Width - buttonSize) / 2;
             var closeCircle = new Rectangle(closeX, buttonY, buttonSize, buttonSize);
             
-            // Gradient for depth
+            // Gradient for depth - brighter on hover
+            Color closeTop = closeHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
+            Color closeBottom = closeHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
+            
             using (var orangeGrad = new LinearGradientBrush(
                 closeCircle,
-                Color.FromArgb(245, 94, 42),
-                Color.FromArgb(223, 74, 22),
+                closeTop,
+                closeBottom,
                 LinearGradientMode.Vertical))
             {
                 g.FillEllipse(orangeGrad, closeCircle);
@@ -141,10 +151,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int maxX = maxRect.X + (maxRect.Width - buttonSize) / 2;
             var maxCircle = new Rectangle(maxX, buttonY, buttonSize, buttonSize);
             
+            Color maxTop = maxHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
+            Color maxBottom = maxHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
+
             using (var orangeGrad = new LinearGradientBrush(
                 maxCircle,
-                Color.FromArgb(245, 94, 42),
-                Color.FromArgb(223, 74, 22),
+                maxTop,
+                maxBottom,
                 LinearGradientMode.Vertical))
             {
                 g.FillEllipse(orangeGrad, maxCircle);
@@ -168,10 +181,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int minX = minRect.X + (minRect.Width - buttonSize) / 2;
             var minCircle = new Rectangle(minX, buttonY, buttonSize, buttonSize);
             
+            Color minTop = minHovered ? Color.FromArgb(255, 114, 62) : Color.FromArgb(245, 94, 42);
+            Color minBottom = minHovered ? Color.FromArgb(233, 94, 42) : Color.FromArgb(223, 74, 22);
+
             using (var orangeGrad = new LinearGradientBrush(
                 minCircle,
-                Color.FromArgb(245, 94, 42),
-                Color.FromArgb(223, 74, 22),
+                minTop,
+                minBottom,
                 LinearGradientMode.Vertical))
             {
                 g.FillEllipse(orangeGrad, minCircle);
@@ -198,10 +214,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int themeX = themeRect.X + (themeRect.Width - buttonSize) / 2;
                 var themeCircle = new Rectangle(themeX, buttonY, buttonSize, buttonSize);
                 
+                Color themeTop = themeHovered ? Color.FromArgb(159, 81, 123) : Color.FromArgb(139, 61, 103);
+                Color themeBottom = themeHovered ? Color.FromArgb(119, 41, 83) : Color.FromArgb(99, 21, 63);
+
                 using (var purpleGrad = new LinearGradientBrush(
                     themeCircle,
-                    Color.FromArgb(139, 61, 103),
-                    Color.FromArgb(99, 21, 63),
+                    themeTop,
+                    themeBottom,
                     LinearGradientMode.Vertical))
                 {
                     g.FillEllipse(purpleGrad, themeCircle);
@@ -229,10 +248,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int styleX = styleRect.X + (styleRect.Width - buttonSize) / 2;
                 var styleCircle = new Rectangle(styleX, buttonY, buttonSize, buttonSize);
                 
+                Color styleTop = styleHovered ? Color.FromArgb(159, 81, 123) : Color.FromArgb(139, 61, 103);
+                Color styleBottom = styleHovered ? Color.FromArgb(119, 41, 83) : Color.FromArgb(99, 21, 63);
+
                 using (var purpleGrad = new LinearGradientBrush(
                     styleCircle,
-                    Color.FromArgb(139, 61, 103),
-                    Color.FromArgb(99, 21, 63),
+                    styleTop,
+                    styleBottom,
                     LinearGradientMode.Vertical))
                 {
                     g.FillEllipse(purpleGrad, styleCircle);

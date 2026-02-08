@@ -100,6 +100,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         public WizardInstance(WizardConfig config)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
+
+            // Defensive: ensure Steps is never null
+            if (config.Steps == null)
+                config.Steps = new System.Collections.Generic.List<WizardStep>();
+
             Context = new WizardContext
             {
                 TotalSteps = config.Steps.Count
@@ -195,7 +200,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                     await EnterStepAsync(newStep);
                 }
 
-                // Update UI
+                // Report progress
+                ReportProgress();
+
+                // Hide any previous validation errors and update UI
+                _formHost?.HideValidationError();
                 _formHost?.UpdateUI();
 
                 // Raise events
@@ -274,6 +283,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                     newStep.State = StepState.Current;
                     EnterStepAsync(newStep).GetAwaiter().GetResult();
                 }
+
+                // Report progress
+                ReportProgress();
 
                 // Update UI
                 _formHost?.UpdateUI();
@@ -402,6 +414,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
 
             // Run registered validators
             return step.Validate(Context);
+        }
+
+        #endregion
+
+        #region Progress
+
+        /// <summary>
+        /// Report progress via OnProgress callback if configured
+        /// </summary>
+        private void ReportProgress()
+        {
+            if (Config.OnProgress != null && Config.Steps.Count > 0)
+            {
+                var stepTitle = CurrentStep?.Title ?? $"Step {CurrentStepIndex + 1}";
+                Config.OnProgress(CurrentStepIndex + 1, Config.Steps.Count, stepTitle);
+            }
         }
 
         #endregion

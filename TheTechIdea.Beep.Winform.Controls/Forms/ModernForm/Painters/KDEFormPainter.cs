@@ -104,37 +104,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
+
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
             
             // Close button: Red with plasma wave
-            PaintPlasmaButton(g, closeRect, Color.FromArgb(237, 21, 21), padding, buttonSize, "close", metrics);
+            PaintPlasmaButton(g, closeRect, Color.FromArgb(237, 21, 21), padding, buttonSize, "close", metrics, closeHovered);
             
             // Maximize button: Green with plasma wave
-            PaintPlasmaButton(g, maxRect, Color.FromArgb(24, 218, 24), padding, buttonSize, "maximize", metrics);
+            PaintPlasmaButton(g, maxRect, Color.FromArgb(24, 218, 24), padding, buttonSize, "maximize", metrics, maxHovered);
             
             // Minimize button: Blue with plasma wave
-            PaintPlasmaButton(g, minRect, Color.FromArgb(61, 174, 233), padding, buttonSize, "minimize", metrics);
+            PaintPlasmaButton(g, minRect, Color.FromArgb(61, 174, 233), padding, buttonSize, "minimize", metrics, minHovered);
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintPlasmaButton(g, styleRect, Color.FromArgb(147, 115, 203), padding, buttonSize, "Style", metrics);
+                PaintPlasmaButton(g, styleRect, Color.FromArgb(147, 115, 203), padding, buttonSize, "Style", metrics, styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintPlasmaButton(g, themeRect, Color.FromArgb(246, 116, 0), padding, buttonSize, "theme", metrics);
+                PaintPlasmaButton(g, themeRect, Color.FromArgb(246, 116, 0), padding, buttonSize, "theme", metrics, themeHovered);
             }
         }
 
-        private void PaintPlasmaButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, FormPainterMetrics metrics)
+        private void PaintPlasmaButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, FormPainterMetrics metrics, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Hover: Brighten base color
+            if (isHovered)
+            {
+                baseColor = ControlPaint.Light(baseColor, 0.2f);
+            }
 
             // Plasma wave pattern background
             DrawPlasmaWave(g, rect, baseColor);
@@ -152,7 +165,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
 
                 // Smooth border (1px, slightly darker)
-                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.2f), 1))
+                // Hover: Brighter border (KDE highlight)
+                Color borderColor = isHovered ? Color.FromArgb(100, 255, 255, 255) : ControlPaint.Dark(baseColor, 0.2f);
+                using (var borderPen = new Pen(borderColor, isHovered ? 1.5f : 1))
                 {
                     g.DrawPath(borderPen, path);
                 }
@@ -194,7 +209,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Draw crisp icon (improved 2px thickness)
-            using (var iconPen = new Pen(Color.White, 2f))
+            // Hover: Bright white icon
+            using (var iconPen = new Pen(isHovered ? Color.White : Color.FromArgb(240, 240, 240), 2f))
             {
                 iconPen.StartCap = LineCap.Round;
                 iconPen.EndCap = LineCap.Round;
@@ -227,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         break;
                     case "theme":
                         // Improved 8-tooth gear icon
-                        using (var thinPen = new Pen(Color.White, 1.5f))
+                        using (var thinPen = new Pen(isHovered ? Color.White : Color.FromArgb(240, 240, 240), 1.5f))
                         {
                             g.DrawEllipse(thinPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 3, 
                                 iconSize * 2 / 3, iconSize * 2 / 3);
@@ -237,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                                 double angle = Math.PI * 2 * i / 8;
                                 int x = iconCenterX + (int)(Math.Cos(angle) * iconSize / 2);
                                 int y = iconCenterY + (int)(Math.Sin(angle) * iconSize / 2);
-                                g.FillRectangle(Brushes.White, x - 1, y - 1, 2, 2);
+                                g.FillRectangle(isHovered ? Brushes.White : Brushes.LightGray, x - 1, y - 1, 2, 2);
                             }
                         }
                         break;

@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 WizardStyle.HorizontalStepper => new HorizontalStepperWizardForm(instance),
                 WizardStyle.VerticalStepper => new VerticalStepperWizardForm(instance),
                 WizardStyle.Minimal => new MinimalWizardForm(instance),
+                WizardStyle.Cards => new CardsWizardForm(instance),
                 _ => new HorizontalStepperWizardForm(instance)
             };
         }

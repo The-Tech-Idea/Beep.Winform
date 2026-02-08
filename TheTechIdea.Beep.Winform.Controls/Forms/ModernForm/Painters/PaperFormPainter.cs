@@ -135,30 +135,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
             // Close button: Red with paper texture
-            PaintPaperTexturedButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+            PaintPaperTexturedButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close", closeHovered);
             
             // Maximize button: Green with paper texture
-            PaintPaperTexturedButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+            PaintPaperTexturedButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize", maxHovered);
             
             // Minimize button: Blue with paper texture
-            PaintPaperTexturedButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+            PaintPaperTexturedButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize", minHovered);
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintPaperTexturedButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
+                PaintPaperTexturedButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintPaperTexturedButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+                PaintPaperTexturedButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme", themeHovered);
             }
         }
         
-        private void PaintPaperTexturedButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintPaperTexturedButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -173,9 +180,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using (var tornPath = CreateTornCirclePath(centerX, centerY, radius))
             {
                 // Ink bleed effect (blurred outer rings)
+                // Hover: darker/more intense ink bleed
+                int bleedOpacity = isHovered ? 30 : 20;
                 for (int i = 3; i > 0; i--)
                 {
-                    using (var bleedBrush = new SolidBrush(Color.FromArgb(20 * i, baseColor)))
+                    using (var bleedBrush = new SolidBrush(Color.FromArgb(bleedOpacity * i, baseColor)))
                     using (var bleedPath = CreateTornCirclePath(centerX, centerY, radius + i))
                     {
                         g.FillPath(bleedBrush, bleedPath);
@@ -183,13 +192,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
 
                 // Main button fill
-                using (var paperBrush = new SolidBrush(baseColor))
+                // Hover: slightly darkened fill to simulate ink saturation
+                Color fillColor = isHovered ? ControlPaint.Dark(baseColor, 0.1f) : baseColor;
+                using (var paperBrush = new SolidBrush(fillColor))
                 {
                     g.FillPath(paperBrush, tornPath);
                 }
 
                 // Double border (material design rings)
-                using (var outerBorderPen = new Pen(ControlPaint.Dark(baseColor, 0.3f), 2))
+                // Hover: thicker outer border
+                float outerWidth = isHovered ? 2.5f : 2f;
+                using (var outerBorderPen = new Pen(ControlPaint.Dark(baseColor, 0.3f), outerWidth))
                 {
                     g.DrawPath(outerBorderPen, tornPath);
                 }
@@ -205,7 +218,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             DrawFiberPattern(g, new Rectangle(centerX - radius, centerY - radius, size, size));
 
             // Draw icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
+            // Hover: slightly thicker icon
+            float iconThickness = isHovered ? 2f : 1.5f;
+            using (var iconPen = new Pen(Color.White, iconThickness))
             {
                 int iconSize = 7;
 

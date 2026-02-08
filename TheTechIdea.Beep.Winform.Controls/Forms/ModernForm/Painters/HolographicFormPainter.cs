@@ -138,24 +138,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int chevronSize = 18;
             int chevronY = (captionRect.Height - chevronSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
             // Close button: Red iridescent chevron
             int cx = closeRect.X + closeRect.Width / 2;
             int cy = chevronY + chevronSize / 2;
             
             using (var chevronPath = CreateChevronPath(cx, cy, chevronSize))
             {
+                int closeAlpha = closeHovered ? 255 : 200;
                 // Rainbow gradient fill
                 using (var gradBrush = new LinearGradientBrush(
                     new Rectangle(cx - chevronSize/2, cy - chevronSize/2, chevronSize, chevronSize),
-                    Color.FromArgb(200, 255, 100, 150),  // Pink
-                    Color.FromArgb(200, 255, 200, 100),  // Orange
+                    Color.FromArgb(closeAlpha, 255, 100, 150),  // Pink
+                    Color.FromArgb(closeAlpha, 255, 200, 100),  // Orange
                     LinearGradientMode.Horizontal))
                 {
                     g.FillPath(gradBrush, chevronPath);
                 }
                 
-                // Rainbow outline
-                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 255, 200), 1.5f))
+                float closeOutlineWidth = closeHovered ? 2.5f : 1.5f;
+                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 255, 200), closeOutlineWidth))
                 {
                     g.DrawPath(outlinePen, chevronPath);
                 }
@@ -175,16 +183,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             using (var chevronPath = CreateChevronPath(mx, my, chevronSize))
             {
+                int maxAlpha = maxHovered ? 255 : 200;
                 using (var gradBrush = new LinearGradientBrush(
                     new Rectangle(mx - chevronSize/2, my - chevronSize/2, chevronSize, chevronSize),
-                    Color.FromArgb(200, 100, 200, 255),  // Cyan
-                    Color.FromArgb(200, 100, 255, 200),  // Green
+                    Color.FromArgb(maxAlpha, 100, 200, 255),  // Cyan
+                    Color.FromArgb(maxAlpha, 100, 255, 200),  // Green
                     LinearGradientMode.Horizontal))
                 {
                     g.FillPath(gradBrush, chevronPath);
                 }
                 
-                using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 255), 1.5f))
+                float maxOutlineWidth = maxHovered ? 2.5f : 1.5f;
+                using (var outlinePen = new Pen(Color.FromArgb(255, 200, 255, 255), maxOutlineWidth))
                 {
                     g.DrawPath(outlinePen, chevronPath);
                 }
@@ -203,16 +213,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             using (var chevronPath = CreateChevronPath(mnx, mny, chevronSize))
             {
+                int minAlpha = minHovered ? 255 : 200;
                 using (var gradBrush = new LinearGradientBrush(
                     new Rectangle(mnx - chevronSize/2, mny - chevronSize/2, chevronSize, chevronSize),
-                    Color.FromArgb(200, 200, 100, 255),  // Purple
-                    Color.FromArgb(200, 255, 100, 200),  // Magenta
+                    Color.FromArgb(minAlpha, 200, 100, 255),  // Purple
+                    Color.FromArgb(minAlpha, 255, 100, 200),  // Magenta
                     LinearGradientMode.Horizontal))
                 {
                     g.FillPath(gradBrush, chevronPath);
                 }
                 
-                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 255), 1.5f))
+                float minOutlineWidth = minHovered ? 2.5f : 1.5f;
+                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 255), minOutlineWidth))
                 {
                     g.DrawPath(outlinePen, chevronPath);
                 }
@@ -233,16 +245,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 
                 using (var chevronPath = CreateChevronPath(tx, ty, chevronSize))
                 {
+                    int themeAlpha = themeHovered ? 255 : 200;
                     using (var gradBrush = new LinearGradientBrush(
                         new Rectangle(tx - chevronSize/2, ty - chevronSize/2, chevronSize, chevronSize),
-                        Color.FromArgb(200, 50, 150, 255),   // Blue
-                        Color.FromArgb(200, 50, 255, 150),   // Cyan-green
+                        Color.FromArgb(themeAlpha, 50, 150, 255),   // Blue
+                        Color.FromArgb(themeAlpha, 50, 255, 150),   // Cyan-green
                         LinearGradientMode.Horizontal))
                     {
                         g.FillPath(gradBrush, chevronPath);
                     }
                     
-                    using (var outlinePen = new Pen(Color.FromArgb(255, 100, 200, 255), 1.5f))
+                    float themeOutlineWidth = themeHovered ? 2.5f : 1.5f;
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 100, 200, 255), themeOutlineWidth))
                     {
                         g.DrawPath(outlinePen, chevronPath);
                     }
@@ -265,16 +279,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 
                 using (var chevronPath = CreateChevronPath(sx, sy, chevronSize))
                 {
+                    int styleAlpha = styleHovered ? 255 : 200;
                     using (var gradBrush = new LinearGradientBrush(
                         new Rectangle(sx - chevronSize/2, sy - chevronSize/2, chevronSize, chevronSize),
-                        Color.FromArgb(200, 255, 200, 50),   // Yellow
-                        Color.FromArgb(200, 255, 100, 50),   // Orange
+                        Color.FromArgb(styleAlpha, 255, 200, 50),   // Yellow
+                        Color.FromArgb(styleAlpha, 255, 100, 50),   // Orange
                         LinearGradientMode.Horizontal))
                     {
                         g.FillPath(gradBrush, chevronPath);
                     }
                     
-                    using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 100), 1.5f))
+                    float styleOutlineWidth = styleHovered ? 2.5f : 1.5f;
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 100), styleOutlineWidth))
                     {
                         g.DrawPath(outlinePen, chevronPath);
                     }

@@ -102,29 +102,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Close button: Error color with state layer
-            PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, "close", metrics);
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, "close", metrics, closeHovered);
             
             // Maximize button: On-surface variant with state layer
-            PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "maximize", metrics);
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "maximize", metrics, maxHovered);
             
             // Minimize button: On-surface variant with state layer
-            PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "minimize", metrics);
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "minimize", metrics, minHovered);
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, "Style", metrics);
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, "Style", metrics, styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintMaterial3Button(g, themeRect, Color.FromArgb(230, 74, 25), padding, touchTarget, iconArea, "theme", metrics);
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                PaintMaterial3Button(g, themeRect, Color.FromArgb(230, 74, 25), padding, touchTarget, iconArea, "theme", metrics, themeHovered);
             }
         }
         
-        private void PaintMaterial3Button(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int touchTarget, int iconArea, string buttonType, FormPainterMetrics metrics)
+        private void PaintMaterial3Button(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int touchTarget, int iconArea, string buttonType, FormPainterMetrics metrics, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -133,8 +138,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Material 3 state layer (8% opacity for hover state)
-            using (var stateBrush = new SolidBrush(Color.FromArgb(20, baseColor)))
+            // Material 3 state layer (8% for normal, 12% for hover)
+            int stateLayerAlpha = isHovered ? 38 : 20;
+            using (var stateBrush = new SolidBrush(Color.FromArgb(stateLayerAlpha, baseColor)))
             {
                 g.FillEllipse(stateBrush, touchRect);
             }

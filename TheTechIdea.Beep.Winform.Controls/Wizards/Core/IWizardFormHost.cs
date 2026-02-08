@@ -25,6 +25,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         void ShowValidationError(WizardValidationResult result);
 
         /// <summary>
+        /// Hide the inline validation error panel
+        /// </summary>
+        void HideValidationError();
+
+        /// <summary>
         /// Get the panel where step content is displayed
         /// </summary>
         Panel GetContentPanel();

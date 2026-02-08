@@ -94,36 +94,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button - red with beveled edge
-            PaintBeveledButton(g, closeRect, Color.FromArgb(230, 90, 90), padding, buttonSize, "close");
+            PaintBeveledButton(g, closeRect, Color.FromArgb(230, 90, 90), padding, buttonSize, "close", closeHovered);
 
             // Maximize button - green with beveled edge
-            PaintBeveledButton(g, maxRect, Color.FromArgb(100, 200, 100), padding, buttonSize, "maximize");
+            PaintBeveledButton(g, maxRect, Color.FromArgb(100, 200, 100), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button - blue with beveled edge
-            PaintBeveledButton(g, minRect, Color.FromArgb(100, 150, 230), padding, buttonSize, "minimize");
+            PaintBeveledButton(g, minRect, Color.FromArgb(100, 150, 230), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintBeveledButton(g, styleRect, Color.FromArgb(180, 140, 200), padding, buttonSize, "Style");
+                PaintBeveledButton(g, styleRect, Color.FromArgb(180, 140, 200), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintBeveledButton(g, themeRect, Color.FromArgb(230, 180, 90), padding, buttonSize, "theme");
+                PaintBeveledButton(g, themeRect, Color.FromArgb(230, 180, 90), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintBeveledButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintBeveledButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Hover effect: lighter base color
+            if (isHovered)
+            {
+                baseColor = ControlPaint.Light(baseColor, 0.2f);
+            }
 
             // Bevel outer edge (subtle 3D effect)
             using (var bevelPath = CreateRoundedRectanglePath(new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), new CornerRadius(4)))
@@ -154,8 +167,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     g.FillPath(gradient, buttonPath);
                 }
 
-                // Border
-                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.2f), 1))
+                // Border - brighter on hover
+                Color borderColor = isHovered ? Color.FromArgb(180, 255, 255, 255) : ControlPaint.Dark(baseColor, 0.2f);
+                using (var borderPen = new Pen(borderColor, 1))
                 {
                     g.DrawPath(borderPen, buttonPath);
                 }

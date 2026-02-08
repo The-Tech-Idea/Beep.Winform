@@ -54,12 +54,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int shadow = 0;
             int border = 0;
             int padding = 0;
-
+            Padding customPadding = owner.CustomPadding; // Get custom padding from owner (now a Padding object)
+            
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
                 border = (int)Math.Ceiling(BeepStyling.GetBorderThickness(owner.ControlStyle));
                 padding = BeepStyling.GetPadding(owner.ControlStyle);
-
+                
+                // Note: Style padding is symmetric, we'll add customPadding asymmetrically later
+                
                 if (StyleShadows.HasShadow(owner.ControlStyle))
                 {
                     int blur = StyleShadows.GetShadowBlur(owner.ControlStyle);
@@ -77,9 +80,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 }
                 var pad = owner.Padding;
                 padding = (pad.Left + pad.Top + pad.Right + pad.Bottom) / 4;
+                
                 shadow = owner.ShowShadow ? owner.ShadowOffset : 0;
             }
-
+            
             // 3. Calculate Border Rect (Outer bounds - Shadow)
             // Ensure positive dimensions
             int width = Math.Max(1, owner.Width);
@@ -92,6 +96,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 Math.Max(1, width - (shadow * 2)),
                 Math.Max(1, height - (shadow * 2))
             );
+            
+            // **CRITICAL**: Apply CustomPadding to shrink borderRect BEFORE creating paths
+            // This allows asymmetric padding (e.g., only top padding for Material Design 3 title labels)
+            borderRect = ApplyCustomPaddingToBorderRect(borderRect, customPadding);
+            
             _borderRect = borderRect;
 
             // 4. Create BorderShape (Layer 1)
@@ -115,16 +124,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
                 // BeepStyling has a helper for Content Path which respects style metrics
+                // Note: CustomPadding already applied to borderRect, so GetContentPath works on adjusted rect
                 _contentPath = BeepStyling.GetContentPath(_borderPath, owner.ControlStyle);
                 
                 // Fallback if GetContentPath fails
                 if (_contentPath == null)
                     _contentPath = (GraphicsPath)_borderPath.Clone();
-                    
+                
                 // For styled controls, InnerShape (Background area) usually matches ContentPath 
                 // or is slightly larger (border width inset only). 
                 // BeepStyling.GetContentPath includes Padding. 
-                // Let's assume InnerShape = ContentShape for now to ensure safe areas.
                 _innerPath = (GraphicsPath)_contentPath.Clone();
             }
             else
@@ -133,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 // Inner = BorderPath - BorderThickness
                 _innerPath = _borderPath.CreateInsetPath(border);
                 
-                // Content = Inner - Padding
+                // Content = Inner - Padding (symmetric padding only)
                 _contentPath = _innerPath.CreateInsetPath(padding);
             }
 
@@ -280,6 +289,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner.Focused && owner.CanBeFocused) return ControlState.Focused;
             if (owner.IsSelected && owner.CanBeSelected) return ControlState.Selected;
             return ControlState.Normal;
+        }
+
+        /// <summary>
+        /// Apply CustomPadding to borderRect to shrink it before creating border paths.
+        /// This allows asymmetric padding (e.g., only top padding for Material Design 3 title labels).
+        /// </summary>
+        private static Rectangle ApplyCustomPaddingToBorderRect(Rectangle borderRect, Padding customPadding)
+        {
+            if (customPadding == Padding.Empty || customPadding.All == 0)
+                return borderRect;
+
+            // Shrink rectangle by custom padding on each side
+            Rectangle adjustedRect = new Rectangle(
+                borderRect.Left + customPadding.Left,
+                borderRect.Top + customPadding.Top,
+                Math.Max(1, borderRect.Width - customPadding.Horizontal),
+                Math.Max(1, borderRect.Height - customPadding.Vertical)
+            );
+
+            return adjustedRect;
         }
 
         private void CalculateLabelProperties(Graphics g, Base.BaseControl owner)

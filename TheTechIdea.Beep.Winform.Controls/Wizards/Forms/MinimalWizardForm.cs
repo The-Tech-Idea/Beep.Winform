@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Painters;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Layout;
 
@@ -23,10 +25,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         private Panel _headerPanel;
         private Panel _contentPanel;
         private Panel _buttonPanel;
+        private Panel _errorPanel;
+        private Label _lblError;
         
         private BeepButton _btnNext;
         private BeepButton _btnBack;
         private BeepButton _btnCancel;
+        private BeepButton _btnHelp;
+
+        private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
+        private int _previousStepIndex = -1;
 
         #endregion
 
@@ -71,10 +79,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             InitializeControls();
             LayoutControls();
             SetupEventHandlers();
+
+            // Apply Config.Theme if configured, otherwise use default
+            if (_instance.Config.Theme != null)
+            {
+                CurrentTheme = _instance.Config.Theme;
+            }
             ApplyTheme();
             UpdateUI();
         }
-
 
         #endregion
 
@@ -105,6 +118,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 BackColor = Color.Transparent
             };
             _headerPanel.Paint += HeaderPanel_Paint;
+
+            // Inline error panel (below header, hidden by default)
+            _errorPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 40,
+                Visible = false,
+                BackColor = Color.FromArgb(255, 235, 235),
+                Padding = new Padding(16, 0, 16, 0)
+            };
+            _lblError = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = Color.FromArgb(180, 30, 30),
+                Font = new Font("Segoe UI", 9.5f),
+                AutoEllipsis = true
+            };
+            _errorPanel.Controls.Add(_lblError);
 
             // Button panel (bottom)
             _buttonPanel = new Panel
@@ -144,6 +176,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
 
+            if (_instance.Config.ShowHelp)
+            {
+                _btnHelp = new BeepButton
+                {
+                    Text = "Help",
+                    Size = new Size(80, 36),
+                    Anchor = AnchorStyles.Left | AnchorStyles.Bottom
+                };
+            }
+
             _painter.Initialize(this, CurrentTheme, _instance);
         }
 
@@ -160,7 +202,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _buttonPanel.Controls.Add(_btnBack);
             _buttonPanel.Controls.Add(_btnCancel);
 
+            if (_btnHelp != null)
+            {
+                _btnHelp.Location = new Point(_btnCancel.Right + 10, buttonY);
+                _buttonPanel.Controls.Add(_btnHelp);
+            }
+
             Controls.Add(_contentPanel);
+            Controls.Add(_errorPanel);
             Controls.Add(_buttonPanel);
             Controls.Add(_headerPanel);
         }
@@ -170,6 +219,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _btnNext.Click += BtnNext_Click;
             _btnBack.Click += BtnBack_Click;
             _btnCancel.Click += BtnCancel_Click;
+            if (_btnHelp != null)
+                _btnHelp.Click += BtnHelp_Click;
             KeyDown += Form_KeyDown;
             Resize += Form_Resize;
         }
@@ -188,17 +239,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 ?? (_instance.IsLastStep ? _instance.Config.FinishButtonText : _instance.Config.NextButtonText);
             _btnNext.Text = nextText;
 
-            _contentPanel.Controls.Clear();
-            if (currentStep?.Content != null)
-            {
-                currentStep.Content.Dock = DockStyle.Fill;
-                _contentPanel.Controls.Add(currentStep.Content);
+            // Get previous and new content controls
+            Control previousControl = _contentPanel.Controls.Count > 0 ? _contentPanel.Controls[0] : null;
+            Control newControl = currentStep?.Content;
+            int currentIndex = _instance.CurrentStepIndex;
 
-                if (currentStep.Content is IWizardStepContent stepContent)
+            if (newControl != null)
+            {
+                newControl.Dock = DockStyle.Fill;
+
+                if (newControl is IWizardStepContent stepContent)
                 {
                     stepContent.ValidationStateChanged -= StepContent_ValidationStateChanged;
                     stepContent.ValidationStateChanged += StepContent_ValidationStateChanged;
                 }
+            }
+
+            // Animate transition if enabled
+            bool shouldAnimate = WizardManager.EnableAnimations
+                && previousControl != null
+                && newControl != null
+                && previousControl != newControl
+                && _previousStepIndex >= 0;
+
+            if (shouldAnimate)
+            {
+                bool forward = currentIndex > _previousStepIndex;
+                previousControl.Dock = DockStyle.None;
+                previousControl.Size = _contentPanel.ClientSize;
+                newControl.Dock = DockStyle.None;
+                newControl.Size = _contentPanel.ClientSize;
+
+                _contentPanel.Controls.Clear();
+                _contentPanel.Controls.Add(previousControl);
+                _contentPanel.Controls.Add(newControl);
+
+                WizardHelpers.AnimateStepTransition(previousControl, newControl, forward, () =>
+                {
+                    _contentPanel.Controls.Clear();
+                    if (newControl != null)
+                    {
+                        newControl.Dock = DockStyle.Fill;
+                        _contentPanel.Controls.Add(newControl);
+                    }
+                }, _activeAnimationTimers);
+            }
+            else
+            {
+                _contentPanel.Controls.Clear();
+                if (newControl != null)
+                {
+                    _contentPanel.Controls.Add(newControl);
+                }
+            }
+
+            _previousStepIndex = currentIndex;
+
+            // Auto-hide errors on step change
+            if (_instance.Config.AutoHideErrors)
+            {
+                HideValidationError();
             }
 
             _headerPanel.Invalidate();
@@ -206,14 +306,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         public void ShowValidationError(string message)
         {
-            MessageBox.Show(this, message, "Validation Error", 
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            if (_instance.Config.ShowInlineErrors)
+            {
+                _lblError.Text = "\u26A0 " + message;
+                _errorPanel.Visible = true;
+            }
+            else
+            {
+                MessageBox.Show(this, message, "Validation Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         public void ShowValidationError(WizardValidationResult result)
         {
             if (result == null || result.IsValid) return;
             ShowValidationError(result.ErrorMessage ?? "Validation failed");
+        }
+
+        public void HideValidationError()
+        {
+            _errorPanel.Visible = false;
         }
 
         public Panel GetContentPanel() => _contentPanel;
@@ -257,8 +370,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             switch (e.KeyCode)
             {
                 case Keys.Enter:
-                    if (_btnNext.Enabled)
+                    // Don't handle Enter if focus is in a multi-line textbox
+                    if (ActiveControl is TextBox textBox && textBox.Multiline)
+                        break;
+                    // Don't handle Enter if focus is in a BeepTextBox
+                    if (ActiveControl is BeepTextBox)
+                        break;
+
+                    if (e.Control && _instance.IsLastStep)
                     {
+                        // Ctrl+Enter to finish on last step
+                        BtnNext_Click(sender, e);
+                        e.Handled = true;
+                    }
+                    else if (!e.Control && _btnNext.Enabled)
+                    {
+                        // Enter to go to next
                         BtnNext_Click(sender, e);
                         e.Handled = true;
                     }
@@ -267,6 +394,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                     BtnCancel_Click(sender, e);
                     e.Handled = true;
                     break;
+            }
+        }
+
+        private void BtnHelp_Click(object sender, EventArgs e)
+        {
+            // Step-specific help first
+            var currentStep = _instance.CurrentStep;
+            if (currentStep?.Tag is WizardStepHelp helpContent)
+            {
+                MessageBox.Show(this, helpContent.Content, helpContent.Title ?? "Help",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Global help URL fallback
+            if (!string.IsNullOrEmpty(_instance.Config.HelpUrl))
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = _instance.Config.HelpUrl,
+                    UseShellExecute = true
+                });
             }
         }
 
@@ -299,10 +448,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _btnNext.Theme = CurrentTheme.ThemeName;
                 _btnBack.Theme = CurrentTheme.ThemeName;
                 _btnCancel.Theme = CurrentTheme.ThemeName;
+                if (_btnHelp != null) _btnHelp.Theme = CurrentTheme.ThemeName;
 
                 _btnNext.ApplyTheme();
                 _btnBack.ApplyTheme();
                 _btnCancel.ApplyTheme();
+                _btnHelp?.ApplyTheme();
 
                 _painter.Initialize(this, CurrentTheme, _instance);
             }
@@ -320,6 +471,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 BtnCancel_Click(this, EventArgs.Empty);
                 return;
             }
+
+            // Dispose animation timers
+            foreach (var timer in _activeAnimationTimers)
+            {
+                timer?.Stop();
+                timer?.Dispose();
+            }
+            _activeAnimationTimers.Clear();
 
             WizardManager.UnregisterWizard(_instance.Config.Key);
             base.OnFormClosing(e);

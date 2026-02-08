@@ -103,6 +103,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         [Browsable(false)]
         public Action<int, WizardContext> OnStepChanged { get; set; }
 
+        [Category("Wizard")]
+        [Description("Show inline validation errors instead of message box")]
+        public bool ShowInlineErrors { get; set; } = true;
+
+        [Category("Wizard")]
+        [Description("Auto-hide validation errors on step change")]
+        public bool AutoHideErrors { get; set; } = true;
+
+        [Category("Events")]
+        [Description("Progress callback for long-running operations")]
+        [Browsable(false)]
+        public Action<int, int, string> OnProgress { get; set; }
+
         [Category("Steps")]
         [Description("List of wizard steps")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -463,6 +476,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         {
             IsValid = isValid;
             Message = message;
+        }
+    }
+
+    #endregion
+
+    #region WizardStepHelp
+
+    /// <summary>
+    /// Help content for a wizard step (attach to WizardStep.Tag for context-sensitive help)
+    /// </summary>
+    public class WizardStepHelp
+    {
+        /// <summary>
+        /// Title for the help dialog
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Help content text
+        /// </summary>
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Optional URL for more information
+        /// </summary>
+        public string Url { get; set; }
+
+        public WizardStepHelp() { }
+
+        public WizardStepHelp(string title, string content, string url = null)
+        {
+            Title = title;
+            Content = content;
+            Url = url;
         }
     }
 

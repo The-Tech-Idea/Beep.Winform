@@ -130,18 +130,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int buttonY = (captionRect.Height - buttonSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
             // Close button: Red 3D beveled rectangle (GruvBox Red #FB4934)
             int cx = closeRect.X + (closeRect.Width - buttonSize) / 2;
             var closeButtonRect = new Rectangle(cx, buttonY, buttonSize, buttonSize);
             
-            // Fill with GruvBox red
-            using (var fillBrush = new SolidBrush(Color.FromArgb(251, 73, 52)))
+            // Hover: brighter fill color
+            Color closeColor = closeHovered ? Color.FromArgb(255, 103, 82) : Color.FromArgb(251, 73, 52);
+            using (var fillBrush = new SolidBrush(closeColor))
             {
                 g.FillRectangle(fillBrush, closeButtonRect);
             }
             
-            // Draw 3D raised bevel (light top-left, dark bottom-right)
-            ControlPaint.DrawBorder3D(g, closeButtonRect, Border3DStyle.Raised, Border3DSide.All);
+            // Hover: sunken bevel effect (pressed appearance)
+            Border3DStyle closeStyle = closeHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+            ControlPaint.DrawBorder3D(g, closeButtonRect, closeStyle, Border3DSide.All);
             
             // X icon
             using (var iconPen = new Pen(Color.White, 2f))
@@ -157,14 +166,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mx = maxRect.X + (maxRect.Width - buttonSize) / 2;
             var maxButtonRect = new Rectangle(mx, buttonY, buttonSize, buttonSize);
             
-            // Fill with GruvBox gray
-            using (var fillBrush = new SolidBrush(Color.FromArgb(146, 131, 116)))
+            Color maxColor = maxHovered ? Color.FromArgb(166, 151, 136) : Color.FromArgb(146, 131, 116);
+            using (var fillBrush = new SolidBrush(maxColor))
             {
                 g.FillRectangle(fillBrush, maxButtonRect);
             }
             
-            // Draw 3D raised bevel
-            ControlPaint.DrawBorder3D(g, maxButtonRect, Border3DStyle.Raised, Border3DSide.All);
+            Border3DStyle maxStyle = maxHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+            ControlPaint.DrawBorder3D(g, maxButtonRect, maxStyle, Border3DSide.All);
             
             // Square icon
             using (var iconPen = new Pen(Color.White, 2f))
@@ -179,14 +188,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mnx = minRect.X + (minRect.Width - buttonSize) / 2;
             var minButtonRect = new Rectangle(mnx, buttonY, buttonSize, buttonSize);
             
-            // Fill with GruvBox gray
-            using (var fillBrush = new SolidBrush(Color.FromArgb(146, 131, 116)))
+            Color minColor = minHovered ? Color.FromArgb(166, 151, 136) : Color.FromArgb(146, 131, 116);
+            using (var fillBrush = new SolidBrush(minColor))
             {
                 g.FillRectangle(fillBrush, minButtonRect);
             }
             
-            // Draw 3D raised bevel
-            ControlPaint.DrawBorder3D(g, minButtonRect, Border3DStyle.Raised, Border3DSide.All);
+            Border3DStyle minStyle = minHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+            ControlPaint.DrawBorder3D(g, minButtonRect, minStyle, Border3DSide.All);
             
             // Line icon
             using (var iconPen = new Pen(Color.White, 2f))
@@ -203,12 +212,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int tx = themeRect.X + (themeRect.Width - buttonSize) / 2;
                 var themeButtonRect = new Rectangle(tx, buttonY, buttonSize, buttonSize);
                 
-                using (var fillBrush = new SolidBrush(Color.FromArgb(254, 128, 25)))
+                Color themeColor = themeHovered ? Color.FromArgb(255, 158, 55) : Color.FromArgb(254, 128, 25);
+                using (var fillBrush = new SolidBrush(themeColor))
                 {
                     g.FillRectangle(fillBrush, themeButtonRect);
                 }
                 
-                ControlPaint.DrawBorder3D(g, themeButtonRect, Border3DStyle.Raised, Border3DSide.All);
+                Border3DStyle themeStyle = themeHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+                ControlPaint.DrawBorder3D(g, themeButtonRect, themeStyle, Border3DSide.All);
                 
                 // Palette icon
                 using (var iconBrush = new SolidBrush(Color.White))
@@ -227,12 +238,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int sx = styleRect.X + (styleRect.Width - buttonSize) / 2;
                 var styleButtonRect = new Rectangle(sx, buttonY, buttonSize, buttonSize);
                 
-                using (var fillBrush = new SolidBrush(Color.FromArgb(250, 189, 47)))
+                Color styleColor = styleHovered ? Color.FromArgb(255, 209, 77) : Color.FromArgb(250, 189, 47);
+                using (var fillBrush = new SolidBrush(styleColor))
                 {
                     g.FillRectangle(fillBrush, styleButtonRect);
                 }
                 
-                ControlPaint.DrawBorder3D(g, styleButtonRect, Border3DStyle.Raised, Border3DSide.All);
+                Border3DStyle styleStyle = styleHovered ? Border3DStyle.Sunken : Border3DStyle.Raised;
+                ControlPaint.DrawBorder3D(g, styleButtonRect, styleStyle, Border3DSide.All);
                 
                 // Brush icon
                 using (var iconPen = new Pen(Color.White, 1.5f))

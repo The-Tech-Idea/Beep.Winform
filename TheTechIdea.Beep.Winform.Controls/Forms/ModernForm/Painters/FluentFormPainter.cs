@@ -103,29 +103,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Close button - red with acrylic reveal
-            PaintAcrylicRevealButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            PaintAcrylicRevealButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close", closeHovered);
 
             // Maximize button - green with acrylic reveal
-            PaintAcrylicRevealButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            PaintAcrylicRevealButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button - blue with acrylic reveal
-            PaintAcrylicRevealButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            PaintAcrylicRevealButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintAcrylicRevealButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                PaintAcrylicRevealButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintAcrylicRevealButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintAcrylicRevealButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -139,24 +144,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.FillRectangle(acrylicBrush, rect);
             }
 
-            // Shimmer gradient (diagonal 45°)
+            // Shimmer gradient (diagonal 45°) - intensify on hover
+            int shimmerAlpha = isHovered ? 120 : 80;
             using (var shimmerBrush = new LinearGradientBrush(
                 new Rectangle(rect.X - 10, rect.Y - 10, rect.Width + 20, rect.Height + 20),
-                Color.FromArgb(80, 255, 255, 255),
+                Color.FromArgb(shimmerAlpha, 255, 255, 255),
                 Color.FromArgb(0, 255, 255, 255),
                 45f))
             {
                 g.FillRectangle(shimmerBrush, rect);
             }
 
-            // Acrylic base color overlay
-            using (var colorBrush = new SolidBrush(Color.FromArgb(200, baseColor)))
+            // Acrylic base color overlay - brighter on hover
+            int colorAlpha = isHovered ? 255 : 200;
+            using (var colorBrush = new SolidBrush(Color.FromArgb(colorAlpha, baseColor)))
             {
                 g.FillRectangle(colorBrush, rect);
             }
 
-            // Border glow effect (Fluent reveal)
-            using (var glowPen = new Pen(Color.FromArgb(120, baseColor), 2))
+            // Border glow effect (Fluent reveal) - wider and brighter on hover
+            int glowAlpha = isHovered ? 180 : 120;
+            int glowWidth = isHovered ? 3 : 2;
+            using (var glowPen = new Pen(Color.FromArgb(glowAlpha, baseColor), glowWidth))
             {
                 g.DrawRectangle(glowPen, rect.X - 1, rect.Y - 1, rect.Width + 1, rect.Height + 1);
             }

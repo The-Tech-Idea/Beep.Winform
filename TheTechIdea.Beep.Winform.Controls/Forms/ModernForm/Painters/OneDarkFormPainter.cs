@@ -101,13 +101,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int octSize = 18;
             int octY = (captionRect.Height - octSize) / 2;
             
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            
             // Close button: Red octagon with X
             int cx = closeRect.X + closeRect.Width / 2;
             using (var octPath = CreateOctagonPath(cx, octY + octSize/2, octSize/2))
             {
-                using (var octBrush = new SolidBrush(Color.FromArgb(224, 108, 117)))
+                Color closeColor = closeHovered ? Color.FromArgb(244, 128, 137) : Color.FromArgb(224, 108, 117);
+                using (var octBrush = new SolidBrush(closeColor))
                 {
                     g.FillPath(octBrush, octPath);
+                }
+                
+                if (closeHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                    {
+                        g.DrawPath(glowPen, octPath);
+                    }
                 }
                 
                 using (var iconPen = new Pen(Color.White, 1.5f))
@@ -123,9 +137,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mx = maxRect.X + maxRect.Width / 2;
             using (var octPath = CreateOctagonPath(mx, octY + octSize/2, octSize/2))
             {
-                using (var octBrush = new SolidBrush(Color.FromArgb(75, 75, 75)))
+                Color maxColor = maxHovered ? Color.FromArgb(95, 95, 95) : Color.FromArgb(75, 75, 75);
+                using (var octBrush = new SolidBrush(maxColor))
                 {
                     g.FillPath(octBrush, octPath);
+                }
+                
+                if (maxHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1.5f))
+                    {
+                        g.DrawPath(glowPen, octPath);
+                    }
                 }
                 
                 using (var iconPen = new Pen(Color.White, 1.3f))
@@ -140,9 +163,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int mnx = minRect.X + minRect.Width / 2;
             using (var octPath = CreateOctagonPath(mnx, octY + octSize/2, octSize/2))
             {
-                using (var octBrush = new SolidBrush(Color.FromArgb(75, 75, 75)))
+                Color minColor = minHovered ? Color.FromArgb(95, 95, 95) : Color.FromArgb(75, 75, 75);
+                using (var octBrush = new SolidBrush(minColor))
                 {
                     g.FillPath(octBrush, octPath);
+                }
+                
+                if (minHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1.5f))
+                    {
+                        g.DrawPath(glowPen, octPath);
+                    }
                 }
                 
                 using (var iconPen = new Pen(Color.White, 1.3f))
@@ -156,13 +188,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Theme button (if shown): OneDark blue octagon
             if (owner.ShowThemeButton)
             {
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
                 int tx = themeRect.X + themeRect.Width / 2;
                 using (var octPath = CreateOctagonPath(tx, octY + octSize/2, octSize/2))
                 {
-                    using (var octBrush = new SolidBrush(Color.FromArgb(97, 175, 239))) // OneDark blue
+                    Color themeColor = themeHovered ? Color.FromArgb(117, 195, 255) : Color.FromArgb(97, 175, 239);
+                    using (var octBrush = new SolidBrush(themeColor))
                     {
                         g.FillPath(octBrush, octPath);
+                    }
+                    
+                    if (themeHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, octPath);
+                        }
                     }
                     
                     using (var iconPen = new Pen(Color.White, 1.3f))
@@ -177,13 +219,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Style button (if shown): OneDark green octagon
             if (owner.ShowStyleButton)
             {
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
                 int sx = styleRect.X + styleRect.Width / 2;
                 using (var octPath = CreateOctagonPath(sx, octY + octSize/2, octSize/2))
                 {
-                    using (var octBrush = new SolidBrush(Color.FromArgb(152, 195, 121))) // OneDark green
+                    Color styleColor = styleHovered ? Color.FromArgb(172, 215, 141) : Color.FromArgb(152, 195, 121);
+                    using (var octBrush = new SolidBrush(styleColor))
                     {
                         g.FillPath(octBrush, octPath);
+                    }
+                    
+                    if (styleHovered)
+                    {
+                        using (var glowPen = new Pen(Color.FromArgb(80, 255, 255, 255), 2f))
+                        {
+                            g.DrawPath(glowPen, octPath);
+                        }
                     }
                     
                     using (var iconPen = new Pen(Color.White, 1.3f))

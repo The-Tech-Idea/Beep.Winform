@@ -91,60 +91,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
 
             // Close button: Red with rune pattern
-            PaintRuneButton(g, closeRect, Color.FromArgb(180, 50, 50), padding, buttonSize, "close");
+            PaintRuneButton(g, closeRect, Color.FromArgb(180, 50, 50), padding, buttonSize, "close", closeHovered);
 
             // Maximize button: Green with rune pattern
-            PaintRuneButton(g, maxRect, Color.FromArgb(80, 140, 90), padding, buttonSize, "maximize");
+            PaintRuneButton(g, maxRect, Color.FromArgb(80, 140, 90), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button: Blue with rune pattern
-            PaintRuneButton(g, minRect, Color.FromArgb(70, 110, 140), padding, buttonSize, "minimize");
+            PaintRuneButton(g, minRect, Color.FromArgb(70, 110, 140), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintRuneButton(g, styleRect, Color.FromArgb(120, 90, 130), padding, buttonSize, "Style");
+                PaintRuneButton(g, styleRect, Color.FromArgb(120, 90, 130), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintRuneButton(g, themeRect, Color.FromArgb(160, 120, 70), padding, buttonSize, "theme");
+                PaintRuneButton(g, themeRect, Color.FromArgb(160, 120, 70), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintRuneButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void PaintRuneButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // Hover: brighter base color
+            Color effectiveColor = isHovered ? ControlPaint.Light(baseColor, 0.15f) : baseColor;
 
             // Wood grain texture background
-            DrawWoodGrain(g, rect, baseColor);
+            DrawWoodGrain(g, rect, effectiveColor);
 
             // Viking rune pattern border
-            DrawRunePattern(g, rect, baseColor);
+            DrawRunePattern(g, rect, effectiveColor);
 
             // Minimalist rectangle with subtle rounding
             using (var path = CreateRoundedRectanglePath(rect, new CornerRadius(3)))
             {
                 // Subtle gradient fill (natural color variation)
                 using (var gradientBrush = new LinearGradientBrush(rect,
-                    ControlPaint.Light(baseColor, 0.08f),
-                    ControlPaint.Dark(baseColor, 0.05f),
+                    ControlPaint.Light(effectiveColor, 0.08f),
+                    ControlPaint.Dark(effectiveColor, 0.05f),
                     LinearGradientMode.Vertical))
                 {
                     g.FillPath(gradientBrush, path);
                 }
 
-                // Natural border (1px, slightly darker)
-                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.15f), 1))
+                // Natural border - thicker on hover
+                float borderWidth = isHovered ? 1.5f : 1f;
+                using (var borderPen = new Pen(ControlPaint.Dark(effectiveColor, 0.15f), borderWidth))
                 {
                     g.DrawPath(borderPen, path);
+                }
+                
+                // Hover: add highlight glow
+                if (isHovered)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2f))
+                    {
+                        g.DrawPath(glowPen, path);
+                    }
                 }
             }
 

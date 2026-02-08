@@ -101,23 +101,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button - gradient red
             PaintNextJSButton(g, closeRect, 
                 Color.FromArgb(239, 68, 68), 
                 Color.FromArgb(220, 38, 38), 
-                padding, buttonSize, "close");
+                padding, buttonSize, "close", closeHovered);
 
             // Maximize button - gradient green
             PaintNextJSButton(g, maxRect, 
                 Color.FromArgb(34, 197, 94), 
                 Color.FromArgb(22, 163, 74), 
-                padding, buttonSize, "maximize");
+                padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button - gradient blue (Vercel blue)
             PaintNextJSButton(g, minRect, 
                 Color.FromArgb(59, 130, 246), 
                 Color.FromArgb(37, 99, 235), 
-                padding, buttonSize, "minimize");
+                padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
@@ -126,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 PaintNextJSButton(g, styleRect, 
                     Color.FromArgb(139, 92, 246), 
                     Color.FromArgb(124, 58, 237), 
-                    padding, buttonSize, "Style");
+                    padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
@@ -135,17 +142,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 PaintNextJSButton(g, themeRect, 
                     Color.FromArgb(245, 158, 11), 
                     Color.FromArgb(234, 88, 12), 
-                    padding, buttonSize, "theme");
+                    padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintNextJSButton(Graphics g, Rectangle buttonRect, Color color1, Color color2, int padding, int size, string buttonType)
+        private void PaintNextJSButton(Graphics g, Rectangle buttonRect, Color color1, Color color2, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // Hover: color tweak
+            if (isHovered)
+            {
+                color1 = ControlPaint.Light(color1, 0.2f);
+                color2 = ControlPaint.Light(color2, 0.2f);
+            }
 
             // Button with rounded corners (8px) and gradient
             using (var buttonPath = CreateRoundedRectanglePath(rect, new CornerRadius(8)))
@@ -163,17 +177,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
 
                 // Gradient hover glow effect
-                using (var glowGradient = new LinearGradientBrush(
-                    new Rectangle(rect.X - 2, rect.Y - 2, rect.Width + 4, rect.Height + 4),
-                    Color.FromArgb(30, color1),
-                    Color.FromArgb(0, color2),
-                    LinearGradientMode.Vertical))
+                if (isHovered)
                 {
-                    using (var glowPath = CreateRoundedRectanglePath(
-                        new Rectangle(rect.X - 2, rect.Y - 2, rect.Width + 4, rect.Height + 4), 
-                        new CornerRadius(10)))
+                    using (var glowGradient = new LinearGradientBrush(
+                        new Rectangle(rect.X - 4, rect.Y - 4, rect.Width + 8, rect.Height + 8),
+                        Color.FromArgb(60, color1),
+                        Color.FromArgb(0, color2),
+                        LinearGradientMode.Vertical))
                     {
-                        g.FillPath(glowGradient, glowPath);
+                        using (var glowPath = CreateRoundedRectanglePath(
+                            new Rectangle(rect.X - 4, rect.Y - 4, rect.Width + 8, rect.Height + 8), 
+                            new CornerRadius(12)))
+                        {
+                            g.FillPath(glowGradient, glowPath);
+                        }
                     }
                 }
             }

@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "../BeepDataSources/DataSourcesPluginsCore/SqliteDatasourceCore"
+		},
+		{
+			"path": "../Beep.Containers/Beep.Container"
 		}
 	],
 	"settings": {

@@ -78,29 +78,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Close button: Red 3D tile
-            Paint3DTileButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            Paint3DTileButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close", closeHovered);
 
             // Maximize button: Green 3D tile
-            Paint3DTileButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            Paint3DTileButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button: Blue 3D tile
-            Paint3DTileButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            Paint3DTileButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                Paint3DTileButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style");
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+                Paint3DTileButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                Paint3DTileButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+                Paint3DTileButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void Paint3DTileButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        private void Paint3DTileButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, bool isHovered)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -109,27 +114,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // NO anti-aliasing for sharp Metro edges
             g.SmoothingMode = SmoothingMode.None;
 
-            // 3D perspective: draw back face (shadow layer)
-            var backRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
-            using (var shadowBrush = new SolidBrush(Color.FromArgb(80, 0, 0, 0)))
+            // 3D perspective: draw back face (shadow layer) - deeper on hover
+            int shadowOffset = isHovered ? 3 : 2;
+            int shadowAlpha = isHovered ? 120 : 80;
+            var backRect = new Rectangle(rect.X + shadowOffset, rect.Y + shadowOffset, rect.Width, rect.Height);
+            using (var shadowBrush = new SolidBrush(Color.FromArgb(shadowAlpha, 0, 0, 0)))
             {
                 g.FillRectangle(shadowBrush, backRect);
             }
 
-            // 3D perspective: draw front face
-            using (var tileBrush = new SolidBrush(baseColor))
+            // 3D perspective: draw front face - brighten on hover
+            Color fillColor = isHovered ? ControlPaint.Light(baseColor, 0.2f) : baseColor;
+            using (var tileBrush = new SolidBrush(fillColor))
             {
                 g.FillRectangle(tileBrush, rect);
             }
 
-            // Bold border (3px, Metro signature)
-            using (var boldBorderPen = new Pen(ControlPaint.Dark(baseColor, 0.3f), 3))
+            // Bold border (3px, Metro signature) - thicker on hover
+            int borderWidth = isHovered ? 4 : 3;
+            using (var boldBorderPen = new Pen(ControlPaint.Dark(baseColor, 0.3f), borderWidth))
             {
                 g.DrawRectangle(boldBorderPen, rect);
             }
 
-            // Inner highlight (top-left, 3D effect)
-            using (var highlightPen = new Pen(Color.FromArgb(60, 255, 255, 255), 2))
+            // Inner highlight (top-left, 3D effect) - brighter on hover
+            int highlightAlpha = isHovered ? 100 : 60;
+            using (var highlightPen = new Pen(Color.FromArgb(highlightAlpha, 255, 255, 255), 2))
             {
                 g.DrawLine(highlightPen, rect.X + 2, rect.Y + 2, rect.Right - 2, rect.Y + 2);
                 g.DrawLine(highlightPen, rect.X + 2, rect.Y + 2, rect.X + 2, rect.Bottom - 2);

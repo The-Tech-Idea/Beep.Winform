@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
             return style switch
             {
                 BeepControlStyle.Material3 => true,             // Material elevation
-                BeepControlStyle.iOS15 => false,                // iOS flat with blur
+                BeepControlStyle.iOS15 => true,                 // iOS subtle shadow per Apple HIG
                 BeepControlStyle.Fluent2 => true,               // Subtle elevation
                 BeepControlStyle.Minimal => false,              // Flat
                 BeepControlStyle.AntDesign => true,             // Subtle shadow

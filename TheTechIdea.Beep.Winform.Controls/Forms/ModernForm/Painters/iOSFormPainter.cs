@@ -156,24 +156,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Close button (red circle)
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
             var closeRect = new Rectangle(startX, buttonY, buttonSize, buttonSize);
-            using (var closeBrush = new SolidBrush(Color.FromArgb(255, 95, 86)))
+            Color closeColor = closeHovered ? ControlPaint.Light(Color.FromArgb(255, 95, 86), 0.15f) : Color.FromArgb(255, 95, 86);
+            using (var closeBrush = new SolidBrush(closeColor))
             {
                 g.FillEllipse(closeBrush, closeRect);
             }
+            if (closeHovered)
+            {
+                using (var hoverPen = new Pen(Color.FromArgb(80, 255, 255, 255), 1.5f))
+                {
+                    g.DrawEllipse(hoverPen, closeRect);
+                }
+            }
             
             // Minimize button (yellow circle)
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
             var minRect = new Rectangle(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize);
-            using (var minBrush = new SolidBrush(Color.FromArgb(255, 189, 46)))
+            Color minColor = minHovered ? ControlPaint.Light(Color.FromArgb(255, 189, 46), 0.15f) : Color.FromArgb(255, 189, 46);
+            using (var minBrush = new SolidBrush(minColor))
             {
                 g.FillEllipse(minBrush, minRect);
             }
+            if (minHovered)
+            {
+                using (var hoverPen = new Pen(Color.FromArgb(80, 255, 255, 255), 1.5f))
+                {
+                    g.DrawEllipse(hoverPen, minRect);
+                }
+            }
             
             // Maximize button (green circle)
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
             var maxRect = new Rectangle(startX + (buttonSize + buttonSpacing) * 2, buttonY, buttonSize, buttonSize);
-            using (var maxBrush = new SolidBrush(Color.FromArgb(39, 201, 63)))
+            Color maxColor = maxHovered ? ControlPaint.Light(Color.FromArgb(39, 201, 63), 0.15f) : Color.FromArgb(39, 201, 63);
+            using (var maxBrush = new SolidBrush(maxColor))
             {
                 g.FillEllipse(maxBrush, maxRect);
+            }
+            if (maxHovered)
+            {
+                using (var hoverPen = new Pen(Color.FromArgb(80, 255, 255, 255), 1.5f))
+                {
+                    g.DrawEllipse(hoverPen, maxRect);
+                }
             }
         }
 

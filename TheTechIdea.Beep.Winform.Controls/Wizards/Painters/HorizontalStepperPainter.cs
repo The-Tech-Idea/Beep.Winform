@@ -69,6 +69,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _subtextColor = Color.FromArgb(120, 120, 120);
             }
 
+            // Dispose old fonts before creating new ones to prevent memory leaks
+            _titleFont?.Dispose();
+            _labelFont?.Dispose();
+
             _titleFont = new Font("Segoe UI Semibold", 10f);
             _labelFont = new Font("Segoe UI", 9f);
         }

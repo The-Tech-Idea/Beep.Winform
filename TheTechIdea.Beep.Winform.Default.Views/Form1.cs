@@ -27,5 +27,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
 
         }
+
+        private void beepPanel1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -99,7 +99,153 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // Paint Retro 3D buttons (UNIQUE SKIN)
+            PaintRetroButtons(g, owner, captionRect, metrics);
+            
+            // Only paint the icon (if not handled by custom buttons, but we need to ensure icon is drawn)
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Retro 3D buttons (Win95 Style)
+        /// Features: 3D bevel borders, pixel fonts, classic gray
+        /// </summary>
+        private void PaintRetroButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            // Standard Windows 95 button size logic
+            int buttonSize = Math.Min(captionRect.Height - 4, 16); 
+            int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
+            // Retro gray base (Classic Win95 gray: 192, 192, 192)
+            Color retroGray = Color.FromArgb(192, 192, 192);
+
+            // Close button: X
+            PaintRetroButton(g, closeRect, retroGray, "close", closeHovered);
+            
+            // Maximize button: Square
+            PaintRetroButton(g, maxRect, retroGray, "maximize", maxHovered);
+            
+            // Minimize button: Underline
+            PaintRetroButton(g, minRect, retroGray, "minimize", minHovered);
+            
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintRetroButton(g, styleRect, retroGray, "Style", styleHovered);
+            }
+            
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintRetroButton(g, themeRect, retroGray, "theme", themeHovered);
+            }
+        }
+        
+        private void PaintRetroButton(Graphics g, Rectangle rect, Color baseColor, string buttonType, bool isHovered)
+        {
+            // Adjust rect for pixel crispness
+            // In Retro mode, we want pixel perfection, so use the rect as is but ensure it's small enough to look like a button
+            // If rect is too big, shrink it to look like a standard Win95 caption button
+            int size = Math.Min(rect.Width, rect.Height);
+             // Center it
+            int x = rect.X + (rect.Width - size) / 2;
+            int y = rect.Y + (rect.Height - size) / 2;
+            var btnRect = new Rectangle(x, y, size, size);
+            
+            // Background
+            using (var brush = new SolidBrush(baseColor))
+            {
+                g.FillRectangle(brush, btnRect);
+            }
+            
+            // 3D Bevel Effect
+            // Top/Left: Light (White)
+            // Bottom/Right: Dark (Black/DarkGray)
+            
+            Color light = Color.White;
+            Color shadow = Color.Black;
+            Color darkShadow = Color.Gray;
+            
+            if (isHovered)
+            {
+                // Hover effect: Simulate "pushed" or just "highlighted"
+                 using (var brush = new SolidBrush(Color.FromArgb(220, 220, 220)))
+                {
+                    g.FillRectangle(brush, btnRect);
+                }
+            }
+            
+            // Draw 3D Bevel (Raised)
+             using (var pen = new Pen(light, 1))
+            {
+                g.DrawLine(pen, btnRect.Left, btnRect.Top, btnRect.Right - 1, btnRect.Top);
+                g.DrawLine(pen, btnRect.Left, btnRect.Top, btnRect.Left, btnRect.Bottom - 1);
+            }
+            
+            using (var pen = new Pen(shadow, 1))
+            {
+                g.DrawLine(pen, btnRect.Left, btnRect.Bottom - 1, btnRect.Right - 1, btnRect.Bottom - 1);
+                g.DrawLine(pen, btnRect.Right - 1, btnRect.Top, btnRect.Right - 1, btnRect.Bottom - 1);
+            }
+            
+            using (var pen = new Pen(darkShadow, 1))
+            {
+                g.DrawLine(pen, btnRect.Left + 1, btnRect.Bottom - 2, btnRect.Right - 2, btnRect.Bottom - 2);
+                g.DrawLine(pen, btnRect.Right - 2, btnRect.Top + 1, btnRect.Right - 2, btnRect.Bottom - 2);
+            }
+            
+            // Icon (Black pixel art)
+            using (var iconPen = new Pen(Color.Black, 1)) // 1px black
+            {
+                
+                 // Standard size for pixel art icons
+                int iconSize = 7;
+                int cx = btnRect.X + btnRect.Width / 2;
+                int cy = btnRect.Y + btnRect.Height / 2;
+                
+                switch (buttonType)
+                {
+                    case "close":
+                        // X
+                        g.DrawLine(iconPen, cx - 3, cy - 3, cx + 2, cy + 2);
+                        g.DrawLine(iconPen, cx - 3, cy - 2, cx + 1, cy + 2); // Thicken
+                        g.DrawLine(iconPen, cx + 2, cy - 3, cx - 3, cy + 2);
+                        g.DrawLine(iconPen, cx + 1, cy - 3, cx - 3, cy + 1); // Thicken
+                        break;
+                    case "maximize":
+                        // Square
+                        g.DrawRectangle(iconPen, cx - 4, cy - 4, 7, 7);
+                        g.DrawLine(iconPen, cx - 4, cy - 5, cx + 3, cy - 5); // Thicken top
+                        break;
+                    case "minimize":
+                        // Line
+                        g.DrawLine(iconPen, cx - 3, cy + 2, cx + 2, cy + 2);
+                        g.DrawLine(iconPen, cx - 3, cy + 3, cx + 2, cy + 3); // Thicken
+                        break;
+                    case "Style":
+                        // ?
+                        g.DrawLine(iconPen, cx, cy - 3, cx, cy + 3);
+                        g.DrawLine(iconPen, cx - 2, cy, cx + 2, cy);
+                        break;
+                    case "theme":
+                         // T
+                        g.DrawLine(iconPen, cx - 3, cy - 3, cx + 3, cy - 3);
+                        g.DrawLine(iconPen, cx, cy - 3, cx, cy + 3);
+                        break;
+                }
+            }
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)

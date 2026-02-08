@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
                 Title = $"Step {(_config.Steps.Count + 1)}",
                 Description = "New wizard step",
                 IsOptional = false,
-                IsCompleted = false
+                State =  Wizards.StepState.Completed
             };
 
             _config.Steps.Add(step);

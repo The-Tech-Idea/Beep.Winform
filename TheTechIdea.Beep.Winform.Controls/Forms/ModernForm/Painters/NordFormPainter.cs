@@ -111,23 +111,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int triangleY = (captionRect.Height - triangleSize) / 2;
             
             // Close button: Red-frost triangle
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
             int cx = closeRect.X + closeRect.Width / 2;
             int cy = triangleY + triangleSize / 2;
             
             using (var trianglePath = CreateRoundedTrianglePath(cx, cy, triangleSize))
             {
-                // Frost gradient fill (red with icy tint)
+                // Frost gradient fill (red with icy tint) - brighter on hover
+                int alpha = closeHovered ? 255 : 200;
                 using (var gradBrush = new LinearGradientBrush(
                     new Rectangle(cx - triangleSize/2, cy - triangleSize/2, triangleSize, triangleSize),
-                    Color.FromArgb(200, 191, 97, 106),  // Nord red
-                    Color.FromArgb(200, 180, 90, 100),  // Darker
+                    Color.FromArgb(alpha, 191, 97, 106),  // Nord red
+                    Color.FromArgb(alpha, 180, 90, 100),  // Darker
                     LinearGradientMode.Vertical))
                 {
                     g.FillPath(gradBrush, trianglePath);
                 }
                 
-                // Frost outline
-                using (var outlinePen = new Pen(Color.FromArgb(150, 220, 230, 240), 1.5f))
+                // Frost outline - brighter and thicker on hover
+                int outlineAlpha = closeHovered ? 220 : 150;
+                float outlineWidth = closeHovered ? 2f : 1.5f;
+                using (var outlinePen = new Pen(Color.FromArgb(outlineAlpha, 220, 230, 240), outlineWidth))
                 {
                     g.DrawPath(outlinePen, trianglePath);
                 }
@@ -142,22 +146,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Maximize button: Blue-frost triangle
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
             int mx = maxRect.X + maxRect.Width / 2;
             int my = triangleY + triangleSize / 2;
             
             using (var trianglePath = CreateRoundedTrianglePath(mx, my, triangleSize))
             {
-                // Frost gradient (blue)
+                // Frost gradient (blue) - brighter on hover
+                int alpha = maxHovered ? 255 : 200;
                 using (var gradBrush = new LinearGradientBrush(
                     new Rectangle(mx - triangleSize/2, my - triangleSize/2, triangleSize, triangleSize),
-                    Color.FromArgb(200, 129, 161, 193),  // Nord frost blue
-                    Color.FromArgb(200, 120, 150, 180),
+                    Color.FromArgb(alpha, 129, 161, 193),  // Nord frost blue
+                    Color.FromArgb(alpha, 120, 150, 180),
                     LinearGradientMode.Vertical))
                 {
                     g.FillPath(gradBrush, trianglePath);
                 }
                 
-                using (var outlinePen = new Pen(Color.FromArgb(150, 220, 230, 240), 1.5f))
+                int outlineAlpha = maxHovered ? 220 : 150;
+                float outlineWidth = maxHovered ? 2f : 1.5f;
+                using (var outlinePen = new Pen(Color.FromArgb(outlineAlpha, 220, 230, 240), outlineWidth))
                 {
                     g.DrawPath(outlinePen, trianglePath);
                 }
@@ -171,22 +179,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Minimize button: Teal-frost triangle
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
             int mnx = minRect.X + minRect.Width / 2;
             int mny = triangleY + triangleSize / 2;
             
             using (var trianglePath = CreateRoundedTrianglePath(mnx, mny, triangleSize))
             {
-                // Frost gradient (teal)
+                // Frost gradient (teal) - brighter on hover
+                int alpha = minHovered ? 255 : 200;
                 using (var gradBrush = new LinearGradientBrush(
                     new Rectangle(mnx - triangleSize/2, mny - triangleSize/2, triangleSize, triangleSize),
-                    Color.FromArgb(200, 136, 192, 208),  // Nord aurora teal
-                    Color.FromArgb(200, 125, 180, 195),
+                    Color.FromArgb(alpha, 136, 192, 208),  // Nord aurora teal
+                    Color.FromArgb(alpha, 125, 180, 195),
                     LinearGradientMode.Vertical))
                 {
                     g.FillPath(gradBrush, trianglePath);
                 }
                 
-                using (var outlinePen = new Pen(Color.FromArgb(150, 220, 230, 240), 1.5f))
+                int outlineAlpha = minHovered ? 220 : 150;
+                float outlineWidth = minHovered ? 2f : 1.5f;
+                using (var outlinePen = new Pen(Color.FromArgb(outlineAlpha, 220, 230, 240), outlineWidth))
                 {
                     g.DrawPath(outlinePen, trianglePath);
                 }

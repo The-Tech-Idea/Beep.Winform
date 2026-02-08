@@ -301,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.FocusBorderColor = Color.RoyalBlue;
             beepButton1.FocusForeColor = Color.FromArgb(58, 58, 58);
             beepButton1.FocusIndicatorColor = Color.RoyalBlue;
-            beepButton1.Font = new Font("Microsoft Sans Serif", 12.5F);
+            beepButton1.Font = new Font("Microsoft Sans Serif", 13.5F);
             beepButton1.ForeColor = Color.FromArgb(44, 44, 44);
             beepButton1.Form = null;
             beepButton1.GlassmorphismBlur = 10F;
@@ -454,7 +454,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             graphicsPath25.FillMode = FillMode.Alternate;
             beepDatePicker1.BorderPath = graphicsPath25;
             beepDatePicker1.BorderRadius = 4;
-            beepDatePicker1.BorderRect = new Rectangle(8, 8, 208, 18);
+            beepDatePicker1.BorderRect = new Rectangle(8, 8, 208, 20);
             beepDatePicker1.BorderStyle = BorderStyle.FixedSingle;
             beepDatePicker1.BorderThickness = 2;
             beepDatePicker1.BottomoffsetForDrawingRect = 0;
@@ -481,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePicker1.DisabledBackColor = Color.FromArgb(242, 242, 245);
             beepDatePicker1.DisabledBorderColor = Color.FromArgb(192, 192, 196);
             beepDatePicker1.DisabledForeColor = Color.FromArgb(240, 240, 241);
-            beepDatePicker1.DrawingRect = new Rectangle(8, 8, 208, 18);
+            beepDatePicker1.DrawingRect = new Rectangle(8, 8, 208, 20);
             beepDatePicker1.Easing = EasingType.Linear;
             beepDatePicker1.EnableHighQualityRendering = true;
             beepDatePicker1.EnableMaterialStyle = false;
@@ -561,7 +561,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePicker1.MaxDate = null;
             beepDatePicker1.MaxHitListDrawPerFrame = 0;
             beepDatePicker1.MinDate = null;
-            beepDatePicker1.MinimumSize = new Size(193, 34);
+            beepDatePicker1.MinimumSize = new Size(208, 36);
             beepDatePicker1.ModernGradientType = ModernGradientType.None;
             beepDatePicker1.Name = "beepDatePicker1";
             beepDatePicker1.OuterShape = null;
@@ -594,7 +594,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePicker1.ShowRightBorder = false;
             beepDatePicker1.ShowShadow = false;
             beepDatePicker1.ShowTopBorder = false;
-            beepDatePicker1.Size = new Size(224, 34);
+            beepDatePicker1.Size = new Size(224, 36);
             beepDatePicker1.SlideFrom = SlideDirection.Left;
             beepDatePicker1.StaticNotMoving = false;
             beepDatePicker1.TabIndex = 1;
@@ -2865,7 +2865,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             typographyStyle156.TextColor = Color.FromArgb(44, 44, 44);
             ubuntuTheme1.TextBoxSelectedFont = typographyStyle156;
             ubuntuTheme1.TextBoxSelectedForeColor = Color.FromArgb(58, 58, 58);
-            ubuntuTheme1.ThemeGuid = "eb72f24b-d72e-42de-95df-b1b891d1a55d";
+            ubuntuTheme1.ThemeGuid = "f129a0c7-13b9-4347-91ce-2d3db2a7db8e";
             ubuntuTheme1.ThemeName = "UbuntuTheme";
             typographyStyle157.FontFamily = "Ubuntu";
             typographyStyle157.FontSize = 13F;
@@ -3467,7 +3467,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(20, 20);
-            beepTextBox1.MinimumSize = new Size(0, 22);
+            beepTextBox1.MinimumSize = new Size(0, 24);
             beepTextBox1.ModernGradientType = ModernGradientType.None;
             beepTextBox1.Modified = true;
             beepTextBox1.Multiline = false;
@@ -3561,7 +3561,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             graphicsPath10.FillMode = FillMode.Alternate;
             beepLabel1.BorderPath = graphicsPath10;
             beepLabel1.BorderRadius = 4;
-            beepLabel1.BorderRect = new Rectangle(8, 8, 212, 45);
+            beepLabel1.BorderRect = new Rectangle(8, 8, 212, 91);
             beepLabel1.BorderStyle = BorderStyle.FixedSingle;
             beepLabel1.BorderThickness = 2;
             beepLabel1.BottomoffsetForDrawingRect = 0;
@@ -3581,7 +3581,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepLabel1.DisabledBackColor = Color.FromArgb(242, 242, 245);
             beepLabel1.DisabledBorderColor = Color.Gray;
             beepLabel1.DisabledForeColor = Color.FromArgb(240, 240, 241);
-            beepLabel1.DrawingRect = new Rectangle(22, 22, 184, 17);
+            beepLabel1.DrawingRect = new Rectangle(22, 22, 184, 63);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
             beepLabel1.EnableMaterialStyle = false;
@@ -3658,12 +3658,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepLabel1.LeadingImagePath = "";
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
-            beepLabel1.Location = new Point(369, 563);
+            beepLabel1.Location = new Point(369, 557);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
-            beepLabel1.MinimumSize = new Size(96, 28);
+            beepLabel1.MinimumSize = new Size(143, 32);
             beepLabel1.ModernGradientType = ModernGradientType.None;
             beepLabel1.Multiline = false;
             beepLabel1.Name = "beepLabel1";
@@ -3696,7 +3696,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepLabel1.ShowRightBorder = false;
             beepLabel1.ShowShadow = false;
             beepLabel1.ShowTopBorder = false;
-            beepLabel1.Size = new Size(228, 61);
+            beepLabel1.Size = new Size(228, 107);
             beepLabel1.SlideFrom = SlideDirection.Left;
             beepLabel1.StaticNotMoving = false;
             beepLabel1.SubHeaderFont = new Font("Microsoft Sans Serif", 10.5F);
@@ -3856,7 +3856,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepTextBox2.MaxHitListDrawPerFrame = 0;
             beepTextBox2.MaxImageSize = new Size(20, 20);
-            beepTextBox2.MinimumSize = new Size(0, 22);
+            beepTextBox2.MinimumSize = new Size(0, 24);
             beepTextBox2.ModernGradientType = ModernGradientType.None;
             beepTextBox2.Modified = true;
             beepTextBox2.Multiline = false;

@@ -96,8 +96,120 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
             // Built-in caption elements
-            owner.PaintBuiltInCaptionElements(g);
+            // Paint custom ChatBubble buttons (Rounded, soft, message-like)
+            PaintChatBubbleButtons(g, owner, captionRect, metrics);
         }
+
+        /// <summary>
+        /// Paint ChatBubble buttons (Rounded, soft, message-like appearance)
+        /// </summary>
+        private void PaintChatBubbleButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            int buttonSize = 22;
+            int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+            
+            // Shared styling for chat buttons
+            // Close: Red bubble
+            PaintChatBubbleButton(g, closeRect, Color.FromArgb(255, 90, 90), "close", closeHovered);
+            
+            // Maximize: Gray/Blue bubble
+            PaintChatBubbleButton(g, maxRect, Color.FromArgb(100, 149, 237), "maximize", maxHovered);
+            
+            // Minimize: Gray/Blue bubble
+            PaintChatBubbleButton(g, minRect, Color.FromArgb(100, 149, 237), "minimize", minHovered);
+            
+            // Theme/Style buttons
+            if (owner.ShowStyleButton)
+            {
+                PaintChatBubbleButton(g, owner.CurrentLayout.StyleButtonRect, Color.FromArgb(147, 112, 219), "Style", styleHovered);
+            }
+            
+            if (owner.ShowThemeButton)
+            {
+                PaintChatBubbleButton(g, owner.CurrentLayout.ThemeButtonRect, Color.FromArgb(255, 165, 0), "theme", themeHovered);
+            }
+        }
+        
+        private void PaintChatBubbleButton(Graphics g, Rectangle rect, Color baseColor, string type, bool isHovered)
+        {
+            int cx = rect.X + rect.Width / 2;
+            int cy = rect.Y + rect.Height / 2;
+            int size = 18;
+            
+            // Hover effect: Brighten color and slight scale
+            if (isHovered)
+            {
+                baseColor = ControlPaint.Light(baseColor, 0.2f);
+                size += 2;
+            }
+            
+            int radius = size / 2;
+            
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw bubble shape (rounded rect or circle)
+            // Using circle for buttons to look like user avatars/status icons
+            using (var brush = new SolidBrush(baseColor))
+            {
+                g.FillEllipse(brush, cx - radius, cy - radius, size, size);
+            }
+            
+            // Draw Icon (White)
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 8;
+                
+                switch (type)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                        g.DrawLine(iconPen, cx + iconSize/2, cy - iconSize/2, cx - iconSize/2, cy + iconSize/2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, cx - iconSize/2, cy - iconSize/2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, cx - iconSize/2, cy + iconSize/2, cx + iconSize/2, cy + iconSize/2);
+                        break;
+                    case "Style": 
+                         g.DrawEllipse(iconPen, cx - iconSize/2, cy - iconSize/2, iconSize, iconSize);
+                         g.FillEllipse(Brushes.White, cx, cy, 2, 2);
+                        break;
+                    case "theme": 
+                         g.DrawRectangle(iconPen, cx - iconSize/2, cy - iconSize/2, iconSize, iconSize - 2);
+                         g.DrawLine(iconPen, cx - iconSize/2, cy - iconSize/2, cx + iconSize/2, cy - iconSize/2);
+                        break;
+                }
+            }
+            
+            // Hover: Add tiny speech tail to button?
+            if (isHovered)
+            {
+                using (var brush = new SolidBrush(baseColor))
+                {
+                    // Tiny tail pointing down-right
+                    var points = new Point[] 
+                    {
+                        new Point(cx + radius - 3, cy + radius - 3),
+                        new Point(cx + radius + 2, cy + radius + 2),
+                        new Point(cx + radius - 1, cy + radius - 5)
+                    };
+                    g.FillPolygon(brush, points);
+                }
+            }
+        }
+        
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {

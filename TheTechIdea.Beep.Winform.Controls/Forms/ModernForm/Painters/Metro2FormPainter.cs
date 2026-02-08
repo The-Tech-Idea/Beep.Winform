@@ -95,6 +95,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// Paint Metro2 tile flip buttons (ENHANCED UNIQUE SKIN)
         /// Features: tile flip perspective, accent line highlights, modern Metro aesthetic
         /// </summary>
+        /// <summary>
+        /// Paint Metro2 tile flip buttons (ENHANCED UNIQUE SKIN)
+        /// Features: tile flip perspective, accent line highlights, modern Metro aesthetic
+        /// </summary>
         private void PaintMetro2TileButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
             var closeRect = owner.CurrentLayout.CloseButtonRect;
@@ -104,36 +108,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 20;
             int padding = (captionRect.Height - buttonSize) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button: Red tile
-            PaintTileFlipButton(g, closeRect, Color.FromArgb(232, 17, 35), metrics.BorderColor, padding, buttonSize, "close");
+            PaintTileFlipButton(g, closeRect, Color.FromArgb(232, 17, 35), metrics.BorderColor, padding, buttonSize, "close", closeHovered);
 
             // Maximize button: Green tile
-            PaintTileFlipButton(g, maxRect, Color.FromArgb(16, 124, 16), metrics.BorderColor, padding, buttonSize, "maximize");
+            PaintTileFlipButton(g, maxRect, Color.FromArgb(16, 124, 16), metrics.BorderColor, padding, buttonSize, "maximize", maxHovered);
 
             // Minimize button: Blue tile
-            PaintTileFlipButton(g, minRect, Color.FromArgb(0, 120, 215), metrics.BorderColor, padding, buttonSize, "minimize");
+            PaintTileFlipButton(g, minRect, Color.FromArgb(0, 120, 215), metrics.BorderColor, padding, buttonSize, "minimize", minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintTileFlipButton(g, styleRect, Color.FromArgb(135, 100, 184), metrics.BorderColor, padding, buttonSize, "Style");
+                PaintTileFlipButton(g, styleRect, Color.FromArgb(135, 100, 184), metrics.BorderColor, padding, buttonSize, "Style", styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintTileFlipButton(g, themeRect, Color.FromArgb(247, 99, 12), metrics.BorderColor, padding, buttonSize, "theme");
+                PaintTileFlipButton(g, themeRect, Color.FromArgb(247, 99, 12), metrics.BorderColor, padding, buttonSize, "theme", themeHovered);
             }
         }
 
-        private void PaintTileFlipButton(Graphics g, Rectangle buttonRect, Color baseColor, Color accentColor, int padding, int size, string buttonType)
+        private void PaintTileFlipButton(Graphics g, Rectangle buttonRect, Color baseColor, Color accentColor, int padding, int size, string buttonType, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
             var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Hover effect: Brighten color and slight offset
+            if (isHovered)
+            {
+                baseColor = ControlPaint.Light(baseColor, 0.2f);
+                // Slight "pop" effect
+                rect.Y -= 1; 
+            }
 
             // Tile flip perspective effect (3D rotation illusion)
             DrawTileFlipPerspective(g, rect, baseColor);

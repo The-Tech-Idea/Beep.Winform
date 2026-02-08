@@ -105,6 +105,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// Paint Linear minimal buttons with icon-only style
         /// Features: very minimal, icon-only style, subtle hover, ultra-thin borders
         /// </summary>
+        /// <summary>
+        /// Paint Linear minimal buttons with icon-only style
+        /// Features: very minimal, icon-only style, subtle hover, ultra-thin borders
+        /// </summary>
         private void PaintLinearButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
             var closeRect = owner.CurrentLayout.CloseButtonRect;
@@ -114,30 +118,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonSize = 16;
             int padding = (captionRect.Height - buttonSize) / 2;
 
+            // Check hover states
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
+            bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
+
             // Close button - minimal red
-            PaintLinearButton(g, closeRect, Color.FromArgb(239, 68, 68), padding, buttonSize, "close", owner);
+            PaintLinearButton(g, closeRect, Color.FromArgb(239, 68, 68), padding, buttonSize, "close", owner, closeHovered);
 
             // Maximize button - minimal green
-            PaintLinearButton(g, maxRect, Color.FromArgb(34, 197, 94), padding, buttonSize, "maximize", owner);
+            PaintLinearButton(g, maxRect, Color.FromArgb(34, 197, 94), padding, buttonSize, "maximize", owner, maxHovered);
 
             // Minimize button - minimal blue
-            PaintLinearButton(g, minRect, Color.FromArgb(59, 130, 246), padding, buttonSize, "minimize", owner);
+            PaintLinearButton(g, minRect, Color.FromArgb(59, 130, 246), padding, buttonSize, "minimize", owner, minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                PaintLinearButton(g, styleRect, Color.FromArgb(139, 92, 246), padding, buttonSize, "Style", owner);
+                PaintLinearButton(g, styleRect, Color.FromArgb(139, 92, 246), padding, buttonSize, "Style", owner, styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                PaintLinearButton(g, themeRect, Color.FromArgb(245, 158, 11), padding, buttonSize, "theme", owner);
+                PaintLinearButton(g, themeRect, Color.FromArgb(245, 158, 11), padding, buttonSize, "theme", owner, themeHovered);
             }
         }
 
-        private void PaintLinearButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, BeepiFormPro owner)
+        private void PaintLinearButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, BeepiFormPro owner, bool isHovered = false)
         {
             int centerX = buttonRect.X + buttonRect.Width / 2;
             int centerY = buttonRect.Y + buttonRect.Height / 2;
@@ -155,6 +166,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     bgColor = Color.FromArgb(10, 0, 0, 0);
                 }
                 
+                // Hover: Darker/lighter background depending on theme
+                if (isHovered)
+                {
+                     if (owner.UseThemeColors && owner.CurrentTheme != null && owner.CurrentTheme.IsDarkTheme)
+                     {
+                         bgColor = Color.FromArgb(40, 255, 255, 255); // Visible light grey on dark
+                     }
+                     else
+                     {
+                         bgColor = Color.FromArgb(20, 0, 0, 0); // Visible dark grey on light
+                     }
+                }
+
                 using (var bgBrush = new SolidBrush(bgColor))
                 {
                     g.FillPath(bgBrush, buttonPath);
@@ -167,15 +191,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     borderColor = Color.FromArgb(80, 80, 80);
                 }
                 
+                // Hover: Colored border matching the button type
+                if (isHovered)
+                {
+                    borderColor = baseColor;
+                }
+                
                 using (var borderPen = new Pen(borderColor, 0.5f))
                 {
                     g.DrawPath(borderPen, buttonPath);
                 }
 
-                // Subtle hover effect
-                using (var hoverBrush = new SolidBrush(Color.FromArgb(15, baseColor)))
+                // Subtle hover effect - Fill with base color at low alpha
+                if (isHovered)
                 {
-                    g.FillPath(hoverBrush, buttonPath);
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(25, baseColor)))
+                    {
+                        g.FillPath(hoverBrush, buttonPath);
+                    }
                 }
             }
 
@@ -184,6 +217,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.UseThemeColors && owner.CurrentTheme != null && owner.CurrentTheme.IsDarkTheme)
             {
                 iconColor = Color.FromArgb(180, 180, 180);
+            }
+            
+            // Hover: Colored icon
+            if (isHovered)
+            {
+                iconColor = baseColor;
             }
             
             using (var iconPen = new Pen(iconColor, 1f))

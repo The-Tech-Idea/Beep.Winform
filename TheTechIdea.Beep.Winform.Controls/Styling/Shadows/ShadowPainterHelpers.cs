@@ -461,8 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 }
             }
 
-            // Return the area inside the shadow using shape-aware inset
-            return bounds.CreateInsetPath(radius);
+            return bounds;
         }
 
         /// <summary>
@@ -557,8 +556,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 }
             }
 
-            // Return the area inside the glow using shape-aware inset
-            return bounds.CreateInsetPath(radius);
+            return bounds;
         }
 
         /// <summary>
@@ -621,7 +619,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 }
             }
 
-            return bounds.CreateInsetPath(radius);
+            return bounds;
         }
 
         /// <summary>

@@ -351,7 +351,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         ColumnName = col.ColumnName,
                         CellValue = val,
                         Width = col.Width,
-                        Height = _grid.RowHeight
+                        Height = _grid.RowHeight,
+                        IsReadOnly = col.ReadOnly,  // Inherit ReadOnly from column
+                        IsEditable = !col.ReadOnly  // Inverse of ReadOnly for clarity
                     };
                     r.Cells.Add(cell);
                     colIndex++;

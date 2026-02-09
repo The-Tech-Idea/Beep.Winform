@@ -483,10 +483,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
                
           //  Console.WriteLine($"RowsRect: {rowsRect}");
-            // Draw background
+            // Draw background (exclude child control areas to prevent painting over editors)
             using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
             {
-                g.FillRectangle(brush, rowsRect);
+                // Save the current clip region
+                var originalClip = g.Clip;
+                try
+                {
+                    // Exclude child controls from the clip region to prevent painting over them
+                    if (_grid.Controls.Count > 0)
+                    {
+                        var region = new Region(rowsRect);
+                        foreach (Control child in _grid.Controls)
+                        {
+                            if (child.Visible && child.Bounds.IntersectsWith(rowsRect))
+                            {
+                                region.Exclude(child.Bounds);
+                            }
+                        }
+                        g.Clip = region;
+                        region.Dispose();
+                    }
+                    
+                    g.FillRectangle(brush, rowsRect);
+                }
+                finally
+                {
+                    // Restore the original clip region
+                    g.Clip = originalClip;
+                    originalClip?.Dispose();
+                }
             }
           //  Console.WriteLine("Background drawn.");
             // Draw column headers

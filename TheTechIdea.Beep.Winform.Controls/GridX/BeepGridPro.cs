@@ -23,6 +23,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
     public partial class BeepGridPro : BaseControl
     {
+        #region BaseControl Overrides for Container Behavior
+        /// <summary>
+        /// Override to tell BaseControl this is a container that hosts child controls (editors)
+        /// This prevents BaseControl from painting over child editor controls
+        /// </summary>
+        protected override bool IsContainerControl => true;
+
+        /// <summary>
+        /// Override to prevent BaseControl from clearing the entire surface which would paint over editors
+        /// The grid handles its own rendering completely
+        /// </summary>
+        protected override bool AllowBaseControlClear => false;
+        #endregion
+
         #region Helper Instances
         internal Helpers.GridLayoutHelper Layout { get; }
         internal Helpers.GridDataHelper Data { get; }
@@ -55,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             // Enhance control styles for better performance and reduced flickering
             SetStyle(ControlStyles.AllPaintingInWmPaint |
-                  
+                     ControlStyles.ContainerControl |
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw , true);
             SetStyle(ControlStyles.Selectable, true);
@@ -224,17 +238,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return;
             }
 
-            // Save the current graphics state
-            var graphicsState = g.Save();
-
+            // Don't set clip region - it prevents child controls (editors) from showing
+            // The grid handles its own boundaries
             try
             {
-                // Set clipping region to DrawingRect
-               g.SetClip(drawingRect);
-
-                // Now do our custom grid drawing within the clipped area
+                // Draw grid content
                 Layout?.EnsureCalculated();
-               Render?.Draw(g);
+                Render?.Draw(g);
 
                 // Draw custom scrollbars after grid content
                 ScrollBars?.DrawScrollBars(g);
@@ -242,11 +252,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             catch
             {
                 // Silently handle drawing exceptions to prevent crashes
-            }
-            finally
-            {
-                // Always restore the graphics state
-                g.Restore(graphicsState);
             }
 
             // Keep scrollbars in sync after rendering (outside clipping)

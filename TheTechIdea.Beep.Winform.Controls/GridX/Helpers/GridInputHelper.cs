@@ -292,18 +292,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseUp(MouseEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"HandleMouseUp at location: {e.Location}");
             // Don't process mouse up while context menu is active
             
             
             // Handle column reorder completion first
             if (_grid.AllowColumnReorder && _grid.ColumnReorder.HandleMouseUp(e.Location))
             {
+                System.Diagnostics.Debug.WriteLine("Column reorder handled mouse up");
                 return; // Column was being dragged, reorder handled it
             }
 
             // Reset column resizing
             if (_resizingColumn)
             {
+                System.Diagnostics.Debug.WriteLine("Ending column resize");
                 _resizingColumn = false;
                 _resizingColIndex = -1;
                 _grid.Cursor = Cursors.Default;
@@ -313,6 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Reset header row resizing
             if (_resizingHeaderRow)
             {
+                System.Diagnostics.Debug.WriteLine("Ending header row resize");
                 _resizingHeaderRow = false;
                 _grid.Cursor = Cursors.Default;
                 return;
@@ -321,6 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Reset data row resizing
             if (_resizingDataRow)
             {
+                System.Diagnostics.Debug.WriteLine("Ending data row resize");
                 _resizingDataRow = false;
                 _resizingRowIndex = -1;
                 _grid.Cursor = Cursors.Default;
@@ -328,10 +333,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             var (r, c) = HitTestCell(e.Location);
+            System.Diagnostics.Debug.WriteLine($"HitTestCell returned: Row={r}, Col={c}");
 
             // If mouse-up is on the same checkbox we pressed, toggle now
             if (_pressedOnCheckbox)
             {
+                System.Diagnostics.Debug.WriteLine("Pressed on checkbox, handling checkbox toggle");
                 bool sameTarget = false;
                 if (_pressedCol == -1)
                 {
@@ -355,11 +362,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Normal cell clicks (not on checkbox)
+            System.Diagnostics.Debug.WriteLine($"Normal cell click. ReadOnly={_grid.ReadOnly}, r={r}, c={c}");
             if (r >= 0 && c >= 0 && !_grid.ReadOnly)
             {
                 var cell = _grid.Data.Rows[r].Cells[c];
                 var col = _grid.Data.Columns[c];
                 bool isCheckCol = col.IsSelectionCheckBox;
+                System.Diagnostics.Debug.WriteLine($"Cell found. IsCheckboxCol={isCheckCol}, IsReadOnly={cell.IsReadOnly}, IsEditable={cell.IsEditable}");
 
                 // Select the cell first
                 _grid.Selection.SelectCell(r, c);
@@ -369,6 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Handle checkbox clicks (should be handled above through press tracking). Guard here for safety.
                 if (isCheckCol)
                 {
+                    System.Diagnostics.Debug.WriteLine("IsCheckboxColumn, toggling row selection");
                     ToggleRowSelection(r);
                     return;
                 }
@@ -376,8 +386,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // For other editable cells, show dialog editor
                 if (!cell.IsReadOnly && cell.IsEditable)
                 {
+                    System.Diagnostics.Debug.WriteLine("Calling BeginEdit...");
                     _grid.Edit.BeginEdit();
                 }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Cell is readonly or not editable, skipping BeginEdit");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Not calling BeginEdit: r={r}, c={c}, ReadOnly={_grid.ReadOnly}");
             }
         }
 

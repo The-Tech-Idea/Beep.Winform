@@ -62,8 +62,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // FIX: Don't exclude child controls - let them paint normally
-            // ExcludeChildControlsFromClip(e.Graphics);
+            // Exclude child controls from clip region to prevent painting over them
+            if (IsContainerControl || Controls.Count > 0)
+            {
+                ExcludeChildControlsFromClip(e.Graphics);
+            }
 
             if (Parent != null && IsChild)
             {
@@ -166,8 +169,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 return;
             base.OnPaint(e);
             
-            // FIX: Don't exclude child controls - was preventing initial paint
-            // ExcludeChildControlsFromClip(e.Graphics);
+            // Exclude child controls from clip region to prevent painting over them
+            if (IsContainerControl || Controls.Count > 0)
+            {
+                ExcludeChildControlsFromClip(e.Graphics);
+            }
          
             // Always ensure clip rectangle is valid
             SafeDraw(e.Graphics);
@@ -205,11 +211,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (g == null)
                 return;
 
-         
+            // Respect derived control's preference to not clear (e.g., grids handle their own rendering)
+            if (!AllowBaseControlClear)
+                return;
+
             // If the control is not transparent and not rounded, we can safely clear with BackColor
             // This ensures a clean slate for drawing and prevents artifacts
             if (!IsTransparentBackground)
             {
+                // If we have child controls, exclude them from the clear operation
+                if (IsContainerControl || Controls.Count > 0)
+                {
+                    ExcludeChildControlsFromClip(g);
+                }
                 g.Clear(BackColor);
             }
             // For rounded or transparent controls, we rely on OnPaintBackground to paint the parent background

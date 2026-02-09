@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
@@ -20,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     internal class GridEditHelper
     {
         private readonly BeepGridPro _grid;
-        private BeepControl _editorControl;
+        private Control _editorControl;
         private BeepCellConfig _editingCell;
         private object _originalValue;
         private bool _suppressLostFocus;
@@ -30,30 +31,70 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void BeginEdit()
         {
-            if (_grid.ReadOnly) return;
-            if (!_grid.Selection.HasSelection) return;
+            // Debug output
+            System.Diagnostics.Debug.WriteLine($"BeginEdit called. ReadOnly={_grid.ReadOnly}, HasSelection={_grid.Selection.HasSelection}");
+            
+            if (_grid.ReadOnly)
+            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Grid is ReadOnly");
+                return;
+            }
+            
+            if (!_grid.Selection.HasSelection)
+            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: No selection");
+                return;
+            }
 
             int r = _grid.Selection.RowIndex;
             int c = _grid.Selection.ColumnIndex;
-            if (r < 0 || c < 0 || r >= _grid.Data.Rows.Count || c >= _grid.Data.Columns.Count) return;
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Row={r}, Col={c}, RowCount={_grid.Data.Rows.Count}, ColCount={_grid.Data.Columns.Count}");
+            
+            if (r < 0 || c < 0 || r >= _grid.Data.Rows.Count || c >= _grid.Data.Columns.Count)
+            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Invalid row or column index");
+                return;
+            }
 
             var cell = _grid.Data.Rows[r].Cells[c];
             var col = _grid.Data.Columns[c];
-            if (cell.IsReadOnly || !cell.IsEditable || !col.Visible) return;
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Cell IsReadOnly={cell.IsReadOnly}, IsEditable={cell.IsEditable}, ColVisible={col.Visible}");
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Cell Rect={cell.Rect}");
+            
+            if (cell.IsReadOnly || !cell.IsEditable || !col.Visible)
+            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Cell is readonly or not editable");
+                return;
+            }
 
             // Ensure we have up-to-date cell rectangles before creating/positioning the editor
             if (cell.Rect.Width <= 0 || cell.Rect.Height <= 0)
             {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Cell Rect is empty, recalculating layout...");
                 _grid.UpdateDrawingRect();
                 _grid.Layout?.EnsureCalculated();
                 _grid.SafeInvalidate();
                 _grid.Update();
+                // Re-get the cell after layout recalculation
                 cell = _grid.Data.Rows[r].Cells[c];
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: After recalc, Cell Rect={cell.Rect}");
+                
+                // If still invalid, cannot edit
+                if (cell.Rect.Width <= 0 || cell.Rect.Height <= 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("BeginEdit: Cell Rect still invalid after recalculation");
+                    return;
+                }
             }
+            
+            System.Diagnostics.Debug.WriteLine("BeginEdit: Creating editor control...");
+            cell = _grid.Data.Rows[r].Cells[c];
+            
 
             // Remove previous editor from host - ALWAYS clear completely
             if (_editorControl != null)
             {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Cleaning up previous editor");
                 try
                 {
                     _editorControl.KeyDown -= OnEditorKeyDown;
@@ -61,28 +102,52 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (_currenteditorUIcomponent is BeepComboBox oldCb)
                         oldCb.PopupClosed -= OnComboPopupClosed;
                     
-                    // Remove from grid controls (not parent)
-                    _grid.Controls.Remove(_editorControl);
+                    // Remove from form, parent, or grid controls
+                    var form = _grid.FindForm();
+                    if (form != null && form.Controls.Contains(_editorControl))
+                        form.Controls.Remove(_editorControl);
+                    else if (_grid.Parent != null && _grid.Parent.Controls.Contains(_editorControl))
+                        _grid.Parent.Controls.Remove(_editorControl);
+                    else if (_grid.Controls.Contains(_editorControl))
+                        _grid.Controls.Remove(_editorControl);
+                    
                     _editorControl.Dispose();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"BeginEdit: Error cleaning up previous editor: {ex.Message}");
+                }
                 finally { _editorControl = null; }
             }
 
 
 
             // Create editor
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Calling CreateEditorForColumn for column type: {col.ColumnType}");
             _currenteditorUIcomponent = CreateEditorForColumn(col);
-            if (!(_currenteditorUIcomponent is BeepControl editor)) return;
-            _editorControl = editor as BeepControl;
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: CreateEditorForColumn returned: {_currenteditorUIcomponent?.GetType().Name ?? "NULL"}");
+            
+            if (!(_currenteditorUIcomponent is Control editor))
+            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Editor is not a Control, exiting");
+                return;
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor created successfully: {editor.GetType().Name}");
+            _editorControl = editor as Control;
             _editingCell = cell;
             _originalValue = cell.CellValue;
             _isEndingEdit = false;
 
             // Configure editor with explicit visibility settings
-            _editorControl.Theme = _grid.Theme;
-            _editorControl.IsChild = true;
-            _editorControl.ShowAllBorders = false;
+            // Apply BaseControl-specific properties if editor is a BaseControl
+            if (_editorControl is BaseControl baseEditor)
+            {
+                baseEditor.Theme = _grid.Theme;
+                baseEditor.IsChild = true;
+                baseEditor.ShowAllBorders = false;
+            }
+            
             _editorControl.Visible = true;
             _editorControl.TabStop = true;
             _editorControl.Enabled = true;
@@ -171,17 +236,61 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
             if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
 
-            // Add the editor directly to the grid (not parent)
-            _grid.Controls.Add(_editorControl);
-
-            // Set editor bounds to align perfectly with cell
-            _editorControl.Bounds = editorRect;
+            // Find the parent Form and add the editor there to avoid clipping issues
+            var parentForm = _grid.FindForm();
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: ParentForm found: {parentForm != null}, Type: {parentForm?.GetType().Name}");
+            
+            if (parentForm != null)
+            {
+                // Convert grid-relative coordinates to form-relative coordinates
+                var screenPoint = _grid.PointToScreen(editorRect.Location);
+                var formPoint = parentForm.PointToClient(screenPoint);
+                var formRect = new Rectangle(formPoint, editorRect.Size);
+                
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: Grid rect: {editorRect}");
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: Screen point: {screenPoint}");
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: Form point: {formPoint}");
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: Form rect: {formRect}");
+                
+                // Remove from grid if it was added there
+                if (_grid.Controls.Contains(_editorControl))
+                {
+                    System.Diagnostics.Debug.WriteLine("BeginEdit: Removing editor from grid");
+                    _grid.Controls.Remove(_editorControl);
+                }
+                
+                // Add to form
+                if (!parentForm.Controls.Contains(_editorControl))
+                {
+                    System.Diagnostics.Debug.WriteLine("BeginEdit: Adding editor to form");
+                    parentForm.Controls.Add(_editorControl);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("BeginEdit: Editor already in form controls");
+                }
+                
+                _editorControl.Bounds = formRect;
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor bounds set to: {_editorControl.Bounds}");
+            }
+            else
+            {
+                // Fallback: add to grid if no form found
+                System.Diagnostics.Debug.WriteLine("BeginEdit: No parent form, adding to grid");
+                if (!_grid.Controls.Contains(_editorControl))
+                    _grid.Controls.Add(_editorControl);
+                
+                _editorControl.Bounds = editorRect;
+            }
+            
             _editorControl.Anchor = AnchorStyles.None; // No anchoring - we handle positioning manually
             
             // Force the editor to be visible and on top
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Setting editor visible. Current Visible: {_editorControl.Visible}, Enabled: {_editorControl.Enabled}");
             _editorControl.Visible = true;
             _editorControl.Show();
             _editorControl.BringToFront();
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: After Show/BringToFront. Visible: {_editorControl.Visible}, Handle created: {_editorControl.IsHandleCreated}");
             
          
             // Keep in sync with grid visuals
@@ -202,12 +311,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Use BeginInvoke to ensure proper focus timing
             _grid.BeginInvoke(new Action(() =>
             {
+                System.Diagnostics.Debug.WriteLine($"BeginEdit: BeginInvoke callback executing. _isEndingEdit={_isEndingEdit}, _editorControl!=null={_editorControl != null}");
                 if (!_isEndingEdit && _editorControl != null && !_editorControl.IsDisposed)
                 {
                     try 
                     { 
+                        System.Diagnostics.Debug.WriteLine($"BeginEdit: Setting focus. Editor type: {_editorControl.GetType().Name}");
                         _grid.ActiveControl = _editorControl;
                         _editorControl.Focus();
+                        System.Diagnostics.Debug.WriteLine($"BeginEdit: Focus set. Focused: {_editorControl.Focused}, ContainsFocus: {_editorControl.ContainsFocus}");
                         
                         // Handle ComboBox popup after focus is established
                         if (_currenteditorUIcomponent is BeepComboBox cb)
@@ -215,7 +327,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                            // try { cb.IsPopupOpen = true; } catch { }
                         }
                     } 
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"BeginEdit: Focus exception: {ex.Message}");
+                    }
                     
                     // IMPORTANT: Only disable suppress AFTER focus is established
                     _suppressLostFocus = false;
@@ -274,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Check if cell is still visible (not scrolled out of view)
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        // Calculate editor bounds with padding
+                        // Calculate editor bounds with padding (grid-relative)
                         int padding = 2;
                         var editorRect = new Rectangle(
                             rect.X + padding,
@@ -286,6 +401,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         // Ensure minimum size
                         if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
                         if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
+                        
+                        // Convert to form-relative if editor is on form
+                        var parentForm = _grid.FindForm();
+                        if (parentForm != null && parentForm.Controls.Contains(_editorControl))
+                        {
+                            var formLocation = parentForm.PointToClient(_grid.PointToScreen(editorRect.Location));
+                            editorRect = new Rectangle(formLocation, editorRect.Size);
+                        }
                         
                         // Only update if position changed to avoid flicker
                         if (_editorControl.Bounds != editorRect)
@@ -315,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Check if cell is still visible
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        // Calculate editor bounds with padding
+                        // Calculate editor bounds with padding (grid-relative)
                         int padding = 2;
                         var editorRect = new Rectangle(
                             rect.X + padding,
@@ -327,6 +450,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         // Ensure minimum size
                         if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
                         if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
+                        
+                        // Convert to form-relative if editor is on form
+                        var parentForm = _grid.FindForm();
+                        if (parentForm != null && parentForm.Controls.Contains(_editorControl))
+                        {
+                            var formLocation = parentForm.PointToClient(_grid.PointToScreen(editorRect.Location));
+                            editorRect = new Rectangle(formLocation, editorRect.Size);
+                        }
                         
                         _editorControl.Bounds = editorRect;
                         _editorControl.BringToFront();
@@ -376,8 +507,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Resize -= OnGridMovedOrSized;
                 _grid.MouseWheel -= OnGridMouseWheel;
 
-                // Remove editor from grid and dispose
-                _grid.Controls.Remove(_editorControl);
+                // Remove editor from form, parent, or grid controls
+                var parentForm = _grid.FindForm();
+                if (parentForm != null && parentForm.Controls.Contains(_editorControl))
+                    parentForm.Controls.Remove(_editorControl);
+                else if (_grid.Parent != null && _grid.Parent.Controls.Contains(_editorControl))
+                    _grid.Parent.Controls.Remove(_editorControl);
+                else if (_grid.Controls.Contains(_editorControl))
+                    _grid.Controls.Remove(_editorControl);
+                
                 _editorControl.Visible = false;
 
                 // Dispose editor asynchronously to prevent blocking

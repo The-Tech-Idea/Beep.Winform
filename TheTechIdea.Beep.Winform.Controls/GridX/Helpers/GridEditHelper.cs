@@ -115,8 +115,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
            
             else if (_currenteditorUIcomponent is BeepTextBox st)
             {
-                st.ShowAllBorders = false;
-                st.IsFrameless = true;
+               // st.ShowAllBorders = false;
+               // st.IsFrameless = true;
                 st.GridMode = true;
                 st.BackColor = Color.White;
                 st.ForeColor = Color.Black;
@@ -423,7 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Create fresh instances like BeepSimpleGrid.CreateCellControlForEditing
             IBeepUIComponent editor = col.CellEditor switch
             {
-                BeepColumnType.Text => new BeepTextBox { IsChild = true, IsFrameless = true, ShowAllBorders = false, GridMode = true },
+                BeepColumnType.Text => new BeepTextBox { IsChild = true,  GridMode = true },
                 BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = true, GridMode = true },
                 BeepColumnType.CheckBoxChar => new BeepCheckBoxChar { IsChild = true, GridMode = true },
                 BeepColumnType.CheckBoxString => new BeepCheckBoxString { IsChild = true, GridMode = true },
@@ -436,7 +436,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 BeepColumnType.Radio => new BeepRadioGroup { IsChild = true, GridMode = true },
                 BeepColumnType.ListBox => new BeepListBox { IsChild = true, GridMode = false },
                 BeepColumnType.ListOfValue => new BeepListofValuesBox { IsChild = true, GridMode = false },
-                _ => new BeepTextBox { IsChild = true, IsFrameless = true, ShowAllBorders = false, GridMode = true },
+                _ => new BeepTextBox { IsChild = true, GridMode = true },
             };
 
             return editor;

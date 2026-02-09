@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // For other editable cells, show dialog editor
                 if (!cell.IsReadOnly && cell.IsEditable)
                 {
-                    _grid.Dialog.ShowEditorDialog(cell);
+                    _grid.Edit.BeginEdit();
                 }
             }
         }
@@ -484,7 +484,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Only start editing if the cell is editable and not a checkbox
                     if (!cell.IsReadOnly && cell.IsEditable && !col.IsSelectionCheckBox)
                     {
-                        _grid.Dialog.ShowEditorDialog(cell);
+                        _grid.Edit.BeginEdit();
                         e.Handled = true;
                         return;
                     }

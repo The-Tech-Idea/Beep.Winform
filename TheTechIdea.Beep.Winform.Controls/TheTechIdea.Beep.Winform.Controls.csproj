@@ -18,7 +18,7 @@
     <Product>TheTechIdea.Beep.Winform.Controls</Product>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
 	  <GenerateResourceWarnOnBinaryFormatterUse>false</GenerateResourceWarnOnBinaryFormatterUse>
-    <Version>1.0.184</Version>
+    <Version>1.0.185</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  
   </PropertyGroup>

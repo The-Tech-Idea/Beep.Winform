@@ -5,8 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
@@ -315,10 +317,161 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             return _themes.ToList(); // Return a copy to prevent external modification
         }
 
+        #region DPI Scaling Support
+
+        // Current DPI scale factor (1.0 = 96 DPI, 1.25 = 120 DPI, 1.5 = 144 DPI, etc.)
+        private static float _dpiScaleFactor = 1.0f;
+
+        /// <summary>
+        /// Gets or sets the current DPI scale factor used for font scaling.
+        /// Default is 1.0 (96 DPI). Set this when DPI changes or at application startup.
+        /// </summary>
+        public static float DpiScaleFactor
+        {
+            get => _dpiScaleFactor;
+            set
+            {
+                if (value > 0 && Math.Abs(_dpiScaleFactor - value) > 0.01f)
+                {
+                    _dpiScaleFactor = value;
+                    OnDpiScaleFactorChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether DPI scaling should be applied to fonts automatically.
+        /// Default is true.
+        /// </summary>
+        public static bool EnableDpiFontScaling { get; set; } = true;
+
+        /// <summary>
+        /// Updates the DPI scale factor from a Control's current DPI.
+        /// Call this when a form or control is created or when DPI changes.
+        /// </summary>
+        public static void UpdateDpiFromControl(Control control)
+        {
+            if (control == null) return;
+            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(control);
+        }
+
+        /// <summary>
+        /// Updates the DPI scale factor using the system-wide DPI.
+        /// Call this at application startup if no specific control is available.
+        /// </summary>
+        public static void UpdateDpiFromSystem()
+        {
+            DpiScaleFactor = DpiScalingHelper.GetSystemDpiScaleFactor();
+        }
+
+        /// <summary>
+        /// Called when DPI scale factor changes to notify consumers.
+        /// </summary>
+        private static void OnDpiScaleFactorChanged()
+        {
+            // Clear font cache since sizes have changed
+            BeepFontManager.ClearFontCache();
+            
+            // Raise theme changed event to trigger UI refresh with new font sizes
+            if (CurrentTheme != null)
+            {
+                ThemeChanged?.Invoke(null, new ThemeChangeEventArgs
+                {
+                    OldThemeName = _currentThemeName,
+                    NewThemeName = _currentThemeName,
+                    OldTheme = CurrentTheme,
+                    NewTheme = CurrentTheme
+                });
+            }
+        }
+
+        #endregion
+
         // Helper for font creation - uses BeepFontManager
         public static Font ToFont(TypographyStyle style)
         {
-            return BeepFontManager.ToFont(style);
+            return ToFont(style, EnableDpiFontScaling);
+        }
+
+        /// <summary>
+        /// Creates a Font from a TypographyStyle with optional DPI scaling.
+        /// </summary>
+        public static Font ToFont(TypographyStyle style, bool applyDpiScaling)
+        {
+            if (style == null) return BeepFontManager.DefaultFont;
+
+            float fontSize = style.FontSize;
+            
+            // Apply DPI scaling if enabled
+            if (applyDpiScaling && _dpiScaleFactor > 0 && Math.Abs(_dpiScaleFactor - 1.0f) > 0.01f)
+            {
+                fontSize = style.FontSize * _dpiScaleFactor;
+                // Ensure minimum readable font size
+                fontSize = Math.Max(fontSize, 6.0f);
+            }
+
+            string fontFamily = style.FontFamily;
+            if (!BeepFontManager.IsFontAvailable(fontFamily))
+                fontFamily = "Arial";
+
+            FontStyle fontStyle = style.FontStyle;
+            if (style.FontWeight >= FontWeight.Bold)
+                fontStyle |= FontStyle.Bold;
+            if (style.IsUnderlined)
+                fontStyle |= FontStyle.Underline;
+            if (style.IsStrikeout)
+                fontStyle |= FontStyle.Strikeout;
+
+            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle);
+        }
+
+        /// <summary>
+        /// Creates a DPI-scaled Font from a TypographyStyle for a specific control.
+        /// Uses the control's current DPI for scaling.
+        /// </summary>
+        public static Font ToFontForControl(TypographyStyle style, Control control)
+        {
+            if (style == null) return BeepFontManager.DefaultFont;
+            if (control == null) return ToFont(style, false);
+
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(control);
+            float fontSize = style.FontSize * dpiScale;
+            fontSize = Math.Max(fontSize, 6.0f);
+
+            string fontFamily = style.FontFamily;
+            if (!BeepFontManager.IsFontAvailable(fontFamily))
+                fontFamily = "Arial";
+
+            FontStyle fontStyle = style.FontStyle;
+            if (style.FontWeight >= FontWeight.Bold)
+                fontStyle |= FontStyle.Bold;
+            if (style.IsUnderlined)
+                fontStyle |= FontStyle.Underline;
+            if (style.IsStrikeout)
+                fontStyle |= FontStyle.Strikeout;
+
+            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle);
+        }
+
+        /// <summary>
+        /// Scales an existing Font based on the current DPI scale factor.
+        /// </summary>
+        public static Font ScaleFontForDpi(Font font)
+        {
+            if (font == null) return null;
+            if (!EnableDpiFontScaling || Math.Abs(_dpiScaleFactor - 1.0f) < 0.01f)
+                return font;
+
+            return DpiScalingHelper.ScaleFont(font, _dpiScaleFactor);
+        }
+
+        /// <summary>
+        /// Scales an existing Font for a specific control's DPI.
+        /// </summary>
+        public static Font ScaleFontForControl(Font font, Control control)
+        {
+            if (font == null || control == null) return font;
+            return DpiScalingHelper.ScaleFont(font, control);
         }
 
         // Create font from parameters - uses BeepFontManager
@@ -327,6 +480,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             // Check if font is available via BeepFontManager
             if (!BeepFontManager.IsFontAvailable(fontFamily))
                 fontFamily = "Arial";
+
+            // Apply DPI scaling if enabled
+            if (EnableDpiFontScaling && _dpiScaleFactor > 0 && Math.Abs(_dpiScaleFactor - 1.0f) > 0.01f)
+            {
+                fontSize = fontSize * _dpiScaleFactor;
+                fontSize = Math.Max(fontSize, 6.0f);
+            }
 
             return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle);
         }
@@ -340,6 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
                 serializer.Serialize(stream, theme);
             }
         }
+
 
         // Load theme from file
         public static IBeepTheme LoadTheme(string filePath)

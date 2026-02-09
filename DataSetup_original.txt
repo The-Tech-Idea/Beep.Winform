@@ -1,0 +1,120 @@
+        private void DataSetup()
+        {
+            try
+            {
+                //if (DesignMode)
+                //{
+                //    // Create minimal columns for design-time display
+                //    if (_columns == null || _columns.Count == 0)
+                //        EnsureDefaultColumns();
+                //    return;
+                //}
+
+                EntityStructure entity = null;
+                object resolvedData = null;
+
+                //MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}");
+
+                // Create default binding source if null
+                if (_bindingSource == null)
+                {
+                    _bindingSource = new BindingSource();
+                }
+
+                // Process datasource
+                if (_dataSource == null)
+                {
+                    // Create empty binding source and minimal structure
+                    finalData = _bindingSource;
+                }
+                else if (_dataSource is BindingSource bindingSrc)
+                {
+                    AssignBindingSource(bindingSrc);
+                    var ret = SetupBindingSource();
+                    resolvedData = ret.Item1;
+                    entity = ret.Item2;
+                    finalData = _bindingSource;
+                }
+                else if (_dataSource is Type typeDataSource)
+                {
+                    // Direct Type as data source - important for empty collections
+                    _entityType = typeDataSource;
+                    _bindingSource.DataSource = _dataSource;
+                    entity = EntityHelper.GetEntityStructureFromType(typeDataSource);
+                    finalData = _bindingSource;
+                    //MiscFunctions.SendLog($"DataSetup: DataSource is Type = {typeDataSource.FullName}, created entity structure");
+                }
+                else
+                {
+                    // Handle basic data types and wrap with binding source
+                    _bindingSource.DataSource = _dataSource;
+                    resolvedData = _dataSource;
+                    finalData = _bindingSource;
+
+                    // Try to determine _entityType from _dataSource even if empty
+                    if (_entityType == null && _dataSource != null)
+                    {
+                        Type dataSourceType = _dataSource.GetType();
+
+                        // Handle IList<T>, IEnumerable<T>, T[], etc.
+                        if (dataSourceType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(dataSourceType))
+                        {
+                            Type[] genericArgs = dataSourceType.GetGenericArguments();
+                            if (genericArgs.Length > 0)
+                            {
+                                _entityType = genericArgs[0];
+                                //MiscFunctions.SendLog($"Determined _entityType from datasource generic arguments: {_entityType.FullName}");
+                            }
+                        }
+                        else if (dataSourceType.IsArray)
+                        {
+                            _entityType = dataSourceType.GetElementType();
+                            //MiscFunctions.SendLog($"Determined _entityType from datasource array element type: {_entityType.FullName}");
+                        }
+                    }
+                }
+
+                // Ensure _columns is initialized
+                //_columns = new List<BeepColumnConfig>();
+
+                // Attempt to create entity structure if possible
+                if (entity == null && _entityType != null)
+                {
+                    entity = EntityHelper.GetEntityStructureFromType(_entityType);
+                    //MiscFunctions.SendLog($"Created entity structure from _entityType: {_entityType.FullName}");
+                }
+                else if (entity == null && resolvedData != null)
+                {
+                    entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
+                }
+
+                // Process entity and columns
+                if (entity != null)
+                {
+                    Entity = entity;
+                    if (!_columns.Any() || !columnssetupusingeditordontchange)
+                    {
+                        CreateColumnsForEntity();
+                    }
+                }
+                else if (_entityType != null)
+                {
+                    // Create columns directly from _entityType when entity is null
+                    //MiscFunctions.SendLog($"Creating columns from _entityType: {_entityType.FullName}");
+                    CreateColumnsFromType(_entityType);
+                }
+                else
+                {
+                    // Ensure we have at least default columns
+                    EnsureDefaultColumns();
+                }
+
+                //MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, _entityType = {_entityType?.FullName}, Columns Count = {_columns.Count}");
+            }
+            catch (Exception ex)
+            {
+                //MiscFunctions.SendLog($"Error in DataSetup: {ex.Message}");
+                EnsureDefaultColumns();
+            }
+        }
+

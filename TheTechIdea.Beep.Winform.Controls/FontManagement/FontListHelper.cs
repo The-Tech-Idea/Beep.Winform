@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 {
@@ -28,6 +29,79 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         // Tracks whether fonts were initialized to allow safe app-start calls
         private static bool _fontsLoaded = false;
         private static readonly object _initLock = new object();
+
+        #region DPI Scaling Support
+
+        // Current DPI scale factor (1.0 = 96 DPI)
+        private static float _dpiScaleFactor = 1.0f;
+
+        /// <summary>
+        /// Gets or sets whether DPI scaling should be applied to fonts automatically.
+        /// Default is false for backward compatibility. Set to true to enable DPI-aware font scaling.
+        /// </summary>
+        public static bool EnableDpiFontScaling { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the current DPI scale factor used for font scaling.
+        /// Default is 1.0 (96 DPI). Set this when DPI changes or at application startup.
+        /// </summary>
+        public static float DpiScaleFactor
+        {
+            get => _dpiScaleFactor;
+            set
+            {
+                if (value > 0 && Math.Abs(_dpiScaleFactor - value) > 0.01f)
+                {
+                    _dpiScaleFactor = value;
+                    // Clear cache when DPI changes since cached fonts have old sizes
+                    ClearFontCache();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the DPI scale factor from a Control's current DPI.
+        /// </summary>
+        public static void UpdateDpiFromControl(Control control)
+        {
+            if (control == null) return;
+            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(control);
+        }
+
+        /// <summary>
+        /// Updates the DPI scale factor using the system-wide DPI.
+        /// </summary>
+        public static void UpdateDpiFromSystem()
+        {
+            DpiScaleFactor = DpiScalingHelper.GetSystemDpiScaleFactor();
+        }
+
+        /// <summary>
+        /// Applies DPI scaling to a font size if DPI scaling is enabled.
+        /// </summary>
+        private static float ApplyDpiScaling(float size)
+        {
+            if (!EnableDpiFontScaling || Math.Abs(_dpiScaleFactor - 1.0f) < 0.01f)
+                return size;
+
+            float scaledSize = size * _dpiScaleFactor;
+            // Ensure minimum readable font size
+            return Math.Max(scaledSize, 6.0f);
+        }
+
+        /// <summary>
+        /// Applies DPI scaling to a font size using a specific scale factor.
+        /// </summary>
+        private static float ApplyDpiScaling(float size, float dpiScaleFactor)
+        {
+            if (Math.Abs(dpiScaleFactor - 1.0f) < 0.01f)
+                return size;
+
+            float scaledSize = size * dpiScaleFactor;
+            return Math.Max(scaledSize, 6.0f);
+        }
+
+        #endregion
 
         /// <summary>
         /// Ensures scanning is performed once even if callers forget to call EnsureFontsLoaded.
@@ -51,17 +125,47 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static Font GetCachedFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
-            string key = $"{fontName}|{size}|{(int)style}";
+            // Apply DPI scaling if enabled
+            float scaledSize = ApplyDpiScaling(size);
+            string key = $"{fontName}|{scaledSize}|{(int)style}";
             lock (fontCacheLock)
             {
                 if (fontCache.TryGetValue(key, out var cached))
                     return cached;
                 
-                var font = GetFont(fontName, size, style);
+                var font = GetFontInternal(fontName, scaledSize, style);
                 if (font != null)
                     fontCache[key] = font;
                 return font;
             }
+        }
+
+        /// <summary>
+        /// Gets a cached font with explicit DPI scale factor.
+        /// </summary>
+        public static Font GetCachedFont(string fontName, float size, float dpiScaleFactor, FontStyle style = FontStyle.Regular)
+        {
+            float scaledSize = ApplyDpiScaling(size, dpiScaleFactor);
+            string key = $"{fontName}|{scaledSize}|{(int)style}";
+            lock (fontCacheLock)
+            {
+                if (fontCache.TryGetValue(key, out var cached))
+                    return cached;
+                
+                var font = GetFontInternal(fontName, scaledSize, style);
+                if (font != null)
+                    fontCache[key] = font;
+                return font;
+            }
+        }
+
+        /// <summary>
+        /// Gets a cached font scaled for a specific control's DPI.
+        /// </summary>
+        public static Font GetCachedFontForControl(string fontName, float size, Control control, FontStyle style = FontStyle.Regular)
+        {
+            float dpiScale = control != null ? DpiScalingHelper.GetDpiScaleFactor(control) : 1.0f;
+            return GetCachedFont(fontName, size, dpiScale, style);
         }
 
         /// <summary>
@@ -516,11 +620,20 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
         }
         /// <summary>
-        /// Creates a Font from a TypographyStyle object with null handling
+        /// Creates a Font from a TypographyStyle object with null handling.
+        /// Applies DPI scaling if EnableDpiFontScaling is true.
         /// </summary>
         /// <param name="style">The TypographyStyle to convert to a Font</param>
         /// <returns>A Font object created from the Style, or a default font if Style is null</returns>
         public static Font CreateFontFromTypography(TypographyStyle style)
+        {
+            return CreateFontFromTypography(style, EnableDpiFontScaling);
+        }
+
+        /// <summary>
+        /// Creates a Font from a TypographyStyle object with explicit DPI scaling control.
+        /// </summary>
+        public static Font CreateFontFromTypography(TypographyStyle style, bool applyDpiScaling)
         {
             EnsureInitialized();
             if (style == null)
@@ -544,18 +657,80 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (style.FontWeight >= FontWeight.Bold)
                 fontStyle |= FontStyle.Bold;
 
-            // Get the font directly - GetFont handles all fallbacks internally
-            return GetFont(
+            float fontSize = style.FontSize;
+            if (applyDpiScaling)
+            {
+                fontSize = ApplyDpiScaling(fontSize);
+            }
+
+            // Get the font directly - GetFontInternal handles all fallbacks internally
+            return GetFontInternal(
                 style.FontFamily,
-                style.FontSize,
+                fontSize,
                 fontStyle
             );
         }
 
         /// <summary>
+        /// Creates a Font from a TypographyStyle scaled for a specific control's DPI.
+        /// </summary>
+        public static Font CreateFontFromTypographyForControl(TypographyStyle style, Control control)
+        {
+            EnsureInitialized();
+            if (style == null)
+            {
+                return GetFont("Segoe UI", 9.0f, FontStyle.Regular);
+            }
+
+            float dpiScale = control != null ? DpiScalingHelper.GetDpiScaleFactor(control) : 1.0f;
+
+            FontStyle fontStyle = style.FontStyle;
+            if (style.IsUnderlined)
+                fontStyle |= FontStyle.Underline;
+            if (style.IsStrikeout)
+                fontStyle |= FontStyle.Strikeout;
+            if (style.FontWeight >= FontWeight.Bold)
+                fontStyle |= FontStyle.Bold;
+
+            float fontSize = ApplyDpiScaling(style.FontSize, dpiScale);
+
+            return GetFontInternal(style.FontFamily, fontSize, fontStyle);
+        }
+
+        /// <summary>
         /// Gets a font by name with specified size and Style. Uses cache and robust matching.
+        /// Applies DPI scaling if EnableDpiFontScaling is true.
         /// </summary>
         public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
+        {
+            // Apply DPI scaling if enabled
+            float scaledSize = ApplyDpiScaling(size);
+            return GetFontInternal(fontName, scaledSize, style);
+        }
+
+        /// <summary>
+        /// Gets a font with explicit DPI scale factor.
+        /// </summary>
+        public static Font GetFont(string fontName, float size, float dpiScaleFactor, FontStyle style = FontStyle.Regular)
+        {
+            float scaledSize = ApplyDpiScaling(size, dpiScaleFactor);
+            return GetFontInternal(fontName, scaledSize, style);
+        }
+
+        /// <summary>
+        /// Gets a font scaled for a specific control's DPI.
+        /// </summary>
+        public static Font GetFontForControl(string fontName, float size, Control control, FontStyle style = FontStyle.Regular)
+        {
+            float dpiScale = control != null ? DpiScalingHelper.GetDpiScaleFactor(control) : 1.0f;
+            float scaledSize = ApplyDpiScaling(size, dpiScale);
+            return GetFontInternal(fontName, scaledSize, style);
+        }
+
+        /// <summary>
+        /// Internal method that gets a font without additional DPI scaling (size already scaled).
+        /// </summary>
+        private static Font GetFontInternal(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
             EnsureInitialized();
             if (string.IsNullOrWhiteSpace(fontName))
@@ -757,7 +932,8 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets a font by index with specified size and Style
+        /// Gets a font by index with specified size and Style.
+        /// Applies DPI scaling if EnableDpiFontScaling is true.
         /// </summary>
         public static Font GetFontByIndex(int index, float size, FontStyle style = FontStyle.Regular)
         {
@@ -766,6 +942,30 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
             var fontConfig = FontConfigurations[index];
             return GetFont(fontConfig.Name, size, style);
+        }
+
+        /// <summary>
+        /// Gets a font by index with explicit DPI scale factor.
+        /// </summary>
+        public static Font GetFontByIndex(int index, float size, float dpiScaleFactor, FontStyle style = FontStyle.Regular)
+        {
+            if (index < 0 || index >= FontConfigurations.Count)
+                return null;
+
+            var fontConfig = FontConfigurations[index];
+            return GetFont(fontConfig.Name, size, dpiScaleFactor, style);
+        }
+
+        /// <summary>
+        /// Gets a font by index scaled for a specific control's DPI.
+        /// </summary>
+        public static Font GetFontByIndexForControl(int index, float size, Control control, FontStyle style = FontStyle.Regular)
+        {
+            if (index < 0 || index >= FontConfigurations.Count)
+                return null;
+
+            var fontConfig = FontConfigurations[index];
+            return GetFontForControl(fontConfig.Name, size, control, style);
         }
 
         /// <summary>
@@ -807,7 +1007,8 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets a font with a fallback option if the primary font is not available
+        /// Gets a font with a fallback option if the primary font is not available.
+        /// Applies DPI scaling if EnableDpiFontScaling is true.
         /// </summary>
         public static Font GetFontWithFallback(string primaryFontName, string fallbackFontName, float size, FontStyle style = FontStyle.Regular)
         {
@@ -836,6 +1037,34 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             }
 
             // Return whatever GetFont gave us (it's guaranteed valid)
+            return primaryFont;
+        }
+
+        /// <summary>
+        /// Gets a font with a fallback option scaled for a specific control's DPI.
+        /// </summary>
+        public static Font GetFontWithFallbackForControl(string primaryFontName, string fallbackFontName, float size, Control control, FontStyle style = FontStyle.Regular)
+        {
+            EnsureInitialized();
+            
+            Font primaryFont = GetFontForControl(primaryFontName, size, control, style);
+            
+            if (primaryFont != null && 
+                NormalizeFontName(primaryFont.FontFamily.Name) == NormalizeFontName(primaryFontName))
+            {
+                return primaryFont;
+            }
+
+            if (!string.IsNullOrWhiteSpace(fallbackFontName) && 
+                !fallbackFontName.Equals(primaryFontName, StringComparison.OrdinalIgnoreCase))
+            {
+                Font fallbackFont = GetFontForControl(fallbackFontName, size, control, style);
+                if (fallbackFont != null)
+                {
+                    return fallbackFont;
+                }
+            }
+
             return primaryFont;
         }
 

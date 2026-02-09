@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar.Painters
                         ? (item == context.SelectedItem ? Color.Black : context.Theme.SideMenuForeColor)
                         : (item == context.SelectedItem ? Color.Black : Color.FromArgb(100, 100, 100));
 
-                    var font = BeepFontManager.GetCachedFont("Arial", 13f, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular);
+                    var font = BeepFontManager.GetCachedFont(context.Theme.SideMenuTextFont.FontFamily, context.Theme.SideMenuTextFont.FontSize, item == context.SelectedItem ? FontStyle.Bold : FontStyle.Regular);
                     using (var brush = new SolidBrush(textColor))
                     {
                         Rectangle textRect = new Rectangle(x, itemRect.Y, Math.Max(0, itemRect.Right - x - expandIconSize - 12), itemRect.Height);

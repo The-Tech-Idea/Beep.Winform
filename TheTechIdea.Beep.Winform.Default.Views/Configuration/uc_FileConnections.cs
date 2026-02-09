@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;

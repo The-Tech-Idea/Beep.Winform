@@ -48,6 +48,7 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Include="SimpleGrid\BeepSimpleGrid_bk.cs" />
 	</ItemGroup>
 
   
@@ -56,6 +57,7 @@
     <Compile Remove="BeepGlobalThemeManager.cs" />
     <Compile Remove="BeepTabs_old.cs" />
     <Compile Remove="Managers\BeepDataBlockManager.cs" />
+    <Compile Remove="SimpleGrid\BeepSimpleGrid_bk.cs" />
   </ItemGroup>
   
   <!-- Embed all font files from Fonts folder -->
@@ -197,6 +199,8 @@
     <Folder Include="Resources\" />
     <Folder Include="SideBar\Helpers\" />
     <Folder Include="SideBar\Painters\" />
+    <Folder Include="SimpleGrid\Helpers\" />
+    <Folder Include="SimpleGrid\Painters\" />
     <Folder Include="ToolTips\Helpers\" />
     <Folder Include="Widgets\Helpers\Painters\Finance\" />
     <Folder Include="Widgets\Helpers\Painters\Form\" />

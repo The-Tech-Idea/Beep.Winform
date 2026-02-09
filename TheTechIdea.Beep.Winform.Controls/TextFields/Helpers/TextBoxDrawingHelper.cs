@@ -387,6 +387,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Get the actual text rectangle considering image layout
             Rectangle actualTextRect = GetActualTextRect(g, textRect);
             
+            // Use the same TextFormatFlags as drawing to ensure consistent measurement
+            TextFormatFlags measureFlags = GetTextFormatFlags();
+            
             // Calculate selection rectangle
             string beforeSelection = text.Substring(0, Math.Min(selStart, text.Length));
             string selectedText = selLength > 0 && selStart < text.Length 
@@ -398,13 +401,10 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Size beforeSize = Size.Empty;
             if (!string.IsNullOrEmpty(beforeSelection))
             {
-                // Use TextUtils for cached measurement (TextFormatFlags handled by GetTextFormatFlags in TextRenderer if needed)
-                SizeF beforeSizeF = TextUtils.MeasureText(g, beforeSelection, font, actualTextRect.Width);
-                beforeSize = new Size((int)beforeSizeF.Width, (int)beforeSizeF.Height);
+                beforeSize = TextRenderer.MeasureText(g, beforeSelection, font, actualTextRect.Size, measureFlags);
             }
             
-            SizeF selectedSizeF = TextUtils.MeasureText(g, selectedText, font, actualTextRect.Width);
-            Size selectedSize = new Size((int)selectedSizeF.Width, (int)selectedSizeF.Height);
+            Size selectedSize = TextRenderer.MeasureText(g, selectedText, font, actualTextRect.Size, measureFlags);
             
             Rectangle selectionRect = new Rectangle(
                 actualTextRect.X + beforeSize.Width,
@@ -456,13 +456,15 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Get the actual text rectangle considering image layout
             Rectangle actualTextRect = GetActualTextRect(g, textRect);
             
+            // Use the same TextFormatFlags as drawing to ensure consistent measurement
+            TextFormatFlags measureFlags = GetTextFormatFlags();
+            
             // Determine left offset based on alignment
             int baseX = actualTextRect.X;
             Size fullTextSize = Size.Empty;
             if (!string.IsNullOrEmpty(text))
             {
-                SizeF fullTextSizeF = TextUtils.MeasureText(g, text, font);
-                fullTextSize = new Size((int)fullTextSizeF.Width, (int)fullTextSizeF.Height);
+                fullTextSize = TextRenderer.MeasureText(g, text, font, actualTextRect.Size, measureFlags);
                 if (_textBox.TextAlignment == HorizontalAlignment.Center)
                 {
                     baseX = actualTextRect.X + Math.Max(0, (actualTextRect.Width - fullTextSize.Width) / 2);
@@ -478,8 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             if (!string.IsNullOrEmpty(text) && caretPosition > 0)
             {
                 string textBeforeCaret = text.Substring(0, Math.Min(caretPosition, text.Length));
-                SizeF textSizeF = TextUtils.MeasureText(g, textBeforeCaret, font);
-                Size textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
+                Size textSize = TextRenderer.MeasureText(g, textBeforeCaret, font, actualTextRect.Size, measureFlags);
                 caretX = baseX + textSize.Width;
             }
             

@@ -25,8 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             grid.ClearHitList();
 
-            // Light gray background
-            using (var brush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.05f)))
+            // Background using theme color directly
+            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             );
             using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
             {
-                DrawCenteredText(g, $"of {total}", font, ControlPaint.Dark(theme.GridHeaderForeColor, 0.2f), totalRect);
+                DrawCenteredText(g, $"of {total}", font, theme.GridHeaderForeColor, totalRect);
             }
         }
 
@@ -131,8 +131,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 g.FillPath(brush, path);
             }
 
-            // Subtle border
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            // Subtle border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             using (var path = CreateRoundedRectangle(bounds, 8))
             {
                 g.DrawPath(pen, path);
@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Circular button
             Rectangle circleBounds = new Rectangle(bounds.X, bounds.Y, BUTTON_SIZE, BUTTON_SIZE);
             
-            Color bgColor = isAccent ? theme.AccentColor : ControlPaint.Light(theme.GridHeaderBackColor, 0.05f);
+            Color bgColor = isAccent ? theme.AccentColor : theme.GridHeaderBackColor;
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillEllipse(brush, circleBounds);

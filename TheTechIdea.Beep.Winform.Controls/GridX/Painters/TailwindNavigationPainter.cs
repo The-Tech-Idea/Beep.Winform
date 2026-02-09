@@ -25,14 +25,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             grid.ClearHitList();
 
-            // Flat light background
-            using (var brush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.05f)))
+            // Flat background using theme color directly
+            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
-            // Very subtle top border
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            // Subtle top border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawLine(pen, bounds.X, bounds.Y, bounds.Right, bounds.Y);
             }
@@ -88,8 +88,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 }
                 else
                 {
-                    // Transparent with border
-                    using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+                    // Transparent with border using theme border color
+                    using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
                     using (var path = CreateRoundedRectangle(pageRect, 6))
                     {
                         g.DrawPath(pen, path);
@@ -132,8 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
             else
             {
-                // Outline button
-                using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+                // Outline button using theme border color
+                using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
                 using (var path = CreateRoundedRectangle(bounds, 6))
                 {
                     g.DrawPath(pen, path);

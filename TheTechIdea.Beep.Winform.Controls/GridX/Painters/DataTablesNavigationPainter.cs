@@ -81,8 +81,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     g.FillRectangle(brush, pageRect);
                 }
 
-                // Border
-                using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+                // Border using theme border color
+                using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
                 {
                     g.DrawRectangle(pen, pageRect);
                 }
@@ -126,8 +126,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 }
             }
 
-            // Border
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            // Border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 if (roundLeft)
                 {

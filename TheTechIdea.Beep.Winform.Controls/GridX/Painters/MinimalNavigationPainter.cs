@@ -26,8 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Clear existing navigator hit tests
             grid.ClearHitList();
 
-            // Minimal background - transparent or very subtle using theme
-            using (var bgBrush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.02f)))
+            // Minimal background using theme color directly
+            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
             else if (state == NavigationButtonState.Disabled)
             {
-                textColor = ControlPaint.Dark(theme.GridHeaderForeColor, 0.5f);
+                textColor = Color.FromArgb(128, theme.GridHeaderForeColor);
             }
 
             // Simple text, no background

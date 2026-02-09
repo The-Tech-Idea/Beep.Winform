@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     public partial class BeepGridPro : BaseControl
     {
         // Data management fields
-        internal Type _entityType = typeof(object);
+        internal Type _entityType = null;
         internal List<object> _fullData = new List<object>(); // Full data set for paging/filter operations
         internal int _dataOffset = 0; // Paging offset
         private object _uow = null!;

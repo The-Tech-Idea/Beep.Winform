@@ -30,8 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 g.FillRectangle(brush, bounds);
             }
 
-            // Top border only
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            // Top border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawLine(pen, bounds.X, bounds.Y, bounds.Right, bounds.Y);
             }
@@ -71,8 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 g.FillPath(brush, path);
             }
 
-            // Border
-            Color borderColor = isPrimary ? theme.AccentColor : ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f);
+            // Border using theme colors
+            Color borderColor = isPrimary ? theme.AccentColor : theme.GridHeaderBorderColor;
             using (var pen = new Pen(borderColor, 1))
             using (var path = CreateRoundedRectangle(bounds, 2))
             {
@@ -121,8 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 }
                 else
                 {
-                    // Inactive page
-                    using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+                    // Inactive page border using theme border color
+                    using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
                     using (var path = CreateRoundedRectangle(pageRect, 2))
                     {
                         g.DrawPath(pen, path);
@@ -143,9 +143,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             string text = $"{current} / {total}";
             using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
-            using (var brush = new SolidBrush(ControlPaint.Dark(theme.GridHeaderForeColor, 0.3f)))
             {
-                DrawCenteredText(g, text, font, ControlPaint.Dark(theme.GridHeaderForeColor, 0.3f), bounds);
+                DrawCenteredText(g, text, font, theme.GridHeaderForeColor, bounds);
             }
         }
 

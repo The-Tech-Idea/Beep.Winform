@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (bounds.IsEmpty) return;
 
             Color backColor = theme.GridHeaderBackColor;
-            Color borderColor = ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f);
+            Color borderColor = theme.GridHeaderBorderColor;
             Color textColor = theme.AccentColor;
 
             if (state == NavigationButtonState.Hovered)
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
             else if (state == NavigationButtonState.Disabled)
             {
-                textColor = ControlPaint.Dark(theme.GridHeaderForeColor, 0.5f);
+                textColor = Color.FromArgb(128, theme.GridHeaderForeColor);
             }
 
             // Draw background with border
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             bool isActive, IBeepTheme theme)
         {
             Color backColor = isActive ? theme.AccentColor : theme.GridHeaderBackColor;
-            Color borderColor = ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f);
+            Color borderColor = theme.GridHeaderBorderColor;
             Color textColor = isActive ? theme.GridHeaderBackColor : theme.AccentColor;
 
             // Draw background with border
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             string text = $"Showing {current} to {Math.Min(current + 9, total)} of {total}";
             using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
-            using (var brush = new SolidBrush(ControlPaint.Dark(theme.GridHeaderForeColor, 0.3f)))
+            using (var brush = new SolidBrush(theme.GridHeaderForeColor))
             using (var format = new StringFormat
             {
                 Alignment = StringAlignment.Far,

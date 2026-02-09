@@ -25,14 +25,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Clear existing navigator hit tests
             grid.ClearHitList();
 
-            // Compact background using theme
-            using (var brush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.05f)))
+            // Compact background using theme color directly
+            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
-            // Thin border
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            // Thin border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
             }
@@ -63,14 +63,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             grid.AddHitArea(icon, bounds, null, action);
 
-            // Very subtle background using theme
-            using (var brush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.03f)))
+            // Button background using theme color directly
+            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
-            // Thin border
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.15f), 1))
+            // Thin border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawRectangle(pen, bounds);
             }

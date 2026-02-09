@@ -134,22 +134,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         /// <summary>
-        /// Paint header background with optional hover state
+        /// Paint header background with optional hover state - uses theme colors directly
         /// </summary>
         public virtual void PaintHeaderBackground(Graphics g, Rectangle rect, bool isHovered, IBeepTheme? theme)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
-            var backColor = theme?.GridHeaderBackColor ?? SystemColors.Control;
-            
-            if (isHovered)
-            {
-                backColor = Color.FromArgb(
-                    Math.Min(255, backColor.R + 15),
-                    Math.Min(255, backColor.G + 15),
-                    Math.Min(255, backColor.B + 15)
-                );
-            }
+            var backColor = isHovered 
+                ? (theme?.GridHeaderHoverBackColor ?? SystemColors.ControlLight)
+                : (theme?.GridHeaderBackColor ?? SystemColors.Control);
 
             using (var brush = new SolidBrush(backColor))
             {

@@ -507,13 +507,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw data rows
             try
             {
-            ///    Console.WriteLine("Drawing rows...");
                 DrawRows(g);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-           //     Console.WriteLine("Error drawing rows.");
-                // Silently handle row drawing errors to prevent crashes
+                System.Diagnostics.Debug.WriteLine($"GridRenderHelper.DrawRows error: {ex.Message}");
+                // Log the error but don't crash the control
             }
 
             // Draw navigator if enabled
@@ -799,8 +798,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var textColor = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
 
-            // Create font with bold support
-            var baseFont = BeepThemesManager.ToFont(_grid._currentTheme.GridHeaderFont) ?? SystemFonts.DefaultFont;
+            // Create font with bold support - safely resolve with fallback
+            var baseFont = GetSafeHeaderFont();
             var font = UseBoldHeaderText ?
                 new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Bold) :
                 baseFont;
@@ -1080,7 +1079,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             }
                             else if (st.Col.IsRowNumColumn)
                             {
-                                var font = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
+                                var font = GetSafeCellFont();
                                 TextRenderer.DrawText(g, cell.CellValue?.ToString() ?? string.Empty, font, rect, fore,
                                     TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                             }
@@ -1104,68 +1103,144 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             g.Restore(stickyState);
         }
 
+        // Cached fallback font for cell rendering - avoids repeated allocation
+        private static Font _cellFallbackFont;
+        private static Font CellFallbackFont => _cellFallbackFont ??= SystemFonts.DefaultFont;
+
+        /// <summary>
+        /// Safely resolves the grid cell font from the current theme with fallback.
+        /// </summary>
+        private Font GetSafeCellFont()
+        {
+            try
+            {
+                var theme = _grid?._currentTheme ?? BeepThemesManager.CurrentTheme;
+                if (theme?.GridCellFont != null)
+                {
+                    var font = BeepThemesManager.ToFont(theme.GridCellFont);
+                    if (font != null) return font;
+                }
+            }
+            catch { /* font creation failed - use fallback */ }
+            return CellFallbackFont;
+        }
+
+        /// <summary>
+        /// Safely resolves the grid header font from the current theme with fallback.
+        /// </summary>
+        private Font GetSafeHeaderFont()
+        {
+            try
+            {
+                var theme = _grid?._currentTheme ?? BeepThemesManager.CurrentTheme;
+                if (theme?.GridHeaderFont != null)
+                {
+                    var font = BeepThemesManager.ToFont(theme.GridHeaderFont);
+                    if (font != null) return font;
+                }
+            }
+            catch { /* font creation failed - use fallback */ }
+            return CellFallbackFont;
+        }
+
         private void DrawCellContent(Graphics g, BeepColumnConfig column, BeepCellConfig cell, Rectangle rect, Color foreColor, Color backColor)
         {
-            
             if (g == null || column == null || cell == null || rect.Width <= 0 || rect.Height <= 0)
                 return;
 
-            if (column.IsSelectionCheckBox)
+            try
             {
-                _rowCheck ??= new BeepCheckBoxBool { IsChild = true, GridMode = true, HideText = true, Theme = _grid.Theme };
-                _rowCheck.CurrentValue = (bool)(cell.CellValue ?? false);
-                _rowCheck.Draw(g, rect);
-                return;
-            }
-
-            var drawer = GetDrawerForColumn(column);
-            if (drawer == null)
-            {
-                string text = cell.CellValue?.ToString() ?? string.Empty;
-                if (!string.IsNullOrEmpty(text))
+                if (column.IsSelectionCheckBox)
                 {
-                    var font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme.GridCellFont);
-                    var textRect = new Rectangle(rect.X + 2, rect.Y + 1, Math.Max(1, rect.Width - 4), Math.Max(1, rect.Height - 2));
-                    var flags = GetTextFormatFlagsForAlignment(column.CellTextAlignment, true);
-                    TextRenderer.DrawText(g, text, font, textRect, foreColor, flags);
+                    _rowCheck ??= new BeepCheckBoxBool { IsChild = true, GridMode = true, HideText = true, Theme = _grid.Theme };
+                    _rowCheck.CurrentValue = (bool)(cell.CellValue ?? false);
+                    _rowCheck.Draw(g, rect);
+                    return;
                 }
-                return;
-            }
 
-            drawer.Theme = _grid.Theme;
-            Control control= drawer as Control;
-            control.BackColor = backColor;
-            control.ForeColor = foreColor;
-            control.Bounds = rect;
+                // Optimization: For simple text/numeric columns, use direct text rendering 
+                // instead of the heavy control drawer. This mimics BeepSimpleGrid behavior and avoids 
+                // issues where the control drawer might not be in a valid invalid state for painting.
+                if (column.CellEditor == BeepColumnType.Text || 
+                    column.CellEditor == BeepColumnType.Link || 
+                    column.CellEditor == BeepColumnType.NumericUpDown ||
+                    column.CellEditor == BeepColumnType.DateTime )
+                {
+                     DrawCellAsText(g, column, cell, rect, foreColor);
+                     return;
+                }
 
-            // Populate list-based controls BEFORE setting value, so they can resolve SelectedItem
-            if (drawer is BeepComboBox combo)
-            {
-                var items = GetFilteredItems(column, cell);
-                combo.ListItems = new BindingList<SimpleItem>(items);
-            }
-            else if (drawer is BeepListBox listBox)
-            {
-                var items = GetFilteredItems(column, cell);
-                listBox.ListItems = new BindingList<SimpleItem>(items);
-            }
-            else if (drawer is BeepListofValuesBox lov)
-            {
-                var items = GetFilteredItems(column, cell);
-                lov.ListItems = new List<SimpleItem>(items);
-            }
+                // For simple text display (Text columns and numeric display), use direct TextRenderer
+                // This is faster and more reliable than going through a full control drawer
+                var drawer = GetDrawerForColumn(column);
+                if (drawer == null)
+                {
+                    DrawCellAsText(g, column, cell, rect, foreColor);
+                    return;
+                }
 
-            if (drawer is IBeepUIComponent ic)
-            {
-                try { ic.SetValue(cell.CellValue); } catch { }
-            }
-            else if (drawer is IBeepUIComponent btn)
-            {
-                btn.Text = cell.CellValue?.ToString() ?? string.Empty;
-            }
+                // Try drawing with the control drawer
+                try
+                {
+                    drawer.Theme = _grid.Theme;
+                    Control control = drawer as Control;
+                    if (control != null)
+                    {
+                        control.BackColor = backColor;
+                        control.ForeColor = foreColor;
+                        control.Bounds = rect;
+                    }
 
-            // Draw via component to match BeepSimpleGrid look
-            drawer.Draw(g, rect);
+                    // Populate list-based controls BEFORE setting value, so they can resolve SelectedItem
+                    if (drawer is BeepComboBox combo)
+                    {
+                        var items = GetFilteredItems(column, cell);
+                        combo.ListItems = new BindingList<SimpleItem>(items);
+                    }
+                    else if (drawer is BeepListBox listBox)
+                    {
+                        var items = GetFilteredItems(column, cell);
+                        listBox.ListItems = new BindingList<SimpleItem>(items);
+                    }
+                    else if (drawer is BeepListofValuesBox lov)
+                    {
+                        var items = GetFilteredItems(column, cell);
+                        lov.ListItems = new List<SimpleItem>(items);
+                    }
+
+                    if (drawer is IBeepUIComponent ic)
+                    {
+                        try { ic.SetValue(cell.CellValue); } catch { }
+                    }
+
+                    // Draw via component to match BeepSimpleGrid look
+                    drawer.Draw(g, rect);
+                }
+                catch
+                {
+                    // If the control drawer fails, fall back to plain text rendering
+                    DrawCellAsText(g, column, cell, rect, foreColor);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Last resort: log and skip this cell rather than killing all rows
+                System.Diagnostics.Debug.WriteLine($"DrawCellContent error for column '{column.ColumnName}': {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Draws cell value as plain text using TextRenderer - the safest fallback rendering path.
+        /// </summary>
+        private void DrawCellAsText(Graphics g, BeepColumnConfig column, BeepCellConfig cell, Rectangle rect, Color foreColor)
+        {
+            string text = cell.CellValue?.ToString() ?? string.Empty;
+            if (string.IsNullOrEmpty(text)) return;
+
+            var font = GetSafeCellFont();
+            var textRect = new Rectangle(rect.X + 2, rect.Y + 1, Math.Max(1, rect.Width - 4), Math.Max(1, rect.Height - 2));
+            var flags = GetTextFormatFlagsForAlignment(column.CellTextAlignment, true);
+            TextRenderer.DrawText(g, text, font, textRect, foreColor, flags);
         }
 
         private List<SimpleItem> GetFilteredItems(BeepColumnConfig column, BeepCellConfig cell)

@@ -27,14 +27,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Clear existing navigator hit tests
             grid.ClearHitList();
 
-            // Draw background using theme
-            using (var bgBrush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.01f)))
+            // Draw background using theme color directly
+            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }
 
-            // Top border
-            using (var borderPen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            // Top border using theme border color
+            using (var borderPen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawLine(borderPen, bounds.Left, bounds.Top, bounds.Right, bounds.Top);
             }
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
             else if (state == NavigationButtonState.Disabled)
             {
-                textColor = ControlPaint.Dark(theme.GridHeaderForeColor, 0.5f);
+                textColor = Color.FromArgb(128, theme.GridHeaderForeColor);
             }
 
             // Draw background (no border)
@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             // Draw combo box background
             using (var brush = new SolidBrush(theme.GridHeaderBackColor))
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.15f), 1))
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.FillRectangle(brush, bounds);
                 g.DrawRectangle(pen, bounds);

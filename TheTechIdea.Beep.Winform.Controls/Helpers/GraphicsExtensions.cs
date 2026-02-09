@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// <summary>
     /// Extension methods for Graphics class to support Material Design drawing operations
     /// </summary>
-    public static class GraphicsExtensions
+    public static partial class GraphicsExtensions
     {
         public static GraphicsPath CreateRoundedRectanglePath(RectangleF rect, CornerRadius radius)
         {
@@ -2202,8 +2202,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Creates a shadow path offset from original
         /// </summary>
-        public static GraphicsPath CreateShadowPath(GraphicsPath path, float offsetX, float offsetY)
+        public static GraphicsPath CreateShadowPath(GraphicsPath source, float offsetX, float offsetY)
         {
+            return TranslatePath(source, offsetX, offsetY);
+        }
+
+        /// <summary>
+        /// Creates a shadow path from any GraphicsPath by offsetting and optionally blurring.
+        /// </summary>
+        public static GraphicsPath CreateShadowPath(GraphicsPath source, float offsetX, float offsetY, float blur)
+        {
+            var path = (GraphicsPath)source.Clone();
+            if (blur > 0)
+            {
+                using (var pen = new Pen(Color.Black, blur * 2))
+                {
+                    path.Widen(pen);
+                }
+            }
             return TranslatePath(path, offsetX, offsetY);
         }
 

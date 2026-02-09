@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Microsoft Fluent Design navigation with modern aesthetics
-    /// Features subtle shadows, acrylic-like effects, and reveal highlights
+    /// Microsoft Fluent Design navigation with modern aesthetics.
+    /// Uses theme colors directly — no ControlPaint.Dark/Light.
     /// </summary>
     public class FluentNavigationPainter : BaseNavigationPainter
     {
@@ -24,25 +24,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Clear existing navigator hit tests
             grid.ClearHitList();
 
-            // Draw acrylic-like background using theme
-            using (var bgBrush = new LinearGradientBrush(
-                bounds, 
-                ControlPaint.Light(theme.GridHeaderBackColor, 0.02f), 
-                ControlPaint.Dark(theme.GridHeaderBackColor, 0.02f), 
-                LinearGradientMode.Vertical))
+            // Draw flat background using theme color directly
+            using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }
 
-            // Subtle top and bottom borders
-            using (var topPen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.08f), 1))
-            using (var bottomPen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.12f), 1))
+            // Subtle top and bottom borders using theme border color
+            using (var borderPen = new Pen(theme.GridHeaderBorderColor, 1))
             {
-                g.DrawLine(topPen, bounds.Left, bounds.Top, bounds.Right, bounds.Top);
-                g.DrawLine(bottomPen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
+                g.DrawLine(borderPen, bounds.Left, bounds.Top, bounds.Right, bounds.Top);
+                g.DrawLine(borderPen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
             }
 
             var layout = CalculateLayout(bounds, grid.Data.Rows.Count, true);
@@ -87,34 +81,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (bounds.IsEmpty) return;
 
-            // Use theme-aware colors
-            Color backColor = ControlPaint.Light(theme.GridHeaderBackColor, 0.05f);
-            Color borderColor = ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f);
+            // Use theme colors directly for each state
+            Color backColor = theme.GridHeaderBackColor;
+            Color borderColor = theme.GridHeaderBorderColor;
             Color iconColor = theme.GridHeaderForeColor;
 
             if (state == NavigationButtonState.Hovered)
             {
                 backColor = theme.ButtonHoverBackColor;
-                borderColor = ControlPaint.Dark(theme.ButtonHoverBackColor, 0.15f);
-                
-                // Fluent reveal effect (subtle highlight)
-                using (var revealBrush = new LinearGradientBrush(
-                    bounds, 
-                    Color.FromArgb(20, ControlPaint.Light(theme.ButtonHoverBackColor, 1f)), 
-                    Color.FromArgb(0, ControlPaint.Light(theme.ButtonHoverBackColor, 1f)), 
-                    45f))
-                {
-                    g.FillRectangle(revealBrush, bounds);
-                }
+                borderColor = theme.GridHeaderHoverBorderColor;
             }
             else if (state == NavigationButtonState.Pressed)
             {
                 backColor = theme.ButtonSelectedBackColor;
-                borderColor = ControlPaint.Dark(theme.ButtonSelectedBackColor, 0.2f);
+                borderColor = theme.GridHeaderSelectedBorderColor;
             }
             else if (state == NavigationButtonState.Disabled)
             {
-                iconColor = ControlPaint.Dark(theme.GridHeaderForeColor, 0.5f);
+                iconColor = Color.FromArgb(128, theme.GridHeaderForeColor);
             }
 
             // Draw button with subtle shadow
@@ -155,13 +139,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (state == NavigationButtonState.Hovered)
             {
                 backColor = isPrimary 
-                    ? ControlPaint.Dark(theme.AccentColor, 0.1f)
+                    ? theme.ButtonHoverBackColor
                     : theme.ButtonHoverBackColor;
             }
             else if (state == NavigationButtonState.Pressed)
             {
                 backColor = isPrimary 
-                    ? ControlPaint.Dark(theme.AccentColor, 0.2f)
+                    ? theme.ButtonSelectedBackColor
                     : theme.ButtonSelectedBackColor;
             }
 
@@ -254,7 +238,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
         private string GetFluentIcon(NavigationButtonType buttonType)
         {
-            // Using Segoe MDL2 Assets icons (fallback to symbols)
             return buttonType switch
             {
                 NavigationButtonType.First => "⏮",

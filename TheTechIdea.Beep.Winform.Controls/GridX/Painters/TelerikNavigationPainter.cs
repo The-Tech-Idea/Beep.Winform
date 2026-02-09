@@ -6,7 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Telerik/Kendo UI inspired professional grid navigation
+    /// Telerik/Kendo UI inspired professional grid navigation.
+    /// Uses theme colors directly — no ControlPaint.Dark/Light.
     /// </summary>
     public class TelerikNavigationPainter : BaseNavigationPainter
     {
@@ -25,16 +26,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             grid.ClearHitList();
 
-            // Professional gradient background using theme
-            using (var brush = new LinearGradientBrush(bounds, 
-                ControlPaint.Light(theme.GridHeaderBackColor, 0.02f), 
-                ControlPaint.Dark(theme.GridHeaderBackColor, 0.05f), 90f))
+            // Professional background using theme color directly
+            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
-            // Border
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.15f), 1))
+            // Border using theme border color
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
             }
@@ -63,23 +62,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             grid.AddHitArea(icon, bounds, null, action);
 
-            // Gradient button background using theme
-            Color color1 = isPrimary ? ControlPaint.Light(theme.AccentColor, 0.3f) : theme.GridHeaderBackColor;
-            Color color2 = isPrimary ? ControlPaint.Dark(theme.AccentColor, 0.1f) : ControlPaint.Dark(theme.GridHeaderBackColor, 0.05f);
-            
-            using (var brush = new LinearGradientBrush(bounds, color1, color2, 90f))
+            // Button background using theme colors directly
+            Color bgColor = isPrimary ? theme.AccentColor : theme.GridHeaderBackColor;
+            using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
-            // Border
-            Color borderColor = isPrimary ? theme.AccentColor : ControlPaint.Dark(theme.GridHeaderBackColor, 0.15f);
+            // Border using theme colors
+            Color borderColor = isPrimary ? theme.AccentColor : theme.GridHeaderBorderColor;
             using (var pen = new Pen(borderColor, 1))
             {
                 g.DrawRectangle(pen, bounds);
             }
 
-            // Subtle inner highlight
+            // Subtle inner highlight (using semi-transparent white — not ControlPaint)
             Rectangle highlightRect = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height / 2);
             using (var brush = new LinearGradientBrush(highlightRect, 
                 Color.FromArgb(40, Color.White), Color.FromArgb(0, Color.White), 90f))
@@ -87,10 +84,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 g.FillRectangle(brush, highlightRect);
             }
 
-            // Icon
+            // Icon using theme colors
+            Color iconColor = isPrimary ? theme.GridHeaderBackColor : theme.GridHeaderForeColor;
             using (var font = new Font("Segoe UI", 11, FontStyle.Regular))
             {
-                Color iconColor = isPrimary ? theme.AccentColor : theme.GridHeaderForeColor;
                 DrawCenteredText(g, icon, font, iconColor, bounds);
             }
         }
@@ -99,13 +96,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (bounds.IsEmpty || grid?.Data?.Rows == null) return;
 
-            // Professional info display with subtle background
-            using (var brush = new SolidBrush(ControlPaint.Light(theme.GridHeaderBackColor, 0.02f)))
+            // Professional info display using theme color directly
+            using (var brush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, bounds);
             }
 
-            using (var pen = new Pen(ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f), 1))
+            using (var pen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawRectangle(pen, bounds);
             }
@@ -116,10 +113,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             int current = grid.Selection.RowIndex + 1;
             int total = grid.Data.Rows.Count;
             
-            // Show both page and record info in one line (no overlap)
+            // Show both page and record info in one line
             string text = $"Page {currentPage} of {totalPages}  •  {current} / {total} records";
             using (var font = new Font("Segoe UI", 8.5f, FontStyle.Regular))
-            using (var brush = new SolidBrush(theme.GridHeaderForeColor))
             {
                 DrawCenteredText(g, text, font, theme.GridHeaderForeColor, bounds);
             }

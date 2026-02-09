@@ -185,13 +185,37 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             else
             {
-                // Use entity type if available, otherwise try reflection on first item
+                // Determine the item type: use entity type if set and meaningful,
+                // otherwise try the generic type argument, otherwise reflect on first item
                 Type itemType = _grid.EntityType;
-                if (itemType != null)
+
+                // typeof(object) is the same as "not set" — has no useful properties
+                if (itemType == null || itemType == typeof(object))
                 {
-                    // Use the known entity type for better column generation
+                    // Try to detect from generic collection type
+                    itemType = GetEnumerableItemType(enumerable);
+                }
+
+                // If still not useful, try reflection on the first item
+                if (itemType == null || itemType == typeof(object))
+                {
+                    var first = enumerable.Cast<object?>().FirstOrDefault();
+                    if (first != null)
+                    {
+                        itemType = first.GetType();
+                        _grid.SetEntityType(itemType);
+                    }
+                }
+
+                if (itemType != null && itemType != typeof(object))
+                {
+                    // Update the grid's entity type for future use
+                    _grid.SetEntityType(itemType);
+
+                    // Generate columns from the item type's properties
                     foreach (var prop in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
+                        if (prop.GetIndexParameters().Length > 0) continue;
                         if (IsSystemColumn(prop.Name)) continue;
 
                         var bCol = new BeepColumnConfig
@@ -209,34 +233,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         };
                         bCol.Index = Columns.Count;
                         Columns.Add(bCol);
-                    }
-                }
-                else
-                {
-                    // Fallback: Try reflection on first item
-                    var first = enumerable.Cast<object?>().FirstOrDefault();
-                    if (first != null)
-                    {
-                        foreach (var prop in first.GetType().GetProperties())
-                        {
-                            if (IsSystemColumn(prop.Name)) continue;
-
-                            var bCol = new BeepColumnConfig
-                            {
-                                ColumnName = prop.Name,
-                                ColumnCaption = prop.Name,
-                                PropertyTypeName = prop.PropertyType.AssemblyQualifiedName,
-                                Width = 100,
-                                ColumnType = MapDbType(prop.PropertyType),
-                                CellEditor = MapColumnType(prop.PropertyType),
-                                Visible = true,
-                                Resizable = DataGridViewTriState.True,
-                                SortMode = DataGridViewColumnSortMode.Automatic,
-                                AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                            };
-                            bCol.Index = Columns.Count;
-                            Columns.Add(bCol);
-                        }
                     }
                 }
             }
@@ -447,11 +443,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (resolved is IEnumerable en)
             {
-                // Try to determine entity type from the enumerable
-                if (_grid.EntityType == null && en.GetType().IsGenericType)
+                // Try to determine entity type from the enumerable if not already set
+                if ((_grid.EntityType == null || _grid.EntityType == typeof(object)) && en.GetType().IsGenericType)
                 {
                     var genericArgs = en.GetType().GetGenericArguments();
-                    if (genericArgs.Length > 0)
+                    if (genericArgs.Length > 0 && genericArgs[0] != typeof(object))
                     {
                         _grid.SetEntityType(genericArgs[0]);
                     }
@@ -460,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Single object - set entity type if not already set
-            if (_grid.EntityType == null && resolved != null)
+            if ((_grid.EntityType == null || _grid.EntityType == typeof(object)) && resolved != null)
             {
                 _grid.SetEntityType(resolved.GetType());
             }
@@ -720,7 +716,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (item == null) continue;
 
                 // Set _entityType based on the first valid item
-                if (isFirstItem && _grid._entityType == null)
+                if (isFirstItem && (_grid._entityType == null || _grid._entityType == typeof(object)))
                 {
                     _grid._entityType = item.GetType();
                     isFirstItem = false;

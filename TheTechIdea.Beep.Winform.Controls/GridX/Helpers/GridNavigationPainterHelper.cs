@@ -90,6 +90,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             try
             {
+                // Validate dimensions - GDI+ throws "Parameter is not valid" for invalid rects
+                if (navRect.Width <= 0 || navRect.Height <= 0)
+                    return;
+
                 // Handle None Style - paint blank background only
                 if (_navigationStyle == navigationStyle.None)
                 {
@@ -122,24 +126,53 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     return;
                 }
 
-                // Delegate to painter with guaranteed theme
+                // Validate theme colors before passing to painter
                 IBeepTheme theme = _grid._currentTheme;
+                if (theme == null)
+                {
+                    DrawSimpleFallbackNavigation(g, navRect);
+                    return;
+                }
+
+                // Delegate to painter with guaranteed theme
                 _currentPainter.PaintNavigation(g, navRect, _grid, theme);
             }
             catch (Exception ex)
             {
-                // Silently handle navigation drawing errors
-                // Paint error indicator
-                using (var brush = new SolidBrush(Color.Orange))
+                // Log full details for debugging
+                System.Diagnostics.Debug.WriteLine($"[BeepGridPro Nav Error] {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[BeepGridPro Nav Stack] {ex.StackTrace}");
+
+                // Fall back to simple text-based navigation (no GDI+ tricks)
+                try
                 {
-                    g.FillRectangle(brush, navRect);
+                    DrawSimpleFallbackNavigation(g, navRect);
                 }
-                using (var font = new Font("Arial", 8))
-                using (var textBrush = new SolidBrush(Color.Black))
+                catch
                 {
-                    g.DrawString($"Error: {ex.Message}", font, textBrush, navRect);
+                    // Last resort - ignore silently
                 }
             }
+        }
+
+        /// <summary>
+        /// Simple fallback navigation when the painter throws an exception.
+        /// Uses only the safest GDI+ calls to render a basic nav bar.
+        /// </summary>
+        private void DrawSimpleFallbackNavigation(Graphics g, Rectangle navRect)
+        {
+            // Background
+            g.FillRectangle(SystemBrushes.Control, navRect);
+
+            // Simple position text
+            int rowIndex = 0;
+            int rowCount = 0;
+            try { rowIndex = _grid.Selection?.RowIndex ?? 0; } catch { }
+            try { rowCount = _grid.Data?.Rows?.Count ?? 0; } catch { }
+
+            string info = $"Record {rowIndex + 1} of {rowCount}";
+            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            g.DrawString(info, SystemFonts.DefaultFont, SystemBrushes.ControlText, navRect, sf);
         }
 
         /// <summary>
@@ -305,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             string recordCounter = (_grid.Rows.Count > 0 && _grid.Selection?.RowIndex >= 0)
                 ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
                 : "0 - 0";
-            var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
+            var headerFont = GetSafeFont(_grid._currentTheme?.GridCellFont);
             SizeF textSizeF = TextUtils.MeasureText(recordCounter, headerFont);
             Size textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
@@ -365,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             string recordCounter = (_grid.Rows.Count > 0 && _grid.Selection?.RowIndex >= 0)
                 ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
                 : "0 - 0";
-            var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
+            var headerFont = GetSafeFont(_grid._currentTheme?.GridCellFont);
             SizeF textSizeF = TextUtils.MeasureText(recordCounter, headerFont);
             Size textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
@@ -476,6 +509,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_btnPrev != null) _btnPrev.Enabled = enable;
             if (_btnNext != null) _btnNext.Enabled = enable;
             if (_btnLast != null) _btnLast.Enabled = enable;
+        }
+
+        /// <summary>
+        /// Safely resolves a font from a TypographyStyle with fallback to SystemFonts.DefaultFont.
+        /// Prevents NullReferenceException if theme or font style is null.
+        /// </summary>
+        private static Font GetSafeFont(TypographyStyle? style)
+        {
+            try
+            {
+                if (style != null)
+                {
+                    var font = BeepThemesManager.ToFont(style);
+                    if (font != null) return font;
+                }
+            }
+            catch { /* font creation failed */ }
+            return SystemFonts.DefaultFont;
         }
     }
 }

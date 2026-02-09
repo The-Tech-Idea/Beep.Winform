@@ -127,27 +127,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         /// <summary>
-        /// Get button color based on state
+        /// Get button color based on state - uses theme colors directly, no ControlPaint
         /// </summary>
         protected Color GetButtonColor(NavigationButtonState state, IBeepTheme theme)
         {
             return state switch
             {
-                NavigationButtonState.Pressed => ControlPaint.Dark(theme.ButtonBackColor, 0.2f),
-                NavigationButtonState.Hovered => ControlPaint.Light(theme.ButtonBackColor, 0.1f),
-                NavigationButtonState.Disabled => Color.FromArgb(230, 230, 230),
+                NavigationButtonState.Pressed => theme.ButtonSelectedBackColor,
+                NavigationButtonState.Hovered => theme.ButtonHoverBackColor,
+                NavigationButtonState.Disabled => theme.GridHeaderBackColor,
                 _ => theme.ButtonBackColor
             };
         }
 
         /// <summary>
-        /// Get text color based on state
+        /// Get text color based on state - uses theme colors directly, no ControlPaint
         /// </summary>
         protected Color GetTextColor(NavigationButtonState state, IBeepTheme theme)
         {
             return state switch
             {
-                NavigationButtonState.Disabled => Color.FromArgb(150, 150, 150),
+                NavigationButtonState.Disabled => Color.FromArgb(128, theme.ButtonForeColor),
                 _ => theme.ButtonForeColor
             };
         }

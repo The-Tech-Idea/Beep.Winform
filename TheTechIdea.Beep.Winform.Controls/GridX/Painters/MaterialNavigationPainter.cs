@@ -1,12 +1,14 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Material Design inspired navigation painter with flat design and accent colors
+    /// Material Design inspired navigation painter with flat design and accent colors.
+    /// Uses theme colors directly — no ControlPaint.Dark/Light.
     /// </summary>
     public class MaterialNavigationPainter : BaseNavigationPainter
     {
@@ -19,23 +21,45 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         private const int SPACING = 8;
         private const int RIPPLE_RADIUS = 20;
 
+        // Cached fonts to avoid allocations in paint
+        private static Font _iconFont;
+        private static Font _textFont;
+        private static Font IconFont => _iconFont ??= SafeCreateFont("Segoe UI Symbol", 14f, FontStyle.Regular);
+        private static Font TextFont => _textFont ??= SafeCreateFont("Segoe UI", 9f, FontStyle.Regular);
+
+        private static Font SafeCreateFont(string familyName, float size, FontStyle style)
+        {
+            try
+            {
+                var font = BeepFontManager.GetCachedFont(familyName, size, style);
+                if (font != null) return font;
+            }
+            catch { /* ignore */ }
+
+            try { return new Font(familyName, size, style); } catch { }
+            try { return new Font("Segoe UI", size, style); } catch { }
+            try { return new Font(FontFamily.GenericSansSerif, size, style); } catch { }
+            try { return new Font("Arial", size, style); } catch { }
+            return SystemFonts.DefaultFont;
+        }
+
         public override void PaintNavigation(Graphics g, Rectangle bounds, BeepGridPro grid, IBeepTheme theme)
         {
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Clear existing navigator hit tests
             grid.ClearHitList();
 
-            // Draw background using theme color
+            // Draw background using theme color directly
             using (var bgBrush = new SolidBrush(theme.GridHeaderBackColor))
             {
                 g.FillRectangle(bgBrush, bounds);
             }
 
-            // Draw bottom border with theme-aware color
-            Color borderColor = ControlPaint.Dark(theme.GridHeaderBackColor, 0.1f);
-            using (var borderPen = new Pen(borderColor, 1))
+            // Draw bottom border using theme border color
+            using (var borderPen = new Pen(theme.GridHeaderBorderColor, 1))
             {
                 g.DrawLine(borderPen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
             }
@@ -53,8 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 "Last", () => grid.MoveLast(), theme);
 
             // Paint position indicator (center)
-            PaintPositionIndicator(g, layout.PositionIndicatorRect, 
-                grid.Selection.RowIndex + 1, grid.Data.Rows.Count, theme);
+            int rowIndex = grid.Selection?.RowIndex ?? 0;
+            int rowCount = grid.Data?.Rows?.Count ?? 0;
+            PaintPositionIndicator(g, layout.PositionIndicatorRect, rowIndex + 1, rowCount, theme);
 
             // Paint CRUD buttons (right side) with hit areas
             PaintButtonWithHitArea(g, grid, layout.AddNewButtonRect, NavigationButtonType.AddNew, 
@@ -70,45 +95,44 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (bounds.IsEmpty) return;
 
-            // Register hit area for click handling
             grid.AddHitArea(hitAreaName, bounds, null, action);
-
-            // Paint the button
             PaintButton(g, bounds, buttonType, NavigationButtonState.Normal, null, theme);
         }
 
         public override void PaintButton(Graphics g, Rectangle bounds, NavigationButtonType buttonType, 
             NavigationButtonState state, IBeepUIComponent component, IBeepTheme theme)
         {
-            if (bounds.IsEmpty) return;
+            if (bounds.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Use theme-aware colors
-            Color iconColor = state == NavigationButtonState.Disabled 
-                ? ControlPaint.Dark(theme.GridHeaderForeColor, 0.5f)
-                : theme.GridHeaderForeColor;
+            // Use theme colors directly for each state
+            Color iconColor = theme.GridHeaderForeColor;
 
-            if (state == NavigationButtonState.Hovered)
+            if (state == NavigationButtonState.Disabled)
             {
-                // Draw circular hover effect
-                Color hoverColor = ControlPaint.Light(theme.ButtonHoverBackColor, 0.3f);
-                using (var hoverBrush = new SolidBrush(Color.FromArgb(30, hoverColor)))
+                iconColor = Color.FromArgb(128, theme.GridHeaderForeColor);
+            }
+            else if (state == NavigationButtonState.Hovered)
+            {
+                // Draw circular hover effect using theme hover color
+                using (var hoverBrush = new SolidBrush(Color.FromArgb(30, theme.GridHeaderHoverBackColor)))
                 {
                     g.FillEllipse(hoverBrush, bounds);
                 }
             }
             else if (state == NavigationButtonState.Pressed)
             {
-                // Draw circular pressed effect
-                Color pressColor = theme.ButtonSelectedBackColor;
-                using (var pressBrush = new SolidBrush(Color.FromArgb(50, pressColor)))
+                // Draw circular pressed effect using theme selected color
+                using (var pressBrush = new SolidBrush(Color.FromArgb(50, theme.GridHeaderSelectedBackColor)))
                 {
                     g.FillEllipse(pressBrush, bounds);
                 }
             }
 
-            // Draw icon
+            // Draw icon using cached font
             string icon = GetMaterialIcon(buttonType);
-            using (var font = new Font("Segoe UI", 16, FontStyle.Regular))
+            var font = IconFont;
+            if (font == null) return;
+
             using (var brush = new SolidBrush(iconColor))
             using (var format = new StringFormat
             {
@@ -123,10 +147,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override void PaintPositionIndicator(Graphics g, Rectangle bounds, int currentPosition, 
             int totalRecords, IBeepTheme theme)
         {
-            if (bounds.IsEmpty) return;
+            if (bounds.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             string text = $"{currentPosition} of {totalRecords}";
-            using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
+            var font = TextFont;
+            if (font == null) return;
+
             using (var brush = new SolidBrush(theme.GridHeaderForeColor))
             using (var format = new StringFormat
             {
@@ -189,10 +215,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             return buttonType switch
             {
-                NavigationButtonType.First => "⏮",
+                NavigationButtonType.First => "|◀",
                 NavigationButtonType.Previous => "◀",
                 NavigationButtonType.Next => "▶",
-                NavigationButtonType.Last => "⏭",
+                NavigationButtonType.Last => "▶|",
                 NavigationButtonType.AddNew => "+",
                 NavigationButtonType.Delete => "✕",
                 NavigationButtonType.Save => "✓",

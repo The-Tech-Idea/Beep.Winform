@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
@@ -47,12 +47,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 .Cast<AuthTypeEnum>()
                 .Select(a => new Winform.Controls.Models.SimpleItem { Text = a.ToString(), Value = a })
                 .ToBindingList();
+            OAuth_AuthTypebeepComboBox.DataBindings.Add(new Binding("SelectedValue", conn, nameof(conn.AuthType), true, DataSourceUpdateMode.OnPropertyChanged));
             OAuth_AuthTypebeepComboBox.SetValue(conn.AuthType);
-            OAuth_AuthTypebeepComboBox.SelectedItemChanged += (s, e) =>
-            {
-                if (e.SelectedItem is Winform.Controls.Models.SimpleItem item)
-                    conn.AuthType = (AuthTypeEnum)item.Value;
-            };
 
             // Bindings for OAuth properties
             OAuth_ClientIdbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.ClientId), true, DataSourceUpdateMode.OnPropertyChanged));

@@ -108,10 +108,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     errors.Ex = result.Ex;
                     
                     // Update item error state
-                    if (_items.ContainsKey(fieldName))
+                    if (TryResolveItem(fieldName, out var resolvedItem, out _))
                     {
-                        _items[fieldName].HasError = true;
-                        _items[fieldName].ErrorMessage = result.Message;
+                        resolvedItem.HasError = true;
+                        resolvedItem.ErrorMessage = result.Message;
                     }
                     
                     return errors;  // Stop on first error
@@ -119,10 +119,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
             // Clear error state if validation passed
-            if (_items.ContainsKey(fieldName))
+            if (TryResolveItem(fieldName, out var clearedItem, out _))
             {
-                _items[fieldName].HasError = false;
-                _items[fieldName].ErrorMessage = null;
+                clearedItem.HasError = false;
+                clearedItem.ErrorMessage = null;
             }
             
             return errors;

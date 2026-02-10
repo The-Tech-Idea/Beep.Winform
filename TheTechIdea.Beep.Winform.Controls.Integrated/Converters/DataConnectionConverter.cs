@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
         {
             if (context?.Instance is BeepDataConnection dataConnection)
             {
-                var connections = dataConnection.BeepService?.Config_editor?.DataConnections ?? new List<ConnectionProperties>();
+                var connections = GetAvailableConnections(dataConnection);
                 return new StandardValuesCollection(connections);
             }
             return new StandardValuesCollection(new List<ConnectionProperties>());
@@ -37,7 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
         {
             if (value is string stringValue && context?.Instance is BeepDataConnection dataConnection)
             {
-                return dataConnection.BeepService?.Config_editor?.DataConnections.FirstOrDefault(c => c.ConnectionName == stringValue);
+                return GetAvailableConnections(dataConnection)
+                    .FirstOrDefault(c => string.Equals(c.ConnectionName, stringValue, StringComparison.OrdinalIgnoreCase));
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -56,6 +57,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
+        }
+
+        private static List<ConnectionProperties> GetAvailableConnections(BeepDataConnection dataConnection)
+        {
+            var serviceConnections = dataConnection.BeepService?.Config_editor?.DataConnections;
+            if (serviceConnections != null && serviceConnections.Any())
+            {
+                return serviceConnections;
+            }
+
+            return dataConnection.DataConnections ?? new List<ConnectionProperties>();
         }
     }
 }

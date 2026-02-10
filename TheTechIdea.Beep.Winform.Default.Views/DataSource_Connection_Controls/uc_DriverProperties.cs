@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 
@@ -8,10 +9,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     /// <summary>
     /// Tab control for Driver region of IConnectionProperties
-    /// Properties: DriverName, DriverVersion, Parameters (displayed from ParameterList)
+    /// Properties: DriverName, DriverVersion.
+    /// Extra provider-specific values are edited through ParameterList (non-typed keys only).
     /// </summary>
     public partial class uc_DriverProperties : uc_DataConnectionPropertiesBaseControl
     {
+        private static readonly HashSet<string> StronglyTypedPropertyNames =
+            new HashSet<string>(
+                typeof(ConnectionProperties)
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0)
+                    .Select(p => p.Name),
+                StringComparer.OrdinalIgnoreCase);
+
+        private bool _updatingExtrasText;
+
         public uc_DriverProperties()
         {
             InitializeComponent();
@@ -31,84 +43,92 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             // Bindings for Driver region
             Driver_DriverNamebeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.DriverName), true, DataSourceUpdateMode.OnPropertyChanged));
             Driver_DriverVersionbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.DriverVersion), true, DataSourceUpdateMode.OnPropertyChanged));
-            
-            // Parameters textbox displays a formatted summary of ParameterList
-            // Format: key1=value1;key2=value2;...
-            UpdateParametersDisplay();
-            
-            // Handle text changed to update ParameterList
+            EnsureParameterList(conn);
+            RemoveTypedKeysFromParameterList(conn.ParameterList);
+            RefreshExtrasDisplay(conn);
+
             Driver_ParametersbeepTextBox.TextChanged -= Driver_ParametersbeepTextBox_TextChanged;
             Driver_ParametersbeepTextBox.TextChanged += Driver_ParametersbeepTextBox_TextChanged;
         }
-        
-        /// <summary>
-        /// Update the Parameters textbox to display a formatted summary of ParameterList
-        /// </summary>
-        private void UpdateParametersDisplay()
-        {
-            if (ConnectionProperties == null || ConnectionProperties.ParameterList == null)
-            {
-                Driver_ParametersbeepTextBox.Text = string.Empty;
-                return;
-            }
-            
-            // Format ParameterList as key=value pairs separated by semicolons
-            var formattedParams = string.Join("; ", 
-                ConnectionProperties.ParameterList
-                    .Where(kvp => !string.IsNullOrEmpty(kvp.Key))
-                    .Select(kvp => $"{kvp.Key}={kvp.Value}"));
-            
-            Driver_ParametersbeepTextBox.Text = formattedParams;
-        }
-        
-        /// <summary>
-        /// Handle text changed event to parse and update ParameterList
-        /// </summary>
+
         private void Driver_ParametersbeepTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (ConnectionProperties == null || ConnectionProperties.ParameterList == null) return;
-            
-            try
+            if (_updatingExtrasText || ConnectionProperties == null)
             {
-                // Parse the formatted string back into ParameterList
-                // Format: key1=value1;key2=value2;...
-                var text = Driver_ParametersbeepTextBox.Text;
-                if (string.IsNullOrWhiteSpace(text))
-                {
-                    ConnectionProperties.ParameterList.Clear();
-                    return;
-                }
-                
-                // Split by semicolon and parse each key=value pair
-                var pairs = text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                var tempParams = new Dictionary<string, string>();
-                
-                foreach (var pair in pairs)
-                {
-                    var parts = pair.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 2)
-                    {
-                        var key = parts[0].Trim();
-                        var value = parts[1].Trim();
-                        if (!string.IsNullOrEmpty(key))
-                        {
-                            tempParams[key] = value;
-                        }
-                    }
-                }
-                
-                // Update ParameterList with parsed values
-                ConnectionProperties.ParameterList.Clear();
-                foreach (var kvp in tempParams)
-                {
-                    ConnectionProperties.ParameterList[kvp.Key] = kvp.Value;
-                }
+                return;
             }
-            catch (Exception ex)
+
+            EnsureParameterList(ConnectionProperties);
+            RemoveTypedKeysFromParameterList(ConnectionProperties.ParameterList);
+
+            var parsedExtras = ParseExtras(Driver_ParametersbeepTextBox.Text);
+            var keysToRemove = ConnectionProperties.ParameterList.Keys
+                .Where(k => !StronglyTypedPropertyNames.Contains(k))
+                .ToList();
+
+            foreach (var key in keysToRemove)
             {
-                // On parse error, revert to last valid display
-                System.Diagnostics.Debug.WriteLine($"Error parsing Parameters: {ex.Message}");
-                UpdateParametersDisplay();
+                ConnectionProperties.ParameterList.Remove(key);
+            }
+
+            foreach (var item in parsedExtras)
+            {
+                ConnectionProperties.ParameterList[item.Key] = item.Value;
+            }
+        }
+
+        private void RefreshExtrasDisplay(ConnectionProperties conn)
+        {
+            _updatingExtrasText = true;
+            Driver_ParametersbeepTextBox.Text = string.Join("; ",
+                conn.ParameterList
+                    .Where(kvp => !StronglyTypedPropertyNames.Contains(kvp.Key))
+                    .Where(kvp => !string.IsNullOrWhiteSpace(kvp.Key))
+                    .Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            _updatingExtrasText = false;
+        }
+
+        private static Dictionary<string, string> ParseExtras(string raw)
+        {
+            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return result;
+            }
+
+            var entries = raw.Split(new[] { ';', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var entry in entries)
+            {
+                var parts = entry.Split(new[] { '=' }, 2, StringSplitOptions.None);
+                var key = parts[0].Trim();
+                if (string.IsNullOrWhiteSpace(key))
+                {
+                    continue;
+                }
+
+                if (StronglyTypedPropertyNames.Contains(key))
+                {
+                    continue;
+                }
+
+                var value = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+                result[key] = value;
+            }
+
+            return result;
+        }
+
+        private static void RemoveTypedKeysFromParameterList(IDictionary<string, string> parameterList)
+        {
+            if (parameterList == null || parameterList.Count == 0)
+            {
+                return;
+            }
+
+            var keys = parameterList.Keys.Where(StronglyTypedPropertyNames.Contains).ToList();
+            foreach (var key in keys)
+            {
+                parameterList.Remove(key);
             }
         }
     }

@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Drawing.Design;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
@@ -6,12 +8,14 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Integrated.DataBlocks.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 using TheTechIdea.Beep.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -32,6 +36,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Dictionary<string, IBeepUIComponent> UIComponents { get; set; } = new();
         private Dictionary<IBeepUIComponent, Binding[]> _preservedBindings = new();
         private BindingList<BeepComponents> _components; // these class will be used to create the UI Components  and presist the fields data and link between EntityFields from entitystructure and IBeepUIComponenet created for that field
+        private readonly BindingList<BeepDataBlockFieldSelection> _fieldSelections = new();
+        private bool _isSynchronizingFieldSelections;
+        private string _connectionName = string.Empty;
+        private string _entityName = string.Empty;
+        private DataBlockViewMode _viewMode = DataBlockViewMode.RecordControls;
+        private BeepGridPro? _gridView;
+        private IBeepDataBlockNotifier? _notifier;
         #endregion "Fields"
         #region "Properties"
         public event EventHandler<UnitofWorkParams> EventDataChanged;
@@ -39,6 +50,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<IBeepDataBlock> ChildBlocks { get; set; } = new();
         public bool IsInQueryMode { get; private set; } = false;
         public string Status { get; private set; }
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public IBeepDataBlockNotifier Notifier
+        {
+            get => _notifier ??= new MessageBoxBeepDataBlockNotifier();
+            set => _notifier = value ?? new MessageBoxBeepDataBlockNotifier();
+        }
 
         [Browsable(true)]
         [Category("Data")]
@@ -62,13 +80,80 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DisplayName("Parent Block")]
         public IBeepDataBlock ParentBlock { get; set; }
         [Browsable(true)]
-        [Category("Data")]
-        public string EntityName { get; set; }
+        [Category("Data Source")]
+        [DisplayName("Connection")]
+        [Description("Select the Beep connection name used to load entities.")]
+        [TypeConverter(typeof(DataBlockConnectionNameConverter))]
+        [RefreshProperties(RefreshProperties.All)]
+        public string ConnectionName
+        {
+            get => _connectionName;
+            set
+            {
+                var newValue = value?.Trim() ?? string.Empty;
+                if (string.Equals(_connectionName, newValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                _connectionName = newValue;
+                QueryDataSourceName = newValue;
+                OnConnectionChanged();
+            }
+        }
+        [Browsable(true)]
+        [Category("Data Source")]
+        [DisplayName("Entity/Table")]
+        [Description("Select entity/table from selected connection.")]
+        [TypeConverter(typeof(DataBlockEntityConverter))]
+        [RefreshProperties(RefreshProperties.All)]
+        public string EntityName
+        {
+            get => _entityName;
+            set
+            {
+                var newValue = value?.Trim() ?? string.Empty;
+                if (string.Equals(_entityName, newValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                _entityName = newValue;
+                OnEntitySelectionChanged();
+            }
+        }
         [Browsable(false)]
         public IEntityStructure EntityStructure { get;private  set; }
         [Browsable(true)]
         [Category("Data")]
         public List<EntityField> Fields => EntityStructure?.Fields;
+        [Browsable(true)]
+        [Category("Data Source")]
+        [DisplayName("Fields")]
+        [Description("Select which entity fields are visible in this block.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(CollectionEditor), typeof(UITypeEditor))]
+        public BindingList<BeepDataBlockFieldSelection> FieldSelections => _fieldSelections;
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [DisplayName("View Mode")]
+        [Description("RecordControls uses Beep controls per field. BeepGridPro uses a grid view.")]
+        [DefaultValue(DataBlockViewMode.RecordControls)]
+        public DataBlockViewMode ViewMode
+        {
+            get => _viewMode;
+            set
+            {
+                if (_viewMode == value)
+                {
+                    return;
+                }
+
+                _viewMode = value;
+                ApplyViewMode();
+            }
+        }
         public dynamic MasterRecord { get; private set; }
 
         [Browsable(true)]
@@ -119,10 +204,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     EntityStructure =EntityHelper.GetEntityStructureFromType(value);
                     if (EntityStructure != null)
                     {
-                        EntityName = EntityStructure.EntityName;
+                        _entityName = EntityStructure.EntityName;
                         InitializeEntityRelationships();
+                        SyncFieldSelectionsWithEntityStructure();
                         ClearAllComponentControls(); // Clear previous controls
                         InitializeControls(); // Auto-generate controls
+                        ApplyViewMode();
                     }
                 }
             }
@@ -147,9 +234,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                         SubscribeEvents(_data);
                     }
                     EntityStructure = _data?.EntityStructure;
+                    if (EntityStructure != null && !string.IsNullOrWhiteSpace(EntityStructure.EntityName))
+                    {
+                        _entityName = EntityStructure.EntityName;
+                    }
                     InitializeEntityRelationships();
+                    SyncFieldSelectionsWithEntityStructure();
                     ClearAllComponentControls(); // Clear previous controls
                     InitializeControls(); // Auto-generate controls
+                    UpdateGridDataBinding();
+                    ApplyViewMode();
                 }
             }
         }
@@ -168,7 +262,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Component collection setup
             Components = new BindingList<BeepComponents>();
             Components.ListChanged += Components_ListChanged;
-            
+            _fieldSelections.ListChanged += FieldSelections_ListChanged;
+             
             // Initialize services (critical fix for beepService null reference)
             InitializeServices();
         }
@@ -203,35 +298,45 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void SubscribeEvents(IUnitofWork data)
         {
-            _data.Units.CurrentChanged += Units_CurrentChanged;
-            _data.PreUpdate += HandleDataChanges;
-            _data.PreInsert += HandleDataChanges;
-            _data.PreDelete += HandleDataChanges;
-            _data.PreQuery += HandleDataChanges;
-            _data.PreCreate += HandleDataChanges;
-            _data.PreCommit += HandleDataChanges;
-            _data.PostUpdate += HandleDataChanges;
-            _data.PostInsert += HandleDataChanges;
-            _data.PostDelete += HandleDataChanges;
-            _data.PostQuery += HandleDataChanges;
-            _data.PostCreate += HandleDataChanges;
-            _data.PostCommit += HandleDataChanges;
+            if (data?.Units == null)
+            {
+                return;
+            }
+
+            data.Units.CurrentChanged += Units_CurrentChanged;
+            data.PreUpdate += HandleDataChanges;
+            data.PreInsert += HandleDataChanges;
+            data.PreDelete += HandleDataChanges;
+            data.PreQuery += HandleDataChanges;
+            data.PreCreate += HandleDataChanges;
+            data.PreCommit += HandleDataChanges;
+            data.PostUpdate += HandleDataChanges;
+            data.PostInsert += HandleDataChanges;
+            data.PostDelete += HandleDataChanges;
+            data.PostQuery += HandleDataChanges;
+            data.PostCreate += HandleDataChanges;
+            data.PostCommit += HandleDataChanges;
         }
         private void UnsubscribeEvents(IUnitofWork data)
         {
-            _data.Units.CurrentChanged -= Units_CurrentChanged;
-            _data.PreUpdate -= HandleDataChanges;
-            _data.PreInsert -= HandleDataChanges;
-            _data.PreDelete -= HandleDataChanges;
-            _data.PreQuery -= HandleDataChanges;
-            _data.PreCreate -= HandleDataChanges;
-            _data.PreCommit -= HandleDataChanges;
-            _data.PostUpdate -= HandleDataChanges;
-            _data.PostInsert -= HandleDataChanges;
-            _data.PostDelete -= HandleDataChanges;
-            _data.PostQuery -= HandleDataChanges;
-            _data.PostCreate -= HandleDataChanges;
-            _data.PostCommit -= HandleDataChanges;
+            if (data?.Units == null)
+            {
+                return;
+            }
+
+            data.Units.CurrentChanged -= Units_CurrentChanged;
+            data.PreUpdate -= HandleDataChanges;
+            data.PreInsert -= HandleDataChanges;
+            data.PreDelete -= HandleDataChanges;
+            data.PreQuery -= HandleDataChanges;
+            data.PreCreate -= HandleDataChanges;
+            data.PreCommit -= HandleDataChanges;
+            data.PostUpdate -= HandleDataChanges;
+            data.PostInsert -= HandleDataChanges;
+            data.PostDelete -= HandleDataChanges;
+            data.PostQuery -= HandleDataChanges;
+            data.PostCreate -= HandleDataChanges;
+            data.PostCommit -= HandleDataChanges;
         }
         #endregion "Event Handlers"
         #region "Handle Relations"
@@ -314,7 +419,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void SetMasterRecord(dynamic masterRecord)
         {
             MasterRecord = masterRecord;
-            ApplyMasterDetailFilter().Wait();
+            _ = ApplyMasterDetailFilterSafeAsync();
+        }
+        private async Task ApplyMasterDetailFilterSafeAsync()
+        {
+            try
+            {
+                await ApplyMasterDetailFilter();
+            }
+            catch (Exception ex)
+            {
+                Status = $"Master-detail filter error: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"[BeepDataBlock] ApplyMasterDetailFilterSafeAsync error: {ex.Message}");
+            }
         }
         public async Task<bool> ApplyMasterDetailFilter()
         {
@@ -477,6 +594,469 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Block Management"
+        #region "Data Source Design-Time Helpers"
+
+        internal IReadOnlyList<string> GetAvailableConnectionNames()
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var container = Site?.Container;
+            if (container != null)
+            {
+                foreach (var dataConnection in container.Components.OfType<BeepDataConnection>())
+                {
+                    foreach (var connection in dataConnection.ReloadConnections())
+                    {
+                        if (!string.IsNullOrWhiteSpace(connection.ConnectionName))
+                        {
+                            names.Add(connection.ConnectionName);
+                        }
+                    }
+                }
+            }
+
+            var editor = ResolveEditorForMetadata();
+            var configConnections = editor?.ConfigEditor?.LoadDataConnectionsValues() ?? editor?.ConfigEditor?.DataConnections;
+            if (configConnections != null)
+            {
+                foreach (var connection in configConnections)
+                {
+                    if (!string.IsNullOrWhiteSpace(connection.ConnectionName))
+                    {
+                        names.Add(connection.ConnectionName);
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(_connectionName))
+            {
+                names.Add(_connectionName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(QueryDataSourceName))
+            {
+                names.Add(QueryDataSourceName);
+            }
+
+            return names.OrderBy(x => x).ToList();
+        }
+
+        internal IReadOnlyList<string> GetAvailableEntityNames()
+        {
+            var entityNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var connectionName = GetEffectiveConnectionName();
+
+            if (string.IsNullOrWhiteSpace(connectionName))
+            {
+                return Array.Empty<string>();
+            }
+
+            var editor = ResolveEditorForMetadata();
+            if (editor == null)
+            {
+                return Array.Empty<string>();
+            }
+
+            try
+            {
+                editor.OpenDataSource(connectionName);
+                var dataSource = editor.GetDataSource(connectionName);
+                if (dataSource == null)
+                {
+                    return Array.Empty<string>();
+                }
+
+                var discovered = dataSource.GetEntitesList();
+                if (discovered != null)
+                {
+                    foreach (var name in discovered)
+                    {
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            entityNames.Add(name);
+                        }
+                    }
+                }
+
+                if (entityNames.Count == 0 && dataSource.Entities != null)
+                {
+                    foreach (var entity in dataSource.Entities)
+                    {
+                        if (!string.IsNullOrWhiteSpace(entity.EntityName))
+                        {
+                            entityNames.Add(entity.EntityName);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Design-time metadata calls should fail silently.
+            }
+
+            return entityNames.OrderBy(x => x).ToList();
+        }
+
+        public bool RefreshEntityMetadata()
+        {
+            if (!TryResolveEntityStructureFromDataSource(refreshMetadata: true))
+            {
+                return false;
+            }
+
+            InitializeEntityRelationships();
+            SyncFieldSelectionsWithEntityStructure();
+            ApplyFieldSelectionsToComponents();
+            return true;
+        }
+
+        private void OnConnectionChanged()
+        {
+            if (!string.IsNullOrWhiteSpace(_entityName))
+            {
+                RefreshEntityMetadata();
+            }
+        }
+
+        private void OnEntitySelectionChanged()
+        {
+            if (string.IsNullOrWhiteSpace(_entityName))
+            {
+                return;
+            }
+
+            if (TryResolveEntityStructureFromDataSource(refreshMetadata: true))
+            {
+                InitializeEntityRelationships();
+                SyncFieldSelectionsWithEntityStructure();
+                ApplyFieldSelectionsToComponents();
+            }
+        }
+
+        private bool TryResolveEntityStructureFromDataSource(bool refreshMetadata)
+        {
+            var connectionName = GetEffectiveConnectionName();
+            if (string.IsNullOrWhiteSpace(connectionName) || string.IsNullOrWhiteSpace(_entityName))
+            {
+                return false;
+            }
+
+            var editor = ResolveEditorForMetadata();
+            if (editor == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                editor.OpenDataSource(connectionName);
+                var dataSource = editor.GetDataSource(connectionName);
+                if (dataSource == null)
+                {
+                    return false;
+                }
+
+                var entity = dataSource.GetEntityStructure(_entityName, refreshMetadata);
+                if (entity == null && refreshMetadata)
+                {
+                    entity = dataSource.GetEntityStructure(_entityName, false);
+                }
+
+                if (entity == null)
+                {
+                    return false;
+                }
+
+                EntityStructure = entity;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private IDMEEditor? ResolveEditorForMetadata()
+        {
+            if (_dmeEditor != null)
+            {
+                return _dmeEditor;
+            }
+
+            if (beepService?.DMEEditor != null)
+            {
+                _dmeEditor = beepService.DMEEditor;
+                return _dmeEditor;
+            }
+
+            try
+            {
+                FindServicesInParentChain();
+                if (_dmeEditor != null)
+                {
+                    return _dmeEditor;
+                }
+
+                if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+                {
+                    beepService ??= new BeepService();
+                    _dmeEditor = beepService.DMEEditor;
+                }
+            }
+            catch
+            {
+                // Design-time service initialization is best effort.
+            }
+
+            return _dmeEditor;
+        }
+
+        private string GetEffectiveConnectionName()
+        {
+            if (!string.IsNullOrWhiteSpace(_connectionName))
+            {
+                return _connectionName;
+            }
+
+            return QueryDataSourceName ?? string.Empty;
+        }
+
+        private void FieldSelections_ListChanged(object? sender, ListChangedEventArgs e)
+        {
+            if (_isSynchronizingFieldSelections)
+            {
+                return;
+            }
+
+            ApplyFieldSelectionsToComponents();
+        }
+
+        private void SyncFieldSelectionsWithEntityStructure()
+        {
+            var fields = EntityStructure?.Fields;
+            if (fields == null)
+            {
+                _isSynchronizingFieldSelections = true;
+                try
+                {
+                    _fieldSelections.Clear();
+                }
+                finally
+                {
+                    _isSynchronizingFieldSelections = false;
+                }
+
+                return;
+            }
+
+            var existing = _fieldSelections
+                .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
+                .ToDictionary(x => x.FieldName, x => x, StringComparer.OrdinalIgnoreCase);
+
+            _isSynchronizingFieldSelections = true;
+            try
+            {
+                _fieldSelections.Clear();
+
+                foreach (var field in fields)
+                {
+                    if (existing.TryGetValue(field.FieldName, out var selection))
+                    {
+                        if (string.IsNullOrWhiteSpace(selection.ControlTypeFullName))
+                        {
+                            selection.ControlType = ControlExtensions.GetDefaultControlType(field.FieldCategory);
+                        }
+
+                        _fieldSelections.Add(selection);
+                        continue;
+                    }
+
+                    _fieldSelections.Add(new BeepDataBlockFieldSelection
+                    {
+                        FieldName = field.FieldName,
+                        IncludeInView = true,
+                        ControlType = ControlExtensions.GetDefaultControlType(field.FieldCategory)
+                    });
+                }
+            }
+            finally
+            {
+                _isSynchronizingFieldSelections = false;
+            }
+        }
+
+        private IEnumerable<EntityField> GetFieldsForRendering()
+        {
+            var fields = EntityStructure?.Fields;
+            if (fields == null)
+            {
+                return Enumerable.Empty<EntityField>();
+            }
+
+            var configuredFields = _fieldSelections
+                .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
+                .Select(x => x.FieldName)
+                .ToList();
+
+            if (configuredFields.Count == 0)
+            {
+                return fields;
+            }
+
+            var included = _fieldSelections
+                .Where(x => x.IncludeInView && !string.IsNullOrWhiteSpace(x.FieldName))
+                .Select(x => x.FieldName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            return fields.Where(f => included.Contains(f.FieldName));
+        }
+
+        private void ApplyFieldSelectionsToComponents()
+        {
+            var fields = EntityStructure?.Fields;
+            if (fields == null)
+            {
+                return;
+            }
+
+            var configuredFields = _fieldSelections
+                .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
+                .Select(x => x.FieldName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var includedFields = _fieldSelections
+                .Where(x => x.IncludeInView && !string.IsNullOrWhiteSpace(x.FieldName))
+                .Select(x => x.FieldName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = Components.Count - 1; i >= 0; i--)
+            {
+                var component = Components[i];
+                var boundName = string.IsNullOrWhiteSpace(component.BoundProperty) ? component.Name : component.BoundProperty;
+
+                if (configuredFields.Count > 0 && !includedFields.Contains(boundName))
+                {
+                    Components.RemoveAt(i);
+                }
+            }
+
+            foreach (var field in fields)
+            {
+                if (configuredFields.Count > 0 && !includedFields.Contains(field.FieldName))
+                {
+                    continue;
+                }
+
+                var selection = _fieldSelections.FirstOrDefault(x => string.Equals(x.FieldName, field.FieldName, StringComparison.OrdinalIgnoreCase));
+                var selectedType = selection?.ControlType ?? ControlExtensions.GetDefaultControlType(field.FieldCategory);
+                var selectedTypeFullName = selectedType?.FullName ?? string.Empty;
+
+                var component = Components.FirstOrDefault(x =>
+                    string.Equals(x.BoundProperty, field.FieldName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.Name, field.FieldName, StringComparison.OrdinalIgnoreCase));
+
+                if (component == null)
+                {
+                    Components.Add(new BeepComponents
+                    {
+                        Name = field.FieldName,
+                        Type = selectedType,
+                        TypeFullName = selectedTypeFullName,
+                        GUID = Guid.NewGuid().ToString(),
+                        Left = 10,
+                        Top = 10 + Components.Count * 30,
+                        Width = 200,
+                        Height = 25,
+                        Category = field.FieldCategory,
+                        BoundProperty = field.FieldName,
+                        DataSourceProperty = field.FieldName,
+                        LinkedProperty = string.Empty
+                    });
+                }
+                else
+                {
+                    component.Type = selectedType;
+                    component.TypeFullName = selectedTypeFullName;
+                    component.Category = field.FieldCategory;
+                    component.BoundProperty = field.FieldName;
+                    component.DataSourceProperty = field.FieldName;
+                }
+            }
+
+            ClearAllComponentControls();
+            InitializeControls();
+            ApplyViewMode();
+        }
+
+        private void EnsureGridControl()
+        {
+            if (_gridView != null)
+            {
+                return;
+            }
+
+            _gridView = Controls.OfType<BeepGridPro>().FirstOrDefault();
+            if (_gridView != null)
+            {
+                return;
+            }
+
+            _gridView = new BeepGridPro
+            {
+                Name = string.IsNullOrWhiteSpace(Name) ? "DataBlockGrid" : $"{Name}_Grid",
+                Dock = DockStyle.Fill,
+                Visible = false
+            };
+
+            Controls.Add(_gridView);
+        }
+
+        private void UpdateGridDataBinding()
+        {
+            if (_gridView == null)
+            {
+                return;
+            }
+
+            try
+            {
+                _gridView.DataSource = Data?.Units;
+            }
+            catch
+            {
+                // Ignore grid binding errors in design-time.
+            }
+        }
+
+        private void ApplyViewMode()
+        {
+            bool showGrid = _viewMode == DataBlockViewMode.BeepGridPro;
+
+            if (showGrid)
+            {
+                EnsureGridControl();
+                UpdateGridDataBinding();
+            }
+
+            if (_gridView != null)
+            {
+                _gridView.Visible = showGrid;
+                if (showGrid)
+                {
+                    _gridView.BringToFront();
+                }
+            }
+
+            foreach (var component in UIComponents.Values)
+            {
+                if (component is Control winFormsControl)
+                {
+                    winFormsControl.Visible = !showGrid;
+                }
+            }
+        }
+
+        #endregion "Data Source Design-Time Helpers"
         #region "Beep UI Components Methods"
         private void InitializeControls()
         {
@@ -488,7 +1068,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             lock (_uiComponentsLock)
             {
-                foreach (var field in EntityStructure.Fields)
+                foreach (var field in GetFieldsForRendering())
                 {
                     // Check if the field already exists in the Components list
                     var existingComponent = Components.FirstOrDefault(c => c.Name == field.FieldName);
@@ -505,6 +1085,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Top = 10 + Components.Count * 30,  // Stack vertically
                             Width = 200,  // Default width
                             Height = 25,  // Default height
+                            Category = field.FieldCategory,
                             BoundProperty = field.FieldName,
                             DataSourceProperty = field.FieldName,
                             LinkedProperty = string.Empty
@@ -588,7 +1169,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 catch (Exception ex)
                 {
-                   beepService.DMEEditor.Logger.LogError("Error creating instance of {TypeName}.");
+                    _ = ex;
+                    beepService?.DMEEditor?.Logger?.LogError("Error creating instance of {TypeName}.");
                     return null;
                 }
 
@@ -627,14 +1209,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Type componentType = Type.GetType(component.TypeFullName);
                 if (componentType == null)
                 {
-                   beepService.lg.LogError("Cannot find type {TypeFullName} for component GUID: {GUID}.");
+                    beepService?.lg?.LogError("Cannot find type {TypeFullName} for component GUID: {GUID}.");
                     return;
                 }
 
                 IBeepUIComponent control = GetUIComponent(componentType);
                 if (control == null)
                 {
-                    beepService.lg.LogError("Failed to retrieve or instantiate component for type {TypeName}.");
+                    beepService?.lg?.LogError("Failed to retrieve or instantiate component for type {TypeName}.");
                     return;
                 }
 
@@ -705,7 +1287,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     winFormsControl.BringToFront();
                 }
 
-                beepService.lg.LogInfo("Initialized component {ComponentName} (GUID: {GUID}) at position ({Left}, {Top}).");
+                beepService?.lg?.LogInfo("Initialized component {ComponentName} (GUID: {GUID}) at position ({Left}, {Top}).");
 
                 // Position components after initialization
                 PositionUIComponents();
@@ -1037,9 +1619,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 child.RemoveParentBlock();
             }
 
+            TearDownKeyboardNavigation();
+
             if (_data != null)
             {
-                _data.Units.CurrentChanged -= Units_CurrentChanged;
+                UnsubscribeEvents(_data);
             }
 
             GC.SuppressFinalize(this);
@@ -1154,6 +1738,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<UnitofWorkParams> OnValidateItem;
         public event EventHandler<UnitofWorkParams> OnNewRecord;
         public event EventHandler<UnitofWorkParams> OnNewBlock;
+
+        internal void NotifyInfo(string message, string caption = "Information")
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Notifier.ShowInfo(message, caption);
+            }
+        }
+
+        internal void NotifyWarning(string message, string caption = "Warning")
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Notifier.ShowWarning(message, caption);
+            }
+        }
+
+        internal void NotifyError(string message, string caption = "Error")
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Notifier.ShowError(message, caption);
+            }
+        }
         #endregion "Events"
     }
 

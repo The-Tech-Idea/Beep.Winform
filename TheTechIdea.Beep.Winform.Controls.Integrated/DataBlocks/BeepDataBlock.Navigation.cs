@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private string _currentItemName;
         private IBeepUIComponent _currentItem;
+        private bool _defaultKeyTriggersRegistered;
         
         /// <summary>
         /// Current item name (Oracle Forms: :SYSTEM.CURSOR_ITEM)
@@ -60,7 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (items.Count == 0)
                 return false;
                 
-            int currentIndex = items.FindIndex(i => i.ItemName == CurrentItemName);
+            int currentIndex = items.FindIndex(i =>
+                string.Equals(i.ItemName, CurrentItemName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(i.BoundProperty, CurrentItemName, StringComparison.OrdinalIgnoreCase));
             int nextIndex = (currentIndex + 1) % items.Count;
             
             return GoToItem(items[nextIndex].ItemName);
@@ -77,7 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (items.Count == 0)
                 return false;
                 
-            int currentIndex = items.FindIndex(i => i.ItemName == CurrentItemName);
+            int currentIndex = items.FindIndex(i =>
+                string.Equals(i.ItemName, CurrentItemName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(i.BoundProperty, CurrentItemName, StringComparison.OrdinalIgnoreCase));
             int prevIndex = currentIndex <= 0 ? items.Count - 1 : currentIndex - 1;
             
             return GoToItem(items[prevIndex].ItemName);
@@ -119,29 +124,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (string.IsNullOrEmpty(itemName))
                 return false;
-                
-            if (!UIComponents.ContainsKey(itemName))
+
+            if (!TryResolveItem(itemName, out var blockItem, out var resolvedItemName))
                 return false;
-                
-            var item = UIComponents[itemName];
-            
+
+            var item = blockItem.Component;
+            if (item == null && !TryGetComponentByIdentifier(resolvedItemName, out item))
+                return false;
+             
             if (item is Control control && control.CanFocus)
             {
                 // Set focus
                 control.Focus();
-                
+                 
                 // Update current item
-                CurrentItemName = itemName;
+                CurrentItemName = resolvedItemName;
                 CurrentItem = item;
-                
+                blockItem.Component = item;
+                blockItem.BoundProperty = item.BoundProperty;
+
+                var triggerField = blockItem.BoundProperty ?? item.BoundProperty ?? resolvedItemName;
+                if (SYSTEM != null)
+                {
+                    SYSTEM.TRIGGER_ITEM = item.ComponentName ?? resolvedItemName;
+                    SYSTEM.TRIGGER_FIELD = triggerField;
+                }
+                 
                 // Fire WHEN-ITEM-FOCUS trigger (async fire-and-forget)
                 var postContext = new TriggerContext
                 {
                     Block = this,
                     TriggerType = TriggerType.WhenItemFocus,
-                   FieldName = itemName
+                    FieldName = triggerField
                 };
-                
+                 
                 _ = ExecuteTriggers(TriggerType.WhenItemFocus, postContext);
                 
                 return true;
@@ -171,45 +187,83 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void SetupKeyboardNavigation()
         {
-            // Register KEY-NEXT-ITEM trigger (Tab/Enter)
-            RegisterTrigger(TriggerType.KeyNextItem, async context =>
+            if (!_defaultKeyTriggersRegistered)
             {
-                NextItem();
-                await Task.CompletedTask;
-                return true;
-            });
-            
-            // Register KEY-PREV-ITEM trigger (Shift+Tab)
-            RegisterTrigger(TriggerType.KeyPrevItem, async context =>
-            {
-                PreviousItem();
-                await Task.CompletedTask;
-                return true;
-            });
+                // Register KEY-NEXT-ITEM trigger (Tab/Enter)
+                RegisterTrigger(TriggerType.KeyNextItem, async context =>
+                {
+                    NextItem();
+                    await Task.CompletedTask;
+                    return true;
+                });
+
+                // Register KEY-PREV-ITEM trigger (Shift+Tab)
+                RegisterTrigger(TriggerType.KeyPrevItem, async context =>
+                {
+                    PreviousItem();
+                    await Task.CompletedTask;
+                    return true;
+                });
+
+                _defaultKeyTriggersRegistered = true;
+            }
             
             // Attach keyboard handlers to all components
             foreach (var item in UIComponents.Values)
             {
                 if (item is Control control)
                 {
+                    control.KeyDown -= Control_KeyDown;
+                    control.Enter -= Control_Enter;
+                    control.Leave -= Control_Leave;
                     control.KeyDown += Control_KeyDown;
                     control.Enter += Control_Enter;
                     control.Leave += Control_Leave;
                 }
             }
         }
+
+        private void TearDownKeyboardNavigation()
+        {
+            foreach (var item in UIComponents.Values)
+            {
+                if (item is Control control)
+                {
+                    control.KeyDown -= Control_KeyDown;
+                    control.Enter -= Control_Enter;
+                    control.Leave -= Control_Leave;
+                }
+            }
+        }
         
-        private void Control_KeyDown(object sender, KeyEventArgs e)
+        private async void Control_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Tab)
             {
+                var component = sender as IBeepUIComponent;
+                component ??= UIComponents.Values.FirstOrDefault(i => ReferenceEquals(i, sender));
+
                 if (e.Shift)
                 {
-                    PreviousItem();
+                    if (component != null)
+                    {
+                        await FireKeyPrevItem(component);
+                    }
+                    else
+                    {
+                        PreviousItem();
+                    }
                 }
                 else
                 {
-                    NextItem();
+                    if (component != null)
+                    {
+                        await FireKeyNextItem(component);
+                    }
+                    else
+                    {
+                        NextItem();
+                    }
                 }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -224,17 +278,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var item = UIComponents.Values.FirstOrDefault(i => i == sender);
                 if (item != null)
                 {
-                    CurrentItemName = item.ComponentName;
+                    var lookupKey = item.BoundProperty ?? item.ComponentName ?? item.GuidID;
+                    if (!TryResolveItem(lookupKey, out var blockItem, out var resolvedItemName))
+                    {
+                        RegisterItem(lookupKey, item);
+                        blockItem = GetItem(lookupKey);
+                        resolvedItemName = lookupKey;
+                    }
+
+                    CurrentItemName = resolvedItemName;
                     CurrentItem = item;
-                    
+
+                    var triggerField = blockItem?.BoundProperty ?? item.BoundProperty ?? resolvedItemName;
+                    if (SYSTEM != null)
+                    {
+                        SYSTEM.TRIGGER_ITEM = item.ComponentName ?? resolvedItemName;
+                        SYSTEM.TRIGGER_FIELD = triggerField;
+                    }
+                     
                     // Fire WHEN-ITEM-FOCUS trigger
                     var context = new TriggerContext
                     {
                         Block = this,
                         TriggerType = TriggerType.WhenItemFocus,
-                       FieldName = item.ComponentName
+                        FieldName = triggerField
                     };
-                    
+                     
                     _ = ExecuteTriggers(TriggerType.WhenItemFocus, context);
                 }
             }
@@ -248,14 +317,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var item = UIComponents.Values.FirstOrDefault(i => i == sender);
                 if (item != null)
                 {
+                    var lookupKey = item.BoundProperty ?? item.ComponentName ?? item.GuidID;
+                    TryResolveItem(lookupKey, out var blockItem, out var resolvedItemName);
+
                     // Fire WHEN-ITEM-BLUR trigger
                     var context = new TriggerContext
                     {
                         Block = this,
                         TriggerType = TriggerType.WhenItemBlur,
-                       FieldName = item.ComponentName
+                        FieldName = blockItem?.BoundProperty ?? item.BoundProperty ?? resolvedItemName ?? lookupKey
                     };
-                    
+                     
                     _ = ExecuteTriggers(TriggerType.WhenItemBlur, context);
                 }
             }

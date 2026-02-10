@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
@@ -144,11 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Trigger cancelled the operation
                         if (!string.IsNullOrEmpty(context.ErrorMessage))
                         {
-                            MessageBox.Show(
-                                context.ErrorMessage,
-                                "Operation Cancelled",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
+                            NotifyWarning(context.ErrorMessage, "Operation Cancelled");
                         }
                         
                         return false;
@@ -158,15 +153,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (context.Warnings.Count > 0)
                     {
                         var warningMessage = string.Join("\n", context.Warnings);
-                        MessageBox.Show(
-                            warningMessage,
-                            "Validation Warning",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning);
+                        NotifyWarning(warningMessage, "Validation Warning");
                     }
                 }
                 catch (TriggerExecutionException tex)
                 {
+                    if (type == TriggerType.OnError)
+                    {
+                        return false;
+                    }
                     // Trigger threw an exception → Fire ON-ERROR trigger
                     var errorContext = new TriggerContext
                     {
@@ -189,6 +184,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 catch (Exception ex)
                 {
+                    if (type == TriggerType.OnError)
+                    {
+                        return false;
+                    }
                     // Unexpected exception
                     var errorContext = new TriggerContext
                     {

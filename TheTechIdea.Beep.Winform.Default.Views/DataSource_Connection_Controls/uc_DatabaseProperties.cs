@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
@@ -34,12 +34,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 .Cast<DataSourceType>()
                 .Select(c => new Winform.Controls.Models.SimpleItem { Text = c.ToString(), Value = c })
                 .ToBindingList();
+            Database_DatabaseTypebeepComboBox.DataBindings.Add(new Binding("SelectedValue", conn, nameof(conn.DatabaseType), true, DataSourceUpdateMode.OnPropertyChanged));
             Database_DatabaseTypebeepComboBox.SetValue(conn.DatabaseType);
-            Database_DatabaseTypebeepComboBox.SelectedItemChanged += (s, e) =>
-            {
-                if (e.SelectedItem is Winform.Controls.Models.SimpleItem item)
-                    conn.DatabaseType = (DataSourceType)item.Value;
-            };
 
             // Bindings for Database Properties region
             Database_DatabasebeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.Database), true, DataSourceUpdateMode.OnPropertyChanged));

@@ -37,11 +37,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void RegisterItem(string itemName, IBeepUIComponent component)
         {
-            if (string.IsNullOrEmpty(itemName))
-                throw new ArgumentException("Item name cannot be null or empty", nameof(itemName));
             if (component == null)
                 throw new ArgumentNullException(nameof(component));
-                
+
+            itemName = NormalizeItemName(itemName, component);
+            if (string.IsNullOrEmpty(itemName))
+                throw new ArgumentException("Item name cannot be resolved", nameof(itemName));
+
+            if (_items.TryGetValue(itemName, out var existing))
+            {
+                existing.Component = component;
+                existing.BoundProperty = component.BoundProperty;
+                return;
+            }
+                 
             var item = new BeepDataBlockItem
             {
                 ItemName = itemName,
@@ -64,9 +73,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             foreach (var kvp in UIComponents)
             {
-                if (!_items.ContainsKey(kvp.Key))
+                var itemName = NormalizeItemName(kvp.Key, kvp.Value);
+
+                if (!_items.ContainsKey(itemName))
                 {
-                    RegisterItem(kvp.Key, kvp.Value);
+                    RegisterItem(itemName, kvp.Value);
+                }
+
+                // Migrate legacy GUID-keyed entries to canonical item keys.
+                if (!string.Equals(itemName, kvp.Key, StringComparison.OrdinalIgnoreCase) &&
+                    _items.TryGetValue(kvp.Key, out var legacyItem))
+                {
+                    legacyItem.ItemName = itemName;
+                    legacyItem.Component = kvp.Value;
+                    legacyItem.BoundProperty = kvp.Value.BoundProperty;
+                    _items[itemName] = legacyItem;
+                    _items.Remove(kvp.Key);
                 }
             }
         }
@@ -97,20 +119,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void SetItemProperty(string itemName, string propertyName, object value)
         {
-            if (!_items.ContainsKey(itemName))
+            if (!TryResolveItem(itemName, out var item, out _))
             {
-                // Auto-register if component exists
-                if (UIComponents.ContainsKey(itemName))
-                {
-                    RegisterItem(itemName, UIComponents[itemName]);
-                }
-                else
-                {
-                    throw new ArgumentException($"Item '{itemName}' not found", nameof(itemName));
-                }
+                throw new ArgumentException($"Item '{itemName}' not found", nameof(itemName));
             }
-            
-            var item = _items[itemName];
+
             var property = typeof(BeepDataBlockItem).GetProperty(propertyName);
             
             if (property != null && property.CanWrite)
@@ -130,13 +143,94 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public object GetItemProperty(string itemName, string propertyName)
         {
-            if (!_items.ContainsKey(itemName))
+            if (!TryResolveItem(itemName, out var item, out _))
                 return null;
-                
-            var item = _items[itemName];
+
             var property = typeof(BeepDataBlockItem).GetProperty(propertyName);
-            
+             
             return property?.GetValue(item);
+        }
+
+        private string NormalizeItemName(string itemName, IBeepUIComponent component)
+        {
+            if (!string.IsNullOrWhiteSpace(itemName))
+            {
+                return itemName.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(component?.BoundProperty))
+            {
+                return component.BoundProperty.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(component?.ComponentName))
+            {
+                return component.ComponentName.Trim();
+            }
+
+            return component?.GuidID?.Trim();
+        }
+
+        private bool TryGetComponentByIdentifier(string identifier, out IBeepUIComponent component)
+        {
+            component = null;
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return false;
+            }
+
+            var key = identifier.Trim();
+            if (UIComponents.TryGetValue(key, out component))
+            {
+                return true;
+            }
+
+            component = UIComponents.Values.FirstOrDefault(c =>
+                string.Equals(c.BoundProperty, key, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(c.ComponentName, key, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(c.GuidID, key, StringComparison.OrdinalIgnoreCase));
+
+            return component != null;
+        }
+
+        private bool TryResolveItem(string identifier, out BeepDataBlockItem item, out string resolvedItemName)
+        {
+            item = null;
+            resolvedItemName = null;
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return false;
+            }
+
+            var key = identifier.Trim();
+            if (_items.TryGetValue(key, out item))
+            {
+                resolvedItemName = item.ItemName;
+                return true;
+            }
+
+            item = _items.Values.FirstOrDefault(i =>
+                string.Equals(i.ItemName, key, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(i.BoundProperty, key, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(i.Component?.ComponentName, key, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(i.Component?.GuidID, key, StringComparison.OrdinalIgnoreCase));
+
+            if (item != null)
+            {
+                resolvedItemName = item.ItemName;
+                return true;
+            }
+
+            if (!TryGetComponentByIdentifier(key, out var component))
+            {
+                return false;
+            }
+
+            resolvedItemName = NormalizeItemName(key, component);
+            RegisterItem(resolvedItemName, component);
+            item = _items[resolvedItemName];
+            return true;
         }
         
         /// <summary>

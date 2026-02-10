@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
@@ -39,12 +39,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             WebApi_HttpMethodbeepComboBox.ListItems = httpMethods
                 .Select(m => new Winform.Controls.Models.SimpleItem { Text = m, Value = m })
                 .ToBindingList();
+            WebApi_HttpMethodbeepComboBox.DataBindings.Add(new Binding("SelectedValue", conn, nameof(conn.HttpMethod), true, DataSourceUpdateMode.OnPropertyChanged));
             WebApi_HttpMethodbeepComboBox.SetValue(conn.HttpMethod ?? "GET");
-            WebApi_HttpMethodbeepComboBox.SelectedItemChanged += (s, e) =>
-            {
-                if (e.SelectedItem is Winform.Controls.Models.SimpleItem item)
-                    conn.HttpMethod = item.Value?.ToString();
-            };
 
             // Bindings for Web API Properties
             WebApi_TimeoutMsbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.TimeoutMs), true, DataSourceUpdateMode.OnPropertyChanged));

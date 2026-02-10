@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             General_GuidIDbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.GuidID), true, DataSourceUpdateMode.OnPropertyChanged));
             General_ConnectionNamebeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.ConnectionName), true, DataSourceUpdateMode.OnPropertyChanged));
             General_ConnectionStringbeepTextBox.DataBindings.Add(new Binding("Text", conn, nameof(conn.ConnectionString), true, DataSourceUpdateMode.OnPropertyChanged));
+            General_CategorybeepComboBox.DataBindings.Add(new Binding("SelectedValue", conn, nameof(conn.Category), true, DataSourceUpdateMode.OnPropertyChanged));
             General_FavouritebeepCheckBox.DataBindings.Add(new Binding("CurrentValue", conn, nameof(conn.Favourite), true, DataSourceUpdateMode.OnPropertyChanged));
             General_IsDefaultbeepCheckBox.DataBindings.Add(new Binding("CurrentValue", conn, nameof(conn.IsDefault), true, DataSourceUpdateMode.OnPropertyChanged));
             General_DrawnbeepCheckBox.DataBindings.Add(new Binding("CurrentValue", conn, nameof(conn.Drawn), true, DataSourceUpdateMode.OnPropertyChanged));
@@ -47,11 +48,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 .Select(c => new Winform.Controls.Models.SimpleItem { Text = c.ToString(), Value = c })
                 .ToBindingList();
             General_CategorybeepComboBox.SetValue(conn.Category);
-            General_CategorybeepComboBox.SelectedItemChanged += (s, e) =>
-            {
-                if (e.SelectedItem is Winform.Controls.Models.SimpleItem item)
-                    conn.Category = (DatasourceCategory)item.Value;
-            };
 
             // Read-only fields
             General_IDbeepTextBox.ReadOnly = true;

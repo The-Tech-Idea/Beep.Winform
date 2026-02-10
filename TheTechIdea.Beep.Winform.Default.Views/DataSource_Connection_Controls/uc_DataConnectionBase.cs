@@ -14,6 +14,8 @@ using TheTechIdea.Beep.ConfigUtil; // ensure LINQ available
 using TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls;
 using TheTechIdea.Beep.Helpers;
 using TheTechIdea.Beep.Winform.Controls;
+using System.Reflection;
+using TheTechIdea.Beep;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
@@ -86,6 +88,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private readonly List<uc_DataConnectionPropertiesBaseControl> _childPropertyControls = new();
         // Additional parameters if needed
         // for specific connection types not covered in ConnectionProperties
+        private static readonly HashSet<string> StronglyTypedConnectionPropertyNames =
+            new HashSet<string>(
+                typeof(ConnectionProperties)
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0)
+                    .Select(p => p.Name),
+                StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Default parameters for specific connection types.
         /// Set this property before calling InitializeDialog() to provide default values
@@ -154,6 +164,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public void InitializeDialog(ConnectionProperties connectionProperties)
         {
             ConnectionProperties = connectionProperties ?? new ConnectionProperties();
+            EnsureParameterListInitialized();
+            SetDefaultParameters();
 
             // Set dialog title based on connection
             this.Text = string.IsNullOrEmpty(ConnectionProperties.ConnectionName)
@@ -164,6 +176,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             InitializeDriverLists();
 
             // Setup event handlers
+            SavebeepButton.Click -= SavebeepButton_Click;
+            CancelbeepButton.Click -= CancelbeepButton_Click;
             SavebeepButton.Click += SavebeepButton_Click;
             CancelbeepButton.Click += CancelbeepButton_Click;
 
@@ -177,10 +191,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CreateTestConnectionButton();
 
             BuildPropertyTabs();
-            // Set default parameters if any
-            // use ConnectionHelper.GetAllParametersForDataSourceTypeNotInConnectionProperties
-
-            SetDefaultParameters();
+            MoveDriverTabToEnd();
         }
 
         /// <summary>
@@ -315,6 +326,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private void SetupBindings()
         {
             if (ConnectionProperties == null) return;
+            EnsureParameterListInitialized();
 
             // Clear existing bindings to avoid duplicates
             ConnectionNamebeepTextBox.DataBindings.Clear();
@@ -453,7 +465,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             {
                 return false;
             }
-            
+             
             try
             {
                 // Basic validation - check if connection string is provided or can be built
@@ -464,18 +476,39 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
                 }
-                
-                // TODO: Implement actual connection test using IDataSource factory
-                // For now, return true if validation passes
-                // In a real implementation, this would:
-                // 1. Create an IDataSource instance using the factory
-                // 2. Set the ConnectionProperties
-                // 3. Attempt to open the connection
-                // 4. Return success/failure
-                
-                await System.Threading.Tasks.Task.Delay(500); // Simulate async operation
-                
-                return true;
+
+                var editor = ResolveEditorForConnectionTest();
+                if (editor == null)
+                {
+                    MessageBox.Show(
+                        "Connection test requires an initialized BeepService/IDMEEditor instance. " +
+                        "Host this control in a DI-enabled runtime container.",
+                        "Connection Test Unavailable",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                var testConnection = CreateTestConnectionProperties(ConnectionProperties);
+                IDataSource testDataSource = null;
+
+                try
+                {
+                    testDataSource = await System.Threading.Tasks.Task.Run(
+                        () => editor.CreateNewDataSourceConnection(testConnection, testConnection.ConnectionName));
+
+                    if (testDataSource == null)
+                    {
+                        return false;
+                    }
+
+                    var state = await System.Threading.Tasks.Task.Run(() => testDataSource.Openconnection());
+                    return state == ConnectionState.Open || testDataSource.ConnectionStatus == ConnectionState.Open;
+                }
+                finally
+                {
+                    CleanupTestDataSource(editor, testDataSource);
+                }
             }
             catch (Exception ex)
             {
@@ -486,6 +519,127 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
         }
         #endregion
+
+        private IDMEEditor ResolveEditorForConnectionTest()
+        {
+            if (beepService?.DMEEditor != null)
+            {
+                return beepService.DMEEditor;
+            }
+
+            return Editor;
+        }
+
+        private static ConnectionProperties CreateTestConnectionProperties(ConnectionProperties source)
+        {
+            var clone = CloneConnectionProperties(source);
+            clone.ConnectionName = BuildTemporaryConnectionName(source.ConnectionName);
+            clone.GuidID = Guid.NewGuid().ToString();
+            clone.ID = 0;
+            clone.ParameterList ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            RemoveTypedKeysFromParameterList(clone.ParameterList);
+            return clone;
+        }
+
+        private static string BuildTemporaryConnectionName(string sourceName)
+        {
+            var baseName = string.IsNullOrWhiteSpace(sourceName) ? "BeepConnection" : sourceName.Trim();
+            return $"{baseName}__ConnTest__{Guid.NewGuid():N}";
+        }
+
+        private static ConnectionProperties CloneConnectionProperties(ConnectionProperties source)
+        {
+            var clone = new ConnectionProperties();
+            var properties = typeof(ConnectionProperties)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0);
+
+            foreach (var property in properties)
+            {
+                object value;
+                try
+                {
+                    value = property.GetValue(source);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                try
+                {
+                    property.SetValue(clone, value);
+                }
+                catch
+                {
+                    // Skip non-assignable properties for clone safety.
+                }
+            }
+
+            clone.ParameterList = source.ParameterList != null
+                ? new Dictionary<string, string>(source.ParameterList, StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            RemoveTypedKeysFromParameterList(clone.ParameterList);
+
+            return clone;
+        }
+
+        private static void CleanupTestDataSource(IDMEEditor editor, IDataSource testDataSource)
+        {
+            if (testDataSource == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (testDataSource.ConnectionStatus == ConnectionState.Open)
+                {
+                    testDataSource.Closeconnection();
+                }
+            }
+            catch
+            {
+                // Ignore cleanup close failures.
+            }
+
+            try
+            {
+                if (editor?.DataSources != null)
+                {
+                    var existing = editor.DataSources.FirstOrDefault(ds => ReferenceEquals(ds, testDataSource));
+                    if (existing != null)
+                    {
+                        editor.DataSources.Remove(existing);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore cleanup list failures.
+            }
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(testDataSource.DatasourceName))
+                {
+                    DataSourceLifecycleHelper.UnregisterDataSource(testDataSource.DatasourceName);
+                }
+            }
+            catch
+            {
+                // Ignore cache cleanup failures.
+            }
+
+            try
+            {
+                testDataSource.Dispose();
+            }
+            catch
+            {
+                // Ignore dispose failures.
+            }
+        }
 
         #region Driver and Version Initialization
         /// <summary>
@@ -785,9 +939,35 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 _childPropertyControls.Add(ucOAuthProperties);
             }
         }
+
+        private void MoveDriverTabToEnd()
+        {
+            if (beepTabs1 == null || tabPageDriver == null)
+            {
+                return;
+            }
+
+            if (beepTabs1.TabPages.Contains(tabPageDriver))
+            {
+                beepTabs1.TabPages.Remove(tabPageDriver);
+                beepTabs1.TabPages.Add(tabPageDriver);
+            }
+        }
         #endregion
 
         #region ParameterList Handling
+        private void EnsureParameterListInitialized()
+        {
+            if (ConnectionProperties != null && ConnectionProperties.ParameterList == null)
+            {
+                ConnectionProperties.ParameterList = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            if (ConnectionProperties?.ParameterList != null)
+            {
+                RemoveTypedKeysFromParameterList(ConnectionProperties.ParameterList);
+            }
+        }
         
         /// <summary>
         /// Helper method to bind a control's Text property to a ParameterList entry
@@ -798,7 +978,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected void BindToParameterList(Control control, string parameterName, string defaultValue = null)
         {
             if (control == null || ConnectionProperties == null) return;
-            
+            if (IsTypedConnectionProperty(parameterName)) return;
+            EnsureParameterListInitialized();
+             
             // Initialize parameter if missing
             if (!ConnectionProperties.ParameterList.ContainsKey(parameterName))
             {
@@ -824,7 +1006,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected void InitializeParameterIfMissing(string parameterName, string defaultValue)
         {
             if (ConnectionProperties == null) return;
-            
+            if (IsTypedConnectionProperty(parameterName)) return;
+            EnsureParameterListInitialized();
+             
             if (!ConnectionProperties.ParameterList.ContainsKey(parameterName))
             {
                 ConnectionProperties.ParameterList[parameterName] = defaultValue ?? string.Empty;
@@ -840,7 +1024,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected string GetParameterValueOrDefault(string parameterName, string defaultValue = null)
         {
             if (ConnectionProperties == null) return defaultValue ?? string.Empty;
-            
+            if (IsTypedConnectionProperty(parameterName)) return defaultValue ?? string.Empty;
+            EnsureParameterListInitialized();
+             
             if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
             {
                 var value = ConnectionProperties.ParameterList[parameterName];
@@ -851,8 +1037,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         
         public void SetParameterValue(string parameterName, string value)
         {
-            if (ConnectionProperties == null || ConnectionProperties.ParameterList == null) return;
-            
+            if (ConnectionProperties == null || string.IsNullOrWhiteSpace(parameterName)) return;
+            if (IsTypedConnectionProperty(parameterName)) return;
+            EnsureParameterListInitialized();
+              
             if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
             {
                 ConnectionProperties.ParameterList[parameterName] = value;
@@ -864,8 +1052,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         }
         public string GetParameterValue(string parameterName)
         {
-            if (ConnectionProperties == null || ConnectionProperties.ParameterList == null) return null;
-            
+            if (ConnectionProperties == null || string.IsNullOrWhiteSpace(parameterName)) return null;
+            if (IsTypedConnectionProperty(parameterName)) return null;
+            EnsureParameterListInitialized();
+             
             if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
             {
                 return ConnectionProperties.ParameterList[parameterName];
@@ -874,6 +1064,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         }
         public void RemoveParameter(string parameterName)
         {
+            if (ConnectionProperties == null || string.IsNullOrWhiteSpace(parameterName)) return;
+            if (IsTypedConnectionProperty(parameterName)) return;
+            EnsureParameterListInitialized();
+
             if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
             {
                 ConnectionProperties.ParameterList.Remove(parameterName);
@@ -881,20 +1075,40 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         }
         public void ClearParameters()
         {
+            if (ConnectionProperties == null) return;
+            EnsureParameterListInitialized();
             ConnectionProperties.ParameterList.Clear();
         }
         public Dictionary<string, string> GetAllParameters()
         {
+            if (ConnectionProperties == null) return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            EnsureParameterListInitialized();
             return new Dictionary<string, string>(ConnectionProperties.ParameterList);
         }
         public void SetAllParameters(Dictionary<string, string> parameters)
         {
-            ConnectionProperties.ParameterList = new Dictionary<string, string>(parameters);
+            if (ConnectionProperties == null) return;
+            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (parameters != null)
+            {
+                foreach (var kvp in parameters)
+                {
+                    if (string.IsNullOrWhiteSpace(kvp.Key) || IsTypedConnectionProperty(kvp.Key))
+                    {
+                        continue;
+                    }
+
+                    result[kvp.Key] = kvp.Value ?? string.Empty;
+                }
+            }
+
+            ConnectionProperties.ParameterList = result;
         }
         public void SetDefaultParameters()
         {
-            if (ConnectionProperties == null || ConnectionProperties.ParameterList == null) return;
-            
+            if (ConnectionProperties == null) return;
+            EnsureParameterListInitialized();
+             
             try
             {
                 // Try to get parameters from ConnectionHelper if available
@@ -907,7 +1121,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                     {
                         if (paramInfo != null && !string.IsNullOrEmpty(paramInfo.Name))
                         {
-                            SetParameterValue(paramInfo.Name, paramInfo.Value ?? string.Empty);
+                            if (IsTypedConnectionProperty(paramInfo.Name))
+                            {
+                                continue;
+                            }
+                            if (!ConnectionProperties.ParameterList.ContainsKey(paramInfo.Name))
+                            {
+                                SetParameterValue(paramInfo.Name, paramInfo.Value ?? string.Empty);
+                            }
                         }
                     }
                 }
@@ -924,6 +1145,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             {
                 foreach (var param in DefaultParameterList)
                 {
+                    if (IsTypedConnectionProperty(param.Key))
+                    {
+                        continue;
+                    }
                     if (!ConnectionProperties.ParameterList.ContainsKey(param.Key))
                     {
                         ConnectionProperties.ParameterList[param.Key] = param.Value ?? string.Empty;
@@ -933,22 +1158,31 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         }
         public bool HasParameter(string parameterName)
         {
+            if (ConnectionProperties == null || string.IsNullOrWhiteSpace(parameterName)) return false;
+            EnsureParameterListInitialized();
             return ConnectionProperties.ParameterList.ContainsKey(parameterName);
         }
         public int ParameterCount()
         {
+            if (ConnectionProperties == null) return 0;
+            EnsureParameterListInitialized();
             return ConnectionProperties.ParameterList.Count;
         }
         public IEnumerable<string> GetParameterNames()
         {
+            if (ConnectionProperties == null) return Enumerable.Empty<string>();
+            EnsureParameterListInitialized();
             return ConnectionProperties.ParameterList.Keys;
         }
         public IEnumerable<string> GetParameterValues()
         {
+            if (ConnectionProperties == null) return Enumerable.Empty<string>();
+            EnsureParameterListInitialized();
             return ConnectionProperties.ParameterList.Values;
         }
         public void UpdateParameters(Dictionary<string, string> parameters)
         {
+            if (parameters == null) return;
             foreach (var param in parameters)
             {
                 SetParameterValue(param.Key, param.Value);
@@ -956,19 +1190,42 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         }
         public void SyncParametersWithDefaultParametersList()
         {
+            if (ConnectionProperties == null || DefaultParameterList == null) return;
+            EnsureParameterListInitialized();
+
             // Add any missing default parameters to the ConnectionProperties.ParameterList
             foreach (var param in DefaultParameterList)
             {
+                if (IsTypedConnectionProperty(param.Key))
+                {
+                    continue;
+                }
                 if (!ConnectionProperties.ParameterList.ContainsKey(param.Key))
                 {
                     ConnectionProperties.ParameterList.Add(param.Key, param.Value);
                 }
             }
-            // remove any parameters not in the DefaultParameterList
-            var keysToRemove = ConnectionProperties.ParameterList.Keys.Except(DefaultParameterList.Keys).ToList();
-            foreach (var key in keysToRemove)
+        }
+
+        private static bool IsTypedConnectionProperty(string key)
+        {
+            return !string.IsNullOrWhiteSpace(key) && StronglyTypedConnectionPropertyNames.Contains(key);
+        }
+
+        private static void RemoveTypedKeysFromParameterList(IDictionary<string, string> parameterList)
+        {
+            if (parameterList == null || parameterList.Count == 0)
             {
-                ConnectionProperties.ParameterList.Remove(key);
+                return;
+            }
+
+            var typedKeys = parameterList.Keys
+                .Where(IsTypedConnectionProperty)
+                .ToList();
+
+            foreach (var key in typedKeys)
+            {
+                parameterList.Remove(key);
             }
         }
         #endregion

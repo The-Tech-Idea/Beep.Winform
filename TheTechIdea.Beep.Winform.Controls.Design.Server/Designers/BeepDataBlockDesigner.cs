@@ -9,6 +9,7 @@ using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
@@ -77,8 +78,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Block Configuration
             items.Add(new DesignerActionHeaderItem("Block Configuration"));
             items.Add(new DesignerActionPropertyItem("Name", "Block Name", "Block Configuration", "Unique identifier for this block"));
+            items.Add(new DesignerActionPropertyItem("ConnectionName", "Connection", "Block Configuration", "Data connection used to load entities"));
             items.Add(new DesignerActionPropertyItem("EntityName", "Entity Name", "Block Configuration", "Name of the entity this block manages"));
+            items.Add(new DesignerActionPropertyItem("ViewMode", "View Mode", "Block Configuration", "Record controls or BeepGridPro layout"));
+            items.Add(new DesignerActionMethodItem(this, "LaunchDataSetupWizard", "Open Data Setup Wizard...", "Block Configuration", "Step-by-step setup for connection, entity, fields, and view mode", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureEntityType", "Select Entity Type...", "Block Configuration", "Choose the entity type for this block", true));
+            items.Add(new DesignerActionMethodItem(this, "RefreshEntityMetadata", "Refresh Entity Metadata", "Block Configuration", "Reload entity schema and fields from selected connection", true));
 
             // Oracle Forms Features
             items.Add(new DesignerActionHeaderItem("Oracle Forms Features"));
@@ -138,6 +143,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
         }
 
+        public string ConnectionName
+        {
+            get => DataBlock?.ConnectionName ?? "";
+            set
+            {
+                if (DataBlock != null)
+                {
+                    SetProperty("ConnectionName", value);
+                }
+            }
+        }
+
+        public DataBlockViewMode ViewMode
+        {
+            get => DataBlock?.ViewMode ?? DataBlockViewMode.RecordControls;
+            set
+            {
+                if (DataBlock != null)
+                {
+                    SetProperty("ViewMode", value);
+                }
+            }
+        }
+
         public string FormName
         {
             get => DataBlock?.FormName ?? "";
@@ -183,6 +212,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 "Configure Entity Type",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
+        }
+
+        public void RefreshEntityMetadata()
+        {
+            if (DataBlock == null) return;
+
+            var result = DataBlock.RefreshEntityMetadata();
+            MessageBox.Show(
+                result
+                    ? "Entity metadata reloaded from selected connection.\n\nField selections and controls were updated."
+                    : "Could not load entity metadata.\n\nCheck Connection and Entity properties.",
+                "Refresh Entity Metadata",
+                MessageBoxButtons.OK,
+                result ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+        }
+
+        public void LaunchDataSetupWizard()
+        {
+            if (DataBlock == null) return;
+
+            try
+            {
+                using var wizard = new BeepDataBlockSetupWizardForm(DataBlock);
+                if (wizard.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                SetProperty("ConnectionName", wizard.SelectedConnectionName);
+                SetProperty("EntityName", wizard.SelectedEntityName);
+                SetProperty("ViewMode", wizard.SelectedViewMode);
+
+                DataBlock.RefreshEntityMetadata();
+                ApplyWizardFieldSelections(wizard.SelectedFieldNames);
+                DataBlock.RefreshEntityMetadata();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Could not apply wizard settings.\n\n{ex.Message}",
+                    "Wizard Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void ApplyWizardFieldSelections(HashSet<string> selectedFieldNames)
+        {
+            if (DataBlock == null) return;
+
+            var prop = TypeDescriptor.GetProperties(DataBlock)["FieldSelections"];
+            ChangeService?.OnComponentChanging(DataBlock, prop);
+
+            foreach (var fieldSelection in DataBlock.FieldSelections)
+            {
+                fieldSelection.IncludeInView = selectedFieldNames.Contains(fieldSelection.FieldName);
+            }
+
+            ChangeService?.OnComponentChanged(DataBlock, prop, null, null);
         }
 
         public void SetupMasterDetail()

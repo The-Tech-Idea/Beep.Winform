@@ -347,15 +347,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return false;
             }
 
-            // Check for unsaved changes in child blocks
-            if (ChildBlocks.Any(cb => DataBlockUnitOfWorkHelper.HasUncommittedChanges(cb.Data)))
-            {
-                Status = "Child blocks have uncommitted changes";
-                return false;
-            }
-
             try
             {
+                var dirtyChildBlocks = ChildBlocks
+                    .Where(cb => cb.Data != null && DataBlockUnitOfWorkHelper.HasUncommittedChanges(cb.Data))
+                    .ToList();
+                var committedUnits = new List<IUnitofWork>();
+
                 // Note: PreCommit and PostCommit are handled by UnitOfWork events, not DataBlock events
                 // The UnitOfWork's PreCommit and PostCommit events are already subscribed in SubscribeEvents()
 
@@ -364,18 +362,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (result.Flag == Errors.Ok)
                 {
+                    committedUnits.Add(Data);
                     // PostCommit event is already handled by HandleDataChanges via UnitOfWork.PostCommit
 
-                    // Commit child blocks
-                    foreach (var childBlock in ChildBlocks)
+                    // Commit dirty child blocks to keep master/detail state consistent.
+                    foreach (var childBlock in dirtyChildBlocks)
                     {
-                        if (childBlock.Data != null)
+                        var childResult = await DataBlockUnitOfWorkHelper.CommitAsync(childBlock.Data);
+                        if (childResult.Flag != Errors.Ok)
                         {
-                            await DataBlockUnitOfWorkHelper.CommitAsync(childBlock.Data);
+                            var rollbackSucceeded = await RollbackCommittedUnitsAsync(committedUnits);
+                            Status = rollbackSucceeded
+                                ? $"Commit failed in child block; committed blocks were rolled back: {childResult}"
+                                : $"Commit failed in child block and rollback was incomplete: {childResult}";
+                            return false;
                         }
+
+                        committedUnits.Add(childBlock.Data);
                     }
 
-                    Status = "Commit successful";
+                    Status = dirtyChildBlocks.Count > 0
+                        ? $"Commit successful ({dirtyChildBlocks.Count} child block(s) committed)"
+                        : "Commit successful";
                     return true;
                 }
                 else
@@ -390,6 +398,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Debug.WriteLine($"[BeepDataBlock] CommitWithUnitOfWorkAsync error: {ex.Message}");
                 return false;
             }
+        }
+
+        private async Task<bool> RollbackCommittedUnitsAsync(IEnumerable<IUnitofWork> committedUnits)
+        {
+            bool allRollbackSucceeded = true;
+            foreach (var unit in committedUnits.Reverse())
+            {
+                try
+                {
+                    if (!await DataBlockUnitOfWorkHelper.RollbackAsync(unit))
+                    {
+                        allRollbackSucceeded = false;
+                    }
+                }
+                catch
+                {
+                    allRollbackSucceeded = false;
+                }
+            }
+
+            return allRollbackSucceeded;
         }
 
         /// <summary>

@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Advanced Features
             items.Add(new DesignerActionHeaderItem("Advanced Features"));
             items.Add(new DesignerActionMethodItem(this, "ConfigureLocking", "Configure Record Locking...", "Advanced Features", "Setup record locking mode", true));
-            items.Add(new DesignerActionMethodItem(this, "ConfigurePerformance", "Enable Performance Optimizations", "Advanced Features", "Enable 20-30% performance boost", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigurePerformance", "Manage Performance Caches...", "Advanced Features", "Refresh trigger/LOV/validation caches and inspect cache stats", true));
             items.Add(new DesignerActionMethodItem(this, "ViewDocumentation", "View Documentation...", "Advanced Features", "Open DataBlocks documentation folder", true));
 
             // Quick Presets
@@ -188,13 +188,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void SetProperty(string propertyName, object value)
         {
-            PropertyDescriptor prop = TypeDescriptor.GetProperties(DataBlock)[propertyName];
-            if (prop != null && prop.PropertyType == value.GetType())
+            if (DataBlock == null)
             {
-                ChangeService?.OnComponentChanging(DataBlock, prop);
-                prop.SetValue(DataBlock, value);
-                ChangeService?.OnComponentChanged(DataBlock, prop, null, value);
+                return;
             }
+
+            PropertyDescriptor prop = TypeDescriptor.GetProperties(DataBlock)[propertyName];
+            if (prop == null || prop.IsReadOnly || !prop.PropertyType.IsInstanceOfType(value))
+            {
+                return;
+            }
+
+            var oldValue = prop.GetValue(DataBlock);
+            if (Equals(oldValue, value))
+            {
+                return;
+            }
+
+            ChangeService?.OnComponentChanging(DataBlock, prop);
+            prop.SetValue(DataBlock, value);
+            ChangeService?.OnComponentChanged(DataBlock, prop, oldValue, value);
         }
 
         #endregion
@@ -446,14 +459,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public void ConfigureLocking()
         {
+            var blockRef = string.IsNullOrWhiteSpace(DataBlock?.Name) ? "block" : DataBlock.Name;
             var code =
                 $"// Record Locking Configuration\n" +
-                $"{DataBlock.Name}.LockMode = LockMode.Automatic;  // Lock when editing starts\n" +
-                $"{DataBlock.Name}.LockOnEdit = true;\n\n" +
+                $"{blockRef}.LockMode = LockMode.Automatic;  // Lock when editing starts\n" +
+                $"{blockRef}.LockOnEdit = true;\n\n" +
                 "// Manual locking:\n" +
-                $"await {DataBlock.Name}.LockCurrentRecord();\n" +
-                $"if ({DataBlock.Name}.IsRecordLocked()) {{ /* ... */ }}\n" +
-                $"{DataBlock.Name}.UnlockCurrentRecord();";
+                $"await {blockRef}.LockCurrentRecord();\n" +
+                $"if ({blockRef}.IsCurrentRecordLocked()) {{ /* ... */ }}\n" +
+                $"{blockRef}.UnlockCurrentRecord();";
 
             Clipboard.SetText(code);
 
@@ -462,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 "Lock Modes:\n" +
                 "• Automatic - Lock when user starts editing\n" +
                 "• Immediate - Lock on navigation\n" +
-                "• Delayed - Lock on commit\n" +
+                "• None - Disable locking\n" +
                 "• Manual - Explicit lock calls only\n\n" +
                 "Oracle Forms equivalent: LOCK_RECORD",
                 "Record Locking",
@@ -472,28 +486,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public void ConfigurePerformance()
         {
+            var blockRef = string.IsNullOrWhiteSpace(DataBlock?.Name) ? "block" : DataBlock.Name;
             var code =
-                $"// Performance Optimization\n" +
-                $"{DataBlock.Name}.EnablePerformanceOptimizations();\n\n" +
-                "// Provides:\n" +
-                "// - Trigger lookup caching\n" +
-                "// - LOV data lazy-loading\n" +
-                "// - Validation debouncing\n" +
-                "// - SystemVariables optimization\n" +
-                "// Result: 20-30% faster!";
+                $"// Performance Cache Maintenance\n" +
+                $"{blockRef}.InvalidateTriggerCache();\n" +
+                $"{blockRef}.InvalidateLOVCache();\n" +
+                $"{blockRef}.ClearValidationDebounce();\n\n" +
+                "// Optional diagnostics\n" +
+                $"var cacheStats = {blockRef}.GetCacheStatistics();\n" +
+                "Console.WriteLine($\"Cache size: {cacheStats.TotalCacheMemoryFormatted}\");";
 
             Clipboard.SetText(code);
 
             MessageBox.Show(
-                "Performance optimization code copied to clipboard!\n\n" +
+                "Performance cache maintenance code copied to clipboard!\n\n" +
                 "Optimizations:\n" +
                 "✅ Trigger lookup caching\n" +
                 "✅ LOV data lazy-loading\n" +
                 "✅ Validation debouncing (300ms)\n" +
                 "✅ SystemVariables optimization\n\n" +
-                "Performance gain: 20-30% faster!\n\n" +
+                "Cache state refreshed and ready for diagnostics.\n\n" +
                 "Paste this code in your Form.Load.",
-                "Performance Optimization",
+                "Performance Caches",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }

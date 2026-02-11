@@ -9,13 +9,16 @@ using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
+using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 using ContentAlignment = System.Drawing.ContentAlignment;
+using navigationStyle = TheTechIdea.Beep.Winform.Controls.GridX.Painters.navigationStyle;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -60,6 +63,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly Dictionary<int, Rectangle> _headerSortIconRects = new();
         public Dictionary<int, Rectangle> HeaderSortIconRects => _headerSortIconRects;
 
+        // Store top filter panel cell/icon rectangles for hit-testing
+        private readonly Dictionary<int, Rectangle> _topFilterCellRects = new();
+        public Dictionary<int, Rectangle> TopFilterCellRects => _topFilterCellRects;
+
+        private readonly Dictionary<int, Rectangle> _topFilterClearIconRects = new();
+        public Dictionary<int, Rectangle> TopFilterClearIconRects => _topFilterClearIconRects;
+
+        private IGridFilterPanelPainter? _filterPanelPainter;
+        private navigationStyle _filterPanelPainterStyle = navigationStyle.None;
+
         public GridRenderHelper(BeepGridPro grid)
         {
             _grid = grid;
@@ -75,9 +88,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Advanced header styling properties
         public bool UseHeaderGradient { get; set; } = false;
         public bool ShowSortIndicators { get; set; } = true;
+        public HeaderIconVisibility SortIconVisibility { get; set; } = HeaderIconVisibility.Always;
+        public HeaderIconVisibility FilterIconVisibility { get; set; } = HeaderIconVisibility.Always;
         public bool UseHeaderHoverEffects { get; set; } = true;
         public bool UseBoldHeaderText { get; set; } = false;
         public int HeaderCellPadding { get; set; } = 2;
+
+        // Focus styling
+        public bool UseDedicatedFocusedRowStyle { get; set; } = true;
+        public Color FocusedRowBackColor { get; set; } = Color.Empty;
+        public bool ShowFocusedCellFill { get; set; } = true;
+        public Color FocusedCellFillColor { get; set; } = Color.Empty;
+        public int FocusedCellFillOpacity { get; set; } = 36;
+        public bool ShowFocusedCellBorder { get; set; } = true;
+        public Color FocusedCellBorderColor { get; set; } = Color.Empty;
+        public float FocusedCellBorderWidth { get; set; } = 2f;
 
         internal IBeepTheme Theme => _grid.Theme != null ? BeepThemesManager.GetTheme(_grid.Theme) : BeepThemesManager.GetDefaultTheme();
 
@@ -518,6 +543,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw column headers
             if (_grid.ShowColumnHeaders)
             {
+                if (_grid.ShowTopFilterPanel)
+                {
+                    try
+                    {
+                        DrawTopFilterPanel(g);
+                    }
+                    catch (Exception)
+                    {
+                        // Silently ignore top filter panel draw issues
+                    }
+                }
+                else
+                {
+                    _topFilterCellRects.Clear();
+                    _topFilterClearIconRects.Clear();
+                }
+
                 try
                 {
            //         Console.WriteLine("Drawing column headers...");
@@ -588,6 +630,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             var headerRect = _grid.Layout.HeaderRect;
             if (headerRect.Height <= 0 || headerRect.Width <= 0) return;
+
+            // Rebuild icon hit areas every paint so hit-testing matches current layout.
+            _headerFilterIconRects.Clear();
+            _headerSortIconRects.Clear();
 
             using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
             {
@@ -662,13 +708,45 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
+        private void DrawTopFilterPanel(Graphics g)
+        {
+            var panelRect = _grid.Layout.TopFilterRect;
+            _topFilterCellRects.Clear();
+            _topFilterClearIconRects.Clear();
+
+            if (panelRect.Width <= 0 || panelRect.Height <= 0)
+            {
+                return;
+            }
+
+            var style = _grid.NavigationStyle;
+            if (_filterPanelPainter == null || _filterPanelPainterStyle != style)
+            {
+                _filterPanelPainter = FilterPanelPainterFactory.CreatePainter(style);
+                _filterPanelPainterStyle = style;
+            }
+
+            if (_filterPanelPainter == null)
+            {
+                return;
+            }
+
+            _filterPanelPainter.PaintFilterPanel(
+                g,
+                panelRect,
+                _grid,
+                Theme,
+                _topFilterCellRects,
+                _topFilterClearIconRects);
+        }
+
         // Draws a simple filter icon (funnel shape)
         private void DrawFilterIcon(Graphics g, Rectangle rect, bool active)
         {
             Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? SystemColors.ControlText);
             
-            using (Pen pen = new Pen(active ? iconColor : Color.FromArgb(100, iconColor), active ? 1.5f : 1f))
-            using (Brush brush = new SolidBrush(active ? iconColor : Color.FromArgb(100, iconColor)))
+            using (Pen pen = new Pen(active ? iconColor : Color.FromArgb(180, iconColor), active ? 1.6f : 1.25f))
+            using (Brush brush = new SolidBrush(active ? iconColor : Color.FromArgb(120, iconColor)))
             {
                 // Draw a more compact filter funnel shape
                 int padding = 1;
@@ -685,9 +763,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 };
 
                 if (active)
+                {
                     g.FillPolygon(brush, funnel);
+                }
                 else
+                {
+                    g.FillPolygon(brush, funnel);
                     g.DrawPolygon(pen, funnel);
+                }
 
                 // Add a small circle or dot to indicate active filter
                 if (active)
@@ -830,24 +913,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Bold) :
                 baseFont;
 
+            bool isSystemColumn = column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID;
+            bool hasSortArea = ShowSortIndicators && SortIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn && column.AllowSort;
+            bool hasFilterArea = FilterIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn;
+
             // Calculate areas with custom padding
-            int sortIconSize = ShowSortIndicators ? Math.Min(cellRect.Height - HeaderCellPadding * 2, 16) : 0;
-            int filterIconSize = Math.Min(cellRect.Height - HeaderCellPadding * 2, 18);
+            int sortIconSize = hasSortArea ? Math.Min(cellRect.Height - HeaderCellPadding * 2, 14) : 0;
+            int filterIconSize = hasFilterArea ? Math.Min(cellRect.Height - HeaderCellPadding * 2, 14) : 0;
 
             // Calculate positions from right to left
             int rightX = cellRect.Right - HeaderCellPadding;
 
             // Filter icon area (if shown)
-            Rectangle filterIconRect = new Rectangle(
-                rightX - filterIconSize,
-                cellRect.Top + HeaderCellPadding,
-                filterIconSize,
-                filterIconSize);
-            rightX -= filterIconSize + HeaderCellPadding;
+            Rectangle filterIconRect = Rectangle.Empty;
+            if (hasFilterArea && filterIconSize > 0)
+            {
+                filterIconRect = new Rectangle(
+                    rightX - filterIconSize,
+                    cellRect.Top + HeaderCellPadding,
+                    filterIconSize,
+                    filterIconSize);
+                rightX -= filterIconSize + HeaderCellPadding;
+            }
 
-            // Sort icon area (if shown and column is sorted)
+            // Sort icon area
             Rectangle sortIconRect = Rectangle.Empty;
-            if (ShowSortIndicators && column.IsSorted && column.ShowSortIcon)
+            if (hasSortArea && sortIconSize > 0)
             {
                 sortIconRect = new Rectangle(
                     rightX - sortIconSize,
@@ -873,10 +964,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 TextRenderer.DrawText(g, text, font, textRect, textColor, flags);
             }
 
-            // Draw sort indicator if enabled and column is sorted
-            if (ShowSortIndicators && column.IsSorted && column.ShowSortIcon)
+            bool showSortIcon = hasSortArea && !sortIconRect.IsEmpty &&
+                (SortIconVisibility == HeaderIconVisibility.Always ||
+                (SortIconVisibility == HeaderIconVisibility.HoverOnly && (isHovered || (column.IsSorted && column.ShowSortIcon))));
+
+            // Draw sort indicator (including neutral state to show interactive affordance)
+            if (showSortIcon)
             {
-                DrawSortIndicator(g, sortIconRect, column.SortDirection);
+                var direction = (column.IsSorted && column.ShowSortIcon)
+                    ? column.SortDirection
+                    : TheTechIdea.Beep.Vis.Modules.SortDirection.None;
+                DrawSortIndicator(g, sortIconRect, direction);
                 _headerSortIconRects[columnIndex] = sortIconRect;
             }
             else
@@ -884,8 +982,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _headerSortIconRects.Remove(columnIndex);
             }
 
-            // Draw filter icon if hovered
-            bool showFilterIcon = column.ShowFilterIcon && _grid.Layout.HoveredHeaderColumnIndex == columnIndex;
+            bool showFilterIcon = hasFilterArea && !filterIconRect.IsEmpty &&
+                (FilterIconVisibility == HeaderIconVisibility.Always ||
+                (FilterIconVisibility == HeaderIconVisibility.HoverOnly && (isHovered || column.IsFiltered)));
+
             if (showFilterIcon)
             {
                 DrawFilterIcon(g, filterIconRect, column.IsFiltered);
@@ -924,6 +1024,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var selectedBackColor = Theme?.GridRowSelectedBackColor == Color.Empty ? (Theme?.SelectedRowBackColor ?? SystemColors.Highlight) : Theme.GridRowSelectedBackColor;
             var hoverBackColor = Theme?.GridRowHoverBackColor == Color.Empty ? SystemColors.ControlLight : Theme.GridRowHoverBackColor;
             var altRowBackColor = Theme?.AltRowBackColor ?? Color.FromArgb(250, 250, 250);
+            var focusColor = ResolveThemeFocusColor();
+            var focusedRowBackColor = ResolveFocusedRowBackColor(hoverBackColor, focusColor);
          
             // Pre-create reusable pens and brushes
             using var gridLinePen = new Pen(gridLineColor);
@@ -997,7 +1099,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                                 // Determine colors (using cached theme colors)
                                 Color back = isSelectedRow ? selectedBackColor : 
-                                           isActiveRow ? hoverBackColor :
+                                           isActiveRow ? (UseDedicatedFocusedRowStyle ? focusedRowBackColor : hoverBackColor) :
                                            ShowRowStripes && r % 2 == 1 ? altRowBackColor :
                                            sc.Col.HasCustomBackColor && sc.Col.UseCustomColors ? sc.Col.ColumnBackColor : gridBackColor;
 
@@ -1077,7 +1179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                             // Determine colors (using cached theme colors)
                             Color back = isSelectedRow ? selectedBackColor : 
-                                       isActiveRow ? hoverBackColor :
+                                       isActiveRow ? (UseDedicatedFocusedRowStyle ? focusedRowBackColor : hoverBackColor) :
                                        ShowRowStripes && r % 2 == 1 ? altRowBackColor :
                                        st.Col.HasCustomBackColor && st.Col.UseCustomColors ? st.Col.ColumnBackColor : gridBackColor;
 
@@ -1127,6 +1229,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             
             // Restore graphics state after sticky columns
             g.Restore(stickyState);
+        }
+
+        private Color ResolveThemeFocusColor()
+        {
+            if (Theme?.FocusIndicatorColor != Color.Empty)
+                return Theme.FocusIndicatorColor;
+
+            return _grid?.FocusIndicatorColor ?? SystemColors.Highlight;
+        }
+
+        private Color ResolveFocusedRowBackColor(Color hoverBackColor, Color focusColor)
+        {
+            if (FocusedRowBackColor != Color.Empty)
+                return FocusedRowBackColor;
+
+            return BlendColors(hoverBackColor, focusColor, 0.22f);
+        }
+
+        private static Color BlendColors(Color baseColor, Color blendColor, float blendFactor)
+        {
+            blendFactor = Math.Max(0f, Math.Min(1f, blendFactor));
+            int r = (int)(baseColor.R + ((blendColor.R - baseColor.R) * blendFactor));
+            int g = (int)(baseColor.G + ((blendColor.G - baseColor.G) * blendFactor));
+            int b = (int)(baseColor.B + ((blendColor.B - baseColor.B) * blendFactor));
+            return Color.FromArgb(255, r, g, b);
         }
 
         // Cached fallback font for cell rendering - avoids repeated allocation
@@ -1344,7 +1471,56 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void DrawSelectionIndicators(Graphics g)
         {
-            // Draw selection indicators (can be enhanced later)
+            if (g == null || _grid?.Selection == null || _grid.Data?.Rows == null)
+                return;
+
+            int rowIndex = _grid.Selection.RowIndex;
+            int colIndex = _grid.Selection.ColumnIndex;
+            if (rowIndex < 0 || rowIndex >= _grid.Data.Rows.Count)
+                return;
+            if (colIndex < 0 || colIndex >= _grid.Data.Columns.Count)
+                return;
+
+            var row = _grid.Data.Rows[rowIndex];
+            if (colIndex >= row.Cells.Count)
+                return;
+
+            var cell = row.Cells[colIndex];
+            if (cell.Rect.IsEmpty || cell.Rect.Width <= 0 || cell.Rect.Height <= 0)
+                return;
+
+            var rowsRect = _grid.Layout.RowsRect;
+            var focusRect = Rectangle.Intersect(rowsRect, cell.Rect);
+            if (focusRect.IsEmpty)
+                return;
+
+            var focusColor = ResolveThemeFocusColor();
+            var state = g.Save();
+            g.SetClip(rowsRect);
+
+            if (ShowFocusedCellFill)
+            {
+                var fillBase = FocusedCellFillColor == Color.Empty ? focusColor : FocusedCellFillColor;
+                int alpha = Math.Max(0, Math.Min(255, FocusedCellFillOpacity));
+                using var fillBrush = new SolidBrush(Color.FromArgb(alpha, fillBase.R, fillBase.G, fillBase.B));
+                g.FillRectangle(fillBrush, focusRect);
+            }
+
+            if (ShowFocusedCellBorder && FocusedCellBorderWidth > 0f)
+            {
+                var borderColor = FocusedCellBorderColor == Color.Empty ? focusColor : FocusedCellBorderColor;
+                using var borderPen = new Pen(borderColor, FocusedCellBorderWidth)
+                {
+                    Alignment = System.Drawing.Drawing2D.PenAlignment.Inset
+                };
+                var borderRect = Rectangle.Inflate(focusRect, -1, -1);
+                if (borderRect.Width > 0 && borderRect.Height > 0)
+                {
+                    g.DrawRectangle(borderPen, borderRect);
+                }
+            }
+
+            g.Restore(state);
         }
 
         // Professional paging methods

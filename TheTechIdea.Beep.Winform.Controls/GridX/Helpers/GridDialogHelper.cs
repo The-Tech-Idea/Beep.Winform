@@ -265,13 +265,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// <summary>
         /// Shows a filter dialog for the grid
         /// </summary>
-        public void ShowFilterDialog()
+        public void ShowFilterDialog(string? preferredColumnName = null, string? preferredFilterText = null)
         {
             // Close any existing filter dialog
             CloseFilterDialog();
 
             // Create filter panel
-            var filterPanel = CreateFilterPanel();
+            var filterPanel = CreateFilterPanel(preferredColumnName, preferredFilterText);
 
             // Create and configure dialog
             _filterDialog = CreateFilterDialog(filterPanel);
@@ -438,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return dialog;
         }
 
-        private Panel CreateFilterPanel()
+        private Panel CreateFilterPanel(string? preferredColumnName = null, string? preferredFilterText = null)
         {
             var panel = new Panel
             {
@@ -462,8 +462,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             };
 
             // Populate column combo
+            var filterableColumns = _grid.Data.Columns
+                .Where(c => c.Visible && !c.IsSelectionCheckBox && !c.IsRowNumColumn)
+                .ToList();
+
             columnCombo.Items.Add("All Columns");
-            foreach (var col in _grid.Data.Columns.Where(c => c.Visible && !c.IsSelectionCheckBox && !c.IsRowNumColumn))
+            foreach (var col in filterableColumns)
             {
                 columnCombo.Items.Add(col.ColumnCaption ?? col.ColumnName);
             }
@@ -482,6 +486,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 Size = new Size(200, 25),
                 Name = "FilterTextBox"
             };
+
+            if (!string.IsNullOrWhiteSpace(preferredColumnName))
+            {
+                for (int i = 0; i < filterableColumns.Count; i++)
+                {
+                    var col = filterableColumns[i];
+                    if (string.Equals(col.ColumnName, preferredColumnName, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(col.ColumnCaption, preferredColumnName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        columnCombo.SelectedIndex = i + 1; // +1 because "All Columns"
+                        break;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(preferredFilterText))
+            {
+                filterTextBox.Text = preferredFilterText.Trim();
+            }
+            else if (columnCombo.SelectedIndex > 0)
+            {
+                var selectedCol = filterableColumns[columnCombo.SelectedIndex - 1];
+                filterTextBox.Text = selectedCol.Filter ?? string.Empty;
+            }
 
             var applyButton = new Button
             {
@@ -733,22 +761,58 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void ApplyFilter(string columnName, string filterText)
         {
-            // Implement filter logic here
-            // This would call the existing filter functionality in the grid
             if (string.IsNullOrWhiteSpace(filterText))
             {
                 ClearFilter();
                 return;
             }
 
-            // Apply filter through the grid's existing filter mechanism
-            // You would implement this based on your grid's filter functionality
+            var text = filterText.Trim();
+
+            if (string.IsNullOrWhiteSpace(columnName) || columnName.Equals("All Columns", StringComparison.OrdinalIgnoreCase))
+            {
+                _grid.ApplyQuickFilter(text);
+                foreach (var col in _grid.Data.Columns)
+                {
+                    col.IsFiltered = false;
+                    col.Filter = string.Empty;
+                }
+                _grid.SafeInvalidate();
+                return;
+            }
+
+            var targetColumn = _grid.Data.Columns.FirstOrDefault(c =>
+                string.Equals(c.ColumnCaption, columnName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(c.ColumnName, columnName, StringComparison.OrdinalIgnoreCase));
+
+            if (targetColumn == null)
+            {
+                return;
+            }
+
+            _grid.SortFilter.Filter(targetColumn.ColumnName, text);
+            foreach (var col in _grid.Data.Columns)
+            {
+                col.IsFiltered = string.Equals(col.ColumnName, targetColumn.ColumnName, StringComparison.OrdinalIgnoreCase);
+                col.Filter = col.IsFiltered ? text : string.Empty;
+            }
+            _grid.SafeInvalidate();
         }
 
         private void ClearFilter()
         {
-            // Clear any applied filters
-            // This would call the existing clear filter functionality in the grid
+            _grid.SortFilter.ClearFilters();
+            if (_grid.IsFiltered)
+            {
+                _grid.ClearFilter();
+            }
+
+            foreach (var col in _grid.Data.Columns)
+            {
+                col.IsFiltered = false;
+                col.Filter = string.Empty;
+            }
+            _grid.SafeInvalidate();
         }
 
         private void PerformSearch(string searchText, bool fromStart)

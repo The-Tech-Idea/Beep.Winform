@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 int dx = e.X - _mouseDown.X;
                 var col = _grid.Data.Columns[_resizingColIndex];
-                col.Width = Math.Max(20, col.Width + dx);
+                col.Width = _grid.Sizing.ClampColumnWidth(col, col.Width + dx);
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
                 _grid.ScrollBars?.UpdateBars();
@@ -114,6 +114,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _pressedOnCheckbox = false;
             _pressedRow = _pressedCol = -1;
 
+            if (e.Button == MouseButtons.Left && e.Clicks >= 2 && TryHandleColumnBorderDoubleClick(e.Location))
+            {
+                return;
+            }
+
             // Navigator
             if (_grid.ShowNavigator && HitTestNavigator(e.Location)) return;
 
@@ -171,12 +176,41 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
+            // Top filter panel click (open column filter dialog or clear active column filter)
+            if (_grid.ShowTopFilterPanel && _grid.Layout.TopFilterRect.Contains(e.Location))
+            {
+                int clearColIdx = HitHeaderIcon(_grid.Render.TopFilterClearIconRects, e.Location);
+                if (clearColIdx >= 0 && clearColIdx < _grid.Data.Columns.Count)
+                {
+                    var clearColumn = _grid.Data.Columns[clearColIdx];
+                    if (clearColumn != null && !string.IsNullOrWhiteSpace(clearColumn.ColumnName))
+                    {
+                        clearColumn.Filter = string.Empty;
+                        _grid.SortFilter.Filter(clearColumn.ColumnName, string.Empty);
+                        _grid.SafeInvalidate(_grid.Layout.TopFilterRect);
+                        return;
+                    }
+                }
+
+                int panelColIdx = HitHeaderIcon(_grid.Render.TopFilterCellRects, e.Location);
+                if (panelColIdx >= 0 && panelColIdx < _grid.Data.Columns.Count)
+                {
+                    var panelColumn = _grid.Data.Columns[panelColIdx];
+                    if (panelColumn != null && !string.IsNullOrWhiteSpace(panelColumn.ColumnName))
+                    {
+                        _grid.ShowFilterDialog(panelColumn.ColumnName, panelColumn.Filter);
+                        return;
+                    }
+                }
+            }
+
             // Filter icon click in header
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
             {
-                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
-                if (colIdx >= 0 && _grid.Render.HeaderFilterIconRects.TryGetValue(colIdx, out var r) && r.Contains(e.Location))
+                int colIdx = HitHeaderIcon(_grid.Render.HeaderFilterIconRects, e.Location);
+                if (colIdx >= 0)
                 {
+                    _grid.Layout.HoveredHeaderColumnIndex = colIdx;
                     _grid.ShowFilterDialog();
                     return;
                 }
@@ -185,9 +219,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Sort icon click in header
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
             {
-                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
-                if (colIdx >= 0 && _grid.Render.HeaderSortIconRects.TryGetValue(colIdx, out var r) && r.Contains(e.Location))
+                int colIdx = HitHeaderIcon(_grid.Render.HeaderSortIconRects, e.Location);
+                if (colIdx >= 0)
                 {
+                    _grid.Layout.HoveredHeaderColumnIndex = colIdx;
                     _grid.ToggleColumnSort(colIdx);
                     return;
                 }
@@ -757,7 +792,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            // 4) Navigator buttons -> hand cursor
+            // 4) Top filter panel chips / clear icons -> hand cursor
+            if (_grid.ShowTopFilterPanel && _grid.Layout.TopFilterRect.Contains(p))
+            {
+                int clearIdx = HitHeaderIcon(_grid.Render.TopFilterClearIconRects, p);
+                if (clearIdx >= 0)
+                {
+                    _grid.Cursor = Cursors.Hand;
+                    return;
+                }
+
+                int filterIdx = HitHeaderIcon(_grid.Render.TopFilterCellRects, p);
+                if (filterIdx >= 0)
+                {
+                    _grid.Cursor = Cursors.Hand;
+                    return;
+                }
+            }
+
+            // 5) Navigator buttons -> hand cursor
             if (_grid.ShowNavigator)
             {
                 var navRect = _grid.Layout.GetType().GetProperty("NavigatorRect")?.GetValue(_grid.Layout) as Rectangle? ?? Rectangle.Empty;
@@ -772,22 +825,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // 5) Header icons (filter/sort) and sortable header -> hand cursor
+            // 6) Header icons (filter/sort) and sortable header -> hand cursor
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(p))
             {
+                int filterIdx = HitHeaderIcon(_grid.Render.HeaderFilterIconRects, p);
+                if (filterIdx >= 0)
+                {
+                    _grid.Cursor = Cursors.Hand;
+                    return;
+                }
+
+                int sortIdx = HitHeaderIcon(_grid.Render.HeaderSortIconRects, p);
+                if (sortIdx >= 0)
+                {
+                    _grid.Cursor = Cursors.Hand;
+                    return;
+                }
+
                 int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
                 if (colIdx >= 0)
                 {
-                    if (_grid.Render.HeaderFilterIconRects.TryGetValue(colIdx, out var fr) && fr.Contains(p))
-                    {
-                        _grid.Cursor = Cursors.Hand;
-                        return;
-                    }
-                    if (_grid.Render.HeaderSortIconRects.TryGetValue(colIdx, out var sr) && sr.Contains(p))
-                    {
-                        _grid.Cursor = Cursors.Hand;
-                        return;
-                    }
                     var column = _grid.Data.Columns[colIdx];
                     if (column != null && column.AllowSort)
                     {
@@ -797,7 +854,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // 6) Row/selection checkbox -> hand cursor
+            // 7) Row/selection checkbox -> hand cursor
             if (_grid.ShowCheckBox)
             {
                 int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
@@ -818,7 +875,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // 5) Editable cells -> IBeam cursor (text/edit intent), except selection checkbox column
+            // 8) Editable cells -> IBeam cursor (text/edit intent), except selection checkbox column
             {
                 var (rr, cc) = HitTestCell(p);
                 if (rr >= 0 && cc >= 0)
@@ -835,6 +892,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // Default
             _grid.Cursor = Cursors.Default;
+        }
+
+        private static int HitHeaderIcon(System.Collections.Generic.Dictionary<int, Rectangle> iconRects, Point location)
+        {
+            foreach (var pair in iconRects)
+            {
+                if (!pair.Value.IsEmpty && pair.Value.Contains(location))
+                {
+                    return pair.Key;
+                }
+            }
+
+            return -1;
+        }
+
+        private bool TryHandleColumnBorderDoubleClick(Point location)
+        {
+            if (!_grid.AllowUserToResizeColumns) return false;
+
+            int borderIdx = HitTestColumnBorder(location);
+            if (borderIdx < 0 || borderIdx >= _grid.Data.Columns.Count) return false;
+
+            if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                _grid.BestFitVisibleColumns(includeHeader: true, allRows: false);
+            }
+            else
+            {
+                _grid.BestFitColumn(borderIdx, includeHeader: true, allRows: false);
+            }
+
+            _grid.Cursor = Cursors.Default;
+            return true;
         }
     }
 }

@@ -102,9 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
         private void AutoSizeColumns()
         {
-            Sizing.AutoResizeColumnsToFitContent();
-            Layout.Recalculate();
-            Invalidate();
+            AutoResizeColumnsToFitContent();
         }
         private void ResetColumnOrder()
         {

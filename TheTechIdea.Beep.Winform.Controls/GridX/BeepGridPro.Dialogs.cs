@@ -23,9 +23,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// <summary>
         /// Shows the filter dialog to configure grid filtering.
         /// </summary>
-        public void ShowFilterDialog()
+        public void ShowFilterDialog(string? preferredColumnName = null, string? preferredFilterText = null)
         {
-            Dialog.ShowFilterDialog();
+            Dialog.ShowFilterDialog(preferredColumnName, preferredFilterText);
         }
 
         /// <summary>

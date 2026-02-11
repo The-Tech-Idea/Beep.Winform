@@ -56,6 +56,14 @@ Navigator
 - Attach an external `BeepBindingNavigator` via `AttachNavigator(navigator, dataSource)` or use no visual navigator (owner drawn only).
 - Use actions: `MoveFirst/Prev/Next/Last`, `InsertNew`, `DeleteCurrent`, `Save`, `Cancel`.
 
+UOW mode
+- Assign `Uow` to either `IUnitofWork` or `IUnitOfWorkWrapper`.
+- If a runtime `UnitofWork<T>` instance is assigned, grid wraps it in `UnitOfWorkWrapper` automatically.
+- `Uow` mode is authoritative; `DataSource` value is retained and applied automatically when `Uow` is cleared.
+- Grid UOW binding/events use typed contracts only (no reflection in `BeepGridPro` UOW path).
+- Navigator actions map to UOW lifecycle (`Move*`, add/delete, `Commit`/`Rollback`) and refresh from `Units`.
+- Wrapper-only mode forwards navigator lifecycle actions as `UnitofWorkParams` events to the grid binder (`PreCreate/Delete/Commit/Rollback` and matching `Post*`).
+
 Auto-sizing
 - `AutoSizeColumnsMode` supports the standard `DataGridViewAutoSizeColumnsMode` values.
 - `AutoResizeColumnsToFitContent()` applies the chosen mode.

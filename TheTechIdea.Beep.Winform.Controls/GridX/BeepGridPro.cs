@@ -93,6 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ThemeHelper = new Helpers.GridThemeHelper(this);
             Navigator = new Helpers.GridNavigatorHelper(this);
             NavigatorPainter = new Helpers.GridNavigationPainterHelper(this);
+            _uowBinder = new GridUnitOfWorkBinder(this);
             
             // Sync navigation painter properties
             NavigatorPainter.UsePainterNavigation = _usePainterNavigation;
@@ -525,6 +526,96 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         /// <summary>
+        /// Best-fit a single column by measuring header/cell content.
+        /// </summary>
+        public void BestFitColumn(int columnIndex, bool includeHeader = true, bool allRows = false)
+        {
+            Sizing.BestFitColumn(columnIndex, includeHeader, allRows);
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Best-fit all visible auto-size-enabled columns.
+        /// </summary>
+        public void BestFitVisibleColumns(bool includeHeader = true, bool allRows = false)
+        {
+            Sizing.BestFitVisibleColumns(includeHeader, allRows);
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        internal void RequestAutoSize(AutoSizeTriggerSource source)
+        {
+            if (DesignMode) return;
+            if (AutoSizeColumnsMode == DataGridViewAutoSizeColumnsMode.None && !AutoSizeRowsToContent) return;
+
+            switch (AutoSizeTriggerMode)
+            {
+                case AutoSizeTriggerMode.Manual:
+                    return;
+                case AutoSizeTriggerMode.OnDataBind:
+                    if (source != AutoSizeTriggerSource.DataBind) return;
+                    ApplyAutoSizeNow();
+                    return;
+                case AutoSizeTriggerMode.OnEditCommit:
+                    if (source != AutoSizeTriggerSource.EditCommit) return;
+                    ApplyAutoSizeNow();
+                    return;
+                case AutoSizeTriggerMode.OnSortFilter:
+                    if (source != AutoSizeTriggerSource.SortFilter) return;
+                    ApplyAutoSizeNow();
+                    return;
+                case AutoSizeTriggerMode.AlwaysDebounced:
+                    QueueDebouncedAutoSize();
+                    return;
+                default:
+                    return;
+            }
+        }
+
+        private void QueueDebouncedAutoSize()
+        {
+            _autoSizeDebounceTimer ??= CreateAutoSizeDebounceTimer();
+            _autoSizeDebounceTimer.Interval = AutoSizeDebounceMilliseconds;
+            _autoSizeDebounceTimer.Stop();
+            _autoSizeDebounceTimer.Start();
+        }
+
+        private System.Windows.Forms.Timer CreateAutoSizeDebounceTimer()
+        {
+            var timer = new System.Windows.Forms.Timer
+            {
+                Interval = AutoSizeDebounceMilliseconds
+            };
+            timer.Tick += (_, __) =>
+            {
+                timer.Stop();
+                if (IsDisposed || Disposing) return;
+                ApplyAutoSizeNow();
+            };
+            return timer;
+        }
+
+        private void ApplyAutoSizeNow()
+        {
+            if (AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
+            {
+                Sizing.AutoResizeColumnsToFitContent();
+            }
+            else if (AutoSizeRowsToContent)
+            {
+                Sizing.AutoSizeRowsToFitContent();
+            }
+
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            SafeInvalidate();
+        }
+
+        /// <summary>
         /// Calculate optimal width for a column based on its content
         /// </summary>
         /// <param name="column">The column to measure</param>
@@ -596,7 +687,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             if (disposing)
             {
+                _uowBinder?.Detach();
                 Dialog?.Dispose();
+                if (_autoSizeDebounceTimer != null)
+                {
+                    _autoSizeDebounceTimer.Stop();
+                    _autoSizeDebounceTimer.Dispose();
+                    _autoSizeDebounceTimer = null;
+                }
             }
             base.Dispose(disposing);
         }

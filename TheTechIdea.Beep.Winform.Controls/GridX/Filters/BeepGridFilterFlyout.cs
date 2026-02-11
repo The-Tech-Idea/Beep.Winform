@@ -194,10 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
         {
             try
             {
-                // Best-effort reset: rebind current data set to clear helper state
-                _grid.Data.InitializeData();
-                _grid.Layout.Recalculate();
-                _grid.Invalidate();
+                _grid.SortFilter?.ClearFilters();
             }
             catch { }
         }

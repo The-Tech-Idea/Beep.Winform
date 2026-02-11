@@ -1,6 +1,7 @@
 ﻿using static System.ComponentModel.TypeConverter;
 using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Editor.UOW;
 using System.Reflection;
 
 public class UnitOfWorksConverter : TypeConverter
@@ -67,8 +68,10 @@ public class UnitOfWorksConverter : TypeConverter
        // Console.WriteLine($"Checking type: {type?.Name}");
         return type != null &&
                (type == typeof(IUnitofWork) ||
+                type == typeof(IUnitOfWorkWrapper) ||
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IUnitofWork<>)) ||
                 type.GetInterfaces().Any(i => i == typeof(IUnitofWork) ||
+                                              i == typeof(IUnitOfWorkWrapper) ||
                                               (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUnitofWork<>))));
     }
 }

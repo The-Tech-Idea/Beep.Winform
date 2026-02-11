@@ -29,34 +29,41 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             
             int oldRow = RowIndex;
             int oldCol = ColumnIndex;
+            if (oldRow == row && oldCol == col)
+            {
+                EnsureVisible();
+                return;
+            }
             
             RowIndex = row; 
             ColumnIndex = col;
 
-            // Only update active cell flags for highlighting; do NOT change row.IsSelected here.
-            // Use targeted invalidation for better performance
-            for (int r = 0; r < _grid.Data.Rows.Count; r++)
+            if (IsValidCell(oldRow, oldCol))
             {
-                var rr = _grid.Data.Rows[r];
-                bool rowChanged = false;
-                
-                for (int c = 0; c < rr.Cells.Count; c++)
-                {
-                    bool wasSelected = rr.Cells[c].IsSelected;
-                    bool isSelected = (r == row && c == col);
-                    
-                    if (wasSelected != isSelected)
-                    {
-                        rr.Cells[c].IsSelected = isSelected;
-                        rowChanged = true;
-                    }
-                }
-                
-                // Only invalidate rows that actually changed
-                if (rowChanged)
-                {
-                    _grid.InvalidateRow(r);
-                }
+                _grid.Data.Rows[oldRow].Cells[oldCol].IsSelected = false;
+            }
+            if (IsValidCell(row, col))
+            {
+                _grid.Data.Rows[row].Cells[col].IsSelected = true;
+            }
+
+            bool rowChanged = oldRow != row;
+            bool repainted = false;
+
+            if (rowChanged)
+            {
+                repainted |= TryInvalidateRow(oldRow);
+                repainted |= TryInvalidateRow(row);
+            }
+            else
+            {
+                repainted |= TryInvalidateCell(oldRow, oldCol);
+                repainted |= TryInvalidateCell(row, col);
+            }
+
+            if (!repainted)
+            {
+                _grid.SafeInvalidate();
             }
             
             // Ensure the selected row is visible
@@ -103,6 +110,35 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Scroll.SetVerticalIndex(RowIndex);
             }
             // Row is already visible - no scroll needed
+        }
+
+        private bool IsValidCell(int row, int col)
+        {
+            if (row < 0 || row >= _grid.Data.Rows.Count) return false;
+            if (col < 0 || col >= _grid.Data.Columns.Count) return false;
+            return col < _grid.Data.Rows[row].Cells.Count;
+        }
+
+        private bool TryInvalidateCell(int row, int col)
+        {
+            if (!IsValidCell(row, col)) return false;
+            var rect = _grid.Data.Rows[row].Cells[col].Rect;
+            if (rect.IsEmpty) return false;
+            _grid.SafeInvalidate(rect);
+            return true;
+        }
+
+        private bool TryInvalidateRow(int row)
+        {
+            if (row < 0 || row >= _grid.Data.Rows.Count) return false;
+            var rowCells = _grid.Data.Rows[row].Cells;
+            if (rowCells.Count == 0) return false;
+            var firstRect = rowCells[0].Rect;
+            if (firstRect.IsEmpty) return false;
+
+            var rowRect = new Rectangle(_grid.Layout.RowsRect.Left, firstRect.Top, _grid.Layout.RowsRect.Width, firstRect.Height);
+            _grid.SafeInvalidate(rowRect);
+            return true;
         }
     }
 }

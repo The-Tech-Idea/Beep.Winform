@@ -93,6 +93,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("ShowNavigator", value);
         }
 
+        [Category("Layout")]
+        [Description("Column auto-size behavior mode")]
+        public System.Windows.Forms.DataGridViewAutoSizeColumnsMode AutoSizeColumnsMode
+        {
+            get => _designer.GetProperty<System.Windows.Forms.DataGridViewAutoSizeColumnsMode>("AutoSizeColumnsMode");
+            set => _designer.SetProperty("AutoSizeColumnsMode", value);
+        }
+
+        [Category("Layout")]
+        [Description("Controls when grid auto-size is triggered")]
+        public AutoSizeTriggerMode AutoSizeTriggerMode
+        {
+            get => _designer.GetProperty<AutoSizeTriggerMode>("AutoSizeTriggerMode");
+            set => _designer.SetProperty("AutoSizeTriggerMode", value);
+        }
+
+        [Category("Layout")]
+        [Description("Debounce interval in milliseconds for AlwaysDebounced auto-size mode")]
+        public int AutoSizeDebounceMilliseconds
+        {
+            get => _designer.GetProperty<int>("AutoSizeDebounceMilliseconds");
+            set => _designer.SetProperty("AutoSizeDebounceMilliseconds", value);
+        }
+
+        [Category("Layout")]
+        [Description("Auto-size row heights based on content")]
+        public bool AutoSizeRowsToContent
+        {
+            get => _designer.GetProperty<bool>("AutoSizeRowsToContent");
+            set => _designer.SetProperty("AutoSizeRowsToContent", value);
+        }
+
+        [Category("Layout")]
+        [Description("Padding applied to auto-sized rows")]
+        public int RowAutoSizePadding
+        {
+            get => _designer.GetProperty<int>("RowAutoSizePadding");
+            set => _designer.SetProperty("RowAutoSizePadding", value);
+        }
+
+        [Category("Layout")]
+        [Description("Use DPI-aware row auto-size calculations")]
+        public bool UseDpiAwareRowHeights
+        {
+            get => _designer.GetProperty<bool>("UseDpiAwareRowHeights");
+            set => _designer.SetProperty("UseDpiAwareRowHeights", value);
+        }
+
         [Category("Behavior")]
         [Description("Allow users to resize columns")]
         public bool AllowUserToResizeColumns
@@ -155,6 +203,70 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             get => _designer.GetProperty<bool>("ShowCheckBox");
             set => _designer.SetProperty("ShowCheckBox", value);
+        }
+
+        [Category("Filtering")]
+        [Description("Show top filter panel above headers")]
+        public bool ShowTopFilterPanel
+        {
+            get => _designer.GetProperty<bool>("ShowTopFilterPanel");
+            set => _designer.SetProperty("ShowTopFilterPanel", value);
+        }
+
+        [Category("Filtering")]
+        [Description("Top filter panel height in pixels")]
+        public int TopFilterPanelHeight
+        {
+            get => _designer.GetProperty<int>("TopFilterPanelHeight");
+            set => _designer.SetProperty("TopFilterPanelHeight", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Sort icon visibility in column headers")]
+        public HeaderIconVisibility SortIconVisibility
+        {
+            get => _designer.GetProperty<HeaderIconVisibility>("SortIconVisibility");
+            set => _designer.SetProperty("SortIconVisibility", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Filter icon visibility in column headers")]
+        public HeaderIconVisibility FilterIconVisibility
+        {
+            get => _designer.GetProperty<HeaderIconVisibility>("FilterIconVisibility");
+            set => _designer.SetProperty("FilterIconVisibility", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Use dedicated focused-row styling")]
+        public bool UseDedicatedFocusedRowStyle
+        {
+            get => _designer.GetProperty<bool>("UseDedicatedFocusedRowStyle");
+            set => _designer.SetProperty("UseDedicatedFocusedRowStyle", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Draw focused-cell fill overlay")]
+        public bool ShowFocusedCellFill
+        {
+            get => _designer.GetProperty<bool>("ShowFocusedCellFill");
+            set => _designer.SetProperty("ShowFocusedCellFill", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Draw focused-cell border")]
+        public bool ShowFocusedCellBorder
+        {
+            get => _designer.GetProperty<bool>("ShowFocusedCellBorder");
+            set => _designer.SetProperty("ShowFocusedCellBorder", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Focused-cell border width in pixels")]
+        public float FocusedCellBorderWidth
+        {
+            get => _designer.GetProperty<float>("FocusedCellBorderWidth");
+            set => _designer.SetProperty("FocusedCellBorderWidth", value);
         }
 
         #endregion
@@ -265,6 +377,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             MultiSelect = false;
         }
 
+        public void BestFitVisibleColumns()
+        {
+            Grid?.BestFitVisibleColumns(includeHeader: true, allRows: false);
+        }
+
+        public void BestFitVisibleColumnsAllRows()
+        {
+            Grid?.BestFitVisibleColumns(includeHeader: true, allRows: true);
+        }
+
+        public void AutoSizeColumnsNow()
+        {
+            Grid?.AutoResizeColumnsToFitContent();
+        }
+
         #endregion
 
         public override DesignerActionItemCollection GetSortedActionItems()
@@ -302,6 +429,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("ShowColumnHeaders", "Show Column Headers", "Layout Properties"));
             items.Add(new DesignerActionPropertyItem("ShowNavigator", "Show Navigator", "Layout Properties"));
 
+            // Auto-size properties
+            items.Add(new DesignerActionHeaderItem("Auto-Size"));
+            items.Add(new DesignerActionMethodItem(this, "BestFitVisibleColumns", "Best Fit Visible Columns (Fast)", "Auto-Size", true));
+            items.Add(new DesignerActionMethodItem(this, "BestFitVisibleColumnsAllRows", "Best Fit Visible Columns (All Rows)", "Auto-Size", true));
+            items.Add(new DesignerActionMethodItem(this, "AutoSizeColumnsNow", "Auto-Size Columns Now", "Auto-Size", true));
+            items.Add(new DesignerActionPropertyItem("AutoSizeColumnsMode", "Auto Size Columns Mode", "Auto-Size"));
+            items.Add(new DesignerActionPropertyItem("AutoSizeTriggerMode", "Auto Size Trigger Mode", "Auto-Size"));
+            items.Add(new DesignerActionPropertyItem("AutoSizeDebounceMilliseconds", "Auto Size Debounce (ms)", "Auto-Size"));
+            items.Add(new DesignerActionPropertyItem("AutoSizeRowsToContent", "Auto Size Rows To Content", "Auto-Size"));
+            items.Add(new DesignerActionPropertyItem("RowAutoSizePadding", "Row Auto Size Padding", "Auto-Size"));
+            items.Add(new DesignerActionPropertyItem("UseDpiAwareRowHeights", "Use DPI Aware Row Heights", "Auto-Size"));
+
             // Behavior properties
             items.Add(new DesignerActionHeaderItem("Behavior Properties"));
             items.Add(new DesignerActionPropertyItem("ReadOnly", "Read Only", "Behavior Properties"));
@@ -315,6 +454,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("NavigationStyle", "Navigation Style", "Appearance Properties"));
             items.Add(new DesignerActionPropertyItem("LayoutPreset", "Layout Preset", "Appearance Properties"));
             items.Add(new DesignerActionPropertyItem("ShowCheckBox", "Show Check Box", "Appearance Properties"));
+
+            // Filtering UI
+            items.Add(new DesignerActionHeaderItem("Filtering UI"));
+            items.Add(new DesignerActionPropertyItem("ShowTopFilterPanel", "Show Top Filter Panel", "Filtering UI"));
+            items.Add(new DesignerActionPropertyItem("TopFilterPanelHeight", "Top Filter Panel Height", "Filtering UI"));
+
+            // Header icons
+            items.Add(new DesignerActionHeaderItem("Header Icons"));
+            items.Add(new DesignerActionPropertyItem("SortIconVisibility", "Sort Icon Visibility", "Header Icons"));
+            items.Add(new DesignerActionPropertyItem("FilterIconVisibility", "Filter Icon Visibility", "Header Icons"));
+
+            // Focus styling
+            items.Add(new DesignerActionHeaderItem("Focus Styling"));
+            items.Add(new DesignerActionPropertyItem("UseDedicatedFocusedRowStyle", "Use Dedicated Focused Row Style", "Focus Styling"));
+            items.Add(new DesignerActionPropertyItem("ShowFocusedCellFill", "Show Focused Cell Fill", "Focus Styling"));
+            items.Add(new DesignerActionPropertyItem("ShowFocusedCellBorder", "Show Focused Cell Border", "Focus Styling"));
+            items.Add(new DesignerActionPropertyItem("FocusedCellBorderWidth", "Focused Cell Border Width", "Focus Styling"));
 
             return items;
         }

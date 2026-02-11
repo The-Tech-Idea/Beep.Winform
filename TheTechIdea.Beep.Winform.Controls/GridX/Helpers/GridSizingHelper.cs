@@ -118,6 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int GetColumnWidth(BeepColumnConfig column, bool includeHeader, bool allRows)
         {
             if (column == null) return 100;
+            if (!column.AllowAutoSize) return ClampColumnWidth(column, column.Width);
 
             int maxWidth = 50; // Minimum width
             int padding = 8; // Padding for text
@@ -173,16 +174,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Cap the maximum width to prevent extremely wide columns
-            return Math.Min(maxWidth, 400);
+            int defaultCapped = Math.Min(maxWidth, 400);
+            return ClampColumnWidth(column, defaultCapped);
         }
 
         private void AutoSizeAllCellsMode()
         {
             foreach (var column in _grid.Data.Columns.Where(c => c.Visible))
             {
+                if (!column.AllowAutoSize) continue;
                 int maxWidth = GetColumnWidth(column, true, true);
-                column.Width = maxWidth;
+                column.Width = ClampColumnWidth(column, maxWidth);
             }
         }
 
@@ -190,8 +192,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             foreach (var column in _grid.Data.Columns.Where(c => c.Visible))
             {
+                if (!column.AllowAutoSize) continue;
                 int maxWidth = GetColumnWidth(column, false, true);
-                column.Width = maxWidth;
+                column.Width = ClampColumnWidth(column, maxWidth);
             }
         }
 
@@ -199,8 +202,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             foreach (var column in _grid.Data.Columns.Where(c => c.Visible))
             {
+                if (!column.AllowAutoSize) continue;
                 int maxWidth = GetColumnWidth(column, true, false);
-                column.Width = maxWidth;
+                column.Width = ClampColumnWidth(column, maxWidth);
             }
         }
 
@@ -208,8 +212,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             foreach (var column in _grid.Data.Columns.Where(c => c.Visible))
             {
+                if (!column.AllowAutoSize) continue;
                 int maxWidth = GetColumnWidth(column, false, false);
-                column.Width = maxWidth;
+                column.Width = ClampColumnWidth(column, maxWidth);
             }
         }
 
@@ -221,11 +226,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     foreach (var column in _grid.Data.Columns.Where(c => c.Visible))
                     {
+                        if (!column.AllowAutoSize) continue;
                         string headerText = column.ColumnCaption ?? column.ColumnName ?? "";
                         if (!string.IsNullOrEmpty(headerText))
                         {
                             SizeF headerSize = TextUtils.MeasureText(g, headerText, headerFont);
-                            column.Width = Math.Max(50, (int)headerSize.Width + 20); // 20px padding
+                            int measured = Math.Max(50, (int)headerSize.Width + 20); // 20px padding
+                            column.Width = ClampColumnWidth(column, measured);
                         }
                     }
                 }
@@ -254,11 +261,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (availableWidth <= 0) return;
 
-            // Distribute width equally among data columns
-            int columnWidth = Math.Max(50, availableWidth / visibleColumns.Count);
-            foreach (var column in visibleColumns)
+            var autoColumns = visibleColumns.Where(c => c.AllowAutoSize).ToList();
+            var fixedColumns = visibleColumns.Where(c => !c.AllowAutoSize).ToList();
+            int fixedWidth = fixedColumns.Sum(c => ClampColumnWidth(c, c.Width));
+            int fillWidth = Math.Max(0, availableWidth - fixedWidth);
+            if (!autoColumns.Any() || fillWidth <= 0) return;
+
+            float totalWeight = autoColumns.Sum(c => c.FillWeight <= 0f ? 1f : c.FillWeight);
+            if (totalWeight <= 0f) totalWeight = autoColumns.Count;
+
+            int used = 0;
+            for (int i = 0; i < autoColumns.Count; i++)
             {
-                column.Width = columnWidth;
+                var column = autoColumns[i];
+                int target;
+
+                if (i == autoColumns.Count - 1)
+                {
+                    target = fillWidth - used;
+                }
+                else
+                {
+                    float weight = column.FillWeight <= 0f ? 1f : column.FillWeight;
+                    target = (int)System.Math.Round(fillWidth * (weight / totalWeight));
+                    used += target;
+                }
+
+                column.Width = ClampColumnWidth(column, Math.Max(column.MinWidth, target));
             }
         }
 
@@ -318,7 +347,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var column = _grid.GetColumnByName(columnName);
             if (column != null)
             {
-                column.Width = Math.Max(20, width); // Ensure minimum width
+                column.Width = ClampColumnWidth(column, width);
+            }
+        }
+
+        public int ClampColumnWidth(BeepColumnConfig column, int desiredWidth)
+        {
+            if (column == null) return Math.Max(20, desiredWidth);
+
+            int min = Math.Max(20, column.MinWidth);
+            int clamped = Math.Max(min, desiredWidth);
+            if (column.MaxWidth > 0)
+            {
+                clamped = Math.Min(column.MaxWidth, clamped);
+            }
+            return clamped;
+        }
+
+        public void BestFitColumn(int columnIndex, bool includeHeader = true, bool allRows = false)
+        {
+            if (columnIndex < 0 || columnIndex >= _grid.Data.Columns.Count) return;
+            var column = _grid.Data.Columns[columnIndex];
+            if (column == null || !column.Visible || !column.AllowAutoSize) return;
+            if (column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID || column.IsUnbound) return;
+
+            int width = GetColumnWidth(column, includeHeader, allRows);
+            column.Width = ClampColumnWidth(column, width);
+        }
+
+        public void BestFitVisibleColumns(bool includeHeader = true, bool allRows = false)
+        {
+            foreach (var column in _grid.Data.Columns.Where(c => c.Visible))
+            {
+                if (!column.AllowAutoSize) continue;
+                if (column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID || column.IsUnbound) continue;
+
+                int width = GetColumnWidth(column, includeHeader, allRows);
+                column.Width = ClampColumnWidth(column, width);
             }
         }
     }

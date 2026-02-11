@@ -17,8 +17,8 @@ Excel-style filter integration
 - Or call `EnableExcelFilter()` extension to hook header clicks directly.
 
 Unit of Work binder
-- Use `GridUnitOfWorkBinder` to hook a UnitOfWork that exposes `Units` collection and emits events.
-- Call `Attach(uow)` to bind; `Detach()` to unhook.
+- Use `GridUnitOfWorkBinder` with typed UOW contracts (`IUnitofWork` and optional `IUnitOfWorkWrapper`).
+- Call `Attach(uow, wrapper)` to bind; `Detach()` to unhook.
 
 Theming
 - Extend `BeepThemesManager` and theme definitions (`IBeepTheme`) to provide different typography and color sets.

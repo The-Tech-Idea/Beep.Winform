@@ -1,43 +1,102 @@
 using System;
 using System.ComponentModel;
 using System.Collections.Specialized;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Editor.UOW;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
     /// <summary>
-    /// Bridges a UnitOfWork instance to BeepGridPro without taking a generic dependency.
-    /// - Reads the Units property via reflection
+    /// Bridges UnitOfWork instances to BeepGridPro without runtime reflection.
+    /// - Reads Units from known UOW contracts
     /// - Binds it to the grid data and navigator
     /// - Subscribes to list change notifications to keep the grid refreshed
     /// </summary>
     internal class GridUnitOfWorkBinder
     {
         private readonly BeepGridPro _grid;
-        private object _uow;
-        private object _units;
+        private IUnitofWork? _uow;
+        private IUnitOfWorkWrapper? _uowWrapper;
+        private object? _units;
 
-        private IBindingList _asBindingList;
-        private INotifyCollectionChanged _asNotifyCollectionChanged;
-
-        // Keep event subscriptions so we can detach
-        private readonly Dictionary<string, Delegate> _uowEventHandlers = new();
+        private IBindingList? _asBindingList;
+        private INotifyCollectionChanged? _asNotifyCollectionChanged;
+        private bool _isRefreshingBinding;
 
         public GridUnitOfWorkBinder(BeepGridPro grid) { _grid = grid; }
 
-        public void Attach(object unitOfWork)
+        public void Attach(IUnitofWork? unitOfWork, IUnitOfWorkWrapper? unitOfWorkWrapper = null)
         {
             Detach();
             _uow = unitOfWork;
-            if (_uow == null) return;
+            _uowWrapper = unitOfWorkWrapper;
+            if (_uow == null && _uowWrapper == null) return;
             RefreshBinding();
             SubscribeUowEvents();
         }
 
         public void Detach()
         {
-            // Unhook Units change listeners
+            DetachUnitChangeListeners();
+
+            UnsubscribeUowEvents();
+
+            _units = null;
+            _uow = null;
+            _uowWrapper = null;
+        }
+
+        private void RefreshBinding()
+        {
+            if (_isRefreshingBinding) return;
+            _isRefreshingBinding = true;
+
+            try
+            {
+                DetachUnitChangeListeners();
+
+                int selectedRow = _grid.Selection.RowIndex;
+                int selectedCol = _grid.Selection.ColumnIndex;
+
+                _units = GetUnits();
+                if (_units == null) return;
+
+                // Feed grid data and navigator
+                _grid.Data.Bind(_units);
+                _grid.Navigator.BindTo(_units);
+                _grid.Data.InitializeData();
+
+                // Hook change notifications to keep the view live
+                _asBindingList = _units as IBindingList;
+                if (_asBindingList != null)
+                {
+                    _asBindingList.ListChanged += OnListChanged;
+                }
+                _asNotifyCollectionChanged = _units as INotifyCollectionChanged;
+                if (_asNotifyCollectionChanged != null)
+                {
+                    _asNotifyCollectionChanged.CollectionChanged += OnCollectionChanged;
+                }
+
+                _grid.Layout.Recalculate();
+
+                if (_grid.Rows.Count > 0 && selectedRow >= 0)
+                {
+                    int rowIndex = Math.Max(0, Math.Min(selectedRow, _grid.Rows.Count - 1));
+                    int colIndex = Math.Max(0, Math.Min(selectedCol, Math.Max(0, _grid.Columns.Count - 1)));
+                    _grid.SelectCell(rowIndex, colIndex);
+                }
+
+                _grid.SafeInvalidate();
+            }
+            finally
+            {
+                _isRefreshingBinding = false;
+            }
+        }
+
+        private void DetachUnitChangeListeners()
+        {
             if (_asBindingList != null)
             {
                 _asBindingList.ListChanged -= OnListChanged;
@@ -48,149 +107,140 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _asNotifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
                 _asNotifyCollectionChanged = null;
             }
-
-            // Unsubscribe UoW events
-            if (_uow != null)
-            {
-                var t = _uow.GetType();
-                foreach (var kv in _uowEventHandlers)
-                {
-                    var ev = t.GetEvent(kv.Key);
-                    if (ev != null)
-                    {
-                        try { ev.RemoveEventHandler(_uow, kv.Value); } catch { }
-                    }
-                }
-            }
-            _uowEventHandlers.Clear();
-
-            _units = null;
-            _uow = null;
-        }
-
-        private void RefreshBinding()
-        {
-            _units = GetUnits(_uow);
-            if (_units == null) return;
-
-            // Feed grid data and navigator
-            _grid.Data.Bind(_units);
-            _grid.Navigator.BindTo(_units);
-
-            // Hook change notifications to keep the view live
-            _asBindingList = _units as IBindingList;
-            if (_asBindingList != null)
-            {
-                _asBindingList.ListChanged += OnListChanged;
-            }
-            _asNotifyCollectionChanged = _units as INotifyCollectionChanged;
-            if (_asNotifyCollectionChanged != null)
-            {
-                _asNotifyCollectionChanged.CollectionChanged += OnCollectionChanged;
-            }
-
-            _grid.Layout.Recalculate();
-            _grid.SafeInvalidate();
         }
 
         private void OnListChanged(object sender, ListChangedEventArgs e)
         {
-            // Recalc on add/remove/reset; for item changes, just refresh
-            if (e.ListChangedType == ListChangedType.ItemAdded ||
-                e.ListChangedType == ListChangedType.ItemDeleted ||
-                e.ListChangedType == ListChangedType.Reset)
+            if (_isRefreshingBinding) return;
+
+            if (e.ListChangedType == ListChangedType.ItemChanged)
             {
-                _grid.Layout.Recalculate();
+                bool canFastRefresh =
+                    e.NewIndex >= 0 &&
+                    e.NewIndex < _grid.Rows.Count &&
+                    _grid.Rows[e.NewIndex].RowData is INotifyPropertyChanged;
+
+                if (canFastRefresh)
+                {
+                    _grid.InvalidateRow(e.NewIndex);
+                }
+                else
+                {
+                    RefreshBinding();
+                }
+                return;
             }
-            _grid.SafeInvalidate();
+
+            RefreshBinding();
         }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            _grid.Layout.Recalculate();
-            _grid.SafeInvalidate();
+            if (_isRefreshingBinding) return;
+            RefreshBinding();
         }
 
-        private static object GetUnits(object uow)
+        private object? GetUnits()
         {
-            if (uow == null) return null;
-            var prop = uow.GetType().GetProperty("Units");
-            return prop?.GetValue(uow);
+            if (_uow != null) return _uow.Units;
+            if (_uowWrapper != null) return _uowWrapper.Units;
+            return null;
         }
 
         private void SubscribeUowEvents()
         {
-            // Names from IUnitofWork<T>
-            string[] names = new[]
+            if (_uow != null)
             {
-                "PreDelete","PreInsert","PreCreate","PreUpdate","PreQuery",
-                "PostQuery","PostInsert","PostCreate","PostUpdate","PostEdit",
-                "PostDelete","PostCommit","PreCommit"
-            };
-            var t = _uow.GetType();
-            foreach (var name in names)
-            {
-                var ev = t.GetEvent(name);
-                if (ev == null) continue;
+                _uow.PreDelete += HandleUowPreChange;
+                _uow.PreInsert += HandleUowPreChange;
+                _uow.PreCreate += HandleUowPreChange;
+                _uow.PreUpdate += HandleUowPreChange;
+                _uow.PreQuery += HandleUowPreChange;
+                _uow.PreCommit += HandleUowPreChange;
 
-                var handler = BuildEventHandler(ev.EventHandlerType, name);
-                if (handler != null)
-                {
-                    try
-                    {
-                        ev.AddEventHandler(_uow, handler);
-                        _uowEventHandlers[name] = handler;
-                    }
-                    catch { }
-                }
+                _uow.PostQuery += HandleUowPostQuery;
+                _uow.PostInsert += HandleUowPostChange;
+                _uow.PostCreate += HandleUowPostChange;
+                _uow.PostUpdate += HandleUowPostChange;
+                _uow.PostEdit += HandleUowPostChange;
+                _uow.PostDelete += HandleUowPostChange;
+                _uow.PostCommit += HandleUowPostCommit;
+            }
+
+            if (_uowWrapper != null && _uow == null)
+            {
+                _grid.Navigator.WrapperEventForwarded += HandleWrapperForwardedEvent;
             }
         }
 
-        private Delegate BuildEventHandler(Type eventHandlerType, string eventName)
+        private void UnsubscribeUowEvents()
         {
-            // event signature is (object sender, UnitofWorkParams e)
-            var invoke = eventHandlerType.GetMethod("Invoke");
-            var parameters = invoke.GetParameters();
-            if (parameters.Length != 2) return null;
+            if (_uow != null)
+            {
+                _uow.PreDelete -= HandleUowPreChange;
+                _uow.PreInsert -= HandleUowPreChange;
+                _uow.PreCreate -= HandleUowPreChange;
+                _uow.PreUpdate -= HandleUowPreChange;
+                _uow.PreQuery -= HandleUowPreChange;
+                _uow.PreCommit -= HandleUowPreChange;
 
-            var senderParam = Expression.Parameter(parameters[0].ParameterType, "sender");
-            var argsParam = Expression.Parameter(parameters[1].ParameterType, "e");
+                _uow.PostQuery -= HandleUowPostQuery;
+                _uow.PostInsert -= HandleUowPostChange;
+                _uow.PostCreate -= HandleUowPostChange;
+                _uow.PostUpdate -= HandleUowPostChange;
+                _uow.PostEdit -= HandleUowPostChange;
+                _uow.PostDelete -= HandleUowPostChange;
+                _uow.PostCommit -= HandleUowPostCommit;
+            }
 
-            var call = Expression.Call(
-                Expression.Constant(this),
-                typeof(GridUnitOfWorkBinder).GetMethod(nameof(HandleUowEvent), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
-                Expression.Convert(senderParam, typeof(object)),
-                Expression.Convert(argsParam, typeof(object)),
-                Expression.Constant(eventName)
-            );
-
-            var lambda = Expression.Lambda(eventHandlerType, call, senderParam, argsParam);
-            return lambda.Compile();
+            _grid.Navigator.WrapperEventForwarded -= HandleWrapperForwardedEvent;
         }
 
-        private void HandleUowEvent(object sender, object e, string eventName)
+        private static void HandleUowPreChange(object sender, UnitofWorkParams e)
         {
-            switch (eventName)
+            // Reserved for future busy/validation UI hints.
+        }
+
+        private void HandleUowPostQuery(object sender, UnitofWorkParams e)
+        {
+            // Units might be replaced by query operations.
+            RefreshBinding();
+        }
+
+        private void HandleUowPostChange(object sender, UnitofWorkParams e)
+        {
+            if (e.EventAction == EventAction.PostUpdate || e.EventAction == EventAction.PostEdit)
             {
-                case "PreQuery":
-                case "PreInsert":
-                case "PreUpdate":
-                case "PreDelete":
-                case "PreCommit":
-                    // no-op visual hint now; could show busy indicator
-                    break;
-                case "PostQuery":
-                    // Units might be replaced; rebind
+                _grid.SafeInvalidate();
+                return;
+            }
+
+            RefreshBinding();
+        }
+
+        private void HandleUowPostCommit(object sender, UnitofWorkParams e)
+        {
+            _grid.SafeInvalidate();
+        }
+
+        private void HandleWrapperForwardedEvent(object? sender, UnitofWorkParams e)
+        {
+            switch (e.EventAction)
+            {
+                case EventAction.PostQuery:
                     RefreshBinding();
                     break;
-                case "PostInsert":
-                case "PostUpdate":
-                case "PostEdit":
-                case "PostDelete":
-                    _grid.Layout.Recalculate();
+                case EventAction.PostInsert:
+                case EventAction.PostCreate:
+                case EventAction.PostDelete:
+                    RefreshBinding();
+                    break;
+                case EventAction.PostUpdate:
+                case EventAction.PostEdit:
                     _grid.SafeInvalidate();
                     break;
-                case "PostCommit":
+                case EventAction.PostCommit:
+                case EventAction.PostRollback:
                     _grid.SafeInvalidate();
                     break;
             }

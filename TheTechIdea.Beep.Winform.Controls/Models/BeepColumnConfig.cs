@@ -16,6 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         {
             GuidID = Guid.NewGuid().ToString();
             _items = new List<SimpleItem>(); // Initialize to avoid null
+            _cellTextAlignment = ContentAlignment.MiddleLeft;
+            _headerTextAlignment = ContentAlignment.MiddleLeft;
         }
 
         public override string ToString()
@@ -228,9 +230,107 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public int Width
         {
             get => _width;
-            set { _width = value; OnPropertyChanged(nameof(Width)); }
+            set
+            {
+                int clamped = Math.Max(_minWidth, value);
+                if (_maxWidth > 0)
+                {
+                    clamped = Math.Min(_maxWidth, clamped);
+                }
+                if (_width != clamped)
+                {
+                    _width = clamped;
+                    OnPropertyChanged(nameof(Width));
+                }
+            }
         }
         private bool ShouldSerializeWidth() => _width != 100;
+
+        private int _minWidth = 20;
+        [Category("Layout")]
+        [DefaultValue(20)]
+        [Description("Minimum width in pixels for this column.")]
+        public int MinWidth
+        {
+            get => _minWidth;
+            set
+            {
+                int clamped = Math.Max(20, value);
+                if (_minWidth == clamped) return;
+                _minWidth = clamped;
+                if (_maxWidth > 0 && _maxWidth < _minWidth)
+                {
+                    _maxWidth = _minWidth;
+                    OnPropertyChanged(nameof(MaxWidth));
+                }
+                if (_width < _minWidth)
+                {
+                    _width = _minWidth;
+                    OnPropertyChanged(nameof(Width));
+                }
+                OnPropertyChanged(nameof(MinWidth));
+            }
+        }
+
+        private int _maxWidth = 0;
+        [Category("Layout")]
+        [DefaultValue(0)]
+        [Description("Maximum width in pixels for this column. Set to 0 for no limit.")]
+        public int MaxWidth
+        {
+            get => _maxWidth;
+            set
+            {
+                int clamped = Math.Max(0, value);
+                if (clamped > 0 && clamped < _minWidth)
+                {
+                    clamped = _minWidth;
+                }
+                if (_maxWidth == clamped) return;
+                _maxWidth = clamped;
+                if (_maxWidth > 0 && _width > _maxWidth)
+                {
+                    _width = _maxWidth;
+                    OnPropertyChanged(nameof(Width));
+                }
+                OnPropertyChanged(nameof(MaxWidth));
+            }
+        }
+
+        private float _fillWeight = 1f;
+        [Category("Layout")]
+        [DefaultValue(1f)]
+        [Description("Relative weight used by Fill auto-size mode.")]
+        public float FillWeight
+        {
+            get => _fillWeight;
+            set
+            {
+                float clamped = value <= 0f ? 1f : value;
+                if (Math.Abs(_fillWeight - clamped) > 0.0001f)
+                {
+                    _fillWeight = clamped;
+                    OnPropertyChanged(nameof(FillWeight));
+                }
+            }
+        }
+
+        private bool _allowAutoSize = true;
+        [Category("Layout")]
+        [DefaultValue(true)]
+        [Description("Allow this column to be resized by auto-size/best-fit operations.")]
+        public bool AllowAutoSize
+        {
+            get => _allowAutoSize;
+            set
+            {
+                if (_allowAutoSize != value)
+                {
+                    _allowAutoSize = value;
+                    OnPropertyChanged(nameof(AllowAutoSize));
+                }
+            }
+        }
 
         private bool _visible = true;
         [Category("Behavior")]
@@ -631,8 +731,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set { _allowsortDirection = value; OnPropertyChanged(nameof(AllowSort)); }
         }
 
-        public ContentAlignment CellTextAlignment { get; internal set; }
-        public ContentAlignment HeaderTextAlignment { get; internal set; }
+        private ContentAlignment _cellTextAlignment = ContentAlignment.MiddleLeft;
+        [Category("Appearance")]
+        [Description("Text alignment for cell content.")]
+        [DefaultValue(ContentAlignment.MiddleLeft)]
+        public ContentAlignment CellTextAlignment
+        {
+            get => _cellTextAlignment;
+            internal set { _cellTextAlignment = value; OnPropertyChanged(nameof(CellTextAlignment)); }
+        }
+
+        private ContentAlignment _headerTextAlignment = ContentAlignment.MiddleLeft;
+        [Category("Appearance")]
+        [Description("Text alignment for header text.")]
+        [DefaultValue(ContentAlignment.MiddleLeft)]
+        public ContentAlignment HeaderTextAlignment
+        {
+            get => _headerTextAlignment;
+            internal set { _headerTextAlignment = value; OnPropertyChanged(nameof(HeaderTextAlignment)); }
+        }
       
         public bool AllowFilter { get; internal set; }
         public Type DataType { get; internal set; }

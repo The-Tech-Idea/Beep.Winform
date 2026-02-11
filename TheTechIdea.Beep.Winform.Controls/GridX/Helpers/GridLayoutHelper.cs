@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int ColumnHeaderHeight { get; set; } = 28;
         public bool ShowColumnHeaders { get; set; } = true;
         public Rectangle HeaderRect { get; private set; }
+        public Rectangle TopFilterRect { get; private set; } = Rectangle.Empty;
         public Rectangle ColumnsHeaderRect { get; private set; }
         public Rectangle FooterRect { get; private set; }
         public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
@@ -25,6 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public Rectangle SelectAllCheckRect { get; private set; } = Rectangle.Empty;
         public Rectangle[] HeaderCellRects { get; private set; } = System.Array.Empty<Rectangle>();
         public int NavigatorHeight { get; set; } = 36;
+        public int TopFilterHeight { get; set; } = 34;
+        public bool ShowTopFilterPanel { get; set; } = false;
         
         public int CheckBoxColumnWidth { get; set; } = 30; // Add checkbox column width like BeepSimpleGrid
      
@@ -74,6 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (r.Width <= 0 || r.Height <= 0)
                 {
                     HeaderRect = Rectangle.Empty;
+                    TopFilterRect = Rectangle.Empty;
                     RowsRect = Rectangle.Empty;
                     NavigatorRect = Rectangle.Empty;
                     HeaderCellRects = System.Array.Empty<Rectangle>();
@@ -109,6 +113,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 int scrollbarHeight = needsHorizontalScrollbar ? SCROLLBAR_HEIGHT : 0;
                 
                 int top = r.Top;
+                int topFilterHeight = (ShowTopFilterPanel && ShowColumnHeaders)
+                    ? Math.Min(TopFilterHeight, Math.Max(0, r.Height))
+                    : 0;
+
+                if (topFilterHeight > 0)
+                {
+                    int filterWidth = Math.Max(0, r.Width - scrollbarWidth);
+                    TopFilterRect = new Rectangle(r.Left, top, filterWidth, topFilterHeight);
+                    top += topFilterHeight;
+                }
+                else
+                {
+                    TopFilterRect = Rectangle.Empty;
+                }
+
                 if (ShowColumnHeaders && r.Height > ColumnHeaderHeight)
                 {
                     // Header should not extend into scrollbar area

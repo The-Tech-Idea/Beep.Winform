@@ -19,13 +19,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public string DataMember { get; private set; }
         public BindingList<BeepRowConfig> Rows { get; } = new();
         public BeepGridColumnConfigCollection Columns { get; } = new();
+        private readonly Dictionary<INotifyPropertyChanged, PropertyChangedEventHandler> _rowChangeHandlers = new();
 
         public GridDataHelper(BeepGridPro grid)
         {
             _grid = grid;
         }
 
-        public void Bind(object dataSource)
+        public void Bind(object dataSource, bool triggerAutoSize = true)
         {
             DataSource = dataSource;
             DataMember = _grid.DataMember; // Update DataMember from grid
@@ -47,10 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             UpdatePageInfo();
 
             // Skip auto-sizing in design mode to prevent excessive operations
-            if (!System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime) && 
-                _grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
+            if (triggerAutoSize &&
+                !System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime))
             {
-                _grid.AutoResizeColumnsToFitContent();
+                _grid.RequestAutoSize(AutoSizeTriggerSource.DataBind);
             }
         }
 
@@ -82,6 +83,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     GuidID = Guid.NewGuid().ToString(),
                     SortMode = DataGridViewColumnSortMode.NotSortable,
                     AllowSort = false,
+                    AllowAutoSize = false,
+                    MinWidth = 24,
+                    MaxWidth = 48,
                     Resizable = DataGridViewTriState.False,
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                 };
@@ -109,6 +113,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     GuidID = Guid.NewGuid().ToString(),
                     SortMode = DataGridViewColumnSortMode.Automatic,
                     AllowSort = true,
+                    AllowAutoSize = false,
+                    MinWidth = 30,
+                    MaxWidth = 120,
                     Resizable = DataGridViewTriState.False,
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                     AggregationType = AggregationType.Count
@@ -137,6 +144,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     GuidID = Guid.NewGuid().ToString(),
                     SortMode = DataGridViewColumnSortMode.NotSortable,
                     AllowSort = false,
+                    AllowAutoSize = false,
+                    MinWidth = 30,
+                    MaxWidth = 120,
                     Resizable = DataGridViewTriState.False,
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                 };
@@ -240,11 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Refresh rows to populate them with data
             RefreshRows();
 
-            // Apply auto-sizing if enabled
-            if (_grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
-            {
-                _grid.AutoResizeColumnsToFitContent();
-            }
+            _grid.RequestAutoSize(AutoSizeTriggerSource.DataBind);
         }
 
         private void AddColumnsFromType(Type itemType)
@@ -287,6 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void RefreshRows()
         {
+            UnsubscribeRowChangeHandlers();
             Rows.Clear();
             var (enumerable, schemaTable) = GetEffectiveEnumerableWithSchema();
             var items = enumerable.Cast<object?>().ToList();
@@ -302,7 +309,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Subscribe to property changes on the data object for automatic updates
                 if (items[i] is INotifyPropertyChanged inpc)
                 {
-                    inpc.PropertyChanged += (sender, e) => OnDataObjectPropertyChanged(sender, e, r);
+                    if (_rowChangeHandlers.TryGetValue(inpc, out var existingHandler))
+                    {
+                        inpc.PropertyChanged -= existingHandler;
+                    }
+
+                    PropertyChangedEventHandler handler = (sender, e) => OnDataObjectPropertyChanged(sender, e, r);
+                    _rowChangeHandlers[inpc] = handler;
+                    inpc.PropertyChanged += handler;
                 }
                 
                 int colIndex = 0;
@@ -361,15 +375,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 Rows.Add(r);
             }
 
-            // Skip auto-sizing in design mode to prevent excessive operations
-            if (!System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime) && 
-                _grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
-            {
-                _grid.AutoResizeColumnsToFitContent();
-            }
-
             // Update page info after refreshing rows
             UpdatePageInfo();
+        }
+
+        private void UnsubscribeRowChangeHandlers()
+        {
+            if (_rowChangeHandlers.Count == 0) return;
+
+            foreach (var kv in _rowChangeHandlers)
+            {
+                kv.Key.PropertyChanged -= kv.Value;
+            }
+            _rowChangeHandlers.Clear();
         }
 
         // Resolve the data source honoring BindingSource and the BeepGridPro.DataMember
@@ -798,9 +816,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     row.IsDirty = true;
 
                     // Invalidate the specific row to refresh display
-                    if (row.RowIndex >= 0 && row.RowIndex < Rows.Count)
+                    int rowIndex = row.RowIndex;
+                    if (rowIndex < 0 || rowIndex >= Rows.Count || !ReferenceEquals(Rows[rowIndex], row))
                     {
-                        _grid.InvalidateRow(row.RowIndex);
+                        rowIndex = Rows.IndexOf(row);
+                    }
+
+                    if (rowIndex >= 0 && rowIndex < Rows.Count)
+                    {
+                        _grid.InvalidateRow(rowIndex);
                     }
                 }
             }

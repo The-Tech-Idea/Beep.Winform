@@ -76,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             // Data Block Controls
             RegisterControl(typeof(BeepDataBlock), typeof(BeepDataBlockDesigner));
+            RegisterControl(typeof(BeepDataConnection), typeof(BeepDataConnectionDesigner));
 
             // Text Input Controls
             RegisterControl(typeof(BeepTextBox), typeof(BeepTextBoxDesigner));

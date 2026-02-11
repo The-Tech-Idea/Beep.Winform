@@ -74,7 +74,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.UpdateDrawingRect();
                 _grid.Layout?.EnsureCalculated();
                 _grid.SafeInvalidate();
-                _grid.Update();
                 // Re-get the cell after layout recalculation
                 cell = _grid.Data.Rows[r].Cells[c];
                 System.Diagnostics.Debug.WriteLine($"BeginEdit: After recalc, Cell Rect={cell.Rect}");
@@ -102,14 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (_currenteditorUIcomponent is BeepComboBox oldCb)
                         oldCb.PopupClosed -= OnComboPopupClosed;
                     
-                    // Remove from form, parent, or grid controls
-                    var form = _grid.FindForm();
-                    if (form != null && form.Controls.Contains(_editorControl))
-                        form.Controls.Remove(_editorControl);
-                    else if (_grid.Parent != null && _grid.Parent.Controls.Contains(_editorControl))
-                        _grid.Parent.Controls.Remove(_editorControl);
-                    else if (_grid.Controls.Contains(_editorControl))
-                        _grid.Controls.Remove(_editorControl);
+                    // Remove from its current parent (grid-local hosting for stable repaint behavior)
+                    _editorControl.Parent?.Controls.Remove(_editorControl);
                     
                     _editorControl.Dispose();
                 }
@@ -236,52 +229,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
             if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
 
-            // Find the parent Form and add the editor there to avoid clipping issues
-            var parentForm = _grid.FindForm();
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: ParentForm found: {parentForm != null}, Type: {parentForm?.GetType().Name}");
-            
-            if (parentForm != null)
+            // Always host inline editors inside the grid (same as BeepSimpleGrid) to avoid form-wide flicker.
+            if (_editorControl.Parent != _grid)
             {
-                // Convert grid-relative coordinates to form-relative coordinates
-                var screenPoint = _grid.PointToScreen(editorRect.Location);
-                var formPoint = parentForm.PointToClient(screenPoint);
-                var formRect = new Rectangle(formPoint, editorRect.Size);
-                
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: Grid rect: {editorRect}");
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: Screen point: {screenPoint}");
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: Form point: {formPoint}");
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: Form rect: {formRect}");
-                
-                // Remove from grid if it was added there
-                if (_grid.Controls.Contains(_editorControl))
-                {
-                    System.Diagnostics.Debug.WriteLine("BeginEdit: Removing editor from grid");
-                    _grid.Controls.Remove(_editorControl);
-                }
-                
-                // Add to form
-                if (!parentForm.Controls.Contains(_editorControl))
-                {
-                    System.Diagnostics.Debug.WriteLine("BeginEdit: Adding editor to form");
-                    parentForm.Controls.Add(_editorControl);
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("BeginEdit: Editor already in form controls");
-                }
-                
-                _editorControl.Bounds = formRect;
-                System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor bounds set to: {_editorControl.Bounds}");
+                _editorControl.Parent?.Controls.Remove(_editorControl);
+                _grid.Controls.Add(_editorControl);
             }
-            else
-            {
-                // Fallback: add to grid if no form found
-                System.Diagnostics.Debug.WriteLine("BeginEdit: No parent form, adding to grid");
-                if (!_grid.Controls.Contains(_editorControl))
-                    _grid.Controls.Add(_editorControl);
-                
-                _editorControl.Bounds = editorRect;
-            }
+            _editorControl.Bounds = editorRect;
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor bounds set to: {_editorControl.Bounds}");
             
             _editorControl.Anchor = AnchorStyles.None; // No anchoring - we handle positioning manually
             
@@ -402,19 +357,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
                         if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
                         
-                        // Convert to form-relative if editor is on form
-                        var parentForm = _grid.FindForm();
-                        if (parentForm != null && parentForm.Controls.Contains(_editorControl))
-                        {
-                            var formLocation = parentForm.PointToClient(_grid.PointToScreen(editorRect.Location));
-                            editorRect = new Rectangle(formLocation, editorRect.Size);
-                        }
-                        
                         // Only update if position changed to avoid flicker
                         if (_editorControl.Bounds != editorRect)
                         {
+                            if (_editorControl.Parent != _grid)
+                            {
+                                _editorControl.Parent?.Controls.Remove(_editorControl);
+                                _grid.Controls.Add(_editorControl);
+                            }
                             _editorControl.Bounds = editorRect;
-                            _editorControl.BringToFront();
                         }
                     }
                     else
@@ -451,16 +402,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
                         if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
                         
-                        // Convert to form-relative if editor is on form
-                        var parentForm = _grid.FindForm();
-                        if (parentForm != null && parentForm.Controls.Contains(_editorControl))
+                        if (_editorControl.Parent != _grid)
                         {
-                            var formLocation = parentForm.PointToClient(_grid.PointToScreen(editorRect.Location));
-                            editorRect = new Rectangle(formLocation, editorRect.Size);
+                            _editorControl.Parent?.Controls.Remove(_editorControl);
+                            _grid.Controls.Add(_editorControl);
                         }
-                        
                         _editorControl.Bounds = editorRect;
-                        _editorControl.BringToFront();
                     }
                     else
                     {
@@ -507,14 +454,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Resize -= OnGridMovedOrSized;
                 _grid.MouseWheel -= OnGridMouseWheel;
 
-                // Remove editor from form, parent, or grid controls
-                var parentForm = _grid.FindForm();
-                if (parentForm != null && parentForm.Controls.Contains(_editorControl))
-                    parentForm.Controls.Remove(_editorControl);
-                else if (_grid.Parent != null && _grid.Parent.Controls.Contains(_editorControl))
-                    _grid.Parent.Controls.Remove(_editorControl);
-                else if (_grid.Controls.Contains(_editorControl))
-                    _grid.Controls.Remove(_editorControl);
+                // Remove editor from whichever parent currently owns it
+                _editorControl.Parent?.Controls.Remove(_editorControl);
                 
                 _editorControl.Visible = false;
 

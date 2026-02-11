@@ -49,8 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             // Build values
             var col = grid.Columns[columnIndex];
+            int colIndex = grid.Columns.IndexOf(col);
             var values = grid.Rows
-                .Select(r => r.RowData?.GetType().GetProperty(col.ColumnName)?.GetValue(r.RowData))
+                .Select(r => r.Cells.Count > colIndex ? r.Cells[colIndex].CellValue : null)
                 .Where(v => v != null)
                 .Distinct()
                 .ToList();
@@ -62,9 +63,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             };
             popup.ClearRequested += (s, e) =>
             {
-                grid.RefreshGrid();
-                grid.Layout.Recalculate();
-                grid.SafeInvalidate();
+                try { grid.SortFilter?.ClearFilters(); }
+                catch
+                {
+                    grid.RefreshGrid();
+                    grid.Layout.Recalculate();
+                    grid.SafeInvalidate();
+                }
             };
             popup.FilterApplied += (s, e) =>
             {
@@ -75,43 +80,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             popup.Show(grid.FindForm());
         }
 
-        // Simple in-memory sort using RowData reflection
         private static void Sort(BeepGridPro grid, string columnName, SortDirection direction)
         {
-            Func<BeepRowConfig, object?> key = r => r.RowData?.GetType().GetProperty(columnName)?.GetValue(r.RowData);
-            var ordered = direction switch
-            {
-                SortDirection.Ascending => grid.Rows.OrderBy(key).ToList(),
-                SortDirection.Descending => grid.Rows.OrderByDescending(key).ToList(),
-                _ => grid.Rows.ToList()
-            };
-
-            grid.Rows.Clear();
-            int i = 0;
-            foreach (var r in ordered)
-            {
-                r.DisplayIndex = i++;
-                grid.Rows.Add(r);
-            }
-            grid.Layout.Recalculate();
-            grid.SafeInvalidate();
+            grid.SortFilter?.Sort(columnName, direction);
         }
 
         // Apply IN filter on selected values
         private static void ApplyInFilter(BeepGridPro grid, string columnName, IEnumerable<object> values)
         {
-            var set = new HashSet<string>((values ?? Array.Empty<object>()).Select(v => v?.ToString() ?? string.Empty));
-            var filtered = grid.Rows.Where(r => set.Contains(r.RowData?.GetType().GetProperty(columnName)?.GetValue(r.RowData)?.ToString() ?? string.Empty)).ToList();
-
-            grid.Rows.Clear();
-            int i = 0;
-            foreach (var r in filtered)
-            {
-                r.DisplayIndex = i++;
-                grid.Rows.Add(r);
-            }
-            grid.Layout.Recalculate();
-            grid.SafeInvalidate();
+            grid.SortFilter?.FilterIn(columnName, values);
         }
     }
 }

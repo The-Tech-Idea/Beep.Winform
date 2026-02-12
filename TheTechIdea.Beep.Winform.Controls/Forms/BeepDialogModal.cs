@@ -1,8 +1,12 @@
 ﻿
 using System.ComponentModel;
+using System.Drawing;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 
 
@@ -24,13 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private static readonly Dictionary<DialogType, string> dialogIcons = new()
 {
-    { DialogType.Information, "TheTechIdea.Beep.Winform.GFX.SVG.Information.svg" },
-    { DialogType.Warning, "TheTechIdea.Beep.Winform.GFX.SVG.Warning.svg" },
-    { DialogType.Error, "TheTechIdea.Beep.Winform.GFX.SVG.Error.svg" },
-    { DialogType.Question, "TheTechIdea.Beep.Winform.GFX.SVG.Question.svg" },
-    { DialogType.GetInputString, "TheTechIdea.Beep.Winform.GFX.SVG.Input.svg" },
-    { DialogType.GetInputFromList, "TheTechIdea.Beep.Winform.GFX.SVG.Input.svg" },
-    { DialogType.None, "TheTechIdea.Beep.Winform.GFX.SVG.Information.svg" }
+    { DialogType.Information, Svgs.Information },
+    { DialogType.Warning, Svgs.InfoWarning },
+    { DialogType.Error, Svgs.Error },
+    { DialogType.Question, Svgs.Question },
+    { DialogType.GetInputString, Svgs.Input },
+    { DialogType.GetInputFromList, Svgs.Input },
+    { DialogType.None, Svgs.Information }
 };
 
         private static readonly Dictionary<DialogType, (bool textBox, bool comboBox)> inputVisibility = new()
@@ -124,29 +128,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public SimpleItem ReturnItem { get; private set; }
         public  List<SimpleItem> Items { get; set; }
          
-     
-        private string Informationicon = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.information.svg";
-        private string Warningicon = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.warning.svg";
-        private string Erroricon = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.error.svg";
-        private string Questionicon = "TheTechIdea.Beep.Winform.GFX.SVG.question.svg";
-        private string Inputicon = "TheTechIdea.Beep.Winform.GFX.SVG.input.svg";
-        private string InputListicon = "TheTechIdea.Beep.Winform.GFX.SVG.input.svg";
-
-        private string Okicon = "TheTechIdea.Beep.Winform.GFX.SVG.ok.svg";
-        private string Cancelicon = "TheTechIdea.Beep.Winform.GFX.SVG.cancel.svg";
-        private string Yesicon = "TheTechIdea.Beep.Winform.GFX.SVG.yes.svg";
-        private string Noicon = "TheTechIdea.Beep.Winform.GFX.SVG.no.svg";
-        private string Aborticon = "TheTechIdea.Beep.Winform.GFX.SVG.abort.svg";
-        private string Retryicon = "TheTechIdea.Beep.Winform.GFX.SVG.retry.svg";
-        private string Ignoreicon = "TheTechIdea.Beep.Winform.GFX.SVG.ignore.svg";
-        private string Saveicon = "TheTechIdea.Beep.Winform.GFX.SVG.save.svg";
-        private string SaveAllicon = "TheTechIdea.Beep.Winform.GFX.SVG.saveall.svg";
-        private string DontSaveicon = "TheTechIdea.Beep.Winform.GFX.SVG.dontsave.svg";
-        private string Closeicon = "TheTechIdea.Beep.Winform.GFX.SVG.closesquare.svg";
-        private string Helpicon = "TheTechIdea.Beep.Winform.GFX.SVG.help.svg";
-        private string TryAgainicon = "TheTechIdea.Beep.Winform.GFX.SVG.tryagain.svg";
-        private string Continueicon = "TheTechIdea.Beep.Winform.GFX.SVG.continue.svg";
-
         private DialogType dialogType = DialogType.None;
         public DialogType DialogType
         {
@@ -551,121 +532,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Setting Icons"
         public void SetDialogImage()
         {
-            // Set Dialog Image in ImagePath property in DialogImage based on Dialogtype
-            switch (DialogType)
-            {
-                case DialogType.Information:
-                    DialogImage.ImagePath = Informationicon;
-                    break;
-                case DialogType.Warning:
-                    DialogImage.ImagePath = Warningicon;
-                    break;
-                case DialogType.Error:
-                    DialogImage.ImagePath = Erroricon;
-                    break;
-                case DialogType.Question:
-                    DialogImage.ImagePath = Questionicon;
-                    break;
-                case DialogType.GetInputString:
-                    DialogImage.ImagePath = Inputicon;
-                    break;
-                case DialogType.GetInputFromList:
-                    DialogImage.ImagePath = InputListicon;
-                    break;
-                case DialogType.None:
-                    DialogImage.ImagePath = Informationicon;
-                    break;
-                default:
-                    DialogImage.ImagePath = Informationicon;
-                    break;
-            }
+            DialogImage.ImagePath = ResolveDialogIconPath(DialogType);
             DialogImage.Invalidate();
         }
         public void SetLeftCenterRightButtonIcons()
         {
-            // Set Left , Right and Center buttons icons in ImagePath property in each buttons based on Dialogtype
-            switch (DialogType)
-            {
-                case DialogType.Information:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-                case DialogType.Warning:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-                case DialogType.Error:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-                case DialogType.Question:
-                    switch (dialogButtons)
-                    {
-                        case BeepDialogButtons.OkCancel:
-                            LeftButton.ImagePath = Okicon;
-                            RightButton.ImagePath = Cancelicon;
-                            MiddleButton.ImagePath = Helpicon;
-                            break;
-                        case BeepDialogButtons.YesNo:
-                            LeftButton.ImagePath = Yesicon;
-                            RightButton.ImagePath = Noicon;
-                            MiddleButton.ImagePath = Helpicon;
-                            break;
-                        case BeepDialogButtons.AbortRetryIgnore:
-                            LeftButton.ImagePath = Aborticon;
-                            RightButton.ImagePath = Retryicon;
-                            MiddleButton.ImagePath = Ignoreicon;
-                            break;
-                        case BeepDialogButtons.SaveDontSaveCancel:
-                            LeftButton.ImagePath = Saveicon;
-                            RightButton.ImagePath = DontSaveicon;
-                            MiddleButton.ImagePath = Cancelicon;
-                            break;
-                        case BeepDialogButtons.SaveAllDontSaveCancel:
-                            LeftButton.ImagePath = SaveAllicon;
-                            RightButton.ImagePath = DontSaveicon;
-                            MiddleButton.ImagePath = Cancelicon;
-                            break;
-                        
-                        case BeepDialogButtons.TryAgainContinue:
-                            LeftButton.ImagePath = TryAgainicon;
-                            RightButton.ImagePath = Continueicon;
-                            MiddleButton.ImagePath = Helpicon;
-                            break;
-                        default:
-                            LeftButton.ImagePath = Okicon;
-                            RightButton.ImagePath = Cancelicon;
-                            MiddleButton.ImagePath = Helpicon;
-                            break;
-                    }
-                   
-                    break;
-                case DialogType.GetInputString:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-                case DialogType.GetInputFromList:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-                case DialogType.None:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-                default:
-                    LeftButton.ImagePath = Okicon;
-                    RightButton.ImagePath = Cancelicon;
-                    MiddleButton.ImagePath = Helpicon;
-                    break;
-            }
-
-
+            LeftButton.ImagePath = ResolveButtonIconPath(LeftButton.Text);
+            RightButton.ImagePath = ResolveButtonIconPath(RightButton.Text);
+            MiddleButton.ImagePath = ResolveButtonIconPath(MiddleButton.Text);
         }
         #endregion "Setting Icons"
         #region "Setting Buttons Click Events"
@@ -831,8 +705,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.Theme = Theme;
             InputTextBox.Theme = Theme;
             SelectFromListComboBox.Theme = Theme;
-          
-            
+            DialogImage.ApplyThemeOnImage = true;
+
+            var titleFont = ResolveThemeFont(_currentTheme?.TitleStyle, 12f, FontStyle.Bold);
+            var bodyFont = ResolveThemeFont(_currentTheme?.BodyStyle, 10f, FontStyle.Regular);
+            var buttonFont = ResolveThemeFont(_currentTheme?.DialogOkButtonFont ?? _currentTheme?.ButtonStyle, 10f, FontStyle.Regular);
+
+            TitleLabel.Font = titleFont;
+            CaptionTextBox.Font = bodyFont;
+            InputTextBox.Font = bodyFont;
+            SelectFromListComboBox.Font = bodyFont;
+            LeftButton.Font = buttonFont;
+            RightButton.Font = buttonFont;
+            MiddleButton.Font = buttonFont;
+            this.Font = bodyFont;
+        }
+
+        private static string ResolveDialogIconPath(DialogType type)
+        {
+            if (dialogIcons.TryGetValue(type, out var path))
+                return path;
+
+            return Svgs.Information;
+        }
+
+        private static string ResolveButtonIconPath(string? caption)
+        {
+            if (string.IsNullOrWhiteSpace(caption))
+                return Svgs.InfoHelp;
+
+            return caption.Trim().ToLowerInvariant() switch
+            {
+                "ok" => Svgs.Check,
+                "cancel" => Svgs.Cancel,
+                "yes" => Svgs.Yes,
+                "no" => Svgs.No,
+                "abort" => Svgs.Abort,
+                "retry" => Svgs.TryAgain,
+                "ignore" => Svgs.InfoIgnore,
+                "save" => Svgs.Save,
+                "save all" => Svgs.SaveAll,
+                "don't save" => Svgs.DontSave,
+                "close" => Svgs.Close,
+                "help" => Svgs.InfoHelp,
+                "try again" => Svgs.TryAgain,
+                "continue" => Svgs.Continue,
+                _ => Svgs.InfoHelp
+            };
+        }
+
+        private static Font ResolveThemeFont(TypographyStyle? style, float fallbackSize, FontStyle fallbackStyle)
+        {
+            if (style != null)
+                return BeepThemesManager.ToFont(style);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
         }
 
     }

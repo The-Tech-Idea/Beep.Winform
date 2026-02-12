@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 {
@@ -69,12 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _subtextColor = Color.FromArgb(120, 120, 120);
             }
 
-            // Dispose old fonts before creating new ones to prevent memory leaks
-            _titleFont?.Dispose();
-            _labelFont?.Dispose();
-
-            _titleFont = new Font("Segoe UI Semibold", 10f);
-            _labelFont = new Font("Segoe UI", 9f);
+            _titleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 10f, FontStyle.Bold);
+            _labelFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 9f, FontStyle.Regular);
         }
 
         #endregion
@@ -199,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 else if (state == StepState.Error)
                 {
                     // Draw X for error
-                    DrawErrorX(g, circleRect, Color.FromArgb(200, 50, 50));
+                    DrawErrorX(g, circleRect, WizardHelpers.GetErrorColor(_theme));
                 }
                 else
                 {

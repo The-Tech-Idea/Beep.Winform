@@ -362,6 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 IconType = BeepDialogIcon.Information,
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok },
                 Style = BeepStyling.CurrentControlStyle
+                
             };
         }
 

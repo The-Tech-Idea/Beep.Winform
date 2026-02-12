@@ -1163,10 +1163,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     catch { _textFont = new Font("Arial", 10); }
                 }
-
-                if (_currentTheme.BorderRadius > 0) 
-                { 
-                    IsRounded = true; 
+                if (_currentTheme.BorderRadius > 0)
+                {
+                    IsRounded = true;
                     BorderRadius = _currentTheme.BorderRadius;
                 }
                 if (_currentTheme.BorderSize > 0) { BorderThickness = _currentTheme.BorderSize; }

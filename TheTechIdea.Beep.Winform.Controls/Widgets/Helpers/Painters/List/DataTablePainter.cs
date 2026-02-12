@@ -112,10 +112,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 if (sortedCol >= 0 && sortedCol < ctx.Labels.Count && itemsToRender.Count > 1)
                 {
                     string key = ctx.Labels[sortedCol];
-                    Func<ListItem, object?> sel = item => GetListItemProperty(item, key);
+                    Func<ListItem, string> sel = item => GetListItemProperty(item, key);
                     IOrderedEnumerable<ListItem> ordered = sortDir == "desc"
-                        ? itemsToRender.OrderByDescending(x => sel(x))
-                        : itemsToRender.OrderBy(x => sel(x));
+                        ? itemsToRender.OrderByDescending(x => ToSortable(sel(x)))
+                        : itemsToRender.OrderBy(x => ToSortable(sel(x)));
                     itemsToRender = ordered.ToList();
                 }
 
@@ -237,18 +237,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
         }
 
-        private object? GetListItemProperty(ListItem item, string propertyName)
+        private string GetListItemProperty(ListItem item, string propertyName)
         {
             return propertyName.ToLowerInvariant() switch
             {
-                "id" => item.Id,
-                "title" => item.Title,
-                "subtitle" => item.Subtitle,
-                "status" => item.Status,
-                "timestamp" => item.Timestamp,
-                "iconpath" => item.IconPath,
-                _ => null
+                "id" => item.Id ?? string.Empty,
+                "title" => item.Title ?? string.Empty,
+                "subtitle" => item.Subtitle ?? string.Empty,
+                "status" => item.Status ?? string.Empty,
+                "timestamp" => item.Timestamp.ToString("O"),
+                "iconpath" => item.IconPath ?? string.Empty,
+                _ => string.Empty
             };
+        }
+
+        private string ToSortable(string value)
+        {
+            if (decimal.TryParse(value, out var n))
+            {
+                return n.ToString("00000000000000000000.################");
+            }
+            return value ?? string.Empty;
         }
 
         private void DrawTableRows(Graphics g, Rectangle rect, List<ListItem> items, List<string> columns)
@@ -278,7 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 {
                     var cellRect = new Rectangle(rect.X + col * colWidth + 4, y, colWidth - 8, rowHeight);
                     string key = columns[col];
-                    string cellValue = GetListItemProperty(item, key)?.ToString() ?? "";
+                    string cellValue = GetListItemProperty(item, key);
 
                     // Align numbers to the right, others to the near
                     var fmt = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };

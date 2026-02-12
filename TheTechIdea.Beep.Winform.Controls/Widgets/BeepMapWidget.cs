@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map;
 
@@ -501,8 +502,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public Color MarkerColor { get; set; } = Color.Red;
         public string Icon { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; } = DateTime.Now;
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 
     /// <summary>
@@ -519,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public Color RouteColor { get; set; } = Color.Blue;
         public string RouteType { get; set; } = "Driving";
         public DateTime CreatedTime { get; set; } = DateTime.Now;
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 }

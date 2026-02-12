@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
@@ -39,13 +40,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             // Map BeepDialogIcon to icon paths
             return config.IconType switch
             {
-                BeepDialogIcon.Information => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.information.svg",
-                BeepDialogIcon.Warning => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.warning.svg",
-                BeepDialogIcon.Error => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.error.svg",
-                BeepDialogIcon.Question => "TheTechIdea.Beep.Winform.GFX.SVG.question.svg",
-                BeepDialogIcon.Success => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.success.svg",
+                BeepDialogIcon.Information => Svgs.Information,
+                BeepDialogIcon.Warning => Svgs.InfoWarning,
+                BeepDialogIcon.Error => Svgs.Error,
+                BeepDialogIcon.Question => Svgs.Question,
+                BeepDialogIcon.Success => Svgs.CheckCircle,
                 BeepDialogIcon.None => string.Empty,
-                _ => "TheTechIdea.Beep.Winform.Controls.GFX.SVG.information.svg"
+                _ => Svgs.Information
             };
         }
 
@@ -93,15 +94,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
 
             if (theme != null && config.UseBeepThemeColors)
             {
-                colors.Background = config.BackColor ?? theme.BackgroundColor;
-                colors.Foreground = config.ForeColor ?? theme.ForeColor;
+                colors.Background = config.BackColor ?? theme.DialogBackColor;
+                colors.Foreground = config.ForeColor ?? theme.DialogForeColor;
                 colors.Border = config.BorderColor ?? theme.BorderColor;
                 colors.Accent = theme.AccentColor;
                 colors.TitleBackground = theme.AccentColor;
                 colors.TitleForeground = Color.White;
-                colors.ButtonBackground = theme.ButtonBackColor;
-                colors.ButtonForeground = theme.ButtonForeColor;
-                colors.ButtonBorder = theme.ButtonBorderColor;
+                colors.ButtonBackground = theme.DialogOkButtonBackColor;
+                colors.ButtonForeground = theme.DialogOkButtonForeColor;
+                colors.ButtonBorder = theme.DialogOkButtonHoverBorderColor;
             }
             else
             {

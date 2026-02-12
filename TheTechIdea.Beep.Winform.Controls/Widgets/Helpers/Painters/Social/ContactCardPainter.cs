@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -135,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             _imagePainter.UseThemeColors = true;
 
             // Get contact data
-            var contact = ctx.ContactInfo != null ? (ContactInfo)ctx.ContactInfo : CreateSampleContact();
+            var contact = ctx.ContactInfo ?? CreateSampleContact();
             
             bool isVerticalLayout = ctx.IsVerticalLayout;
 
@@ -498,7 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            var contact = ctx.ContactInfo != null ? (ContactInfo)ctx.ContactInfo : new ContactInfo();
+            var contact = ctx.ContactInfo ?? new ContactInfo();
             
             // Draw favorite star if contact is favorited
             if (contact.IsFavorite)
@@ -528,36 +529,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         }
     }
 
-    // Supporting classes for contact data
-    public class ContactInfo
-    {
-        public string Name { get; set; }
-        public string Title { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
-        public string Department { get; set; }
-        public string AvatarPath { get; set; }
-        public ContactStatus Status { get; set; }
-        public DateTime? LastContact { get; set; }
-        public bool IsFavorite { get; set; }
-        public bool IsNewContact { get; set; }
-        public string Notes { get; set; }
-    }
-
     public class ContactAction
     {
         public ActionType Type { get; set; }
         public string IconName { get; set; }
         public bool IsPrimary { get; set; }
         public bool IsHovered { get; set; }
-    }
-
-    public enum ContactStatus
-    {
-        Online,
-        Away,
-        Busy,
-        Offline
     }
 
     public enum ActionType

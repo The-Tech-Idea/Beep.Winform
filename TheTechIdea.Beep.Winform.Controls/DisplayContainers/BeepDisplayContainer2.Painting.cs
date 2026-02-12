@@ -270,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             var isActive = tab == _activeTab;
             var isHovered = tab == _hoveredTab;
             
-            _paintHelper.DrawProfessionalTab(g, tab.Bounds, tab.Title, Font ?? SystemFonts.DefaultFont,
+            _paintHelper.DrawProfessionalTab(g, tab.Bounds, tab.Title, BeepThemesManager.ToFont(_currentTheme.TabFont),
                 isActive, isHovered, _showCloseButtons, 
                 tab.IsCloseHovered, tab.AnimationProgress);
         }

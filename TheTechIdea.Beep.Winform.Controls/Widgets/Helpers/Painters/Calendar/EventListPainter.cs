@@ -49,7 +49,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private void DrawEventList(Graphics g, WidgetContext ctx)
         {
-            // Allow external data via CustomData["Events"]: List<Dictionary<string,object>> or similar
             var events = GetEventItems(ctx);
 
             int itemHeight = 40;
@@ -105,18 +104,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private List<EventItem> GetEventItems(WidgetContext ctx)
         {
-            // If provided via CustomData["Events"], accept list of dictionaries with Title, Time, Duration, Color
-            if (ctx.Events is IEnumerable<Dictionary<string, object>> dicts)
+            if (ctx.Events != null && ctx.Events.Count > 0)
             {
                 var list = new List<EventItem>();
-                foreach (var d in dicts)
+                foreach (var e in ctx.Events)
                 {
                     list.Add(new EventItem
                     {
-                        Title = d.TryGetValue("Title", out var t) ? t?.ToString() ?? string.Empty : string.Empty,
-                        Time = d.TryGetValue("Time", out var tm) ? tm?.ToString() ?? string.Empty : string.Empty,
-                        Duration = d.TryGetValue("Duration", out var du) ? du?.ToString() ?? string.Empty : string.Empty,
-                        Color = d.TryGetValue("Color", out var c) && c is Color col ? col : (Theme?.AccentColor ?? Color.SteelBlue)
+                        Title = e.Title ?? string.Empty,
+                        Time = e.StartTime.ToString("h:mm tt"),
+                        Duration = e.EndTime > e.StartTime
+                            ? (e.EndTime - e.StartTime).TotalMinutes >= 60
+                                ? $"{(int)((e.EndTime - e.StartTime).TotalHours)}h"
+                                : $"{(int)((e.EndTime - e.StartTime).TotalMinutes)}m"
+                            : string.Empty,
+                        Color = e.Color == Color.Empty ? (Theme?.AccentColor ?? Color.SteelBlue) : e.Color
                     });
                 }
                 return list;

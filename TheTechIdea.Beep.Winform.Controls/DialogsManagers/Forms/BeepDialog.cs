@@ -4,10 +4,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -184,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Title height
             if (!string.IsNullOrEmpty(_config.Title))
             {
-                var titleFont = _config.TitleFont ?? new Font("Segoe UI", 14, FontStyle.Bold);
+                var titleFont = GetTitleFont();
                 var titleSize = g.MeasureString(_config.Title, titleFont, width - PADDING * 2 - (_config.ShowIcon ? ICON_SIZE + 16 : 0));
                 height += (int)titleSize.Height + 8;
             }
@@ -192,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Message height
             if (!string.IsNullOrEmpty(_config.Message))
             {
-                var messageFont = _config.MessageFont ?? new Font("Segoe UI", 10, FontStyle.Regular);
+                var messageFont = GetMessageFont();
                 var messageSize = g.MeasureString(_config.Message, messageFont, width - PADDING * 2 - (_config.ShowIcon ? ICON_SIZE + 16 : 0));
                 height += (int)messageSize.Height + 16;
             }
@@ -200,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Details height
             if (!string.IsNullOrEmpty(_config.Details))
             {
-                var detailsFont = _config.DetailsFont ?? new Font("Segoe UI", 9, FontStyle.Regular);
+                var detailsFont = GetDetailsFont();
                 var detailsSize = g.MeasureString(_config.Details, detailsFont, width - PADDING * 2);
                 height += Math.Min((int)detailsSize.Height, 100) + 16;
             }
@@ -261,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             if (!string.IsNullOrEmpty(_config.Title))
             {
                 using var g = CreateGraphics();
-                var titleFont = _config.TitleFont ?? new Font("Segoe UI", 14, FontStyle.Bold);
+                var titleFont = GetTitleFont();
                 var titleSize = g.MeasureString(_config.Title, titleFont, contentWidth);
                 _titleRect = new Rectangle(x, y, contentWidth, (int)titleSize.Height);
                 y += (int)titleSize.Height + 8;
@@ -271,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             if (!string.IsNullOrEmpty(_config.Message))
             {
                 using var g = CreateGraphics();
-                var messageFont = _config.MessageFont ?? new Font("Segoe UI", 10, FontStyle.Regular);
+                var messageFont = GetMessageFont();
                 var messageSize = g.MeasureString(_config.Message, messageFont, contentWidth);
                 _messageRect = new Rectangle(x, y, contentWidth, (int)messageSize.Height);
                 y += (int)messageSize.Height + 16;
@@ -281,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             if (!string.IsNullOrEmpty(_config.Details))
             {
                 using var g = CreateGraphics();
-                var detailsFont = _config.DetailsFont ?? new Font("Segoe UI", 9, FontStyle.Regular);
+                var detailsFont = GetDetailsFont();
                 var detailsSize = g.MeasureString(_config.Details, detailsFont, Width - PADDING * 2);
                 int detailsHeight = Math.Min((int)detailsSize.Height, 100);
                 _detailsRect = new Rectangle(PADDING, y, Width - PADDING * 2, detailsHeight);
@@ -321,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
                 int totalButtonWidth = 0;
                 using var g = CreateGraphics();
-                var buttonFont = _config.ButtonFont ?? new Font("Segoe UI", 10, FontStyle.Regular);
+                var buttonFont = GetButtonFont();
 
                 // Measure buttons
                 int[] buttonWidths = new int[buttons.Length];
@@ -440,7 +442,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Title
             if (!string.IsNullOrEmpty(_config.Title) && !_titleRect.IsEmpty)
             {
-                var titleFont = _config.TitleFont ?? new Font("Segoe UI", 14, FontStyle.Bold);
+                var titleFont = GetTitleFont();
                 using var brush = new SolidBrush(_theme?.DialogForeColor ?? Color.FromArgb(17, 24, 39));
                 g.DrawString(_config.Title, titleFont, brush, _titleRect);
             }
@@ -448,7 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Message
             if (!string.IsNullOrEmpty(_config.Message) && !_messageRect.IsEmpty)
             {
-                var messageFont = _config.MessageFont ?? new Font("Segoe UI", 10, FontStyle.Regular);
+                var messageFont = GetMessageFont();
                 using var brush = new SolidBrush(Color.FromArgb(180, _theme?.DialogForeColor ?? Color.FromArgb(55, 65, 81)));
                 using var sf = new StringFormat { Trimming = StringTrimming.Word };
                 g.DrawString(_config.Message, messageFont, brush, _messageRect, sf);
@@ -457,7 +459,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Details
             if (!string.IsNullOrEmpty(_config.Details) && !_detailsRect.IsEmpty)
             {
-                var detailsFont = _config.DetailsFont ?? new Font("Segoe UI", 9, FontStyle.Regular);
+                var detailsFont = GetDetailsFont();
                 using var brush = new SolidBrush(Color.FromArgb(140, _theme?.DialogForeColor ?? Color.FromArgb(107, 114, 128)));
                 using var sf = new StringFormat { Trimming = StringTrimming.Word };
                 g.DrawString(_config.Details, detailsFont, brush, _detailsRect, sf);
@@ -470,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 return;
 
             var buttons = _config.ButtonOrder ?? _config.Buttons ?? Array.Empty<BeepDialogButtons>();
-            var buttonFont = _config.ButtonFont ?? new Font("Segoe UI", 10, FontStyle.Regular);
+            var buttonFont = GetButtonFont();
 
             for (int i = 0; i < Math.Min(buttons.Length, _buttonRects.Length); i++)
             {
@@ -757,12 +759,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         {
             return icon switch
             {
-                BeepDialogIcon.Information => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg",
-                BeepDialogIcon.Warning => "TheTechIdea.Beep.Winform.GFX.SVG.warning.svg",
-                BeepDialogIcon.Error => "TheTechIdea.Beep.Winform.GFX.SVG.error.svg",
-                BeepDialogIcon.Question => "TheTechIdea.Beep.Winform.GFX.SVG.question.svg",
-                BeepDialogIcon.Success => "TheTechIdea.Beep.Winform.GFX.SVG.check.svg",
-                _ => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg"
+                BeepDialogIcon.Information => Svgs.Information,
+                BeepDialogIcon.Warning => Svgs.InfoWarning,
+                BeepDialogIcon.Error => Svgs.Error,
+                BeepDialogIcon.Question => Svgs.Question,
+                BeepDialogIcon.Success => Svgs.CheckCircle,
+                _ => Svgs.Information
             };
         }
 
@@ -770,13 +772,55 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         {
             return icon switch
             {
-                BeepDialogIcon.Information => Color.FromArgb(59, 130, 246),
-                BeepDialogIcon.Warning => Color.FromArgb(245, 158, 11),
-                BeepDialogIcon.Error => Color.FromArgb(239, 68, 68),
-                BeepDialogIcon.Question => Color.FromArgb(139, 92, 246),
-                BeepDialogIcon.Success => Color.FromArgb(34, 197, 94),
+                BeepDialogIcon.Information => _theme?.AccentColor ?? Color.FromArgb(59, 130, 246),
+                BeepDialogIcon.Warning => _theme?.WarningColor ?? Color.FromArgb(245, 158, 11),
+                BeepDialogIcon.Error => _theme?.ErrorColor ?? Color.FromArgb(239, 68, 68),
+                BeepDialogIcon.Question => _theme?.AccentColor ?? Color.FromArgb(139, 92, 246),
+                BeepDialogIcon.Success => _theme?.SuccessColor ?? Color.FromArgb(34, 197, 94),
                 _ => Color.FromArgb(107, 114, 128)
             };
+        }
+
+        private Font GetTitleFont()
+        {
+            if (_config.TitleFont != null)
+                return _config.TitleFont;
+            if (_theme?.TitleStyle != null)
+                return BeepThemesManager.ToFont(_theme.TitleStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 14f, FontStyle.Bold);
+        }
+
+        private Font GetMessageFont()
+        {
+            if (_config.MessageFont != null)
+                return _config.MessageFont;
+            if (_theme?.BodyStyle != null)
+                return BeepThemesManager.ToFont(_theme.BodyStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 10f, FontStyle.Regular);
+        }
+
+        private Font GetDetailsFont()
+        {
+            if (_config.DetailsFont != null)
+                return _config.DetailsFont;
+            if (_theme?.CaptionStyle != null)
+                return BeepThemesManager.ToFont(_theme.CaptionStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 9f, FontStyle.Regular);
+        }
+
+        private Font GetButtonFont()
+        {
+            if (_config.ButtonFont != null)
+                return _config.ButtonFont;
+            if (_theme?.DialogOkButtonFont != null)
+                return BeepThemesManager.ToFont(_theme.DialogOkButtonFont);
+            if (_theme?.ButtonStyle != null)
+                return BeepThemesManager.ToFont(_theme.ButtonStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 10f, FontStyle.Regular);
         }
 
         private Color GetPrimaryButtonColor()

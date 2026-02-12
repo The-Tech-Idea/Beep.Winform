@@ -1,12 +1,15 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
@@ -322,7 +325,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
             if (config.TitleFont != null)
                 return config.TitleFont;
 
-            return new Font("Segoe UI", 12, FontStyle.Bold);
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme?.TitleStyle != null)
+                return BeepThemesManager.ToFont(theme.TitleStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 12f, FontStyle.Bold);
         }
 
         protected virtual Font GetMessageFont(DialogConfig config)
@@ -330,7 +337,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
             if (config.MessageFont != null)
                 return config.MessageFont;
 
-            return new Font("Segoe UI", 10, FontStyle.Regular);
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme?.BodyStyle != null)
+                return BeepThemesManager.ToFont(theme.BodyStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 10f, FontStyle.Regular);
         }
 
         protected virtual Font GetDetailsFont(DialogConfig config)
@@ -338,7 +349,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
             if (config.DetailsFont != null)
                 return config.DetailsFont;
 
-            return new Font("Segoe UI", 9, FontStyle.Regular);
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme?.CaptionStyle != null)
+                return BeepThemesManager.ToFont(theme.CaptionStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 9f, FontStyle.Regular);
         }
 
         protected virtual Font GetButtonFont(DialogConfig config)
@@ -346,7 +361,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
             if (config.ButtonFont != null)
                 return config.ButtonFont;
 
-            return new Font("Segoe UI", 9, FontStyle.Regular);
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme?.DialogOkButtonFont != null)
+                return BeepThemesManager.ToFont(theme.DialogOkButtonFont);
+            if (theme?.ButtonStyle != null)
+                return BeepThemesManager.ToFont(theme.ButtonStyle);
+
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 9f, FontStyle.Regular);
         }
 
         #endregion
@@ -402,12 +423,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
 
             return config.IconType switch
             {
-                BeepDialogIcon.Information => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg",
-                BeepDialogIcon.Warning => "TheTechIdea.Beep.Winform.GFX.SVG.warning.svg",
-                BeepDialogIcon.Error => "TheTechIdea.Beep.Winform.GFX.SVG.error.svg",
-                BeepDialogIcon.Question => "TheTechIdea.Beep.Winform.GFX.SVG.question.svg",
-                BeepDialogIcon.Success => "TheTechIdea.Beep.Winform.GFX.SVG.check.svg",
-                _ => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg"
+                BeepDialogIcon.Information => Svgs.Information,
+                BeepDialogIcon.Warning => Svgs.InfoWarning,
+                BeepDialogIcon.Error => Svgs.Error,
+                BeepDialogIcon.Question => Svgs.Question,
+                BeepDialogIcon.Success => Svgs.CheckCircle,
+                _ => Svgs.Information
             };
         }
 

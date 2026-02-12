@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
 {
@@ -183,5 +184,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         Upload,
         Share,
         Comment
+    }
+
+    /// <summary>
+    /// Chat participant model.
+    /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class ChatParticipant
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Avatar { get; set; } = string.Empty;
+        public bool IsOnline { get; set; }
+        public DateTime LastSeen { get; set; } = DateTime.Now;
+    }
+
+    /// <summary>
+    /// Contact status for contact-card widgets.
+    /// </summary>
+    public enum ContactStatus
+    {
+        Online,
+        Away,
+        Busy,
+        Offline
+    }
+
+    /// <summary>
+    /// Strongly typed contact info for contact-card widgets.
+    /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class ContactInfo
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
+        public string AvatarPath { get; set; } = string.Empty;
+        public ContactStatus Status { get; set; } = ContactStatus.Offline;
+        public DateTime? LastContact { get; set; }
+        public bool IsFavorite { get; set; }
+        public bool IsNewContact { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public Color AccentColor { get; set; } = Color.Empty;
     }
 }

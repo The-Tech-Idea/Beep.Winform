@@ -120,10 +120,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // Visual state
         private SimpleItem _hoveredItem = null;
         private int _hoveredIndex = -1;
-        
+
         // Font
-        private Font _textFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-        private Font _shortcutFont = new Font("Segoe UI", 8f, FontStyle.Regular);
+        private Font _textFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.MenuItemSelectedFont) ; //new Font("Segoe UI", 9f, FontStyle.Regular);
+        private Font _shortcutFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.MenuItemSelectedFont);//new Font("Segoe UI", 8f, FontStyle.Regular);
         
         // DPI scaling
         private float _scaleFactor = 1.0f;

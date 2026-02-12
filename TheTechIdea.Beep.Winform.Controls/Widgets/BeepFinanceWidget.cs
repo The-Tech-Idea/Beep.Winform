@@ -6,6 +6,7 @@ using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
@@ -500,7 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public string TransactionType { get; set; } = string.Empty;
         public string AccountId { get; set; } = string.Empty;
         public Color ItemColor { get; set; } = Color.Blue;
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 }

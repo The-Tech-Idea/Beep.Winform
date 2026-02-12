@@ -5,27 +5,15 @@ using System.Drawing;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
 {
     /// <summary>
-    /// Base class for control widget values
-    /// </summary>
-    public abstract class ControlValue
-    {
-        public abstract object GetValue();
-        public abstract void SetValue(object value);
-    }
-
-    /// <summary>
     /// Toggle switch value (on/off)
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class ToggleValue : ControlValue
+    public class ToggleValue
     {
         [Category("Data")]
         [Description("Toggle state (true = on, false = off)")]
         public bool IsOn { get; set; } = false;
 
-        public override object GetValue() => IsOn;
-        public override void SetValue(object value) => IsOn = value is bool b ? b : Convert.ToBoolean(value);
-        
         public override string ToString() => IsOn ? "On" : "Off";
     }
 
@@ -33,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
     /// Slider value with numeric range
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class SliderValue : ControlValue
+    public class SliderValue
     {
         [Category("Data")]
         [Description("Current slider value")]
@@ -47,9 +35,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Description("Maximum allowed value")]
         public double MaxValue { get; set; } = 100.0;
 
-        public override object GetValue() => Value;
-        public override void SetValue(object value) => Value = Convert.ToDouble(value);
-        
         public override string ToString() => $"{Value:F2}";
     }
 
@@ -57,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
     /// Range selector value (min/max range)
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class RangeValue : ControlValue
+    public class RangeValue
     {
         [Category("Data")]
         [Description("Minimum value in the range")]
@@ -71,17 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Description("Current selected value")]
         public double CurrentValue { get; set; } = 50.0;
 
-        public override object GetValue() => new { Min = MinValue, Max = MaxValue, Current = CurrentValue };
-        public override void SetValue(object value)
-        {
-            if (value is RangeValue rv)
-            {
-                MinValue = rv.MinValue;
-                MaxValue = rv.MaxValue;
-                CurrentValue = rv.CurrentValue;
-            }
-        }
-        
         public override string ToString() => $"{MinValue:F2} - {MaxValue:F2} (Current: {CurrentValue:F2})";
     }
 
@@ -89,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
     /// Date/time picker value
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class DateValue : ControlValue
+    public class DateValue
     {
         [Category("Data")]
         [Description("Selected date and time")]
@@ -103,9 +77,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Description("Maximum allowed date")]
         public DateTime? MaxDate { get; set; }
 
-        public override object GetValue() => Value;
-        public override void SetValue(object value) => Value = value is DateTime dt ? dt : Convert.ToDateTime(value);
-        
         public override string ToString() => Value.ToString("g");
     }
 
@@ -113,15 +84,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
     /// Color picker value
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class ColorValue : ControlValue
+    public class ColorValue
     {
         [Category("Data")]
         [Description("Selected color")]
         public Color Value { get; set; } = Color.Black;
 
-        public override object GetValue() => Value;
-        public override void SetValue(object value) => Value = value is Color c ? c : (Color)value;
-        
         public override string ToString() => Value.ToString();
     }
 
@@ -129,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
     /// Number spinner value
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class NumberValue : ControlValue
+    public class NumberValue
     {
         [Category("Data")]
         [Description("Current numeric value")]
@@ -147,9 +115,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Description("Step increment for spinner")]
         public decimal Step { get; set; } = 1m;
 
-        public override object GetValue() => Value;
-        public override void SetValue(object value) => Value = Convert.ToDecimal(value);
-        
         public override string ToString() => Value.ToString("F2");
+    }
+
+    /// <summary>
+    /// Checkbox option model for checkbox group controls
+    /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class CheckboxOption
+    {
+        [Category("Data")]
+        [Description("Display label for the option")]
+        public string Label { get; set; } = string.Empty;
+
+        [Category("Data")]
+        [Description("Checked state")]
+        public bool IsChecked { get; set; }
+
+        public override string ToString() => Label;
     }
 }

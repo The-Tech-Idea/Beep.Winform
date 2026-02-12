@@ -64,6 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 
             button.BackColor = isHovered ? Color.FromArgb(30, hoverBackColor) : Color.Transparent;
             button.ForeColor = textColor;
+            button.TextFont=BeepFontManager.GetFont(Owner?._currentTheme.ButtonFont.FontFamily,10);
             button.Draw(g, rect);
             
             // Paint icon using StyledImagePainter

@@ -667,7 +667,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 // Use theme helpers for consistent color retrieval
                 _titleColor = Helpers.ChipThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors);
                 BackColor = Helpers.ChipThemeHelpers.GetGroupBackgroundColor(_currentTheme, UseThemeColors);
-                
+                _titleFont=BeepThemesManager.ToFont(_currentTheme.CardTitleFont) ?? _titleFont;
+                _textFont=BeepThemesManager.ToFont(_currentTheme.ButtonFont) ?? _textFont;
                 _renderOptions.Theme = _currentTheme;
                 _painter?.UpdateTheme(_currentTheme);
                 ApplyThemeToChips();

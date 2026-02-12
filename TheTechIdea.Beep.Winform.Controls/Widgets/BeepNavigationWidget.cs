@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
@@ -277,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public string IconPath { get; set; } = string.Empty;
         public bool IsEnabled { get; set; } = true;
         public bool IsVisible { get; set; } = true;
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 }

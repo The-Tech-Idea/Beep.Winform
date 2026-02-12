@@ -22,6 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private int _totalPages;
         private bool _keysHooked;
         private WidgetContext _lastCtx;
+        private EventHandler? _onLeft;
+        private EventHandler? _onRight;
+        private EventHandler? _onHome;
+        private EventHandler? _onEnd;
+        private EventHandler? _onPageUp;
+        private EventHandler? _onPageDown;
 
         public PaginationPainter()
         {
@@ -39,23 +45,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (_keysHooked || Owner == null) return;
             try
             {
-                Owner._input.LeftArrowKeyPressed += OnLeft;
-                Owner._input.RightArrowKeyPressed += OnRight;
-                Owner._input.HomeKeyPressed += OnHome;
-                Owner._input.EndKeyPressed += OnEnd;
-                Owner._input.PageUpKeyPressed += OnPageUp;
-                Owner._input.PageDownKeyPressed += OnPageDown;
+                _onLeft ??= (_, _) => OnLeft();
+                _onRight ??= (_, _) => OnRight();
+                _onHome ??= (_, _) => OnHome();
+                _onEnd ??= (_, _) => OnEnd();
+                _onPageUp ??= (_, _) => OnPageUp();
+                _onPageDown ??= (_, _) => OnPageDown();
+
+                Owner._input.LeftArrowKeyPressed += _onLeft;
+                Owner._input.RightArrowKeyPressed += _onRight;
+                Owner._input.HomeKeyPressed += _onHome;
+                Owner._input.EndKeyPressed += _onEnd;
+                Owner._input.PageUpKeyPressed += _onPageUp;
+                Owner._input.PageDownKeyPressed += _onPageDown;
                 _keysHooked = true;
             }
             catch { }
         }
 
-        private void OnLeft(object? s, EventArgs e) => SetPage(_currentPage - 1);
-        private void OnRight(object? s, EventArgs e) => SetPage(_currentPage + 1);
-        private void OnHome(object? s, EventArgs e) => SetPage(1);
-        private void OnEnd(object? s, EventArgs e) => SetPage(_totalPages);
-        private void OnPageUp(object? s, EventArgs e) => SetPage(_currentPage - 5);
-        private void OnPageDown(object? s, EventArgs e) => SetPage(_currentPage + 5);
+        private void OnLeft() => SetPage(_currentPage - 1);
+        private void OnRight() => SetPage(_currentPage + 1);
+        private void OnHome() => SetPage(1);
+        private void OnEnd() => SetPage(_totalPages);
+        private void OnPageUp() => SetPage(_currentPage - 5);
+        private void OnPageDown() => SetPage(_currentPage + 5);
 
         private void SetPage(int page)
         {
@@ -285,12 +298,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 try
                 {
-                    Owner._input.LeftArrowKeyPressed -= OnLeft;
-                    Owner._input.RightArrowKeyPressed -= OnRight;
-                    Owner._input.HomeKeyPressed -= OnHome;
-                    Owner._input.EndKeyPressed -= OnEnd;
-                    Owner._input.PageUpKeyPressed -= OnPageUp;
-                    Owner._input.PageDownKeyPressed -= OnPageDown;
+                    if (_onLeft != null) Owner._input.LeftArrowKeyPressed -= _onLeft;
+                    if (_onRight != null) Owner._input.RightArrowKeyPressed -= _onRight;
+                    if (_onHome != null) Owner._input.HomeKeyPressed -= _onHome;
+                    if (_onEnd != null) Owner._input.EndKeyPressed -= _onEnd;
+                    if (_onPageUp != null) Owner._input.PageUpKeyPressed -= _onPageUp;
+                    if (_onPageDown != null) Owner._input.PageDownKeyPressed -= _onPageDown;
                 }
                 catch { }
             }

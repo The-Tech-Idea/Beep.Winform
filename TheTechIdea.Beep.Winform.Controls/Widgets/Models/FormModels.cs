@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
 {
     /// <summary>
-    /// Form field attributes - strongly-typed replacement for Dictionary&lt;string, object&gt;
+    /// Form field attributes with strongly typed properties.
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class FormFieldAttributes
@@ -46,41 +46,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Description("Whether the field is required")]
         public bool Required { get; set; } = false;
 
-        /// <summary>
-        /// Converts to dictionary for backward compatibility
-        /// </summary>
-        public Dictionary<string, object> ToDictionary()
+    }
+
+    /// <summary>
+    /// Strongly typed form value wrapper used by FormField.
+    /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class FormFieldValue
+    {
+        [Category("Data")]
+        [Description("Text value")]
+        public string Text { get; set; } = string.Empty;
+
+        [Category("Data")]
+        [Description("Number value")]
+        public decimal? Number { get; set; }
+
+        [Category("Data")]
+        [Description("Date value")]
+        public DateTime? Date { get; set; }
+
+        [Category("Data")]
+        [Description("Boolean value")]
+        public bool? Boolean { get; set; }
+
+        [Category("Data")]
+        [Description("Color value")]
+        public Color? Color { get; set; }
+
+        [Category("Data")]
+        [Description("Selected option")]
+        public string SelectedOption { get; set; } = string.Empty;
+
+        [Category("Data")]
+        [Description("File path")]
+        public string FilePath { get; set; } = string.Empty;
+
+        public bool HasValue =>
+            !string.IsNullOrWhiteSpace(Text) ||
+            Number.HasValue ||
+            Date.HasValue ||
+            Boolean.HasValue ||
+            Color.HasValue ||
+            !string.IsNullOrWhiteSpace(SelectedOption) ||
+            !string.IsNullOrWhiteSpace(FilePath);
+
+        public override string ToString()
         {
-            var dict = new Dictionary<string, object>();
-            if (!string.IsNullOrEmpty(Pattern)) dict["Pattern"] = Pattern;
-            if (MinLength.HasValue) dict["MinLength"] = MinLength.Value;
-            if (MaxLength.HasValue) dict["MaxLength"] = MaxLength.Value;
-            if (!string.IsNullOrEmpty(ErrorMessage)) dict["ErrorMessage"] = ErrorMessage;
-            if (!string.IsNullOrEmpty(Placeholder)) dict["Placeholder"] = Placeholder;
-            if (!string.IsNullOrEmpty(HelpText)) dict["HelpText"] = HelpText;
-            dict["Disabled"] = Disabled;
-            dict["ReadOnly"] = ReadOnly;
-            dict["Required"] = Required;
-            return dict;
+            if (!string.IsNullOrWhiteSpace(Text)) return Text;
+            if (Number.HasValue) return Number.Value.ToString();
+            if (Date.HasValue) return Date.Value.ToString("g");
+            if (Boolean.HasValue) return Boolean.Value.ToString();
+            if (Color.HasValue) return $"#{Color.Value.R:X2}{Color.Value.G:X2}{Color.Value.B:X2}";
+            if (!string.IsNullOrWhiteSpace(SelectedOption)) return SelectedOption;
+            if (!string.IsNullOrWhiteSpace(FilePath)) return FilePath;
+            return string.Empty;
         }
 
-        /// <summary>
-        /// Creates from dictionary for migration
-        /// </summary>
-        public static FormFieldAttributes FromDictionary(Dictionary<string, object> dict)
-        {
-            var attrs = new FormFieldAttributes();
-            if (dict.ContainsKey("Pattern")) attrs.Pattern = dict["Pattern"]?.ToString() ?? string.Empty;
-            if (dict.ContainsKey("MinLength") && dict["MinLength"] is int minLen) attrs.MinLength = minLen;
-            if (dict.ContainsKey("MaxLength") && dict["MaxLength"] is int maxLen) attrs.MaxLength = maxLen;
-            if (dict.ContainsKey("ErrorMessage")) attrs.ErrorMessage = dict["ErrorMessage"]?.ToString() ?? string.Empty;
-            if (dict.ContainsKey("Placeholder")) attrs.Placeholder = dict["Placeholder"]?.ToString() ?? string.Empty;
-            if (dict.ContainsKey("HelpText")) attrs.HelpText = dict["HelpText"]?.ToString() ?? string.Empty;
-            if (dict.ContainsKey("Disabled") && dict["Disabled"] is bool disabled) attrs.Disabled = disabled;
-            if (dict.ContainsKey("ReadOnly") && dict["ReadOnly"] is bool readOnly) attrs.ReadOnly = readOnly;
-            if (dict.ContainsKey("Required") && dict["Required"] is bool required) attrs.Required = required;
-            return attrs;
-        }
+        public static FormFieldValue FromText(string value) => new FormFieldValue { Text = value ?? string.Empty };
+        public static FormFieldValue FromNumber(decimal value) => new FormFieldValue { Number = value };
+        public static FormFieldValue FromDate(DateTime value) => new FormFieldValue { Date = value };
+        public static FormFieldValue FromBoolean(bool value) => new FormFieldValue { Boolean = value };
+        public static FormFieldValue FromSelectedOption(string value) => new FormFieldValue { SelectedOption = value ?? string.Empty };
     }
 
     /// <summary>
@@ -175,5 +202,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Category("Data")]
         [Description("Maximum file size in bytes")]
         public long? MaxSize { get; set; }
+    }
+
+    /// <summary>
+    /// Typed layout cache for inline/form painters.
+    /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class InlineFieldLayout
+    {
+        public int Index { get; set; }
+        public string Label { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public Rectangle LabelRect { get; set; } = Rectangle.Empty;
+        public Rectangle InputRect { get; set; } = Rectangle.Empty;
+        public Rectangle FieldRect { get; set; } = Rectangle.Empty;
+        public bool IsFocused { get; set; }
     }
 }

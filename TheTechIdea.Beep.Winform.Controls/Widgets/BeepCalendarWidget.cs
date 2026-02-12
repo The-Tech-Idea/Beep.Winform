@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar;
 using TheTechIdea.Beep.Editor;
 
@@ -352,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 
                 // Calendar-specific typed properties
                 Events = _events,
-                TimeSlots = _timeSlots.Cast<object>().ToList(),
+                TimeSlots = _timeSlots,
                 SelectedDate = _selectedDate,
                 DisplayMonth = _displayMonth,
                 EventColor = _eventColor,
@@ -484,8 +485,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public bool IsRecurring { get; set; } = false;
         public string RecurrencePattern { get; set; } = string.Empty;
         public List<string> Attendees { get; set; } = new List<string>();
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 
     /// <summary>
@@ -502,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public string BookedBy { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public Color Color { get; set; } = Color.LightBlue;
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 }

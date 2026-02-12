@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using System.Collections.Generic;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 {
@@ -21,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             var fields = ctx.Fields;
             if (fields != null && fields.Count > 0)
             {
-                ctx.InlineFieldData ??= new Dictionary<string, object>();
+                ctx.InlineFieldLayouts.Clear();
 
                 int fieldHeight = 28;
                 int fieldSpacing = 2;
@@ -34,11 +35,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                     var labelRect = new Rectangle(ctx.DrawingRect.X, y, labelWidth, fieldHeight);
                     var inputRect = new Rectangle(ctx.DrawingRect.X + labelWidth + 4, y, inputWidth, fieldHeight);
 
-                    // Store in inline field data for drawing
-                    if (!ctx.InlineFieldData.ContainsKey($"FieldLabelRect_{i}"))
-                        ctx.InlineFieldData[$"FieldLabelRect_{i}"] = labelRect;
-                    if (!ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
-                        ctx.InlineFieldData[$"FieldInputRect_{i}"] = inputRect;
+                    ctx.InlineFieldLayouts.Add(new InlineFieldLayout
+                    {
+                        Index = i,
+                        Label = fields[i].Label,
+                        Value = fields[i].Value?.ToString() ?? string.Empty,
+                        LabelRect = labelRect,
+                        InputRect = inputRect
+                    });
                 }
             }
 
@@ -58,9 +62,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 for (int i = 0; i < fields.Count; i++)
                 {
-                    if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
+                    var layout = ctx.InlineFieldLayouts.FirstOrDefault(l => l.Index == i);
+                    if (layout != null)
                     {
-                        var inputRect = (Rectangle)ctx.InlineFieldData[$"FieldInputRect_{i}"];
+                        var inputRect = layout.InputRect;
                         using var fieldBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.White);
                         using var fieldPath = CreateRoundedPath(inputRect, 2);
                         g.FillPath(fieldBrush, fieldPath);
@@ -87,29 +92,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             for (int i = 0; i < fields.Count; i++)
             {
                 var field = fields[i];
+                var layout = ctx.InlineFieldLayouts.FirstOrDefault(l => l.Index == i);
+                if (layout == null) continue;
 
                 // Draw label
-                if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldLabelRect_{i}"))
-                {
-                    var labelRect = (Rectangle)ctx.InlineFieldData[$"FieldLabelRect_{i}"];
-                    string labelText = field.Label;
-                    if (field.IsRequired) labelText += "*";
+                var labelRect = layout.LabelRect;
+                string labelText = field.Label;
+                if (field.IsRequired) labelText += "*";
 
-                    g.DrawString(labelText, labelFont, labelBrush, labelRect,
-                               new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
-                }
+                g.DrawString(labelText, labelFont, labelBrush, labelRect,
+                           new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
 
                 // Draw input value
-                if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
-                {
-                    var inputRect = (Rectangle)ctx.InlineFieldData[$"FieldInputRect_{i}"];
-                    string displayValue = field.Value?.ToString() ?? "";
-                    string textToDraw = string.IsNullOrEmpty(displayValue) ? field.Placeholder ?? "" : displayValue;
+                var inputRect = layout.InputRect;
+                string displayValue = field.Value?.ToString() ?? "";
+                string textToDraw = string.IsNullOrEmpty(displayValue) ? field.Placeholder ?? "" : displayValue;
 
-                    var textRect = Rectangle.Inflate(inputRect, -4, 0);
-                    g.DrawString(textToDraw, valueFont, valueBrush, textRect,
-                               new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
-                }
+                var textRect = Rectangle.Inflate(inputRect, -4, 0);
+                g.DrawString(textToDraw, valueFont, valueBrush, textRect,
+                           new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
             }
         }
 
@@ -131,9 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
                 if (validation != null && !validation.IsValid)
                 {
-                    if (ctx.InlineFieldData != null && ctx.InlineFieldData.ContainsKey($"FieldInputRect_{i}"))
+                    var layout = ctx.InlineFieldLayouts.FirstOrDefault(l => l.Index == i);
+                    if (layout != null)
                     {
-                        var inputRect = (Rectangle)ctx.InlineFieldData[$"FieldInputRect_{i}"];
+                        var inputRect = layout.InputRect;
                         var indicatorRect = new Rectangle(inputRect.Right - 8, inputRect.Top + 2, 6, 6);
 
                         using var indicatorBrush = new SolidBrush(

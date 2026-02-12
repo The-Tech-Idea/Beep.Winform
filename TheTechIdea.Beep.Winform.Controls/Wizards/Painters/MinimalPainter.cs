@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 {
@@ -54,12 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _subtextColor = Color.FromArgb(120, 120, 120);
             }
 
-            // Dispose old fonts before creating new ones to prevent memory leaks
-            _titleFont?.Dispose();
-            _stepFont?.Dispose();
-
-            _titleFont = new Font("Segoe UI Semibold", 14f);
-            _stepFont = new Font("Segoe UI", 10f);
+            _titleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 14f, FontStyle.Bold);
+            _stepFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 10f, FontStyle.Regular);
         }
 
         #endregion

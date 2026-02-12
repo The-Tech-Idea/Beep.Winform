@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
@@ -99,7 +100,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     Name = "firstName", 
                     Label = "First Name", 
                     Type = FormFieldType.Text, 
-                    Value = "John", 
+                    Value = FormFieldValue.FromText("John"),
+                    DefaultValue = FormFieldValue.FromText(""),
                     IsRequired = true,
                     Placeholder = "Enter first name"
                 },
@@ -108,7 +110,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     Name = "lastName", 
                     Label = "Last Name", 
                     Type = FormFieldType.Text, 
-                    Value = "Doe", 
+                    Value = FormFieldValue.FromText("Doe"),
+                    DefaultValue = FormFieldValue.FromText(""),
                     IsRequired = true,
                     Placeholder = "Enter last name"
                 },
@@ -117,7 +120,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     Name = "email", 
                     Label = "Email Address", 
                     Type = FormFieldType.Email, 
-                    Value = "john.doe@example.com", 
+                    Value = FormFieldValue.FromText("john.doe@example.com"),
+                    DefaultValue = FormFieldValue.FromText(""),
                     IsRequired = true,
                     Placeholder = "Enter email address"
                 },
@@ -126,7 +130,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     Name = "phone", 
                     Label = "Phone Number", 
                     Type = FormFieldType.Phone, 
-                    Value = "+1 (555) 123-4567", 
+                    Value = FormFieldValue.FromText("+1 (555) 123-4567"),
+                    DefaultValue = FormFieldValue.FromText(""),
                     IsRequired = false,
                     Placeholder = "Enter phone number"
                 },
@@ -135,7 +140,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                     Name = "department", 
                     Label = "Department", 
                     Type = FormFieldType.Dropdown, 
-                    Value = "Engineering", 
+                    Value = FormFieldValue.FromSelectedOption("Engineering"),
+                    DefaultValue = FormFieldValue.FromSelectedOption("Engineering"),
                     IsRequired = true,
                     Options = new List<string> { "Engineering", "Design", "Marketing", "Sales", "HR" }
                 }
@@ -449,9 +455,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private ValidationResult ValidateField(FormField field)
         {
             var result = new ValidationResult {FieldName = field.Name, IsValid = true, Message = "" };
+            var fieldText = field.Value?.ToString() ?? string.Empty;
 
             // Required field validation
-            if (field.IsRequired && string.IsNullOrWhiteSpace(field.Value?.ToString()))
+            if (field.IsRequired && string.IsNullOrWhiteSpace(fieldText))
             {
                 result.IsValid = false;
                 result.Message = $"{field.Label} is required";
@@ -462,21 +469,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             switch (field.Type)
             {
                 case FormFieldType.Email:
-                    if (!string.IsNullOrEmpty(field.Value?.ToString()) && !IsValidEmail(field.Value.ToString()))
+                    if (!string.IsNullOrEmpty(fieldText) && !IsValidEmail(fieldText))
                     {
                         result.IsValid = false;
                         result.Message = "Please enter a valid email address";
                     }
                     break;
                 case FormFieldType.Phone:
-                    if (!string.IsNullOrEmpty(field.Value?.ToString()) && !IsValidPhone(field.Value.ToString()))
+                    if (!string.IsNullOrEmpty(fieldText) && !IsValidPhone(fieldText))
                     {
                         result.IsValid = false;
                         result.Message = "Please enter a valid phone number";
                     }
                     break;
                 case FormFieldType.Number:
-                    if (!string.IsNullOrEmpty(field.Value?.ToString()) && !double.TryParse(field.Value.ToString(), out _))
+                    if (!string.IsNullOrEmpty(fieldText) && !double.TryParse(fieldText, out _))
                     {
                         result.IsValid = false;
                         result.Message = "Please enter a valid number";
@@ -522,28 +529,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         }
 
         /// <summary>
-        /// Gets form data as dictionary
+        /// Gets form data as strongly-typed values
         /// </summary>
-        public Dictionary<string, object> GetFormData()
+        public List<FormFieldValueEntry> GetFormData()
         {
-            var data = new Dictionary<string, object>();
+            var data = new List<FormFieldValueEntry>();
             foreach (var field in _fields)
             {
-                data[field.Name] = field.Value;
+                data.Add(new FormFieldValueEntry
+                {
+                    FieldName = field.Name,
+                    Value = field.Value
+                });
             }
             return data;
         }
 
         /// <summary>
-        /// Sets form data from dictionary
+        /// Sets form data from strongly-typed field entries
         /// </summary>
-        public void SetFormData(Dictionary<string, object> data)
+        public void SetFormData(IEnumerable<FormFieldValueEntry> data)
         {
+            if (data == null) return;
+
             foreach (var field in _fields)
             {
-                if (data.ContainsKey(field.Name))
+                var match = data.FirstOrDefault(x => string.Equals(x.FieldName, field.Name, StringComparison.OrdinalIgnoreCase));
+                if (match != null)
                 {
-                    field.Value = data[field.Name];
+                    field.Value = match.Value;
                 }
             }
             Invalidate();
@@ -644,13 +658,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public string Name { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
         public FormFieldType Type { get; set; } = FormFieldType.Text;
-        
-        [Obsolete("Use typed value properties (TextFieldData, NumberFieldData, etc.) based on Type. This property will be removed in a future version.")]
-        public object Value { get; set; }
-        
-        [Obsolete("Use typed value properties (TextFieldData, NumberFieldData, etc.) based on Type. This property will be removed in a future version.")]
-        public object DefaultValue { get; set; }
-        
+        public FormFieldValue? Value { get; set; }
+        public FormFieldValue? DefaultValue { get; set; }
         public string Placeholder { get; set; } = string.Empty;
         public string HelpText { get; set; } = string.Empty;
         public bool IsRequired { get; set; } = false;
@@ -659,34 +668,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public List<string> Options { get; set; } = new List<string>(); // For dropdown/radio
         public int MaxLength { get; set; } = 0; // 0 = no limit
         public string ValidationPattern { get; set; } = string.Empty; // Regex pattern
-        
-        [Obsolete("Use TypedAttributes property with FormFieldAttributes instead. This property will be removed in a future version.")]
-        public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
-        
-        /// <summary>
-        /// Strongly-typed attributes replacing Dictionary&lt;string, object&gt;
-        /// </summary>
-        public FormFieldAttributes TypedAttributes
-        {
-            get
-            {
-                if (_typedAttributes == null)
-                {
-                    _typedAttributes = Attributes != null && Attributes.Count > 0
-                        ? FormFieldAttributes.FromDictionary(Attributes)
-                        : new FormFieldAttributes();
-                }
-                return _typedAttributes;
-            }
-            set
-            {
-                _typedAttributes = value;
-                if (value != null) Attributes = value.ToDictionary();
-            }
-        }
-        private FormFieldAttributes? _typedAttributes;
-        
-        public object Tag { get; set; }
+        public FormFieldAttributes Attributes { get; set; } = new FormFieldAttributes();
+        public string Tag { get; set; } = string.Empty;
         
         // Typed value properties based on field type
         public TextFieldData? TextData
@@ -694,13 +677,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             get
             {
                 if (Type != FormFieldType.Text && Type != FormFieldType.Email && Type != FormFieldType.Password && Type != FormFieldType.Phone && Type != FormFieldType.TextArea) return null;
-                return new TextFieldData { Value = Value?.ToString() ?? string.Empty, MaxLength = MaxLength };
+                return new TextFieldData { Value = Value?.Text ?? string.Empty, MaxLength = MaxLength };
             }
             set
             {
                 if (value != null)
                 {
-                    Value = value.Value;
+                    Value ??= new FormFieldValue();
+                    Value.Text = value.Value;
                     MaxLength = value.MaxLength;
                 }
             }
@@ -711,11 +695,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             get
             {
                 if (Type != FormFieldType.Number && Type != FormFieldType.Range) return null;
-                return new NumberFieldData { Value = Value != null ? Convert.ToDecimal(Value) : 0m };
+                return new NumberFieldData { Value = Value?.Number ?? 0m };
             }
             set
             {
-                if (value != null) Value = value.Value;
+                if (value != null)
+                {
+                    Value ??= new FormFieldValue();
+                    Value.Number = value.Value;
+                }
             }
         }
         
@@ -724,11 +712,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             get
             {
                 if (Type != FormFieldType.Date) return null;
-                return new DateFieldData { Value = Value is DateTime dt ? dt : (DateTime?)null };
+                return new DateFieldData { Value = Value?.Date };
             }
             set
             {
-                if (value != null) Value = value.Value;
+                if (value != null)
+                {
+                    Value ??= new FormFieldValue();
+                    Value.Date = value.Value;
+                }
             }
         }
         
@@ -737,13 +729,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             get
             {
                 if (Type != FormFieldType.Dropdown && Type != FormFieldType.Radio) return null;
-                return new SelectFieldData { SelectedValue = Value?.ToString() ?? string.Empty, Options = Options };
+                return new SelectFieldData { SelectedValue = Value?.SelectedOption ?? string.Empty, Options = Options };
             }
             set
             {
                 if (value != null)
                 {
-                    Value = value.SelectedValue;
+                    Value ??= new FormFieldValue();
+                    Value.SelectedOption = value.SelectedValue;
                     Options = value.Options;
                 }
             }
@@ -754,11 +747,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             get
             {
                 if (Type != FormFieldType.Checkbox) return null;
-                return new CheckboxFieldData { Value = Value is bool b ? b : Convert.ToBoolean(Value) };
+                return new CheckboxFieldData { Value = Value?.Boolean ?? false };
             }
             set
             {
-                if (value != null) Value = value.Value;
+                if (value != null)
+                {
+                    Value ??= new FormFieldValue();
+                    Value.Boolean = value.Value;
+                }
             }
         }
         
@@ -767,13 +764,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             get
             {
                 if (Type != FormFieldType.File) return null;
-                return new FileFieldData { FilePath = Value?.ToString() ?? string.Empty };
+                return new FileFieldData { FilePath = Value?.FilePath ?? string.Empty };
             }
             set
             {
-                if (value != null) Value = value.FilePath;
+                if (value != null)
+                {
+                    Value ??= new FormFieldValue();
+                    Value.FilePath = value.FilePath;
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Strongly-typed form data entry.
+    /// </summary>
+    public class FormFieldValueEntry
+    {
+        public string FieldName { get; set; } = string.Empty;
+        public FormFieldValue? Value { get; set; }
     }
 
     /// <summary>

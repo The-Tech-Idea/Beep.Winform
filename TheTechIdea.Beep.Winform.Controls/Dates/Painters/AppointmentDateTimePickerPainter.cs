@@ -109,8 +109,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 9f, FontStyle.Bold);
+            var font = BeepThemesManager.ToFont(_owner._currentTheme.CalendarUnSelectedFont) ;// new Font(_theme?.FontName ?? "Segoe UI", 9f);
+            var boldFont = BeepFontManager.GetCachedFont(_owner._currentTheme.CalendarSelectedFont.FontFamily,9,FontStyle.Bold);// new Font(_theme?.FontName ?? "Segoe UI", 9f, FontStyle.Bold);
 
             int padding = 12;
             int currentY = bounds.Y + padding;
@@ -162,8 +162,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(230, 230, 230);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f);
-            var smallFont = new Font(_theme?.FontName ?? "Segoe UI", 8f);
+            var font = BeepFontManager.GetCachedFont(_owner._currentTheme.CalendarUnSelectedFont.FontFamily,10);// new Font(_theme?.FontName ?? "Segoe UI", 10f);
+            var smallFont = BeepFontManager.GetCachedFont(_owner._currentTheme.CalendarUnSelectedFont.FontFamily,8);//new Font(_theme?.FontName ?? "Segoe UI", 8f);
 
             // Background
             if (isSelected)
@@ -221,8 +221,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 9f, FontStyle.Bold);
+            var font = BeepThemesManager.ToFont(_owner._currentTheme.CalendarUnSelectedFont);
+            var boldFont = BeepFontManager.GetCachedFont(_owner._currentTheme.SelectedDateFont.FontFamily, 9f, FontStyle.Bold);
 
             // Draw separator line
             using (var pen = new Pen(borderColor, 1))
@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var pressedColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 11f, FontStyle.Bold);
+            var font = BeepFontManager.GetCachedFont(_owner._currentTheme.CalendarUnSelectedFont.FontFamily, 11,FontStyle.Bold );// new Font(_theme?.FontName ?? "Segoe UI", 11f, FontStyle.Bold);
 
             // Draw spinner border
             using (var pen = new Pen(borderColor, 1))
@@ -473,7 +473,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
             var textColor = _theme?.ForeColor ?? Color.Black;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 12f, FontStyle.Bold);
+            var font = BeepFontManager.GetCachedFont(_owner._currentTheme.CalendarUnSelectedFont.FontFamily, 10, FontStyle.Bold);// new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 12f, FontStyle.Bold);
 
             using (var brush = new SolidBrush(textColor))
             {
@@ -524,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
             var textColor = _theme?.SecondaryTextColor ?? Color.FromArgb(128, 128, 128);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 8f);
+            var font = BeepFontManager.GetCachedFont(_owner._currentTheme.CalendarUnSelectedFont.FontFamily, 10, FontStyle.Regular);// new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 8f);
 
             string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
             int startDay = (int)firstDayOfWeek;

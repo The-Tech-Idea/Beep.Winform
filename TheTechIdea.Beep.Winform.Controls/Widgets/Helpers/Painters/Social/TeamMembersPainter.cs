@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             }
             
             // Draw team member avatars
-            var socialItems = ctx.SocialItems?.Cast<SocialItem>().ToList() ?? new List<SocialItem>();
+            var socialItems = ctx.SocialItems ?? new List<SocialItem>();
             
             DrawTeamMemberGrid(g, ctx.ContentRect, socialItems.Take(6).ToList(), ctx.AccentColor);
         }

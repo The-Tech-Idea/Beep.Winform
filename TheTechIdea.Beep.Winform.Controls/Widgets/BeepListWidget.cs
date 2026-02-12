@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using System.Data;
 using TheTechIdea.Beep.Editor;
 
@@ -30,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private ListWidgetStyle _style = ListWidgetStyle.ActivityFeed;
         private IWidgetPainter _painter;
         private string _title = "List Title";
-        private List<Dictionary<string, object>> _items = new List<Dictionary<string, object>>();
+        private List<ListItem> _items = new List<ListItem>();
         private List<string> _columns = new List<string> { "Name", "Value", "Status" };
         private Color _accentColor = Color.FromArgb(33, 150, 243);
         private Color _itemBackColor = Color.White;
@@ -68,9 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         {
             _items.AddRange(new[]
             {
-                new Dictionary<string, object> { ["Name"] = "John Doe", ["Value"] = "Manager", ["Status"] = "Active", ["Time"] = "2 hours ago" },
-                new Dictionary<string, object> { ["Name"] = "Jane Smith", ["Value"] = "Developer", ["Status"] = "Online", ["Time"] = "5 minutes ago" },
-                new Dictionary<string, object> { ["Name"] = "Bob Wilson", ["Value"] = "Designer", ["Status"] = "Busy", ["Time"] = "1 hour ago" }
+                new ListItem { Id = "1", Title = "John Doe", Subtitle = "Manager", Status = "Active", Timestamp = DateTime.Now.AddHours(-2) },
+                new ListItem { Id = "2", Title = "Jane Smith", Subtitle = "Developer", Status = "Online", Timestamp = DateTime.Now.AddMinutes(-5) },
+                new ListItem { Id = "3", Title = "Bob Wilson", Subtitle = "Designer", Status = "Busy", Timestamp = DateTime.Now.AddHours(-1) }
             });
         }
 
@@ -123,10 +125,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
 
         [Category("List")]
         [Description("Data items for the list.")]
-        public List<Dictionary<string, object>> Items
+        public List<ListItem> Items
         {
             get => _items;
-            set { _items = value ?? new List<Dictionary<string, object>>(); Invalidate(); }
+            set { _items = value ?? new List<ListItem>(); Invalidate(); }
         }
 
         [Category("List")]
@@ -194,6 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 CornerRadius = BorderRadius,
                 
                 // List-specific typed properties  
+                ListItems = _items,
                 MaxVisibleItems = _maxVisibleItems,
                 SelectedIndex = _selectedIndex
             };

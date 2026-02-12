@@ -4,9 +4,12 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 {
@@ -158,7 +161,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         private Form CreateToastForm(string message, ToastType type, ToastPosition position)
         {
             var colors = GetToastColors(type);
-            var iconPath = GetToastIconPath(type);
 
             var toast = new Form
             {
@@ -184,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var iconLabel = new Label
             {
                 Text = GetToastIconChar(type),
-                Font = new Font("Segoe UI Symbol", 16, FontStyle.Regular),
+                Font = GetNotificationIconFont(16f),
                 ForeColor = colors.Icon,
                 Location = new Point(16, 18),
                 Size = new Size(24, 24),
@@ -195,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var messageLabel = new Label
             {
                 Text = message,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = GetNotificationBodyFont(),
                 ForeColor = colors.Foreground,
                 Location = new Point(48, 8),
                 Size = new Size(256, 44),
@@ -242,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var messageLabel = new Label
             {
                 Text = message,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = GetNotificationBodyFont(),
                 ForeColor = Color.White,
                 Location = new Point(16, 0),
                 Size = new Size(actionText != null ? 280 : 360, 48),
@@ -256,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 var actionButton = new Label
                 {
                     Text = actionText,
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    Font = GetNotificationActionFont(),
                     ForeColor = Color.FromArgb(100, 180, 255),
                     Location = new Point(300, 0),
                     Size = new Size(80, 48),
@@ -300,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var iconLabel = new Label
             {
                 Text = GetToastIconChar(type),
-                Font = new Font("Segoe UI Symbol", 14, FontStyle.Regular),
+                Font = GetNotificationIconFont(14f),
                 ForeColor = colors.Icon,
                 Location = new Point(16, 10),
                 Size = new Size(24, 24),
@@ -311,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var messageLabel = new Label
             {
                 Text = message,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = GetNotificationBodyFont(),
                 ForeColor = colors.Foreground,
                 Location = new Point(48, 0),
                 Size = new Size(banner.Width - 100, 44),
@@ -328,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 var dismissButton = new Label
                 {
                     Text = "✕",
-                    Font = new Font("Segoe UI", 12, FontStyle.Regular),
+                    Font = GetNotificationActionFont(12f, FontStyle.Regular),
                     ForeColor = colors.Foreground,
                     Location = new Point(banner.Width - 40, 10),
                     Size = new Size(24, 24),
@@ -455,7 +457,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         private (Color Background, Color Foreground, Color Icon, Color Border) GetToastColors(ToastType type)
         {
-            var theme = _defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+            var theme = _defaultTheme ?? BeepThemesManager.CurrentTheme;
+            bool isDark = theme?.IsDarkTheme ?? false;
+            if (isDark)
+            {
+                return type switch
+                {
+                    ToastType.Success => (Color.FromArgb(24, 40, 30), Color.FromArgb(207, 248, 217), theme?.SuccessColor ?? Color.FromArgb(34, 197, 94), Color.FromArgb(43, 79, 53)),
+                    ToastType.Error => (Color.FromArgb(45, 25, 25), Color.FromArgb(252, 220, 220), theme?.ErrorColor ?? Color.FromArgb(239, 68, 68), Color.FromArgb(97, 46, 46)),
+                    ToastType.Warning => (Color.FromArgb(50, 40, 20), Color.FromArgb(252, 238, 205), theme?.WarningColor ?? Color.FromArgb(245, 158, 11), Color.FromArgb(98, 78, 37)),
+                    ToastType.Info => (Color.FromArgb(22, 34, 52), Color.FromArgb(217, 232, 255), theme?.AccentColor ?? Color.FromArgb(59, 130, 246), Color.FromArgb(44, 67, 102)),
+                    ToastType.Loading => (Color.FromArgb(38, 38, 40), Color.FromArgb(225, 225, 228), theme?.BorderColor ?? Color.FromArgb(163, 163, 173), Color.FromArgb(72, 72, 78)),
+                    _ => (Color.FromArgb(38, 38, 40), Color.FromArgb(225, 225, 228), theme?.BorderColor ?? Color.FromArgb(163, 163, 173), Color.FromArgb(72, 72, 78))
+                };
+            }
 
             return type switch
             {
@@ -515,13 +530,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             return type switch
             {
-                ToastType.Success => "TheTechIdea.Beep.Winform.GFX.SVG.check.svg",
-                ToastType.Error => "TheTechIdea.Beep.Winform.GFX.SVG.error.svg",
-                ToastType.Warning => "TheTechIdea.Beep.Winform.GFX.SVG.warning.svg",
-                ToastType.Info => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg",
-                ToastType.Loading => "TheTechIdea.Beep.Winform.GFX.SVG.loading.svg",
-                _ => "TheTechIdea.Beep.Winform.GFX.SVG.information.svg"
+                ToastType.Success => Svgs.CheckCircle,
+                ToastType.Error => Svgs.Error,
+                ToastType.Warning => Svgs.InfoWarning,
+                ToastType.Info => Svgs.Information,
+                ToastType.Loading => Svgs.Loading,
+                _ => Svgs.Information
             };
+        }
+
+        private Font GetNotificationBodyFont()
+        {
+            var theme = _defaultTheme ?? BeepThemesManager.CurrentTheme;
+            if (theme?.BodyStyle != null)
+                return BeepThemesManager.ToFont(theme.BodyStyle);
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, 10f, FontStyle.Regular);
+        }
+
+        private Font GetNotificationActionFont(float size = 10f, FontStyle style = FontStyle.Bold)
+        {
+            var theme = _defaultTheme ?? BeepThemesManager.CurrentTheme;
+            if (theme?.ButtonStyle != null)
+                return BeepThemesManager.ToFont(theme.ButtonStyle);
+            return BeepFontManager.GetCachedFont(BeepFontManager.DefaultFontName, size, style);
+        }
+
+        private Font GetNotificationIconFont(float size)
+        {
+            return BeepFontManager.GetCachedFont("Segoe UI Symbol", size, FontStyle.Regular);
         }
 
         #endregion

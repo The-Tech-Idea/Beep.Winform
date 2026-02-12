@@ -866,3 +866,45 @@ Update README files when:
 - **Claude Instructions**: `.github/instructions/claude-instructions.md`
 - **Cursor Instructions**: `.github/instructions/cursor-instructions.md`
 - **Rules**: `.cursor/rules/mycontrolsonly.mdc`
+
+ou are an expert WinForms developer experienced in high-DPI support.I need you to analyze all forms and custom controls in my WinForms project and ensure full per-monitor DPI scaling support, especially when forms are moved between monitors with different DPI settings.
+For each form and control:
+
+If not already present, add PerMonitorV2 DPI awareness by:
+
+Setting Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); in Program.cs
+Adding required AppContextSwitchOverrides in app.config (for .NET Framework projects)
+
+
+For each custom control class (: Control, : UserControl, : Button, etc.):
+
+Override OnHandleCreated() to compute _dpiScaleX and _dpiScaleY (using CreateGraphics().DpiX / 96f)
+Override OnDpiChanged(DpiChangedEventArgs e) to update scale values and trigger layout/drawing recalculation
+Ensure all custom drawing (e.g., Graphics.DrawLine, Font size, Pen width) uses _dpiScaleX/Y
+Update any hard-coded positions/sizes (e.g., Location, Size, Padding, Margin) dynamically in OnDpiChanged
+
+
+For each form, add a DpiChanged event handler that:
+
+Propagates DPI change to all nested controls
+Recursively scales Font, Location, and Size for controls that aren’t already docked/anchored properly
+Calls Invalidate() and PerformLayout() after scaling
+
+
+Avoid breaking existing layout:  
+
+Preserve Anchor/Dock behavior — only manually scale controls that don’t auto-scale (e.g., custom drawing or flow layout)
+Use e.DpiScale.X/Y (available from DpiChangedEventArgs in .NET 5+ / .NET Framework 4.7.2+)
+
+
+Return a summary of:
+
+All files modified/added
+Any manual fixes needed (e.g., hardcoded values to replace)
+A test checklist (e.g., "Move form to 150% DPI monitor — verify no clipping")
+
+
+
+If certain controls (e.g., third-party ones) can’t be modified, suggest workarounds (e.g., wrapper UserControl or message hooks).
+Prioritize correctness and compatibility with both modern (.NET 6/7/8) and legacy (.NET Framework 4.7.2+) environments._
+

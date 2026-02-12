@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
@@ -35,8 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private IWidgetPainter _painter;
         private string _title = "Dashboard";
         private List<DashboardMetric> _metrics = new List<DashboardMetric>();
-        [Obsolete("Use Metrics property with DashboardMetric instead. This property will be removed in a future version.")]
-        private List<Dictionary<string, object>> _metricsLegacy = new List<Dictionary<string, object>>();
         private Color _accentColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.Empty;
         private Color _cardBackColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.DashboardCardBackColor ?? Color.Empty;
         private Color _cardHoverBackColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.DashboardCardHoverBackColor ?? Color.Empty;
@@ -134,26 +131,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         {
             get => _metrics;
             set { _metrics = value ?? new List<DashboardMetric>(); Invalidate(); }
-        }
-
-        [Category("Dashboard")]
-        [Description("Metrics data for the dashboard (legacy dictionary format).")]
-        [Obsolete("Use Metrics property with DashboardMetric instead. This property will be removed in a future version.")]
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public List<Dictionary<string, object>> MetricsLegacy
-        {
-            get
-            {
-                // Convert typed metrics to dictionaries for backward compatibility
-                return _metrics.Select(m => m.ToDictionary()).ToList();
-            }
-            set
-            {
-                // Convert dictionaries to typed metrics
-                _metrics = value?.Select(d => DashboardMetric.FromDictionary(d)).ToList() ?? new List<DashboardMetric>();
-                Invalidate();
-            }
         }
 
         [Category("Appearance")]

@@ -3,6 +3,10 @@
 ## Overview
 The Beep Widget system provides 10+ specialized dashboard widget controls, each with multiple visual styles and dedicated painters.
 
+## API Rule
+- Use strongly typed widget models only.
+- Do not use `Dictionary<string, object>` or `object` as control input/output contracts.
+
 ## Namespace
 ```csharp
 using TheTechIdea.Beep.Winform.Controls.Widgets;
@@ -219,8 +223,8 @@ public class TimeSlot
 ### Methods
 - `ValidateForm()` - Validate all fields
 - `ResetForm()` - Reset to defaults
-- `GetFormData()` - Get as Dictionary
-- `SetFormData(Dictionary<string, object>)` - Set values
+- `GetFormData()` - Returns `List<FormFieldValueEntry>`
+- `SetFormData(IEnumerable<FormFieldValueEntry>)` - Set typed field values
 
 ### Data Models
 ```csharp
@@ -229,7 +233,9 @@ public class FormField
     public string Name { get; set; }
     public string Label { get; set; }
     public FormFieldType Type { get; set; }
-    public object Value { get; set; }
+    public FormFieldValue Value { get; set; }
+    public FormFieldValue DefaultValue { get; set; }
+    public FormFieldAttributes Attributes { get; set; }
     public string Placeholder { get; set; }
     public string HelpText { get; set; }
     public bool IsRequired { get; set; }
@@ -246,6 +252,12 @@ public class ValidationResult
     public bool IsValid { get; set; }
     public string Message { get; set; }
     public ValidationSeverity Severity { get; set; }
+}
+
+public class FormFieldValueEntry
+{
+    public string FieldName { get; set; }
+    public FormFieldValue Value { get; set; }
 }
 ```
 
@@ -308,7 +320,7 @@ public class DashboardMetric
 | Property | Type | Description |
 |----------|------|-------------|
 | `Style` | `ListWidgetStyle` | Visual style |
-| `Items` | `List<Dictionary<string, object>>` | Data items |
+| `Items` | `List<ListItem>` | Data items |
 | `Columns` | `List<string>` | Column names |
 | `ShowHeader` | `bool` | Show header |
 | `AllowSelection` | `bool` | Enable selection |
@@ -317,6 +329,30 @@ public class DashboardMetric
 
 ### Events
 - `ItemClicked`, `ItemSelected`, `HeaderClicked`
+
+---
+
+## BeepControlWidget (10 Styles)
+
+**Purpose**: Interactive input controls using typed value models.
+
+### Properties
+| Property | Type | Description |
+|----------|------|-------------|
+| `Style` | `ControlWidgetStyle` | Visual style |
+| `ToggleValue` | `ToggleValue` | Toggle model |
+| `SliderValue` | `SliderValue` | Slider model |
+| `RangeValue` | `RangeValue` | Range selector model |
+| `DateValue` | `DateValue` | Date model |
+| `ColorValue` | `ColorValue` | Color model |
+| `NumberValue` | `NumberValue` | Number model |
+| `SelectedOption` | `string` | Selected option |
+| `SearchText` | `string` | Search text |
+| `Options` | `List<string>` | Option labels |
+| `CheckboxOptions` | `List<CheckboxOption>` | Typed checkbox options |
+
+### Events
+- `ValueChanged`, `ControlClicked`, `OptionSelected`
 
 ---
 

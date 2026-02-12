@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
 {
@@ -10,6 +13,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
     /// </summary>
     public static class WizardHelpers
     {
+        public static Font GetFont(IBeepTheme? theme, TypographyStyle? style, float fallbackSize, FontStyle fallbackStyle)
+        {
+            if (style != null)
+                return BeepThemesManager.ToFont(style);
+
+            if (theme?.BodyStyle != null && fallbackStyle == FontStyle.Regular)
+                return BeepThemesManager.ToFont(theme.BodyStyle);
+
+            return BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
+        }
+
+        public static Color GetErrorColor(IBeepTheme? theme)
+        {
+            return theme?.ErrorColor ?? Color.FromArgb(200, 50, 50);
+        }
+
+        public static Color GetWarningBackColor(IBeepTheme? theme)
+        {
+            if (theme == null) return Color.FromArgb(255, 235, 235);
+            return Color.FromArgb(40, theme.ErrorColor);
+        }
+
         /// <summary>
         /// Animate a step transition by sliding controls in/out
         /// </summary>

@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
@@ -69,6 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
 
         private void InitializeControls()
         {
+            var theme = BeepThemesManager.CurrentTheme;
             BackColor = Color.Transparent;
             Dock = DockStyle.Fill;
             Padding = new Padding(40, 40, 40, 40);
@@ -87,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 50,
                 Text = WelcomeTitle,
-                Font = new Font("Segoe UI Semibold", 24f)
+                Font = WizardHelpers.GetFont(theme, theme?.TitleStyle, 24f, FontStyle.Bold)
             };
 
             // Message
@@ -96,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 100,
                 Text = WelcomeMessage,
-                Font = new Font("Segoe UI", 12f)
+                Font = WizardHelpers.GetFont(theme, theme?.BodyStyle, 12f, FontStyle.Regular)
             };
 
             Controls.Add(_messageLabel);
@@ -129,6 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
 
         private void InitializeControls()
         {
+            var theme = BeepThemesManager.CurrentTheme;
             BackColor = Color.Transparent;
             Dock = DockStyle.Fill;
             Padding = new Padding(20);
@@ -138,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 40,
                 Text = SummaryTitle,
-                Font = new Font("Segoe UI Semibold", 16f)
+                Font = WizardHelpers.GetFont(theme, theme?.TitleStyle, 16f, FontStyle.Bold)
             };
 
             _summaryPanel = new Panel
@@ -165,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                     Dock = DockStyle.Top,
                     AutoSize = true,
                     Text = summary,
-                    Font = new Font("Segoe UI", 10f)
+                    Font = WizardHelpers.GetFont(BeepThemesManager.CurrentTheme, BeepThemesManager.CurrentTheme?.BodyStyle, 10f, FontStyle.Regular)
                 };
                 _summaryPanel.Controls.Add(label);
             }
@@ -194,6 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
 
         private void InitializeControls()
         {
+            var theme = BeepThemesManager.CurrentTheme;
             BackColor = Color.Transparent;
             Dock = DockStyle.Fill;
             Padding = new Padding(40, 60, 40, 40);
@@ -211,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 50,
                 Text = CompletionTitle,
-                Font = new Font("Segoe UI Semibold", 22f),
+                Font = WizardHelpers.GetFont(theme, theme?.TitleStyle, 22f, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
@@ -220,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 60,
                 Text = CompletionMessage,
-                Font = new Font("Segoe UI", 11f),
+                Font = WizardHelpers.GetFont(theme, theme?.BodyStyle, 11f, FontStyle.Regular),
                 TextAlign = ContentAlignment.TopCenter
             };
 
@@ -239,8 +244,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
             int x = (_iconPanel.Width - size) / 2;
             int y = 10;
             var rect = new Rectangle(x, y, size, size);
+            var theme = BeepThemesManager.CurrentTheme;
 
-            using (var brush = new SolidBrush(Color.FromArgb(46, 125, 50)))
+            using (var brush = new SolidBrush(theme?.SuccessColor ?? Color.FromArgb(46, 125, 50)))
             {
                 g.FillEllipse(brush, rect);
             }
@@ -291,6 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
 
         private void InitializeControls()
         {
+            var theme = BeepThemesManager.CurrentTheme;
             BackColor = Color.Transparent;
             Dock = DockStyle.Fill;
             Padding = new Padding(40, 60, 40, 40);
@@ -308,9 +315,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 50,
                 Text = ErrorTitle,
-                Font = new Font("Segoe UI Semibold", 22f),
+                Font = WizardHelpers.GetFont(theme, theme?.TitleStyle, 22f, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleCenter,
-                ForeColor = Color.FromArgb(200, 50, 50)
+                ForeColor = WizardHelpers.GetErrorColor(theme)
             };
 
             _messageLabel = new BeepLabel
@@ -318,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 Dock = DockStyle.Top,
                 Height = 80,
                 Text = ErrorMessage,
-                Font = new Font("Segoe UI", 11f),
+                Font = WizardHelpers.GetFont(theme, theme?.BodyStyle, 11f, FontStyle.Regular),
                 TextAlign = ContentAlignment.TopCenter
             };
 
@@ -336,8 +343,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
             int x = (_iconPanel.Width - size) / 2;
             int y = 10;
             var rect = new Rectangle(x, y, size, size);
+            var theme = BeepThemesManager.CurrentTheme;
 
-            using (var brush = new SolidBrush(Color.FromArgb(200, 50, 50)))
+            using (var brush = new SolidBrush(WizardHelpers.GetErrorColor(theme)))
             {
                 g.FillEllipse(brush, rect);
             }

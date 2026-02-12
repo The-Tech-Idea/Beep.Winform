@@ -69,4 +69,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Models
         [Description("Progress percentage (0-100)")]
         public int Progress { get; set; } = 0;
     }
+
+    /// <summary>
+    /// Typed override for row status in status-list painter.
+    /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class StatusOverride
+    {
+        [Category("Data")]
+        [Description("Row index for the override")]
+        public int RowIndex { get; set; }
+
+        [Category("Data")]
+        [Description("Status text override")]
+        public string StatusText { get; set; } = string.Empty;
+    }
 }

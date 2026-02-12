@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 }
                 else
                 {
-                    // Draw directly from Image object
+                    // Draw directly from Image instance
                     try
                     {
                         using var roundedClip = PathPainterHelpers.CreateRoundedRectangle(ctx.DrawingRect, (int)ctx.CornerRadius);

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
@@ -43,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            var timeSlots = ctx.TimeSlots?.Cast<TimeSlot>().ToList() ?? new List<TimeSlot>();
+            var timeSlots = ctx.TimeSlots ?? new List<TheTechIdea.Beep.Winform.Controls.Widgets.TimeSlot>();
             var selectedDate = ctx.SelectedDate;
 
             // Draw header
@@ -56,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             DrawTimeSlots(g, ctx.ContentRect, timeSlots, ctx.AccentColor);
         }
 
-        private void DrawTimeSlots(Graphics g, Rectangle rect, List<TimeSlot> timeSlots, Color accentColor)
+        private void DrawTimeSlots(Graphics g, Rectangle rect, List<TheTechIdea.Beep.Winform.Controls.Widgets.TimeSlot> timeSlots, Color accentColor)
         {
             if (timeSlots.Count == 0) return;
 
@@ -100,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             }
         }
 
-        private void DrawSlotStatus(Graphics g, RectangleF slotRect, TimeSlot slot, Color accentColor)
+        private void DrawSlotStatus(Graphics g, RectangleF slotRect, TheTechIdea.Beep.Winform.Controls.Widgets.TimeSlot slot, Color accentColor)
         {
             // Draw small status indicator in corner
             float indicatorSize = 8f;

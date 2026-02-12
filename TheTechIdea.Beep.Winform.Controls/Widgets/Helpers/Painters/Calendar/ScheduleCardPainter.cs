@@ -108,18 +108,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private List<ScheduleItem> GetScheduleItems(WidgetContext ctx)
         {
-            if (ctx.ScheduleEvents is IEnumerable<Dictionary<string, object>> dicts)
+            if (ctx.ScheduleEvents != null && ctx.ScheduleEvents.Count > 0)
             {
                 var list = new List<ScheduleItem>();
-                foreach (var d in dicts)
+                foreach (var e in ctx.ScheduleEvents)
                 {
+                    var duration = e.EndTime > e.StartTime
+                        ? e.EndTime - e.StartTime
+                        : TimeSpan.Zero;
                     list.Add(new ScheduleItem
                     {
-                        Time = d.TryGetValue("Time", out var t) ? t?.ToString() ?? string.Empty : string.Empty,
-                        Title = d.TryGetValue("Title", out var ti) ? ti?.ToString() ?? string.Empty : string.Empty,
-                        Type = d.TryGetValue("Type", out var ty) ? ty?.ToString() ?? string.Empty : string.Empty,
-                        Priority = d.TryGetValue("Priority", out var p) ? p?.ToString() ?? "low" : "low",
-                        Color = d.TryGetValue("Color", out var c) && c is Color col ? col : null
+                        Time = e.StartTime.ToString("HH:mm"),
+                        Title = e.Title ?? string.Empty,
+                        Type = !string.IsNullOrWhiteSpace(e.Type) ? e.Type : (duration.TotalMinutes > 0 ? $"{(int)duration.TotalMinutes} min" : "event"),
+                        Priority = "medium",
+                        Color = e.Color == Color.Empty ? null : e.Color
                     });
                 }
                 return list;

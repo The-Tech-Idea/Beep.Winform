@@ -121,13 +121,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _cardBgColor = Color.FromArgb(245, 245, 250);
             }
 
-            try { _cardTitleFont?.Dispose(); } catch { }
-            try { _cardDescFont?.Dispose(); } catch { }
-            try { _cardNumberFont?.Dispose(); } catch { }
-
-            _cardTitleFont = new Font("Segoe UI Semibold", 10f);
-            _cardDescFont = new Font("Segoe UI", 8.5f);
-            _cardNumberFont = new Font("Segoe UI Semibold", 12f);
+            _cardTitleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 10f, FontStyle.Bold);
+            _cardDescFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 8.5f, FontStyle.Regular);
+            _cardNumberFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 12f, FontStyle.Bold);
         }
 
         private void InitializeForm()
@@ -163,15 +159,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 Dock = DockStyle.Top,
                 Height = 40,
                 Visible = false,
-                BackColor = Color.FromArgb(255, 235, 235),
+                BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
                 Padding = new Padding(16, 0, 16, 0)
             };
             _lblError = new Label
             {
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(180, 30, 30),
-                Font = new Font("Segoe UI", 9.5f),
+                ForeColor = WizardHelpers.GetErrorColor(CurrentTheme),
+                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular),
                 AutoEllipsis = true
             };
             _errorPanel.Controls.Add(_lblError);
@@ -250,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 Text = _instance.Config.Title,
                 Dock = DockStyle.Top,
                 Height = 40,
-                Font = new Font("Segoe UI Semibold", 13f),
+                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.TitleStyle, 13f, FontStyle.Bold),
                 ForeColor = _textColor,
                 Padding = new Padding(5, 0, 0, 10),
                 TextAlign = ContentAlignment.BottomLeft
@@ -449,7 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             if (step.IsOptional && !isCompleted)
             {
                 using var optBrush = new SolidBrush(Color.FromArgb(60, _pendingColor));
-                using var optFont = new Font("Segoe UI", 7f, FontStyle.Italic);
+                using var optFont = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.CaptionStyle, 7f, FontStyle.Italic);
                 g.DrawString("Optional", optFont, optBrush,
                     new Rectangle(textX, circleY + 36, textWidth, 14));
             }
@@ -691,6 +687,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _contentPanel.BackColor = CurrentTheme.BackColor;
                 _buttonPanel.BackColor = CurrentTheme.BackColor;
                 _cardPanel.BackColor = _cardBgColor;
+                _errorPanel.BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme);
+                _lblError.ForeColor = WizardHelpers.GetErrorColor(CurrentTheme);
+                _lblError.Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular);
 
                 _btnNext.Theme = CurrentTheme.ThemeName;
                 _btnBack.Theme = CurrentTheme.ThemeName;
@@ -732,11 +731,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 timer?.Dispose();
             }
             _activeAnimationTimers.Clear();
-
-            // Dispose fonts
-            _cardTitleFont?.Dispose();
-            _cardDescFont?.Dispose();
-            _cardNumberFont?.Dispose();
 
             WizardManager.UnregisterWizard(_instance.Config.Key);
             base.OnFormClosing(e);

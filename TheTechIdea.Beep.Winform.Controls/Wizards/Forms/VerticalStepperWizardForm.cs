@@ -126,15 +126,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 Dock = DockStyle.Top,
                 Height = 40,
                 Visible = false,
-                BackColor = Color.FromArgb(255, 235, 235),
+                BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme),
                 Padding = new Padding(16, 0, 16, 0)
             };
             _lblError = new Label
             {
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(180, 30, 30),
-                Font = new Font("Segoe UI", 9.5f),
+                ForeColor = WizardHelpers.GetErrorColor(CurrentTheme),
+                Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular),
                 AutoEllipsis = true
             };
             _errorPanel.Controls.Add(_lblError);
@@ -480,6 +480,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 BackColor = CurrentTheme.BackColor;
                 _contentPanel.BackColor = CurrentTheme.BackColor;
                 _buttonPanel.BackColor = CurrentTheme.BackColor;
+                _errorPanel.BackColor = WizardHelpers.GetWarningBackColor(CurrentTheme);
+                _lblError.ForeColor = WizardHelpers.GetErrorColor(CurrentTheme);
+                _lblError.Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular);
                 
                 // Side panel with slightly different background
                 var sidePanelColor = ControlPaint.Dark(CurrentTheme.BackColor, 0.05f);

@@ -7,6 +7,7 @@ using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
@@ -48,16 +49,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             var fields = ctx.Fields;
             if (fields != null && fields.Count > 0)
             {
-                ctx.InlineFieldData ??= new Dictionary<string, object>();
+                ctx.InlineFieldLayouts.Clear();
                 
                 int currentY = ctx.ContentRect.Y;
                 for (int i = 0; i < fields.Count; i++)
                 {
                     var fieldRect = new Rectangle(ctx.ContentRect.X, currentY,
                                                 ctx.ContentRect.Width, fieldHeight);
-
-                    // Store field rectangles for drawing
-                    ctx.InlineFieldData[$"FieldRect_{i}"] = fieldRect;
+                    ctx.InlineFieldLayouts.Add(new InlineFieldLayout
+                    {
+                        Index = i,
+                        Label = fields[i].Label,
+                        Value = fields[i].Value?.ToString() ?? string.Empty,
+                        FieldRect = fieldRect
+                    });
                     currentY += fieldHeight + fieldSpacing;
                 }
             }
@@ -149,10 +154,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             for (int i = 0; i < fields.Count; i++)
             {
-                if (ctx.InlineFieldData == null || !ctx.InlineFieldData.ContainsKey($"FieldRect_{i}")) continue;
+                var layout = ctx.InlineFieldLayouts.FirstOrDefault(l => l.Index == i);
+                if (layout == null) continue;
 
                 var field = fields[i];
-                var fieldRect = (Rectangle)ctx.InlineFieldData[$"FieldRect_{i}"];
+                var fieldRect = layout.FieldRect;
 
                 // Draw field label
                 using var labelFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);

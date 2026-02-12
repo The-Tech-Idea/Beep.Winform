@@ -848,7 +848,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply theme colors using theme helpers
             BackColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
             ForeColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabTextColor(_currentTheme, true);
-            
+            Font = BeepThemesManager.ToFont(_currentTheme.TabFont);
             if (_painter != null) _painter.Theme = _currentTheme;
             foreach (TabPage page in TabPages)
             {

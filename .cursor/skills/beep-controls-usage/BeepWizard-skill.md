@@ -3,6 +3,11 @@
 ## Overview
 The Wizard system provides multi-step forms with 3 visual styles, step validation, navigation controls, and progress tracking.
 
+## Implementation Rules
+- Wizard forms must read visual colors from the active `IBeepTheme`.
+- Wizard forms must resolve fonts through `BeepFontManager` instead of hardcoded `new Font(...)`.
+- Step/form payloads should use strongly typed models; avoid `Dictionary<string, object>` and raw `object` values.
+
 ## Namespace
 ```csharp
 using TheTechIdea.Beep.Winform.Controls.Wizards;

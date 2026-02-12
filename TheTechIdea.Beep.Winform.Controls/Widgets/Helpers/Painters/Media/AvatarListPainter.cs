@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Widgets;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -56,17 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			int avatarSize = 40;
 			int itemHeight = avatarSize + 8;
 			int maxItems = Math.Max(0, ctx.ContentRect.Height / itemHeight);
-			int dataCount = 0;
-			// AvatarListPainter uses different structure (Name, Role, Status), so keep using Dictionary for now
-			var users = ctx.SocialItems?.Cast<Dictionary<string, object>>().ToList();
-			if (users != null)
-			{
-				dataCount = users.Count;
-			}
-			else
-			{
-				dataCount = 6; // fallback to sample
-			}
+			int dataCount = ctx.SocialItems != null && ctx.SocialItems.Count > 0 ? ctx.SocialItems.Count : 6;
 			int itemsToShow = Math.Min(maxItems, dataCount);
 			for (int i = 0; i < itemsToShow; i++)
 			{
@@ -127,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			int itemHeight = avatarSize + 8;
 			int maxItems = Math.Max(0, area.Height / itemHeight);
 			
-			var users = new[] 
+			var sampleUsers = new[] 
 			{
 				new { Name = "Alice Johnson", Status = "Online", Role = "Designer" },
 				new { Name = "Bob Smith", Status = "Away", Role = "Developer" },
@@ -136,6 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				new { Name = "Eve Brown", Status = "Online", Role = "DevOps" },
 				new { Name = "Frank Miller", Status = "Away", Role = "Analyst" }
 			};
+            var users = (ctx.SocialItems != null && ctx.SocialItems.Count > 0)
+                ? ctx.SocialItems.Select(x => new { Name = x.Name, Status = x.Status, Role = x.Role }).ToArray()
+                : sampleUsers;
 			
 			int itemsToShow = Math.Min(maxItems, users.Length);
 			

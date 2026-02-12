@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media;
 
@@ -343,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public Image Image { get; set; }
         public bool IsAvatar { get; set; } = false;
         public Color AccentColor { get; set; } = Color.FromArgb(33, 150, 243);
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 }

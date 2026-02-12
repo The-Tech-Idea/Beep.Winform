@@ -199,6 +199,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BeepContextMenu.Theme = this.Theme;
             }
+            if (UseThemeFont)
+            {
+                TextFont = BeepThemesManager.ToFont(_currentTheme.ComboBoxItemFont);
+            }
             Invalidate();
         }
         

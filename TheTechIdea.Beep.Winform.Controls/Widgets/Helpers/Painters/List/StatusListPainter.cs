@@ -92,9 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 }
 
                 // Status indicator dot
-                string status = overrides != null && overrides.ContainsKey(i)
-                    ? overrides[i]
-                    : item.Status ?? "Unknown";
+                string status = overrides.FirstOrDefault(o => o.RowIndex == i)?.StatusText ?? (!string.IsNullOrEmpty(item.Status) ? item.Status : "Unknown");
                 Color statusColor = GetStatusColor(status);
                 var dotRect = new Rectangle(rowRect.X + 8, y + itemHeight / 2 - 4, 8, 8);
                 using var dotBrush = new SolidBrush(statusColor);
@@ -169,20 +167,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 });
                 owner.AddHitArea($"StatusList_Status_{idx}", statRect, null, () =>
                 {
-                    // Toggle in StatusOverrides without mutating original Items
-                    if (ctx.StatusOverrides == null)
-                        ctx.StatusOverrides = new Dictionary<int, string>();
+                    // Toggle status override without mutating original items
                     var map = ctx.StatusOverrides;
+                    var currentOverride = map.FirstOrDefault(o => o.RowIndex == idx);
 
-                    // Determine current status (override -> items)
                     string current;
-                    if (map.ContainsKey(idx)) current = map[idx];
+                    if (currentOverride != null && !string.IsNullOrEmpty(currentOverride.StatusText)) current = currentOverride.StatusText;
                     else if (ctx.ListItems != null && idx < ctx.ListItems.Count && !string.IsNullOrEmpty(ctx.ListItems[idx].Status))
                         current = ctx.ListItems[idx].Status;
                     else current = "Unknown";
 
                     string next = NextStatus(current);
-                    map[idx] = next;
+                    if (currentOverride == null)
+                    {
+                        map.Add(new StatusOverride { RowIndex = idx, StatusText = next });
+                    }
+                    else
+                    {
+                        currentOverride.StatusText = next;
+                    }
                     ctx.ToggledStatusRowIndex = idx;
                     ctx.ToggledStatusNewValue = next;
 

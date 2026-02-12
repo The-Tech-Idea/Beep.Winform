@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social;
 
@@ -286,7 +287,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
                 ShowStatus = _showStatus,
                 ShowAvatar = _showAvatar,
                 OnlineCount = _onlineCount,
-                TotalCount = _totalCount
+                TotalCount = _totalCount,
+                SocialItems = _socialItems
             };
 
             _painter?.Initialize(this, _currentTheme);
@@ -450,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         public DateTime Timestamp { get; set; } = DateTime.Now;
         public Color StatusColor { get; set; } = Color.Gray;
         public bool IsOnline { get; set; } = false;
-        public object Tag { get; set; }
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+        public string Tag { get; set; } = string.Empty;
+        public WidgetMetadata Metadata { get; set; } = new WidgetMetadata();
     }
 }

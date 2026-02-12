@@ -53,7 +53,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public int CornerRadius;
         
         // Data properties
-        public object? DataSource;
         public string? Title;
         public string? Value;
         public string? TrendValue;
@@ -92,8 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public int MessageCount { get; set; }
         public int UnreadCount { get; set; }
         public bool IsTyping { get; set; }
-        // Note: ChatParticipant is defined in ChatWidgetPainter.cs, so we keep it as List<object> for now
-        public List<object> ChatParticipants { get; set; } = new List<object>();
+        public List<ChatParticipant> ChatParticipants { get; set; } = new List<ChatParticipant>();
         public string CurrentUserId { get; set; } = "current_user";
         public string InputText { get; set; } = "";
         public List<Comment> Comments { get; set; } = new List<Comment>();
@@ -103,9 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string UserName { get; set; } = "User";
         public string UserRole { get; set; } = "Role";
         public string UserStatus { get; set; } = "Offline";
-        public object? ContactInfo { get; set; }
-        // SocialItems can be various types, keep as List<object> for flexibility
-        public List<object> SocialItems { get; set; } = new List<object>();
+        public ContactInfo? ContactInfo { get; set; }
+        public List<TheTechIdea.Beep.Winform.Controls.Widgets.SocialItem> SocialItems { get; set; } = new List<TheTechIdea.Beep.Winform.Controls.Widgets.SocialItem>();
         public int OnlineCount { get; set; }
         public int TotalCount { get; set; }
         public Image? AvatarImage { get; set; }
@@ -158,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public int SortColumnIndex { get; set; } = -1;
         public string SortDirection { get; set; } = "";
         public string EmptyText { get; set; } = "No data to display";
-        public Dictionary<int, string>? StatusOverrides { get; set; } // Status override mapping
+        public List<StatusOverride> StatusOverrides { get; set; } = new List<StatusOverride>();
 
         // FINANCE PROPERTIES
         public decimal? PrimaryValue { get; set; }
@@ -242,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool LegendClicked { get; set; }
         public bool ContentClicked { get; set; }
         public string[]? InlineFields { get; set; }
-        public Dictionary<string, object>? InlineFieldData { get; set; }
+        public List<InlineFieldLayout> InlineFieldLayouts { get; set; } = new List<InlineFieldLayout>();
         public string? Description { get; set; }
         public bool IsReadOnly { get; set; }
         public bool IsFocused { get; set; }
@@ -274,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool StatusCardClicked { get; set; }
         public bool StatusCardDismissed { get; set; }
         public bool ValidationDismissed { get; set; }
-        public object? ValidationCopyRequested { get; set; }
+        public string? ValidationCopyRequested { get; set; }
         public bool BreadcrumbHomeClicked { get; set; }
         public int BreadcrumbIndex { get; set; } = -1;
         public int SelectedRankIndex { get; set; } = -1;
@@ -307,7 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string SelectedButton { get; set; } = "";
         public int SelectedButtonIndex { get; set; } = -1;
         public bool ShowButtonGroupOptions { get; set; }
-        public Dictionary<string, bool> CheckedItems { get; set; } = new Dictionary<string, bool>();
+        public List<bool> CheckedItems { get; set; } = new List<bool>();
 
         // Calendar category properties
         public DateTime SelectedDate { get; set; } = DateTime.Today;
@@ -332,8 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool PrevMonth { get; set; }
         public bool NextMonth { get; set; }
         public bool CalendarGridClicked { get; set; }
-        // TimeSlot is defined in BeepCalendarWidget.cs, keep as List<object> for now
-        public List<object>? TimeSlots { get; set; }
+        public List<TheTechIdea.Beep.Winform.Controls.Widgets.TimeSlot> TimeSlots { get; set; } = new List<TheTechIdea.Beep.Winform.Controls.Widgets.TimeSlot>();
         public List<CalendarEvent> WeekEvents { get; set; } = new List<CalendarEvent>();
         public string SelectedDayHeader { get; set; } = "";
         public string SelectedEventDay { get; set; } = "";

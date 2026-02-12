@@ -120,9 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawChatHeader(Graphics g, Rectangle rect, WidgetContext ctx)
         {
             string chatTitle = ctx.Title ?? "Chat";
-            // Note: ChatParticipants doesn't have a typed helper yet, so keep using Cast for now
-            // ChatParticipant is defined in this file, so use Cast for now
-            var participants = ctx.ChatParticipants?.Cast<ChatParticipant>().ToList() ?? new List<ChatParticipant>();
+            var participants = ctx.ChatParticipants ?? new List<ChatParticipant>();
             
             // Chat icon or participant avatar
             var iconRect = _headerIconRect;
@@ -621,15 +619,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         }
     }
 
-    // ChatParticipant is still defined here as it's specific to this painter
-    public class ChatParticipant
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Avatar { get; set; }
-        public bool IsOnline { get; set; }
-        public DateTime LastSeen { get; set; }
-    }
-    
-    // ChatMessage, MessageStatus, and MessageType are now in Widgets.Models namespace
+    // ChatMessage, MessageStatus, MessageType, and ChatParticipant are in Widgets.Models.
 }

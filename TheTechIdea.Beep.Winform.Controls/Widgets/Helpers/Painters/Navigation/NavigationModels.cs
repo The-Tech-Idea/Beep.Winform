@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public string Text { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public string IconName { get; set; } = string.Empty;
-        public object Data { get; set; }
+        public string Data { get; set; } = string.Empty;
     }
 
     public class TreeNodeItem
@@ -18,6 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public bool IsExpanded { get; set; }
         public bool HasChildren { get; set; }
         public string IconName { get; set; } = string.Empty;
-        public object Data { get; set; }
+        public string Data { get; set; } = string.Empty;
     }
 }

@@ -27,26 +27,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         protected readonly IBeepService? beepService;
         protected readonly IAppManager? appManager;
         private IDMEEditor Editor { get; }
+        private bool _themeEventsRegistered;
 
         public TemplateForm()
         {
             this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
-            BeepThemesManager.FormStyleChanged += (s, e) =>
-            {
-                FormStyle = BeepThemesManager.CurrentStyle;
-                Theme = BeepThemesManager.CurrentThemeName;
-                Invalidate();
-            };
+            InitializeThemeSync();
         }
 
         public TemplateForm(IServiceProvider services) : base()
         {
             this.FormBorderStyle = FormBorderStyle.None;
             InitializeComponent();
-            Theme = BeepThemesManager.CurrentThemeName;
-            FormStyle = BeepThemesManager.CurrentStyle;
-            ApplyTheme();
+            InitializeThemeSync();
             beepService = ServiceProviderServiceExtensions.GetService<IBeepService>(services);
             appManager= ServiceProviderServiceExtensions.GetService<IAppManager>(services);
             if (beepService != null)
@@ -62,6 +56,80 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         private void BeepuiManager1_OnThemeChanged(string obj)
         {
            Invalidate();
+        }
+
+        private void InitializeThemeSync()
+        {
+            RegisterThemeEvents();
+            ApplyCurrentThemeAndStyle();
+        }
+
+        private void RegisterThemeEvents()
+        {
+            if (_themeEventsRegistered) return;
+
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            BeepThemesManager.FormStyleChanged += BeepThemesManager_FormStyleChanged;
+            _themeEventsRegistered = true;
+        }
+
+        private void UnregisterThemeEvents()
+        {
+            if (!_themeEventsRegistered) return;
+
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager.FormStyleChanged -= BeepThemesManager_FormStyleChanged;
+            _themeEventsRegistered = false;
+        }
+
+        private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventArgs e)
+        {
+            ApplyCurrentThemeAndStyleSafe();
+        }
+
+        private void BeepThemesManager_FormStyleChanged(object? sender, StyleChangeEventArgs e)
+        {
+            ApplyCurrentThemeAndStyleSafe();
+        }
+
+        private void ApplyCurrentThemeAndStyleSafe()
+        {
+            if (IsDisposed || Disposing) return;
+
+            if (InvokeRequired)
+            {
+                try
+                {
+                    BeginInvoke((System.Windows.Forms.MethodInvoker)ApplyCurrentThemeAndStyle);
+                }
+                catch
+                {
+                    // Best effort only; form may be shutting down.
+                }
+                return;
+            }
+
+            ApplyCurrentThemeAndStyle();
+        }
+
+        private void ApplyCurrentThemeAndStyle()
+        {
+            Theme = BeepThemesManager.CurrentThemeName;
+            FormStyle = BeepThemesManager.CurrentStyle;
+
+            if (beepFormuiManager1 != null)
+            {
+                beepFormuiManager1.Theme = Theme;
+            }
+
+            ApplyTheme();
+            Invalidate(true);
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            UnregisterThemeEvents();
+            base.OnFormClosed(e);
         }
         #region "IDM_Addin"
         public event EventHandler OnStart;

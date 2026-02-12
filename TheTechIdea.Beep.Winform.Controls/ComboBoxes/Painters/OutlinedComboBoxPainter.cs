@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class OutlinedComboBoxPainter : BaseComboBoxPainter
     {
-        private const int BorderRadius = 4;
+        private const int BorderRadiusLogical = 4;
         
       
         
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             float borderWidth = _owner.Focused ? 2f : 1f;
             
             var basePen = PaintersFactory.GetPen(borderColor, borderWidth);
-            using (var path = GetRoundedRectPath(rect, BorderRadius))
+            using (var path = GetRoundedRectPath(rect, _owner.ScaleLogicalX(BorderRadiusLogical)))
             {
                 // Clone when modifying pen properties (Alignment)
                 var pen = (System.Drawing.Pen)basePen.Clone();
@@ -43,10 +43,33 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
         {
             if (buttonRect.IsEmpty) return;
-            
+
+            Rectangle visualRect = Rectangle.Inflate(buttonRect, -ScaleX(1), -ScaleY(1));
+            int radius = Math.Max(ScaleX(4), Math.Min(visualRect.Height / 2, ScaleX(8)));
+
+            Color accent = _theme?.ComboBoxHoverBorderColor != Color.Empty
+                ? _theme.ComboBoxHoverBorderColor
+                : (_theme?.PrimaryColor ?? Color.Empty);
+            Color hoverFill = _theme?.ComboBoxHoverBackColor ?? Color.Empty;
+
+            if (_owner.IsButtonHovered || _owner.Focused)
+            {
+                Color fill = hoverFill != Color.Empty
+                    ? PathPainterHelpers.WithAlphaIfNotEmpty(hoverFill, 120)
+                    : PathPainterHelpers.WithAlphaIfNotEmpty(accent, _owner.IsButtonHovered ? 44 : 28);
+                if (fill != Color.Empty && fill.A > 0)
+                {
+                    var brush = PaintersFactory.GetSolidBrush(fill);
+                    using (var path = GetRoundedRectPath(visualRect, radius))
+                    {
+                        g.FillPath(brush, path);
+                    }
+                }
+            }
+             
             // Draw subtle separator line (not full height for modern look)
             Color separatorColor = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.BorderColor ?? Color.Empty, 230);
-            int margin = 8;
+            int margin = _owner.ScaleLogicalY(8);
             var pen = PaintersFactory.GetPen(separatorColor, 1f);
             g.DrawLine(pen, 
                 buttonRect.Left, buttonRect.Top + margin, 
@@ -74,6 +97,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         public override Padding GetPreferredPadding()
         {
             return new System.Windows.Forms.Padding(12, 6, 8, 6);
+        }
+
+        public override int GetPreferredButtonWidth()
+        {
+            return 34;
         }
     }
 }

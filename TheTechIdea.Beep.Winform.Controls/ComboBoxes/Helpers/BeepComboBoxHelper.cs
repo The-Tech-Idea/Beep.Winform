@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 return;
             }
             
-            // Apply inner padding
+            // Apply inner padding (ensure scaled)
             var padding = _owner.InnerPadding;
             var workingRect = new Rectangle(
                 drawingRect.X + padding.Left,
@@ -43,8 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 Math.Max(1, drawingRect.Height - padding.Vertical)
             );
             
-            // Calculate dropdown button area (right side)
-            int buttonWidth = _owner.DropdownButtonWidth;
+            // Calculate dropdown button area (right side) - ensure minimum size
+            int buttonWidth = Math.Max(_owner.DropdownButtonWidth, _owner.ScaleLogicalX(24));
+            buttonWidth = Math.Min(buttonWidth, workingRect.Width / 3); // Don't let button take more than 1/3 of width
             dropdownButtonRect = new Rectangle(
                 workingRect.Right - buttonWidth,
                 workingRect.Y,
@@ -58,15 +59,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             
             if (!string.IsNullOrEmpty(_owner.LeadingImagePath) || !string.IsNullOrEmpty(_owner.LeadingIconPath))
             {
-                // Calculate image size (16x16 default icon size with padding)
-                imageWidth = Math.Min(24, workingRect.Height);
+                int minIconSize = _owner.ScaleLogicalY(16);
+                int maxIconSize = _owner.ScaleLogicalY(24);
+                int iconVerticalInset = _owner.ScaleLogicalY(4);
+                int iconSpacing = _owner.ScaleLogicalX(8);
+
+                // Calculate icon size proportional to available height
+                int iconSize = Math.Max(minIconSize, Math.Min(maxIconSize, workingRect.Height - iconVerticalInset * 2));
+                iconSize = Math.Max(1, iconSize);
+                
                 imageRect = new Rectangle(
                     workingRect.X,
-                    workingRect.Y + (workingRect.Height - imageWidth) / 2,
-                    imageWidth,
-                    imageWidth
+                    workingRect.Y + (workingRect.Height - iconSize) / 2,
+                    iconSize,
+                    iconSize
                 );
-                imageWidth += 4; // Add spacing after image
+                imageWidth = iconSize + iconSpacing; // Add spacing after image
             }
             
             // Calculate text area (remaining space between image and button)

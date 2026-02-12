@@ -107,6 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         internal ControlDataBindingHelper _dataBinding;
      //   internal BaseControlMaterialHelper _materialHelper; // kept for binary compatibility; no longer constructed/used at runtime
         internal IBaseControlPainter _painter; // strategy-based painter (optional)
+        protected float _dpiScaleX = 1f;
+        protected float _dpiScaleY = 1f;
 
         // Track theme change subscription
         private bool _subscribedToThemeChanged = false;
@@ -474,6 +476,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 
                 // Ensure we are subscribed when a handle is created at runtime
                 TrySubscribeThemeChanged(isDesignMode);
+
+                // Refresh local DPI scales as soon as the handle exists.
+                DpiScalingHelper.RefreshScaleFactors(this, ref _dpiScaleX, ref _dpiScaleY);
                 
                 // Only perform complex operations if not in design mode
                 if (!isDesignMode)
@@ -551,23 +556,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
+            var oldScaleX = _dpiScaleX;
+            var oldScaleY = _dpiScaleY;
+
             base.OnDpiChangedAfterParent(e);
             
-            // .NET 8/9+ automatically handles DPI changes via framework
-            // We just need to notify painter to update layout if present
             try
             {
                 if (IsHandleCreated && !IsDisposed)
                 {
-                    UpdateDrawingRect();
-                    _painter?.UpdateLayout(this);
-                    Invalidate();
+                    DpiScalingHelper.RefreshScaleFactors(this, ref _dpiScaleX, ref _dpiScaleY);
+
+                    if (!DpiScalingHelper.AreScaleFactorsEqual(oldScaleX, _dpiScaleX) ||
+                        !DpiScalingHelper.AreScaleFactorsEqual(oldScaleY, _dpiScaleY))
+                    {
+                        // Preserve Anchor/Dock behavior: only non-auto controls are scaled manually.
+                        DpiScalingHelper.ScaleControlTreeForDpiChange(
+                            this,
+                            oldScaleX,
+                            oldScaleY,
+                            _dpiScaleX,
+                            _dpiScaleY,
+                            scaleFont: false);
+                        OnDpiScaleChanged(oldScaleX, oldScaleY, _dpiScaleX, _dpiScaleY);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"BaseControl.OnDpiChangedAfterParent error: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Called after this control observes a DPI scale transition.
+        /// Derived controls can override to recompute custom drawing metrics.
+        /// </summary>
+        protected virtual void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            UpdateDrawingRect();
+            _painter?.UpdateLayout(this);
+            PerformLayout();
+            Invalidate(true);
         }
 
         /// <summary>

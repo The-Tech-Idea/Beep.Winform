@@ -43,17 +43,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             }
 
             // Content area starting position (must match DrawMenuItemsSimple)
-            int contentStartX = beepInsets + 4;
-            int contentStartY = beepInsets + 4;
+            int internalPadding = _owner.GetInternalPadding();
+            int searchSpacing = _owner.GetSearchSpacing();
+            int contentStartX = beepInsets + internalPadding;
+            int contentStartY = beepInsets + internalPadding;
             int searchAreaHeight = _owner.ShowSearchBox ? _owner.SearchBoxHeight : 0;
             if (searchAreaHeight > 0)
             {
                 // If the click is in the search area, do not treat it as an item
-                var searchRect = new Rectangle(contentStartX, contentStartY, _owner.Width - (beepInsets * 2) - 8 - (_owner.NeedsScrolling ? 17 : 0), searchAreaHeight + 8);
+                var searchRect = new Rectangle(
+                    contentStartX,
+                    contentStartY,
+                    _owner.Width - (beepInsets * 2) - (internalPadding * 2) - (_owner.NeedsScrolling ? 17 : 0),
+                    searchAreaHeight + searchSpacing);
                 if (searchRect.Contains(adjustedLocation)) return null;
-                contentStartY += searchAreaHeight + 8;
+                contentStartY += searchAreaHeight + searchSpacing;
             }
-            int contentWidth = _owner.Width - (beepInsets * 2) - 8;
+            int contentWidth = _owner.Width - (beepInsets * 2) - (internalPadding * 2);
 
             int yOffset = 0;
 
@@ -63,11 +69,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 
                 if (IsSeparator(item))
                 {
-                    yOffset += 8; // Separator height
+                    yOffset += _owner.GetSeparatorHeight();
                     continue;
                 }
                 
-                int itemHeight = _owner.PreferredItemHeight;
+                int itemHeight = _owner.GetMenuItemLayoutHeight(item);
                 var itemRect = new Rectangle(
                     contentStartX,
                     contentStartY + yOffset,

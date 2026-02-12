@@ -36,8 +36,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             
-            UpdateLayout();
-            
             // Ensure painter exists for current type
             if (_comboBoxPainter == null)
             {
@@ -45,8 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _comboBoxPainter.Initialize(this, _currentTheme);
             }
             
-            // Update layout if needed
-            if (_needsLayoutUpdate)
+            // Update layout ONLY if needed (not on every paint)
+            if (_needsLayoutUpdate || !_layoutCacheValid)
             {
                 UpdateLayout();
                 _needsLayoutUpdate = false;

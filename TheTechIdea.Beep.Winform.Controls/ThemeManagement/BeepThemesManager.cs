@@ -319,8 +319,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
 
         #region DPI Scaling Support
 
-        // Current DPI scale factor (1.0 = 96 DPI, 1.25 = 120 DPI, 1.5 = 144 DPI, etc.)
+        // Current DPI scale factors (1.0 = 96 DPI, 1.25 = 120 DPI, 1.5 = 144 DPI, etc.)
         private static float _dpiScaleFactor = 1.0f;
+        private static float _dpiScaleX = 1.0f;
+        private static float _dpiScaleY = 1.0f;
 
         /// <summary>
         /// Gets or sets the current DPI scale factor used for font scaling.
@@ -334,16 +336,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
                 if (value > 0 && Math.Abs(_dpiScaleFactor - value) > 0.01f)
                 {
                     _dpiScaleFactor = value;
+                    _dpiScaleX = value;
+                    _dpiScaleY = value;
                     OnDpiScaleFactorChanged();
                 }
             }
         }
 
         /// <summary>
+        /// Gets the current horizontal DPI scale factor.
+        /// </summary>
+        public static float DpiScaleX => _dpiScaleX;
+
+        /// <summary>
+        /// Gets the current vertical DPI scale factor.
+        /// </summary>
+        public static float DpiScaleY => _dpiScaleY;
+
+        /// <summary>
         /// Gets or sets whether DPI scaling should be applied to fonts automatically.
         /// Default is true.
         /// </summary>
-        public static bool EnableDpiFontScaling { get; set; } = true;
+        private static bool _enableDpiFontScaling = true;
+        public static bool EnableDpiFontScaling
+        {
+            get => _enableDpiFontScaling;
+            set
+            {
+                if (_enableDpiFontScaling == value) return;
+                _enableDpiFontScaling = value;
+                OnDpiScaleFactorChanged();
+            }
+        }
 
         /// <summary>
         /// Updates the DPI scale factor from a Control's current DPI.
@@ -352,7 +376,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         public static void UpdateDpiFromControl(Control control)
         {
             if (control == null) return;
-            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(control);
+            float scaleX = 1.0f;
+            float scaleY = 1.0f;
+            DpiScalingHelper.RefreshScaleFactors(control, ref scaleX, ref scaleY);
+            UpdateDpiScaleFactors(scaleX, scaleY);
         }
 
         /// <summary>
@@ -361,7 +388,33 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         /// </summary>
         public static void UpdateDpiFromSystem()
         {
-            DpiScaleFactor = DpiScalingHelper.GetSystemDpiScaleFactor();
+            var scale = DpiScalingHelper.GetSystemDpiScaleFactor();
+            UpdateDpiScaleFactors(scale, scale);
+        }
+
+        /// <summary>
+        /// Updates both horizontal and vertical DPI scales.
+        /// </summary>
+        public static void UpdateDpiScaleFactors(float scaleX, float scaleY)
+        {
+            if (scaleX <= 0 || scaleY <= 0)
+                return;
+
+            var normalizedX = Math.Max(scaleX, 0.1f);
+            var normalizedY = Math.Max(scaleY, 0.1f);
+            var normalizedAverage = (normalizedX + normalizedY) * 0.5f;
+
+            if (Math.Abs(_dpiScaleX - normalizedX) < 0.01f &&
+                Math.Abs(_dpiScaleY - normalizedY) < 0.01f &&
+                Math.Abs(_dpiScaleFactor - normalizedAverage) < 0.01f)
+            {
+                return;
+            }
+
+            _dpiScaleX = normalizedX;
+            _dpiScaleY = normalizedY;
+            _dpiScaleFactor = normalizedAverage;
+            OnDpiScaleFactorChanged();
         }
 
         /// <summary>

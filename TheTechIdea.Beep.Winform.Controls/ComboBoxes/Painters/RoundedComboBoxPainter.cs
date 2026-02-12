@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
     /// </summary>
     internal class RoundedComboBoxPainter : BaseComboBoxPainter
     {
-        private const int BorderRadius = 12; // More prominent rounding
+        private const int BorderRadiusLogical = 12; // More prominent rounding
         
      
         
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             try
             {
                 pen.Alignment = PenAlignment.Inset;
-                using (var path = GetRoundedRectPath(rect, BorderRadius))
+                using (var path = GetRoundedRectPath(rect, _owner.ScaleLogicalX(BorderRadiusLogical)))
                 {
                     g.DrawPath(pen, path);
                 }

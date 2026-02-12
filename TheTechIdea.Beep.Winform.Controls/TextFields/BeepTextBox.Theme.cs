@@ -1,5 +1,6 @@
 using System;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -38,8 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (UseThemeFont)
             {
-                _textFont?.Dispose();
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                _textFont = BeepFontManager.ToFont(_currentTheme.LabelSmall);
             }
             
             if (_beepImage != null)

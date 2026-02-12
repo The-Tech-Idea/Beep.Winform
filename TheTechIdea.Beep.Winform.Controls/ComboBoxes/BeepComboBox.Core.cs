@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -41,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Gets whether the dropdown button is currently hovered (for painters)
         /// </summary>
         internal bool IsButtonHovered => _isButtonHovered;
+        internal bool IsControlHovered => _isHovered;
         
         #endregion
         
@@ -65,6 +67,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle _textAreaRect;
         private Rectangle _dropdownButtonRect;
         private Rectangle _imageRect;
+        private float _cachedScaleX = -1f;
+        private float _cachedScaleY = -1f;
         
         // Layout cache invalidation tracking
         private int _cachedWidth;
@@ -75,6 +79,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _cachedDropdownButtonWidth;
         private Font _cachedTextFont;
         private bool _layoutCacheValid = false;
+        private bool _dropdownButtonWidthSetExplicitly = false;
+        private bool _innerPaddingSetExplicitly = false;
+        private bool _layoutDefaultsInitialized = false;
+        private const int DefaultDropdownButtonWidthLogical = 32;
+        private static readonly Padding DefaultInnerPaddingLogical = new Padding(8, 4, 8, 4);
 
         // Chip animations: track progress for chips when adding/removing
         private readonly System.Collections.Generic.Dictionary<SimpleItem, float> _chipProgress = new System.Collections.Generic.Dictionary<SimpleItem, float>();
@@ -141,6 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size = new Size(200, 40);
             BorderRadius = 4;
             ShowAllBorders = true;
+            ApplyLayoutDefaultsFromPainter();
             
             // Set accessibility properties
             AccessibleRole = AccessibleRole.ComboBox;
@@ -223,6 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure theme and lifecycle are aligned with the control
             BeepContextMenu.Theme = this.Theme;
             BeepContextMenu.DestroyOnClose = false; // reuse for dropdown
+            SyncDropdownMetrics();
             
             // Wire up events
             BeepContextMenu.ItemClicked += OnContextMenuItemClicked;
@@ -306,10 +317,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         
         #region Layout Management
+
+        internal int ScaleLogicalX(int logicalPixels)
+        {
+            var scaleX = _dpiScaleX > 0f ? _dpiScaleX : 1f;
+            return DpiScalingHelper.ScaleValue(logicalPixels, scaleX);
+        }
+
+        internal int ScaleLogicalY(int logicalPixels)
+        {
+            var scaleY = _dpiScaleY > 0f ? _dpiScaleY : 1f;
+            return DpiScalingHelper.ScaleValue(logicalPixels, scaleY);
+        }
+
+        internal Padding ScaleLogicalPadding(Padding logicalPadding)
+        {
+            return new Padding(
+                ScaleLogicalX(logicalPadding.Left),
+                ScaleLogicalY(logicalPadding.Top),
+                ScaleLogicalX(logicalPadding.Right),
+                ScaleLogicalY(logicalPadding.Bottom));
+        }
+
+        private void ApplyLayoutDefaultsFromPainter(bool force = false)
+        {
+            _comboBoxPainter ??= CreatePainter(_comboBoxType);
+            _comboBoxPainter.Initialize(this, _currentTheme);
+
+            // Only apply defaults if not initialized yet, or if forced (e.g., ComboBoxType change)
+            if (!_layoutDefaultsInitialized || force)
+            {
+                if (!_dropdownButtonWidthSetExplicitly)
+                {
+                    int preferredButtonWidth = Math.Max(18, _comboBoxPainter.GetPreferredButtonWidth());
+                    _dropdownButtonWidth = Math.Max(ScaleLogicalX(18), ScaleLogicalX(preferredButtonWidth));
+                }
+
+                if (!_innerPaddingSetExplicitly)
+                {
+                    var preferredPadding = _comboBoxPainter.GetPreferredPadding();
+                    _innerPadding = ScaleLogicalPadding(preferredPadding);
+                }
+                
+                _layoutDefaultsInitialized = true;
+            }
+        }
         
         private void UpdateLayout()
         {
             if (Width <= 0 || Height <= 0) return;
+            
+            // Only apply painter defaults if not yet initialized
+            if (!_layoutDefaultsInitialized)
+            {
+                ApplyLayoutDefaultsFromPainter();
+            }
             
             // Check if layout cache is still valid
             // Note: LeadingImagePath and LeadingIconPath may be inherited from BaseControl
@@ -325,7 +387,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _cachedLeadingImagePath != currentLeadingImagePath ||
                 _cachedLeadingIconPath != currentLeadingIconPath ||
                 _cachedDropdownButtonWidth != DropdownButtonWidth ||
-                _cachedTextFont != TextFont;
+                _cachedTextFont != TextFont ||
+                !DpiScalingHelper.AreScaleFactorsEqual(_cachedScaleX, _dpiScaleX) ||
+                !DpiScalingHelper.AreScaleFactorsEqual(_cachedScaleY, _dpiScaleY);
             
             if (needsRecalc)
             {
@@ -340,6 +404,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try { _cachedLeadingIconPath = LeadingIconPath; } catch { _cachedLeadingIconPath = null; }
                 _cachedDropdownButtonWidth = DropdownButtonWidth;
                 _cachedTextFont = TextFont;
+                _cachedScaleX = _dpiScaleX;
+                _cachedScaleY = _dpiScaleY;
                 _layoutCacheValid = true;
             }
         }

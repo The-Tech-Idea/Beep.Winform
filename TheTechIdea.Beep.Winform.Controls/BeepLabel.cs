@@ -3,10 +3,11 @@ using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Drawing;
- 
- 
+  
+  
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -706,7 +707,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DisabledForeColor = _currentTheme.LabelDisabledForeColor;
                 if (UseThemeFont)
                 {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelFont);
+                    _textFont = BeepFontManager.ToFont(_currentTheme.LabelFont);
 
                     // Create a smaller font for subheader if not explicitly set
                     if (_subHeaderFont == null)
@@ -791,7 +792,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!SetFont() && UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepFontManager.ToFont(_currentTheme.ButtonStyle);
             }
 
             // Use the control's current width as the constraint when wrapping

@@ -537,8 +537,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 CloseChildMenus(menuId);
                 
                 var menuLocation = menu.PointToScreen(Point.Empty);
-                var itemIndex = menu.MenuItems.IndexOf(e.Item);
-                var itemBounds = new Rectangle(0, itemIndex * menu.PreferredItemHeight, menu.Width, menu.PreferredItemHeight);
+                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
                 var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
                 
                 try

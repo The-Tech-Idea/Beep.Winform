@@ -125,6 +125,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_comboBoxType == value) return;
                 _comboBoxType = value;
                 _comboBoxPainter = null; // Force painter recreation
+                
+                // Force re-application of painter defaults for new type
+                _layoutDefaultsInitialized = false;
+                ApplyLayoutDefaultsFromPainter(force: true);
+                
                 InvalidateLayout();
                 // Update dropdown properties
                 if (BeepContextMenu != null)
@@ -435,14 +440,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _dropdownButtonWidth; 
             set 
             { 
-                if (_dropdownButtonWidth != value)
+                if (value <= 0)
                 {
+                    // Reset to painter default
+                    if (_dropdownButtonWidthSetExplicitly)
+                    {
+                        _dropdownButtonWidthSetExplicitly = false;
+                        _layoutDefaultsInitialized = false;
+                        ApplyLayoutDefaultsFromPainter(force: true);
+                        InvalidateLayout();
+                    }
+                    return;
+                }
+
+                if (_dropdownButtonWidth != value || !_dropdownButtonWidthSetExplicitly)
+                {
+                    _dropdownButtonWidthSetExplicitly = true;
                     _dropdownButtonWidth = value;
                     InvalidateLayout();
                 }
             }
         }
-        private int _dropdownButtonWidth = 32;
+        private int _dropdownButtonWidth = DefaultDropdownButtonWidthLogical;
         
         [Browsable(true)]
         [Category("Layout")]
@@ -452,14 +471,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _innerPadding; 
             set 
             { 
-                if (_innerPadding != value)
+                // Allow reset to painter default by passing Padding.Empty
+                if (value == Padding.Empty && _innerPaddingSetExplicitly)
                 {
+                    _innerPaddingSetExplicitly = false;
+                    _layoutDefaultsInitialized = false;
+                    ApplyLayoutDefaultsFromPainter(force: true);
+                    InvalidateLayout();
+                    return;
+                }
+                
+                if (_innerPadding != value || !_innerPaddingSetExplicitly)
+                {
+                    _innerPaddingSetExplicitly = true;
                     _innerPadding = value;
                     InvalidateLayout();
                 }
             }
         }
-        private Padding _innerPadding = new Padding(8, 4, 8, 4);
+        private Padding _innerPadding = DefaultInnerPaddingLogical;
         
         #endregion
     }

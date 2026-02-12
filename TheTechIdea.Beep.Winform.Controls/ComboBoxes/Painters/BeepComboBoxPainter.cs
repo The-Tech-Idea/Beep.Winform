@@ -99,9 +99,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             Color textColor = _helper.GetTextColor();
             Font textFont = _owner.TextFont;
             
-            // Calculate text bounds with padding
+            // Calculate text bounds with scaled padding
             var textBounds = textAreaRect;
-            textBounds.Inflate(-4,0);
+            int horizontalPadding = _owner.ScaleLogicalX(4);
+            textBounds.Inflate(-horizontalPadding, 0);
             
             // Draw text
             TextFormatFlags flags = TextFormatFlags.Left |
@@ -149,8 +150,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         private void DrawPlaceholderIcon(Graphics g, Rectangle iconRect)
         {
-            var pen = PaintersFactory.GetPen(_theme?.BorderColor ?? Color.Gray,1.5f);
-            g.DrawRectangle(pen, Rectangle.Inflate(iconRect, -3, -3));
+            var pen = PaintersFactory.GetPen(_theme?.BorderColor ?? Color.Gray, _owner.ScaleLogicalX((int)1.5f));
+            int inset = _owner.ScaleLogicalX(3);
+            g.DrawRectangle(pen, Rectangle.Inflate(iconRect, -inset, -inset));
         }
         
         #endregion
@@ -165,19 +167,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             bool isHovered = _owner.HitTestControl != null &&
                            _owner.HitTestControl.Name == "DropdownButton" &&
                            _owner.HitTestControl.IsHovered;
-            
+
             // Draw button background on hover
             if (isHovered)
             {
                 Color hoverColor = _helper.GetButtonHoverColor();
                 var brush = PaintersFactory.GetSolidBrush(hoverColor);
-                using (var path = CreateRoundedPath(buttonRect, _owner.BorderRadius /2))
-                {
-                    g.FillPath(brush, path);
-                }
-            }
-            
+                int cornerRadius = Math.Max(0, _owner.BorderRadius / 2);
+                using (var path = CreateRoundedPath(buttonRect, cornerRadius)) ;
             // Draw dropdown arrow icon
+            }
             DrawDropdownArrow(g, buttonRect);
         }
         
@@ -188,9 +187,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             {
                 try
                 {
-                    // Use StyledImagePainter for dropdown icon
+                    // Use StyledImagePainter for dropdown icon with proper scaling
                     var style = BeepStyling.CurrentControlStyle;
-                    var iconRect = GetCenteredIconRect(buttonRect,12,12);
+                    int iconSize = _owner.ScaleLogicalX(12);
+                    var iconRect = GetCenteredIconRect(buttonRect, iconSize, iconSize);
                     StyledImagePainter.Paint(g, iconRect, _owner.DropdownIconPath, style);
                     return;
                 }
@@ -252,13 +252,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                               (_theme?.ForeColor ?? Color.Black) :
                               Color.Gray;
             
-            var pen = PaintersFactory.GetPen(arrowColor,2f);
-            // Pen caps set on clone if necessary; small stroke without modification is fine
+            float penWidth = _owner.ScaleLogicalX((int)2f);
+            var pen = PaintersFactory.GetPen(arrowColor, penWidth);
+            pen.StartCap = LineCap.Round;
+            pen.EndCap = LineCap.Round;
             
-            // Calculate arrow points
-            int centerX = buttonRect.X + buttonRect.Width /2;
-            int centerY = buttonRect.Y + buttonRect.Height /2;
-            int arrowSize =4;
+            // Calculate arrow points with scaling
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            int arrowSize = _owner.ScaleLogicalX(5);
             
             Point[] arrowPoints;
             

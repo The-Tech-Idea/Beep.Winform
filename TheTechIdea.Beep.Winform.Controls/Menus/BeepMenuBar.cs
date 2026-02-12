@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int ScaledImageSize => DpiScalingHelper.ScaleValue(_imagesize, this);
         private int ScaledMenuItemWidth => DpiScalingHelper.ScaleValue(_menuItemWidth, this);
         private Size ScaledButtonSize => DpiScalingHelper.ScaleSize(ButtonSize, this);
+        private int ScaleUi(int value) => DpiScalingHelper.ScaleValue(value, this);
 
         private int _selectedIndex = -1;
 
@@ -146,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Force recalculation of height by triggering resize ONLY if not manually set
                     if (!_heightManuallySet)
                     {
-                        int verticalBuffer = 12;
+                        int verticalBuffer = ScaleUi(12);
                         int newHeight = ScaledMenuItemHeight + verticalBuffer;
                         if (base.Height != newHeight)
                         {
@@ -228,8 +229,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (Width <= 0 || Height <= 0)
             {
-                Width = 200;
-                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
+                Width = ScaleUi(200);
+                int verticalBuffer = ScaleUi(12); // 6 pixels top + 6 pixels bottom for more breathing room
                 base.Height = ScaledMenuItemHeight + verticalBuffer; // Use base.Height to avoid triggering manual set flag during initialization
             }
             IsTransparentBackground = true;
@@ -272,8 +273,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                int verticalBuffer = 12; // 6 pixels top + 6 pixels bottom for more breathing room
-                return new Size(200, ScaledMenuItemHeight + verticalBuffer); // Framework handles DPI scaling
+                int verticalBuffer = ScaleUi(12); // 6 pixels top + 6 pixels bottom for more breathing room
+                return new Size(ScaleUi(200), ScaledMenuItemHeight + verticalBuffer);
             }
         }
 
@@ -327,9 +328,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             var rects = new List<Rectangle>();
             if (items == null || items.Count == 0) return rects;
 
-            // Framework handles DPI scaling
-            int gapBetweenButtons = 5;
-            int startX = 5;
+            int gapBetweenButtons = ScaleUi(5);
+            int startX = ScaleUi(5);
             
             // Only update font if UseThemeFont is true AND developer hasn't explicitly set it
             // This prevents font changes when FormStyle changes
@@ -368,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int outerItemHeight = contentHeight + totalChromeHeight;
 
             // Add vertical buffer (padding) above and below menu items for better visual spacing
-            int verticalBuffer = 6; // 6 pixels top + 6 pixels bottom = 12 total vertical buffer for more breathing room
+            int verticalBuffer = ScaleUi(6); // 6 pixels top + 6 pixels bottom = 12 total vertical buffer for more breathing room
             int buttonTop = (Height - outerItemHeight) / 2;
             if (buttonTop < 0) buttonTop = verticalBuffer;
             else buttonTop = Math.Max(buttonTop, verticalBuffer); // Ensure minimum top buffer
@@ -437,10 +437,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Add space for image if present
-            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + 8 : 0;
+            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + ScaleUi(8) : 0;
 
             // Add internal content padding (horizontal space between elements and edges)
-            int internalContentPad = 16; // 8 pixels on each side
+            int internalContentPad = ScaleUi(16); // 8 pixels on each side
             
             // Calculate content width (text + image + internal padding)
             int contentWidth = textWidth + imageWidth + internalContentPad;
@@ -448,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Add chrome width (border + padding + shadow from style)
             int totalWidth = contentWidth + totalChromeWidth;
 
-            return Math.Max(totalWidth, 60); // Minimum width
+            return Math.Max(totalWidth, ScaleUi(60)); // Minimum width
         }
 
         private void HandleMenuItemClick(SimpleItem item, int index)
@@ -482,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (index < menuRects.Count)
             {
                 var buttonRect = menuRects[index];
-                var screenLocation = this.PointToScreen(new Point(buttonRect.Left, buttonRect.Bottom + 2));
+                var screenLocation = this.PointToScreen(new Point(buttonRect.Left, buttonRect.Bottom + ScaleUi(2)));
 
                 // Use BaseControl's ShowContextMenu with the item's children
                 if (item.Children != null && item.Children.Count > 0)
@@ -609,7 +609,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.FillRectangle(brush, rect);
             brush.Dispose();
 
-            var pen = new Pen(Color.Gray, 1);
+            var pen = new Pen(Color.Gray, Math.Max(1, ScaleUi(1)));
             g.DrawRectangle(pen, rect);
             pen.Dispose();
 
@@ -646,18 +646,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Calculate layout areas inside content (NO extra vertical padding - BeepStyling handles it!)
-            int imageAreaWidth = !string.IsNullOrEmpty(item.ImagePath) ? _imagesize + 8 : 0;
-            int textStartX = contentRect.X + 8 + imageAreaWidth;
-            int textWidth = contentRect.Width - 16 - imageAreaWidth;
+            int horizontalPadding = ScaleUi(8);
+            int scaledImageSize = ScaledImageSize;
+            int imageAreaWidth = !string.IsNullOrEmpty(item.ImagePath) ? scaledImageSize + horizontalPadding : 0;
+            int textStartX = contentRect.X + horizontalPadding + imageAreaWidth;
+            int textWidth = contentRect.Width - (horizontalPadding * 2) - imageAreaWidth;
 
             // Draw image if available (centered vertically in content area)
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var imageRect = new Rectangle(
-                    contentRect.X + 8,
-                    contentRect.Y + (contentRect.Height - _imagesize) / 2,
-                    _imagesize,
-                    _imagesize
+                    var imageRect = new Rectangle(
+                    contentRect.X + horizontalPadding,
+                    contentRect.Y + (contentRect.Height - scaledImageSize) / 2,
+                    scaledImageSize,
+                    scaledImageSize
                 );
 
                 // Create path for image area
@@ -846,7 +848,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int totalChromeHeight = (styleBorderWidth * 2) + (stylePadding * 2) + styleShadowDepth;
             int outerItemHeight = fontHeight + contentPadding + totalChromeHeight;
 
-            int verticalBuffer = 12; 
+            int verticalBuffer = ScaleUi(12);
             int preferredHeight = Math.Max(ScaledMenuItemHeight + verticalBuffer, outerItemHeight + verticalBuffer);
             
             return new Size(preferredWidth, preferredHeight);
@@ -1036,7 +1038,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int fontHeight = GetFontHeightSafe(_textFont, this);
 
             // Calculate minimum height needed: font height + padding - framework handles DPI scaling
-            int minHeight = fontHeight + 8; // 8 pixels padding (4 top + 4 bottom)
+            int minHeight = fontHeight + ScaleUi(8); // 8 pixels padding (4 top + 4 bottom)
 
             // Update MenuItemHeight if current value is too small
             if (_menuItemHeight < minHeight)
@@ -1084,21 +1086,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Styles with larger borders/shadows need more padding
                 case BeepControlStyle.Fluent:
                 case BeepControlStyle.Fluent2:
-                    return 10; // Fluent has acrylic effects and larger padding
+                    return ScaleUi(10); // Fluent has acrylic effects and larger padding
                 case BeepControlStyle.Gnome:
-                    return 12; // GNOME has rounded pill buttons with more vertical space
+                    return ScaleUi(12); // GNOME has rounded pill buttons with more vertical space
                 case BeepControlStyle.Neumorphism:
-                    return 14; // Neumorphism has soft shadows that need more space
+                    return ScaleUi(14); // Neumorphism has soft shadows that need more space
                 case BeepControlStyle.iOS15:
-                    return 12; // iOS has larger padding for touch targets
+                    return ScaleUi(12); // iOS has larger padding for touch targets
                 case BeepControlStyle.Kde:
-                    return 10; // KDE Breeze has rounded corners with more space
+                    return ScaleUi(10); // KDE Breeze has rounded corners with more space
                 case BeepControlStyle.Tokyo:
-                    return 12; // Tokyo has neon effects that need space
+                    return ScaleUi(12); // Tokyo has neon effects that need space
                 
                 // Default styles
                 default:
-                    return 8; // Standard padding
+                    return ScaleUi(8); // Standard padding
             }
         }
         #endregion "Utility Methods"

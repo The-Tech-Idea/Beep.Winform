@@ -70,6 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             return new Padding(4); // Default padding
         }
+
+        protected int ScaleX(int logicalPixels) => _owner?.ScaleLogicalX(logicalPixels) ?? logicalPixels;
+        protected int ScaleY(int logicalPixels) => _owner?.ScaleLogicalY(logicalPixels) ?? logicalPixels;
         
         #region Abstract/Virtual Methods - Override in derived classes
         
@@ -99,11 +102,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (textAreaRect.IsEmpty) return;
             
-            // For editable mode, we might want to show a different background
+            // Use subtle overlays for hover/focus so control feels interactive without heavy repainting.
             if (_owner.IsEditable && _owner.Focused)
             {
                 var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 10));
                 g.FillRectangle(brush, textAreaRect);
+            }
+            else if (_owner.IsControlHovered && _owner.Enabled)
+            {
+                var hoverColor = _theme?.ComboBoxHoverBackColor ?? Color.Empty;
+                if (hoverColor != Color.Empty)
+                {
+                    var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(hoverColor, 60));
+                    g.FillRectangle(brush, textAreaRect);
+                }
             }
         }
         
@@ -119,7 +131,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             // Calculate text bounds with padding
             var textBounds = textAreaRect;
-            textBounds.Inflate(-4, 0);
+            int horizontalInset = ScaleX(6);
+            textBounds = new Rectangle(
+                textBounds.X + horizontalInset,
+                textBounds.Y,
+                Math.Max(1, textBounds.Width - (horizontalInset * 2)),
+                textBounds.Height);
             
             // Draw text
             TextFormatFlags flags = TextFormatFlags.Left | 
@@ -165,26 +182,39 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.SecondaryColor ?? Color.Empty, 150));
             var smallRect = iconRect;
-            smallRect.Inflate(-4, -4);
+            smallRect.Inflate(-ScaleX(4), -ScaleY(4));
             g.FillEllipse(brush, smallRect);
         }
         
         protected void DrawDropdownArrow(Graphics g, Rectangle buttonRect, Color arrowColor)
         {
-            // Draw a simple down arrow
-            var arrowSize = Math.Min(buttonRect.Width, buttonRect.Height) / 3;
+            // Draw a modern chevron with rounded caps and DPI-aware geometry.
+            var arrowSize = Math.Max(ScaleX(3), Math.Min(buttonRect.Width, buttonRect.Height) / 5);
+            var arrowHalfHeight = Math.Max(ScaleY(2), arrowSize / 2);
             var centerX = buttonRect.Left + buttonRect.Width / 2;
             var centerY = buttonRect.Top + buttonRect.Height / 2;
-            
-            Point[] arrowPoints = new Point[]
+
+            float stroke = Math.Max(1f, _owner?.ScaleLogicalX(2) ?? 2);
+            var pen = (System.Drawing.Pen)PaintersFactory.GetPen(arrowColor, stroke).Clone();
+            try
             {
-                new Point(centerX - arrowSize, centerY - arrowSize / 2),
-                new Point(centerX + arrowSize, centerY - arrowSize / 2),
-                new Point(centerX, centerY + arrowSize / 2)
-            };
-            
-            var brush = PaintersFactory.GetSolidBrush(arrowColor);
-            g.FillPolygon(brush, arrowPoints);
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+                pen.LineJoin = LineJoin.Round;
+
+                g.DrawLines(
+                    pen,
+                    new[]
+                    {
+                        new Point(centerX - arrowSize, centerY - arrowHalfHeight),
+                        new Point(centerX, centerY + arrowHalfHeight),
+                        new Point(centerX + arrowSize, centerY - arrowHalfHeight)
+                    });
+            }
+            finally
+            {
+                pen.Dispose();
+            }
         }
         
         #endregion

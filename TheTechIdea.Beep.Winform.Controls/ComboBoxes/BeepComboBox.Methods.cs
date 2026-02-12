@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             
             _isDropdownOpen = true;
+            SyncDropdownMetrics();
             
             // Clear and populate context menu with list items
             BeepContextMenu.ClearItems();
@@ -33,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Point screenLocation = PointToScreen(new Point(0, Height));
             
             // Set context menu width to match combo box
-            BeepContextMenu.MenuWidth = Width;
+            BeepContextMenu.MenuWidth = Math.Max(Width, ScaleLogicalX(160));
             // Multi-select behaviors
             BeepContextMenu.CloseOnItemClick = !AllowMultipleSelection;
             
@@ -194,18 +196,104 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            // Ensure the dropdown menu follows the current theme
-            if (BeepContextMenu != null)
+            if (_currentTheme != null)
             {
-                BeepContextMenu.Theme = this.Theme;
+                if (_currentTheme.ComboBoxBackColor != Color.Empty) BackColor = _currentTheme.ComboBoxBackColor;
+                if (_currentTheme.ComboBoxForeColor != Color.Empty) ForeColor = _currentTheme.ComboBoxForeColor;
+                if (_currentTheme.ComboBoxBorderColor != Color.Empty) BorderColor = _currentTheme.ComboBoxBorderColor;
+
+                if (_currentTheme.ComboBoxHoverBackColor != Color.Empty) HoverBackColor = _currentTheme.ComboBoxHoverBackColor;
+                if (_currentTheme.ComboBoxHoverForeColor != Color.Empty) HoverForeColor = _currentTheme.ComboBoxHoverForeColor;
+                if (_currentTheme.ComboBoxHoverBorderColor != Color.Empty) HoverBorderColor = _currentTheme.ComboBoxHoverBorderColor;
+
+                if (_currentTheme.ComboBoxSelectedBackColor != Color.Empty) SelectedBackColor = _currentTheme.ComboBoxSelectedBackColor;
+                if (_currentTheme.ComboBoxSelectedForeColor != Color.Empty) SelectedForeColor = _currentTheme.ComboBoxSelectedForeColor;
+                if (_currentTheme.ComboBoxSelectedBorderColor != Color.Empty) SelectedBorderColor = _currentTheme.ComboBoxSelectedBorderColor;
             }
+
             if (UseThemeFont)
             {
-                TextFont = BeepThemesManager.ToFont(_currentTheme.ComboBoxItemFont);
+                TypographyStyle comboStyle = _currentTheme?.ComboBoxItemFont;
+                if (comboStyle != null)
+                {
+                    _textFont = BeepFontManager.ToFont(comboStyle);
+                }
+                InvalidateLayout();
             }
+            SyncDropdownMetrics();
             Invalidate();
         }
-        
+
+        protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+            
+            // When DPI changes, re-apply painter defaults to get properly scaled values
+            // This ensures values scale correctly without compounding
+            if (!_dropdownButtonWidthSetExplicitly || !_innerPaddingSetExplicitly)
+            {
+                _layoutDefaultsInitialized = false;
+                ApplyLayoutDefaultsFromPainter(force: true);
+            }
+            
+            InvalidateLayout();
+            SyncDropdownMetrics();
+        }
+
+        private void SyncDropdownMetrics()
+        {
+            if (BeepContextMenu == null)
+                return;
+
+            BeepContextMenu.Theme = Theme;
+
+            Font dropdownFont = TextFont ?? Font ?? SystemFonts.DefaultFont;
+            if (UseThemeFont && _currentTheme?.ComboBoxListFont != null)
+            {
+                dropdownFont = BeepFontManager.ToFont(_currentTheme.ComboBoxListFont);
+            }
+            if (BeepContextMenu.TextFont != dropdownFont)
+            {
+                BeepContextMenu.TextFont = dropdownFont;
+            }
+            if (BeepContextMenu.ShortcutFont != dropdownFont)
+            {
+                BeepContextMenu.ShortcutFont = dropdownFont;
+            }
+
+            int textHeight;
+            try
+            {
+                textHeight = TextRenderer.MeasureText(
+                    "Ag",
+                    dropdownFont,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding).Height;
+            }
+            catch
+            {
+                textHeight = Math.Max(ScaleLogicalY(16), (int)Math.Ceiling(dropdownFont.Size * 1.35f));
+            }
+
+            int targetItemHeight = Math.Max(ScaleLogicalY(28), textHeight + ScaleLogicalY(10));
+            if (BeepContextMenu.MenuItemHeight != targetItemHeight)
+            {
+                BeepContextMenu.MenuItemHeight = targetItemHeight;
+            }
+
+            int targetImageSize = Math.Max(ScaleLogicalY(16), Math.Min(textHeight, ScaleLogicalY(24)));
+            if (BeepContextMenu.ImageSize != targetImageSize)
+            {
+                BeepContextMenu.ImageSize = targetImageSize;
+            }
+
+            int targetMaxHeight = Math.Max(ScaleLogicalY(140), ScaleLogicalY(MaxDropdownHeight));
+            if (BeepContextMenu.MaxHeight != targetMaxHeight)
+            {
+                BeepContextMenu.MaxHeight = targetMaxHeight;
+            }
+        }
+         
         #endregion
     }
 }

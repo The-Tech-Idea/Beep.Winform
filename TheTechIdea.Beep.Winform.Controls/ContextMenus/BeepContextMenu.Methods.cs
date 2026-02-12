@@ -28,6 +28,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // ADD THIS LINE - forces handle creation BEFORE RecalculateSize/CreateGraphics
             if (!IsHandleCreated) { var h = Handle; }
 
+            // Sync logical metrics to current monitor DPI before measuring.
+            if (owner != null && owner.IsHandleCreated && owner.DeviceDpi > 0)
+            {
+                _scaleFactor = Math.Max(owner.DeviceDpi / StandardDpi, MinScale);
+            }
+            else
+            {
+                RefreshDpiScaleFactor();
+            }
+            ApplyDpiAwareDefaultMetrics();
+            InvalidateLayoutCache();
+            InvalidateSizeCache();
+
             // Recalculate size based on current items
             RecalculateSize();
             
@@ -240,12 +253,13 @@ try { Activate(); Focus(); } catch { }
 
             // 2. Translate Y to virtual content (add scroll, subtract top padding)
             int relY = clientPoint.Y - _contentAreaRect.Y + _scrollOffset;
+            int internalPadding = GetInternalPadding();
 
             // Top padding area = no item
-            if (relY < InternalPadding)
+            if (relY < internalPadding)
                 return null;
 
-            relY -= InternalPadding; // now 0 = start of first item
+            relY -= internalPadding; // now 0 = start of first item
 
             // 3. Walk items by cumulative height
             int cumulativeY = 0;
@@ -309,8 +323,9 @@ try { Activate(); Focus(); } catch { }
                 : 0;
 
             int beepInsets = beepPadding + (int)Math.Ceiling(beepBorderWidth) + beepShadow;
-            const int internalPadding = 4; // Matches your DrawMenuItemsSimple (4px top/bottom/left/right)
-            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
+            int internalPadding = GetInternalPadding();
+            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : ScaleLogical(DefaultSearchBoxHeightLogical)) : 0;
+            int searchSpacing = GetSearchSpacing();
 
             int calculatedMinHeight = PreferredItemHeight + (internalPadding * 2) + (beepInsets * 2);
 
@@ -329,7 +344,7 @@ try { Activate(); Focus(); } catch { }
             // === HEIGHT CALCULATION (internal content only) ===
             int contentHeight = internalPadding; // top
             // include search area if enabled
-            if (searchAreaHeight > 0) contentHeight += searchAreaHeight + 8; // 8px spacing after search
+            if (searchAreaHeight > 0) contentHeight += searchAreaHeight + searchSpacing;
             foreach (var item in _menuItems)
             {
                 contentHeight += GetItemHeight(item);
@@ -351,24 +366,24 @@ try { Activate(); Focus(); } catch { }
                     SizeF textSizeF = TextUtils.MeasureText(item.DisplayField ?? "", _textFont, int.MaxValue);
                     var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
-                    int itemWidth = 8; // Left margin (matches your draw code)
+                    int itemWidth = ScaleLogical(8); // Left margin (matches draw logic)
 
-                    if (_showCheckBox) itemWidth += 20;
-                    if (_showImage) itemWidth += _imageSize + 4;
-                    itemWidth += textSize.Width + 8;
+                    if (_showCheckBox) itemWidth += ScaleLogical(20);
+                    if (_showImage) itemWidth += _imageSize + ScaleLogical(4);
+                    itemWidth += textSize.Width + ScaleLogical(8);
 
                     if (_showShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
                     {
                         SizeF shortcutSizeF = TextUtils.MeasureText(item.KeyCombination, _shortcutFont, int.MaxValue);
                         var shortcutSize = new Size((int)shortcutSizeF.Width, (int)shortcutSizeF.Height);
-                        itemWidth += shortcutSize.Width + 16;
+                        itemWidth += shortcutSize.Width + ScaleLogical(16);
                     }
                     else if (ContextMenuManager.HasChildren(item)) // Use manager's HasChildren for consistency
                     {
-                        itemWidth += 20; // Arrow
+                        itemWidth += ScaleLogical(20); // Arrow
                     }
 
-                    itemWidth += 8; // Right margin
+                    itemWidth += ScaleLogical(8); // Right margin
 
                     if (itemWidth > requiredContentWidth)
                         requiredContentWidth = itemWidth;
@@ -451,9 +466,9 @@ try { Activate(); Focus(); } catch { }
             // Update content rectangle for any internal use
             _contentAreaRect = new Rectangle(
                 beepInsets + internalPadding,
-                beepInsets + internalPadding + (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0),
+                beepInsets + internalPadding + (searchAreaHeight > 0 ? searchAreaHeight + searchSpacing : 0),
                 contentWidth,
-                Height - (beepInsets * 2) - (internalPadding * 2) - (searchAreaHeight > 0 ? searchAreaHeight + 8 : 0));
+                Height - (beepInsets * 2) - (internalPadding * 2) - (searchAreaHeight > 0 ? searchAreaHeight + searchSpacing : 0));
             
             // Update cache tracking
             _cachedItemCount = _menuItems?.Count ?? 0;
@@ -478,10 +493,7 @@ try { Activate(); Focus(); } catch { }
 
         private int GetItemHeight(SimpleItem item)
         {
-            if (IsSeparator(item)) return 8;
-            int baseHeight = PreferredItemHeight;
-            if (!string.IsNullOrEmpty(item.SubText)) baseHeight += 14; // extra room for subtitle
-            return baseHeight;
+            return GetMenuItemLayoutHeight(item);
         }
         /// <summary>
         /// Shows a submenu for an item

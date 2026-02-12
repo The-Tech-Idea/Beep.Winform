@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 {
     /// <summary>
@@ -33,5 +35,47 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static readonly string LexendSemiBold = $"{LexendNamespace}.Lexend-SemiBold.ttf";
         public static readonly string LexendThin = $"{LexendNamespace}.Lexend-Thin.ttf";
         #endregion
+
+        /// <summary>
+        /// Resolves a known accessibility font family/style to an embedded Beep font resource path.
+        /// </summary>
+        public static string GetAccessibilityFontPath(string familyName, FontStyle style = FontStyle.Regular)
+        {
+            if (string.IsNullOrWhiteSpace(familyName))
+                return string.Empty;
+
+            var key = familyName.Replace(" ", string.Empty).Trim();
+            var styleKey = style switch
+            {
+                FontStyle.Bold => "Bold",
+                FontStyle.Italic => "Italic",
+                FontStyle.Bold | FontStyle.Italic => "BoldItalic",
+                _ => "Regular"
+            };
+
+            return key switch
+            {
+                "AtkinsonHyperlegible" => styleKey switch
+                {
+                    "Bold" => AtkinsonHyperlegibleBold,
+                    "Italic" => AtkinsonHyperlegibleItalic,
+                    "BoldItalic" => AtkinsonHyperlegibleBoldItalic,
+                    _ => AtkinsonHyperlegibleRegular
+                },
+                "OpenDyslexic" => styleKey switch
+                {
+                    "Bold" => OpenDyslexicBold,
+                    "Italic" => OpenDyslexicItalic,
+                    "BoldItalic" => OpenDyslexicBoldItalic,
+                    _ => OpenDyslexicRegular
+                },
+                "Lexend" => styleKey switch
+                {
+                    "Bold" => LexendBold,
+                    _ => LexendRegular
+                },
+                _ => string.Empty
+            };
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     public static class DpiScalingHelper
     {
         private const float StandardDpi = 96.0f;
+        private const float MinScale = 0.1f;
 
         #region P/Invoke for DPI Detection
 
@@ -365,6 +366,209 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static bool AreScaleFactorsEqual(float scale1, float scale2)
         {
             return Math.Abs(scale1 - scale2) < 0.01f;
+        }
+
+        #endregion
+        #region Per-Monitor DPI Change Helpers
+
+        /// <summary>
+        /// Refreshes scale factors for a control using DeviceDpi when available and Graphics DPI as fallback.
+        /// </summary>
+        public static void RefreshScaleFactors(Control control, ref float scaleX, ref float scaleY)
+        {
+            if (control == null)
+            {
+                scaleX = 1f;
+                scaleY = 1f;
+                return;
+            }
+
+            try
+            {
+                if (control.IsHandleCreated && control.DeviceDpi > 0)
+                {
+                    var scale = Math.Max(control.DeviceDpi / StandardDpi, MinScale);
+                    scaleX = scale;
+                    scaleY = scale;
+                    return;
+                }
+
+                using (var g = control.CreateGraphics())
+                {
+                    scaleX = Math.Max(g.DpiX / StandardDpi, MinScale);
+                    scaleY = Math.Max(g.DpiY / StandardDpi, MinScale);
+                }
+            }
+            catch
+            {
+                scaleX = 1f;
+                scaleY = 1f;
+            }
+        }
+
+        /// <summary>
+        /// Extracts old/new DPI scales from DpiChangedEventArgs with safe fallbacks across framework versions.
+        /// </summary>
+        public static void GetScalesFromDpiChangedEvent(
+            DpiChangedEventArgs e,
+            float fallbackOldScaleX,
+            float fallbackOldScaleY,
+            out float oldScaleX,
+            out float oldScaleY,
+            out float newScaleX,
+            out float newScaleY)
+        {
+            oldScaleX = fallbackOldScaleX > 0 ? fallbackOldScaleX : 1f;
+            oldScaleY = fallbackOldScaleY > 0 ? fallbackOldScaleY : 1f;
+            newScaleX = oldScaleX;
+            newScaleY = oldScaleY;
+
+            if (e == null)
+                return;
+
+            try
+            {
+                oldScaleX = Math.Max(e.DeviceDpiOld / StandardDpi, MinScale);
+                oldScaleY = oldScaleX;
+                newScaleX = Math.Max(e.DeviceDpiNew / StandardDpi, MinScale);
+                newScaleY = newScaleX;
+                return;
+            }
+            catch
+            {
+                // Fall through to reflection-based compatibility path.
+            }
+
+            try
+            {
+                var dpiScaleProperty = e.GetType().GetProperty("DpiScale");
+                var dpiScale = dpiScaleProperty?.GetValue(e);
+                if (dpiScale != null)
+                {
+                    var xProp = dpiScale.GetType().GetProperty("X");
+                    var yProp = dpiScale.GetType().GetProperty("Y");
+                    if (xProp?.GetValue(dpiScale) is float sx && yProp?.GetValue(dpiScale) is float sy)
+                    {
+                        newScaleX = Math.Max(sx, MinScale);
+                        newScaleY = Math.Max(sy, MinScale);
+                    }
+                }
+            }
+            catch
+            {
+                // Keep fallback values.
+            }
+        }
+
+        /// <summary>
+        /// Recursively scales child controls that are not auto-managed by Dock/Anchor layouts.
+        /// </summary>
+        public static void ScaleControlTreeForDpiChange(
+            Control root,
+            float oldScaleX,
+            float oldScaleY,
+            float newScaleX,
+            float newScaleY,
+            bool scaleFont = true,
+            bool scalePaddingAndMargin = true)
+        {
+            if (root == null)
+                return;
+
+            var ratioX = oldScaleX > 0 ? newScaleX / oldScaleX : 1f;
+            var ratioY = oldScaleY > 0 ? newScaleY / oldScaleY : 1f;
+            var ratioFont = (ratioX + ratioY) * 0.5f;
+
+            if (Math.Abs(ratioX - 1f) < 0.001f && Math.Abs(ratioY - 1f) < 0.001f)
+                return;
+
+            root.SuspendLayout();
+            try
+            {
+                ScaleControlChildrenRecursive(root, ratioX, ratioY, ratioFont, scaleFont, scalePaddingAndMargin);
+            }
+            finally
+            {
+                root.ResumeLayout(true);
+            }
+        }
+
+        private static void ScaleControlChildrenRecursive(
+            Control parent,
+            float ratioX,
+            float ratioY,
+            float ratioFont,
+            bool scaleFont,
+            bool scalePaddingAndMargin)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                if (scalePaddingAndMargin)
+                {
+                    child.Padding = ScalePaddingXY(child.Padding, ratioX, ratioY);
+                    child.Margin = ScalePaddingXY(child.Margin, ratioX, ratioY);
+                }
+
+                if (scaleFont && child.Font != null && Math.Abs(ratioFont - 1f) > 0.001f)
+                {
+                    TryScaleControlFont(child, ratioFont);
+                }
+
+                if (ShouldScaleBounds(child))
+                {
+                    var bounds = child.Bounds;
+                    child.Bounds = new Rectangle(
+                        ScaleValue(bounds.X, ratioX),
+                        ScaleValue(bounds.Y, ratioY),
+                        ScaleValue(bounds.Width, ratioX),
+                        ScaleValue(bounds.Height, ratioY));
+                }
+
+                if (child.Controls.Count > 0)
+                {
+                    ScaleControlChildrenRecursive(child, ratioX, ratioY, ratioFont, scaleFont, scalePaddingAndMargin);
+                }
+
+                child.Invalidate();
+            }
+        }
+
+        private static bool ShouldScaleBounds(Control control)
+        {
+            if (control == null)
+                return false;
+
+            if (control.Dock != DockStyle.None)
+                return false;
+
+            // Preserve Anchor/Dock behavior: manually scale only simple top-left anchored controls.
+            return control.Anchor == AnchorStyles.None ||
+                   control.Anchor == AnchorStyles.Top ||
+                   control.Anchor == AnchorStyles.Left ||
+                   control.Anchor == (AnchorStyles.Top | AnchorStyles.Left);
+        }
+
+        private static void TryScaleControlFont(Control control, float ratio)
+        {
+            try
+            {
+                var current = control.Font;
+                var newSize = Math.Max(current.Size * ratio, 6f);
+                control.Font = new Font(current.FontFamily, newSize, current.Style, current.Unit);
+            }
+            catch
+            {
+                // Best effort only.
+            }
+        }
+
+        private static Padding ScalePaddingXY(Padding padding, float scaleX, float scaleY)
+        {
+            return new Padding(
+                ScaleValue(padding.Left, scaleX),
+                ScaleValue(padding.Top, scaleY),
+                ScaleValue(padding.Right, scaleX),
+                ScaleValue(padding.Bottom, scaleY));
         }
 
         #endregion

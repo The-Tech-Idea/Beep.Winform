@@ -33,8 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 return;
             }
 
-            int chipX = textAreaRect.X + 4;
-            int chipY = textAreaRect.Y + (textAreaRect.Height - 24) / 2;
+            int chipInset = _owner.ScaleLogicalX(4);
+            int chipGap = _owner.ScaleLogicalX(6);
+            int chipHeight = _owner.ScaleLogicalY(24);
+            int chipX = textAreaRect.X + chipInset;
+            int chipY = textAreaRect.Y + (textAreaRect.Height - chipHeight) / 2;
             int maxDisplay = Math.Max(1, _owner.MaxDisplayChips);
             int shown = 0;
 
@@ -45,8 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 // Apply theme-defined easing if any
                 var themeEasing = _owner._currentTheme?.AnimationEasingFunction;
                 progress = TheTechIdea.Beep.Winform.Controls.Helpers.AnimationEasingHelper.Evaluate(themeEasing, progress);
-                var chipSize = DrawChip(g, item.Text, chipX, chipY, progress);
-                chipX += chipSize.Width + 6;
+                var chipSize = DrawChip(g, item.Text, chipX, chipY, progress, chipHeight);
+                chipX += chipSize.Width + chipGap;
                 shown++;
             }
 
@@ -56,9 +59,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 string more = $"+{selectedItems.Count - maxDisplay}";
                 SizeF szF = TextUtils.MeasureText(more, _owner.TextFont, int.MaxValue);
                 var sz = new Size((int)szF.Width, (int)szF.Height);
-                var rect = new Rectangle(chipX, chipY, sz.Width + 16, 24);
+                int extraChipPadding = _owner.ScaleLogicalX(16);
+                var rect = new Rectangle(chipX, chipY, sz.Width + extraChipPadding, chipHeight);
                 // Draw rounded background
-                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, 12))
+                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, Math.Max(_owner.ScaleLogicalX(10), chipHeight / 2)))
                 using (var brush = new System.Drawing.SolidBrush(_theme?.PrimaryColor ?? Color.LightGray))
                 {
                     g.FillPath(brush, path);
@@ -67,12 +71,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
         }
 
-        private Size DrawChip(Graphics g, string text, int x, int y, float progress)
+        private Size DrawChip(Graphics g, string text, int x, int y, float progress, int chipHeight)
         {
             SizeF textSizeF = TextUtils.MeasureText(text, _owner.TextFont, int.MaxValue);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-            int chipWidth = textSize.Width + 28;
-            int chipHeight = 24;
+            int textInset = _owner.ScaleLogicalX(10);
+            int chipWidth = textSize.Width + (textInset * 2) + _owner.ScaleLogicalX(8);
 
             Rectangle chipRect = new Rectangle(x, y, chipWidth, chipHeight);
             // Apply simple scale + alpha animation based on progress (0..1)
@@ -84,14 +88,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             int alpha = (int)(255 * Math.Max(0.35f, Math.Min(1f, progress)));
             var colorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
             // Draw background
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(scaledRect, 12))
+            int radius = Math.Max(_owner.ScaleLogicalX(10), scaledRect.Height / 2);
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(scaledRect, radius))
             using (var brush = new System.Drawing.SolidBrush(colorWithAlpha))
             {
                 g.FillPath(brush, path);
             }
 
             // Draw text
-            var textRect = new Rectangle(scaledRect.X + 10, scaledRect.Y, scaledRect.Width - 20, scaledRect.Height);
+            int textRectWidth = Math.Max(1, scaledRect.Width - (textInset * 2));
+            var textRect = new Rectangle(scaledRect.X + textInset, scaledRect.Y, textRectWidth, scaledRect.Height);
             var textColor = _theme?.OnPrimaryColor ?? Color.White;
             var textAlpha = (int)(alpha); // same alpha
             var textColorAlpha = Color.FromArgb(textAlpha, textColor.R, textColor.G, textColor.B);
@@ -125,11 +131,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 var centerX = buttonRect.Left + buttonRect.Width / 2;
                 var centerY = buttonRect.Top + buttonRect.Height / 2;
                 var radius = Math.Min(buttonRect.Width, buttonRect.Height) / 4;
+                int tailOffset = _owner.ScaleLogicalX(2);
                 
                 var pen = PaintersFactory.GetPen(iconColor, 1.5f);
-                g.DrawEllipse(pen, centerX - radius, centerY - radius - 2, radius * 2, radius * 2);
-                g.DrawLine(pen, centerX + radius - 2, centerY + radius - 2, 
-                          centerX + radius + 2, centerY + radius + 2);
+                g.DrawEllipse(pen, centerX - radius, centerY - radius - tailOffset, radius * 2, radius * 2);
+                g.DrawLine(
+                    pen,
+                    centerX + radius - tailOffset,
+                    centerY + radius - tailOffset,
+                    centerX + radius + tailOffset,
+                    centerY + radius + tailOffset);
             }
         }
     }

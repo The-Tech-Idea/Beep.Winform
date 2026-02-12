@@ -122,10 +122,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (_menuItems == null || _menuItems.Count == 0)
                 return;
-            int contentStartX = beepInsets + 4;
-            int contentStartY = beepInsets + 4;
-            int contentWidth = Width - (beepInsets * 2) - 8 - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0);
-            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
+            int internalPadding = GetInternalPadding();
+            int searchSpacing = GetSearchSpacing();
+            int contentStartX = beepInsets + internalPadding;
+            int contentStartY = beepInsets + internalPadding;
+            int contentWidth = Width - (beepInsets * 2) - (internalPadding * 2) - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0);
+            int searchAreaHeight = _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : ScaleLogical(DefaultSearchBoxHeightLogical)) : 0;
             if (searchAreaHeight > 0)
             {
                 // Draw or position the actual search textbox control
@@ -134,14 +136,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     try
                     {
                         _searchTextBox.Left = contentStartX;
-                        _searchTextBox.Top = contentStartY + 4; // inside padding
-                        _searchTextBox.Width = Math.Max(100, Width - (beepInsets * 2) - 8 - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0));
+                        _searchTextBox.Top = contentStartY + internalPadding;
+                        _searchTextBox.Width = Math.Max(100, Width - (beepInsets * 2) - (internalPadding * 2) - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0));
                         _searchTextBox.Visible = true;
                         _searchTextBox.BringToFront();
                     }
                     catch { }
                 }
-                contentStartY += searchAreaHeight + 8; // space after search
+                contentStartY += searchAreaHeight + searchSpacing;
             }
             var yOffset = 0;
             for (int i = 0; i < _menuItems.Count; i++)
@@ -217,12 +219,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Get effective control style for image painting
             var effectiveStyle = ControlStyle;
             
-            int iconPadding = 8;
-            int textPadding = 8;
+            int iconPadding = ScaleLogical(8);
+            int textPadding = ScaleLogical(8);
             int imageX = itemRect.X + iconPadding;
             
             // Reserve space for arrow if item has children
-            int arrowWidth = hasChildren ? 20 : 0;
+            int arrowWidth = hasChildren ? ScaleLogical(20) : 0;
             
             // Reserve space for shortcut text if present
             int shortcutWidth = 0;
@@ -230,11 +232,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 SizeF shortcutSizeF = TextUtils.MeasureText(item.ShortcutText, _textFont, int.MaxValue);
                 var shortcutSize = new Size((int)shortcutSizeF.Width, (int)shortcutSizeF.Height);
-                shortcutWidth = shortcutSize.Width + 16; // 16px padding (8px each side)
+                shortcutWidth = shortcutSize.Width + ScaleLogical(16);
             }
 
             // Calculate layout areas for image and text
-            int imageAreaWidth = (_showImage && !string.IsNullOrEmpty(item.ImagePath)) ? _imageSize + 8 : 0;
+            int imageAreaWidth = (_showImage && !string.IsNullOrEmpty(item.ImagePath)) ? _imageSize + ScaleLogical(8) : 0;
             int textStartX = itemRect.X + iconPadding + imageAreaWidth;
             int textWidth = itemRect.Width - iconPadding - imageAreaWidth - textPadding - arrowWidth - shortcutWidth;
 
@@ -266,9 +268,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var safeFont = _textFont;
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                // Two-line layout: title at top, subtext smaller and muted below
-                var titleRect = new Rectangle(textStartX, itemRect.Y + 2, textWidth, itemRect.Height / 2 - 2);
-                var subRect = new Rectangle(textStartX, itemRect.Y + itemRect.Height / 2, textWidth, itemRect.Height / 2 - 2);
+                // Two-line layout: size from actual font metrics to avoid overlap at high DPI.
+                int titleHeight = MeasureFontHeight(safeFont);
+                int subTextHeight = MeasureFontHeight(_shortcutFont ?? safeFont);
+                int lineGap = ScaleLogical(2);
+                int textBlockHeight = titleHeight + subTextHeight + lineGap;
+                int textStartY = itemRect.Y + Math.Max(0, (itemRect.Height - textBlockHeight) / 2);
+
+                var titleRect = new Rectangle(textStartX, textStartY, textWidth, titleHeight);
+                var subRect = new Rectangle(textStartX, textStartY + titleHeight + lineGap, textWidth, subTextHeight);
                 TextRenderer.DrawText(g, item.DisplayField ?? "", safeFont, titleRect, textColor,
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
                 
@@ -301,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 var shortcutRect = new Rectangle(
                     itemRect.Right - arrowWidth - shortcutWidth,
                     itemRect.Y,
-                    shortcutWidth - 8, // Remove padding for text
+                    shortcutWidth - ScaleLogical(8),
                     itemRect.Height
                 );
                 
@@ -322,8 +330,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private void DrawSubMenuArrow(Graphics g, Rectangle itemRect, Color arrowColor)
         {
             // Calculate arrow position (right side of item)
-            int arrowSize = 8;
-            int arrowX = itemRect.Right - 12;
+            int arrowSize = ScaleLogical(8);
+            int arrowX = itemRect.Right - ScaleLogical(12);
             int arrowY = itemRect.Y + (itemRect.Height - arrowSize) / 2;
             
             // Draw a simple right-pointing triangle
@@ -348,8 +356,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var separatorColor = theme?.BorderColor ?? Color.LightGray;
             
             int sepY = itemRect.Top + itemRect.Height / 2;
-            using (var pen = new Pen(separatorColor, 1))
-                g.DrawLine(pen, itemRect.Left + 10, sepY, itemRect.Right - 10, sepY);
+            int sidePadding = ScaleLogical(10);
+            using (var pen = new Pen(separatorColor, Math.Max(1f, _scaleFactor)))
+                g.DrawLine(pen, itemRect.Left + sidePadding, sepY, itemRect.Right - sidePadding, sepY);
         }
 
         /// <summary>

@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         public int PreferredItemHeight
         {
-            get => _menuItemHeight;
+            get => Math.Max(_menuItemHeight, GetFontDrivenSingleLineItemHeight());
         }
 
 
@@ -58,7 +58,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 
         #region Core Fields
         // Add near other fields (after _scrollOffset)
-        private const int InternalPadding = 4; // Matches your 4px top/bottom padding in drawing
+        private const float StandardDpi = 96f;
+        private const float MinScale = 0.1f;
+        private const int DefaultMenuItemHeightLogical = 28;
+        private const int DefaultImageSizeLogical = 20;
+        private const int DefaultSearchBoxHeightLogical = 34;
+        private const int DefaultMenuWidthLogical = 200;
+        private const int DefaultMinWidthLogical = 150;
+        private const int DefaultMaxWidthLogical = 400;
+        private const int DefaultMaxHeightLogical = 600;
+        private const int InternalPaddingLogical = 4;
+        private const int SearchSpacingLogical = 8;
+        private const int SeparatorHeightLogical = 8;
+        private const int ItemVerticalPaddingLogical = 8;
+        private const int ItemLineGapLogical = 2;
         // Visual Style
         private FormStyle _contextMenuType = FormStyle.Modern;
         private BeepControlStyle _controlStyle = BeepControlStyle.None;
@@ -84,12 +97,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private bool _showShortcuts = true;
         
         // Layout caching
-        private int _menuItemHeight = 28;
-        private int _imageSize = 20;
+        private int _menuItemHeight = DefaultMenuItemHeightLogical;
+        private int _imageSize = DefaultImageSizeLogical;
         private Rectangle _contentAreaRect;
-        private int _menuWidth = 200;
-        private int _minWidth = 150;
-        private int _maxWidth = 400;
+        private int _menuWidth = DefaultMenuWidthLogical;
+        private int _minWidth = DefaultMinWidthLogical;
+        private int _maxWidth = DefaultMaxWidthLogical;
         
         // RecalculateSize cache invalidation tracking
         private bool _sizeCacheValid = false;
@@ -109,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private BeepTextBox _searchTextBox = null;
 
         // Scrolling support
-        private int _maxHeight = 600; // Maximum height before scrolling
+        private int _maxHeight = DefaultMaxHeightLogical; // Maximum height before scrolling
         private int _minHeight = 0; // Will be calculated as one item height + padding
         private Control _scrollBar; // VScrollBar or BeepScrollBar depending on availability
         private int _scrollOffset = 0;
@@ -127,6 +140,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         // DPI scaling
         private float _scaleFactor = 1.0f;
+        private bool _menuItemHeightSetExplicitly = false;
+        private bool _imageSizeSetExplicitly = false;
+        private bool _menuWidthSetExplicitly = false;
+        private bool _minWidthSetExplicitly = false;
+        private bool _maxWidthSetExplicitly = false;
+        private bool _maxHeightSetExplicitly = false;
         
     // MenuStyle (visual Style of the context menu painter)
     private FormStyle menustyle =  FormStyle.Modern;
@@ -228,6 +247,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Initialize helpers
             _inputHelper = new BeepContextMenuInputHelper(this);
             _layoutHelper = new BeepContextMenuLayoutHelper(this);
+            RefreshDpiScaleFactor();
+            ApplyDpiAwareDefaultMetrics();
             
             // Set default painter
             
@@ -351,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 _searchTextBox.BorderStyle = BorderStyle.None;
                 _searchTextBox.AutoSize = false;
                 // Slightly smaller height and compact style
-                _searchTextBox.Height = 34;
+                _searchTextBox.Height = ScaleLogical(DefaultSearchBoxHeightLogical);
                 _searchTextBox.Width = Math.Max(100, _menuWidth - 24);
                 _searchTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 _searchTextBox.TextChanged += SearchTextBox_TextChanged;
@@ -384,7 +405,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 var tb = new System.Windows.Forms.TextBox();
                 tb.BorderStyle = BorderStyle.FixedSingle;
-                tb.Height = 28;
+                tb.Height = ScaleLogical(DefaultMenuItemHeightLogical);
                 tb.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 try
                 {
@@ -469,7 +490,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            RefreshDpiScaleFactor();
+            ApplyDpiAwareDefaultMetrics();
+            InvalidateLayoutCache();
+            InvalidateSizeCache();
             TrySubscribeThemeChanged(DesignMode);
+        }
+
+        protected override void OnDpiChanged(DpiChangedEventArgs e)
+        {
+            base.OnDpiChanged(e);
+            RefreshDpiScaleFactor();
+            ApplyDpiAwareDefaultMetrics();
+            InvalidateLayoutCache();
+            InvalidateSizeCache();
+            RecalculateSize();
+            Invalidate();
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -549,6 +585,146 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
             catch { /* keep existing fonts on any error */ }
+
+            // Keep row metrics aligned with theme-managed font changes.
+            InvalidateLayoutCache();
+            InvalidateSizeCache();
+            if (Visible)
+            {
+                RecalculateSize();
+            }
+        }
+
+        internal int ScaleLogical(int logicalPixels)
+        {
+            var scaled = (int)Math.Round(logicalPixels * _scaleFactor, MidpointRounding.AwayFromZero);
+            return Math.Max(1, scaled);
+        }
+
+        internal int GetInternalPadding() => ScaleLogical(InternalPaddingLogical);
+        internal int GetSearchSpacing() => ScaleLogical(SearchSpacingLogical);
+        internal int GetSeparatorHeight() => ScaleLogical(SeparatorHeightLogical);
+
+        internal int GetMenuItemLayoutHeight(SimpleItem item)
+        {
+            if (IsSeparator(item))
+            {
+                return GetSeparatorHeight();
+            }
+
+            int singleLineHeight = PreferredItemHeight;
+            if (item == null || string.IsNullOrEmpty(item.SubText))
+            {
+                return singleLineHeight;
+            }
+
+            int titleHeight = MeasureFontHeight(_textFont);
+            int subTextHeight = MeasureFontHeight(_shortcutFont ?? _textFont);
+            int verticalPadding = ScaleLogical(ItemVerticalPaddingLogical);
+            int lineGap = ScaleLogical(ItemLineGapLogical);
+            int twoLineHeight = titleHeight + subTextHeight + verticalPadding + lineGap;
+            return Math.Max(singleLineHeight, twoLineHeight);
+        }
+
+        internal int MeasureFontHeight(Font font)
+        {
+            if (font == null)
+            {
+                return ScaleLogical(DefaultMenuItemHeightLogical);
+            }
+
+            try
+            {
+                var measured = TextRenderer.MeasureText(
+                    "Ag",
+                    font,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding);
+
+                return Math.Max(1, measured.Height);
+            }
+            catch
+            {
+                return Math.Max(1, (int)Math.Ceiling(font.Size * 1.4f));
+            }
+        }
+
+        private int GetFontDrivenSingleLineItemHeight()
+        {
+            int textHeight = MeasureFontHeight(_textFont);
+            int verticalPadding = ScaleLogical(ItemVerticalPaddingLogical);
+            int iconDrivenHeight = _showImage ? _imageSize + ScaleLogical(6) : 0;
+            int fontDrivenHeight = textHeight + verticalPadding;
+            return Math.Max(fontDrivenHeight, iconDrivenHeight);
+        }
+
+        private void RefreshDpiScaleFactor()
+        {
+            try
+            {
+                if (IsHandleCreated && DeviceDpi > 0)
+                {
+                    _scaleFactor = Math.Max(DeviceDpi / StandardDpi, MinScale);
+                    return;
+                }
+
+                using (var g = CreateGraphics())
+                {
+                    _scaleFactor = Math.Max(g.DpiX / StandardDpi, MinScale);
+                }
+            }
+            catch
+            {
+                _scaleFactor = 1f;
+            }
+        }
+
+        private void ApplyDpiAwareDefaultMetrics()
+        {
+            int scaledDefaultItemHeight = ScaleLogical(DefaultMenuItemHeightLogical);
+            if (!_menuItemHeightSetExplicitly)
+            {
+                _menuItemHeight = scaledDefaultItemHeight;
+            }
+
+            int scaledDefaultImageSize = ScaleLogical(DefaultImageSizeLogical);
+            if (!_imageSizeSetExplicitly)
+            {
+                _imageSize = scaledDefaultImageSize;
+            }
+
+            if (!_minWidthSetExplicitly)
+            {
+                _minWidth = ScaleLogical(DefaultMinWidthLogical);
+            }
+
+            if (!_maxWidthSetExplicitly)
+            {
+                _maxWidth = Math.Max(_minWidth, ScaleLogical(DefaultMaxWidthLogical));
+            }
+
+            if (!_menuWidthSetExplicitly)
+            {
+                int scaledDefaultWidth = ScaleLogical(DefaultMenuWidthLogical);
+                _menuWidth = Math.Max(_minWidth, Math.Min(scaledDefaultWidth, _maxWidth));
+            }
+
+            if (!_maxHeightSetExplicitly)
+            {
+                _maxHeight = ScaleLogical(DefaultMaxHeightLogical);
+            }
+
+            if (_searchTextBox != null)
+            {
+                try
+                {
+                    _searchTextBox.Height = ScaleLogical(DefaultSearchBoxHeightLogical);
+                }
+                catch
+                {
+                    // best effort
+                }
+            }
         }
         
         #endregion

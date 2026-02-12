@@ -400,7 +400,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 if (_menuItemHeight != value && value > 0)
                 {
+                    _menuItemHeightSetExplicitly = true;
                     _menuItemHeight = value;
+                    InvalidateLayoutCache();
+                    InvalidateSizeCache();
                     RecalculateSize();
                     Invalidate();
                 }
@@ -421,6 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 if (_imageSize != value && value > 0)
                 {
+                    _imageSizeSetExplicitly = true;
                     _imageSize = value;
                     InvalidateLayoutCache();
                     InvalidateSizeCache();
@@ -444,6 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 if (_menuWidth != value && value >= _minWidth && value <= _maxWidth)
                 {
+                    _menuWidthSetExplicitly = true;
                     _menuWidth = value;
                     InvalidateSizeCache();
                     RecalculateSize();
@@ -466,6 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 if (_minWidth != value && value > 0)
                 {
+                    _minWidthSetExplicitly = true;
                     _minWidth = value;
                     if (_menuWidth < _minWidth) _menuWidth = _minWidth;
                     RecalculateSize();
@@ -487,6 +493,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 if (_maxWidth != value && value > _minWidth)
                 {
+                    _maxWidthSetExplicitly = true;
                     _maxWidth = value;
                     if (_menuWidth > _maxWidth) _menuWidth = _maxWidth;
                     RecalculateSize();
@@ -510,6 +517,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     if (_textFont != value)
                     {
                         _textFont = value;
+                        InvalidateLayoutCache();
                         InvalidateSizeCache();
                         RecalculateSize();
                         Invalidate();
@@ -532,6 +540,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                  if (_shortcutFont != value)
                     {
                         _shortcutFont = value;
+                        InvalidateLayoutCache();
+                        InvalidateSizeCache();
+                        RecalculateSize();
                         Invalidate();
                     }
                 
@@ -622,6 +633,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             {
                 if (_maxHeight != value && value >= _minHeight)
                 {
+                    _maxHeightSetExplicitly = true;
                     _maxHeight = value;
                     RecalculateSize();
                     Invalidate();
@@ -637,7 +649,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         [Browsable(false)]
         public int MinHeight
         {
-            get => PreferredItemHeight + 8;
+            get => PreferredItemHeight + (GetInternalPadding() * 2);
         }
         
         /// <summary>
@@ -701,7 +713,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// Returns height of the search area, if present (used by layout/drawing helpers)
         /// </summary>
         [Browsable(false)]
-        public int SearchBoxHeight => _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : 40) : 0;
+        public int SearchBoxHeight => _showSearchBox ? (_searchTextBox != null ? _searchTextBox.Height : ScaleLogical(DefaultSearchBoxHeightLogical)) : 0;
         
         /// <summary>
         /// Accessible name for screen readers

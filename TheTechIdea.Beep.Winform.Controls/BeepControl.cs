@@ -46,23 +46,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-    private bool _disableDpiAndScaling = true; // default opt-out of scaling
+    private bool _disableDpiAndScaling = true; // preserve existing font behavior by default
 
         protected float DpiScaleFactor { get; private set; } = 1.0f;
+        protected float _dpiScaleX = 1.0f;
+        protected float _dpiScaleY = 1.0f;
 
         protected virtual void UpdateDpiScaling()
         {
-            if (DisableDpiAndScaling) { DpiScaleFactor = 1.0f; return; }
-            // Update DPI scaling when parent form is resized
-            if (IsHandleCreated)
+            if (DisableDpiAndScaling)
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(g);
-                }
+                DpiScaleFactor = 1.0f;
+                _dpiScaleX = 1.0f;
+                _dpiScaleY = 1.0f;
+                return;
             }
 
-           
+            DpiScalingHelper.RefreshScaleFactors(this, ref _dpiScaleX, ref _dpiScaleY);
+            DpiScaleFactor = (_dpiScaleX + _dpiScaleY) * 0.5f;
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            UpdateDpiScaling();
         }
 
         protected int ScaleValue(int value)
@@ -84,33 +91,42 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
+            var oldScaleX = _dpiScaleX;
+            var oldScaleY = _dpiScaleY;
+
             base.OnDpiChangedAfterParent(e);
 
             if (DisableDpiAndScaling)
             {
                 DpiScaleFactor = 1.0f;
+                _dpiScaleX = 1.0f;
+                _dpiScaleY = 1.0f;
                 return;
             }
 
-            // Get the new DPI scaling factor
-            UpdateDpiScaling(); 
+            UpdateDpiScaling();
 
-            // Adjust layout and scaling for all child controls
-            AdjustChildControlLayout(DpiScaleFactor);
-        }
-        private void AdjustChildControlLayout(float scalingFactor)
-        {
-            if (DisableDpiAndScaling || Math.Abs(scalingFactor - 1.0f) < 0.001f) return;
-            foreach (Control child in Controls)
+            if (!DpiScalingHelper.AreScaleFactorsEqual(oldScaleX, _dpiScaleX) ||
+                !DpiScalingHelper.AreScaleFactorsEqual(oldScaleY, _dpiScaleY))
             {
-                // Adjust size and position based on scaling factor
-                child.Width = (int)(child.Width * scalingFactor);
-                child.Height = (int)(child.Height * scalingFactor);
-                child.Left = (int)(child.Left * scalingFactor);
-                child.Top = (int)(child.Top * scalingFactor);
+                DpiScalingHelper.ScaleControlTreeForDpiChange(
+                    this,
+                    oldScaleX,
+                    oldScaleY,
+                    _dpiScaleX,
+                    _dpiScaleY,
+                    scaleFont: false);
+                OnDpiScaleChanged(oldScaleX, oldScaleY, _dpiScaleX, _dpiScaleY);
             }
+        }
 
-            Invalidate(); // Redraw the control
+        /// <summary>
+        /// Called after this control transitions between two DPI scales.
+        /// </summary>
+        protected virtual void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            PerformLayout();
+            Invalidate(true);
         }
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {

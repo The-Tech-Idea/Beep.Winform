@@ -175,6 +175,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             return FontListHelper.GetFont(fontName, size, style);
         }
 
+        /// <summary>
+        /// Gets a DPI-aware font for a specific control.
+        /// </summary>
+        public static Font GetFontForControl(string fontName, float size, Control control, FontStyle style = FontStyle.Regular)
+        {
+            return FontListHelper.GetFontForControl(fontName, size, control, style);
+        }
+
         public static Font GetFontForElement(UIElementType elementType)
         {
             return elementType switch
@@ -293,6 +301,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
+        /// Gets an embedded font scaled for a control's current DPI.
+        /// </summary>
+        public static Font GetEmbeddedFont(string familyName, float size, Control control, FontStyle style = FontStyle.Regular)
+        {
+            float dpiScale = control != null ? DpiScalingHelper.GetDpiScaleFactor(control) : 1.0f;
+            float scaledSize = Math.Max(size * dpiScale, 6.0f);
+            return GetEmbeddedFont(familyName, scaledSize, style);
+        }
+
+        /// <summary>
         /// Gets a font from embedded resources using the BeepFontPaths system with a specific font path.
         /// </summary>
         /// <param name="fontResourcePath">The full resource path from BeepFontPaths (e.g., BeepFontPaths.RobotoRegular)</param>
@@ -311,6 +329,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             {
                 return DefaultFont;
             }
+        }
+
+        /// <summary>
+        /// Gets an embedded font by resource path scaled for a control's current DPI.
+        /// </summary>
+        public static Font GetEmbeddedFont(string fontResourcePath, float size, Control control)
+        {
+            float dpiScale = control != null ? DpiScalingHelper.GetDpiScaleFactor(control) : 1.0f;
+            float scaledSize = Math.Max(size * dpiScale, 6.0f);
+            return GetEmbeddedFont(fontResourcePath, scaledSize);
         }
 
         /// <summary>

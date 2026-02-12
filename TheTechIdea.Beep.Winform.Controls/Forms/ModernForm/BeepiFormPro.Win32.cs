@@ -658,6 +658,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnHandleCreated(e);
 
+            DpiScalingHelper.RefreshScaleFactors(this, ref _dpiScaleX, ref _dpiScaleY);
+
             DisableDwmNonClientRendering();
             
             ApplyBackdrop();

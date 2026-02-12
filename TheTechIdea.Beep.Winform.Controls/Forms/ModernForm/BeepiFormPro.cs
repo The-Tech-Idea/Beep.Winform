@@ -16,6 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     {
 
         private FormPainterMetrics _formpaintermaterics;
+        private float _dpiScaleX = 1f;
+        private float _dpiScaleY = 1f;
         // Metrics used for layout and painting; can be set externally or lazy-loaded
         /// <summary>
         /// i dont want to be serialized and persisted with the form
@@ -112,6 +114,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 HookChildEvents(c);
             }
+
+            InitializeGlobalThemeSynchronization();
         }
 
         private void OnControlAddedDesignTime(object sender, ControlEventArgs e)
@@ -256,7 +260,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected override void OnDpiChanged(DpiChangedEventArgs e)
         {
+            DpiScalingHelper.GetScalesFromDpiChangedEvent(
+                e,
+                _dpiScaleX,
+                _dpiScaleY,
+                out var oldScaleX,
+                out var oldScaleY,
+                out var newScaleX,
+                out var newScaleY);
+
             base.OnDpiChanged(e);
+
+            _dpiScaleX = newScaleX;
+            _dpiScaleY = newScaleY;
+
+            if (!DpiScalingHelper.AreScaleFactorsEqual(oldScaleX, newScaleX) ||
+                !DpiScalingHelper.AreScaleFactorsEqual(oldScaleY, newScaleY))
+            {
+                // Preserve Dock/Anchor behavior: only non-auto controls are manually scaled.
+                DpiScalingHelper.ScaleControlTreeForDpiChange(
+                    this,
+                    oldScaleX,
+                    oldScaleY,
+                    newScaleX,
+                    newScaleY,
+                    scaleFont: false);
+                PropagateDpiChangeToChildren();
+            }
 
             // Clear painter caches that may depend on DPI (brushes, pens, rasters, paths)
             try { PaintersFactory.ClearCache(); } catch { }
@@ -267,7 +297,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Update window region for new DPI
             UpdateWindowRegion();
 
-            Invalidate();
+            PerformLayout();
+            Invalidate(true);
+        }
+
+        private void PropagateDpiChangeToChildren()
+        {
+            foreach (Control child in Controls)
+            {
+                PropagateDpiChangeRecursive(child);
+            }
+        }
+
+        private static void PropagateDpiChangeRecursive(Control control)
+        {
+            if (control == null || control.IsDisposed)
+                return;
+
+            control.PerformLayout();
+            control.Invalidate();
+
+            foreach (Control child in control.Controls)
+            {
+                PropagateDpiChangeRecursive(child);
+            }
         }
 
         protected override void OnShown(EventArgs e)
@@ -313,9 +366,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
+            UnregisterGlobalThemeEvents();
+
             // Raise OnFormClose event after form has closed
             OnFormClose?.Invoke(this, EventArgs.Empty);
-            
+             
             base.OnFormClosed(e);
         }
 

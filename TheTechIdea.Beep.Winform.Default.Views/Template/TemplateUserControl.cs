@@ -66,6 +66,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         private void BeepThemesManager_FormStyleChanged(object? sender, StyleChangeEventArgs e)
         {
             ControlFormStyle = e.NewStyle;
+            if (IsDisposed || Disposing) return;
+            ApplyTheme();
+            Invalidate(true);
         }
 
         private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventArgs e)
@@ -179,6 +182,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
             BeepThemesManager.FormStyleChanged += BeepThemesManager_FormStyleChanged;
             _themeEventsRegistered = true;
+            ControlFormStyle = BeepThemesManager.CurrentStyle;
             Theme = BeepThemesManager.CurrentThemeName;
         }
 

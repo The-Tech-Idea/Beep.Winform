@@ -97,32 +97,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 InvalidateCache();
             }
             
-            int y = 4; // Top padding
+            int internalPadding = _owner.GetInternalPadding();
+            int y = internalPadding;
             // Account for optional search area
             if (_owner.ShowSearchBox)
             {
-                y += _owner.SearchBoxHeight + 8; // same spacing as DrawMenuItemsSimple
+                y += _owner.SearchBoxHeight + _owner.GetSearchSpacing();
             }
             
             foreach (var menuItem in _owner.MenuItems)
             {
                 if (menuItem == item)
                 {
-                    int height = IsSeparator(item) ? 8 : _owner.PreferredItemHeight;
+                    int height = _owner.GetMenuItemLayoutHeight(item);
                     var rect = new Rectangle(0, y, _owner.Width, height);
                     _itemRectCache[item] = rect;
                     UpdateCacheTracking();
                     return rect;
                 }
                 
-                if (IsSeparator(menuItem))
-                {
-                    y += 8;
-                }
-                else
-                {
-                    y += _owner.PreferredItemHeight;
-                }
+                y += _owner.GetMenuItemLayoutHeight(menuItem);
             }
             
             return Rectangle.Empty;
@@ -144,8 +138,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int size = 16;
-            int x = 8;
+            int size = _owner.ScaleLogical(16);
+            int x = _owner.ScaleLogical(8);
             int y = itemRect.Top + (itemRect.Height - size) / 2;
             
             return new Rectangle(x, y, size, size);
@@ -167,10 +161,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int x =8;
+            int x = _owner.ScaleLogical(8);
             if (_owner.ShowCheckBox)
             {
-                x += 20; // After checkbox
+                x += _owner.ScaleLogical(20); // After checkbox
             }
             
             int size = _owner.ImageSize;
@@ -201,30 +195,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int x =8;
+            int x = _owner.ScaleLogical(8);
             
             if (_owner.ShowCheckBox)
             {
-                x += 20; // After checkbox
+                x += _owner.ScaleLogical(20); // After checkbox
             }
             
             if (_owner.ShowImage)
             {
-                x += _owner.ImageSize + 4; // After icon
+                x += _owner.ImageSize + _owner.ScaleLogical(4); // After icon
             }
             
             // Calculate width (leave space for shortcut or arrow)
-            int rightMargin =8;
+            int rightMargin = _owner.ScaleLogical(8);
             
             if (_owner.ShowShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
             {
                 // Get shortcut size (cached)
                 Size shortcutSize = GetShortcutSize(item);
-                rightMargin += shortcutSize.Width + 16;
+                rightMargin += shortcutSize.Width + _owner.ScaleLogical(16);
             }
             else if (item.Children != null && item.Children.Count > 0)
             {
-                rightMargin += 20; // Submenu arrow
+                rightMargin += _owner.ScaleLogical(20); // Submenu arrow
             }
             
             int width = _owner.Width - x - rightMargin;
@@ -260,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             // Get shortcut size (cached)
             Size shortcutSize = GetShortcutSize(item);
             int width = shortcutSize.Width;
-            int x = _owner.Width - width - 24; // Leave space for arrow if submenu
+            int x = _owner.Width - width - _owner.ScaleLogical(24); // Leave space for arrow if submenu
             
             var rect = new Rectangle(x, itemRect.Top, width, itemRect.Height);
             _shortcutRectCache[item] = rect;
@@ -284,8 +278,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int size = 16;
-            int x = _owner.Width - size -8;
+            int size = _owner.ScaleLogical(16);
+            int x = _owner.Width - size - _owner.ScaleLogical(8);
             int y = itemRect.Top + (itemRect.Height - size) / 2;
             
             return new Rectangle(x, y, size, size);
@@ -333,8 +327,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int x =8;
-            int width = _owner.Width - 16;
+            int x = _owner.ScaleLogical(8);
+            int width = _owner.Width - _owner.ScaleLogical(16);
             int y = itemRect.Top + itemRect.Height / 2;
             
             return new Rectangle(x, y, width, 1);

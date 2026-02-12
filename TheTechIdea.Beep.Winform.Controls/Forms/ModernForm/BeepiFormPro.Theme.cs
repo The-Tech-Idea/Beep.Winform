@@ -11,6 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     public partial class BeepiFormPro
     {
         protected IBeepTheme? _currentTheme; // nullable; resolved on demand
+        private bool _globalThemeEventsRegistered;
+        private bool _isApplyingGlobalThemeStyle;
 
         public string ThemeName { get; private set; }
 
@@ -71,6 +73,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             else
             {
                 throw new ArgumentException($"Theme '{themeName}' not found.");
+            }
+        }
+
+        private void InitializeGlobalThemeSynchronization()
+        {
+            if (InDesignModeSafe)
+            {
+                return;
+            }
+
+            RegisterGlobalThemeEvents();
+            ApplyGlobalThemeAndStyleSafe(BeepThemesManager.CurrentThemeName, BeepThemesManager.CurrentStyle);
+        }
+
+        private void RegisterGlobalThemeEvents()
+        {
+            if (_globalThemeEventsRegistered || InDesignModeSafe)
+            {
+                return;
+            }
+
+            BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
+            BeepThemesManager.FormStyleChanged += OnGlobalFormStyleChanged;
+            _globalThemeEventsRegistered = true;
+        }
+
+        private void UnregisterGlobalThemeEvents()
+        {
+            if (!_globalThemeEventsRegistered)
+            {
+                return;
+            }
+
+            BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
+            BeepThemesManager.FormStyleChanged -= OnGlobalFormStyleChanged;
+            _globalThemeEventsRegistered = false;
+        }
+
+        private void OnGlobalThemeChanged(object? sender, ThemeChangeEventArgs e)
+        {
+            ApplyGlobalThemeAndStyleSafe(e.NewThemeName, BeepThemesManager.CurrentStyle);
+        }
+
+        private void OnGlobalFormStyleChanged(object? sender, StyleChangeEventArgs e)
+        {
+            ApplyGlobalThemeAndStyleSafe(BeepThemesManager.CurrentThemeName, e.NewStyle);
+        }
+
+        private void ApplyGlobalThemeAndStyleSafe(string? themeName = null, FormStyle? formStyle = null)
+        {
+            if (IsDisposed || Disposing)
+            {
+                return;
+            }
+
+            if (InvokeRequired)
+            {
+                try
+                {
+                    BeginInvoke((System.Windows.Forms.MethodInvoker)(() =>
+                        ApplyGlobalThemeAndStyle(themeName, formStyle)));
+                }
+                catch
+                {
+                    // Best effort only while closing/disposing.
+                }
+                return;
+            }
+
+            ApplyGlobalThemeAndStyle(themeName, formStyle);
+        }
+
+        private void ApplyGlobalThemeAndStyle(string? themeName, FormStyle? formStyle)
+        {
+            if (_isApplyingGlobalThemeStyle || IsDisposed || Disposing)
+            {
+                return;
+            }
+
+            _isApplyingGlobalThemeStyle = true;
+            try
+            {
+                var resolvedTheme = string.IsNullOrWhiteSpace(themeName)
+                    ? BeepThemesManager.CurrentThemeName
+                    : themeName;
+                var resolvedStyle = formStyle ?? BeepThemesManager.CurrentStyle;
+
+                if (!string.IsNullOrWhiteSpace(resolvedTheme))
+                {
+                    Theme = resolvedTheme;
+                }
+
+                FormStyle = resolvedStyle;
+                InvalidateLayout();
+                PerformLayout();
+                Invalidate(true);
+            }
+            finally
+            {
+                _isApplyingGlobalThemeStyle = false;
             }
         }
     }

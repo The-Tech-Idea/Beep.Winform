@@ -867,7 +867,7 @@ Update README files when:
 - **Cursor Instructions**: `.github/instructions/cursor-instructions.md`
 - **Rules**: `.cursor/rules/mycontrolsonly.mdc`
 
-ou are an expert WinForms developer experienced in high-DPI support.I need you to analyze all forms and custom controls in my WinForms project and ensure full per-monitor DPI scaling support, especially when forms are moved between monitors with different DPI settings.
+you are an expert WinForms developer experienced in high-DPI support.I need you to analyze all forms and custom controls in my WinForms project and ensure full per-monitor DPI scaling support, especially when forms are moved between monitors with different DPI settings.
 For each form and control:
 
 If not already present, add PerMonitorV2 DPI awareness by:

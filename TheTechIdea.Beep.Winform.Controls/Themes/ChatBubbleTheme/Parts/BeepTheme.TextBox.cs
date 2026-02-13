@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.TextBoxSelectedBorderColor = BorderColor;
             this.TextBoxSelectedBackColor = BackgroundColor;
             this.TextBoxSelectedForeColor = ForeColor;
-            this.TextBoxPlaceholderColor = BackgroundColor;
+            this.TextBoxPlaceholderColor = ThemeUtil.Lighten(ForeColor, 0.6);
             this.TextBoxErrorBorderColor = BorderColor;
             this.TextBoxErrorBackColor = ErrorColor;
             this.TextBoxErrorForeColor = ForeColor;

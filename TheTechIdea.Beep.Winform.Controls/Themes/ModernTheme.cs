@@ -883,21 +883,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ButtonFont = ButtonStyle;
             ButtonHoverFont = ButtonStyle;
             ButtonSelectedFont = ButtonStyle;
-            ButtonBackColor = blueAccent; // Primary action blue
-            ButtonForeColor = white; // White text on blue
-            ButtonBorderColor = blueAccent; // Match background
-            ButtonHoverBackColor = Darken(blueAccent, 0.08); // Slightly darker on hover
-            ButtonHoverForeColor = white;
-            ButtonHoverBorderColor = Darken(blueAccent, 0.15);
+            ButtonBackColor = C(232, 238, 248); // Neutral default button (distinct from panel)
+            ButtonForeColor = black; // Dark text on neutral
+            ButtonBorderColor = midGray; // Neutral border
+            ButtonHoverBackColor = C(220, 229, 242); // Darker neutral on hover
+            ButtonHoverForeColor = black;
+            ButtonHoverBorderColor = blueAccent;
             ButtonSelectedBackColor = Darken(blueAccent, 0.12);
             ButtonSelectedForeColor = white;
             ButtonSelectedBorderColor = Darken(blueAccent, 0.2);
             ButtonSelectedHoverBackColor = Darken(blueAccent, 0.15);
             ButtonSelectedHoverForeColor = white;
             ButtonSelectedHoverBorderColor = Darken(blueAccent, 0.25);
-            ButtonPressedBackColor = Darken(blueAccent, 0.2); // Darker when pressed
-            ButtonPressedForeColor = white;
-            ButtonPressedBorderColor = Darken(blueAccent, 0.3);
+            ButtonPressedBackColor = C(205, 218, 236); // Strongest neutral when pressed
+            ButtonPressedForeColor = black;
+            ButtonPressedBorderColor = blueAccent;
             ButtonErrorBackColor = redAccent; // Red for destructive actions
             ButtonErrorForeColor = white;
             ButtonErrorBorderColor = redAccent;
@@ -1590,3 +1590,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+

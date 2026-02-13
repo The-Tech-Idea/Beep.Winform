@@ -21,8 +21,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ButtonSelectedHoverForeColor { get; set; } = Color.White;
         public Color ButtonSelectedHoverBorderColor { get; set; } = Color.RoyalBlue;
 
-        public Color ButtonBackColor { get; set; } = Color.White;
-        public Color ButtonForeColor { get; set; } = Color.Black;
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(238, 242, 247);
+        public Color ButtonForeColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color ButtonBorderColor { get; set; } = Color.Gray;
 
         public Color ButtonErrorBackColor { get; set; } = Color.LightCoral;

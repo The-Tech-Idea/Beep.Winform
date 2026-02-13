@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // One Dark buttons - popular dark theme
             // Default: Dark background with warm grey text
-            this.ButtonBackColor = BackgroundColor;  // Dark background
+            this.ButtonBackColor = Color.FromArgb(54, 58, 66); // Dark button surface (distinct from bg/surface)
             this.ButtonForeColor = ForeColor;  // Warm grey text
             this.ButtonBorderColor = BorderColor;  // #3C4252
             
@@ -43,3 +43,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Glass buttons - frosted glass effect
             // Default: Light blue background with dark text
-            this.ButtonBackColor = SurfaceColor;  // Light surface
+            this.ButtonBackColor = Color.FromArgb(224, 236, 250); // Light surface
             this.ButtonForeColor = ForeColor;  // Dark gray
             this.ButtonBorderColor = InactiveBorderColor;  // Visible border
             
@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             
             // Selected: Medium blue
             this.ButtonSelectedBackColor = PrimaryColor;
-            this.ButtonSelectedForeColor = ForeColor;
+            this.ButtonSelectedForeColor = OnPrimaryColor;
             this.ButtonSelectedBorderColor = ActiveBorderColor;
             
             // Selected hover: Darker blue
@@ -43,3 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+

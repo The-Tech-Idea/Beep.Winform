@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             HoverForeColor = _currentTheme.TextBoxHoverForeColor;
             DisabledBackColor = _currentTheme.DisabledBackColor;
             DisabledForeColor = _currentTheme.DisabledForeColor;
-            BorderColor = _currentTheme.BorderColor;
+            BorderColor = _currentTheme.TextBoxBorderColor;
             _focusBorderColor = _currentTheme.FocusIndicatorColor;
             _placeholderTextColor = _currentTheme.TextBoxPlaceholderColor;
             
@@ -72,3 +72,4 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
     }
 }
+

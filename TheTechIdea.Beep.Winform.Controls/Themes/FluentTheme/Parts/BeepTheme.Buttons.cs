@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyButtons()
         {
-            this.ButtonBackColor = SurfaceColor;
+            this.ButtonBackColor = Color.FromArgb(230, 236, 245);
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
 
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
             this.ButtonSelectedHoverBorderColor = AccentColor;
 
-            this.ButtonPressedBackColor = SurfaceColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
 
@@ -36,3 +36,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+

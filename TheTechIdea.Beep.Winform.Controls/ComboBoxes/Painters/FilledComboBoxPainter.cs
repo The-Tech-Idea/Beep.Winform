@@ -32,12 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
             
-            // No separator for filled Style
-            Color arrowColor = _owner.Focused 
-                ? (_theme?.PrimaryColor ?? Color.Blue)
-                : (_theme?.SecondaryColor ?? Color.Gray);
-            
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            // No separator for filled Style -- use state-aware arrow coloring
+            DrawDropdownArrow(g, buttonRect, GetArrowColor());
         }
         
         private void DrawShadow(Graphics g, Rectangle rect)

@@ -116,8 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
             
-            // Draw search icon instead of dropdown arrow using SVG icon
-            Color iconColor = _theme?.SecondaryColor ?? Color.Gray;
+            // Draw search icon instead of dropdown arrow using state-aware coloring
+            Color iconColor = GetArrowColor();
             
             try
             {

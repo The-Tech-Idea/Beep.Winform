@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ButtonPrimaryPressedBackColor { get; set; } = Color.FromArgb(21, 101, 192);
 
         // Outline / default button tokens (outline style)
-        public Color ButtonOutlineBackColor { get; set; } = Color.White;                                  // Default white (outline background)
+        public Color ButtonOutlineBackColor { get; set; } = Color.FromArgb(241, 246, 252);                // Light neutral, distinct from page white
         public Color ButtonOutlineForeColor { get; set; } = Color.FromArgb(33, 150, 243);                 // Accent blue text for outline
         public Color ButtonOutlineBorderColor { get; set; } = Color.FromArgb(33, 150, 243);
         public Color ButtonOutlineHoverBackColor { get; set; } = Color.FromArgb(227, 242, 253);          // Light blue hover
@@ -27,8 +27,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         // Legacy tokens (kept for backward compatibility)
         // Map legacy tokens to represent an outline-by-default button style with clear pressed/selected states
-        public Color ButtonBackColor { get; set; } = Color.White;                                  // Default (outline background)
-        public Color ButtonForeColor { get; set; } = Color.FromArgb(33, 150, 243);                 // Accent blue text for outline
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(241, 246, 252);                      // Neutral default
+        public Color ButtonForeColor { get; set; } = Color.FromArgb(33, 150, 243);                       // Accent blue text
         public Color ButtonBorderColor { get; set; } = Color.FromArgb(33, 150, 243);
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(227, 242, 253);          // Light blue hover (outline)

@@ -77,19 +77,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 Height - (beepShadow * 2)
             );
             
-            // Apply clipping if scrolling is enabled
-            // Clip to content area (inside padding and border)
-            if (_needsScrolling)
-            {
-                var clipRect = new Rectangle(beepInsets, beepInsets,
-     Width - (beepInsets * 2) - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0),
-     Height - (beepInsets * 2));
-                e.Graphics.SetClip(clipRect);
-                
-                // Translate graphics context by scroll offset
-                e.Graphics.TranslateTransform(0, -_scrollOffset);
-            }
-            
             // Draw menu background+border+shadow with BeepStyling (outer frame/skin ONLY)
             var controlPath = BeepStyling.CreateControlStylePath(outerRect, effectiveStyle);
             
@@ -107,15 +94,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             )?.Dispose();
             controlPath.Dispose();
 
-            // Draw each menu item simply
+            // Clip and paint the content area independently so scrolling does not move the frame
+            var contentClip = new Rectangle(
+                beepInsets,
+                beepInsets,
+                Width - (beepInsets * 2) - (_scrollBar.Visible ? SCROLL_BAR_WIDTH : 0),
+                Height - (beepInsets * 2));
+
+            var itemState = e.Graphics.Save();
+            e.Graphics.SetClip(contentClip);
+
+            // Always clear the content area to the menu background to avoid ghosting while scrolling
+            var menuBgColor = theme?.MenuBackColor ?? Color.White;
+            using (var bgBrush = new SolidBrush(menuBgColor))
+            {
+                e.Graphics.FillRectangle(bgBrush, contentClip);
+            }
+
+            // Draw each menu item
             DrawMenuItemsSimple(e.Graphics, beepInsets);
 
-            // Reset transform before drawing border
-            if (_needsScrolling)
-            {
-                e.Graphics.ResetTransform();
-                e.Graphics.ResetClip();
-            }
+            // Restore graphics state (clip + transform) before exiting paint
+            e.Graphics.Restore(itemState);
         }
 
         private void DrawMenuItemsSimple(Graphics g, int beepInsets)
@@ -146,18 +146,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 contentStartY += searchAreaHeight + searchSpacing;
             }
             var yOffset = 0;
+            int scroll = _needsScrolling ? _scrollOffset : 0;
             for (int i = 0; i < _menuItems.Count; i++)
             {
                 var item = _menuItems[i];
                 var itemHeight = (int)PreferredItemHeight; // default
                 if (item != null) itemHeight = GetItemHeight(item);
-                var itemRect = new Rectangle(contentStartX, contentStartY + yOffset, contentWidth, itemHeight);
-
-                if (_needsScrolling && (yOffset < _scrollOffset - itemHeight || yOffset > _scrollOffset + Height))
-                {
-                    yOffset += itemHeight;
-                    continue;
-                }
+                int itemY = contentStartY + yOffset - scroll;
+                var itemRect = new Rectangle(contentStartX, itemY, contentWidth, itemHeight);
 
                 if (item.DisplayField == "-" || item.Tag == "separator")
                 {

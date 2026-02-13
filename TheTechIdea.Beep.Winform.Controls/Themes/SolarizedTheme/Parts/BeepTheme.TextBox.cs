@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.TextBoxSelectedBackColor = SurfaceColor;
             this.TextBoxSelectedForeColor = ForeColor;
             // Placeholder as muted version of ForeColor for readability
-            this.TextBoxPlaceholderColor = ThemeUtil.Darken(ForeColor, 0.25);
+            this.TextBoxPlaceholderColor = ThemeUtil.Lighten(ForeColor, 0.6);
             this.TextBoxErrorBorderColor = ErrorColor;
             this.TextBoxErrorBackColor = BackgroundColor;
             this.TextBoxErrorForeColor = OnPrimaryColor;
@@ -32,3 +32,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+

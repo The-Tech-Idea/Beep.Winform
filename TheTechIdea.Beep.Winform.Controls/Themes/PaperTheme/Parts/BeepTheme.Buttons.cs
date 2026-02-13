@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Paper buttons - Material Design aesthetic
             // Default: Light grey background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light paper
+            this.ButtonBackColor = Color.FromArgb(230, 236, 245); // Light paper
             this.ButtonForeColor = ForeColor;  // Dark grey text
             this.ButtonBorderColor = BorderColor;  // Light grey border
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = PrimaryColor;
             
             // Pressed: Lighter
-            this.ButtonPressedBackColor = SurfaceColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

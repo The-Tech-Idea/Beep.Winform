@@ -206,13 +206,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         public Color GetTextColor()
         {
             if (!_owner.Enabled)
-                return Color.Gray;
+                return _owner.DisabledForeColor != Color.Empty ? _owner.DisabledForeColor : (_owner._currentTheme?.DisabledForeColor ?? _owner.ForeColor);
             
             if (_owner.HasError)
-                return _owner._currentTheme?.ErrorColor ?? Color.Red;
+                return _owner._currentTheme?.ComboBoxErrorForeColor ?? _owner._currentTheme?.ErrorColor ?? _owner.ForeColor;
             
             if (IsShowingPlaceholder())
-                return _owner._currentTheme?.TextBoxPlaceholderColor ?? Color.Gray;
+                return _owner._currentTheme?.TextBoxPlaceholderColor ?? Color.FromArgb(160, _owner.ForeColor);
             
             return _owner.ForeColor;
         }
@@ -223,10 +223,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         public Color GetBackgroundColor()
         {
             if (!_owner.Enabled)
-                return Color.FromArgb(240, 240, 240);
+                return _owner.DisabledBackColor != Color.Empty ? _owner.DisabledBackColor : (_owner._currentTheme?.DisabledBackColor ?? _owner.BackColor);
             
             if (_owner.Focused)
-                return _owner._currentTheme?.FocusIndicatorColor ?? _owner.BackColor;
+                return _owner.BackColor;
             
             return _owner.BackColor;
         }
@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         /// </summary>
         public Color GetButtonHoverColor()
         {
-            return _owner._currentTheme?.ComboBoxHoverForeColor ?? Color.FromArgb(230, 230, 230);
+            return _owner._currentTheme?.ComboBoxHoverForeColor ?? (_owner.HoverForeColor != Color.Empty ? _owner.HoverForeColor : _owner.ForeColor);
         }
         
         #endregion
@@ -264,3 +264,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         #endregion
     }
 }
+
+

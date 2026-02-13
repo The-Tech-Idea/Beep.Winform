@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Tokyo Night buttons - inspired by Tokyo Night VSCode theme
             // Default: Dark purple background with light purple text
-            this.ButtonBackColor = BackgroundColor;  // Dark purple
+            this.ButtonBackColor = Color.FromArgb(52, 58, 82); // Dark purple
             this.ButtonForeColor = ForeColor;  // Light purple-blue
             this.ButtonBorderColor = BorderColor;  // #56617F
             
             // Hover: Slightly lighter
-            this.ButtonHoverBackColor = SurfaceColor;  // #24283B
+            this.ButtonHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.06);  // #24283B
             this.ButtonHoverForeColor = PrimaryColor;  // Tokyo cyan
             this.ButtonHoverBorderColor = PrimaryColor;  // Tokyo cyan
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = PrimaryColor;
             
             // Pressed: Darker
-            this.ButtonPressedBackColor = BackgroundColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(BackgroundColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

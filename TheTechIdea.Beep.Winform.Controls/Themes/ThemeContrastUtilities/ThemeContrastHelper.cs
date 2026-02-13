@@ -116,6 +116,91 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities
                     prop.SetValue(themeObj, fixedColor);
                 }
             }
+
+            // Typography styles are often used directly by controls for text rendering.
+            // Normalize TextColor against the corresponding background token as a final pass.
+            var typographyProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanRead && p.CanWrite && p.PropertyType.Name == "TypographyStyle")
+                .ToList();
+
+            Color GetTypographyBackground(string typographyPropName)
+            {
+                string name = typographyPropName.Replace("Font", "", StringComparison.OrdinalIgnoreCase);
+                var candidateBackNames = new[]
+                {
+                    name + "BackColor",
+                    name + "BackgroundColor"
+                };
+
+                // Common shorthand mappings used across themes.
+                if (typographyPropName.Contains("Button", StringComparison.OrdinalIgnoreCase))
+                {
+                    candidateBackNames = candidateBackNames
+                        .Concat(new[]
+                        {
+                            "ButtonBackColor",
+                            "ButtonHoverBackColor",
+                            "ButtonSelectedBackColor"
+                        })
+                        .ToArray();
+                }
+                else if (typographyPropName.Contains("ComboBox", StringComparison.OrdinalIgnoreCase))
+                {
+                    candidateBackNames = candidateBackNames
+                        .Concat(new[]
+                        {
+                            "ComboBoxBackColor",
+                            "ComboBoxHoverBackColor",
+                            "ComboBoxSelectedBackColor"
+                        })
+                        .ToArray();
+                }
+                else if (typographyPropName.Contains("Label", StringComparison.OrdinalIgnoreCase))
+                {
+                    candidateBackNames = candidateBackNames
+                        .Concat(new[]
+                        {
+                            "LabelBackColor",
+                            "BackgroundColor",
+                            "SurfaceColor"
+                        })
+                        .ToArray();
+                }
+
+                foreach (var backName in candidateBackNames)
+                {
+                    var backProp = props.FirstOrDefault(p => p.Name.Equals(backName, StringComparison.OrdinalIgnoreCase));
+                    if (backProp != null)
+                    {
+                        return (Color)backProp.GetValue(themeObj)!;
+                    }
+                }
+
+                var fallbackProp = props.FirstOrDefault(p => p.Name.Equals("BackgroundColor", StringComparison.OrdinalIgnoreCase))
+                                   ?? props.FirstOrDefault(p => p.Name.Equals("SurfaceColor", StringComparison.OrdinalIgnoreCase));
+                return fallbackProp != null ? (Color)fallbackProp.GetValue(themeObj)! : Color.White;
+            }
+
+            foreach (var typographyProp in typographyProps)
+            {
+                var styleObj = typographyProp.GetValue(themeObj);
+                if (styleObj == null) continue;
+
+                var textColorProp = typographyProp.PropertyType.GetProperty("TextColor", BindingFlags.Public | BindingFlags.Instance);
+                if (textColorProp == null || !textColorProp.CanRead || !textColorProp.CanWrite || textColorProp.PropertyType != typeof(Color))
+                    continue;
+
+                var fg = (Color)textColorProp.GetValue(styleObj)!;
+                if (fg.A == 0) continue;
+
+                var bg = GetTypographyBackground(typographyProp.Name);
+                var ratio = ContrastRatio(fg, bg);
+                if (ratio < targetRatio && autofix)
+                {
+                    var fixedColor = AdjustForegroundToContrast(fg, bg, targetRatio);
+                    textColorProp.SetValue(styleObj, fixedColor);
+                }
+            }
         }
     }
 }

@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Brutalist buttons - bold, high-contrast
             // Default: Palette-driven
-            this.ButtonBackColor = SurfaceColor;
+            this.ButtonBackColor = SecondaryColor;
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
 
             // Hover: Use palette for hover state
-            this.ButtonHoverBackColor = SurfaceColor;
+            this.ButtonHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.06);
             this.ButtonHoverForeColor = ForeColor;
             this.ButtonHoverBorderColor = BorderColor;
 
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

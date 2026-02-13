@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // MacOS buttons - clean macOS aesthetic
             // Default: Light gray background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light gray
+            this.ButtonBackColor = Color.FromArgb(236, 236, 238); // Light gray
             this.ButtonForeColor = ForeColor;  // Dark gray
             this.ButtonBorderColor = BorderColor;  // Medium gray
             
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonHoverBorderColor = ActiveBorderColor;  // Dark gray border
             
             // Selected: Dark gray background
-            this.ButtonSelectedBackColor = PanelBackColor;
+            this.ButtonSelectedBackColor = ThemeUtil.Darken(PanelBackColor, 0.06);
             this.ButtonSelectedForeColor = ForeColor;
             this.ButtonSelectedBorderColor = ActiveBorderColor;
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
             
             // Pressed: Lighter
-            this.ButtonPressedBackColor = SurfaceColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Neon buttons - vibrant neon aesthetic
             // Default: Dark navy background with cyan text
-            this.ButtonBackColor = BackgroundColor;  // Deep navy
+            this.ButtonBackColor = Color.FromArgb(40, 46, 66); // Deep navy
             this.ButtonForeColor = ForeColor;  // Cyan text
             this.ButtonBorderColor = BorderColor;  // Cyan glow
             
@@ -43,3 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+

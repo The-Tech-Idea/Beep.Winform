@@ -12,28 +12,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             this.DialogBackColor = SurfaceColor;
             this.DialogForeColor = ForeColor;
-            this.DialogYesButtonBackColor = SurfaceColor;
+            this.DialogYesButtonBackColor = PrimaryColor;
             this.DialogYesButtonForeColor = ForeColor;
             this.DialogYesButtonHoverBackColor = SurfaceColor;
             this.DialogYesButtonHoverForeColor = ForeColor;
             this.DialogYesButtonHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
-            this.DialogCancelButtonBackColor = SurfaceColor;
+            this.DialogCancelButtonBackColor = SecondaryColor;
             this.DialogCancelButtonForeColor = ForeColor;
             this.DialogCancelButtonHoverBackColor = SurfaceColor;
             this.DialogCancelButtonHoverForeColor = ForeColor;
             this.DialogCancelButtonHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
-            this.DialogCloseButtonBackColor = SurfaceColor;
+            this.DialogCloseButtonBackColor = SecondaryColor;
             this.DialogCloseButtonForeColor = ForeColor;
             this.DialogCloseButtonHoverBackColor = SurfaceColor;
             this.DialogCloseButtonHoverForeColor = ForeColor;
             this.DialogCloseButtonHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
-            this.DialogHelpButtonBackColor = SurfaceColor;
-            this.DialogNoButtonBackColor = SurfaceColor;
+            this.DialogHelpButtonBackColor = SecondaryColor;
+            this.DialogNoButtonBackColor = SecondaryColor;
             this.DialogNoButtonForeColor = ForeColor;
             this.DialogNoButtonHoverBackColor = SurfaceColor;
             this.DialogNoButtonHoverForeColor = ForeColor;
             this.DialogNoButtonHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
-            this.DialogOkButtonBackColor = SurfaceColor;
+            this.DialogOkButtonBackColor = PrimaryColor;
             this.DialogOkButtonForeColor = ForeColor;
             this.DialogOkButtonHoverBackColor = SurfaceColor;
             this.DialogOkButtonHoverForeColor = ForeColor;
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.DialogInformationButtonHoverBackColor = PrimaryColor;
             this.DialogInformationButtonHoverForeColor = ForeColor;
             this.DialogInformationButtonHoverBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
-            this.DialogQuestionButtonBackColor = SurfaceColor;
+            this.DialogQuestionButtonBackColor = PrimaryColor;
             this.DialogQuestionButtonForeColor = ForeColor;
             this.DialogQuestionButtonHoverBackColor = SurfaceColor;
             this.DialogQuestionButtonHoverForeColor = ForeColor;
@@ -61,3 +61,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+

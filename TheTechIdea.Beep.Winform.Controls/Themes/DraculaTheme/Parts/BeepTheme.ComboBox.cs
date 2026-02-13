@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ComboBoxSelectedForeColor = ForeColor;
             this.ComboBoxSelectedBorderColor = ActiveBorderColor;
             this.ComboBoxErrorBackColor = ErrorColor;
-            this.ComboBoxErrorForeColor = ForeColor;
+            this.ComboBoxErrorForeColor = OnPrimaryColor;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyButtons()
         {
             // Cartoon buttons - playful with palette tokens
-            this.ButtonBackColor = SurfaceColor;
+            this.ButtonBackColor = Color.FromArgb(236, 222, 245);
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
 
@@ -37,3 +37,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

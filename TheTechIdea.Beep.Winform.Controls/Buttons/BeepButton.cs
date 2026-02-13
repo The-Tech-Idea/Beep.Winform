@@ -814,6 +814,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             FocusBackColor = _currentTheme.ButtonSelectedBackColor;
             FocusForeColor = _currentTheme.ButtonSelectedForeColor;
             ForeColor = _currentTheme.ButtonForeColor;
+
+
             // Apply border colors
             BorderColor = _currentTheme.ButtonBorderColor;
 
@@ -933,18 +935,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(2 * currentRadius));
 
                 // Clip the drawing to the button bounds for clean edges
-                if (IsRounded && BorderRadius > 0)
+                using (GraphicsPath clipPath = GetButtonClipPath(contentRect))
                 {
-                    using (GraphicsPath clipPath = GraphicsExtensions.GetRoundedRectPath(contentRect, BorderRadius))
-                    {
-                        g.SetClip(clipPath);
-                        g.FillEllipse(rippleBrush, rippleRect);
-                        g.ResetClip();
-                    }
-                }
-                else
-                {
-                    g.SetClip(contentRect);
+                    g.SetClip(clipPath);
                     g.FillEllipse(rippleBrush, rippleRect);
                     g.ResetClip();
                 }
@@ -995,20 +988,45 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (alpha > 0)
                 using (SolidBrush overlayBrush = new SolidBrush(Color.FromArgb(alpha, overlayColor)))
                 {
-                    if (IsRounded && BorderRadius > 0)
+                    using (GraphicsPath path = GetButtonClipPath(contentRect))
                     {
-                        using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(contentRect, BorderRadius))
-                        {
-                            g.FillPath(overlayBrush, path);
-                        }
-                    }
-                    else
-                    {
-                        g.FillRectangle(overlayBrush, contentRect);
+                        g.FillPath(overlayBrush, path);
                     }
                 }
         }
-      
+
+        /// <summary>
+        /// Creates a clip path that matches the button's current shape.
+        /// Respects <see cref="BaseControl.ShapeType"/> when set,
+        /// otherwise falls back to the standard rounded-rect or plain rect.
+        /// Caller must dispose the returned path.
+        /// </summary>
+        private GraphicsPath GetButtonClipPath(Rectangle rect)
+        {
+            // If a shape override is active, create a matching clip path
+            if (ShapeType != BeepButtonShapeType.Default)
+            {
+                return BeepStyling.CreateControlStylePath(rect, ControlStyle, ShapeType);
+            }
+
+            // If style-based painting is active, use the style's shape
+            if (UseFormStylePaint && ControlStyle != BeepControlStyle.None)
+            {
+                return BeepStyling.CreateControlStylePath(rect, ControlStyle);
+            }
+
+            // Default: rounded rect or plain rect
+            if (IsRounded && BorderRadius > 0)
+            {
+                return GraphicsExtensions.GetRoundedRectPath(rect, BorderRadius);
+            }
+
+            // Sharp rectangle
+            GraphicsPath p = new GraphicsPath();
+            p.AddRectangle(rect);
+            return p;
+        }
+
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -1616,8 +1634,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsHovered)
                 {
-                    textColor = _currentTheme.ButtonSelectedHoverForeColor;
-                    backColor= _currentTheme.ButtonSelectedHoverBackColor;
+                    textColor = _currentTheme.ButtonHoverForeColor;
+                    backColor= _currentTheme.ButtonHoverBackColor;
                 }
                 else if (IsSelected)
                 {
@@ -1914,3 +1932,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Material Design Support"
     }
 }
+
+
+

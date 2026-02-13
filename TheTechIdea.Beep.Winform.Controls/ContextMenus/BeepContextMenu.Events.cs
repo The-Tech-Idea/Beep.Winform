@@ -194,9 +194,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_Deactivate(object sender, EventArgs e)
         {
-            // NOTE: Deactivation is now handled by BeepMenuManager.ModalMenuFilter
-            // This matches WinForms ToolStripManager.ModalMenuFilter pattern
-            // The message filter will detect activation changes and close menus appropriately
+            // CRITICAL FIX: When this menu loses activation (user clicked outside),
+            // close it so the click can reach the intended target (e.g. form close button).
+            // Previously this was empty, relying on BeepMenuManager.ModalMenuFilter
+            // which is not installed when BeepComboBox calls Show() directly.
+            if (!_closeOnFocusLost) return;
+            
+            // Use BeginInvoke to defer closing so the activation transfer completes first.
+            // This ensures the target window receives the click that caused deactivation.
+            if (IsHandleCreated && !IsDisposed)
+            {
+                BeginInvoke(new Action(() =>
+                {
+                    if (!IsDisposed && Visible)
+                    {
+                        _closeReason = BeepContextMenuCloseReason.AppFocusChange;
+                        Close();
+                    }
+                }));
+            }
         }
         
         private void BeepContextMenu_VisibleChanged(object sender, EventArgs e)

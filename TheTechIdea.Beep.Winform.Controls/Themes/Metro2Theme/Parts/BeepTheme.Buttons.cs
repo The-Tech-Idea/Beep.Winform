@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Metro2 buttons - Windows Metro with accent stripe
             // Default: White background with dark text
-            this.ButtonBackColor = BackgroundColor;  // White
+            this.ButtonBackColor = Color.FromArgb(240, 240, 240); // White
             this.ButtonForeColor = ForeColor;  // Black text
             this.ButtonBorderColor = BorderColor;  // Metro blue border
             
@@ -43,3 +43,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+

@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.DialogYesButtonHoverBackColor = PanelGradiantStartColor;
             this.DialogYesButtonHoverForeColor = ForeColor;
             this.DialogYesButtonHoverBorderColor = ActiveBorderColor;
-            this.DialogCancelButtonBackColor = SurfaceColor;
+            this.DialogCancelButtonBackColor = SecondaryColor;
             this.DialogCancelButtonForeColor = ForeColor;
             this.DialogCancelButtonHoverBackColor = PanelGradiantStartColor;
             this.DialogCancelButtonHoverForeColor = ForeColor;

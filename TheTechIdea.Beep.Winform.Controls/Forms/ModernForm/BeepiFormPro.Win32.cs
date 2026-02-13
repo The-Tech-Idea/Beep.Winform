@@ -172,7 +172,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         // In runtime, suppress erase to prevent flicker (we paint everything in OnPaintBackground)
                         m.Result = (IntPtr)1;
                         return;
-                    
+
+                    case 0x0201: // WM_LBUTTONDOWN
+                        {
+                            // CRITICAL: Handle caption button mouse-down directly in WndProc
+                            // instead of relying on OnMouseDown, which may not fire after
+                            // child control interaction (focus/capture issues in WinForms).
+                            int lp = (int)m.LParam.ToInt64();
+                            Point pos = new Point((short)(lp & 0xffff), (short)((lp >> 16) & 0xffff));
+
+                            try { EnsureLayoutCalculated(); } catch { }
+
+                            if (ShowCaptionBar && CurrentLayout != null &&
+                                !CurrentLayout.ContentRect.Contains(pos) &&
+                                CurrentLayout.CaptionRect.Contains(pos))
+                            {
+                                // Ensure the form is focused so subsequent messages arrive here
+                                if (!Focused) this.Focus();
+
+                                _interact.OnMouseDown(pos);
+                                Capture = true;  // Ensure WM_LBUTTONUP arrives at this form
+
+                                // Handle search box unfocus when clicking outside
+                                if (ShowSearchBox && _searchBoxFocused &&
+                                    CurrentLayout.SearchBoxRect.Width > 0 &&
+                                    !CurrentLayout.SearchBoxRect.Contains(pos))
+                                {
+                                    _searchBoxFocused = false;
+                                    Invalidate(CurrentLayout.SearchBoxRect);
+                                }
+
+                                return; // Handled – do NOT call base
+                            }
+                            break; // Not in caption – let WinForms handle normally
+                        }
+
+                    case 0x0202: // WM_LBUTTONUP
+                        {
+                            // CRITICAL: Handle caption button mouse-up directly in WndProc
+                            // to complete the down/up pair started above.
+                            int lp = (int)m.LParam.ToInt64();
+                            Point pos = new Point((short)(lp & 0xffff), (short)((lp >> 16) & 0xffff));
+
+                            if (ShowCaptionBar && CurrentLayout != null &&
+                                !CurrentLayout.ContentRect.Contains(pos) &&
+                                CurrentLayout.CaptionRect.Contains(pos))
+                            {
+                                _interact.OnMouseUp(pos);
+                                Capture = false;  // Release capture after completing click
+                                return; // Handled – do NOT call base
+                            }
+                            break; // Not in caption – let WinForms handle normally
+                        }
+
                     case WM_SETFOCUS:
                     case WM_KILLFOCUS:
                     case WM_CHILDACTIVATE:
@@ -268,12 +320,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             // Check if the click is within the custom caption bar
                             if (ShowCaptionBar && CurrentLayout != null && CurrentLayout.CaptionRect.Contains(pos))
                             {
-                                // Treat clicks in the custom caption bar as HTCAPTION
-                                if (!IsPointInCaptionButtons(pos))
+                                // CRITICAL: Release mouse capture when cursor is over the caption so that
+                                // the form receives WM_LBUTTONDOWN/WM_LBUTTONUP. After interacting with
+                                // child controls (e.g. TextBox, Button), a child may still hold capture;
+                                // without this, clicks on the close button would go to the child and the
+                                // caption would appear unresponsive.
+                                ReleaseCapture();
+
+                                if (IsPointInCaptionButtons(pos))
                                 {
-                                    m.Result = (IntPtr)HTCAPTION;
+                                    // CRITICAL: Point is on a caption button (close, minimize, maximize, etc.)
+                                    // Return HTCLIENT immediately so WinForms fires OnMouseDown/OnMouseUp
+                                    // Do NOT fall through to resize border checks - they would steal the
+                                    // click (e.g. HTTOPRIGHT for close button in the top-right corner)
+                                    m.Result = (IntPtr)HTCLIENT;
                                     return;
                                 }
+
+                                // Not on a button - treat as draggable caption
+                                m.Result = (IntPtr)HTCAPTION;
+                                return;
                             }
 
                             // Handle resize borders
@@ -607,20 +673,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private bool IsPointInCaptionButtons(Point p)
         {
-            // Check known caption button rects from current layout
-            Rectangle[] rects = new Rectangle[]
+            // Respect runtime visibility flags so hidden buttons never block caption drag.
+            if (ShowCloseButton && CurrentLayout.CloseButtonRect.Width > 0 && CurrentLayout.CloseButtonRect.Height > 0 && CurrentLayout.CloseButtonRect.Contains(p))
+                return true;
+
+            if (ShowMinMaxButtons)
             {
-                CurrentLayout.CloseButtonRect,
-                CurrentLayout.MaximizeButtonRect,
-                CurrentLayout.MinimizeButtonRect,
-                CurrentLayout.ThemeButtonRect,
-                CurrentLayout.StyleButtonRect,
-                CurrentLayout.CustomActionButtonRect
-            };
-            foreach (var r in rects)
-            {
-                if (r.Width > 0 && r.Height > 0 && r.Contains(p)) return true;
+                if (CurrentLayout.MaximizeButtonRect.Width > 0 && CurrentLayout.MaximizeButtonRect.Height > 0 && CurrentLayout.MaximizeButtonRect.Contains(p))
+                    return true;
+                if (CurrentLayout.MinimizeButtonRect.Width > 0 && CurrentLayout.MinimizeButtonRect.Height > 0 && CurrentLayout.MinimizeButtonRect.Contains(p))
+                    return true;
             }
+
+            if (ShowThemeButton && CurrentLayout.ThemeButtonRect.Width > 0 && CurrentLayout.ThemeButtonRect.Height > 0 && CurrentLayout.ThemeButtonRect.Contains(p))
+                return true;
+
+            if (ShowStyleButton && CurrentLayout.StyleButtonRect.Width > 0 && CurrentLayout.StyleButtonRect.Height > 0 && CurrentLayout.StyleButtonRect.Contains(p))
+                return true;
+
+            if (ShowCustomActionButton && CurrentLayout.CustomActionButtonRect.Width > 0 && CurrentLayout.CustomActionButtonRect.Height > 0 && CurrentLayout.CustomActionButtonRect.Contains(p))
+                return true;
+
+            if (ShowSearchBox && CurrentLayout.SearchBoxRect.Width > 0 && CurrentLayout.SearchBoxRect.Height > 0 && CurrentLayout.SearchBoxRect.Contains(p))
+                return true;
+
+            if (ShowProfileButton && CurrentLayout.ProfileButtonRect.Width > 0 && CurrentLayout.ProfileButtonRect.Height > 0 && CurrentLayout.ProfileButtonRect.Contains(p))
+                return true;
+
             return false;
         }
 

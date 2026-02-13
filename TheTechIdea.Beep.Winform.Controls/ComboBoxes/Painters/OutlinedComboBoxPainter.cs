@@ -75,9 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 buttonRect.Left, buttonRect.Top + margin, 
                 buttonRect.Left, buttonRect.Bottom - margin);
             
-            // Draw arrow
-            Color arrowColor = _theme?.SecondaryColor ?? Color.Gray;
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            // Draw arrow with state-aware coloring
+            DrawDropdownArrow(g, buttonRect, GetArrowColor());
         }
         
         private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)

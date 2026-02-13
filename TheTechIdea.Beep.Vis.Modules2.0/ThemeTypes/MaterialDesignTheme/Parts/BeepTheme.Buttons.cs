@@ -22,16 +22,17 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ButtonSelectedHoverForeColor { get; set; } = Color.White;
         public Color ButtonSelectedHoverBorderColor { get; set; } = Color.FromArgb(13, 71, 161); // Blue 900
 
-        public Color ButtonBackColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue 500
-        public Color ButtonForeColor { get; set; } = Color.White;
-        public Color ButtonBorderColor { get; set; } =Color.FromArgb(33, 150, 243);
+        // Default: lighten fill for stronger contrast on light surfaces, darker text
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(100, 181, 246); // Blue 300
+        public Color ButtonForeColor { get; set; } = Color.FromArgb(15, 40, 80);
+        public Color ButtonBorderColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue 500
 
         public Color ButtonErrorBackColor { get; set; } = Color.FromArgb(211, 47, 47); // Red 700
         public Color ButtonErrorForeColor { get; set; } = Color.White;
         public Color ButtonErrorBorderColor { get; set; } = Color.FromArgb(198, 40, 40); // Red 800
 
-        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(25, 118, 210); // Blue 700
-        public Color ButtonPressedForeColor { get; set; } = Color.White;
-        public Color ButtonPressedBorderColor { get; set; } = Color.FromArgb(21, 101, 192); // Blue 800
+        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(79, 140, 220); // between Blue 400/500
+        public Color ButtonPressedForeColor { get; set; } = Color.FromArgb(235, 242, 250);
+        public Color ButtonPressedBorderColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue 500
     }
 }

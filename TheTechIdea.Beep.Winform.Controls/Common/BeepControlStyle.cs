@@ -9,6 +9,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         }
 
     /// <summary>
+    /// Defines the geometric shape of a control path, independent of visual style/fill.
+    /// Maps to the "Ultimate UI Cheat Sheet – Button Styles" (01–10).
+    /// Use as an optional override in <see cref="BeepStyling.CreateControlStylePath"/>.
+    /// When set to <see cref="Default"/>, the shape is determined by <see cref="BeepControlStyle"/>.
+    /// </summary>
+    public enum BeepButtonShapeType
+    {
+        /// <summary>No shape override – shape is determined by BeepControlStyle (default behavior).</summary>
+        Default = 0,
+
+        /// <summary>Style 01 – Rounded rectangle with soft drop-shadow silhouette underneath.</summary>
+        ElevatedRounded = 1,
+
+        /// <summary>Style 02 – Rounded rectangle with an inner inset/recessed border.</summary>
+        InsetRounded = 2,
+
+        /// <summary>Style 03 – Outlined rounded rectangle (thick border, hollow center).</summary>
+        OutlinedRounded = 3,
+
+        /// <summary>Style 04 – Asymmetric: flat left edge, rounded right corners.</summary>
+        LeftFlatRounded = 4,
+
+        /// <summary>Style 05 – Standard rounded rectangle (normal corner radius).</summary>
+        StandardRounded = 5,
+
+        /// <summary>Style 06 – Stadium / wide-pill (generous height-proportional radius).</summary>
+        Stadium = 6,
+
+        /// <summary>Style 07 / 09 – Full pill / capsule (radius = half height).</summary>
+        Pill = 7,
+
+        /// <summary>Style 08 – Sharp/minimal rounded rectangle (almost rectangular, ~3px radius).</summary>
+        WideRounded = 8,
+
+        /// <summary>Style 10 – Rounded rectangle with decorative accent bars on left and right edges.</summary>
+        AccentBarDecorated = 9,
+
+        /// <summary>Flat right edge, rounded left corners (mirror of LeftFlatRounded).</summary>
+        RightFlatRounded = 10,
+
+        /// <summary>Custom per-corner rounding – caller supplies individual corner flags via a separate overload.</summary>
+        AsymmetricCustom = 11
+    }
+
+    /// <summary>
     /// Unified visual styles for all Beep navigation controls
     /// Used by BeepSideBar, TopNavBar, BottomNavBar, and other navigation components
     /// Get border styles for various design systems in BorderPainters directory

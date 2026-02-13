@@ -252,6 +252,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     // Actually hide the window
                     base.SetVisibleCore(false);
 
+                    // CRITICAL: Reactivate the owner form so it regains proper
+                    // window activation and WndProc message routing.
+                    // Without this, BeepiFormPro's caption buttons (close, etc.)
+                    // become unresponsive after a BeepComboBox dropdown interaction.
+                    if (_owner != null)
+                    {
+                        var parentForm = _owner.FindForm();
+                        if (parentForm != null && !parentForm.IsDisposed && parentForm.IsHandleCreated)
+                        {
+                            parentForm.Activate();
+                        }
+                    }
+
                     // ContextMenuManager handles menu lifecycle - no BeepMenuManager needed
 
                     // Fire Closed event

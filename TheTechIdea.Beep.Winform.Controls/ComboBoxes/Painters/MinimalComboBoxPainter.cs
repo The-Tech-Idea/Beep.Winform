@@ -25,9 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
             
-            // No button background - just the arrow
-            Color arrowColor = _theme?.SecondaryColor ?? Color.Empty;
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            // No button background - just the arrow with state-aware coloring
+            DrawDropdownArrow(g, buttonRect, GetArrowColor());
         }
         
         public override Padding GetPreferredPadding()

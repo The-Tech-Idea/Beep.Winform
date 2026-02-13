@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // KDE buttons - clean Linux aesthetic
             // Default: Light background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light gray
+            this.ButtonBackColor = Color.FromArgb(238, 241, 244); // Light gray
             this.ButtonForeColor = ForeColor;  // Dark gray
             this.ButtonBorderColor = BorderColor;  // Medium gray
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = ThemeUtil.Lighten(PrimaryColor, 0.15);
             
             // Pressed: Lighter gray
-            this.ButtonPressedBackColor = SurfaceColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+

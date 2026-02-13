@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Nord buttons - Arctic-inspired dark theme
             // Default: Dark blue-gray background with light text
-            this.ButtonBackColor = BackgroundColor;  // Dark blue-gray
+            this.ButtonBackColor = Color.FromArgb(76, 86, 104); // Dark blue-gray
             this.ButtonForeColor = ForeColor;  // Light gray-blue
             this.ButtonBorderColor = BorderColor;  // #434C5E
             
             // Hover: Slightly lighter surface
-            this.ButtonHoverBackColor = SurfaceColor;  // #3B4252
+            this.ButtonHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.06);  // #3B4252
             this.ButtonHoverForeColor = PrimaryColor;  // Nord cyan
             this.ButtonHoverBorderColor = PrimaryColor;  // Nord cyan
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

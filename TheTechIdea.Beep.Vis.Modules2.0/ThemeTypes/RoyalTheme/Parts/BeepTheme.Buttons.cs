@@ -50,14 +50,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ButtonSelectedHoverBackColor { get; set; } = Color.FromArgb(100, 100, 180); // Brighter indigo
         public Color ButtonSelectedHoverForeColor { get; set; } = Color.White;
         public Color ButtonSelectedHoverBorderColor { get; set; } = Color.FromArgb(255, 215, 0);
-        public Color ButtonBackColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
-        public Color ButtonForeColor { get; set; } = Color.White;
-        public Color ButtonBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
+        // Default: lighter royal plate for better text visibility
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(200, 208, 232); // pale royal plate
+        public Color ButtonForeColor { get; set; } = Color.FromArgb(32, 45, 80);     // deep text
+        public Color ButtonBorderColor { get; set; } = Color.FromArgb(200, 165, 55); // warm gold
         public Color ButtonErrorBackColor { get; set; } = Color.FromArgb(178, 34, 34); // Crimson
         public Color ButtonErrorForeColor { get; set; } = Color.White;
         public Color ButtonErrorBorderColor { get; set; } = Color.FromArgb(139, 0, 0); // Dark red
-        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(45, 45, 128); // Darker royal blue
-        public Color ButtonPressedForeColor { get; set; } = Color.White;
-        public Color ButtonPressedBorderColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
+        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(170, 185, 215); // pressed darker
+        public Color ButtonPressedForeColor { get; set; } = Color.FromArgb(28, 38, 70);
+        public Color ButtonPressedBorderColor { get; set; } = Color.FromArgb(200, 165, 55);
     }
 }

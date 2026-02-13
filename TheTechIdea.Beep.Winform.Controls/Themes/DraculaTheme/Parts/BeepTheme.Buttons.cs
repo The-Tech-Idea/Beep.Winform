@@ -12,17 +12,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Dracula buttons - dark purple with pink accents
             // Default: Dark with cream text
-            this.ButtonBackColor = BackgroundColor;  // Dark background
+            this.ButtonBackColor = Color.FromArgb(82, 86, 108); // Dark background
             this.ButtonForeColor = ForeColor;  // Cream text
             this.ButtonBorderColor = BorderColor;  // Gray border
             
             // Hover: Slightly lighter purple background
-            this.ButtonHoverBackColor = SurfaceColor;
+            this.ButtonHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.06);
             this.ButtonHoverForeColor = ForeColor;
             this.ButtonHoverBorderColor = PrimaryColor;  // Purple border
             
             // Selected: Purple background
-            this.ButtonSelectedBackColor = SurfaceColor;
+            this.ButtonSelectedBackColor = ThemeUtil.Lighten(SurfaceColor, 0.06);
             this.ButtonSelectedForeColor = AccentColor;  // Pink text
             this.ButtonSelectedBorderColor = PrimaryColor;
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

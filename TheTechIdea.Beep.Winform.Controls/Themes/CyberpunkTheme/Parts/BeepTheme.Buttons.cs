@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Cyberpunk buttons - neon aesthetic
             // Default: Dark with cyan borders
-            this.ButtonBackColor = BackgroundColor;  // Dark background
+            this.ButtonBackColor = PanelGradiantMiddleColor; // Dark background
             this.ButtonForeColor = ForeColor;  // Cyan text
             this.ButtonBorderColor = BorderColor;  // Cyan border
             
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonHoverBorderColor = ActiveBorderColor;  // Bright border
             
             // Selected: Visible state
-            this.ButtonSelectedBackColor = PanelBackColor;  // Medium cyan
+            this.ButtonSelectedBackColor = ThemeUtil.Darken(PanelBackColor, 0.06);  // Medium cyan
             this.ButtonSelectedForeColor = ForeColor;
             this.ButtonSelectedBorderColor = BorderColor;
             
@@ -43,3 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+

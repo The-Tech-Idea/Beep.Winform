@@ -160,10 +160,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         #endregion
 
         #region Form Style to Control Style Mapping
-        public static GraphicsPath CreateControlPath(Rectangle bounds, FormStyle formStyle)
+        public static GraphicsPath CreateControlPath(Rectangle bounds, FormStyle formStyle, BeepButtonShapeType shapeOverride = BeepButtonShapeType.Default)
         {
             BeepControlStyle controlStyle = GetControlStyle(formStyle);
-            return CreateControlStylePath(bounds, controlStyle);
+            return CreateControlStylePath(bounds, controlStyle, shapeOverride);
         }
         /// <summary>
         /// Maps FormStyle enum values to appropriate BeepControlStyle enum values
@@ -716,9 +716,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// <summary>
         /// Create graphics path for the current Style from Rectangle
         /// </summary>
-        public static GraphicsPath CreateStylePath(Rectangle bounds)
+        public static GraphicsPath CreateStylePath(Rectangle bounds, BeepButtonShapeType shapeOverride = BeepButtonShapeType.Default)
         {
-            return CreateControlStylePath(bounds, CurrentControlStyle);
+            return CreateControlStylePath(bounds, CurrentControlStyle, shapeOverride);
         }
         public static GraphicsPath CreateFormStylePath(Rectangle bounds, FormStyle formStyle)
         {
@@ -884,13 +884,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
 
         /// <summary>
-        /// Create graphics path for a specific Style from Rectangle
+        /// Create graphics path for a specific Style from Rectangle,
+        /// with an optional shape override that bypasses the style-based shape selection.
+        /// When <paramref name="shapeOverride"/> is not <see cref="BeepButtonShapeType.Default"/>,
+        /// the shape is determined entirely by <paramref name="shapeOverride"/>; the style's
+        /// radius is still used as the base corner radius.
         /// </summary>
-        public static GraphicsPath CreateControlStylePath(Rectangle bounds, BeepControlStyle style)
+        /// <param name="bounds">The bounding rectangle.</param>
+        /// <param name="style">The visual control style (used for radius/border lookup and fallback shape).</param>
+        /// <param name="shapeOverride">Optional shape override. Default = shape comes from style.</param>
+        public static GraphicsPath CreateControlStylePath(
+            Rectangle bounds,
+            BeepControlStyle style,
+            BeepButtonShapeType shapeOverride = BeepButtonShapeType.Default)
         {
             int radius = StyleBorders.GetRadius(style);
             float borderWidth = StyleBorders.GetBorderWidth(style);
 
+            // ── Shape Override ──────────────────────────────────────────────
+            // If a shape override is specified, use the PathPainterHelpers
+            // geometry and return immediately. Multi-path shapes return the
+            // primary button path; callers needing the extra paths (shadow,
+            // accent bars, etc.) should call PathPainterHelpers directly.
+            if (shapeOverride != BeepButtonShapeType.Default)
+            {
+                return CreateShapeOverridePath(bounds, radius, shapeOverride);
+            }
+
+            // ── Style-based shape (original logic) ─────────────────────────
             GraphicsPath path = new GraphicsPath();
 
             switch (style)
@@ -1075,6 +1096,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
             return path;
+        }
+
+        /// <summary>
+        /// Creates a GraphicsPath based on a <see cref="BeepButtonShapeType"/> override.
+        /// Each shape returns a visually DISTINCT path:
+        ///  - Elevated/Inset/AccentBar return composite multi-figure paths.
+        ///  - Outlined returns a hollow ring (FillMode.Alternate).
+        ///  - Stadium/SharpRounded/Pill return single-figure paths with clearly different radii.
+        /// </summary>
+        private static GraphicsPath CreateShapeOverridePath(Rectangle bounds, int radius, BeepButtonShapeType shape)
+        {
+            switch (shape)
+            {
+                case BeepButtonShapeType.ElevatedRounded:
+                    // Smaller rect – room for shadow at bottom-right
+                    return PathPainterHelpers.CreateElevatedPath(bounds, radius);
+
+                case BeepButtonShapeType.InsetRounded:
+                    // Smaller rect – gap for outer inset frame
+                    return PathPainterHelpers.CreateInsetPath(bounds, radius);
+
+                case BeepButtonShapeType.OutlinedRounded:
+                    // Slightly inset rect – pen-centered for thick border stroke
+                    return PathPainterHelpers.CreateOutlinedPath(bounds, radius);
+
+                case BeepButtonShapeType.LeftFlatRounded:
+                    // Flat left edge, rounded right corners
+                    return PathPainterHelpers.CreateLeftFlatRoundedPath(bounds, radius);
+
+                case BeepButtonShapeType.RightFlatRounded:
+                    // Flat right edge, rounded left corners
+                    return PathPainterHelpers.CreateRightFlatRoundedPath(bounds, radius);
+
+                case BeepButtonShapeType.StandardRounded:
+                    // Normal rounded rect using style radius
+                    return PathPainterHelpers.CreateRoundedRectangle(bounds, radius);
+
+                case BeepButtonShapeType.Stadium:
+                    // 45% of min dimension – clearly more rounded than standard
+                    return PathPainterHelpers.CreateStadiumPath(bounds);
+
+                case BeepButtonShapeType.Pill:
+                    // Full capsule – radius = half height
+                    return PathPainterHelpers.CreatePillPath(bounds);
+
+                case BeepButtonShapeType.WideRounded:
+                    // Almost rectangular – 3px corners
+                    return PathPainterHelpers.CreateSharpRoundedPath(bounds);
+
+                case BeepButtonShapeType.AccentBarDecorated:
+                    // Narrower rect – space for accent bars on sides
+                    return PathPainterHelpers.CreateAccentBarBodyPath(bounds, radius);
+
+                case BeepButtonShapeType.AsymmetricCustom:
+                    return PathPainterHelpers.CreateAsymmetricRoundedPath(bounds, radius,
+                        true, true, true, true);
+
+                default:
+                    return PathPainterHelpers.CreateRoundedRectangle(bounds, radius);
+            }
         }
 
         /// <summary>
@@ -1369,7 +1450,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
             RectangleF bounds = controlPath.GetBounds();
             float borderWidth = StyleBorders.GetBorderWidth(style);
-            int padding = StyleSpacing.GetPadding(style);
+            int padding = BeepStyling.GetPadding(style);
             int radius = StyleBorders.GetRadius(style);
 
             // Deflate bounds for internal content area

@@ -18,14 +18,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ButtonSelectedHoverBackColor { get; set; } = Color.FromArgb(0, 200, 240);
         public Color ButtonSelectedHoverForeColor { get; set; } = Color.White;
         public Color ButtonSelectedHoverBorderColor { get; set; } = Color.FromArgb(0, 110, 160);
-        public Color ButtonBackColor { get; set; } = Color.FromArgb(0, 150, 200);
-        public Color ButtonForeColor { get; set; } = Color.White;
+        // Default: lighter teal plate for stronger contrast on ocean background
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(150, 210, 235);
+        public Color ButtonForeColor { get; set; } = Color.FromArgb(10, 40, 70);
         public Color ButtonBorderColor { get; set; } = Color.FromArgb(0, 120, 170);
         public Color ButtonErrorBackColor { get; set; } = Color.FromArgb(255, 100, 100);
         public Color ButtonErrorForeColor { get; set; } = Color.White;
         public Color ButtonErrorBorderColor { get; set; } = Color.FromArgb(200, 80, 80);
-        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(0, 130, 180);
-        public Color ButtonPressedForeColor { get; set; } = Color.White;
+        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(115, 185, 220);
+        public Color ButtonPressedForeColor { get; set; } = Color.FromArgb(235, 242, 250);
         public Color ButtonPressedBorderColor { get; set; } = Color.FromArgb(0, 100, 150);
     }
 }

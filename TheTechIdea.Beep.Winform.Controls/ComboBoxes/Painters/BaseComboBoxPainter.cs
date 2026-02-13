@@ -90,13 +90,62 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected abstract void DrawBorder(Graphics g, Rectangle rect);
         
         /// <summary>
-        /// Draw the dropdown button
+        /// Draw the dropdown button with separator line and state-aware arrow.
+        /// Override in derived classes to customize (e.g., skip separator).
         /// </summary>
-        protected abstract void DrawDropdownButton(Graphics g, Rectangle buttonRect);
+        protected virtual void DrawDropdownButton(Graphics g, Rectangle buttonRect)
+        {
+            if (buttonRect.IsEmpty) return;
+
+            // Draw subtle separator line between text area and button
+            if (ShowButtonSeparator)
+            {
+                int separatorMargin = ScaleY(6);
+                Color separatorColor = Color.FromArgb(100, _theme?.BorderColor ?? Color.Gray);
+                var sepPen = PaintersFactory.GetPen(separatorColor, 1f);
+                g.DrawLine(sepPen, buttonRect.Left, buttonRect.Top + separatorMargin,
+                           buttonRect.Left, buttonRect.Bottom - separatorMargin);
+            }
+
+            // Draw arrow with state-aware coloring
+            Color arrowColor = GetArrowColor();
+            DrawDropdownArrow(g, buttonRect, arrowColor);
+        }
+
+        /// <summary>
+        /// Whether to draw a vertical separator line between text and dropdown button.
+        /// Override to return false in painters that don't want a separator (Rounded, Filled, Borderless, etc.).
+        /// </summary>
+        protected virtual bool ShowButtonSeparator => true;
         
         #endregion
         
         #region Common Drawing Methods
+        
+        /// <summary>
+        /// Returns the correct arrow color based on control state (disabled, focused, hovered, normal).
+        /// </summary>
+        protected virtual Color GetArrowColor()
+        {
+            if (!_owner.Enabled)
+            {
+                Color disabledBase = _theme?.ForeColor ?? Color.Gray;
+                return Color.FromArgb(115, disabledBase.R, disabledBase.G, disabledBase.B);
+            }
+            if (_owner.Focused)
+            {
+                return _theme?.ComboBoxHoverBorderColor != Color.Empty
+                    ? _theme.ComboBoxHoverBorderColor
+                    : (_theme?.PrimaryColor ?? Color.Black);
+            }
+            if (_owner.IsButtonHovered)
+            {
+                return _theme?.SecondaryColor ?? Color.Black;
+            }
+            // Normal state: slightly muted secondary color
+            Color normalBase = _theme?.SecondaryColor ?? Color.Gray;
+            return Color.FromArgb(180, normalBase.R, normalBase.G, normalBase.B);
+        }
         
         protected virtual void DrawTextArea(Graphics g, Rectangle textAreaRect)
         {
@@ -110,12 +159,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
             else if (_owner.IsControlHovered && _owner.Enabled)
             {
+                // Subtle hover overlay on the entire text area for interactive feedback
                 var hoverColor = _theme?.ComboBoxHoverBackColor ?? Color.Empty;
+                Color fillColor;
                 if (hoverColor != Color.Empty)
                 {
-                    var brush = PaintersFactory.GetSolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(hoverColor, 60));
-                    g.FillRectangle(brush, textAreaRect);
+                    fillColor = PathPainterHelpers.WithAlphaIfNotEmpty(hoverColor, 40);
                 }
+                else
+                {
+                    // Fallback: use a faint version of the foreground color
+                    fillColor = Color.FromArgb(18, _theme?.ForeColor ?? Color.Black);
+                }
+                var brush = PaintersFactory.GetSolidBrush(fillColor);
+                g.FillRectangle(brush, textAreaRect);
             }
         }
         
@@ -126,7 +183,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             string displayText = _helper.GetDisplayText();
             if (string.IsNullOrEmpty(displayText)) return;
             
-            Color textColor = _helper.GetTextColor();
+            // Use muted color for placeholder text, normal color for selected item text
+            Color textColor;
+            if (_helper.IsShowingPlaceholder())
+            {
+                Color placeholderColor = _theme?.TextBoxPlaceholderColor ?? Color.Empty;
+                if (placeholderColor != Color.Empty)
+                {
+                    textColor = placeholderColor;
+                }
+                else
+                {
+                    Color baseColor = _theme?.SecondaryColor ?? _theme?.ForeColor ?? Color.Gray;
+                    textColor = Color.FromArgb(128, baseColor.R, baseColor.G, baseColor.B);
+                }
+            }
+            else
+            {
+                textColor = _helper.GetTextColor();
+            }
+            
             Font textFont = _owner.TextFont ?? BeepThemesManager.ToFont(_theme?.LabelFont) ?? PaintersFactory.GetFont("Segoe UI", 9f, FontStyle.Regular);
             
             // Calculate text bounds with padding

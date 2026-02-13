@@ -916,20 +916,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             IsDarkTheme = false;
 
             // --- Buttons
-            // Shadcn style: clean, minimal buttons
-            ButtonBackColor = primary;
-            ButtonForeColor = C(255, 255, 255);  // White text
+            // Shadcn style: neutral default button, distinct from background/surface
+            ButtonBackColor = C(232, 232, 236);
+            ButtonForeColor = foreground;  // Theme text
             ButtonBorderColor = border;
             
-            // Hover: slightly darker
-            ButtonHoverBackColor = C(39, 39, 42);  // Darker gray
-            ButtonHoverForeColor = C(255, 255, 255);
-            ButtonHoverBorderColor = border;
+            // Hover: slightly darker neutral
+            ButtonHoverBackColor = C(220, 220, 226);
+            ButtonHoverForeColor = foreground;
+            ButtonHoverBorderColor = accent;
             
-            // Pressed: darker
-            ButtonPressedBackColor = C(63, 63, 70);
-            ButtonPressedForeColor = C(255, 255, 255);
-            ButtonPressedBorderColor = border;
+            // Pressed: strongest neutral
+            ButtonPressedBackColor = C(206, 206, 214);
+            ButtonPressedForeColor = foreground;
+            ButtonPressedBorderColor = accent;
 
             // Selected: accent color
             ButtonSelectedBackColor = accent;
@@ -1338,60 +1338,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             DialogNoButtonHoverFont = ButtonStyle;
             DialogOkButtonHoverFont = ButtonStyle;
 
-            DialogYesButtonBackColor = C(16, 32, 20);  // Dark green background
-            DialogYesButtonForeColor = neonGreen;  // Bright green text
-            DialogYesButtonHoverBackColor = C(20, 40, 25);
-            DialogYesButtonHoverForeColor = C(0, 255, 204);  // Even brighter
-            DialogYesButtonHoverBorderColor = lineGreen;
+                        DialogYesButtonBackColor = PrimaryColor;
+            DialogYesButtonForeColor = OnPrimaryColor;
+            DialogYesButtonHoverBackColor = ThemeUtil.Darken(PrimaryColor, 0.08);
+            DialogYesButtonHoverForeColor = OnPrimaryColor;
+            DialogYesButtonHoverBorderColor = ActiveBorderColor;
 
-            DialogCancelButtonBackColor = C(16, 16, 16);
-            DialogCancelButtonForeColor = softGreen;
-            DialogCancelButtonHoverBackColor = C(18, 18, 18);
-            DialogCancelButtonHoverForeColor = neonGreen;
-            DialogCancelButtonHoverBorderColor = lineGreen;
+            DialogCancelButtonBackColor = SecondaryColor;
+            DialogCancelButtonForeColor = ForeColor;
+            DialogCancelButtonHoverBackColor = ThemeUtil.Darken(SurfaceColor, 0.06);
+            DialogCancelButtonHoverForeColor = ForeColor;
+            DialogCancelButtonHoverBorderColor = BorderColor;
 
-            DialogCloseButtonBackColor = C(16, 16, 16);
-            DialogCloseButtonForeColor = softGreen;
-            DialogCloseButtonHoverBackColor = C(18, 18, 18);
-            DialogCloseButtonHoverForeColor = neonGreen;
-            DialogCloseButtonHoverBorderColor = lineGreen;
+            DialogCloseButtonBackColor = SecondaryColor;
+            DialogCloseButtonForeColor = ForeColor;
+            DialogCloseButtonHoverBackColor = ThemeUtil.Darken(SurfaceColor, 0.06);
+            DialogCloseButtonHoverForeColor = ForeColor;
+            DialogCloseButtonHoverBorderColor = BorderColor;
 
-            DialogHelpButtonBackColor = C(16, 16, 16);
-            DialogNoButtonBackColor = C(16, 16, 16);
-            DialogNoButtonForeColor = softGreen;
-            DialogNoButtonHoverBackColor = C(18, 18, 18);
-            DialogNoButtonHoverForeColor = neonGreen;
-            DialogNoButtonHoverBorderColor = lineGreen;
+            DialogHelpButtonBackColor = SecondaryColor;
+            DialogNoButtonBackColor = SecondaryColor;
+            DialogNoButtonForeColor = ForeColor;
+            DialogNoButtonHoverBackColor = ThemeUtil.Darken(SurfaceColor, 0.06);
+            DialogNoButtonHoverForeColor = ForeColor;
+            DialogNoButtonHoverBorderColor = BorderColor;
 
-            DialogOkButtonBackColor = C(16, 32, 20);  // Dark green background
-            DialogOkButtonForeColor = neonGreen;  // Bright green text
-            DialogOkButtonHoverBackColor = C(20, 40, 25);
-            DialogOkButtonHoverForeColor = C(0, 255, 204);  // Even brighter
-            DialogOkButtonHoverBorderColor = lineGreen;
+            DialogOkButtonBackColor = PrimaryColor;
+            DialogOkButtonForeColor = OnPrimaryColor;
+            DialogOkButtonHoverBackColor = ThemeUtil.Darken(PrimaryColor, 0.08);
+            DialogOkButtonHoverForeColor = OnPrimaryColor;
+            DialogOkButtonHoverBorderColor = ActiveBorderColor;
 
-            DialogWarningButtonBackColor = C(60, 60, 20);  // Dark yellow background
-            DialogWarningButtonForeColor = WarningColor;  // Bright yellow text
-            DialogWarningButtonHoverBackColor = C(70, 70, 25);
-            DialogWarningButtonHoverForeColor = C(255, 255, 120);  // Brighter yellow
-            DialogWarningButtonHoverBorderColor = C(180, 200, 120);  // Yellow-green border
+            DialogWarningButtonBackColor = WarningColor;
+            DialogWarningButtonForeColor = Color.White;
+            DialogWarningButtonHoverBackColor = ThemeUtil.Darken(WarningColor, 0.08);
+            DialogWarningButtonHoverForeColor = Color.White;
+            DialogWarningButtonHoverBorderColor = ActiveBorderColor;
 
-            DialogErrorButtonBackColor = C(60, 20, 20);  // Dark red background
-            DialogErrorButtonForeColor = ErrorColor;  // Bright red text
-            DialogErrorButtonHoverBackColor = C(70, 25, 25);
-            DialogErrorButtonHoverForeColor = C(255, 100, 100);  // Brighter red
-            DialogErrorButtonHoverBorderColor = C(180, 120, 120);  // Red-tinted green border
+            DialogErrorButtonBackColor = ErrorColor;
+            DialogErrorButtonForeColor = Color.White;
+            DialogErrorButtonHoverBackColor = ThemeUtil.Darken(ErrorColor, 0.08);
+            DialogErrorButtonHoverForeColor = Color.White;
+            DialogErrorButtonHoverBorderColor = ActiveBorderColor;
 
-            DialogInformationButtonBackColor = C(16, 32, 20);  // Dark green background
-            DialogInformationButtonForeColor = neonGreen;  // Bright green text
-            DialogInformationButtonHoverBackColor = C(20, 40, 25);
-            DialogInformationButtonHoverForeColor = C(0, 255, 204);
-            DialogInformationButtonHoverBorderColor = lineGreen;
+            DialogInformationButtonBackColor = PrimaryColor;
+            DialogInformationButtonForeColor = OnPrimaryColor;
+            DialogInformationButtonHoverBackColor = ThemeUtil.Darken(PrimaryColor, 0.08);
+            DialogInformationButtonHoverForeColor = OnPrimaryColor;
+            DialogInformationButtonHoverBorderColor = ActiveBorderColor;
 
-            DialogQuestionButtonBackColor = C(16, 32, 20);  // Dark green background
-            DialogQuestionButtonForeColor = neonGreen;  // Bright green text
-            DialogQuestionButtonHoverBackColor = C(20, 40, 25);
-            DialogQuestionButtonHoverForeColor = C(0, 255, 204);
-            DialogQuestionButtonHoverBorderColor = lineGreen;
+            DialogQuestionButtonBackColor = SecondaryColor;
+            DialogQuestionButtonForeColor = OnPrimaryColor;
+            DialogQuestionButtonHoverBackColor = ThemeUtil.Darken(SecondaryColor, 0.08);
+            DialogQuestionButtonHoverForeColor = OnPrimaryColor;
+            DialogQuestionButtonHoverBorderColor = ActiveBorderColor;
 
             // --- Tooltips / Markdown
             ToolTipBackColor = C(0, 0, 0);
@@ -1624,3 +1624,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+

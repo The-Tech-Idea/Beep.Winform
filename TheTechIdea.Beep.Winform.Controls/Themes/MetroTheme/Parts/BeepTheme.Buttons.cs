@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Metro buttons - Windows Metro design
             // Default: Light gray background with dark text
-            this.ButtonBackColor = SurfaceColor;
+            this.ButtonBackColor = Color.FromArgb(240, 240, 240);
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
             this.ButtonHoverBackColor = SecondaryColor;
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBackColor = PrimaryColor;
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
             this.ButtonSelectedHoverBorderColor = PrimaryColor;
-            this.ButtonPressedBackColor = SurfaceColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             this.ButtonErrorBackColor = ErrorColor;
@@ -33,3 +33,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

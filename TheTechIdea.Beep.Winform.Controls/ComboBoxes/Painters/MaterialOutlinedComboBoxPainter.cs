@@ -44,11 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (buttonRect.IsEmpty) return;
             
             // Material design doesn't use separator - just the icon
-            Color arrowColor = _owner.Focused 
-                ? (_theme?.PrimaryColor ?? Color.Empty)
-                : (_theme?.SecondaryColor ?? Color.Empty);
-            
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            // Use state-aware arrow coloring
+            DrawDropdownArrow(g, buttonRect, GetArrowColor());
         }
         
         private void DrawFloatingLabel(Graphics g, Rectangle rect, Color labelColor)

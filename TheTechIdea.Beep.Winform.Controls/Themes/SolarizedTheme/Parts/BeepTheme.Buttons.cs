@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Solarized buttons - scientifically crafted color palette
             // Default: Dark blue-green background with light beige text
-            this.ButtonBackColor = BackgroundColor;  // Dark blue-green
+            this.ButtonBackColor = Color.FromArgb(220, 212, 188); // Dark blue-green
             this.ButtonForeColor = ForeColor;  // Light beige text
             this.ButtonBorderColor = BorderColor;  // #586E75
             
             // Hover: Slightly lighter surface
-            this.ButtonHoverBackColor = SurfaceColor;  // #073642
+            this.ButtonHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.06);  // #073642
             this.ButtonHoverForeColor = SecondaryColor;  // Cyan
             this.ButtonHoverBorderColor = SecondaryColor;  // Cyan
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

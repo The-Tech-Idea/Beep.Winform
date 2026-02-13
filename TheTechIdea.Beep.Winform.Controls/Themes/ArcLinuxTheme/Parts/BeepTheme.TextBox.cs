@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.TextBoxSelectedBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
             this.TextBoxSelectedBackColor = SurfaceColor;
             this.TextBoxSelectedForeColor = ForeColor;
-            this.TextBoxPlaceholderColor = ThemeUtil.Lighten(ForeColor, 0.25); // keep readable on dark surface
+            this.TextBoxPlaceholderColor = ThemeUtil.Lighten(ForeColor, 0.6); // brighter for dark surface
             this.TextBoxErrorBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.25);
             this.TextBoxErrorBackColor = ErrorColor;
             this.TextBoxErrorForeColor = ForeColor;
@@ -31,3 +31,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+

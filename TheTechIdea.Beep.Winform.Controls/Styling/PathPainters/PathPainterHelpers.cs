@@ -277,6 +277,169 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
             return path;
         }
 
+        // ─────────────────────────────────────────────────────────────────
+        // Button-shape paths (from "Ultimate UI Cheat Sheet – Button Styles")
+        // Each method returns a SINGLE CLOSED FIGURE GraphicsPath that defines
+        // only the BORDER OUTLINE of the control. No fill, no composites.
+        // The painter is responsible for visual effects (shadow, inset, etc.).
+        // Every shape below is geometrically DISTINCT from the others:
+        //   01 Elevated  → smaller rect (room for shadow at bottom-right)
+        //   02 Inset     → smaller rect (gap for outer frame)
+        //   03 Outlined  → slightly inset rect (pen-centered for thick stroke)
+        //   04 Asymmetric→ flat left, rounded right corners
+        //   05 Standard  → normal rounded rect (use CreateRoundedRectangle)
+        //   06 Stadium   → 45% radius (clearly rounder than standard)
+        //   07 Pill      → half-height radius (use CreatePillPath)
+        //   08 Sharp     → 3px radius (almost rectangular)
+        //   10 AccentBar → narrower rect (space for bars on sides)
+        // ─────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Style 01 – Elevated Rounded.
+        /// Single closed rounded rect INSET from bounds, leaving space at
+        /// bottom-right for the painter to draw a drop shadow.
+        /// </summary>
+        public static GraphicsPath CreateElevatedPath(Rectangle bounds, int radius, int shadowPad = 4)
+        {
+            Rectangle btnRect = new Rectangle(
+                bounds.X, bounds.Y,
+                bounds.Width - shadowPad, bounds.Height - shadowPad);
+            return CreateRoundedRectangle(btnRect, radius);
+        }
+
+        /// <summary>
+        /// Style 02 – Inset / Double-Border Rounded.
+        /// Single closed rounded rect INSET from bounds by the gap thickness.
+        /// The painter draws the outer frame around this border path.
+        /// </summary>
+        public static GraphicsPath CreateInsetPath(Rectangle bounds, int radius, int insetGap = 3)
+        {
+            insetGap = Math.Max(1, insetGap);
+            Rectangle innerRect = Rectangle.Inflate(bounds, -insetGap, -insetGap);
+            int innerR = Math.Max(0, radius - insetGap);
+            return CreateRoundedRectangle(innerRect, innerR);
+        }
+
+        /// <summary>
+        /// Style 03 – Outlined Rounded.
+        /// Single closed rounded rect INSET by half the border width so that
+        /// a thick pen stroke stays within bounds.
+        /// </summary>
+        public static GraphicsPath CreateOutlinedPath(Rectangle bounds, int radius, int borderWidth = 2)
+        {
+            borderWidth = Math.Max(1, borderWidth);
+            int half = borderWidth / 2;
+            Rectangle insetRect = Rectangle.Inflate(bounds, -half, -half);
+            return CreateRoundedRectangle(insetRect, Math.Max(0, radius - half));
+        }
+
+        /// <summary>
+        /// Style 04 – Asymmetric Rounded.
+        /// Single closed path with per-corner rounding control.
+        /// Flat (square) on specified corners, rounded on others.
+        /// </summary>
+        public static GraphicsPath CreateAsymmetricRoundedPath(
+            Rectangle bounds, int radius,
+            bool roundTopLeft, bool roundTopRight,
+            bool roundBottomRight, bool roundBottomLeft)
+        {
+            GraphicsPath path = new GraphicsPath();
+            if (bounds.Width <= 0 || bounds.Height <= 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
+
+            int maxRadius = Math.Min(bounds.Width, bounds.Height) / 2;
+            int r = Math.Min(radius, maxRadius);
+            int d = r * 2; // diameter
+
+            // Top-left corner
+            if (roundTopLeft && r > 0)
+                path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
+            else
+                path.AddLine(bounds.X, bounds.Y, bounds.X, bounds.Y);
+
+            // Top-right corner
+            if (roundTopRight && r > 0)
+                path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
+            else
+                path.AddLine(bounds.Right, bounds.Y, bounds.Right, bounds.Y);
+
+            // Bottom-right corner
+            if (roundBottomRight && r > 0)
+                path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);
+            else
+                path.AddLine(bounds.Right, bounds.Bottom, bounds.Right, bounds.Bottom);
+
+            // Bottom-left corner
+            if (roundBottomLeft && r > 0)
+                path.AddArc(bounds.X, bounds.Bottom - d, d, d, 90, 90);
+            else
+                path.AddLine(bounds.X, bounds.Bottom, bounds.X, bounds.Bottom);
+
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Convenience: flat left edge, rounded right (Style 04 default).
+        /// </summary>
+        public static GraphicsPath CreateLeftFlatRoundedPath(Rectangle bounds, int radius)
+        {
+            return CreateAsymmetricRoundedPath(bounds, radius,
+                roundTopLeft: false, roundTopRight: true,
+                roundBottomRight: true, roundBottomLeft: false);
+        }
+
+        /// <summary>
+        /// Convenience: flat right edge, rounded left.
+        /// </summary>
+        public static GraphicsPath CreateRightFlatRoundedPath(Rectangle bounds, int radius)
+        {
+            return CreateAsymmetricRoundedPath(bounds, radius,
+                roundTopLeft: true, roundTopRight: false,
+                roundBottomRight: false, roundBottomLeft: true);
+        }
+
+        /// <summary>
+        /// Style 06 – Stadium.
+        /// Single closed rounded rect with radius = 45% of min dimension.
+        /// Clearly more rounded than standard, not quite a full pill.
+        /// </summary>
+        public static GraphicsPath CreateStadiumPath(Rectangle bounds)
+        {
+            int minDim = Math.Min(bounds.Width, bounds.Height);
+            int radius = (int)(minDim * 0.45f);
+            return CreateRoundedRectangle(bounds, radius);
+        }
+
+        /// <summary>
+        /// Style 08 – Sharp Rounded.
+        /// Single closed rect with very minimal rounding (3px).
+        /// Almost rectangular with just a hint of softness.
+        /// </summary>
+        public static GraphicsPath CreateSharpRoundedPath(Rectangle bounds)
+        {
+            return CreateRoundedRectangle(bounds, 3);
+        }
+
+        /// <summary>
+        /// Style 10 – Accent-Bar Decorated.
+        /// Single closed rounded rect NARROWER than bounds, leaving space
+        /// on left and right sides for the painter to draw accent bars.
+        /// </summary>
+        public static GraphicsPath CreateAccentBarBodyPath(
+            Rectangle bounds, int radius, int barWidth = 5, int gap = 2)
+        {
+            barWidth = Math.Max(2, barWidth);
+            int margin = barWidth + gap;
+            Rectangle bodyRect = new Rectangle(
+                bounds.X + margin, bounds.Y,
+                bounds.Width - margin * 2, bounds.Height);
+            return CreateRoundedRectangle(bodyRect, radius);
+        }
+
         /// <summary>
         /// Paints a solid filled path with state support
         /// </summary>

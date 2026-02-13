@@ -96,7 +96,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             string displayText = _helper.GetDisplayText();
             if (string.IsNullOrEmpty(displayText)) return;
             
-            Color textColor = _helper.GetTextColor();
+            // Use muted color for placeholder text, normal color for selected item text
+            Color textColor;
+            if (_helper.IsShowingPlaceholder())
+            {
+                Color placeholderColor = _theme?.TextBoxPlaceholderColor ?? Color.Empty;
+                if (placeholderColor != Color.Empty)
+                {
+                    textColor = placeholderColor;
+                }
+                else
+                {
+                    Color baseColor = _theme?.SecondaryColor ?? _theme?.ForeColor ?? Color.Gray;
+                    textColor = Color.FromArgb(128, baseColor.R, baseColor.G, baseColor.B);
+                }
+            }
+            else
+            {
+                textColor = _helper.GetTextColor();
+            }
+            
             Font textFont = _owner.TextFont;
             
             // Calculate text bounds with scaled padding
@@ -174,9 +193,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 Color hoverColor = _helper.GetButtonHoverColor();
                 var brush = PaintersFactory.GetSolidBrush(hoverColor);
                 int cornerRadius = Math.Max(0, _owner.BorderRadius / 2);
-                using (var path = CreateRoundedPath(buttonRect, cornerRadius)) ;
-            // Draw dropdown arrow icon
+                using (var path = CreateRoundedPath(buttonRect, cornerRadius))
+                {
+                    g.FillPath(brush, path);
+                }
             }
+
+            // Draw subtle separator line
+            int separatorMargin = _owner.ScaleLogicalY(6);
+            Color separatorColor = Color.FromArgb(100, _theme?.BorderColor ?? Color.Gray);
+            var sepPen = PaintersFactory.GetPen(separatorColor, 1f);
+            g.DrawLine(sepPen, buttonRect.Left, buttonRect.Top + separatorMargin,
+                       buttonRect.Left, buttonRect.Bottom - separatorMargin);
+
+            // Draw dropdown arrow icon
             DrawDropdownArrow(g, buttonRect);
         }
         
@@ -291,3 +321,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         #endregion
     }
 }
+
+
+

@@ -35,12 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
             
-            // No separator - completely borderless
-            Color arrowColor = _owner.Focused
-                ? (_theme?.PrimaryColor ?? Color.Empty)
-                : PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.SecondaryColor ?? Color.Empty, 180);
-            
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            // No separator - completely borderless -- use state-aware arrow coloring
+            DrawDropdownArrow(g, buttonRect, GetArrowColor());
         }
         
         public override System.Windows.Forms.Padding GetPreferredPadding()

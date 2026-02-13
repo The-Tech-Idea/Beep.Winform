@@ -50,8 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 return;
 
             // Ensure managers exist
-            if (_layout == null)
-                _layout = new BeepiFormProLayoutManager(this);
             if (_hits == null)
                 _hits = new BeepiFormProHitAreaManager(this);
             if (_interact == null)
@@ -69,30 +67,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Clear hit areas - painters will register their own hit areas
             _hits.Clear();
             
+            bool layoutSucceeded = false;
             try
             {
                 // Let the painter calculate layout and register all hit areas
                 // Painters are responsible for registering caption, buttons, etc.
                 ActivePainter.CalculateLayoutAndHitAreas(this);
+                layoutSucceeded = true;
             }
             catch
             {
-                // Swallow painter exceptions in design-time
+                // CRITICAL: If the painter throws, do NOT mark layout as clean.
+                // Keep _layoutDirty so the next EnsureLayoutCalculated() call retries.
+                // Otherwise hit areas remain empty and buttons (close, minimize, etc.) stop working.
             }
 
             // NOTE: Do NOT register caption hit area here - painters handle it themselves
             // Registering it twice causes hit test issues
 
-            // Update cache tracking
-            _lastLayoutSize = ClientSize;
-            _lastLayoutStyle = FormStyle;
-            _lastShowCaptionBar = ShowCaptionBar;
-            _lastShowCloseButton = ShowCloseButton;
-            _lastShowMinMaxButtons = ShowMinMaxButtons;
-            _lastShowThemeButton = ShowThemeButton;
-            _lastShowStyleButton = ShowStyleButton;
-            _lastShowCustomActionButton = ShowCustomActionButton;
-            _layoutDirty = false;
+            // Only update cache tracking if layout calculation succeeded
+            // If it failed, leave _layoutDirty true so we retry on next call
+            if (layoutSucceeded)
+            {
+                _lastLayoutSize = ClientSize;
+                _lastLayoutStyle = FormStyle;
+                _lastShowCaptionBar = ShowCaptionBar;
+                _lastShowCloseButton = ShowCloseButton;
+                _lastShowMinMaxButtons = ShowMinMaxButtons;
+                _lastShowThemeButton = ShowThemeButton;
+                _lastShowStyleButton = ShowStyleButton;
+                _lastShowCustomActionButton = ShowCustomActionButton;
+                _layoutDirty = false;
+            }
         }
 
         /// <summary>
@@ -140,24 +146,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         // Style properties
         private FormStyle _formstyle = FormStyle.Modern;
+        /// <summary>Guard that prevents cascading/re-entrant FormStyle applications
+        /// (e.g. when the global FormStyleChanged event fires while we are
+        /// already inside the setter).</summary>
+        private bool _isApplyingFormStyle = false;
+
         public FormStyle FormStyle
         {
             get => _formstyle;
             set
             {
-                if (_formstyle != value)
+                if (_formstyle != value && !_isApplyingFormStyle)
                 {
-                    _formstyle = value;
-                    // Dispose old managed region when style changes (corner radius may change)
-                    if (IsHandleCreated && Region != null)
+                    _isApplyingFormStyle = true;
+                    try
                     {
-                        var oldRegion = Region;
-                        Region = null;
-                        oldRegion.Dispose();
+                        _formstyle = value;
+                        // Dispose old managed region when style changes (corner radius may change)
+                        if (IsHandleCreated && Region != null)
+                        {
+                            var oldRegion = Region;
+                            Region = null;
+                            oldRegion.Dispose();
+                        }
+                        ApplyFormStyle(); // This calls UpdateWindowRegion() internally
+                        InvalidateLayout(); // Mark layout dirty - will recalculate on next paint
+                        DebouncedInvalidate();
                     }
-                    ApplyFormStyle(); // This calls UpdateWindowRegion() internally
-                    InvalidateLayout(); // Mark layout dirty - will recalculate on next paint
-                    DebouncedInvalidate();
+                    finally
+                    {
+                        _isApplyingFormStyle = false;
+                    }
                 }
             }
         }
@@ -195,7 +214,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private readonly List<FormRegion> _regions = new();
 
         // Managers
-        internal BeepiFormProLayoutManager _layout;
         internal BeepiFormProHitAreaManager _hits;
         internal BeepiFormProInteractionManager _interact;
 
@@ -689,10 +707,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
      
 
+        /// <summary>
+        /// Returns the current FormPainterMetrics for the active FormStyle and theme.
+        /// Used by built-in region OnPaint delegates so they always reflect the
+        /// current style instead of a stale closure captured at construction time.
+        /// </summary>
+        private FormPainterMetrics GetCurrentMetrics()
+            => FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+
         private void InitializeBuiltInRegions()
         {
-            // Icon region (left side of caption)
-            FormPainterMetrics pnt = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
             _iconRegion = new FormRegion
             {
                 Id = "system:icon",
@@ -717,8 +741,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     if (string.IsNullOrEmpty(Text) || r.Width <= 0 || r.Height <= 0) return;
 
-                    var fg = pnt.ForegroundColor;
-                    TextRenderer.DrawText(g, Text, Font, r, fg,
+                    var m = GetCurrentMetrics();
+                    TextRenderer.DrawText(g, Text, Font, r, m.ForegroundColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 }
             };
@@ -732,6 +756,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 OnPaint = (g, r) =>
                 {
                     if (!_showMinMaxButtons || r.Width <= 0 || r.Height <= 0) return;
+                    var m = GetCurrentMetrics();
                     bool isHover = _interact?.IsHovered(_hits?.GetHitArea("minimize")) ?? false;
                     FormPainterRenderHelper.DrawSystemButton(
                         g,
@@ -740,8 +765,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         isHover,
                         false,
                         Font,
-                        pnt.ForegroundColor,
-                        pnt.CaptionButtonHoverColor);
+                        m.ForegroundColor,
+                        m.CaptionButtonHoverColor);
                 }
             };
 
@@ -752,6 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 OnPaint = (g, r) =>
                 {
                     if (!_showMinMaxButtons || r.Width <= 0 || r.Height <= 0) return;
+                    var m = GetCurrentMetrics();
                     bool isHover = _interact?.IsHovered(_hits?.GetHitArea("maximize")) ?? false;
                     string symbol = WindowState == FormWindowState.Maximized ? "❐" : "□";
                     FormPainterRenderHelper.DrawSystemButton(
@@ -761,8 +787,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         isHover,
                         false,
                         Font,
-                        pnt.ForegroundColor,
-                        pnt.CaptionButtonHoverColor);
+                        m.ForegroundColor,
+                        m.CaptionButtonHoverColor);
                 }
             };
 
@@ -773,6 +799,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 OnPaint = (g, r) =>
                 {
                     if (!_showCloseButton || r.Width <= 0 || r.Height <= 0) return;
+                    var m = GetCurrentMetrics();
                     bool isHover = _interact?.IsHovered(_hits?.GetHitArea("close")) ?? false;
                     FormPainterRenderHelper.DrawSystemButton(
                         g,
@@ -781,8 +808,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         isHover,
                         true,
                         Font,
-                        pnt.ForegroundColor,
-                        pnt.CaptionButtonHoverColor,
+                        m.ForegroundColor,
+                        m.CaptionButtonHoverColor,
                         Color.FromArgb(232, 17, 35));
                 }
             };
@@ -795,17 +822,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 OnPaint = (g, r) =>
                 {
                     if (!_showCustomActionButton || r.Width <= 0 || r.Height <= 0) return;
-                   
-                     var isHovered = _interact?.IsHovered(_hits?.GetHitArea("customAction")) ?? false;
+                    var m = GetCurrentMetrics();
+
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("customAction")) ?? false;
                     var isPressed = _interact?.IsPressed(_hits?.GetHitArea("customAction")) ?? false;
                     
                     // Hover/press indicator: circle outline around the icon
-                    var hoverColor = isPressed ? pnt.CaptionButtonPressedColor : pnt.CaptionButtonHoverColor;
+                    var hoverColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
                     if (isHovered || isPressed)
                         FormPainterRenderHelper.DrawHoverOutlineCircle(g, r, hoverColor, isPressed ? 3 : 2, 6);
 
                     // Draw icon (⚙ gear/settings icon)
-                    var fg = pnt.ForegroundColor;
+                    var fg = m.ForegroundColor;
                     using var font = new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
                     TextRenderer.DrawText(g, "⚙", font, r, fg,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -820,17 +848,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 OnPaint = (g, r) =>
                 {
                     if (r.Width <= 0 || r.Height <= 0 || !_showThemeButton) return;
-                   
+                    var m = GetCurrentMetrics();
+
                     var isHovered = _interact?.IsHovered(_hits?.GetHitArea("theme")) ?? false;
                     var isPressed = _interact?.IsPressed(_hits?.GetHitArea("theme")) ?? false;
                     
                     // Hover/press indicator: circle outline
-                    var hoverColor = isPressed ? pnt.CaptionButtonPressedColor : pnt.CaptionButtonHoverColor;
+                    var hoverColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
                     if (isHovered || isPressed)
                         FormPainterRenderHelper.DrawHoverOutlineCircle(g, r, hoverColor, isPressed ? 3 : 2, 6);
 
                     // Draw icon (🎨 palette icon)
-                    var fg = pnt.ForegroundColor;
+                    var fg = m.ForegroundColor;
                     using var font = new Font("Segoe UI Emoji", Font.Size, FontStyle.Regular);
                     TextRenderer.DrawText(g, "🎨", font, r, fg,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -845,17 +874,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 OnPaint = (g, r) =>
                 {
                     if (r.Width <= 0 || r.Height <= 0 || !_showStyleButton) return;
-                   
+                    var m = GetCurrentMetrics();
+
                     var isHovered = _interact?.IsHovered(_hits?.GetHitArea("Style")) ?? false;
                     var isPressed = _interact?.IsPressed(_hits?.GetHitArea("Style")) ?? false;
                     
                     // Hover/press indicator: circle outline
-                    var hoverColor = isPressed ? pnt.CaptionButtonPressedColor : pnt.CaptionButtonHoverColor;
+                    var hoverColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
                     if (isHovered || isPressed)
                         FormPainterRenderHelper.DrawHoverOutlineCircle(g, r, hoverColor, isPressed ? 3 : 2, 6);
 
                     // Draw icon (◧ layout/Style icon)
-                    var fg = pnt.ForegroundColor;
+                    var fg = m.ForegroundColor;
                     using var font = new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
                     TextRenderer.DrawText(g, "◧", font, r, fg,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -1022,38 +1052,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             switch (key)
             {
                 case "region:system:minimize":
+                    if (!ShowMinMaxButtons) return;
                     WindowState = FormWindowState.Minimized;
                     break;
 
                 case "region:system:maximize":
+                    if (!ShowMinMaxButtons) return;
                     WindowState = WindowState == FormWindowState.Maximized
                         ? FormWindowState.Normal
                         : FormWindowState.Maximized;
                     break;
 
                 case "region:system:close":
+                    if (!ShowCloseButton) return;
                     // Defer close to avoid reentrancy during mouse event processing
                     BeginInvoke(new Action(() => Close()));
                     break;
 
                 case "region:custom:action":
+                    if (!ShowCustomActionButton) return;
                     // Custom action button clicked - override or subscribe to event
                     OnCustomActionClicked();
                     break;
 
                 case "region:system:theme":
+                    if (!ShowThemeButton) return;
                     // MenuStyle button clicked
                     ThemeButtonClicked?.Invoke(this, EventArgs.Empty);
                     ShowThemeMenu();
                     break;
 
                 case "region:system:Style":
+                    if (!ShowStyleButton) return;
                     // Style button clicked
                     StyleButtonClicked?.Invoke(this, EventArgs.Empty);
                     ShowFormStyleMenu();
                     break;
 
                 case "region:system:search":
+                    if (!ShowSearchBox) return;
                     // Search box clicked - focus it
                     _searchBoxFocused = true;
                     Focus(); // Focus the form to receive keyboard input
@@ -1086,17 +1123,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     var item = new ToolStripMenuItem(style.ToString());
                     item.Click += (s, e) =>
                     {
-                        // Defer theme change to avoid repaints during menu interaction
-                        //BeginInvoke(new Action(() =>
-                        //{
+                        // Only go through the global manager – it fires FormStyleChanged
+                        // which ApplyGlobalThemeAndStyle handles (sets FormStyle, Theme,
+                        // InvalidateLayout, PerformLayout, Invalidate).
+                        // Do NOT also set FormStyle directly – that causes a cascading
+                        // triple-application that corrupts hit areas and breaks buttons.
                         try
                         {
-
-                            FormStyle = style;
                             BeepThemesManager.SetCurrentStyle(style);
                         }
                         catch { }
-
                     };
                     menu.Items.Add(item);
                 }

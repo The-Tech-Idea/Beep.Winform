@@ -34,13 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
         }
         
-        protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
-        {
-            if (buttonRect.IsEmpty) return;
-            Color arrowColor = _theme?.SecondaryColor ?? Color.Gray;
-            DrawDropdownArrow(g, buttonRect, arrowColor);
-        }
-        
         private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             var path = new GraphicsPath();
@@ -67,20 +60,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
         
-        protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
-        {
-            if (buttonRect.IsEmpty) return;
-            Color arrowColor = Color.FromArgb(200, 200, 200);
-            DrawDropdownArrow(g, buttonRect, arrowColor);
-        }
-        
         protected override void DrawText(Graphics g, Rectangle textAreaRect)
         {
             if (textAreaRect.IsEmpty) return;
             string displayText = _helper.GetDisplayText();
             if (string.IsNullOrEmpty(displayText)) return;
             
-            Color textColor = Color.White;
+            // Use muted color for placeholder text
+            Color textColor;
+            if (_helper.IsShowingPlaceholder())
+            {
+                textColor = Color.FromArgb(128, 200, 200, 200);
+            }
+            else
+            {
+                textColor = Color.White;
+            }
             System.Windows.Forms.TextRenderer.DrawText(g, displayText, _owner.TextFont, 
                 textAreaRect, textColor, 
                 System.Windows.Forms.TextFormatFlags.Left | 
@@ -108,12 +103,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
         }
         
-        protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
-        {
-            if (buttonRect.IsEmpty) return;
-            Color arrowColor = _theme?.SecondaryColor ?? Color.Empty;
-            DrawDropdownArrow(g, buttonRect, arrowColor);
-        }
+        // No separator for pill shape - cleaner look
+        protected override bool ShowButtonSeparator => false;
         
         private GraphicsPath GetPillPath(Rectangle rect)
         {

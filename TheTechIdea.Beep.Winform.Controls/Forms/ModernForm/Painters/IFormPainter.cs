@@ -137,20 +137,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     }
 
     /// <summary>
+    /// Single authoritative layout class for BeepiFormPro.
+    /// Painters create an instance in CalculateLayoutAndHitAreas and assign it
+    /// to owner.CurrentLayout. All form code reads from CurrentLayout.
+    /// </summary>
     public class PainterLayoutInfo
     {
+        // Main layout areas
         public Rectangle CaptionRect { get; set; }
         public Rectangle ContentRect { get; set; }
+        public Rectangle BottomRect { get; set; }
+        public Rectangle LeftRect { get; set; }
+        public Rectangle RightRect { get; set; }
+
+        // Caption zones (for flexible alignment within the caption bar)
+        public Rectangle LeftZoneRect { get; set; }
+        public Rectangle CenterZoneRect { get; set; }
+        public Rectangle RightZoneRect { get; set; }
+
+        // Caption element rects
         public Rectangle IconRect { get; set; }
         public Rectangle TitleRect { get; set; }
+
+        // System button rects
         public Rectangle MinimizeButtonRect { get; set; }
         public Rectangle MaximizeButtonRect { get; set; }
         public Rectangle CloseButtonRect { get; set; }
+
+        // Toolbar / action button rects
         public Rectangle ThemeButtonRect { get; set; }
         public Rectangle StyleButtonRect { get; set; }
         public Rectangle CustomActionButtonRect { get; set; }
         public Rectangle ProfileButtonRect { get; set; }
+        public Rectangle MailButtonRect { get; set; }
         public Rectangle SearchBoxRect { get; set; }
-        // Add more rectangles as needed for specific painter styles
     }
 }

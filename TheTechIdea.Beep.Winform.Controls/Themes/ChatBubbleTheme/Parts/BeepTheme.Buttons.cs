@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // ChatBubble buttons - soft blue theme
             // Default: Cyan background with black text
-            this.ButtonBackColor = SurfaceColor;  // Light cyan/white surface
+            this.ButtonBackColor = PanelGradiantStartColor; // Light cyan/white surface
             this.ButtonForeColor = ForeColor;  // Black
             this.ButtonBorderColor = BorderColor;  // Light gray
             
@@ -23,16 +23,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             
             // Selected: Medium blue
             this.ButtonSelectedBackColor = PrimaryColor;
-            this.ButtonSelectedForeColor = ForeColor;
+            this.ButtonSelectedForeColor = OnPrimaryColor;
             this.ButtonSelectedBorderColor = ActiveBorderColor;
             
             // Selected hover: Darker blue
             this.ButtonSelectedHoverBackColor = PrimaryColor;
-            this.ButtonSelectedHoverForeColor = ForeColor;
+            this.ButtonSelectedHoverForeColor = OnPrimaryColor;
             this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
             
             // Pressed: Lighter
-            this.ButtonPressedBackColor = BackgroundColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(BackgroundColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+

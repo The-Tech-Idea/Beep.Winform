@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // GNOME buttons - clean modern aesthetic
             // Default: White background with dark text
-            this.ButtonBackColor = SurfaceColor;  // White
+            this.ButtonBackColor = Color.FromArgb(228, 228, 228); // White
             this.ButtonForeColor = ForeColor;  // Dark gray
             this.ButtonBorderColor = BorderColor;  // Light gray
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
             
             // Pressed: Lighter
-            this.ButtonPressedBackColor = BackgroundColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(BackgroundColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+

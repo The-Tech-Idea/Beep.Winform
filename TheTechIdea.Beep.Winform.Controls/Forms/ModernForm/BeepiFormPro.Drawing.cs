@@ -332,10 +332,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             
             // Skip interaction in design mode or if control is disposed
             if (InDesignMode || IsDisposed || !IsHandleCreated) return;
-            
+
+            // Ensure layout is fresh before checking ContentRect
+            try { EnsureLayoutCalculated(); } catch { }
+
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
-            if (!_layout.ContentRect.Contains(pos))
+            if (!CurrentLayout.ContentRect.Contains(pos))
             {
                 _interact.OnMouseMove(pos);
             }
@@ -345,6 +348,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnMouseDown(e);
             
+            // Skip interaction in design mode or if control is disposed
+            if (InDesignMode || IsDisposed || !IsHandleCreated) return;
+
+            // Ensure layout is fresh before checking ContentRect
+            try { EnsureLayoutCalculated(); } catch { }
+
             // Handle search box unfocus when clicking outside
             if (ShowSearchBox && _searchBoxFocused)
             {
@@ -355,13 +364,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     Invalidate(CurrentLayout.SearchBoxRect);
                 }
             }
-            
-            // Skip interaction in design mode or if control is disposed
-            if (InDesignMode || IsDisposed || !IsHandleCreated) return;
-            
+
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
-            if (!_layout.ContentRect.Contains(pos))
+            if (!CurrentLayout.ContentRect.Contains(pos))
             {
                 _interact.OnMouseDown(pos);
             }
@@ -375,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
-            if (!_layout.ContentRect.Contains(pos))
+            if (!CurrentLayout.ContentRect.Contains(pos))
             {
                 _interact.OnMouseHover(pos);
             }
@@ -386,10 +392,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             
             // Skip interaction in design mode or if control is disposed
             if (InDesignMode || IsDisposed || !IsHandleCreated) return;
-            
+
+            // Ensure layout is fresh before checking ContentRect
+            try { EnsureLayoutCalculated(); } catch { }
+
             // Only handle mouse events outside the content rect
             var pos = PointToClient(Cursor.Position);
-            if (!_layout.ContentRect.Contains(pos))
+            if (!CurrentLayout.ContentRect.Contains(pos))
             {
                 _interact.OnMouseUp(pos);
             }

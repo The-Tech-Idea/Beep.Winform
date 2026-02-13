@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // GruvBox buttons - warm retro colors
             // Default: Dark background with beige text
-            this.ButtonBackColor = SurfaceColor;
+            this.ButtonBackColor = Color.FromArgb(78, 72, 64);
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
             this.ButtonHoverBackColor = SecondaryColor;
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBackColor = PrimaryColor;
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
             this.ButtonSelectedHoverBorderColor = AccentColor;
-            this.ButtonPressedBackColor = SurfaceColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(SurfaceColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             this.ButtonErrorBackColor = ErrorColor;
@@ -33,3 +33,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+

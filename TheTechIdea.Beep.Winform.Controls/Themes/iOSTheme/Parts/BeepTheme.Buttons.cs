@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // iOS buttons - clean, modern aesthetic
             // Default: Light gray background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light gray
+            this.ButtonBackColor = Color.FromArgb(230, 230, 235); // Light gray
             this.ButtonForeColor = ForeColor;  // Dark gray
             this.ButtonBorderColor = BorderColor;  // Medium gray
             
@@ -43,3 +43,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+

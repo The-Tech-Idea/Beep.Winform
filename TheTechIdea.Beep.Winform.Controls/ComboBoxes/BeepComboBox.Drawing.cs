@@ -10,10 +10,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Drawing
         
         /// <summary>
-        /// DrawContent override - called by BaseControl
+        /// DrawContent override - called by BaseControl.
+        /// First calls base to let ClassicBaseControlPainter draw border/background/shadow,
+        /// then paints the ComboBox-specific content inside DrawingRect.
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
+            // Let BaseControl's ClassicBaseControlPainter draw border, background, shadow
+            base.DrawContent(g);
+            
+            // Now paint ComboBox content (text, dropdown button, etc.) inside the DrawingRect
             Paint(g, DrawingRect);
         }
 

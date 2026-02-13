@@ -17,18 +17,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.DialogYesButtonHoverBackColor = PrimaryColor;
             this.DialogYesButtonHoverForeColor = OnPrimaryColor;
             this.DialogYesButtonHoverBorderColor = ActiveBorderColor;
-            this.DialogCancelButtonBackColor = SurfaceColor;
+            this.DialogCancelButtonBackColor = SecondaryColor;
             this.DialogCancelButtonForeColor = ForeColor;
             this.DialogCancelButtonHoverBackColor = SurfaceColor;
             this.DialogCancelButtonHoverForeColor = ForeColor;
             this.DialogCancelButtonHoverBorderColor = ActiveBorderColor;
-            this.DialogCloseButtonBackColor = SurfaceColor;
+            this.DialogCloseButtonBackColor = SecondaryColor;
             this.DialogCloseButtonForeColor = ForeColor;
             this.DialogCloseButtonHoverBackColor = SurfaceColor;
             this.DialogCloseButtonHoverForeColor = ForeColor;
             this.DialogCloseButtonHoverBorderColor = ActiveBorderColor;
-            this.DialogHelpButtonBackColor = SurfaceColor;
-            this.DialogNoButtonBackColor = SurfaceColor;
+            this.DialogHelpButtonBackColor = SecondaryColor;
+            this.DialogNoButtonBackColor = SecondaryColor;
             this.DialogNoButtonForeColor = ForeColor;
             this.DialogNoButtonHoverBackColor = SurfaceColor;
             this.DialogNoButtonHoverForeColor = ForeColor;
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.DialogInformationButtonHoverBackColor = PrimaryColor;
             this.DialogInformationButtonHoverForeColor = OnPrimaryColor;
             this.DialogInformationButtonHoverBorderColor = ActiveBorderColor;
-            this.DialogQuestionButtonBackColor = SurfaceColor;
+            this.DialogQuestionButtonBackColor = PrimaryColor;
             this.DialogQuestionButtonForeColor = ForeColor;
             this.DialogQuestionButtonHoverBackColor = SurfaceColor;
             this.DialogQuestionButtonHoverForeColor = ForeColor;
@@ -61,3 +61,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+

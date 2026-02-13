@@ -106,8 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             // 4. Create BorderShape (Layer 1)
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
-                // Use Style-specific shape (e.g., Pill, ChatBubble, etc.)
-                _borderPath = BeepStyling.CreateControlStylePath(borderRect, owner.ControlStyle);
+                // Use Style-specific shape, with optional ShapeType override (e.g., Pill, Stadium, Elevated, etc.)
+                _borderPath = BeepStyling.CreateControlStylePath(borderRect, owner.ControlStyle, owner.ShapeType);
+            }
+            else if (owner.ShapeType != BeepButtonShapeType.Default)
+            {
+                // ShapeType is set but UseFormStylePaint is off – still honor the shape override
+                _borderPath = BeepStyling.CreateControlStylePath(borderRect, owner.ControlStyle, owner.ShapeType);
             }
             else
             {

@@ -43,9 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             // No separator for rounded Style - cleaner look
             
-            // Draw arrow
-            Color arrowColor = _theme?.SecondaryColor ?? Color.Gray;
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            // Draw arrow with state-aware coloring
+            DrawDropdownArrow(g, buttonRect, GetArrowColor());
         }
         
         private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)

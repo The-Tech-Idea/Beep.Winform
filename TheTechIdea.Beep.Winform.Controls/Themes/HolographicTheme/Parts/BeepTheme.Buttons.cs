@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Holographic buttons - futuristic with neon accents
             // Default: Dark purple background with light purple text
-            this.ButtonBackColor = BackgroundColor;  // Very dark purple
+            this.ButtonBackColor = Color.FromArgb(58, 46, 86); // Very dark purple
             this.ButtonForeColor = ForeColor;  // Light purple
             this.ButtonBorderColor = BorderColor;  // Purple glow (#8A6FFF)
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = SecondaryColor;
             
             // Pressed: Darker
-            this.ButtonPressedBackColor = BackgroundColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(BackgroundColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

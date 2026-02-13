@@ -12,23 +12,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             this.DialogBackColor = PanelBackColor;
             this.DialogForeColor = ForeColor;
-            this.DialogYesButtonBackColor = PanelBackColor;
+            this.DialogYesButtonBackColor = PrimaryColor;
             this.DialogYesButtonForeColor = ForeColor;
             this.DialogYesButtonHoverBackColor = PanelGradiantMiddleColor;
             this.DialogYesButtonHoverForeColor = ForeColor;
             this.DialogYesButtonHoverBorderColor = BorderColor;
-            this.DialogCancelButtonBackColor = PanelBackColor;
+            this.DialogCancelButtonBackColor = SecondaryColor;
             this.DialogCancelButtonForeColor = ForeColor;
             this.DialogCancelButtonHoverBackColor = PanelGradiantMiddleColor;
             this.DialogCancelButtonHoverForeColor = ForeColor;
             this.DialogCancelButtonHoverBorderColor = BorderColor;
-            this.DialogCloseButtonBackColor = PanelBackColor;
+            this.DialogCloseButtonBackColor = SecondaryColor;
             this.DialogCloseButtonForeColor = ForeColor;
             this.DialogCloseButtonHoverBackColor = PanelGradiantMiddleColor;
             this.DialogCloseButtonHoverForeColor = ForeColor;
             this.DialogCloseButtonHoverBorderColor = BorderColor;
-            this.DialogHelpButtonBackColor = PanelBackColor;
-            this.DialogNoButtonBackColor = PanelBackColor;
+            this.DialogHelpButtonBackColor = SecondaryColor;
+            this.DialogNoButtonBackColor = SecondaryColor;
             this.DialogNoButtonForeColor = ForeColor;
             this.DialogNoButtonHoverBackColor = PanelGradiantMiddleColor;
             this.DialogNoButtonHoverForeColor = ForeColor;
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.DialogInformationButtonHoverBackColor = PanelGradiantMiddleColor;
             this.DialogInformationButtonHoverForeColor = ForeColor;
             this.DialogInformationButtonHoverBorderColor = ActiveBorderColor;
-            this.DialogQuestionButtonBackColor = PanelBackColor;
+            this.DialogQuestionButtonBackColor = PrimaryColor;
             this.DialogQuestionButtonForeColor = ForeColor;
             this.DialogQuestionButtonHoverBackColor = PanelGradiantMiddleColor;
             this.DialogQuestionButtonHoverForeColor = ForeColor;

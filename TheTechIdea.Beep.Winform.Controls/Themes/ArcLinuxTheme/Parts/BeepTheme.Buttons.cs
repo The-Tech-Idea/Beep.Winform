@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBackColor = ThemeUtil.Lighten(SurfaceColor, 0.08);
             this.ButtonSelectedHoverForeColor = ForeColor;
             this.ButtonSelectedHoverBorderColor = ActiveBorderColor;
-            this.ButtonBackColor = SurfaceColor;
+            this.ButtonBackColor = Color.FromArgb(76, 82, 98);
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = ThemeUtil.Lighten(BackgroundColor, 0.2);
             this.ButtonErrorBackColor = ErrorColor;
@@ -31,3 +31,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

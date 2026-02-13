@@ -81,7 +81,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             UpdateStyles();
 
-            _layout = new BeepiFormProLayoutManager(this);
             _hits = new BeepiFormProHitAreaManager(this);
             _interact = new BeepiFormProInteractionManager(this, _hits);
 
@@ -258,48 +257,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
-        protected override void OnDpiChanged(DpiChangedEventArgs e)
-        {
-            DpiScalingHelper.GetScalesFromDpiChangedEvent(
-                e,
-                _dpiScaleX,
-                _dpiScaleY,
-                out var oldScaleX,
-                out var oldScaleY,
-                out var newScaleX,
-                out var newScaleY);
+        //protected override void OnDpiChanged(DpiChangedEventArgs e)
+        //{
+        //    DpiScalingHelper.GetScalesFromDpiChangedEvent(
+        //        e,
+        //        _dpiScaleX,
+        //        _dpiScaleY,
+        //        out var oldScaleX,
+        //        out var oldScaleY,
+        //        out var newScaleX,
+        //        out var newScaleY);
 
-            base.OnDpiChanged(e);
+        //    base.OnDpiChanged(e);
 
-            _dpiScaleX = newScaleX;
-            _dpiScaleY = newScaleY;
+        //    _dpiScaleX = newScaleX;
+        //    _dpiScaleY = newScaleY;
 
-            if (!DpiScalingHelper.AreScaleFactorsEqual(oldScaleX, newScaleX) ||
-                !DpiScalingHelper.AreScaleFactorsEqual(oldScaleY, newScaleY))
-            {
-                // Preserve Dock/Anchor behavior: only non-auto controls are manually scaled.
-                DpiScalingHelper.ScaleControlTreeForDpiChange(
-                    this,
-                    oldScaleX,
-                    oldScaleY,
-                    newScaleX,
-                    newScaleY,
-                    scaleFont: false);
-                PropagateDpiChangeToChildren();
-            }
+        //    if (!DpiScalingHelper.AreScaleFactorsEqual(oldScaleX, newScaleX) ||
+        //        !DpiScalingHelper.AreScaleFactorsEqual(oldScaleY, newScaleY))
+        //    {
+        //        // Preserve Dock/Anchor behavior: only non-auto controls are manually scaled.
+        //        DpiScalingHelper.ScaleControlTreeForDpiChange(
+        //            this,
+        //            oldScaleX,
+        //            oldScaleY,
+        //            newScaleX,
+        //            newScaleY,
+        //            scaleFont: false);
+        //        PropagateDpiChangeToChildren();
+        //    }
 
-            // Clear painter caches that may depend on DPI (brushes, pens, rasters, paths)
-            try { PaintersFactory.ClearCache(); } catch { }
+        //    // Clear painter caches that may depend on DPI (brushes, pens, rasters, paths)
+        //    try { PaintersFactory.ClearCache(); } catch { }
 
-            // Mark layout dirty - will be recalculated on next paint
-            InvalidateLayout();
+        //    // Mark layout dirty - will be recalculated on next paint
+        //    InvalidateLayout();
 
-            // Update window region for new DPI
-            UpdateWindowRegion();
+        //    // Update window region for new DPI
+        //    UpdateWindowRegion();
 
-            PerformLayout();
-            Invalidate(true);
-        }
+        //    PerformLayout();
+        //    Invalidate(true);
+        //}
 
         private void PropagateDpiChangeToChildren()
         {

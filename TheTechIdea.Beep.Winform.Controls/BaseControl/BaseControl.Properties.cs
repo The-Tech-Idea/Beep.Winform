@@ -1179,6 +1179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_controlstyle != value)
                 {
+                    var oldStyle = _controlstyle; // capture old style for delta-based resize
                     _controlstyle = value;
 
                     // CRITICAL: Synchronize BorderPainter with ControlStyle
@@ -1197,10 +1198,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     // Auto-resize to compensate chrome when style-based painting is used
                     try
                     {
-                        //if (UseFormStylePaint && !IsDisposed)
-                        //{
-                        //    AdjustSizeForControlStyle();
-                        //}
+                        if (UseFormStylePaint && !IsDisposed)
+                        {
+                            AdjustSizeForControlStyle(oldStyle, value);
+                        }
                     }
                     catch { /* design-time safe */ }
                     
@@ -1210,6 +1211,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
             }
         }
+        private BeepButtonShapeType _shapeType = BeepButtonShapeType.Default;
+        /// <summary>
+        /// Overrides the geometric shape of the control path, independent of
+        /// <see cref="ControlStyle"/>. When set to <see cref="BeepButtonShapeType.Default"/>,
+        /// the shape is determined by the current <see cref="ControlStyle"/>.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Override the control's geometric shape (Pill, Stadium, Elevated, etc.). Default = shape from ControlStyle.")]
+        [DefaultValue(BeepButtonShapeType.Default)]
+        public BeepButtonShapeType ShapeType
+        {
+            get => _shapeType;
+            set
+            {
+                if (_shapeType != value)
+                {
+                    _shapeType = value;
+                    Invalidate();
+                }
+            }
+        }
+
         private bool _useThemeColors = true;
         [Browsable(true)]
         [Category("Appearance")]
@@ -1233,51 +1257,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     public partial class BaseControl
     {
         /// <summary>
-        /// Adjust overall Size so that current content area stays the same while
-        /// borders and shadows for the current ControlStyle fit around it.
-        /// Ex: developer sets 40x20; final height becomes 20 + (borderWidth + shadowWidth) * 2.
+        /// Delta-based resize: computes the chrome (shadow + border) for old and new styles,
+        /// then grows or shrinks the control by the difference so the content area stays the same.
         /// </summary>
-        private void AdjustSizeForControlStyle()
+        private void AdjustSizeForControlStyle(BeepControlStyle oldStyle, BeepControlStyle newStyle)
         {
             // Do nothing if style-based painting is not used
             if (!UseFormStylePaint)
                 return;
 
-            // Treat current Width/Height as content size when using style painters
-            int contentW = Math.Max(0, this.Width);
-            int contentH = Math.Max(0, this.Height);
+            int oldChrome = CalculateStyleChrome(oldStyle);
+            int newChrome = CalculateStyleChrome(newStyle);
+            int delta = newChrome - oldChrome;
 
-            // Use style-defined border/shadow where available; fall back to control props
-            float styleBorder = StyleBorders.GetBorderWidth(_controlstyle);
-            int border = (int)Math.Ceiling(styleBorder);
+            if (delta == 0) return;
 
-            int shadow = 0;
-            if (StyleShadows.HasShadow(_controlstyle))
-            {
-                // Use blur as an upper-bound thickness contribution
-                shadow = Math.Max(0, StyleShadows.GetShadowBlur(_controlstyle) / 2);
-            }
-
-            // Total chrome on each side (border+shadow)
-            int chrome = border + shadow;
-
-            // Include Padding as well to keep content area intact
-            var pad = this.Padding;
-            int padW = pad.Horizontal;
-            int padH = pad.Vertical;
-
-            int totalW = contentW + (chrome * 2) + padW;
-            int totalH = contentH + (chrome * 2) + padH;
-
-            // Apply minimums to avoid collapsing
-            totalW = Math.Max(16 + padW, totalW);
-            totalH = Math.Max(16 + padH, totalH);
+            int newW = Math.Max(16, Width + delta);
+            int newH = Math.Max(16, Height + delta);
 
             // Only set when different to avoid layout churn
-            if (this.Size.Width != totalW || this.Size.Height != totalH)
+            if (Width != newW || Height != newH)
             {
-                this.Size = new Size(totalW, totalH);
+                Size = new Size(newW, newH);
             }
+        }
+
+        /// <summary>
+        /// Calculates the total chrome (non-content overhead) for a given control style.
+        /// Chrome = (shadow margin + border thickness) on each side, doubled for both sides.
+        /// </summary>
+        private static int CalculateStyleChrome(BeepControlStyle style)
+        {
+            int border = (int)Math.Ceiling(StyleBorders.GetBorderWidth(style));
+
+            int shadow = 0;
+            if (StyleShadows.HasShadow(style))
+            {
+                int blur = StyleShadows.GetShadowBlur(style);
+                int offX = Math.Abs(StyleShadows.GetShadowOffsetX(style));
+                int offY = Math.Abs(StyleShadows.GetShadowOffsetY(style));
+                shadow = Math.Max(blur, Math.Max(offX, offY));
+            }
+
+            // Total chrome = (shadow + border) per side, doubled for both sides
+            return (shadow + border) * 2;
         }
     }
 }

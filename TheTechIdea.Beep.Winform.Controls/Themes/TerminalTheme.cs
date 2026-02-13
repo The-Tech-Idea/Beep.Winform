@@ -910,22 +910,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
             // --- Buttons
             // Terminal style: dark background with bright green text
-            ButtonBackColor = C(16, 16, 16);  // Dark background
+            ButtonBackColor = C(18, 42, 24);  // Terminal green-tinted key surface
             ButtonForeColor = softGreen;  // Bright green text
             ButtonBorderColor = lineGreen;
             
             // Hover: slightly lighter background with neon green text
-            ButtonHoverBackColor = C(20, 40, 25);  // Dark green tint
+            ButtonHoverBackColor = C(22, 52, 30);  // Brighter green tint
             ButtonHoverForeColor = neonGreen;  // Bright neon green text
             ButtonHoverBorderColor = lineGreen;
             
             // Pressed: darker background with bright text
-            ButtonPressedBackColor = C(10, 25, 15);
+            ButtonPressedBackColor = C(14, 34, 20);
             ButtonPressedForeColor = neonGreen;
             ButtonPressedBorderColor = lineGreen;
 
             // Selected: darker background with neon green text for clear contrast
-            ButtonSelectedBackColor = C(10, 30, 15);  // Dark green
+            ButtonSelectedBackColor = C(24, 56, 32);  // Active green-tinted state
             ButtonSelectedForeColor = neonGreen;  // Bright neon green text
             ButtonSelectedBorderColor = lineGreen;
             
@@ -1033,7 +1033,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             ComboBoxBackColor = BackgroundColor;
             ComboBoxForeColor = softGreen;
             ComboBoxBorderColor = lineGreen;
-            ComboBoxHoverBackColor = BackgroundColor;
+            ComboBoxHoverBackColor = C(16, 32, 20);
             ComboBoxHoverForeColor = neonGreen;
             ComboBoxHoverBorderColor = lineGreen;
             ComboBoxSelectedBackColor = C(16, 32, 20);
@@ -1609,3 +1609,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+

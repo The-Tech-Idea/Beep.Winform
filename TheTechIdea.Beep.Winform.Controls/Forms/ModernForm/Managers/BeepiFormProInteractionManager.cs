@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -44,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             public void OnMouseDown(Point p)
             {
                 _hits.HitTest(p, out _pressed);
-
+                Debug.Print($"MouseDown at {p}, hit area: {_pressed?.Name ?? "none"}");
                 // Invalidate only the pressed region
                 if (_pressed != null)
                 {

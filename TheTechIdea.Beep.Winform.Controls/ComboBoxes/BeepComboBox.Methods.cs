@@ -224,21 +224,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
-        {
-            base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+        //protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        //{
+        //   // base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
             
-            // When DPI changes, re-apply painter defaults to get properly scaled values
-            // This ensures values scale correctly without compounding
-            if (!_dropdownButtonWidthSetExplicitly || !_innerPaddingSetExplicitly)
-            {
-                _layoutDefaultsInitialized = false;
-                ApplyLayoutDefaultsFromPainter(force: true);
-            }
+        //    // When DPI changes, re-apply painter defaults to get properly scaled values
+        //    // This ensures values scale correctly without compounding
+        //    if (!_dropdownButtonWidthSetExplicitly || !_innerPaddingSetExplicitly)
+        //    {
+        //        _layoutDefaultsInitialized = false;
+        //        ApplyLayoutDefaultsFromPainter(force: true);
+        //    }
             
-            InvalidateLayout();
-            SyncDropdownMetrics();
-        }
+        //    InvalidateLayout();
+        //    SyncDropdownMetrics();
+        //}
 
         private void SyncDropdownMetrics()
         {

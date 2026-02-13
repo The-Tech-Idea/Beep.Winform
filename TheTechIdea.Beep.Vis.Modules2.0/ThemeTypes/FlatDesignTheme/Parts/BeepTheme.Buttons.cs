@@ -18,8 +18,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ButtonSelectedHoverBackColor { get; set; } = Color.FromArgb(30, 136, 229);
         public Color ButtonSelectedHoverForeColor { get; set; } = Color.White;
         public Color ButtonSelectedHoverBorderColor { get; set; } = Color.FromArgb(25, 118, 210);
-        public Color ButtonBackColor { get; set; } = Color.White;
-        public Color ButtonForeColor { get; set; } = Color.Black;
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(240, 244, 248);
+        public Color ButtonForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color ButtonBorderColor { get; set; } = Color.FromArgb(200, 200, 200);
         public Color ButtonErrorBackColor { get; set; } = Color.FromArgb(211, 47, 47); // Red
         public Color ButtonErrorForeColor { get; set; } = Color.White;

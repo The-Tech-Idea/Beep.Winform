@@ -11,11 +11,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         private void ApplyButtons()
         {
             // NeoMorphism buttons - soft neomorphic effect
-            this.ButtonBackColor = SurfaceColor;
+            // Default: soft light-plate distinct from background/surface
+            this.ButtonBackColor = Color.FromArgb(232, 236, 244);
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
 
-            this.ButtonHoverBackColor = SecondaryColor;
+            // Hover: slightly cooler tint
+            this.ButtonHoverBackColor = Color.FromArgb(220, 226, 240);
             this.ButtonHoverForeColor = ForeColor;
             this.ButtonHoverBorderColor = ActiveBorderColor;
 
@@ -27,7 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverForeColor = OnPrimaryColor;
             this.ButtonSelectedHoverBorderColor = AccentColor;
 
-            this.ButtonPressedBackColor = SurfaceColor;
+            // Pressed: darkest neutral in the set
+            this.ButtonPressedBackColor = Color.FromArgb(206, 212, 226);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
 
@@ -37,3 +40,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+

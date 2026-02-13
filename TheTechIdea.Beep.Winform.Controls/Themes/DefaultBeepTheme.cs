@@ -719,7 +719,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 AppBarBackColor = PrimaryColor;
                 AppBarForeColor = OnPrimaryColor;
                 AppBarButtonBackColor = Darken(PrimaryColor, 0.06);
-                AppBarButtonForeColor = OnPrimaryColor;
+                AppBarButtonForeColor = Darken(PrimaryColor, 0.35);
                 AppBarTextBoxBackColor = C(255, 255, 255);
                 AppBarTextBoxForeColor = C(17, 24, 39);
                 AppBarLabelBackColor = AppBarBackColor;
@@ -812,22 +812,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 IsDarkTheme = false;
 
                 // -- Buttons
-                ButtonBackColor = PrimaryColor;
-                ButtonForeColor = OnPrimaryColor;
-                ButtonBorderColor = Darken(PrimaryColor, 0.18);
-                ButtonHoverBackColor = Darken(PrimaryColor, 0.06);
-                ButtonHoverForeColor = OnPrimaryColor;
-                ButtonHoverBorderColor = Darken(PrimaryColor, 0.28);
-                ButtonPressedBackColor = Darken(PrimaryColor, 0.14);
-                ButtonPressedForeColor = OnPrimaryColor;
-                ButtonPressedBorderColor = Darken(PrimaryColor, 0.34);
+                ButtonBackColor = C(225, 235, 250);
+                ButtonForeColor = C(24, 58, 112);
+                ButtonBorderColor = C(96, 142, 214);
+                ButtonHoverBackColor = C(210, 225, 245);
+                ButtonHoverForeColor = C(18, 48, 98);
+                ButtonHoverBorderColor = C(72, 120, 196);
+                ButtonPressedBackColor = C(194, 214, 240);
+                ButtonPressedForeColor = C(14, 38, 82);
+                ButtonPressedBorderColor = C(55, 103, 178);
 
-                ButtonSelectedBackColor = Blend(PrimaryColor, Color.White, 0.88);
-                ButtonSelectedForeColor = Darken(PrimaryColor, 0.30);
-                ButtonSelectedBorderColor = PrimaryColor;
-                ButtonSelectedHoverBackColor = Blend(PrimaryColor, Color.White, 0.82);
-                ButtonSelectedHoverForeColor = Darken(PrimaryColor, 0.40);
-                ButtonSelectedHoverBorderColor = Darken(PrimaryColor, 0.10);
+                ButtonSelectedBackColor = C(205, 221, 244);
+                ButtonSelectedForeColor = C(18, 48, 98);
+                ButtonSelectedBorderColor = C(72, 120, 196);
+                ButtonSelectedHoverBackColor = C(190, 209, 238);
+                ButtonSelectedHoverForeColor = C(14, 38, 82);
+                ButtonSelectedHoverBorderColor = C(55, 103, 178);
 
                 ButtonErrorBackColor = ErrorColor;
                 ButtonErrorForeColor = Color.White;
@@ -1219,8 +1219,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 DialogYesButtonHoverFont = ButtonStyle;
                 DialogNoButtonHoverFont = ButtonStyle;
                 DialogOkButtonHoverFont = ButtonStyle;
-                DialogYesButtonBackColor = PrimaryColor;
-                DialogYesButtonForeColor = OnPrimaryColor;
+                DialogYesButtonBackColor = Blend(PrimaryColor, Color.White, 0.90);
+                DialogYesButtonForeColor = Darken(PrimaryColor, 0.35);
                 DialogYesButtonHoverBackColor = Darken(PrimaryColor, 0.06);
                 DialogYesButtonHoverForeColor = OnPrimaryColor;
                 DialogYesButtonHoverBorderColor = Darken(PrimaryColor, 0.18);
@@ -1240,8 +1240,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 DialogNoButtonHoverBackColor = C(229, 231, 235);
                 DialogNoButtonHoverForeColor = C(17, 24, 39);
                 DialogNoButtonHoverBorderColor = BorderColor;
-                DialogOkButtonBackColor = PrimaryColor;
-                DialogOkButtonForeColor = OnPrimaryColor;
+                DialogOkButtonBackColor = Blend(PrimaryColor, Color.White, 0.90);
+                DialogOkButtonForeColor = Darken(PrimaryColor, 0.35);
                 DialogOkButtonHoverBackColor = Darken(PrimaryColor, 0.06);
                 DialogOkButtonHoverForeColor = OnPrimaryColor;
                 DialogOkButtonHoverBorderColor = Darken(PrimaryColor, 0.18);
@@ -1537,5 +1537,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             public static FontStyle SemiBold(this FontStyle _) => FontStyle.Bold;
         }
     }
+
 
 

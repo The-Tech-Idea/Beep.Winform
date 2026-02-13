@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         {
             // Nordic buttons - Scandinavian minimalist design
             // Default: Light gray background with dark text
-            this.ButtonBackColor = BackgroundColor;  // Light gray-blue
+            this.ButtonBackColor = Color.FromArgb(226, 232, 239); // Light gray-blue
             this.ButtonForeColor = ForeColor;  // Dark gray text
             this.ButtonBorderColor = BorderColor;  // Light gray border
             
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
             this.ButtonSelectedHoverBorderColor = PrimaryColor;
             
             // Pressed: Lighter
-            this.ButtonPressedBackColor = PanelBackColor;
+            this.ButtonPressedBackColor = ThemeUtil.Darken(PanelBackColor, 0.08);
             this.ButtonPressedForeColor = ForeColor;
             this.ButtonPressedBorderColor = BorderColor;
             
@@ -43,3 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         }
     }
 }
+
+
+
+
+
+
+
+
+
+

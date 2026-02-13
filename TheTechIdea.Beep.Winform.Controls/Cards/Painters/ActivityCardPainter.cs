@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             _owner = owner;
             _theme = theme;
             
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
+            var fontFamily = owner?.TextFont?.FontFamily ?? FontFamily.GenericSansSerif;
             
             try { _titleFont?.Dispose(); } catch { }
             try { _descFont?.Dispose(); } catch { }

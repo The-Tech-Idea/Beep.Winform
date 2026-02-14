@@ -337,10 +337,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             try { EnsureLayoutCalculated(); } catch { }
 
             // Only handle mouse events outside the content rect
-            var pos = PointToClient(Cursor.Position);
-            if (!CurrentLayout.ContentRect.Contains(pos))
+            // Use e.Location directly as it is already in client coordinates
+            if (!CurrentLayout.ContentRect.Contains(e.Location))
             {
-                _interact.OnMouseMove(pos);
+                _interact.OnMouseMove(e.Location);
             }
         }
 
@@ -366,10 +366,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
 
             // Only handle mouse events outside the content rect
-            var pos = PointToClient(Cursor.Position);
-            if (!CurrentLayout.ContentRect.Contains(pos))
+            // Use e.Location directly as it is already in client coordinates
+            if (!CurrentLayout.ContentRect.Contains(e.Location))
             {
-                _interact.OnMouseDown(pos);
+                 // Ensure the form is focused so subsequent messages arrive here
+                if (!Focused) this.Focus();
+                _interact.OnMouseDown(e.Location);
             }
         }
         protected override void OnMouseHover(EventArgs e)
@@ -397,10 +399,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             try { EnsureLayoutCalculated(); } catch { }
 
             // Only handle mouse events outside the content rect
-            var pos = PointToClient(Cursor.Position);
-            if (!CurrentLayout.ContentRect.Contains(pos))
+            // Use e.Location directly as it is already in client coordinates
+            if (!CurrentLayout.ContentRect.Contains(e.Location))
             {
-                _interact.OnMouseUp(pos);
+                _interact.OnMouseUp(e.Location);
             }
         }
         

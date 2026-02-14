@@ -56,7 +56,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!_isDropdownOpen || BeepContextMenu == null)
                 return;
             
-            BeepContextMenu.Close();
+            // Use Hide() directly instead of Close().
+            // With DestroyOnClose=false, Close() goes through OnFormClosing
+            // which fires MenuClosing, cancels the close, then calls Hide()
+            // anyway — causing duplicate events and leaving the parent form
+            // in an inconsistent activation state.
+            BeepContextMenu.Hide();
             _isDropdownOpen = false;
             
             PopupClosed?.Invoke(this, EventArgs.Empty);

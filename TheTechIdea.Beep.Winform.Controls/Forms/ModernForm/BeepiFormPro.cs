@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Designers;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using System.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -54,6 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             else
                 Invalidate(invalidateChildren);
         }
+        private bool _isForcedClose = false;
         public BeepiFormPro()
         {
 
@@ -357,10 +359,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            Debug.Print($"OnFormClosing started. CloseReason: {e.CloseReason}, Cancel before: {e.Cancel}");
+            
+            // If the user explicitly clicked the close button, we force the close
+            // overriding any hidden validation failures or previous states
+            if (_isForcedClose)
+            {
+                e.Cancel = false;
+                Debug.Print("Forced closing enabled. Reset e.Cancel to false.");
+            }
+
             // Raise PreClose event to allow consumers to cancel or prepare for close
             PreClose?.Invoke(this, e);
             
+            Debug.Print($"OnFormClosing after PreClose. Cancel: {e.Cancel}");
+
             base.OnFormClosing(e);
+
+            Debug.Print($"OnFormClosing after base.OnFormClosing. Cancel: {e.Cancel}");
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)

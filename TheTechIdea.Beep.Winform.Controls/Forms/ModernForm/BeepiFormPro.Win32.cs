@@ -173,57 +173,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         m.Result = (IntPtr)1;
                         return;
 
-                    case 0x0201: // WM_LBUTTONDOWN
-                        {
-                            // CRITICAL: Handle caption button mouse-down directly in WndProc
-                            // instead of relying on OnMouseDown, which may not fire after
-                            // child control interaction (focus/capture issues in WinForms).
-                            int lp = (int)m.LParam.ToInt64();
-                            Point pos = new Point((short)(lp & 0xffff), (short)((lp >> 16) & 0xffff));
+                    // WM_LBUTTONDOWN and WM_LBUTTONUP removed to use standard OnMouseDown/OnMouseUp events
+                    // This allows WinForms to handle capture and focus correctly
 
-                            try { EnsureLayoutCalculated(); } catch { }
-
-                            if (ShowCaptionBar && CurrentLayout != null &&
-                                !CurrentLayout.ContentRect.Contains(pos) &&
-                                CurrentLayout.CaptionRect.Contains(pos))
-                            {
-                                // Ensure the form is focused so subsequent messages arrive here
-                                if (!Focused) this.Focus();
-
-                                _interact.OnMouseDown(pos);
-                                Capture = true;  // Ensure WM_LBUTTONUP arrives at this form
-
-                                // Handle search box unfocus when clicking outside
-                                if (ShowSearchBox && _searchBoxFocused &&
-                                    CurrentLayout.SearchBoxRect.Width > 0 &&
-                                    !CurrentLayout.SearchBoxRect.Contains(pos))
-                                {
-                                    _searchBoxFocused = false;
-                                    Invalidate(CurrentLayout.SearchBoxRect);
-                                }
-
-                                return; // Handled – do NOT call base
-                            }
-                            break; // Not in caption – let WinForms handle normally
-                        }
-
-                    case 0x0202: // WM_LBUTTONUP
-                        {
-                            // CRITICAL: Handle caption button mouse-up directly in WndProc
-                            // to complete the down/up pair started above.
-                            int lp = (int)m.LParam.ToInt64();
-                            Point pos = new Point((short)(lp & 0xffff), (short)((lp >> 16) & 0xffff));
-
-                            if (ShowCaptionBar && CurrentLayout != null &&
-                                !CurrentLayout.ContentRect.Contains(pos) &&
-                                CurrentLayout.CaptionRect.Contains(pos))
-                            {
-                                _interact.OnMouseUp(pos);
-                                Capture = false;  // Release capture after completing click
-                                return; // Handled – do NOT call base
-                            }
-                            break; // Not in caption – let WinForms handle normally
-                        }
 
                     case WM_SETFOCUS:
                     case WM_KILLFOCUS:

@@ -323,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         protected virtual void OnMenuClosed(BeepContextMenuClosedEventArgs e)
         {
-            // Can be overridden by derived classes
+            MenuClosed?.Invoke(this, e);
         }
 
         #endregion

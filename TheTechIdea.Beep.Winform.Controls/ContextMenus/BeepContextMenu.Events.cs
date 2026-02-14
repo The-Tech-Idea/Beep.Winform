@@ -39,6 +39,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         public event EventHandler<FormClosingEventArgs> MenuClosing;
         
+        /// <summary>
+        /// Fired after the menu has fully closed
+        /// </summary>
+        public event EventHandler<BeepContextMenuClosedEventArgs> MenuClosed;
+        
         #endregion
         
         #region Protected Event Raisers

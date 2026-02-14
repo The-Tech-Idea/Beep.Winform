@@ -237,11 +237,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Wire up events
             BeepContextMenu.ItemClicked += OnContextMenuItemClicked;
-            BeepContextMenu.MenuClosing += (s, e) =>
+            BeepContextMenu.MenuClosed += (s, e) =>
             {
-                _isDropdownOpen = false;
-                PopupClosed?.Invoke(this, EventArgs.Empty);
-                Invalidate();
+                // Sync state when menu closes itself (e.g. Deactivate/focus-loss)
+                // without going through our CloseDropdown() method
+                if (_isDropdownOpen)
+                {
+                    _isDropdownOpen = false;
+                    PopupClosed?.Invoke(this, EventArgs.Empty);
+                    Invalidate();
+                }
             };
         }
         

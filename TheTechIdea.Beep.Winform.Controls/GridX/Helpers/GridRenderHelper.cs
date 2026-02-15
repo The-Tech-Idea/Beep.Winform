@@ -506,39 +506,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             //    Console.WriteLine("Draw skipped: Invalid rows rectangle.");
                 return;
             }
-            
-            // Save the original clip region and exclude all visible child controls for entire render
-            var originalClip = g.Clip;
-            Region? globalExclusionRegion = null;
-            try
-            {
-                // Create a global clip region that excludes filter panel controls (BeepTextBox, BeepComboBox)
-                if (_grid.FilterPanelSearchBox != null && _grid.FilterPanelSearchBox.Visible)
-                {
-                    if (globalExclusionRegion == null)
-                        globalExclusionRegion = new Region(_grid.ClientRectangle);
-                    globalExclusionRegion.Exclude(_grid.FilterPanelSearchBox.Bounds);
-                }
-                if (_grid.FilterPanelColumnCombo != null && _grid.FilterPanelColumnCombo.Visible)
-                {
-                    if (globalExclusionRegion == null)
-                        globalExclusionRegion = new Region(_grid.ClientRectangle);
-                    globalExclusionRegion.Exclude(_grid.FilterPanelColumnCombo.Bounds);
-                }
-                
-                // Apply the exclusion region for the entire paint operation
-                if (globalExclusionRegion != null)
-                {
-                    g.Clip = globalExclusionRegion;
-                }
                
           //  Console.WriteLine($"RowsRect: {rowsRect}");
-            // Draw background (exclude child control areas to prevent painting over editors)
+            // Draw background
             using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
             {
-                    
-                    g.FillRectangle(brush, rowsRect);
-                
+                g.FillRectangle(brush, rowsRect);
             }
           //  Console.WriteLine("Background drawn.");
             // Draw column headers
@@ -548,8 +521,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     try
                     {
-                        // Filter panel painting disabled - using embedded controls instead
-                        //DrawTopFilterPanel(g);
+                        DrawTopFilterPanel(g);
                     }
                     catch (Exception)
                     {
@@ -626,15 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Silently handle drag feedback errors
                 }
             }
-            }
-            finally
-            {
-                // Restore the original clip region and dispose exclusion region
-                g.Clip = originalClip;
-                originalClip?.Dispose();
-                globalExclusionRegion?.Dispose();
-            }
-        }
+
 
         private void DrawColumnHeaders(Graphics g)
         {

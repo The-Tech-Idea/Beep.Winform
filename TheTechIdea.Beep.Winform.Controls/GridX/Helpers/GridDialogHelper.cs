@@ -302,13 +302,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         public void ShowSearchDialog()
         {
-            // Controls are now embedded directly in the filter panel
-            // Just ensure they're visible and give focus to search box
-            if (_grid.FilterPanelSearchBox != null && _grid.FilterPanelSearchBox.Visible)
-            {
-                _grid.FilterPanelSearchBox.Focus();
-                _grid.FilterPanelSearchBox.SelectAll();
-            }
+            // Show inline search editor overlay
+            PerformSearch(string.Empty);
         }
 
         /// <summary>

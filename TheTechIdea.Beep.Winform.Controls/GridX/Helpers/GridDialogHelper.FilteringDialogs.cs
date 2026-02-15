@@ -535,20 +535,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Save the current search filter for persistence 
             _currentSearchFilter = query;
 
-            // Get selected column from embedded combo (null/empty = all columns)
-            string? selectedColumn = null;
-            if (_grid.FilterPanelColumnCombo != null && _grid.FilterPanelColumnCombo.SelectedItem != null)
-            {
-                string selectedItem = _grid.FilterPanelColumnCombo.SelectedItem.Text ?? string.Empty;
-                if (selectedItem != "All Columns")
-                {
-                    selectedColumn = selectedItem;
-                }
-            }
-
             // Apply quick filter to actually filter rows based on search text
             // This shows only rows that match the search, stored as an active filter chip
-            _grid.ApplyQuickFilter(query, selectedColumn);
+            _grid.ApplyQuickFilter(query, null);
             
             // Now find and select the first matching cell in the filtered results
             int rowCount = _grid.Rows.Count;

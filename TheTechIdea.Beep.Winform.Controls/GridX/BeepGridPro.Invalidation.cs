@@ -12,62 +12,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         /// <summary>
         /// Safe invalidate that checks for disposal before invalidating.
-        /// Excludes filter panel controls to prevent flicker.
         /// </summary>
         internal void SafeInvalidate()
         {
             if (!IsDisposed && !Disposing)
             {
-                // Create a region excluding filter panel controls to prevent flicker
-                using (var region = new Region(ClientRectangle))
-                {
-                    // Exclude filter panel search box if visible
-                    if (FilterPanelSearchBox != null && FilterPanelSearchBox.Visible)
-                    {
-                        region.Exclude(FilterPanelSearchBox.Bounds);
-                    }
-                    
-                    // Exclude filter panel column combo if visible
-                    if (FilterPanelColumnCombo != null && FilterPanelColumnCombo.Visible)
-                    {
-                        region.Exclude(FilterPanelColumnCombo.Bounds);
-                    }
-                    
-                    // Invalidate only the region that excludes the filter controls
-                    Invalidate(region);
-                }
+                Invalidate();
             }
         }
 
         /// <summary>
         /// Safe invalidate for a specific rectangle that checks for disposal before invalidating.
-        /// Excludes filter panel controls from the invalidation region to prevent flicker.
         /// </summary>
         /// <param name="rect">The rectangle to invalidate.</param>
         internal void SafeInvalidate(Rectangle rect)
         {
             if (!IsDisposed && !Disposing)
             {
-                // Create a region from the rectangle
-                using (var region = new Region(rect))
-                {
-                    // Exclude filter panel search box if it intersects
-                    if (FilterPanelSearchBox != null && FilterPanelSearchBox.Visible &&
-                        rect.IntersectsWith(FilterPanelSearchBox.Bounds))
-                    {
-                        region.Exclude(FilterPanelSearchBox.Bounds);
-                    }
-                    
-                    // Exclude filter panel column combo if it intersects
-                    if (FilterPanelColumnCombo != null && FilterPanelColumnCombo.Visible &&
-                        rect.IntersectsWith(FilterPanelColumnCombo.Bounds))
-                    {
-                        region.Exclude(FilterPanelColumnCombo.Bounds);
-                    }
-                    
-                    // Invalidate only the region that excludes the filter controls
-                    Invalidate(region);
-                }
+                Invalidate(rect);
             }
         }
 

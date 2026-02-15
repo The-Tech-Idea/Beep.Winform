@@ -59,10 +59,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         #region Private Fields
         // Data management fields (moved to partial in BeepGridPro.Properties.cs except _uowBinder)
         private GridUnitOfWorkBinder _uowBinder;
-        
-        // Filter panel embedded controls
-        internal BeepTextBox? FilterPanelSearchBox { get; private set; }
-        internal BeepComboBox? FilterPanelColumnCombo { get; private set; }
         #endregion
 
         #region Constructor
@@ -121,9 +117,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Clipboard = new Helpers.GridClipboardHelper(this);
             ColumnReorder = new Helpers.GridColumnReorderHelper(this);
             
-            // Initialize filter panel embedded controls
-            InitializeFilterPanelControls();
-            
             // Only setup complex initialization if not in design mode
             if (!DesignMode)
             {
@@ -143,120 +136,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             AccessibleRole = AccessibleRole.Table;
             AccessibleName = "Data Grid";
             AccessibleDescription = "Data grid with rows and columns";
-        }
-        #endregion
-
-        #region Filter Panel Controls Initialization
-        private void InitializeFilterPanelControls()
-        {
-            // Suspend layout to prevent flicker during control creation
-            this.SuspendLayout();
-            
-            // Create column selector combo
-            FilterPanelColumnCombo = new BeepComboBox
-            {
-                IsChild = true,
-                IsFrameless = false,
-                ShowAllBorders = true,
-                Theme = this.Theme,
-                TabStop = true,
-                TabIndex = 0,
-                Visible = true,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right, // Anchor to prevent repositioning during resize
-                Location = new Point(10, 10), // Temporary, will be positioned properly in layout
-                Size = new Size(120, 24)
-            };
-            FilterPanelColumnCombo.ApplyTheme();
-            
-            // Create search textbox
-            FilterPanelSearchBox = new BeepTextBox
-            {
-                IsChild = true,
-                IsFrameless = false,
-                ShowAllBorders = true,
-                Theme = this.Theme,
-                PlaceholderText = "Search...",
-                TabStop = true,
-                TabIndex = 1,
-                Visible = true,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right, // Anchor to prevent repositioning during resize
-                Location = new Point(140, 10), // Temporary, will be positioned properly in layout
-                Size = new Size(200, 24)
-            };
-            FilterPanelSearchBox.ApplyTheme();
-            FilterPanelSearchBox.KeyDown += FilterPanelSearchBox_KeyDown;
-            
-            // Add to grid's control collection
-            this.Controls.Add(FilterPanelColumnCombo);
-            this.Controls.Add(FilterPanelSearchBox);
-            
-            // Bring to front to ensure they're above grid canvas
-            FilterPanelSearchBox.BringToFront();
-            FilterPanelColumnCombo.BringToFront();
-            
-            // Initialize combo with "All Columns"
-            FilterPanelColumnCombo.ListItems.Add(new SimpleItem { Text = "All Columns", Value = "" });
-            FilterPanelColumnCombo.SelectedIndex = 0;
-            
-            // Resume layout and force immediate positioning
-            this.ResumeLayout(true);
-        }
-        
-        private void FilterPanelSearchBox_KeyDown(object? sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                // Apply filter on Enter
-                if (FilterPanelSearchBox != null && !string.IsNullOrWhiteSpace(FilterPanelSearchBox.Text))
-                {
-                    string? selectedColumn = null;
-                    if (FilterPanelColumnCombo != null && FilterPanelColumnCombo.SelectedItem != null)
-                    {
-                        string selectedItem = FilterPanelColumnCombo.SelectedItem.Text ?? string.Empty;
-                        if (selectedItem != "All Columns")
-                        {
-                            selectedColumn = selectedItem;
-                        }
-                    }
-                    ApplyQuickFilter(FilterPanelSearchBox.Text, selectedColumn);
-                }
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
-            else if (e.KeyCode == Keys.Escape)
-            {
-                // Clear search on Escape
-                if (FilterPanelSearchBox != null)
-                {
-                    FilterPanelSearchBox.Text = string.Empty;
-                    ClearFilter();
-                }
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
-        }
-        
-        internal void PopulateFilterPanelColumnCombo()
-        {
-            if (FilterPanelColumnCombo == null || Data?.Columns == null)
-            {
-                return;
-            }
-            
-            FilterPanelColumnCombo.ListItems.Clear();
-            FilterPanelColumnCombo.ListItems.Add(new SimpleItem { Text = "All Columns", Value = "" });
-            
-            // Add visible columns
-            foreach (var col in Data.Columns.Where(c => c.Visible && !c.IsSelectionCheckBox))
-            {
-                FilterPanelColumnCombo.ListItems.Add(new SimpleItem { Text = col.ColumnName, Value = col.ColumnName });
-            }
-            
-            // Select first item (All Columns) by default
-            if (FilterPanelColumnCombo.Items.Count > 0)
-            {
-                FilterPanelColumnCombo.SelectedIndex = 0;
-            }
         }
         #endregion
 

@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void ShowSearchDialog()
         {
             // Show inline search editor overlay
-            PerformSearch(string.Empty);
+            PerformSearch(string.Empty, true);
         }
 
         /// <summary>

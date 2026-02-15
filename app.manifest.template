@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="BeepWinformsApp"/>
+  
+  <!-- CRITICAL: Per-Monitor V2 DPI Awareness for .NET 8/9/10 -->
+  <!-- Without this, Windows will bitmap-stretch your app when moving between monitors -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <!-- Enable Per-Monitor V2 DPI Awareness (Windows 10 1703+) -->
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/PM</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
+      
+      <!-- Disable legacy DPI scaling (prevents bitmap stretching) -->
+      <disableWindowFiltering xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
+      
+      <!-- Optional: Support long paths (Windows 10 1607+) -->
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+    </windowsSettings>
+  </application>
+
+  <!-- Trust Info (Admin rights - adjust as needed) -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!-- asInvoker = run as current user (recommended) -->
+        <!-- requireAdministrator = require admin rights -->
+        <!-- highestAvailable = highest available privileges -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+
+  <!-- Compatibility (Target OS Versions) -->
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 / Windows 11 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+      <!-- Windows 8.1 -->
+      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
+      <!-- Windows 8 -->
+      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
+      <!-- Windows 7 -->
+      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
+    </application>
+  </compatibility>
+
+  <!-- USAGE INSTRUCTIONS:
+  
+  1. Add to your WinForms project (.csproj):
+     <PropertyGroup>
+       <ApplicationManifest>app.manifest</ApplicationManifest>
+     </PropertyGroup>
+  
+  2. Copy this file to your project root as "app.manifest"
+  
+  3. Rebuild your application
+  
+  4. VERIFY: Check Task Manager > Details > Your App > DPI Awareness should show "Per Monitor V2"
+  
+  5. TEST: Move your app between monitors with different DPI settings (100% → 150% → 200%)
+     - Controls should resize smoothly
+     - No blurring or bitmap stretching
+     - Text remains crisp
+  
+  6. TROUBLESHOOTING:
+     - If controls don't scale: Ensure top-level form uses AutoScaleMode.Dpi
+     - If text is blurry: Check that fonts are scaled in OnDpiChangedAfterParent
+     - If icons are blurry: Use DpiScalingHelper.ScaleImage()
+     - If app crashes on DPI change: Ensure fonts are disposed safely
+  
+  For more details, see:
+  - BaseControl/DPI_SCALING_BEST_PRACTICES.md
+  - Microsoft Docs: https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
+  -->
+  
+</assembly>

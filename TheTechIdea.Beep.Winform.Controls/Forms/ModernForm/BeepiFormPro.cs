@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -59,8 +59,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public BeepiFormPro()
         {
 
-            AutoScaleMode = AutoScaleMode.Inherit;
-            
+            StartPosition = FormStartPosition.CenterScreen;
+            AutoSize = false;
+            this.AutoScaleDimensions = new SizeF(96f, 96f); //
+            AutoScaleMode = AutoScaleMode.Dpi;  // ✅ Better for DPI scaling
+            // REMOVE AutoScaleDimensions - let WinForms set it automatically
+            //AutoScaleDimensions will be set to (96F, 96F) at design time
+
             // CRITICAL: In design mode, use simpler painting to ensure designer can see changes
             // In runtime, use optimized double buffering for smooth rendering
             if (InDesignModeSafe)

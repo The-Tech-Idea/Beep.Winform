@@ -163,9 +163,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // Skip excessive processing in design mode
             if (DesignMode) return;
             
-            // Repopulate filter panel combo when columns change
-            PopulateFilterPanelColumnCombo();
-            
             // Subscribe to added items
             if (e.ListChangedType == ListChangedType.ItemAdded && e.NewIndex >= 0 && e.NewIndex < Data.Columns.Count)
             {

@@ -490,30 +490,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void Draw(Graphics g)
         {
-           /// Console.WriteLine("GridRenderHelper.Draw called.");
+            /// Console.WriteLine("GridRenderHelper.Draw called.");
             // Validate graphics object and grid state
             if (g == null || _grid == null || _grid.Layout == null)
             {
-              //  Console.WriteLine("Draw skipped: Invalid graphics or grid state.");
+                //  Console.WriteLine("Draw skipped: Invalid graphics or grid state.");
 
                 return;
             }
-              
-          //  Console.WriteLine("Drawing grid...");
+
+            //  Console.WriteLine("Drawing grid...");
             var rowsRect = _grid.Layout.RowsRect;
             if (rowsRect.Width <= 0 || rowsRect.Height <= 0)
             {
-            //    Console.WriteLine("Draw skipped: Invalid rows rectangle.");
+                //    Console.WriteLine("Draw skipped: Invalid rows rectangle.");
                 return;
             }
-               
-          //  Console.WriteLine($"RowsRect: {rowsRect}");
+
+            //  Console.WriteLine($"RowsRect: {rowsRect}");
             // Draw background
             using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
             {
                 g.FillRectangle(brush, rowsRect);
             }
-          //  Console.WriteLine("Background drawn.");
+            //  Console.WriteLine("Background drawn.");
             // Draw column headers
             if (_grid.ShowColumnHeaders)
             {
@@ -536,12 +536,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 try
                 {
-           //         Console.WriteLine("Drawing column headers...");
+                    //         Console.WriteLine("Drawing column headers...");
                     DrawColumnHeaders(g);
                 }
                 catch (Exception)
                 {
-             //       Console.WriteLine("Error drawing column headers.");
+                    //       Console.WriteLine("Error drawing column headers.");
                     // Silently handle header drawing errors to prevent crashes
                 }
             }
@@ -562,24 +562,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try
                 {
-                //    if (_grid.NavigatorPainter.UsePainterNavigation)
-                //{
-                //    // Use the painter to draw the navigator
-                //    _grid.NavigatorPainter.PaintNavigation(g, _grid.Layout.NavigatorRect, _grid.NavigationStyle, _grid.Theme);
-                //}
+                    //    if (_grid.NavigatorPainter.UsePainterNavigation)
+                    //{
+                    //    // Use the painter to draw the navigator
+                    //    _grid.NavigatorPainter.PaintNavigation(g, _grid.Layout.NavigatorRect, _grid.NavigationStyle, _grid.Theme);
+                    //}
                     DrawNavigatorArea(g);
                 }
-            catch (Exception)
-            {
-                // Silently handle navigator drawing errors
+                catch (Exception)
+                {
+                    // Silently handle navigator drawing errors
+                }
             }
-            }
-            
+
             // Draw selection indicators
             try
             {
-               // Console.WriteLine("Drawing selection indicators...");
-               DrawSelectionIndicators(g);
+                // Console.WriteLine("Drawing selection indicators...");
+                DrawSelectionIndicators(g);
             }
             catch (Exception)
             {
@@ -599,7 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-
+        }
         private void DrawColumnHeaders(Graphics g)
         {
             var headerRect = _grid.Layout.HeaderRect;

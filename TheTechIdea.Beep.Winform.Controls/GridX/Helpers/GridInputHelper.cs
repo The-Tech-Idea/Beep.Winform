@@ -192,6 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.ShowTopFilterPanel && _grid.Layout.TopFilterRect.Contains(e.Location))
             {
                 _mouseDownHandledByTopFilterPanel = true;
+
                 System.Diagnostics.Debug.WriteLine($">>> FILTER PANEL CLICKED at {e.Location} <<<");
                 int clearColIdx = HitHeaderIcon(_grid.Render.TopFilterClearIconRects, e.Location);
                 System.Diagnostics.Debug.WriteLine($">>> clearColIdx = {clearColIdx}, ClearAllKey={BaseFilterPanelPainter.ClearAllActionKey}, AdvancedKey={BaseFilterPanelPainter.AdvancedFilterActionKey}");
@@ -263,8 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 // Any other click in the filter panel area (gaps, padding, etc.)
-                System.Diagnostics.Debug.WriteLine(">>> Empty panel area clicked - opening advanced filter");
-                _grid.ShowAdvancedFilterDialog();
+                System.Diagnostics.Debug.WriteLine(">>> Empty panel area clicked - ignoring");
                 return;
             }
 

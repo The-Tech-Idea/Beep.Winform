@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintInlineRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
             int currentX = rect.X;
 
             // Column dropdown
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintCompactDropdown(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.White))
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintCompactInput(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.White))
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintRemoveButton(Graphics g, Rectangle rect, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.FromArgb(245, 245, 245)))
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintAddButton(Graphics g, Rectangle rect, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.FromArgb(240, 240, 240)))

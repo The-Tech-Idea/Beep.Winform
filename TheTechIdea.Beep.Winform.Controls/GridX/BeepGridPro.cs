@@ -131,6 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
             ShowTopFilterPanel = true;
+            EnsureInlineQuickSearchVisible();
 
             // Set accessibility properties
             AccessibleRole = AccessibleRole.Table;
@@ -208,6 +209,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             base.OnResize(e);
             UpdateDrawingRect();
             SafeRecalculate();
+            EnsureInlineQuickSearchVisible();
+            PositionInlineQuickSearchControl();
 
             // Do not stretch the editor host; it will be sized to the active cell only
             
@@ -715,6 +718,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             if (disposing)
             {
+                DisposeInlineQuickSearchControl();
                 _uowBinder?.Detach();
                 Dialog?.Dispose();
                 if (_autoSizeDebounceTimer != null)

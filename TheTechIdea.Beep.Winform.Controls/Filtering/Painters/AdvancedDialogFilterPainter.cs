@@ -36,6 +36,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private DialogTab _currentTab = DialogTab.Basic;
 
+        /// <summary>
+        /// Sets current dialog tab by zero-based index (0=Basic, 1=Advanced, 2=Saved).
+        /// </summary>
+        public void SetCurrentTab(int tabIndex)
+        {
+            if (tabIndex < 0 || tabIndex > 2)
+            {
+                return;
+            }
+
+            _currentTab = (DialogTab)tabIndex;
+        }
+
         /// <summary>Gets the filter style this painter implements.</summary>
         public override FilterStyle FilterStyle => FilterStyle.AdvancedDialog;
         
@@ -120,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         {
             if (g == null || owner == null) return;
 
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
             var config = owner.ActiveFilter;
 
             // Dialog background

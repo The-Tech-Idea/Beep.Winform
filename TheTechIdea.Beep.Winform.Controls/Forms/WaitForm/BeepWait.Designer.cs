@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphicsPath1.FillMode = FillMode.Alternate;
             Title.BorderPath = graphicsPath1;
             Title.BorderRadius = 4;
-            Title.BorderRect = new Rectangle(0, 0, 1467, 67);
+            Title.BorderRect = new Rectangle(0, 0, 1078, 67);
             Title.BorderStyle = BorderStyle.FixedSingle;
             Title.BorderThickness = 1;
             Title.BottomoffsetForDrawingRect = 0;
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DisabledBorderColor = Color.Gray;
             Title.DisabledForeColor = Color.Gray;
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(0, 0, 1467, 67);
+            Title.DrawingRect = new Rectangle(0, 0, 1078, 67);
             Title.Easing = EasingType.Linear;
             Title.EnableHighQualityRendering = true;
             Title.EnableMaterialStyle = false;
@@ -179,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
-            Title.MinimumSize = new Size(161, 67);
+            Title.MinimumSize = new Size(86, 26);
             Title.ModernGradientType = ModernGradientType.None;
             Title.Multiline = false;
             Title.Name = "Title";
@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(1467, 67);
+            Title.Size = new Size(1078, 67);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.SubHeaderFont = new Font("Arial", 8F);
@@ -359,12 +359,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.LeadingImagePath = "";
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
-            beepLabel1.Location = new Point(566, 688);
+            beepLabel1.Location = new Point(372, 493);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(32, 32);
-            beepLabel1.MinimumSize = new Size(268, 43);
+            beepLabel1.MinimumSize = new Size(120, 38);
             beepLabel1.ModernGradientType = ModernGradientType.None;
             beepLabel1.Multiline = false;
             beepLabel1.Name = "beepLabel1";
@@ -451,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphicsPath4.FillMode = FillMode.Alternate;
             messege.BorderPath = graphicsPath4;
             messege.BorderRadius = 4;
-            messege.BorderRect = new Rectangle(0, 0, 1447, 424);
+            messege.BorderRect = new Rectangle(0, 0, 1058, 269);
             messege.BorderStyle = BorderStyle.FixedSingle;
             messege.BorderThickness = 1;
             messege.BottomoffsetForDrawingRect = 0;
@@ -474,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.DisabledBackColor = Color.FromArgb(200, 200, 200);
             messege.DisabledBorderColor = Color.LightGray;
             messege.DisabledForeColor = Color.Gray;
-            messege.DrawingRect = new Rectangle(0, 0, 1447, 424);
+            messege.DrawingRect = new Rectangle(0, 0, 1058, 269);
             messege.Easing = EasingType.Linear;
             messege.EnableHighQualityRendering = true;
             messege.EnableMaterialStyle = false;
@@ -556,7 +556,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.LineNumberFont = new Font("Arial", 10F);
             messege.LineNumberForeColor = Color.Gray;
             messege.LinkedProperty = null;
-            messege.Location = new Point(14, 242);
+            messege.Location = new Point(14, 202);
             messege.Margin = new Padding(2, 1, 2, 1);
             messege.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             messege.MaxHitListDrawPerFrame = 0;
@@ -608,7 +608,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ShowScrollbars = true;
             messege.ShowShadow = false;
             messege.ShowTopBorder = false;
-            messege.Size = new Size(1447, 424);
+            messege.Size = new Size(1058, 269);
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 15;
@@ -699,6 +699,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.FocusBorderColor = Color.Gray;
             _spinnerImage.FocusForeColor = Color.FromArgb(255, 255, 255);
             _spinnerImage.FocusIndicatorColor = Color.Blue;
+            _spinnerImage.Font = new Font("Arial", 10F);
             _spinnerImage.ForeColor = Color.FromArgb(33, 150, 243);
             _spinnerImage.Form = null;
             _spinnerImage.GlassmorphismBlur = 10F;
@@ -765,7 +766,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.LeadingImagePath = "";
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(640, 98);
+            _spinnerImage.Location = new Point(451, 88);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             _spinnerImage.MaxHitListDrawPerFrame = 0;
@@ -894,6 +895,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.FocusBorderColor = Color.RoyalBlue;
             beepImage1.FocusForeColor = Color.Black;
             beepImage1.FocusIndicatorColor = Color.RoyalBlue;
+            beepImage1.Font = new Font("Arial", 10F);
             beepImage1.ForeColor = Color.FromArgb(33, 150, 243);
             beepImage1.Form = null;
             beepImage1.GlassmorphismBlur = 10F;
@@ -960,7 +962,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.LeadingImagePath = "";
             beepImage1.LeftoffsetForDrawingRect = 0;
             beepImage1.LinkedProperty = null;
-            beepImage1.Location = new Point(0, 0);
+            beepImage1.Location = new Point(100, 100);
             beepImage1.ManualRotationAngle = 0F;
             beepImage1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepImage1.MaxHitListDrawPerFrame = 0;
@@ -1024,9 +1026,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // BeepWait
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1475, 781);
+            ClientSize = new Size(1086, 586);
             Controls.Add(messege);
             Controls.Add(beepLabel1);
             Controls.Add(Title);

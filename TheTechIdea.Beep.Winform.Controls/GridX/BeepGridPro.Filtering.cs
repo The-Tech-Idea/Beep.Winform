@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
+using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
-using TheTechIdea.Beep.Winform.Controls.GridX.Filtering;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -71,17 +72,243 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         #region Filter Methods
 
         /// <summary>
-        /// Shows the advanced filter dialog
+        /// Shows the advanced filter dialog using BeepFilter
         /// </summary>
         public void ShowAdvancedFilterDialog()
         {
-            using (var dialog = new BeepAdvancedFilterDialog(Data.Columns, _activeFilter, Theme))
+            using (var filterForm = new BeepiFormPro())
             {
-                if (dialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                filterForm.Text = "Advanced Filter";
+                filterForm.Size = new System.Drawing.Size(900, 500);
+                filterForm.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+                filterForm.FormStyle = BeepThemesManager.CurrentStyle;
+                filterForm.ShowCaptionBar = true;
+                filterForm.ShowMinMaxButtons = false;
+                filterForm.ShowCloseButton = true;
+                filterForm.MaximizeBox = true;
+                filterForm.MinimizeBox = false;
+                filterForm.Theme = this.Theme;
+
+                var beepFilter = new BeepFilter
                 {
-                    ActiveFilter = dialog.Result;
+                    Dock = System.Windows.Forms.DockStyle.Fill,
+                    FilterStyle = FilterStyle.AdvancedDialog,
+                    DisplayMode = FilterDisplayMode.AlwaysVisible,
+                    AutoApply = false,
+                    ShowActionButtons = true,
+                    IsChild = true,
+                    IsFrameless = true,
+                    Theme = this.Theme,
+                    EntityStructure = ConvertColumnsToEntityStructure(Data.Columns)
+                };
+
+                var initialFilter = _activeFilter?.Clone() ?? new FilterConfiguration("Advanced Filter");
+                if (initialFilter.Criteria.Count == 0)
+                {
+                    var firstColumn = beepFilter.AvailableColumns.FirstOrDefault()?.ColumnName ?? string.Empty;
+                    initialFilter.Criteria.Add(new FilterCriteria
+                    {
+                        ColumnName = firstColumn,
+                        Operator = FilterOperator.Contains,
+                        Value = string.Empty,
+                        IsEnabled = true
+                    });
+                }
+                beepFilter.ActiveFilter = initialFilter;
+
+                void UpdateCriterion(int index, Action<FilterCriteria> updater)
+                {
+                    if (index < 0 || index >= beepFilter.ActiveFilter.Criteria.Count || updater == null)
+                    {
+                        return;
+                    }
+
+                    var updatedConfig = beepFilter.ActiveFilter.Clone();
+                    var criterion = updatedConfig.Criteria[index]?.Clone() ?? new FilterCriteria();
+                    updater(criterion);
+                    updatedConfig.Criteria[index] = criterion;
+                    beepFilter.ActiveFilter = updatedConfig;
+                }
+
+                System.Windows.Forms.ContextMenuStrip? activeContextMenu = null;
+
+                void CloseActiveContextMenu()
+                {
+                    if (activeContextMenu == null)
+                    {
+                        return;
+                    }
+
+                    try
+                    {
+                        if (!activeContextMenu.IsDisposed)
+                        {
+                            activeContextMenu.Close();
+                            activeContextMenu.Dispose();
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                    }
+                    finally
+                    {
+                        activeContextMenu = null;
+                    }
+                }
+
+                void ShowContextMenu(System.Windows.Forms.ContextMenuStrip menu, System.Drawing.Point location)
+                {
+                    CloseActiveContextMenu();
+                    activeContextMenu = menu;
+
+                    menu.Closed += (_, __) =>
+                    {
+                        if (ReferenceEquals(activeContextMenu, menu))
+                        {
+                            activeContextMenu = null;
+                        }
+
+                        if (!filterForm.IsDisposed)
+                        {
+                            filterForm.BeginInvoke(new Action(() =>
+                            {
+                                if (!menu.IsDisposed)
+                                {
+                                    menu.Dispose();
+                                }
+                            }));
+                        }
+                        else if (!menu.IsDisposed)
+                        {
+                            menu.Dispose();
+                        }
+                    };
+
+                    menu.Show(beepFilter, location);
+                }
+
+                filterForm.FormClosed += (_, __) => CloseActiveContextMenu();
+
+                beepFilter.FieldSelectionRequested += (s, e) =>
+                {
+                    if (e.Index < 0 || e.Index >= beepFilter.ActiveFilter.Criteria.Count)
+                    {
+                        return;
+                    }
+
+                    var menu = new System.Windows.Forms.ContextMenuStrip();
+                    foreach (var column in beepFilter.AvailableColumns)
+                    {
+                        var selectedColumn = column.ColumnName;
+                        var display = string.IsNullOrWhiteSpace(column.DisplayName) ? selectedColumn : column.DisplayName;
+                        var item = new System.Windows.Forms.ToolStripMenuItem(display) { Tag = selectedColumn };
+                        item.Click += (_, __) =>
+                        {
+                            UpdateCriterion(e.Index, c =>
+                            {
+                                c.ColumnName = selectedColumn;
+                                var ops = FilterOperatorExtensions.GetOperatorsForType(column.DataType ?? typeof(string));
+                                if (ops.Length > 0)
+                                {
+                                    c.Operator = ops[0];
+                                }
+                                c.Value = string.Empty;
+                                c.Value2 = string.Empty;
+                            });
+                        };
+                        menu.Items.Add(item);
+                    }
+
+                    ShowContextMenu(menu, new System.Drawing.Point(e.Bounds.Left, e.Bounds.Bottom));
+                };
+
+                beepFilter.OperatorSelectionRequested += (s, e) =>
+                {
+                    if (e.Index < 0 || e.Index >= beepFilter.ActiveFilter.Criteria.Count)
+                    {
+                        return;
+                    }
+
+                    var current = beepFilter.ActiveFilter.Criteria[e.Index];
+                    var selectedType = beepFilter.AvailableColumns
+                        .FirstOrDefault(c => c.ColumnName == current.ColumnName)
+                        ?.DataType ?? typeof(string);
+                    var operators = FilterOperatorExtensions.GetOperatorsForType(selectedType);
+
+                    var menu = new System.Windows.Forms.ContextMenuStrip();
+                    foreach (var op in operators)
+                    {
+                        var operatorValue = op;
+                        var item = new System.Windows.Forms.ToolStripMenuItem(op.GetDisplayName()) { Tag = operatorValue };
+                        item.Click += (_, __) => UpdateCriterion(e.Index, c => c.Operator = operatorValue);
+                        menu.Items.Add(item);
+                    }
+
+                    ShowContextMenu(menu, new System.Drawing.Point(e.Bounds.Left, e.Bounds.Bottom));
+                };
+
+                beepFilter.FilterAdded += (s, e) =>
+                {
+                    var lastIndex = Math.Max(0, beepFilter.ActiveFilter.Criteria.Count - 1);
+                    if (lastIndex >= 0 && lastIndex < beepFilter.ActiveFilter.Criteria.Count)
+                    {
+                        var defaultColumn = beepFilter.AvailableColumns.FirstOrDefault()?.ColumnName ?? string.Empty;
+                        UpdateCriterion(lastIndex, c =>
+                        {
+                            c.ColumnName = string.IsNullOrWhiteSpace(c.ColumnName) ? defaultColumn : c.ColumnName;
+                        });
+                    }
+                };
+
+                beepFilter.FilterApplied += (s, e) =>
+                {
+                    filterForm.DialogResult = System.Windows.Forms.DialogResult.OK;
+                    filterForm.Close();
+                };
+
+                beepFilter.FilterCanceled += (s, e) =>
+                {
+                    filterForm.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                    filterForm.Close();
+                };
+
+                filterForm.Controls.Add(beepFilter);
+
+                filterForm.Shown += (s, e) =>
+                {
+                    beepFilter.ApplyTheme();
+                    beepFilter.ActiveFilter = beepFilter.ActiveFilter.Clone();
+                    beepFilter.Refresh();
+                };
+
+                if (filterForm.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                {
+                    ActiveFilter = beepFilter.ActiveFilter;
                 }
             }
+        }
+
+        private EntityStructure ConvertColumnsToEntityStructure(BeepGridColumnConfigCollection columns)
+        {
+            var entityStructure = new EntityStructure
+            {
+                EntityName = "GridData",
+                Fields = new List<EntityField>()
+            };
+
+            foreach (var column in columns.Where(c => !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID && c.Visible))
+            {
+                entityStructure.Fields.Add(new EntityField
+                {
+                    FieldName = column.ColumnName,
+                    Originalfieldname = string.IsNullOrWhiteSpace(column.ColumnCaption) ? column.ColumnName : column.ColumnCaption,
+                    Fieldtype = column.DataType?.FullName ?? typeof(string).FullName,
+                    IsKey = false,
+                    AllowDBNull = true
+                });
+            }
+
+            return entityStructure;
         }
 
         /// <summary>

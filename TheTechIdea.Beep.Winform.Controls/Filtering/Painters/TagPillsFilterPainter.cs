@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         private void PaintFilterPill(Graphics g, Rectangle rect, FilterCriteria criterion, Rectangle dragRect, Rectangle removeRect, BeepFilter owner)
         {
             // Get colors using base class helper
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var path = CreateRoundedRectanglePath(rect, PillCornerRadius))
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintAddFilterButton(Graphics g, Rectangle rect, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var path = CreateRoundedRectanglePath(rect, 4))

@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         private AutoSizeTriggerMode _autoSizeTriggerMode = AutoSizeTriggerMode.OnDataBind;
         private int _autoSizeDebounceMilliseconds = 120;
         private string _gridTitle = "Grid";
+        private bool _useInlineQuickSearch = true;
 
         [Browsable(false)]
         internal Type EntityType => _entityType;
@@ -256,6 +257,40 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     Layout.ShowTopFilterPanel = value;
                     Layout.Recalculate();
+                    if (!value)
+                    {
+                        HideInlineQuickSearch();
+                    }
+                    else
+                    {
+                        EnsureInlineQuickSearchVisible();
+                    }
+                    if (!DesignMode) SafeInvalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue(true)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        [Description("Uses an inline BeepFilter QuickSearch control instead of the painted search box in the top filter panel.")]
+        public bool UseInlineQuickSearch
+        {
+            get => _useInlineQuickSearch;
+            set
+            {
+                if (_useInlineQuickSearch != value)
+                {
+                    _useInlineQuickSearch = value;
+                    if (_useInlineQuickSearch)
+                    {
+                        EnsureInlineQuickSearchVisible();
+                    }
+                    else
+                    {
+                        HideInlineQuickSearch();
+                    }
                     if (!DesignMode) SafeInvalidate();
                 }
             }

@@ -32,34 +32,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             int padding = 8;
             int currentX = availableRect.X + padding;
             int currentY = availableRect.Y + padding;
+            int height = Math.Min(SearchBarHeight, Math.Max(24, availableRect.Height - (padding * 2)));
 
             // Column selector dropdown (left)
+            int columnWidth = Math.Min(ColumnSelectorWidth, Math.Max(80, availableRect.Width / 3));
             var columnRect = new Rectangle(
                 currentX,
                 currentY,
-                ColumnSelectorWidth,
-                SearchBarHeight
+                columnWidth,
+                height
             );
-            currentX += ColumnSelectorWidth + ItemSpacing;
+            currentX += columnWidth + ItemSpacing;
 
             // Search input (center - takes remaining space minus badge)
             int searchWidth = availableRect.Width - (currentX - availableRect.X) - padding - BadgeSize - ItemSpacing * 2;
+            searchWidth = Math.Max(120, searchWidth);
             var searchRect = new Rectangle(
                 currentX,
                 currentY,
                 searchWidth,
-                SearchBarHeight
+                height
             );
+
+            if (searchRect.Right > availableRect.Right - padding)
+            {
+                searchRect.Width = Math.Max(80, (availableRect.Right - padding) - searchRect.X);
+            }
+
             layout.SearchInputRect = searchRect;
             currentX += searchWidth + ItemSpacing;
 
             // Active filter count badge (right)
             var badgeRect = new Rectangle(
                 currentX,
-                currentY + (SearchBarHeight - BadgeSize) / 2,
+                currentY + (height - BadgeSize) / 2,
                 BadgeSize,
                 BadgeSize
             );
+            layout.CountBadgeRect = badgeRect;
 
             // Store column selector in a row rect for hit testing
             layout.RowRects = new Rectangle[] { columnRect };
@@ -115,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintColumnSelector(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.White))
@@ -157,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintSearchInput(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.White))
@@ -224,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintBadge(Graphics g, Rectangle rect, int count, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background circle
             using (var brush = new SolidBrush(colors.accent))
@@ -249,6 +259,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         /// <summary>Hit tests for search input, column selector, clear button, and badge.</summary>
         public override FilterHitArea? HitTest(Point point, FilterLayoutInfo layout)
         {
+            if (layout.RowRects.Length > 0 && layout.RowRects[0].Contains(point))
+            {
+                return new FilterHitArea { Name = "ColumnSelector", Bounds = layout.RowRects[0], Type = FilterHitAreaType.FieldDropdown };
+            }
+
             if (layout.SearchInputRect.Contains(point))
             {
                 // Check clear button first (if visible, would be on right side)
@@ -259,16 +274,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 );
                 if (clearRect.Contains(point))
                     return new FilterHitArea { Name = "ClearSearch", Bounds = clearRect, Type = FilterHitAreaType.RemoveButton };
-
-                // Column selector (left side)
-                Rectangle columnRect = new Rectangle(
-                    layout.SearchInputRect.X,
-                    layout.SearchInputRect.Y,
-                    ColumnSelectorWidth,
-                    layout.SearchInputRect.Height
-                );
-                if (columnRect.Contains(point))
-                    return new FilterHitArea { Name = "ColumnSelector", Bounds = columnRect, Type = FilterHitAreaType.FieldDropdown };
 
                 // Search input area
                 return new FilterHitArea { Name = "Search", Bounds = layout.SearchInputRect, Type = FilterHitAreaType.SearchInput };

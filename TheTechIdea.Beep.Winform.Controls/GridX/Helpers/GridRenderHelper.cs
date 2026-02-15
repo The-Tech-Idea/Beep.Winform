@@ -705,6 +705,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
+            // Single paint pass — search box is drawn by the painter itself,
+            // whether it's inline QuickSearch or the standard search button.
             _filterPanelPainter.PaintFilterPanel(
                 g,
                 panelRect,
@@ -712,6 +714,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 Theme,
                 _topFilterCellRects,
                 _topFilterClearIconRects);
+
+            // Update the inline quicksearch rect from the painter's stored search rect
+            _grid.PositionInlineQuickSearchControl();
         }
 
         // Draws a simple filter icon (funnel shape)

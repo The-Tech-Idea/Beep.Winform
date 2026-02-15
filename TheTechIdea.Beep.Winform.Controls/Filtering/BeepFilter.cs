@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.GridX.Filtering;
@@ -42,11 +43,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         private FilterValidationHelper? _validationHelper;
         private FilterAutocompletePopup? _autocompletePopup;
         private object? _autocompleteDataSource;
+        private BeepTextBox? _inlineValueEditor;
+        private int _inlineEditIndex = -1;
+        private bool _isCommittingInlineEdit;
+        private bool _isQuickSearchInlineEdit;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BeepFilter"/> control.
+        /// </summary>
         public BeepFilter() : base()
         {
             InitializeComponent();
@@ -60,6 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             this.MinimumSize = new Size(200, 32);
             this.DoubleBuffered = true;
             this.ResizeRedraw = true;
+            this.UseThemeColors = true;
             
             // BaseControl properties
             this.ApplyThemeToChilds = false;
@@ -109,9 +118,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         private void UpdatePainter()
         {
-            if (_filterStyle == null)
-                return;
-
             // Create painter using factory
             _activePainter = FilterPainterFactory.CreatePainter(_filterStyle,ControlStyle);
             
@@ -129,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         private void RecalculateLayout()
         {
-            if (_activePainter == null || !IsHandleCreated || Width <= 0 || Height <= 0)
+            if (_activePainter == null || Width <= 0 || Height <= 0)
             {
                 _currentLayout = new FilterLayoutInfo();
                 _hitAreas.Clear();
@@ -161,6 +167,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
 
         #region Overrides
 
+        /// <summary>
+        /// Recalculates layout when the control is resized.
+        /// </summary>
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -168,6 +177,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             Invalidate();
         }
 
+        /// <summary>
+        /// Applies theme and layout when the native handle is created.
+        /// </summary>
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ApplyTheme();
+            RecalculateLayout();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Repaints the filter when visibility changes to visible.
+        /// </summary>
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+
+            if (Visible)
+            {
+                RecalculateLayout();
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Paints the filter using the active painter.
+        /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -191,6 +228,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
         }
 
+        /// <summary>
+        /// Draws the filter into an external Graphics context at the specified rectangle.
+        /// Used by parent controls (e.g. BeepGridPro) to paint a static representation
+        /// of this filter without hosting it as a live child control.
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            if (_activePainter == null)
+            {
+                UpdatePainter();
+                if (_activePainter == null) return;
+            }
+
+            // Calculate layout for the target rectangle
+            var drawLayout = _activePainter.CalculateLayout(this, rectangle);
+
+            // Set high quality rendering
+            var prevSmoothing = graphics.SmoothingMode;
+            var prevTextHint = graphics.TextRenderingHint;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                _activePainter.Paint(graphics, this, drawLayout);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BeepFilter Draw error: {ex.Message}");
+            }
+            finally
+            {
+                graphics.SmoothingMode = prevSmoothing;
+                graphics.TextRenderingHint = prevTextHint;
+            }
+        }
+
+        /// <summary>
+        /// Updates hover state and cursor for filter hit areas.
+        /// </summary>
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -212,6 +289,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
         }
 
+        /// <summary>
+        /// Clears hover state when pointer leaves the control.
+        /// </summary>
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -224,6 +304,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
         }
 
+        /// <summary>
+        /// Captures pressed hit area for click matching.
+        /// </summary>
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -240,6 +323,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             }
         }
 
+        /// <summary>
+        /// Executes click action when press/release occurs on the same hit area.
+        /// </summary>
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
@@ -322,8 +408,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     break;
 
                 case FilterHitAreaType.CollapseButton:
-                    if (hitArea.Tag != null)
+                    if (hitArea.Name != null && hitArea.Name.StartsWith("Tab_", StringComparison.OrdinalIgnoreCase) &&
+                        hitArea.Tag is int tabIndex &&
+                        _activePainter is Painters.AdvancedDialogFilterPainter advancedPainter)
+                    {
+                        advancedPainter.SetCurrentTab(tabIndex);
+                        RecalculateLayout();
+                        Invalidate();
+                    }
+                    else if (hitArea.Tag != null)
+                    {
                         ToggleSection(hitArea.Tag);
+                    }
                     break;
 
                 case FilterHitAreaType.SearchInput:
@@ -331,7 +427,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
                     break;
 
                 case FilterHitAreaType.ClearAllButton:
-                    ClearAllFilters();
+                    if (string.Equals(hitArea.Name, "Cancel", StringComparison.OrdinalIgnoreCase))
+                    {
+                        OnFilterCanceled();
+                    }
+                    else
+                    {
+                        ClearAllFilters();
+                    }
                     break;
 
                 case FilterHitAreaType.ApplyButton:
@@ -373,7 +476,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         private void EditFilterAt(int index)
         {
-            OnFilterEditRequested(index);
+            if (index < 0 || index >= _activeFilter.Criteria.Count)
+            {
+                return;
+            }
+
+            Rectangle valueBounds = Rectangle.Empty;
+
+            if (_currentLayout.ValueDropdownRects != null && index < _currentLayout.ValueDropdownRects.Length)
+            {
+                valueBounds = _currentLayout.ValueDropdownRects[index];
+            }
+            else if (_currentLayout.RowRects != null && index < _currentLayout.RowRects.Length)
+            {
+                var rowRect = _currentLayout.RowRects[index];
+                int valueWidth = Math.Max(120, rowRect.Width / 3);
+                valueBounds = new Rectangle(
+                    rowRect.Right - valueWidth - 8,
+                    rowRect.Y + 2,
+                    valueWidth,
+                    Math.Max(24, rowRect.Height - 4));
+            }
+
+            if (!BeginInlineValueEdit(index, valueBounds))
+            {
+                OnFilterEditRequested(index);
+            }
         }
 
         /// <summary>
@@ -479,8 +607,265 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         private void ShowValueInput(int index, Rectangle bounds)
         {
-            // Raise event for consuming control to show value input
-            OnValueInputRequested(index, bounds);
+            if (!BeginInlineValueEdit(index, bounds))
+            {
+                OnValueInputRequested(index, bounds);
+            }
+        }
+
+        private bool BeginInlineValueEdit(int index, Rectangle bounds)
+        {
+            if (index < 0 || index >= _activeFilter.Criteria.Count)
+            {
+                return false;
+            }
+
+            var criterion = _activeFilter.Criteria[index];
+            if (criterion == null)
+            {
+                return false;
+            }
+
+            if (criterion.Operator == FilterOperator.IsNull || criterion.Operator == FilterOperator.IsNotNull)
+            {
+                criterion.Value = string.Empty;
+                criterion.Value2 = string.Empty;
+                OnFilterModified(index);
+                RecalculateLayout();
+                Invalidate();
+                return true;
+            }
+
+            EnsureInlineValueEditor();
+            if (_inlineValueEditor == null)
+            {
+                return false;
+            }
+
+            var editBounds = NormalizeInlineEditorBounds(bounds, index);
+            _inlineEditIndex = index;
+
+            if (criterion.Operator == FilterOperator.Between || criterion.Operator == FilterOperator.NotBetween)
+            {
+                var left = criterion.Value?.ToString() ?? string.Empty;
+                var right = criterion.Value2?.ToString() ?? string.Empty;
+                _inlineValueEditor.Text = string.IsNullOrWhiteSpace(right) ? left : $"{left} | {right}";
+            }
+            else
+            {
+                _inlineValueEditor.Text = criterion.Value?.ToString() ?? string.Empty;
+            }
+
+            _inlineValueEditor.Bounds = editBounds;
+            _inlineValueEditor.Visible = true;
+            _inlineValueEditor.BringToFront();
+            _inlineValueEditor.Focus();
+            _inlineValueEditor.SelectAll();
+
+            return true;
+        }
+
+        private Rectangle NormalizeInlineEditorBounds(Rectangle bounds, int index)
+        {
+            var editBounds = bounds;
+
+            if (editBounds.Width <= 0 || editBounds.Height <= 0)
+            {
+                if (_currentLayout.ValueDropdownRects != null && index >= 0 && index < _currentLayout.ValueDropdownRects.Length)
+                {
+                    editBounds = _currentLayout.ValueDropdownRects[index];
+                }
+                else if (_currentLayout.RowRects != null && index >= 0 && index < _currentLayout.RowRects.Length)
+                {
+                    editBounds = _currentLayout.RowRects[index];
+                }
+                else
+                {
+                    editBounds = new Rectangle(8, 8, Math.Max(120, Width - 16), 28);
+                }
+            }
+
+            if (editBounds.Height < 24)
+            {
+                editBounds.Height = 24;
+            }
+
+            if (editBounds.Width < 120)
+            {
+                editBounds.Width = 120;
+            }
+
+            editBounds.Inflate(-1, -1);
+
+            if (editBounds.Right > ClientRectangle.Right)
+            {
+                editBounds.X = Math.Max(0, ClientRectangle.Right - editBounds.Width);
+            }
+
+            if (editBounds.Bottom > ClientRectangle.Bottom)
+            {
+                editBounds.Y = Math.Max(0, ClientRectangle.Bottom - editBounds.Height);
+            }
+
+            return editBounds;
+        }
+
+        private void EnsureInlineValueEditor()
+        {
+            if (_inlineValueEditor != null)
+            {
+                return;
+            }
+
+            _inlineValueEditor = new BeepTextBox
+            {
+                Visible = false,
+                IsChild = true,
+                Theme = Theme,
+                TabStop = true
+            };
+
+            _inlineValueEditor.KeyDown += InlineValueEditor_KeyDown;
+            _inlineValueEditor.LostFocus += InlineValueEditor_LostFocus;
+            Controls.Add(_inlineValueEditor);
+        }
+
+        private void InlineValueEditor_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                CommitInlineValueEdit();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
+            if (e.KeyCode == Keys.Escape)
+            {
+                CancelInlineValueEdit();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void InlineValueEditor_LostFocus(object? sender, EventArgs e)
+        {
+            CommitInlineValueEdit();
+        }
+
+        private void CommitInlineValueEdit()
+        {
+            if (_isCommittingInlineEdit)
+            {
+                return;
+            }
+
+            if (_inlineValueEditor == null || !_inlineValueEditor.Visible)
+            {
+                return;
+            }
+
+            if (_inlineEditIndex < 0 || _inlineEditIndex >= _activeFilter.Criteria.Count)
+            {
+                HideInlineValueEditor();
+                return;
+            }
+
+            _isCommittingInlineEdit = true;
+            try
+            {
+                var criterion = _activeFilter.Criteria[_inlineEditIndex];
+                var rawText = _inlineValueEditor.Text ?? string.Empty;
+
+                if (_isQuickSearchInlineEdit)
+                {
+                    criterion.Operator = FilterOperator.Contains;
+                    if (string.IsNullOrWhiteSpace(criterion.ColumnName))
+                    {
+                        var available = AvailableColumns;
+                        criterion.ColumnName = available.Count > 0 ? available[0].ColumnName : "All Columns";
+                    }
+
+                    criterion.Value = rawText.Trim();
+                    criterion.Value2 = string.Empty;
+                    OnFilterChanged();
+                    RecalculateLayout();
+                    Invalidate();
+                    return;
+                }
+
+                if (criterion.Operator == FilterOperator.Between || criterion.Operator == FilterOperator.NotBetween)
+                {
+                    var parts = rawText.Split(new[] { "|", ".." }, StringSplitOptions.None);
+                    var left = parts.Length > 0 ? parts[0].Trim() : string.Empty;
+                    var right = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+
+                    criterion.Value = ConvertInlineText(left, criterion.ColumnName);
+                    criterion.Value2 = ConvertInlineText(right, criterion.ColumnName);
+                }
+                else
+                {
+                    criterion.Value = ConvertInlineText(rawText.Trim(), criterion.ColumnName);
+                }
+
+                OnFilterModified(_inlineEditIndex);
+                RecalculateLayout();
+                Invalidate();
+            }
+            finally
+            {
+                HideInlineValueEditor();
+                _isCommittingInlineEdit = false;
+            }
+        }
+
+        private object ConvertInlineText(string text, string columnName)
+        {
+            var column = AvailableColumns?.Find(c => c.ColumnName == columnName);
+            var targetType = column?.DataType ?? typeof(string);
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            if (targetType == typeof(string)) return text;
+
+            var nonNullableType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            try
+            {
+                if (nonNullableType == typeof(int) && int.TryParse(text, out var i)) return i;
+                if (nonNullableType == typeof(long) && long.TryParse(text, out var l)) return l;
+                if (nonNullableType == typeof(decimal) && decimal.TryParse(text, out var m)) return m;
+                if (nonNullableType == typeof(double) && double.TryParse(text, out var d)) return d;
+                if (nonNullableType == typeof(float) && float.TryParse(text, out var f)) return f;
+                if (nonNullableType == typeof(bool) && bool.TryParse(text, out var b)) return b;
+                if (nonNullableType == typeof(DateTime) && DateTime.TryParse(text, out var dt)) return dt;
+
+                return Convert.ChangeType(text, nonNullableType);
+            }
+            catch
+            {
+                return text;
+            }
+        }
+
+        private void CancelInlineValueEdit()
+        {
+            HideInlineValueEditor();
+            Focus();
+        }
+
+        private void HideInlineValueEditor()
+        {
+            if (_inlineValueEditor != null)
+            {
+                _inlineValueEditor.Visible = false;
+            }
+
+            _inlineEditIndex = -1;
+            _isQuickSearchInlineEdit = false;
         }
 
         /// <summary>
@@ -506,8 +891,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         private void FocusSearchInput(Rectangle bounds)
         {
-            // Raise event for search focus
+            if (_filterStyle == FilterStyle.QuickSearch)
+            {
+                BeginInlineQuickSearchEdit(bounds);
+                return;
+            }
+
             OnSearchFocusRequested(bounds);
+        }
+
+        private void BeginInlineQuickSearchEdit(Rectangle bounds)
+        {
+            if (_activeFilter.Criteria.Count == 0)
+            {
+                var available = AvailableColumns;
+                _activeFilter.Criteria.Add(new FilterCriteria
+                {
+                    ColumnName = available.Count > 0 ? available[0].ColumnName : "All Columns",
+                    Operator = FilterOperator.Contains,
+                    Value = string.Empty,
+                    IsEnabled = true
+                });
+            }
+
+            var criterion = _activeFilter.Criteria[0];
+            criterion.Operator = FilterOperator.Contains;
+            _isQuickSearchInlineEdit = true;
+
+            EnsureInlineValueEditor();
+            if (_inlineValueEditor == null)
+            {
+                return;
+            }
+
+            var editBounds = NormalizeInlineEditorBounds(bounds, 0);
+            _inlineEditIndex = 0;
+            _inlineValueEditor.Text = criterion.Value?.ToString() ?? string.Empty;
+            _inlineValueEditor.Bounds = editBounds;
+            _inlineValueEditor.Visible = true;
+            _inlineValueEditor.BringToFront();
+            _inlineValueEditor.Focus();
+            _inlineValueEditor.SelectAll();
         }
 
         #endregion
@@ -811,10 +1235,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         {
             if (disposing)
             {
+                if (_inlineValueEditor != null)
+                {
+                    _inlineValueEditor.KeyDown -= InlineValueEditor_KeyDown;
+                    _inlineValueEditor.LostFocus -= InlineValueEditor_LostFocus;
+                    if (!_inlineValueEditor.IsDisposed)
+                    {
+                        _inlineValueEditor.Dispose();
+                    }
+                    _inlineValueEditor = null;
+                }
+
                 _activePainter = null;
                 _hitAreas?.Clear();
             }
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Applies current theme colors and refreshes layout/paint.
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+
+            if (_currentTheme != null)
+            {
+                BackColor = _currentTheme.BackColor;
+                ForeColor = _currentTheme.ForeColor;
+                BorderColor = _currentTheme.BorderColor;
+            }
+
+            RecalculateLayout();
+            Invalidate();
         }
 
         #endregion

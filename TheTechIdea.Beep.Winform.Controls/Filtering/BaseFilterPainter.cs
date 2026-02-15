@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.GridX.Filtering;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
 {
@@ -17,8 +18,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
     {
         #region Properties
 
+        /// <summary>
+        /// Gets the filter style supported by this painter implementation.
+        /// </summary>
         public abstract FilterStyle FilterStyle { get; }
+
+        /// <summary>
+        /// Gets whether this painter supports animated transitions.
+        /// </summary>
         public virtual bool SupportsAnimations => true;
+
+        /// <summary>
+        /// Gets whether this painter supports drag and drop interactions.
+        /// </summary>
         public virtual bool SupportsDragDrop => false;
 
         #endregion
@@ -311,14 +323,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         protected (Color background, Color border, Color text, Color accent) GetStyleColors(BeepControlStyle style)
         {
-            // These should come from BeepStyling - placeholder for now
-            // TODO: Hook into BeepStyling.GetBackgroundColor, GetBorderColor, etc.
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme != null)
+            {
+                return (
+                    background: theme.BackColor,
+                    border: theme.BorderColor,
+                    text: theme.ForeColor,
+                    accent: theme.AccentColor
+                );
+            }
+
             return (
                 background: Color.White,
                 border: Color.FromArgb(224, 224, 224),
                 text: Color.FromArgb(33, 33, 33),
                 accent: Color.FromArgb(33, 150, 243)
             );
+        }
+
+        /// <summary>
+        /// Gets colors preferring the owner control theme, then global theme, then defaults.
+        /// </summary>
+        protected (Color background, Color border, Color text, Color accent) GetStyleColors(BeepFilter owner, BeepControlStyle style)
+        {
+            var theme = owner?._currentTheme ?? BeepThemesManager.CurrentTheme;
+            if (theme != null)
+            {
+                return (
+                    background: theme.BackColor,
+                    border: theme.BorderColor,
+                    text: theme.ForeColor,
+                    accent: theme.AccentColor
+                );
+            }
+
+            return GetStyleColors(style);
         }
 
         #endregion
@@ -374,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// <summary>
         /// Paints a validation indicator icon (error, warning, success)
         /// </summary>
-        protected void PaintValidationIndicator(Graphics g, Rectangle bounds, FilterValidationLevel level, string tooltip = null)
+        protected void PaintValidationIndicator(Graphics g, Rectangle bounds, FilterValidationLevel level, string? tooltip = null)
         {
             Color indicatorColor;
             string iconText;

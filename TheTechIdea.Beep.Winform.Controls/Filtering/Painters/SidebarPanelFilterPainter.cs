@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
         {
             if (g == null || owner == null) return;
 
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
             var config = owner.ActiveFilter;
 
             // Panel background

@@ -1,7 +1,10 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -24,11 +27,79 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
-        /// Draw override - called by BeepGridPro and containers
+        /// Draw override - called by BeepGridPro and containers.
+        /// Paints a static image of the combo box into the given rectangle.
+        /// Calculates layout relative to the passed rect (not the control's own bounds).
         /// </summary>
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            Paint(graphics, rectangle);
+            if (graphics == null || rectangle.Width <= 0 || rectangle.Height <= 0) return;
+
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            // Calculate sub-rects from the passed rectangle
+            _helper.CalculateLayout(rectangle, out var textAreaRect, out var buttonRect, out var imageRect);
+
+            // --- Draw text ---
+            string displayText = _helper.GetDisplayText();
+            if (!string.IsNullOrEmpty(displayText))
+            {
+                Color textColor;
+                if (_helper.IsShowingPlaceholder())
+                {
+                    Color placeholderColor = _currentTheme?.TextBoxPlaceholderColor ?? Color.Empty;
+                    textColor = placeholderColor != Color.Empty
+                        ? placeholderColor
+                        : Color.FromArgb(128, (_currentTheme?.SecondaryColor ?? _currentTheme?.ForeColor ?? Color.Gray));
+                }
+                else
+                {
+                    textColor = _helper.GetTextColor();
+                }
+
+                Font textFont = TextFont
+                    ?? BeepThemesManager.ToFont(_currentTheme?.LabelFont)
+                    ?? new Font("Segoe UI", 9f, FontStyle.Regular);
+
+                int hInset = ScaleLogicalX(6);
+                var textBounds = new Rectangle(
+                    textAreaRect.X + hInset,
+                    textAreaRect.Y,
+                    Math.Max(1, textAreaRect.Width - hInset * 2),
+                    textAreaRect.Height);
+
+                TextFormatFlags flags = TextFormatFlags.Left
+                    | TextFormatFlags.VerticalCenter
+                    | TextFormatFlags.EndEllipsis
+                    | TextFormatFlags.NoPrefix;
+
+                TextRenderer.DrawText(graphics, displayText, textFont, textBounds, textColor, flags);
+            }
+
+            // --- Draw dropdown arrow ---
+            if (!buttonRect.IsEmpty)
+            {
+                Color arrowColor = Color.FromArgb(180, (_currentTheme?.SecondaryColor ?? Color.Gray));
+                int arrowSize = Math.Max(ScaleLogicalX(3), Math.Min(buttonRect.Width, buttonRect.Height) / 5);
+                int arrowHalf = Math.Max(ScaleLogicalY(2), arrowSize / 2);
+                int cx = buttonRect.Left + buttonRect.Width / 2;
+                int cy = buttonRect.Top + buttonRect.Height / 2;
+
+                float stroke = Math.Max(1f, ScaleLogicalX(2));
+                using (var pen = new Pen(arrowColor, stroke))
+                {
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+                    pen.LineJoin = LineJoin.Round;
+                    graphics.DrawLines(pen, new[]
+                    {
+                        new Point(cx - arrowSize, cy - arrowHalf),
+                        new Point(cx, cy + arrowHalf),
+                        new Point(cx + arrowSize, cy - arrowHalf)
+                    });
+                }
+            }
         }
 
         /// <summary>

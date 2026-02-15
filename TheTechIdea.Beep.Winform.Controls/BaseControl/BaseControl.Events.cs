@@ -59,6 +59,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             //     }
             // }
         }
+
+        private void ExcludeConfiguredPaintRectangles(Graphics g)
+        {
+            if (g == null || _excludedPaintRectangles.Count == 0)
+            {
+                return;
+            }
+
+            Rectangle clientRect = ClientRectangle;
+            for (int i = 0; i < _excludedPaintRectangles.Count; i++)
+            {
+                var rectangle = _excludedPaintRectangles[i];
+                if (rectangle.Width <= 0 || rectangle.Height <= 0)
+                {
+                    continue;
+                }
+
+                var clipped = Rectangle.Intersect(clientRect, rectangle);
+                if (clipped.Width > 0 && clipped.Height > 0)
+                {
+                    g.ExcludeClip(clipped);
+                }
+            }
+        }
         
         protected override void OnPaintBackground(PaintEventArgs e)
         {

@@ -72,6 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         // Cached parent background for transparent controls (avoid BitBlt feedback loop)
         private Bitmap? _cachedParentBackground = null;
         private bool _parentBackgroundCacheValid = false;
+        private readonly List<Rectangle> _excludedPaintRectangles = new();
 
         // State flags (exposed like base BeepControl)
         [Browsable(true)]

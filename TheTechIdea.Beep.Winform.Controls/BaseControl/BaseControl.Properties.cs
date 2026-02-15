@@ -166,6 +166,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool UseRichToolTip { get; set; } = true;
         #endregion
         public DrawingLayer ExternalDrawingLayer { get; set; } =  DrawingLayer.AfterAll;  
+
+        #region Paint Exclusions
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public IList<Rectangle> ExcludedPaintRectangles => _excludedPaintRectangles;
+
+        public void SetExcludedPaintRectangles(IEnumerable<Rectangle> rectangles)
+        {
+            _excludedPaintRectangles.Clear();
+            if (rectangles != null)
+            {
+                foreach (var rectangle in rectangles)
+                {
+                    if (rectangle.Width > 0 && rectangle.Height > 0)
+                    {
+                        _excludedPaintRectangles.Add(rectangle);
+                    }
+                }
+            }
+
+            Invalidate();
+        }
+
+        public void AddExcludedPaintRectangle(Rectangle rectangle)
+        {
+            if (rectangle.Width <= 0 || rectangle.Height <= 0)
+            {
+                return;
+            }
+
+            if (!_excludedPaintRectangles.Contains(rectangle))
+            {
+                _excludedPaintRectangles.Add(rectangle);
+                Invalidate();
+            }
+        }
+
+        public void ClearExcludedPaintRectangles()
+        {
+            if (_excludedPaintRectangles.Count == 0)
+            {
+                return;
+            }
+
+            _excludedPaintRectangles.Clear();
+            Invalidate();
+        }
+        #endregion
+
         #region Static/Location Control
         [Browsable(true)]
         [Category("Behavior")]

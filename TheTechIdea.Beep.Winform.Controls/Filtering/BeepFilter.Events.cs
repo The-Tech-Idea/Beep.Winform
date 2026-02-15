@@ -60,6 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         [Description("Raised when filters should be applied")]
         public event EventHandler? FilterApplied;
 
+        /// <summary>
+        /// Raised when the user cancels the filter dialog interaction.
+        /// </summary>
+        [Category("Filter")]
+        [Description("Raised when user cancels filter dialog interaction")]
+        public event EventHandler? FilterCanceled;
+
         #endregion
 
         #region Group Events
@@ -212,6 +219,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         protected virtual void OnFilterApplied()
         {
             FilterApplied?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnFilterCanceled()
+        {
+            FilterCanceled?.Invoke(this, EventArgs.Empty);
         }
 
         protected virtual void OnGroupAdded()

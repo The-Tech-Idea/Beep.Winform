@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 // Paint drag handle
                 if (owner.EnableDragDrop && i < layout.DragHandleRects.Length)
                 {
-                    var colors = GetStyleColors(owner.ControlStyle);
+                    var colors = GetStyleColors(owner, owner.ControlStyle);
                     PaintDragHandle(g, layout.DragHandleRects[i], Color.FromArgb(150, colors.text));
                 }
 
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintFilterRow(Graphics g, Rectangle rect, FilterCriteria criterion, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
             int dragOffset = owner.EnableDragDrop ? DragHandleWidth + 8 : 8;
 
             // Calculate areas within row
@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintDropdownField(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.White))
@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintValueField(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.White))
@@ -284,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintLogicConnectorButton(Graphics g, Rectangle rect, string text, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background (rounded pill)
             using (var brush = new SolidBrush(Color.FromArgb(245, 245, 245)))
@@ -315,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintRemoveButton(Graphics g, Rectangle rect, BeepFilter owner)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Circle background
             using (var brush = new SolidBrush(Color.FromArgb(250, 250, 250)))
@@ -345,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
 
         private void PaintAddFilterButton(Graphics g, Rectangle rect, string text, BeepFilter owner, bool isGroup = false)
         {
-            var colors = GetStyleColors(owner.ControlStyle);
+            var colors = GetStyleColors(owner, owner.ControlStyle);
 
             // Background
             using (var brush = new SolidBrush(Color.FromArgb(248, 248, 248)))

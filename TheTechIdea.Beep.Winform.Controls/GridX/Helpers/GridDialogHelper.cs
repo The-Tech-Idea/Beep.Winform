@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
@@ -302,8 +303,190 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         public void ShowSearchDialog()
         {
-            // Show inline search editor overlay
-            PerformSearch(string.Empty, true);
+            using var searchDialog = new Form
+            {
+                Text = "Quick Search",
+                StartPosition = FormStartPosition.CenterParent,
+                Size = new Size(720, 120),
+                MinimizeBox = false,
+                MaximizeBox = false,
+                ShowInTaskbar = false,
+                FormBorderStyle = FormBorderStyle.FixedDialog
+            };
+
+            var quickSearchFilter = new BeepFilter
+            {
+                Dock = DockStyle.Fill,
+                FilterStyle = FilterStyle.QuickSearch,
+                DisplayMode = FilterDisplayMode.AlwaysVisible,
+                AutoApply = true,
+                ShowActionButtons = false,
+                IsChild = true,
+                IsFrameless = true,
+                Theme = _grid.Theme,
+                EntityStructure = CreateQuickSearchEntityStructure()
+            };
+
+            var initialFilter = new FilterConfiguration("Quick Search")
+            {
+                IsActive = !string.IsNullOrWhiteSpace(_currentSearchFilter)
+            };
+            initialFilter.Criteria.Add(new FilterCriteria
+            {
+                ColumnName = "All Columns",
+                Operator = FilterOperator.Contains,
+                Value = _currentSearchFilter,
+                IsEnabled = true
+            });
+            quickSearchFilter.ActiveFilter = initialFilter;
+
+            ContextMenuStrip? activeContextMenu = null;
+
+            void CloseActiveContextMenu()
+            {
+                if (activeContextMenu == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    if (!activeContextMenu.IsDisposed)
+                    {
+                        activeContextMenu.Close();
+                        activeContextMenu.Dispose();
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+                finally
+                {
+                    activeContextMenu = null;
+                }
+            }
+
+            quickSearchFilter.FieldSelectionRequested += (_, e) =>
+            {
+                if (e.Index < 0 || e.Index >= quickSearchFilter.ActiveFilter.Criteria.Count)
+                {
+                    return;
+                }
+
+                CloseActiveContextMenu();
+                var menu = new ContextMenuStrip();
+                activeContextMenu = menu;
+
+                foreach (var column in quickSearchFilter.AvailableColumns)
+                {
+                    var selectedColumn = column.ColumnName;
+                    var display = string.IsNullOrWhiteSpace(column.DisplayName) ? selectedColumn : column.DisplayName;
+                    var item = new ToolStripMenuItem(display);
+                    item.Click += (_, __) =>
+                    {
+                        var config = quickSearchFilter.ActiveFilter.Clone();
+                        if (config.Criteria.Count == 0)
+                        {
+                            config.Criteria.Add(new FilterCriteria
+                            {
+                                ColumnName = selectedColumn,
+                                Operator = FilterOperator.Contains,
+                                Value = string.Empty,
+                                IsEnabled = true
+                            });
+                        }
+                        else
+                        {
+                            config.Criteria[0].ColumnName = selectedColumn;
+                        }
+
+                        quickSearchFilter.ActiveFilter = config;
+                    };
+                    menu.Items.Add(item);
+                }
+
+                menu.Closed += (_, __) =>
+                {
+                    if (ReferenceEquals(activeContextMenu, menu))
+                    {
+                        activeContextMenu = null;
+                    }
+
+                    if (!menu.IsDisposed)
+                    {
+                        menu.Dispose();
+                    }
+                };
+
+                menu.Show(quickSearchFilter, new Point(e.Bounds.Left, e.Bounds.Bottom));
+            };
+
+            quickSearchFilter.FilterChanged += (_, __) =>
+            {
+                if (quickSearchFilter.ActiveFilter.Criteria.Count == 0)
+                {
+                    _currentSearchFilter = string.Empty;
+                    _grid.ClearFilter();
+                    return;
+                }
+
+                var criterion = quickSearchFilter.ActiveFilter.Criteria[0];
+                var text = criterion.Value?.ToString() ?? string.Empty;
+                var columnName = criterion.ColumnName;
+
+                _currentSearchFilter = text;
+
+                if (string.Equals(columnName, "All Columns", StringComparison.OrdinalIgnoreCase))
+                {
+                    columnName = null;
+                }
+
+                _grid.ApplyQuickFilter(text, columnName);
+            };
+
+            quickSearchFilter.FilterCanceled += (_, __) => searchDialog.Close();
+
+            searchDialog.FormClosed += (_, __) => CloseActiveContextMenu();
+            searchDialog.Controls.Add(quickSearchFilter);
+            searchDialog.Shown += (_, __) =>
+            {
+                quickSearchFilter.ApplyTheme();
+                quickSearchFilter.Refresh();
+            };
+
+            searchDialog.ShowDialog(_grid);
+        }
+
+        private EntityStructure CreateQuickSearchEntityStructure()
+        {
+            var entity = new EntityStructure
+            {
+                EntityName = "GridQuickSearch",
+                Fields = new List<EntityField>()
+            };
+
+            entity.Fields.Add(new EntityField
+            {
+                FieldName = "All Columns",
+                Originalfieldname = "All Columns",
+                Fieldtype = typeof(string).FullName,
+                AllowDBNull = true,
+                IsKey = false
+            });
+
+            foreach (var column in _grid.Data.Columns.Where(c => c != null && c.Visible && !c.IsSelectionCheckBox && !c.IsRowNumColumn))
+            {
+                entity.Fields.Add(new EntityField
+                {
+                    FieldName = column.ColumnName,
+                    Originalfieldname = string.IsNullOrWhiteSpace(column.ColumnCaption) ? column.ColumnName : column.ColumnCaption,
+                    Fieldtype = column.DataType?.FullName ?? typeof(string).FullName,
+                    AllowDBNull = true,
+                    IsKey = false
+                });
+            }
+
+            return entity;
         }
 
         /// <summary>

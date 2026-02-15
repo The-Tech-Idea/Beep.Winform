@@ -374,10 +374,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 clearIconRects[AdvancedFilterActionKey] = filterRect;
                 right = filterRect.Left - options.Spacing;
 
-                int searchWidth = Math.Min(options.SearchMaxWidth, Math.Max(options.SearchMinWidth, right - x));
-                var searchRect = new Rectangle(right - searchWidth, centerY - options.ControlHeight / 2, searchWidth, options.ControlHeight);
-                DrawModernSearchBox(g, searchRect, options.SearchPlaceholder, tokens, font, options.CornerRadius, options.FlatControls);
-                filterCellRects[SearchActionKey] = searchRect;
+                {
+                    int searchWidth = Math.Min(options.SearchMaxWidth, Math.Max(options.SearchMinWidth, right - x));
+                    // When using inline QuickSearch (BeepFilter), give it the full panel height
+                    // so the QuickSearchFilterPainter's internal padding fits. For the normal
+                    // search box, use the compact ControlHeight.
+                    int searchHeight = grid.UseInlineQuickSearch
+                        ? panelRect.Height - 4
+                        : options.ControlHeight;
+                    int searchY = grid.UseInlineQuickSearch
+                        ? panelRect.Top + 2
+                        : centerY - options.ControlHeight / 2;
+                    var searchRect = new Rectangle(right - searchWidth, searchY, searchWidth, searchHeight);
+                    filterCellRects[SearchActionKey] = searchRect;
+
+                    if (grid.UseInlineQuickSearch)
+                    {
+                        // Use BeepFilter.Draw(g, rect) via grid callback
+                        grid.PaintInlineQuickSearch(g, searchRect);
+                    }
+                    else
+                    {
+                        DrawModernSearchBox(g, searchRect, options.SearchPlaceholder, tokens, font, options.CornerRadius, options.FlatControls);
+                    }
+                }
             }
             finally
             {

@@ -52,5 +52,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 _ => new StandardFilterPanelPainter()
             };
         }
+
+        /// <summary>
+        /// Gets the recommended filter panel height for the specified grid style.
+        /// Creates a temporary painter instance to calculate DPI-aware height.
+        /// </summary>
+        public static int GetRecommendedHeight(BeepGridPro grid)
+        {
+            if (grid == null) return 34; // Default fallback
+            
+            var painter = CreatePainterForGridStyle(grid.GridStyle);
+            return painter.CalculateFilterPanelHeight(grid);
+        }
     }
 }

@@ -453,6 +453,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private int _cachedFontHeight = -1;
         private Font _lastMeasuredFont;
 
+        /// <summary>
+        /// Gets cached font height to avoid repeated TextRenderer.MeasureText calls.
+        /// Cache is automatically invalidated on DPI changes.
+        /// </summary>
         protected int GetCachedFontHeight(Font font)
         {
             font = GetSafeFont(font);
@@ -462,6 +466,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _cachedFontHeight = TextRenderer.MeasureText("Aj", font).Height;
             }
             return _cachedFontHeight;
+        }
+
+        /// <summary>
+        /// Invalidates cached font metrics. Called automatically on DPI changes.
+        /// Derived controls should call this if they change Font programmatically.
+        /// </summary>
+        protected void InvalidateFontCache()
+        {
+            _cachedFontHeight = -1;
+            _lastMeasuredFont = null;
         }
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -553,6 +567,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// Per Microsoft docs: Use DpiChanged events for dynamic DPI scenarios
         /// Per Microsoft docs: "DpiChangedAfterParent is raised when the parent's DPI changes"
         /// Reference: https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
+        /// 
+        /// NOTE: Base implementation sets scaleFont=false to avoid double-scaling.
+        /// Derived controls that explicitly set Font should override OnDpiScaleChanged() and call ScaleFontForDpi().
         /// </summary>
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
@@ -591,13 +608,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <summary>
         /// Called after this control observes a DPI scale transition.
         /// Derived controls can override to recompute custom drawing metrics.
+        /// Per Microsoft: Invalidate cached font metrics and notify painters.
         /// </summary>
         protected virtual void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
         {
+            // Invalidate font cache (height measurements change with DPI)
+            InvalidateFontCache();
+            
             UpdateDrawingRect();
             _painter?.UpdateLayout(this);
             PerformLayout();
             Invalidate(true);
+        }
+
+        /// <summary>
+        /// Helper for derived controls to scale their font during DPI changes.
+        /// Uses BeepFontManager.TryScaleControlFont() per Microsoft DPI guidance.
+        /// Only call this if the derived control explicitly sets Font (not inherited).
+        /// </summary>
+        /// <example>
+        /// protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        /// {
+        ///     int oldDpi = (int)(oldScaleX * 96);
+        ///     int newDpi = (int)(newScaleX * 96);
+        ///     ScaleFontForDpi(oldDpi, newDpi);
+        ///     base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+        /// }
+        /// </example>
+        protected bool ScaleFontForDpi(int oldDpi, int newDpi)
+        {
+            // Only scale if font was explicitly set (not inherited from parent)
+            if (DpiScalingHelper.IsFontInherited(this, this.Font))
+                return false;
+
+            return BeepFontManager.TryScaleControlFont(this, oldDpi, newDpi);
         }
 
         /// <summary>

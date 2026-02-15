@@ -1,6 +1,7 @@
 using System;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
@@ -98,8 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
         
         public override int CalculateNavigatorHeight(BeepGridPro grid)
         {
-            // Material 3 navigation height
-            return 56;
+            // Material 3 navigation height with DPI scaling
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            return DpiScalingHelper.ScaleValue(56, dpiScale);
         }
         
         #endregion

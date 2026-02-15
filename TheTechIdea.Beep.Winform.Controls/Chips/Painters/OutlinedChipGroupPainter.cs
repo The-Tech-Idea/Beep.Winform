@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions opt)
         {
-            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
+            float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
             var font = ResolveFont(opt, scale);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions opt, out Rectangle closeRect)
         {
-            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
+            float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
             closeRect = Rectangle.Empty;
             var font = ResolveFont(opt, scale);
             var (stroke, text, hoverFill) = GetPalette(state);

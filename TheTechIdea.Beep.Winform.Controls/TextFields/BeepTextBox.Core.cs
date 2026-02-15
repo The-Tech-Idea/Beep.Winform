@@ -204,6 +204,59 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         
+        #region "DPI Awareness (Microsoft High-DPI Best Practices)"
+        
+        /// <summary>
+        /// Handle DPI changes per Microsoft guidance.
+        /// Scales fonts and invalidates cached metrics when DPI changes.
+        /// </summary>
+        protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            // Convert scale factors to DPI values
+            int oldDpi = (int)(oldScaleX * 96);
+            int newDpi = (int)(newScaleX * 96);
+            
+            // Scale font if explicitly set (not from theme)
+            if (_textFont != null && !UseThemeFont)
+            {
+                ScaleFontForDpi(oldDpi, newDpi);
+            }
+            
+            // Invalidate cached fonts (will be recreated on next paint)
+            if (_characterCountFont != null && !IsSystemOrCachedFont(_characterCountFont))
+            {
+                _characterCountFont?.Dispose();
+            }
+            _characterCountFont = null;
+            
+            if (_lineNumberFont != null && !IsSystemOrCachedFont(_lineNumberFont))
+            {
+                _lineNumberFont?.Dispose();
+            }
+            _lineNumberFont = null;
+            
+            // Invalidate cached metrics (font heights change with DPI)
+            _cachedTextHeightPx = -1;
+            _cachedMinHeightPx = -1;
+            RecomputeMinHeight();
+            
+            // Let base class handle rest (invalidates font cache, updates layout)
+            base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+        }
+        
+        /// <summary>
+        /// Checks if font is a system font or cached font that shouldn't be disposed.
+        /// </summary>
+        private bool IsSystemOrCachedFont(Font font)
+        {
+            if (font == null) return false;
+            return font == Control.DefaultFont || 
+                   font == System.Drawing.SystemFonts.DefaultFont ||
+                   font == System.Drawing.SystemFonts.MessageBoxFont;
+        }
+        
+        #endregion
+        
         #region "Cleanup"
         
         protected override void Dispose(bool disposing)
@@ -220,8 +273,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _incrementalSearchTimer?.Dispose();
                 
                 _helper?.Dispose();
-                _textFont?.Dispose();
-                _lineNumberFont?.Dispose();
+                
+                // Dispose fonts safely (don't dispose system/cached fonts)
+                if (_textFont != null && !IsSystemOrCachedFont(_textFont))
+                {
+                    _textFont?.Dispose();
+                }
+                if (_characterCountFont != null && !IsSystemOrCachedFont(_characterCountFont))
+                {
+                    _characterCountFont?.Dispose();
+                }
+                if (_lineNumberFont != null && !IsSystemOrCachedFont(_lineNumberFont))
+                {
+                    _lineNumberFont?.Dispose();
+                }
             }
             base.Dispose(disposing);
         }

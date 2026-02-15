@@ -26,15 +26,104 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public abstract navigationStyle Style { get; }
         public abstract string StyleName { get; }
 
-        // Layout constants
+        // Layout constants (base values before DPI scaling)
         protected const int FilterIconSize = 16;
         protected const int ChipHeight = 24;
         protected const int ChipSpacing = 6;
         protected const int SectionPadding = 12;
 
+        /// <summary>
+        /// DPI-scaled layout values for filter panel painting
+        /// </summary>
+        protected class ScaledLayoutValues
+        {
+            public int FilterIconSize { get; set; }
+            public int ChipHeight { get; set; }
+            public int ChipSpacing { get; set; }
+            public int SectionPadding { get; set; }
+            public int ClearIconSize { get; set; }
+            public int SeparatorInset { get; set; }
+            public int TextPadding { get; set; }
+        }
+
+        /// <summary>
+        /// Create DPI-scaled layout values for painting
+        /// </summary>
+        protected ScaledLayoutValues GetScaledLayout(BeepGridPro grid)
+        {
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            return new ScaledLayoutValues
+            {
+                FilterIconSize = DpiScalingHelper.ScaleValue(BaseFilterPanelPainter.FilterIconSize, dpiScale),
+                ChipHeight = DpiScalingHelper.ScaleValue(BaseFilterPanelPainter.ChipHeight, dpiScale),
+                ChipSpacing = DpiScalingHelper.ScaleValue(BaseFilterPanelPainter.ChipSpacing, dpiScale),
+                SectionPadding = DpiScalingHelper.ScaleValue(BaseFilterPanelPainter.SectionPadding, dpiScale),
+                ClearIconSize = DpiScalingHelper.ScaleValue(12, dpiScale),
+                SeparatorInset = DpiScalingHelper.ScaleValue(8, dpiScale)
+            };
+        }
+
+        /// <summary>
+        /// Calculate filter panel height with DPI awareness and minimum size for all components.
+        /// Ensures enough space for: grid title, filter chips, icons, and proper padding.
+        /// </summary>
         public virtual int CalculateFilterPanelHeight(BeepGridPro grid)
         {
-            return 36; // Compact toolbar height
+            if (grid == null) return 36;
+
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            
+            // Get theme for font calculations
+            var theme = grid.Theme != null ? BeepThemesManager.GetTheme(grid.Theme) : BeepThemesManager.GetDefaultTheme();
+            
+            // Calculate heights of all components that need to fit
+            int titleFontHeight = 0;
+            int regularFontHeight = 0;
+            
+            try
+            {
+                // Measure title font height (bold, larger)
+                var titleFont = GetTitleFont(theme, grid);
+                if (titleFont != null)
+                {
+                    titleFontHeight = FontListHelper.GetFontHeightSafe(titleFont, grid);
+                }
+                
+                // Measure regular font height (for filter labels)
+                var regularFont = GetFont(theme);
+                if (regularFont != null)
+                {
+                    regularFontHeight = FontListHelper.GetFontHeightSafe(regularFont, grid);
+                }
+            }
+            catch
+            {
+                // Fallback to system font if measurement fails
+                titleFontHeight = 16;
+                regularFontHeight = 14;
+            }
+            
+            // Component heights (base values before DPI scaling)
+            int chipHeight = ChipHeight;           // 24px - filter chip height
+            int iconHeight = FilterIconSize;       // 16px - filter icon height
+            
+            // Find the tallest component (title, chip, or icon)
+            int maxComponentHeight = Math.Max(Math.Max(titleFontHeight, chipHeight), Math.Max(regularFontHeight, iconHeight));
+            
+            // Add padding: top + bottom (SectionPadding = 12px each side)
+            int topBottomPadding = SectionPadding * 2; // 24px total vertical padding
+            
+            // Add extra spacing for visual comfort (4px)
+            int extraSpacing = 4;
+            
+            // Calculate total minimum height
+            int baseHeight = maxComponentHeight + topBottomPadding + extraSpacing;
+            
+            // Ensure absolute minimum (don't go below 36px base even with small fonts)
+            baseHeight = Math.Max(baseHeight, 36);
+            
+            // Apply DPI scaling to the calculated height
+            return DpiScalingHelper.ScaleValue(baseHeight, dpiScale);
         }
 
         protected class ModernToolbarOptions
@@ -59,6 +148,58 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             public bool FlatControls { get; set; } = false;
         }
 
+        protected ModernToolbarOptions GetScaledModernToolbarOptions(BeepGridPro grid)
+        {
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            return new ModernToolbarOptions
+            {
+                LeftPadding = DpiScalingHelper.ScaleValue(12, dpiScale),
+                RightPadding = DpiScalingHelper.ScaleValue(12, dpiScale),
+                SeparatorInset = DpiScalingHelper.ScaleValue(8, dpiScale),
+                Spacing = DpiScalingHelper.ScaleValue(8, dpiScale),
+                ControlHeight = DpiScalingHelper.ScaleValue(24, dpiScale),
+                CornerRadius = DpiScalingHelper.ScaleValue(6, dpiScale),
+                TitleMinWidth = DpiScalingHelper.ScaleValue(96, dpiScale),
+                TitleMaxWidthRatioDivisor = 3, // Ratio, not a pixel value
+                SearchMinWidth = DpiScalingHelper.ScaleValue(140, dpiScale),
+                SearchMaxWidth = DpiScalingHelper.ScaleValue(260, dpiScale),
+                ClearWidth = DpiScalingHelper.ScaleValue(84, dpiScale),
+                CountWidth = DpiScalingHelper.ScaleValue(88, dpiScale),
+                FilterWidth = DpiScalingHelper.ScaleValue(74, dpiScale),
+                SearchPlaceholder = "Search all columns",
+                FilterText = "Filter",
+                ClearText = "Clear",
+                CountFormat = "{0} active",
+                FlatControls = false
+            };
+        }
+
+        protected ModernToolbarOptions ScaleModernToolbarOptions(ModernToolbarOptions options, BeepGridPro grid)
+        {
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            return new ModernToolbarOptions
+            {
+                LeftPadding = DpiScalingHelper.ScaleValue(options.LeftPadding, dpiScale),
+                RightPadding = DpiScalingHelper.ScaleValue(options.RightPadding, dpiScale),
+                SeparatorInset = DpiScalingHelper.ScaleValue(options.SeparatorInset, dpiScale),
+                Spacing = DpiScalingHelper.ScaleValue(options.Spacing, dpiScale),
+                ControlHeight = DpiScalingHelper.ScaleValue(options.ControlHeight, dpiScale),
+                CornerRadius = DpiScalingHelper.ScaleValue(options.CornerRadius, dpiScale),
+                TitleMinWidth = DpiScalingHelper.ScaleValue(options.TitleMinWidth, dpiScale),
+                TitleMaxWidthRatioDivisor = options.TitleMaxWidthRatioDivisor, // Ratio, not a pixel value
+                SearchMinWidth = DpiScalingHelper.ScaleValue(options.SearchMinWidth, dpiScale),
+                SearchMaxWidth = DpiScalingHelper.ScaleValue(options.SearchMaxWidth, dpiScale),
+                ClearWidth = DpiScalingHelper.ScaleValue(options.ClearWidth, dpiScale),
+                CountWidth = DpiScalingHelper.ScaleValue(options.CountWidth, dpiScale),
+                FilterWidth = DpiScalingHelper.ScaleValue(options.FilterWidth, dpiScale),
+                SearchPlaceholder = options.SearchPlaceholder,
+                FilterText = options.FilterText,
+                ClearText = options.ClearText,
+                CountFormat = options.CountFormat,
+                FlatControls = options.FlatControls
+            };
+        }
+
         public virtual void PaintFilterPanel(
             Graphics g,
             Rectangle panelRect,
@@ -76,6 +217,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             filterCellRects.Clear();
             clearIconRects.Clear();
 
+            // Get DPI-scaled layout values
+            var layout = GetScaledLayout(grid);
+
             var tokens = CreateStyleTokens(theme);
             var oldMode = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -88,8 +232,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 // Get active filters
                 var activeFilters = GetActiveFilters(grid);
 
-                int x = panelRect.Left + SectionPadding;
-                int centerY = panelRect.Top + (panelRect.Height - ChipHeight) / 2;
+                int x = panelRect.Left + layout.SectionPadding;
+                int centerY = panelRect.Top + (panelRect.Height - layout.ChipHeight) / 2;
                 var font = GetFont(theme);
 
                 // Draw grid title
@@ -105,17 +249,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     TextRenderer.DrawText(g, title, titleFont, titleRect, tokens.ActiveTextColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-                    x = titleRect.Right + SectionPadding;
+                    x = titleRect.Right + layout.SectionPadding;
 
                     using var titleSeparatorPen = new Pen(tokens.SeparatorColor);
-                    g.DrawLine(titleSeparatorPen, x, panelRect.Top + 8, x, panelRect.Bottom - 8);
-                    x += SectionPadding;
+                    g.DrawLine(titleSeparatorPen, x, panelRect.Top + layout.SeparatorInset, x, panelRect.Bottom - layout.SeparatorInset);
+                    x += layout.SectionPadding;
                 }
 
                 // Draw filter icon
-                var filterIconRect = new Rectangle(x, panelRect.Top + (panelRect.Height - FilterIconSize) / 2, FilterIconSize, FilterIconSize);
+                var filterIconRect = new Rectangle(x, panelRect.Top + (panelRect.Height - layout.FilterIconSize) / 2, layout.FilterIconSize, layout.FilterIconSize);
                 DrawFilterIcon(g, filterIconRect, tokens, activeFilters.Count > 0);
-                x += FilterIconSize + 8;
+                x += layout.FilterIconSize + layout.SeparatorInset;
 
                 // Draw "Filters" label
                 string filtersLabel = activeFilters.Count > 0 ? $"Filters ({activeFilters.Count})" : "Filters";
@@ -125,14 +269,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 TextRenderer.DrawText(g, filtersLabel, font, labelRect, 
                     activeFilters.Count > 0 ? tokens.ActiveTextColor : tokens.InactiveTextColor,
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-                x += labelSize.Width + SectionPadding;
+                x += labelSize.Width + layout.SectionPadding;
 
                 // Draw separator line
                 if (activeFilters.Count > 0)
                 {
                     using var separatorPen = new Pen(tokens.SeparatorColor);
-                    g.DrawLine(separatorPen, x, panelRect.Top + 8, x, panelRect.Bottom - 8);
-                    x += SectionPadding;
+                    g.DrawLine(separatorPen, x, panelRect.Top + layout.SeparatorInset, x, panelRect.Bottom - layout.SeparatorInset);
+                    x += layout.SectionPadding;
                 }
 
                 // Draw active filter chips
@@ -141,22 +285,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 {
                     if (x >= panelRect.Right - 100) break; // Stop if no space
 
-                    var chipRect = DrawFilterChip(g, x, centerY, filter, tokens, font, maxChipWidth);
+                    var chipRect = DrawFilterChip(g, x, centerY, filter, tokens, font, maxChipWidth, layout);
 
                     // Store hit rect for the chip (clicking clears this filter)
                     filterCellRects[filter.ColumnIndex] = chipRect;
 
                     // Store clear icon rect (X button on chip)
-                    var clearRect = new Rectangle(chipRect.Right - 18, chipRect.Top + (chipRect.Height - 12) / 2, 12, 12);
+                    var clearRect = new Rectangle(chipRect.Right - (layout.ClearIconSize + 6), chipRect.Top + (chipRect.Height - layout.ClearIconSize) / 2, layout.ClearIconSize, layout.ClearIconSize);
                     clearIconRects[filter.ColumnIndex] = clearRect;
 
-                    x = chipRect.Right + ChipSpacing;
+                    x = chipRect.Right + layout.ChipSpacing;
                 }
 
                 // Draw "Clear All" button if there are active filters
                 if (activeFilters.Count > 0)
                 {
-                    DrawClearAllButton(g, panelRect, tokens, font, clearIconRects);
+                    DrawClearAllButton(g, panelRect, tokens, font, clearIconRects, layout);
                 }
             }
             finally
@@ -357,14 +501,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         protected virtual Rectangle DrawFilterChip(Graphics g, int x, int y, ActiveFilter filter, 
-            FilterPanelStyleTokens tokens, Font font, int maxWidth)
+            FilterPanelStyleTokens tokens, Font font, int maxWidth, ScaledLayoutValues layout)
         {
             // Format chip text: "ColumnName: Value"
             string chipText = $"{filter.ColumnCaption}: {filter.FilterValue}";
             var textSize = TextRenderer.MeasureText(chipText, font);
 
             int chipWidth = Math.Min(textSize.Width + 28, maxWidth); // 28 = padding + clear icon
-            int chipHeight = ChipHeight;
+            int chipHeight = layout.ChipHeight; // Use scaled height
 
             var chipRect = new Rectangle(x, y, chipWidth, chipHeight);
 
@@ -377,12 +521,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             g.DrawPath(chipPen, path);
 
             // Draw chip text
-            var textRect = new Rectangle(chipRect.X + 8, chipRect.Y, chipRect.Width - 24, chipRect.Height);
+            int textPadding = layout.TextPadding;
+            var textRect = new Rectangle(chipRect.X + textPadding, chipRect.Y, chipRect.Width - (textPadding * 3), chipRect.Height);
             TextRenderer.DrawText(g, chipText, font, textRect, tokens.ChipTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // Draw clear (X) icon
-            var clearRect = new Rectangle(chipRect.Right - 18, chipRect.Top + (chipRect.Height - 12) / 2, 12, 12);
+            // Draw clear (X) icon - size already calculated in clearRect in caller
+            var clearRect = new Rectangle(chipRect.Right - (layout.ClearIconSize + 6), chipRect.Top + (chipRect.Height - layout.ClearIconSize) / 2, layout.ClearIconSize, layout.ClearIconSize);
             DrawClearIcon(g, clearRect, tokens.ChipClearIconColor);
 
             return chipRect;
@@ -397,14 +542,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         protected virtual void DrawClearAllButton(Graphics g, Rectangle panelRect, FilterPanelStyleTokens tokens, 
-            Font font, Dictionary<int, Rectangle> clearIconRects)
+            Font font, Dictionary<int, Rectangle> clearIconRects, ScaledLayoutValues layout)
         {
             string clearAllText = "Clear All";
             var textSize = TextRenderer.MeasureText(clearAllText, font);
 
             int buttonWidth = textSize.Width + 16;
-            int buttonHeight = ChipHeight;
-            int x = panelRect.Right - buttonWidth - SectionPadding;
+            int buttonHeight = layout.ChipHeight; // Use scaled height
+            int x = panelRect.Right - buttonWidth - layout.SectionPadding;
             int y = panelRect.Top + (panelRect.Height - buttonHeight) / 2;
 
             var buttonRect = new Rectangle(x, y, buttonWidth, buttonHeight);

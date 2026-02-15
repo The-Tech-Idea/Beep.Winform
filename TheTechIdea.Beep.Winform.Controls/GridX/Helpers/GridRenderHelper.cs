@@ -1039,8 +1039,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                                      Math.Max(0, rowsRect.Width - stickyWidth), rowsRect.Height);
 
             // Draw scrolling columns WITH CLIPPING to prevent overflow outside grid bounds
+            // Order by DisplayOrder to match header visual order
             var scrollCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                                                .Where(x => x.Col.Visible && !x.Col.Sticked)
+                                               .OrderBy(x => x.Col.DisplayOrder)
                                                .ToList();
             
             // Save graphics state and set clipping for scrolling region
@@ -1121,8 +1123,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             g.Restore(scrollState);
 
             // Draw sticky columns WITH CLIPPING on top to prevent overflow
+            // Order by DisplayOrder to match header visual order
             var stickyCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                                                .Where(x => x.Col.Visible && x.Col.Sticked)
+                                               .OrderBy(x => x.Col.DisplayOrder)
                                                .ToList();
             
             // Save graphics state and set clipping for sticky region

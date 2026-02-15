@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public abstract string StyleName { get; }
 
         /// <summary>
-        /// Default header height calculation based on font and padding
+        /// Default header height calculation based on font and padding with DPI awareness
         /// </summary>
         public virtual int CalculateHeaderHeight(BeepGridPro grid)
         {
@@ -28,21 +28,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Ensure fonts are initialized before attempting to create font
             FontManagement.FontListHelper.EnsureFontsLoaded();
             
+            // Get DPI scale factor from the grid control
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            
             var font = BeepThemesManager.ToFont(grid._currentTheme.GridHeaderFont) ?? SystemFonts.DefaultFont;
-            int padding = CalculateHeaderPadding();
+            int basePadding = CalculateHeaderPadding();
+            int padding = DpiScalingHelper.ScaleValue(basePadding, dpiScale);
             
             // Use safe font height calculation to avoid errors with some fonts
             int fontHeight = FontManagement.FontListHelper.GetFontHeightSafe(font, grid);
             
-            return fontHeight + (padding * 2) + 4; // +4 for border/spacing
+            // Scale border/spacing value
+            int borderSpacing = DpiScalingHelper.ScaleValue(4, dpiScale);
+            
+            return fontHeight + (padding * 2) + borderSpacing;
         }
 
         /// <summary>
         /// Default padding calculation - override for different styles
+        /// Returns BASE padding value (will be DPI-scaled in CalculateHeaderHeight)
         /// </summary>
         public virtual int CalculateHeaderPadding()
         {
-            return 3; // Default padding
+            return 3; // Base padding (will be DPI-scaled)
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
@@ -36,15 +37,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         }
 
         /// <summary>
-        /// Gets the recommended height for a navigation Style
+        /// Gets the recommended height for a navigation Style with DPI awareness
         /// </summary>
-        public static int GetRecommendedHeight(navigationStyle style)
+        /// <param name="style">The navigation style</param>
+        /// <param name="grid">The grid control for DPI scaling (optional)</param>
+        /// <returns>DPI-scaled recommended height</returns>
+        public static int GetRecommendedHeight(navigationStyle style, BeepGridPro grid = null)
         {
             if (style == navigationStyle.None)
                 return 0; // No height needed for None Style
                 
             var painter = CreatePainter(style);
-            return painter.RecommendedHeight;
+            int baseHeight = painter.RecommendedHeight;
+            
+            // Apply DPI scaling if grid is provided
+            if (grid != null)
+            {
+                float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+                return DpiScalingHelper.ScaleValue(baseHeight, dpiScale);
+            }
+            
+            return baseHeight;
         }
 
         /// <summary>

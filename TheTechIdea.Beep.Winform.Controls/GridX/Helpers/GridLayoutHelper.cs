@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -404,19 +405,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Ensure fonts are initialized before calculating heights
             FontManagement.FontListHelper.EnsureFontsLoaded();
             
-            // Calculate column header height from painter (font-aware)
+            // Get DPI scale factor for consistent scaling
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(_grid);
+            
+            // Calculate column header height from painter (font-aware and DPI-aware)
             var headerPainter = new GridColumnHeadersPainterHelper(_grid);
             ColumnHeaderHeight = headerPainter.CalculateHeaderHeight();
 
-            // Calculate row height from data font (font-aware) using safe height method
+            // Always calculate filter panel height from painter (DPI-aware)
+            // This ensures proper height even when toggling panel visibility
+            TopFilterHeight = FilterPanelPainterFactory.GetRecommendedHeight(_grid);
+
+            // Calculate row height from data font (font-aware and DPI-aware) using safe height method
             if (_grid.Font != null)
             {
                 int baseFontHeight = FontManagement.FontListHelper.GetFontHeightSafe(_grid.Font, _grid);
-                int cellPadding = 2; // Default padding
-                RowHeight = baseFontHeight + (cellPadding * 2) + 4; // 4px for comfortable spacing
+                int baseCellPadding = 2; // Base padding value
+                int cellPadding = DpiScalingHelper.ScaleValue(baseCellPadding, dpiScale);
+                int spacing = DpiScalingHelper.ScaleValue(4, dpiScale); // DPI-scaled spacing
+                RowHeight = baseFontHeight + (cellPadding * 2) + spacing;
             }
 
-            // Calculate navigator height if enabled (font-aware)
+            // Calculate navigator height if enabled (font-aware and DPI-aware)
             if (_grid.ShowNavigator && _grid.NavigatorPainter != null)
             {
                 NavigatorHeight = _grid.NavigatorPainter.GetRecommendedNavigatorHeight();

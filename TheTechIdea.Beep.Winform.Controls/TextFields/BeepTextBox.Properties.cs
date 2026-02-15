@@ -168,11 +168,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region "Properties - Appearance"
         
-        private Font _textFont = new Font("Segoe UI", 10);
+        // Cached fonts for DPI-aware rendering (Microsoft best practice)
+        private Font _characterCountFont;
+        
+        private Font _textFont = BeepFontManager.GetFont("Segoe UI", 10f, FontStyle.Regular);
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
-        [Description("Text Font displayed in the control.")]
+        [Description("Text Font displayed in the control. DPI-aware via BeepFontManager.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Font TextFont
         {
@@ -181,15 +184,56 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_textFont != value)
                 {
-                    _textFont?.Dispose();
-                    _textFont = value ?? new Font("Segoe UI", 10);
-                     UseThemeFont = false;
+                    // Don't dispose system/cached fonts
+                    if (_textFont != null && !IsSystemOrCachedFont(_textFont))
+                    {
+                        _textFont?.Dispose();
+                    }
+                    _textFont = value ?? BeepFontManager.GetFont("Segoe UI", 10f);
+                    UseThemeFont = false;
                     _helper?.InvalidateAllCaches();
-                    // recompute cached metrics (no Graphics)
+                    InvalidateFontCache(); // From BaseControl - invalidates font height cache
+                    
+                    // Invalidate derived fonts
+                    _characterCountFont?.Dispose();
+                    _characterCountFont = null;
+                    _lineNumberFont?.Dispose();
+                    _lineNumberFont = null;
+                    
+                    // Recompute cached metrics (no Graphics)
                     RecomputeMinHeight();
                     InvalidateLayout();
                 }
             }
+        }
+        
+        /// <summary>
+        /// Gets DPI-aware font for character counter (80% of text font size).
+        /// Per Microsoft: Use cached fonts to avoid creating Font in OnPaint.
+        /// </summary>
+        private Font GetCharacterCountFont()
+        {
+            if (_characterCountFont == null && _textFont != null)
+            {
+                float smallerSize = _textFont.SizeInPoints * 0.8f;
+                _characterCountFont = BeepFontManager.GetFontForPainter(
+                    _textFont.Name, 
+                    smallerSize, 
+                    this, 
+                    _textFont.Style);
+            }
+            return _characterCountFont ?? _textFont;
+        }
+        
+        /// <summary>
+        /// Gets DPI-aware font for line numbers.
+        /// Uses LineNumberFont property if set, otherwise returns TextFont.
+        /// Per Microsoft: Use property getter to respect user-set fonts.
+        /// </summary>
+        private Font GetLineNumberFont()
+        {
+            // Use the public property which handles fallback to TextFont
+            return LineNumberFont;
         }
         
         private Color _placeholderTextColor = Color.Gray;
@@ -851,16 +895,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Font _lineNumberFont;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Font used for line numbers.")]
+        [Description("Font used for line numbers. DPI-aware via BeepFontManager.")]
         public Font LineNumberFont
         {
             get => _lineNumberFont ?? TextFont;
             set
             {
-                _lineNumberFont?.Dispose();
-                _lineNumberFont = value;
-                if (_showLineNumbers)
-                    Invalidate();
+                if (_lineNumberFont != value)
+                {
+                    // Don't dispose system/cached fonts
+                    if (_lineNumberFont != null && !IsSystemOrCachedFont(_lineNumberFont))
+                    {
+                        _lineNumberFont?.Dispose();
+                    }
+                    _lineNumberFont = value;
+                    if (_showLineNumbers)
+                        Invalidate();
+                }
             }
         }
         

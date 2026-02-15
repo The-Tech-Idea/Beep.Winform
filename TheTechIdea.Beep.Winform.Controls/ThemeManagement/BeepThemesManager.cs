@@ -524,7 +524,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         public static Font ScaleFontForControl(Font font, Control control)
         {
             if (font == null || control == null) return font;
-            return DpiScalingHelper.ScaleFont(font, control);
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(control);
+            return DpiScalingHelper.ScaleFont(font, dpiScale);
         }
 
         // Create font from parameters - uses BeepFontManager

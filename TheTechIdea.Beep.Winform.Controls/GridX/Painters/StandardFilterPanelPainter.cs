@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override void PaintFilterPanel(Graphics g, Rectangle panelRect, BeepGridPro grid, IBeepTheme? theme, Dictionary<int, Rectangle> filterCellRects, Dictionary<int, Rectangle> clearIconRects)
         {
             PaintModernToolbar(g, panelRect, grid, theme, filterCellRects, clearIconRects,
-                new ModernToolbarOptions
+                ScaleModernToolbarOptions(new ModernToolbarOptions
                 {
                     ControlHeight = 24,
                     CornerRadius = 5,
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     CountFormat = "{0} active",
                     SearchPlaceholder = "Search",
                     FlatControls = false
-                });
+                }, grid));
         }
     }
 }

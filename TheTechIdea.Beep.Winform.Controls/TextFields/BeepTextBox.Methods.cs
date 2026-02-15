@@ -49,9 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try
                 {
                     using (var g = CreateGraphics())
-                    using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
                     {
-                        var charCountHeight = (int)Math.Ceiling(TextUtils.MeasureText(g,"0/0", font).Height);
+                        // Use cached DPI-aware font instead of creating new Font
+                        Font font = GetCharacterCountFont();
+                        var charCountHeight = (int)Math.Ceiling(TextUtils.MeasureText(g, "0/0", font).Height);
                         _textRect.Height = Math.Max(1, _textRect.Height - charCountHeight);
                     }
                 }

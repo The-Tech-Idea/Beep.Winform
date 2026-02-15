@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 theme,
                 filterCellRects,
                 clearIconRects,
-                new ModernToolbarOptions
+                ScaleModernToolbarOptions(new ModernToolbarOptions
                 {
                     LeftPadding = 10,
                     RightPadding = 10,
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                     ClearText = "Clear",
                     CountFormat = "Filtered: {0}",
                     FlatControls = true
-                });
+                }, grid));
         }
 
         protected override void ApplyStyleTokens(FilterPanelStyleTokens tokens, IBeepTheme? theme)

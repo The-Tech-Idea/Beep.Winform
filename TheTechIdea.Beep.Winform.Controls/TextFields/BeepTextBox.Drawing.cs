@@ -35,19 +35,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        /// <summary>
+        /// Draws character count indicator with DPI-aware cached font.
+        /// Per Microsoft: Don't create Font in OnPaint - use cached fonts.
+        /// </summary>
         private void DrawCharacterCount(Graphics g)
         {
             string countText = $"{_text.Length}/{_maxLength}";
-            using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
+            Font font = GetCharacterCountFont(); // DPI-aware cached font
+            
+            var textSize = TextUtils.MeasureText(g, countText, font);
+            var location = new PointF(Width - textSize.Width - 5, Height - textSize.Height - 2);
+            
+            Color textColor = _text.Length > _maxLength * 0.9 ? Color.Red : Color.Gray;
+            using (var brush = new SolidBrush(textColor))
             {
-                var textSize = TextUtils.MeasureText(g,countText, font);
-                var location = new PointF(Width - textSize.Width - 5, Height - textSize.Height - 2);
-                
-                Color textColor = _text.Length > _maxLength * 0.9 ? Color.Red : Color.Gray;
-                using (var brush = new SolidBrush(textColor))
-                {
-                    g.DrawString(countText, font, brush, location);
-                }
+                g.DrawString(countText, font, brush, location);
             }
         }
         
@@ -96,17 +99,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_showCharacterCount && _maxLength > 0)
             {
-                using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
+                // Use cached DPI-aware font instead of creating new Font
+                Font font = GetCharacterCountFont();
+                try
                 {
-                    try
-                    {
-                        var charCountHeight = (int)Math.Ceiling( TextUtils.MeasureText(graphics,"00", font).Height);
-                        textRect.Height = Math.Max(1, textRect.Height - charCountHeight);
-                    }
-                    catch
-                    {
-                        // Ignore
-                    }
+                    var charCountHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, "00", font).Height);
+                    textRect.Height = Math.Max(1, textRect.Height - charCountHeight);
+                }
+                catch
+                {
+                    // Ignore
                 }
             }
 

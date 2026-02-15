@@ -1,6 +1,7 @@
 using System;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
@@ -153,17 +154,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
         }
         
         /// <summary>
-        /// Calculate the appropriate navigator height for this layout
+        /// Calculate the appropriate navigator height for this layout with DPI awareness
         /// </summary>
         public virtual int CalculateNavigatorHeight(BeepGridPro grid)
         {
-            // Default calculation based on painter
+            // Default calculation based on painter with DPI scaling
             var painter = GetNavigationPainter();
             if (painter != null)
             {
-                return painter.RecommendedHeight;
+                int baseHeight = painter.RecommendedHeight;
+                if (grid != null)
+                {
+                    float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+                    return DpiScalingHelper.ScaleValue(baseHeight, dpiScale);
+                }
+                return baseHeight;
             }
-            return 48; // Default fallback
+            
+            // Default fallback with DPI scaling
+            if (grid != null)
+            {
+                float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+                return DpiScalingHelper.ScaleValue(48, dpiScale);
+            }
+            return 48;
         }
         
         #endregion

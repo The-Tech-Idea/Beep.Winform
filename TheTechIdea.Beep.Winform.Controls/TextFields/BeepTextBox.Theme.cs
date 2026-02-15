@@ -39,7 +39,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (UseThemeFont)
             {
-                _textFont = BeepFontManager.ToFont(_currentTheme.LabelSmall);
+                // Use DPI-aware font from BeepFontManager
+                var themeFont = BeepFontManager.ToFont(_currentTheme.LabelSmall);
+                if (themeFont != null)
+                {
+                    // Get DPI-scaled version for this control
+                    _textFont = BeepFontManager.GetFontForPainter(
+                        themeFont.Name,
+                        themeFont.SizeInPoints,
+                        this,
+                        themeFont.Style);
+                }
+                
+                // Invalidate cached derived fonts
+                _characterCountFont?.Dispose();
+                _characterCountFont = null;
+                _lineNumberFont?.Dispose();
+                _lineNumberFont = null;
             }
             
             if (_beepImage != null)

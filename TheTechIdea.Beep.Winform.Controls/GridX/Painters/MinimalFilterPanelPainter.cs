@@ -12,21 +12,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override void PaintFilterPanel(Graphics g, Rectangle panelRect, BeepGridPro grid, IBeepTheme? theme, Dictionary<int, Rectangle> filterCellRects, Dictionary<int, Rectangle> clearIconRects)
         {
             PaintModernToolbar(g, panelRect, grid, theme, filterCellRects, clearIconRects,
-                new ModernToolbarOptions
+                ScaleModernToolbarOptions(new ModernToolbarOptions
                 {
-                    ControlHeight = 22,
-                    CornerRadius = 12,
-                    SearchMinWidth = 150,
-                    SearchMaxWidth = 280,
-                    ClearWidth = 70,
-                    CountWidth = 82,
-                    FilterWidth = 66,
+                    ControlHeight = 24,
+                    CornerRadius = 6,
+                    SearchMinWidth = 140,
+                    SearchMaxWidth = 260,
+                    ClearWidth = 84,
+                    CountWidth = 88,
+                    FilterWidth = 74,
                     FilterText = "Filter",
-                    ClearText = "Reset",
-                    CountFormat = "{0}",
-                    SearchPlaceholder = "Type to search",
+                    ClearText = "Clear",
+                    CountFormat = "{0} active",
+                    SearchPlaceholder = "Search all columns",
                     FlatControls = false
-                });
+                }, grid));
         }
 
         protected override void ApplyStyleTokens(FilterPanelStyleTokens tokens, IBeepTheme? theme)

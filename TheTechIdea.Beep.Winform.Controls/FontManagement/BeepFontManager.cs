@@ -82,9 +82,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font MonospaceFont => _monospaceFont ??= GetOrCreateFont("Consolas", _appFontSize, _appFontStyle);
 
         public static List<FontConfiguration> FontConfigurations => FontListHelper.FontConfigurations;
-        public static List<string> SystemFonts => FontListHelper.GetSystemFontNames();
-        public static List<string> CustomFonts => FontListHelper.GetPrivateFontNames();
-        public static List<string> AllFonts => FontListHelper.GetFontNames();
+        
+        // NOTE: Renamed to avoid conflict with System.Drawing.SystemFonts class
+        public static List<string> SystemFontNames => FontListHelper.GetSystemFontNames();
+        public static List<string> CustomFontNames => FontListHelper.GetPrivateFontNames();
+        public static List<string> AllFontNames => FontListHelper.GetFontNames();
+        public static List<string> EmbeddedFontFamilies => BeepFontPaths.GetFontFamilyNames();
         #endregion
 
         #region "Initialization"
@@ -170,17 +173,53 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         #endregion
 
         #region "Font Management"
-        public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
+        /// <summary>
+        /// Gets a font using GraphicsUnit.Point (default for standard WinForms controls).
+        /// Per Microsoft guidance: Point fonts are DPI-independent and auto-scale with framework.
+        /// </summary>
+        public static Font GetFont(string fontName, float sizeInPoints, FontStyle style = FontStyle.Regular)
         {
-            return FontListHelper.GetFont(fontName, size, style);
+            return FontListHelper.GetFont(fontName, sizeInPoints, style);
         }
 
         /// <summary>
-        /// Gets a DPI-aware font for a specific control.
+        /// Gets a DPI-aware font for a control using GraphicsUnit.Point (Microsoft recommended).
+        /// WinForms automatically scales Point-based fonts when DPI changes.
+        /// For custom-painted controls, use GetFontForPainter() instead.
         /// </summary>
-        public static Font GetFontForControl(string fontName, float size, Control control, FontStyle style = FontStyle.Regular)
+        public static Font GetFontForControl(string fontName, float sizeInPoints, Control control, FontStyle style = FontStyle.Regular)
         {
-            return FontListHelper.GetFontForControl(fontName, size, control, style);
+            if (control == null || !control.IsHandleCreated)
+                return GetFont(fontName, sizeInPoints, style);
+
+            // Per Microsoft docs: Use Control.DeviceDpi for accurate per-monitor DPI
+            // Point fonts scale automatically - no manual scaling needed
+            return GetFont(fontName, sizeInPoints, style);
+        }
+
+        /// <summary>
+        /// Gets a DPI-scaled font using GraphicsUnit.Pixel for custom painters.
+        /// Use this in OnPaint methods for precise manual scaling control.
+        /// Per Microsoft: Pixel fonts require manual DPI scaling.
+        /// </summary>
+        public static Font GetFontForPainter(string fontName, float sizeInPoints, Control control, FontStyle style = FontStyle.Regular)
+        {
+            if (control == null || !control.IsHandleCreated)
+                return GetFont(fontName, sizeInPoints, style);
+
+            float dpiScale = control.DeviceDpi / 96.0f;
+            float scaledSize = Math.Max(sizeInPoints * dpiScale, 6.0f);
+            
+            try
+            {
+                // Create Pixel-unit font for manual scaling in painters
+                return new Font(fontName, scaledSize, style, GraphicsUnit.Pixel);
+            }
+            catch
+            {
+                // Fallback to Point-based font
+                return GetFont(fontName, sizeInPoints, style);
+            }
         }
 
         public static Font GetFontForElement(UIElementType elementType)
@@ -224,7 +263,63 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         public static bool IsFontAvailable(string fontName)
         {
-            return FontListHelper.GetFontIndex(fontName) != -1;
+            return FontListHelper.GetFontIndex(fontName) != -1 || 
+                   EmbeddedFontFamilies.Contains(fontName, StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Safely scales a control's font during DPI changes per Microsoft guidance.
+        /// Follows DevExpress pattern: only scales explicitly-set fonts (not inherited).
+        /// Uses GraphicsUnit.Point for standard controls (auto-scaling by framework).
+        /// </summary>
+        /// <param name="control">Control to scale</param>
+        /// <param name="oldDpi">Previous DPI (e.g., 96 for 100%)</param>
+        /// <param name="newDpi">New DPI (e.g., 144 for 150%)</param>
+        /// <returns>True if font was scaled; false if skipped</returns>
+        public static bool TryScaleControlFont(Control control, int oldDpi, int newDpi)
+        {
+            if (control == null || control.IsDisposed || !control.IsHandleCreated)
+                return false;
+
+            if (oldDpi <= 0 || newDpi <= 0 || oldDpi == newDpi)
+                return false;
+
+            // Per Microsoft: Don't scale inherited fonts (prevents double-scaling)
+            if (DpiScalingHelper.IsFontInherited(control, control.Font))
+                return false;
+
+            float oldScale = oldDpi / 96.0f;
+            float newScale = newDpi / 96.0f;
+            Font currentFont = control.Font;
+
+            try
+            {
+                // For Point fonts: WinForms auto-scales, but we may need to recreate for custom controls
+                // For Pixel fonts: Must manually scale
+                float newSize = currentFont.Unit == GraphicsUnit.Pixel
+                    ? DpiScalingHelper.PixelsToPoints(currentFont.Size, oldScale) * newScale
+                    : currentFont.SizeInPoints; // Point fonts don't need manual scaling
+
+                Font newFont = new Font(currentFont.FontFamily, newSize, currentFont.Style, 
+                    currentFont.Unit, currentFont.GdiCharSet, currentFont.GdiVerticalFont);
+
+                // Safe replacement: assign before disposing
+                Font oldFont = control.Font;
+                control.Font = newFont;
+
+                // Dispose old font if it's not a system font
+                if (!ReferenceEquals(oldFont, Control.DefaultFont) &&
+                    !ReferenceEquals(oldFont, System.Drawing.SystemFonts.DefaultFont))
+                {
+                    try { oldFont.Dispose(); } catch { }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static Font ToFont(TypographyStyle style)

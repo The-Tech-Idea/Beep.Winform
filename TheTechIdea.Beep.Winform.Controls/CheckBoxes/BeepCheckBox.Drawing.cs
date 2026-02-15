@@ -35,8 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            // Get DPI Scale
-            float scale = DpiScalingHelper.GetDpiScaleFactor(graphics);
+            // Get DPI Scale - Use Control.DeviceDpi (Microsoft recommended approach)
+            float scale = DpiScalingHelper.GetDpiScaleFactor(this);
 
             // Scale dimensions
             int baseCheckBoxSize = CheckBoxSize;

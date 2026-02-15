@@ -246,15 +246,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         /// <summary>
-        /// Gets the recommended height for the current navigation Style
+        /// Gets the recommended height for the current navigation Style with DPI awareness
         /// </summary>
         public int GetRecommendedNavigatorHeight()
         {
             if (UsePainterNavigation)
             {
-                return NavigationPainterFactory.GetRecommendedHeight(_navigationStyle);
+                return NavigationPainterFactory.GetRecommendedHeight(_navigationStyle, _grid);
             }
-            return 32; // Legacy default height
+            
+            // Legacy default height with DPI scaling
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(_grid);
+            return DpiScalingHelper.ScaleValue(32, dpiScale);
         }
 
         private void EnsureNavigatorButtons()

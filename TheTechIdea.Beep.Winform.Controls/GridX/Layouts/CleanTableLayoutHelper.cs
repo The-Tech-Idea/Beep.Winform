@@ -1,6 +1,7 @@
 using System;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
 {
@@ -36,6 +37,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Layouts
             => NavigationPainterFactory.CreatePainter(navigationStyle.Minimal);
 
         public override int CalculateHeaderHeight(BeepGridPro grid) => 28;
-        public override int CalculateNavigatorHeight(BeepGridPro grid) => 48;
+        public override int CalculateNavigatorHeight(BeepGridPro grid)
+        {
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(grid);
+            return DpiScalingHelper.ScaleValue(48, dpiScale);
+        }
     }
 }

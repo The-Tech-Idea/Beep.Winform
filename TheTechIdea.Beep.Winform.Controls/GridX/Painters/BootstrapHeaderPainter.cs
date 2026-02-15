@@ -26,9 +26,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         public override string StyleName => "Bootstrap";
 
         /// <summary>
-        /// Calculate padding for Bootstrap headers
+        /// Calculate padding for Bootstrap headers (returns BASE value for DPI scaling)
         /// </summary>
-        public override int CalculateHeaderPadding() => 8;
+        public override int CalculateHeaderPadding() => 8; // Base value, will be DPI-scaled
 
         /// <summary>
         /// Paint all column headers

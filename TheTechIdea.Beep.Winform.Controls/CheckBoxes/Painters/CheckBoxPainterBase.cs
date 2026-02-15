@@ -128,7 +128,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             Font font = options.TextFont;
             if (font == null)
             {
-                float scale = DpiScalingHelper.GetDpiScaleFactor(g);
+                // Fallback: Use system DPI scale for default font creation
+                // Note: Prefer passing pre-scaled font in options.TextFont
+                float scale = DpiScalingHelper.GetSystemDpiScaleFactor();
                 font = CheckBoxFontHelpers.GetCheckBoxFont(options.ControlStyle, scale);
             }
 

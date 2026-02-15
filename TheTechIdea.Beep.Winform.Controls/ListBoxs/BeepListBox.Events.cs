@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -161,11 +162,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // If clicking checkbox area for painters that support it
             if (_showCheckBox && _listBoxPainter.SupportsCheckboxes())
             {
+                int pad = DpiScalingHelper.ScaleValue(8, this);
+                int size = DpiScalingHelper.ScaleValue(16, this);
                 Rectangle checkboxRect = new Rectangle(
-                    itemRect.Left + 8,
-                    itemRect.Y + (itemRect.Height - 16) / 2,
-                    16,
-                    16);
+                    itemRect.Left + pad,
+                    itemRect.Y + (itemRect.Height - size) / 2,
+                    size,
+                    size);
 
                 if (checkboxRect.Contains(e.Location))
                 {
@@ -524,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _yOffset = newValue;
                     _verticalScrollBar.Value = newValue;
-                    try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+                    try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
                     Invalidate();
                 }
             }

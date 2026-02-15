@@ -4,10 +4,11 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
-    internal class GridInputHelper
+    internal partial class GridInputHelper
     {
         private readonly BeepGridPro _grid;
         private Point _mouseDown;
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private bool _resizingDataRow;
         private int _resizingRowIndex = -1;
         private int _resizeMargin = 3;
+        private bool _mouseDownHandledByTopFilterPanel;
 
         // Cached nav button rects per paint (computed in render). We recompute on the fly here for simplicity
         private bool _selectAllChecked = false;
@@ -107,20 +109,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseDown(MouseEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"=== GridInputHelper.HandleMouseDown ENTERED at {e.Location} ===");
             // Don't process mouse down while context menu is active
             
             
             _mouseDown = e.Location;
             _pressedOnCheckbox = false;
             _pressedRow = _pressedCol = -1;
+            _mouseDownHandledByTopFilterPanel = false;
+
+            System.Diagnostics.Debug.WriteLine($"=== After initializing fields ===");
 
             if (e.Button == MouseButtons.Left && e.Clicks >= 2 && TryHandleColumnBorderDoubleClick(e.Location))
             {
+                System.Diagnostics.Debug.WriteLine("Double-click on column border handled");
                 return;
             }
 
             // Navigator
-            if (_grid.ShowNavigator && HitTestNavigator(e.Location)) return;
+            if (_grid.ShowNavigator && HitTestNavigator(e.Location))
+            {
+                System.Diagnostics.Debug.WriteLine("Navigator hit");
+                return;
+            }
 
             // Header select-all checkbox
             if (_grid.ShowCheckBox && _grid.Layout.SelectAllCheckRect.Contains(e.Location))
@@ -177,31 +188,84 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Top filter panel click (open column filter dialog or clear active column filter)
+            // IMPORTANT: Any click inside TopFilterRect must return here — never fall through to cell selection
             if (_grid.ShowTopFilterPanel && _grid.Layout.TopFilterRect.Contains(e.Location))
             {
+                _mouseDownHandledByTopFilterPanel = true;
+                System.Diagnostics.Debug.WriteLine($">>> FILTER PANEL CLICKED at {e.Location} <<<");
                 int clearColIdx = HitHeaderIcon(_grid.Render.TopFilterClearIconRects, e.Location);
+                System.Diagnostics.Debug.WriteLine($">>> clearColIdx = {clearColIdx}, ClearAllKey={BaseFilterPanelPainter.ClearAllActionKey}, AdvancedKey={BaseFilterPanelPainter.AdvancedFilterActionKey}");
+
+                // Check for Clear All button (special key -1)
+                if (clearColIdx == BaseFilterPanelPainter.ClearAllActionKey)
+                {
+                    System.Diagnostics.Debug.WriteLine(">>> CLEAR ALL clicked");
+                    _grid.SortFilter.ClearFilters();
+                    if (_grid.IsFiltered)
+                    {
+                        _grid.ClearFilter();
+                    }
+
+                    foreach (var col in _grid.Data.Columns)
+                    {
+                        col.IsFiltered = false;
+                        col.Filter = string.Empty;
+                    }
+
+                    _grid.SafeInvalidate(_grid.Layout.TopFilterRect);
+                    return;
+                }
+
+                // Check for Advanced Filter button (special key -3)
+                if (clearColIdx == BaseFilterPanelPainter.AdvancedFilterActionKey)
+                {
+                    System.Diagnostics.Debug.WriteLine(">>> ADVANCED FILTER clicked");
+                    _grid.ShowAdvancedFilterDialog();
+                    return;
+                }
+
+                // Check for column clear icons (positive indices)
                 if (clearColIdx >= 0 && clearColIdx < _grid.Data.Columns.Count)
                 {
+                    System.Diagnostics.Debug.WriteLine($">>> Column CLEAR clicked for col {clearColIdx}");
                     var clearColumn = _grid.Data.Columns[clearColIdx];
                     if (clearColumn != null && !string.IsNullOrWhiteSpace(clearColumn.ColumnName))
                     {
+                        _grid.RemoveFilterCriterion(clearColumn.ColumnName);
                         clearColumn.Filter = string.Empty;
                         _grid.SortFilter.Filter(clearColumn.ColumnName, string.Empty);
                         _grid.SafeInvalidate(_grid.Layout.TopFilterRect);
-                        return;
                     }
+                    return;
                 }
 
                 int panelColIdx = HitHeaderIcon(_grid.Render.TopFilterCellRects, e.Location);
+                System.Diagnostics.Debug.WriteLine($">>> panelColIdx = {panelColIdx}, SearchKey={BaseFilterPanelPainter.SearchActionKey}");
+
+                // Check for Search button (special key -2)
+                if (panelColIdx == BaseFilterPanelPainter.SearchActionKey)
+                {
+                    System.Diagnostics.Debug.WriteLine(">>> SEARCH clicked");
+                    _grid.ShowSearchDialog();
+                    return;
+                }
+
+                // Check for column filter chips (positive indices)
                 if (panelColIdx >= 0 && panelColIdx < _grid.Data.Columns.Count)
                 {
+                    System.Diagnostics.Debug.WriteLine($">>> Column FILTER clicked for col {panelColIdx}");
                     var panelColumn = _grid.Data.Columns[panelColIdx];
                     if (panelColumn != null && !string.IsNullOrWhiteSpace(panelColumn.ColumnName))
                     {
-                        _grid.ShowFilterDialog(panelColumn.ColumnName, panelColumn.Filter);
-                        return;
+                        _grid.ShowInlineCriterionEditor(panelColumn.ColumnName, e.Location);
                     }
+                    return;
                 }
+
+                // Any other click in the filter panel area (gaps, padding, etc.)
+                System.Diagnostics.Debug.WriteLine(">>> Empty panel area clicked - opening advanced filter");
+                _grid.ShowAdvancedFilterDialog();
+                return;
             }
 
             // Filter icon click in header
@@ -249,9 +313,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (column != null && column.AllowSort)
                     {
                         _grid.ToggleColumnSort(colIdx);
-                        return;
                     }
                 }
+                return; // Header click — never fall through to cell selection
             }
 
             // Row checkbox rectangle click tracking (do not toggle here; toggle on MouseUp)
@@ -330,6 +394,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             System.Diagnostics.Debug.WriteLine($"HandleMouseUp at location: {e.Location}");
             // Don't process mouse up while context menu is active
             
+            if (_mouseDownHandledByTopFilterPanel)
+            {
+                _mouseDownHandledByTopFilterPanel = false;
+                return;
+            }
+
             
             // Handle column reorder completion first
             if (_grid.AllowColumnReorder && _grid.ColumnReorder.HandleMouseUp(e.Location))
@@ -364,6 +434,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _resizingDataRow = false;
                 _resizingRowIndex = -1;
                 _grid.Cursor = Cursors.Default;
+                return;
+            }
+
+            // Guard: ignore mouse-up in non-data areas (filter panel, navigator, header)
+            // These areas are handled by HandleMouseDown; mouse-up should not trigger cell selection
+            if (_grid.ShowTopFilterPanel && _grid.Layout.TopFilterRect.Contains(e.Location))
+            {
+                return;
+            }
+            if (_grid.ShowNavigator && HitTestNavigator(e.Location))
+            {
+                return;
+            }
+            if (_grid.ShowCheckBox && _grid.Layout.SelectAllCheckRect.Contains(e.Location))
+            {
+                return;
+            }
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            {
                 return;
             }
 
@@ -501,6 +590,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void HandleKeyDown(KeyEventArgs e)
         {
             // Don't process keyboard input while context menu is active
+            if (_grid.Dialog.HasActiveInlineOverlay)
+            {
+                return;
+            }
             
             
             // Handle Ctrl+C (Copy)
@@ -796,14 +889,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.ShowTopFilterPanel && _grid.Layout.TopFilterRect.Contains(p))
             {
                 int clearIdx = HitHeaderIcon(_grid.Render.TopFilterClearIconRects, p);
-                if (clearIdx >= 0)
+                if (clearIdx >= 0 || clearIdx == BaseFilterPanelPainter.ClearAllActionKey || clearIdx == BaseFilterPanelPainter.AdvancedFilterActionKey)
                 {
                     _grid.Cursor = Cursors.Hand;
                     return;
                 }
 
                 int filterIdx = HitHeaderIcon(_grid.Render.TopFilterCellRects, p);
-                if (filterIdx >= 0)
+                if (filterIdx >= 0 || filterIdx == BaseFilterPanelPainter.SearchActionKey)
                 {
                     _grid.Cursor = Cursors.Hand;
                     return;
@@ -904,7 +997,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            return -1;
+            // Important: -1 is a valid action key (Clear All). Use a distinct sentinel for no hit.
+            return int.MinValue;
         }
 
         private bool TryHandleColumnBorderDoubleClick(Point location)

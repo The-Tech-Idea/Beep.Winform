@@ -1,7 +1,9 @@
 using System.Drawing;
+using System.Windows.Forms; // Required for Control, if needed; though mainly using static helpers
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.Helpers; // For DpiScalingHelper
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 {
@@ -16,7 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         /// </summary>
         public static Font GetChipFont(
             BeepControlStyle controlStyle,
-            ChipSize chipSize)
+            ChipSize chipSize,
+            float dpiScale = 1.0f)
         {
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             
@@ -29,28 +32,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 _ => baseSize
             };
 
+            // Scale the font size for DPI
+            float scaledSize = DpiScalingHelper.ScaleValue(chipFontSize, dpiScale);
+
             FontStyle fontStyle = FontStyle.Regular;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, chipFontSize, fontStyle);
+            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
         }
 
         /// <summary>
         /// Gets the font for chip group title
         /// </summary>
         public static Font GetTitleFont(
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            float dpiScale = 1.0f)
         {
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float titleSize = baseSize * 1.2f; // 20% larger
+            
+            // Scale the font size for DPI
+            float scaledSize = DpiScalingHelper.ScaleValue(titleSize, dpiScale);
+
             FontStyle fontStyle = FontStyle.Bold;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, titleSize, fontStyle);
+            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
         }
 
         /// <summary>
@@ -58,7 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         /// </summary>
         public static Font GetIconFont(
             BeepControlStyle controlStyle,
-            ChipSize chipSize)
+            ChipSize chipSize,
+            float dpiScale = 1.0f)
         {
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             
@@ -71,12 +83,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 _ => baseSize * 0.8f
             };
 
+            // Scale the font size for DPI
+            float scaledSize = DpiScalingHelper.ScaleValue(iconFontSize, dpiScale);
+
             FontStyle fontStyle = FontStyle.Regular;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, iconFontSize, fontStyle);
+            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
         }
 
         /// <summary>
@@ -84,11 +99,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         /// Updates the control's Font property based on ControlStyle and ChipSize
         /// </summary>
         public static void ApplyFontTheme(
+            Control control,
             BeepControlStyle controlStyle,
-            ChipSize chipSize)
+            ChipSize chipSize,
+            float dpiScale = 1.0f)
         {
-            // This is a helper for getting fonts, not for setting control font
-            // The control should use these helpers when painting
+            if (control == null) return;
+            
+            control.Font = GetChipFont(controlStyle, chipSize, dpiScale);
         }
     }
 }
+

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 {
@@ -32,8 +33,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             // Tabbed mode: calculate tab and content areas
-            // Ensure tab height is at least 24 pixels
-            int effectiveTabHeight = Math.Max(24, _tabHeight);
+            // Ensure tab height is at least 24 pixels (DPI-scaled)
+            int minTabHeight = DpiScalingHelper.ScaleValue(24, this);
+            int effectiveTabHeight = Math.Max(minTabHeight, DpiScalingHelper.ScaleValue(_tabHeight, this));
             
             switch (_tabPosition)
             {
@@ -77,11 +79,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
             
             // Update layout helper with current style and font before calculating layout
-            // This ensures tab widths account for border, shadow, padding, and text size
             _layoutHelper.UpdateStyle(ControlStyle, Font);
 
+            int scaledMinWidth = DpiScalingHelper.ScaleValue(_tabMinWidth, this);
+            int scaledMaxWidth = DpiScalingHelper.ScaleValue(_tabMaxWidth, this);
             var result = _layoutHelper.CalculateTabLayout(_tabs, _tabArea, _tabPosition, 
-                _tabMinWidth, _tabMaxWidth, _scrollOffset);
+                scaledMinWidth, scaledMaxWidth, _scrollOffset);
             
             _needsScrolling = result.NeedsScrolling;
             _scrollLeftButton = result.ScrollLeftButton;

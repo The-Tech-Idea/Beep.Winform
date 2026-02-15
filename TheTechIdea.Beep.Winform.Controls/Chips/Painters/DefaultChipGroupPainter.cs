@@ -8,6 +8,8 @@ using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -31,37 +33,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions opt)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
-            var font = ResolveFont(opt);
+            var font = ResolveFont(opt, scale);
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
+            
             int extra = 0;
-            if (opt.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath)) extra += opt.IconMaxSize.Width + 6;
-            if (opt.ShowSelectionCheck) extra += 14; // reserve for dot/check
-            int pad = GetHorizontalPadding(opt.Size);
-            int h = GetChipHeight(opt.Size);
+            if (opt.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath)) 
+                extra += DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(6, scale);
+            
+            if (opt.ShowSelectionCheck) 
+                extra += DpiScalingHelper.ScaleValue(14, scale); // reserve for dot/check
+                
+            int pad = GetHorizontalPadding(opt.Size, scale);
+            int h = GetChipHeight(opt.Size, scale);
             return new Size(sz.Width + pad + extra, h);
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions opt, out Rectangle closeRect)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             closeRect = Rectangle.Empty;
-            var font = ResolveFont(opt);
+            var font = ResolveFont(opt, scale);
             var (bg, fg, border) = GetColors(state, opt);
-            using var path = RoundedPath(bounds, opt.CornerRadius);
+            using var path = RoundedPath(bounds, DpiScalingHelper.ScaleValue(opt.CornerRadius, scale));
 
             // Background per Style (same as before)
             switch (opt.Style)
             {
-                case Chips.ChipStyle.Minimalist:
+                case ChipStyle.Minimalist:
                     if (state.IsHovered || state.IsSelected)
                     {
                         var tint = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsSelected ? 28 : 14, fg));
                         g.FillPath(tint, path);
                     }
                     break;
-                case Chips.ChipStyle.Classic:
-                case Chips.ChipStyle.Professional:
-                case Chips.ChipStyle.HighContrast:
+                case ChipStyle.Classic:
+                case ChipStyle.Professional:
+                case ChipStyle.HighContrast:
                     {
                         var bgBr = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsHovered || state.IsSelected ? 18 : 8, bg));
                         g.FillPath(bgBr, path);
@@ -75,16 +84,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                     break;
             }
 
-            if (opt.ShowBorders && (opt.Style is Chips.ChipStyle.Classic or Chips.ChipStyle.Professional or Chips.ChipStyle.HighContrast or Chips.ChipStyle.Minimalist))
+            if (opt.ShowBorders && (opt.Style is ChipStyle.Classic or ChipStyle.Professional or ChipStyle.HighContrast or ChipStyle.Minimalist))
             {
-                var pen = (Pen)PaintersFactory.GetPen(border, Math.Max(1, opt.BorderWidth)).Clone();
+                var pen = (Pen)PaintersFactory.GetPen(border, Math.Max(1, DpiScalingHelper.ScaleValue(opt.BorderWidth, scale))).Clone();
                 using (pen)
                 {
                     g.DrawPath(pen, path);
                 }
             }
 
-            var contentRect = Rectangle.Inflate(bounds, -8, -2);
+            var contentRect = Rectangle.Inflate(bounds, -DpiScalingHelper.ScaleValue(8, scale), -DpiScalingHelper.ScaleValue(2, scale));
             int leftPad = 0;
 
             // Selection mark
@@ -92,15 +101,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             {
                 if (opt.SelectionMark == SelectionMarkKind.Dot)
                 {
-                    int dot = Math.Min(contentRect.Height - 6, 10);
+                    int dot = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(10, scale));
                     var dotRect = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - dot) / 2, dot, dot);
                     var dotBr = PaintersFactory.GetSolidBrush(fg);
                     g.FillEllipse(dotBr, dotRect);
-                    leftPad += dot + 6;
+                    leftPad += dot + DpiScalingHelper.ScaleValue(6, scale);
                 }
                 else
                 {
-                    int s = Math.Min(contentRect.Height - 6, 12);
+                    int s = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(12, scale));
                     var r = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - s) / 2, s, s);
                     var penC = (Pen)PaintersFactory.GetPen(fg, 2f).Clone();
                     try
@@ -113,24 +122,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                     {
                         penC.Dispose();
                     }
-                    leftPad += s + 6;
+                    leftPad += s + DpiScalingHelper.ScaleValue(6, scale);
                 }
             }
 
             // Left icon
             if (opt.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
             {
-                var sz = opt.IconMaxSize;
+                var sz = DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale);
                 var iconRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top + (contentRect.Height - sz.Height) / 2, sz.Width, sz.Height);
                 _image.ImagePath = item.ImagePath;
                 _image.Draw(g, iconRect);
-                leftPad += sz.Width + 6;
+                leftPad += sz.Width + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             int rightPad = 0;
             if (opt.ShowCloseOnSelected && state.IsSelected)
             {
-                int s = Math.Min(contentRect.Height - 6, 12);
+                int s = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(12, scale));
                 closeRect = new Rectangle(contentRect.Right - s, contentRect.Top + (contentRect.Height - s) / 2, s, s);
                 var penX = (Pen)PaintersFactory.GetPen(fg, 1.5f).Clone();
                 try
@@ -144,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 {
                     penX.Dispose();
                 }
-                rightPad = s + 4;
+                rightPad = s + DpiScalingHelper.ScaleValue(4, scale);
             }
 
             var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
@@ -168,11 +177,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             return path;
         }
 
-        private static int GetChipHeight(ChipSize size) => size switch { ChipSize.Small => 24, ChipSize.Medium => 32, ChipSize.Large => 40, _ => 32 };
-        private static int GetHorizontalPadding(ChipSize size) => size switch { ChipSize.Small => 16, ChipSize.Medium => 20, ChipSize.Large => 24, _ => 20 };
+        private static int GetChipHeight(ChipSize size, float scale) 
+        {
+            int val = size switch { ChipSize.Small => 24, ChipSize.Medium => 32, ChipSize.Large => 40, _ => 32 };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
 
-        private Font ResolveFont(ChipRenderOptions opt)
-            => (opt.Size == ChipSize.Small) ? PaintersFactory.GetFont(opt.Font.FontFamily.Name, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : PaintersFactory.GetFont(opt.Font);
+        private static int GetHorizontalPadding(ChipSize size, float scale) 
+        {
+            int val = size switch { ChipSize.Small => 16, ChipSize.Medium => 20, ChipSize.Large => 24, _ => 20 };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private Font ResolveFont(ChipRenderOptions opt, float scale = 1.0f)
+        {
+            return ChipFontHelpers.GetChipFont(_owner.ControlStyle, opt.Size, scale);
+        }
 
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState s, ChipRenderOptions opt)
         {
@@ -191,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             Color bg = s.IsSelected ? primary : surface;
             Color fg = s.IsSelected ? (th?.ButtonForeColor ?? Color.White) : text;
             Color border = s.IsSelected ? primary : outline;
-            if (opt.Style == Chips.ChipStyle.Minimalist) border = outline;
+            if (opt.Style == ChipStyle.Minimalist) border = outline;
             return (bg, fg, border);
         }
     }

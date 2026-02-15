@@ -66,9 +66,6 @@ Filtering/
 ### Quick Filter
 
 ```csharp
-// Enable quick filter bar
-grid.ShowQuickFilterBar = true;
-
 // Apply quick filter programmatically
 grid.ApplyQuickFilter("search text", "ColumnName");
 
@@ -379,9 +376,6 @@ int totalRows = grid.Data.Rows.Count;
 
 // Get active filter
 FilterConfiguration activeFilter = grid.ActiveFilter;
-
-// Enable quick filter bar
-grid.ShowQuickFilterBar = true;
 ```
 
 ## Best Practices

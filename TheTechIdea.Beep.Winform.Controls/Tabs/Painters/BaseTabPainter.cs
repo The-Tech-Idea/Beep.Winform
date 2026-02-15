@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
@@ -13,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
     {
         public BeepTabs TabControl { get; set; }
         public IBeepTheme Theme { get; set; }
+        public Font TextFont { get; set; }
 
         protected BeepImage _closeIcon;
 
@@ -24,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg",
                 ScaleMode = ImageScaleMode.KeepAspectRatio,
                 ApplyThemeOnImage = false,
-                Size = new Size(24, 24)
+                Size = new Size(DpiScalingHelper.ScaleValue(24, TabControl), DpiScalingHelper.ScaleValue(24, TabControl))
             };
         }
 
@@ -61,9 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             return new SizeF(width, height);
         }
 
-        protected int GetScaledCloseButtonSize() => 24;
-        protected int GetScaledCloseButtonPadding() => 8;
-        protected int GetScaledTextPadding() => 12;
+        protected int GetScaledCloseButtonSize() => DpiScalingHelper.ScaleValue(24, TabControl);
+        protected int GetScaledCloseButtonPadding() => DpiScalingHelper.ScaleValue(8, TabControl);
+        protected int GetScaledTextPadding() => DpiScalingHelper.ScaleValue(12, TabControl);
 
         protected void DrawCloseButton(Graphics g, RectangleF tabRect, bool vertical)
         {
@@ -120,9 +122,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                  isSelected);
              Color textColor = Color.FromArgb((int)(alpha * 255), baseColor.R, baseColor.G, baseColor.B);
 
-             // Use font helpers for consistent font retrieval
-             // Note: We use TabControl.Font as base, but could enhance with TabFontHelpers
-             using (Font font = new Font(TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
+             // Use TextFont when available, otherwise TabControl.Font
+             Font baseFont = TextFont ?? TabControl.Font;
+             using (Font font = new Font(baseFont, isSelected ? FontStyle.Bold : FontStyle.Regular))
              {
                 var textBrush = PaintersFactory.GetSolidBrush(textColor);
                 if (!vertical)

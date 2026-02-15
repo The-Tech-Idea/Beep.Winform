@@ -654,21 +654,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         
         #endregion
 
+        protected override void OnDpiChangedBeforeParent(EventArgs e)
+        {
+            base.OnDpiChangedBeforeParent(e);
+            
+            // Re-apply theme to update fonts with new DPI
+            ApplyTheme();
+            
+            // Recalculate layout
+            UpdateChipBounds();
+            Invalidate();
+        }
+
         #region Theming
         public override void ApplyTheme()
         {
             base.ApplyTheme();
 
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(this);
+            _renderOptions.DpiScale = dpiScale;
+
             // Apply font theme based on ControlStyle
-            Helpers.ChipFontHelpers.ApplyFontTheme(ControlStyle, _chipSize);
+            Helpers.ChipFontHelpers.ApplyFontTheme(this, ControlStyle, _chipSize, dpiScale);
 
             if (_currentTheme != null)
             {
                 // Use theme helpers for consistent color retrieval
                 _titleColor = Helpers.ChipThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors);
                 BackColor = Helpers.ChipThemeHelpers.GetGroupBackgroundColor(_currentTheme, UseThemeColors);
-                _titleFont=BeepThemesManager.ToFont(_currentTheme.CardTitleFont) ?? _titleFont;
-                _textFont=BeepThemesManager.ToFont(_currentTheme.ButtonFont) ?? _textFont;
+                
+                // Update title font
+                _titleFont = Helpers.ChipFontHelpers.GetTitleFont(ControlStyle, dpiScale);
+                
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonFont) ?? _textFont;
+                
                 _renderOptions.Theme = _currentTheme;
                 _painter?.UpdateTheme(_currentTheme);
                 ApplyThemeToChips();

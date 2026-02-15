@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.NavBars.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
@@ -208,6 +210,9 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             public int ItemHeight => _navBar.NavItemHeight;
             public NavBarOrientation Orientation => _navBar.Orientation;
             public IBeepTheme Theme => _navBar._currentTheme;
+            public System.Windows.Forms.Control OwnerControl => _navBar;
+            public float DpiScale => DpiScalingHelper.GetDpiScaleFactor(_navBar);
+            public Font TextFont => _navBar._textFont ?? BeepFontManager.DefaultFont;
 
             public void SelectItemByIndex(int index)
             {

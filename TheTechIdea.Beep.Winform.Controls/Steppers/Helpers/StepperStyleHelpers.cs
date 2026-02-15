@@ -1,6 +1,9 @@
 using System;
+using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
@@ -14,9 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Gets recommended button size for stepper based on control style
         /// </summary>
-        public static System.Drawing.Size GetRecommendedButtonSize(BeepControlStyle controlStyle)
+        public static System.Drawing.Size GetRecommendedButtonSize(BeepControlStyle controlStyle, Control ownerControl = null)
         {
-            return controlStyle switch
+            var size = controlStyle switch
             {
                 BeepControlStyle.Material3 => new System.Drawing.Size(40, 40),
                 BeepControlStyle.MaterialYou => new System.Drawing.Size(40, 40),
@@ -41,14 +44,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => new System.Drawing.Size(44, 44), // Larger for accessibility
                 _ => new System.Drawing.Size(36, 36)
             };
+            return DpiScalingHelper.ScaleSize(size, ownerControl);
         }
 
         /// <summary>
         /// Gets recommended connector line width based on control style
         /// </summary>
-        public static int GetRecommendedConnectorLineWidth(BeepControlStyle controlStyle)
+        public static int GetRecommendedConnectorLineWidth(BeepControlStyle controlStyle, Control ownerControl = null)
         {
-            return controlStyle switch
+            int baseValue = controlStyle switch
             {
                 BeepControlStyle.Material3 => 2,
                 BeepControlStyle.MaterialYou => 2,
@@ -73,14 +77,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => 3, // Thicker for accessibility
                 _ => 2
             };
+            return Math.Max(1, DpiScalingHelper.ScaleValue(baseValue, ownerControl));
         }
 
         /// <summary>
         /// Gets recommended spacing between steps based on control style
         /// </summary>
-        public static int GetRecommendedStepSpacing(BeepControlStyle controlStyle)
+        public static int GetRecommendedStepSpacing(BeepControlStyle controlStyle, Control ownerControl = null)
         {
-            return controlStyle switch
+            int baseValue = controlStyle switch
             {
                 BeepControlStyle.Material3 => 24,
                 BeepControlStyle.MaterialYou => 24,
@@ -105,16 +110,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => 28, // More spacing for accessibility
                 _ => 20
             };
+            return DpiScalingHelper.ScaleValue(baseValue, ownerControl);
         }
 
         /// <summary>
         /// Gets recommended border radius for step buttons based on control style
         /// </summary>
-        public static int GetRecommendedBorderRadius(BeepControlStyle controlStyle, int buttonSize)
+        public static int GetRecommendedBorderRadius(BeepControlStyle controlStyle, int buttonSize, Control ownerControl = null)
         {
             // For circular buttons, radius is half the size
             // But we can adjust based on style for rounded rectangles if needed
-            return controlStyle switch
+            int baseValue = controlStyle switch
             {
                 BeepControlStyle.Material3 => buttonSize / 2, // Circular
                 BeepControlStyle.MaterialYou => buttonSize / 2,
@@ -139,14 +145,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => buttonSize / 2,
                 _ => buttonSize / 2
             };
+            return DpiScalingHelper.ScaleValue(baseValue, ownerControl);
         }
 
         /// <summary>
         /// Gets recommended label spacing (distance from step button to label)
         /// </summary>
-        public static int GetRecommendedLabelSpacing(BeepControlStyle controlStyle)
+        public static int GetRecommendedLabelSpacing(BeepControlStyle controlStyle, Control ownerControl = null)
         {
-            return controlStyle switch
+            int baseValue = controlStyle switch
             {
                 BeepControlStyle.Material3 => 8,
                 BeepControlStyle.MaterialYou => 8,
@@ -171,14 +178,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => 10, // More spacing for accessibility
                 _ => 8
             };
+            return DpiScalingHelper.ScaleValue(baseValue, ownerControl);
         }
 
         /// <summary>
         /// Gets recommended border width for step buttons based on control style
         /// </summary>
-        public static int GetRecommendedBorderWidth(BeepControlStyle controlStyle)
+        public static int GetRecommendedBorderWidth(BeepControlStyle controlStyle, Control ownerControl = null)
         {
-            return controlStyle switch
+            int baseValue = controlStyle switch
             {
                 BeepControlStyle.Material3 => 2,
                 BeepControlStyle.MaterialYou => 2,
@@ -203,14 +211,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => 3, // Thicker for accessibility
                 _ => 2
             };
+            return Math.Max(1, DpiScalingHelper.ScaleValue(baseValue, ownerControl));
         }
 
         /// <summary>
         /// Gets recommended padding for stepper control based on control style
         /// </summary>
-        public static int GetRecommendedPadding(BeepControlStyle controlStyle)
+        public static int GetRecommendedPadding(BeepControlStyle controlStyle, Control ownerControl = null)
         {
-            return controlStyle switch
+            int baseValue = controlStyle switch
             {
                 BeepControlStyle.Material3 => 16,
                 BeepControlStyle.MaterialYou => 16,
@@ -235,6 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.HighContrast => 20, // More padding for accessibility
                 _ => 12
             };
+            return DpiScalingHelper.ScaleValue(baseValue, ownerControl);
         }
     }
 }

@@ -8,6 +8,14 @@ Built-in sorting
 Simple contains filter
 - `GridSortFilterHelper.Filter(columnName, contains)` performs a case-insensitive substring filter on the in-memory rows.
 
+Top filter panel
+- The modern top filter panel is shown by default. Toggle it with `ShowTopFilterPanel`.
+- Set `GridTitle` to display a custom title in the toolbar.
+- In `AGGrid` and `DataTables` navigation styles, the toolbar includes Search, Filters, active filter count, and Clear action buttons.
+- Filter panel painter selection is now synchronized with `GridStyle` presets via factory mapping.
+- Style-specific painter classes (`Material`, `Bootstrap`, `Fluent`, `AntDesign`, `Compact`, `Minimal`, `Telerik`, `Tailwind`) provide dedicated visual tokens.
+- Clicking a filter chip/tag opens an inline criterion popup editor (operator + value/value2 + case-sensitive) that updates `ActiveFilter` directly.
+
 Excel-style filter popup
 - Two ways to enable:
   1) `beepGridPro1.EnableExcelFilter()` extension: hooks grid mouse and shows `BeepGridFilterPopup` when clicking header area.

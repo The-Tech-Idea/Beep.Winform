@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _menuItemHeight = 32; // Increased from 20 to 32 to accommodate text at higher DPI
         private bool _menuItemHeightLocked = false; // Lock height after initial setup to prevent FormStyle changes from modifying it
         private bool _heightManuallySet = false; // Track if developer manually set the Height property
-        private Size ButtonSize = new Size(60, 32); // Match MenuItemHeight
+        private Size ButtonSize = new Size(60, 32); // Base size, scaled via ScaledButtonSize
 
     
         #region "Properties"
@@ -440,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + ScaleUi(8) : 0;
 
             // Add internal content padding (horizontal space between elements and edges)
-            int internalContentPad = ScaleUi(16); // 8 pixels on each side
+            int internalContentPad = ScaleUi(16); // 8 pixels on each side (scaled 8*2)
             
             // Calculate content width (text + image + internal padding)
             int contentWidth = textWidth + imageWidth + internalContentPad;
@@ -448,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Add chrome width (border + padding + shadow from style)
             int totalWidth = contentWidth + totalChromeWidth;
 
-            return Math.Max(totalWidth, ScaleUi(60)); // Minimum width
+            return Math.Max(totalWidth, ScaleUi(60)); // Minimum width (DPI-scaled)
         }
 
         private void HandleMenuItemClick(SimpleItem item, int index)

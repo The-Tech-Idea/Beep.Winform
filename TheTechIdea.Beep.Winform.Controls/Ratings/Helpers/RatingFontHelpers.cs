@@ -1,9 +1,11 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.Ratings;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
 {
@@ -34,9 +36,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             RatingStyle ratingStyle = RatingStyle.ClassicStar)
         {
             if (rating == null)
-                return GetLabelFont(controlStyle, ratingStyle, 24, null);
+                return GetLabelFont(controlStyle, ratingStyle, 24, null, null);
 
-            return GetLabelFont(controlStyle, ratingStyle, rating.StarSize, rating.Font);
+            return GetLabelFont(controlStyle, ratingStyle, rating.StarSize, rating.Font, rating);
         }
 
         /// <summary>
@@ -46,17 +48,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             BeepControlStyle controlStyle,
             RatingStyle ratingStyle,
             int starSize,
-            Font baseFont = null)
+            Font textFont = null,
+            Control ownerControl = null)
         {
-            baseFont = baseFont ?? new Font("Segoe UI", 8, FontStyle.Regular);
+            Font baseFont = textFont ?? new Font("Segoe UI", 8, FontStyle.Regular);
 
             int fontSize = GetFontSizeForElement(controlStyle, RatingFontElement.Label);
-            
+            int minSize = Math.Max(7, DpiScalingHelper.ScaleValue(7, ownerControl));
+
             // Adjust size based on star size if available
             if (starSize > 0)
             {
                 // Font size should be proportional to star size (about 25-30% of star size)
-                fontSize = Math.Max(7, Math.Min(14, (int)(starSize * 0.28f)));
+                fontSize = Math.Max(minSize, Math.Min(14, (int)(starSize * 0.28f)));
             }
 
             FontStyle fontStyle = GetFontStyleForElement(controlStyle, RatingFontElement.Label);
@@ -82,9 +86,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             RatingStyle ratingStyle = RatingStyle.ClassicStar)
         {
             if (rating == null)
-                return GetCountFont(controlStyle, ratingStyle, null);
+                return GetCountFont(controlStyle, ratingStyle, null, null);
 
-            return GetCountFont(controlStyle, ratingStyle, rating.Font);
+            return GetCountFont(controlStyle, ratingStyle, rating.Font, rating);
         }
 
         /// <summary>
@@ -93,14 +97,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
         public static Font GetCountFont(
             BeepControlStyle controlStyle,
             RatingStyle ratingStyle,
-            Font baseFont = null)
+            Font textFont = null,
+            Control ownerControl = null)
         {
-            baseFont = baseFont ?? new Font("Segoe UI", 7, FontStyle.Regular);
+            Font baseFont = textFont ?? new Font("Segoe UI", 7, FontStyle.Regular);
 
             int fontSize = GetFontSizeForElement(controlStyle, RatingFontElement.Count);
-            
+            int minSize = Math.Max(6, DpiScalingHelper.ScaleValue(6, ownerControl));
+
             // Count text is typically smaller than labels
-            fontSize = Math.Max(6, fontSize - 1);
+            fontSize = Math.Max(minSize, fontSize - 1);
 
             FontStyle fontStyle = GetFontStyleForElement(controlStyle, RatingFontElement.Count);
 
@@ -124,9 +130,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             RatingStyle ratingStyle = RatingStyle.ClassicStar)
         {
             if (rating == null)
-                return GetAverageFont(controlStyle, ratingStyle, null);
+                return GetAverageFont(controlStyle, ratingStyle, null, null);
 
-            return GetAverageFont(controlStyle, ratingStyle, rating.Font);
+            return GetAverageFont(controlStyle, ratingStyle, rating.Font, rating);
         }
 
         /// <summary>
@@ -135,14 +141,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
         public static Font GetAverageFont(
             BeepControlStyle controlStyle,
             RatingStyle ratingStyle,
-            Font baseFont = null)
+            Font textFont = null,
+            Control ownerControl = null)
         {
-            baseFont = baseFont ?? new Font("Segoe UI", 7, FontStyle.Regular);
+            Font baseFont = textFont ?? new Font("Segoe UI", 7, FontStyle.Regular);
 
             int fontSize = GetFontSizeForElement(controlStyle, RatingFontElement.Average);
-            
+            int minSize = Math.Max(6, DpiScalingHelper.ScaleValue(6, ownerControl));
+
             // Average text is typically smaller than labels
-            fontSize = Math.Max(6, fontSize - 1);
+            fontSize = Math.Max(minSize, fontSize - 1);
 
             FontStyle fontStyle = GetFontStyleForElement(controlStyle, RatingFontElement.Average);
 
@@ -249,19 +257,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
         /// </summary>
         public static void ApplyFontTheme(
             BeepStarRating rating,
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            Font textFont = null)
         {
             if (rating == null)
                 return;
 
-            // Apply label font if labels are shown
+            // Apply label font if labels are shown (use theme-sourced textFont when provided)
             if (rating.ShowLabels)
             {
                 if (rating.LabelFont != null)
                 {
                     rating.LabelFont.Dispose();
                 }
-                rating.LabelFont = GetLabelFont(rating, controlStyle, rating.RatingStyle);
+                rating.LabelFont = GetLabelFont(controlStyle, rating.RatingStyle, rating.StarSize, textFont ?? rating.Font, rating);
             }
 
             // Note: Count and Average fonts are used internally in painters

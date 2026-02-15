@@ -117,6 +117,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 Height = 30;
             }
         }
+
+        protected override void OnDpiChangedBeforeParent(EventArgs e)
+        {
+            base.OnDpiChangedBeforeParent(e);
+            
+            // Re-apply theme to update fonts with new DPI
+            ApplyTheme();
+            
+            Invalidate();
+        }
         #endregion
 
         #region Properties
@@ -309,6 +319,25 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             }
         }
         #endregion
+
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(this);
+            
+            // Apply font theme based on ControlStyle
+            CheckBoxFontHelpers.ApplyFontTheme(this, ControlStyle, dpiScale);
+
+            if (_currentTheme != null)
+            {
+                // Update specific theme properties if needed
+                _beepImage.Theme = Theme;
+                _beepImage.ApplyTheme();
+            }
+
+            Invalidate();
+        }
 
         #region Events
         // Declare the StateChanged event

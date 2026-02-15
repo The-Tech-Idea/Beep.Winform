@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Notifications.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -14,6 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
     /// </summary>
     public abstract class NotificationPainterBase : INotificationPainter
     {
+        public Control OwnerControl { get; set; }
+        public Font TextFont { get; set; }
+
         /// <summary>
         /// Gets colors for notification type using NotificationThemeHelpers
         /// </summary>
@@ -98,11 +102,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 return;
 
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            var titleFont = new Font(data.Layout == NotificationLayout.Prominent ? "Segoe UI" : "Segoe UI", 
-                data.Layout == NotificationLayout.Prominent ? 14 : 10, FontStyle.Bold);
+            Font titleFont = (TextFont ?? SystemFonts.DefaultFont);
+            if (data.Layout == NotificationLayout.Prominent)
+                titleFont = new Font(titleFont.FontFamily, Math.Max(titleFont.Size, 12f), FontStyle.Bold);
+            else
+                titleFont = new Font(titleFont, FontStyle.Bold);
 
-            TextRenderer.DrawText(g, title, titleFont, titleRect, colors.ForeColor,
-                TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak);
+            try
+            {
+                TextRenderer.DrawText(g, title, titleFont, titleRect, colors.ForeColor,
+                    TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak);
+            }
+            finally
+            {
+                if (titleFont != TextFont && titleFont != null)
+                    titleFont.Dispose();
+            }
         }
 
         public virtual void PaintMessage(Graphics g, Rectangle messageRect, string message, NotificationData data)
@@ -112,8 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             var messageColor = Color.FromArgb(180, colors.ForeColor);
+            Font msgFont = TextFont ?? SystemFonts.DefaultFont;
 
-            TextRenderer.DrawText(g, message, SystemFonts.DefaultFont, messageRect, messageColor,
+            TextRenderer.DrawText(g, message, msgFont, messageRect, messageColor,
                 TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak);
         }
 
@@ -122,14 +138,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             if (actionsRect.IsEmpty || actions == null || actions.Length == 0)
                 return;
 
-            int buttonWidth = (actionsRect.Width - (12 * (actions.Length - 1))) / actions.Length;
+            int buttonSpacing = OwnerControl != null ? DpiScalingHelper.ScaleValue(12, OwnerControl) : 12;
+            int buttonWidth = (actionsRect.Width - (buttonSpacing * (actions.Length - 1))) / actions.Length;
             int x = actionsRect.X;
 
             foreach (var action in actions)
             {
                 var buttonRect = new Rectangle(x, actionsRect.Y, buttonWidth, actionsRect.Height);
                 PaintActionButton(g, buttonRect, action, data);
-                x += buttonWidth + 12;
+                x += buttonWidth + buttonSpacing;
             }
         }
 
@@ -152,7 +169,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 g.DrawRectangle(pen, rect);
             }
 
-            TextRenderer.DrawText(g, action.Text, SystemFonts.DefaultFont, rect, buttonColor,
+            Font btnFont = TextFont ?? SystemFonts.DefaultFont;
+            TextRenderer.DrawText(g, action.Text, btnFont, rect, buttonColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
@@ -163,10 +181,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             var closeColor = isHovered ? Color.FromArgb(200, colors.ForeColor) : colors.ForeColor;
+            float penWidth = OwnerControl != null ? DpiScalingHelper.ScaleValue(2, OwnerControl) : 2;
+            int padding = OwnerControl != null ? DpiScalingHelper.ScaleValue(6, OwnerControl) : 6;
 
-            using (var pen = new Pen(closeColor, 2))
+            using (var pen = new Pen(closeColor, penWidth))
             {
-                int padding = 6;
                 g.DrawLine(pen,
                     closeButtonRect.X + padding, closeButtonRect.Y + padding,
                     closeButtonRect.Right - padding, closeButtonRect.Bottom - padding);
@@ -216,9 +235,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 CustomBorderColor = null,
                 CustomIconColor = data.IconTint,
                 BorderRadius = NotificationStyleHelpers.GetRecommendedBorderRadius(BeepControlStyle.Material3),
-                Padding = NotificationStyleHelpers.GetRecommendedPadding(data.Layout),
-                Spacing = NotificationStyleHelpers.GetRecommendedSpacing(data.Layout),
-                IconSize = NotificationStyleHelpers.GetRecommendedIconSize(data.Layout),
+                Padding = NotificationStyleHelpers.GetRecommendedPadding(data.Layout, OwnerControl),
+                Spacing = NotificationStyleHelpers.GetRecommendedSpacing(data.Layout, OwnerControl),
+                IconSize = NotificationStyleHelpers.GetRecommendedIconSize(data.Layout, OwnerControl),
                 ShowCloseButton = data.ShowCloseButton,
                 ShowProgressBar = data.ShowProgressBar
             };

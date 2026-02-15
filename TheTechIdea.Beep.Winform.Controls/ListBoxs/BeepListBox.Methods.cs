@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -305,6 +307,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+
+            // Set _textFont from theme (fallback remains in field initializer)
+            if (_currentTheme != null)
+            {
+                var f = BeepFontManager.ToFont(_currentTheme.ListUnSelectedFont);
+                if (f != null) _textFont = f;
+            }
             
             if (_listBoxPainter != null)
             {
@@ -362,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Value = _yOffset;
             }
-            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
 
@@ -387,7 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Value = _yOffset;
             }
-            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
         
@@ -403,7 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Value = _yOffset;
             }
-            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
         
@@ -432,23 +441,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Checkbox width
                 if (_showCheckBox && _listBoxPainter.SupportsCheckboxes())
                 {
-                    itemWidth += 28; // Checkbox + padding
+                    itemWidth += DpiScalingHelper.ScaleValue(28, this); // Checkbox + padding
                 }
                 
                 // Image width
                 if (_showImage && !string.IsNullOrEmpty(item.ImagePath))
                 {
-                    itemWidth += _imageSize + 8; // Image + padding
+                    itemWidth += DpiScalingHelper.ScaleValue(_imageSize + 8, this); // Image + padding
                 }
                 
                 // Text width
                 var textSize = _helper.MeasureText(item.Text ?? string.Empty, _textFont);
-                itemWidth += textSize.Width + 16; // Text + padding
+                itemWidth += textSize.Width + DpiScalingHelper.ScaleValue(16, this); // Text + padding
                 
                 maxWidth = Math.Max(maxWidth, itemWidth);
             }
             
-            return Math.Max(maxWidth, 100);
+            return Math.Max(maxWidth, DpiScalingHelper.ScaleValue(100, this));
         }
         
         /// <summary>
@@ -457,14 +466,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int GetMaxHeight()
         {
             if (_listItems == null || _listItems.Count == 0)
-                return 50;
+                return DpiScalingHelper.ScaleValue(50, this);
             
             int totalHeight = 0;
             
             // Search area height
             if (_showSearch && _listBoxPainter != null && _listBoxPainter.SupportsSearch())
             {
-                totalHeight += 40;
+                totalHeight += DpiScalingHelper.ScaleValue(40, this);
             }
             
             // Items height
@@ -476,13 +485,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                totalHeight += visibleItems.Count * _menuItemHeight;
+                totalHeight += visibleItems.Count * DpiScalingHelper.ScaleValue(_menuItemHeight, this);
             }
             
             // Padding
-            totalHeight += 10;
+            totalHeight += DpiScalingHelper.ScaleValue(10, this);
             
-            return Math.Max(totalHeight, 50);
+            return Math.Max(totalHeight, DpiScalingHelper.ScaleValue(50, this));
         }
         
         /// <summary>

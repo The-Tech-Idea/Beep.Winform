@@ -8,6 +8,7 @@ using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -94,9 +95,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_subHeaderFont == null && _textFont != null)
                 {
-                    // Default to a slightly smaller font than header
+                    // Default to a slightly smaller font than header (scale subtraction for DPI)
+                    float subSize = _textFont.Size - DpiScalingHelper.ScaleValue(2, this);
                     _subHeaderFont = new Font(_textFont.FontFamily,
-                                            _textFont.Size - 2,
+                                            Math.Max(6f, subSize),
                                             FontStyle.Regular);
                 }
                 return _subHeaderFont;
@@ -385,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 int textWidth = Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
-                int textHeight = headerSize.Height + (hasSub ? subSize.Height : 0);
+                int textHeight = headerSize.Height + (hasSub ? DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subSize.Height : 0);
 
                 // 3) Image size (if any) limited by MaxImageSize
                 Size imgSize = Size.Empty;
@@ -443,8 +445,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <returns>Minimum width for Material Design label</returns>
         protected override int GetMaterialMinimumWidth()
         {
-            // Base minimum width for label
-            int baseMinWidth = 80;
+            // Base minimum width for label (scaled for DPI)
+            int baseMinWidth = DpiScalingHelper.ScaleValue(80, this);
 
             // Add space for icons if present
             var iconSpace = GetMaterialIconSpace();
@@ -464,6 +466,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty = "Text";
 
          
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            _maxImageSize = DpiScalingHelper.ScaleSize(new Size(16, 16), this);
         }
 
         protected override void InitLayout()
@@ -501,8 +509,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         new Size(int.MaxValue, int.MaxValue),
                         TextFormatFlags.SingleLine
                     );
-                    // Framework handles DPI scaling
-                    return new Size(200, measured.Height + 6);
+                    return new Size(
+                        DpiScalingHelper.ScaleValue(200, this),
+                        measured.Height + DpiScalingHelper.ScaleValue(offset, this));
                 }
             }
         }
@@ -557,8 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void Paint(Graphics g, Rectangle bounds)
         {
             UpdateDrawingRect();
-            // Apply a small inner inset to prevent clipping - framework handles DPI scaling
-            var inset = Math.Max(1, 1);
+            int inset = Math.Max(1, DpiScalingHelper.ScaleValue(1, this));
             var rect = bounds;
             rect.Inflate(-inset, -inset);
             contentRect = rect;
@@ -620,11 +628,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Calculate combined text height
+            // Calculate combined text height (include scaled spacing between header and subheader)
             int combinedTextHeight = headerTextSize.Height;
             if (hasSubHeader)
             {
-                combinedTextHeight += subHeaderTextSize.Height;
+                combinedTextHeight += DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subHeaderTextSize.Height;
             }
 
             // Define text area rect (total area needed for all text)
@@ -663,9 +671,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw subheader text if present
                 if (hasSubHeader)
                 {
+                    int spacing = DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this);
                     Rectangle subHeaderTextRect = new Rectangle(
                         textAreaRect.X,
-                        headerTextRect.Bottom,
+                        headerTextRect.Bottom + spacing,
                         textAreaRect.Width,
                         subHeaderTextSize.Height);
 
@@ -797,7 +806,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Use the control's current width as the constraint when wrapping
             bool wrapText = _multiline || _wordWrap;
-            int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (DrawingRect.Width > 0 ? DrawingRect.Width : 200);
+            int defaultMaxW = DpiScalingHelper.ScaleValue(200, this);
+            int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (DrawingRect.Width > 0 ? DrawingRect.Width : defaultMaxW);
 
             // Measure header text size
             Size headerTextSize;
@@ -832,13 +842,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Calculate combined text size
+            // Calculate combined text size (include scaled spacing between header and subheader)
             int textWidth = Math.Max(headerTextSize.Width, hasSubHeader ? subHeaderTextSize.Width : 0);
             int textHeight = headerTextSize.Height;
 
             if (hasSubHeader)
             {
-                textHeight += subHeaderTextSize.Height;
+                textHeight += DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subHeaderTextSize.Height;
             }
 
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
@@ -884,7 +894,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool hasImage = imageSize != Size.Empty;
             bool hasText = !string.IsNullOrEmpty(Text) && !HideText;
 
-            contentRect.Inflate(-2, -2);
+            int inflateVal = DpiScalingHelper.ScaleValue(2, this);
+            contentRect.Inflate(-inflateVal, -inflateVal);
 
             if (hasImage && !hasText)
             {

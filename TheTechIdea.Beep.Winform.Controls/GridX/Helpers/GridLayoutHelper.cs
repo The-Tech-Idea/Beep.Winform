@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public Rectangle[] HeaderCellRects { get; private set; } = System.Array.Empty<Rectangle>();
         public int NavigatorHeight { get; set; } = 36;
         public int TopFilterHeight { get; set; } = 34;
-        public bool ShowTopFilterPanel { get; set; } = false;
+        public bool ShowTopFilterPanel { get; set; } = true;
         
         public int CheckBoxColumnWidth { get; set; } = 30; // Add checkbox column width like BeepSimpleGrid
      
@@ -180,6 +180,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 LayoutCells();
+                
+                // Position filter panel embedded controls
+                PositionFilterPanelControls();
                 
                 // Track scroll position and row count for change detection
                 _lastScrollOffset = _grid.Scroll?.VerticalOffset ?? 0;
@@ -424,6 +427,86 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             else if (!_grid.ShowNavigator)
             {
                 NavigatorHeight = 0;
+            }
+        }
+        
+        /// <summary>
+        /// Positions the filter panel embedded controls (search box and column combo)
+        /// </summary>
+        private void PositionFilterPanelControls()
+        {
+            if (_grid.FilterPanelSearchBox == null || _grid.FilterPanelColumnCombo == null)
+            {
+                return;
+            }
+            
+            // Always keep controls visible when ShowTopFilterPanel is enabled
+            if (!ShowTopFilterPanel)
+            {
+                // Hide controls if filter panel is not shown
+                _grid.FilterPanelSearchBox.Visible = false;
+                _grid.FilterPanelColumnCombo.Visible = false;
+                return;
+            }
+            
+            // If TopFilterRect is not calculated yet, use default positioning
+            if (TopFilterRect == Rectangle.Empty)
+            {
+                // Keep controls visible with default positioning until layout is ready
+                return;
+            }
+            
+            // Suspend layout to prevent flicker during repositioning
+            _grid.SuspendLayout();
+            try
+            {
+                // Position controls in the right portion of the filter panel
+                // Leave left side for filter chips/icons painted by the painter
+                
+                int controlHeight = 24;
+                int comboWidth = 120;
+                int searchMinWidth = 200;
+                int padding = 6;
+                int rightMargin = 12;
+                
+                // Calculate available space on the right side
+                int availableWidth = TopFilterRect.Width - rightMargin;
+                
+                // Start from right edge
+                int rightEdge = TopFilterRect.Right - rightMargin;
+                
+                // Position search box (right side)
+                int searchWidth = Math.Max(searchMinWidth, availableWidth - comboWidth - padding);
+                int searchX = rightEdge - searchWidth;
+                int searchY = TopFilterRect.Top + (TopFilterRect.Height - controlHeight) / 2;
+                
+                _grid.FilterPanelSearchBox.Bounds = new Rectangle(searchX, searchY, searchWidth, controlHeight);
+                _grid.FilterPanelSearchBox.Visible = true;
+                
+                // Position combo box (to the left of search box)
+                int comboX = searchX - padding - comboWidth;
+                int comboY = TopFilterRect.Top + (TopFilterRect.Height - controlHeight) / 2;
+                
+                if (comboWidth > 0 && comboX >= TopFilterRect.Left)
+                {
+                    _grid.FilterPanelColumnCombo.Bounds = new Rectangle(comboX, comboY, comboWidth, controlHeight);
+                    _grid.FilterPanelColumnCombo.Visible = true;
+                }
+                else
+                {
+                    _grid.FilterPanelColumnCombo.Visible = false;
+                }
+                
+                // Populate column combo if empty
+                if (_grid.FilterPanelColumnCombo.ListItems.Count == 0 && _grid.Data?.Columns != null)
+                {
+                    _grid.PopulateFilterPanelColumnCombo();
+                }
+            }
+            finally
+            {
+                // Resume layout
+                _grid.ResumeLayout(false); // false = don't force immediate layout
             }
         }
     }

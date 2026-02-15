@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
@@ -43,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
 
             foreach (var item in ctx.MenuItems)
             {
-                int itemWidth = MenuBarRenderingHelpers.CalculateMenuItemWidth(item, ctx.ItemHeight, ctx.TextFont);
+                int itemWidth = MenuBarRenderingHelpers.CalculateMenuItemWidth(item, ctx.ItemHeight, ctx.TextFont, Owner);
                 totalWidth += itemWidth + ctx.ItemSpacing;
             }
 
@@ -286,30 +287,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
             }
         }
 
-        #region DPI Scaling Helpers - Framework handles DPI automatically
-        /// <summary>
-        /// Returns value unchanged - framework handles DPI scaling
-        /// </summary>
-        protected int ScaleValue(int value)
-        {
-            return value;
-        }
+        #region DPI Scaling Helpers
+        /// <summary>Scales value by DPI using the Owner control.</summary>
+        protected int ScaleValue(int value) => Owner != null ? DpiScalingHelper.ScaleValue(value, Owner) : value;
 
-        /// <summary>
-        /// Returns size unchanged - framework handles DPI scaling
-        /// </summary>
-        protected Size ScaleSize(Size size)
-        {
-            return size;
-        }
+        protected Size ScaleSize(Size size) => Owner != null ? DpiScalingHelper.ScaleSize(size, Owner) : size;
 
-        /// <summary>
-        /// Returns padding unchanged - framework handles DPI scaling
-        /// </summary>
-        protected Padding ScalePadding(Padding padding)
-        {
-            return padding;
-        }
+        protected Padding ScalePadding(Padding padding) => Owner != null ? DpiScalingHelper.ScalePadding(padding, Owner) : padding;
 
         /// <summary>
         /// Returns rectangle unchanged - framework handles DPI scaling

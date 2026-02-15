@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
@@ -17,6 +19,12 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
         
         public abstract string Name { get; }
         public abstract void Draw(Graphics g, INavBarPainterContext context, Rectangle bounds);
+
+        /// <summary>Gets DPI-scaled value using context's owner control.</summary>
+        protected static int ScaleValue(int value, INavBarPainterContext ctx) =>
+            ctx?.OwnerControl != null ? DpiScalingHelper.ScaleValue(value, ctx.OwnerControl) : value;
+        /// <summary>Text font from context.</summary>
+        protected static Font TextFont(INavBarPainterContext ctx) => ctx?.TextFont;
 
         public virtual void DrawSelection(Graphics g, INavBarPainterContext context, Rectangle selectedRect)
         {
@@ -52,7 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
             
             if (itemCount == 0) return;
 
-            int padding = 8;
+            int padding = ScaleValue(10, context);
+            int itemGap = ScaleValue(4, context);
             
             if (isVertical)
             {
@@ -66,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                     var itemRect = new Rectangle(bounds.Left + padding, currentY, bounds.Width - padding * 2, itemHeight);
                     int index = i; // Capture for lambda
                     registerHitArea($"NavItem_{i}", itemRect, () => context.SelectItemByIndex(index));
-                    currentY += itemHeight + 4;
+                    currentY += itemHeight + itemGap;
                 }
             }
             else
@@ -75,13 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 int itemWidth = context.ItemWidth;
                 if (itemWidth <= 0)
                     itemWidth = (bounds.Width - padding * 2) / itemCount;
-                
+                int itemW = Math.Max(ScaleValue(80, context), itemWidth - ScaleValue(4, context));
+                int itemH = bounds.Height - padding * 2;
                 int currentX = bounds.Left + padding;
 
                 for (int i = 0; i < itemCount; i++)
                 {
                     var item = context.Items[i];
-                    var itemRect = new Rectangle(currentX, bounds.Top + padding, itemWidth - 4, bounds.Height - padding * 2);
+                    var itemRect = new Rectangle(currentX, bounds.Top + padding, itemW, itemH);
                     int index = i; // Capture for lambda
                     registerHitArea($"NavItem_{i}", itemRect, () => context.SelectItemByIndex(index));
                     currentX += itemWidth;
@@ -100,7 +110,8 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
 
             bool isVertical = context.Orientation == NavBarOrientation.Vertical;
             int itemCount = context.Items.Count;
-            int padding = 8;
+            int padding = ScaleValue(10, context);
+            int itemGap = ScaleValue(4, context);
             int hoveredIndex = context.HoveredItemIndex;
             var selectedItem = context.SelectedItem;
 
@@ -130,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                     // Draw item content (icon and text)
                     DrawNavItem(g, context, item, itemRect, false);
 
-                    currentY += itemHeight + 4;
+                    currentY += itemHeight + itemGap;
                 }
             }
             else
@@ -139,13 +150,14 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 int itemWidth = context.ItemWidth;
                 if (itemWidth <= 0)
                     itemWidth = (bounds.Width - padding * 2) / itemCount;
-                
+                int itemW = Math.Max(ScaleValue(80, context), itemWidth - ScaleValue(4, context));
+                int itemH = bounds.Height - padding * 2;
                 int currentX = bounds.Left + padding;
 
                 for (int i = 0; i < itemCount; i++)
                 {
                     var item = context.Items[i];
-                    var itemRect = new Rectangle(currentX, bounds.Top + padding, itemWidth - 4, bounds.Height - padding * 2);
+                    var itemRect = new Rectangle(currentX, bounds.Top + padding, itemW, itemH);
 
                     // Draw hover effect
                     if (i == hoveredIndex)
@@ -172,8 +184,10 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
         /// </summary>
         protected virtual void DrawNavItem(Graphics g, INavBarPainterContext context, SimpleItem item, Rectangle itemRect, bool isHorizontal)
         {
-            int padding = 8;
-            int iconSize = 24;
+            int padding = ScaleValue(10, context);
+            int iconSize = ScaleValue(24, context);
+            int textOffsetY = ScaleValue(8, context);
+            int textOffsetX = ScaleValue(12, context);
 
             if (isHorizontal)
             {
@@ -182,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 {
                     var iconRect = new Rectangle(
                         itemRect.X + (itemRect.Width - iconSize) / 2,
-                        itemRect.Y + 4,
+                        itemRect.Y + ScaleValue(4, context),
                         iconSize, iconSize);
                     DrawNavItemIcon(g, context, item, iconRect);
                 }
@@ -191,9 +205,9 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 {
                     var textRect = new Rectangle(
                         itemRect.X + padding,
-                        itemRect.Y + iconSize + 8,
+                        itemRect.Y + iconSize + textOffsetY,
                         itemRect.Width - padding * 2,
-                        itemRect.Height - iconSize - 12);
+                        itemRect.Height - iconSize - textOffsetX);
                     DrawNavItemText(g, context, item, textRect, StringAlignment.Center);
                 }
             }
@@ -206,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 {
                     var iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
                     DrawNavItemIcon(g, context, item, iconRect);
-                    x += iconSize + padding;
+                    x += iconSize + textOffsetX;
                 }
 
                 if (!string.IsNullOrEmpty(item.Text))
@@ -270,23 +284,34 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
                 textColor = item.IsEnabled ? Color.FromArgb(60, 60, 67) : Color.Gray;
             }
 
-            // Use appropriate font size based on available height
-            float fontSize = textRect.Height >= 40 ? 9f : 8f;
-            
-            using (var font = new Font("Segoe UI", fontSize, FontStyle.Regular))
+            var fontToUse = TextFont(context) ?? BeepFontManager.DefaultFont;
+            bool needDispose = false;
+            Font font = fontToUse;
+            int scaled40 = ScaleValue(40, context);
+            float desiredSize = textRect.Height >= scaled40 
+                ? Math.Max(9f, fontToUse.Size) 
+                : Math.Max(8f, fontToUse.Size - 1f);
+            if (Math.Abs(fontToUse.Size - desiredSize) > 0.1f)
+            {
+                font = new Font(fontToUse.FontFamily, desiredSize, fontToUse.Style);
+                needDispose = true;
+            }
+            try
             {
                 var textFormat = System.Windows.Forms.TextFormatFlags.EndEllipsis | 
                                 System.Windows.Forms.TextFormatFlags.VerticalCenter | 
                                 System.Windows.Forms.TextFormatFlags.NoPrefix;
-                
                 if (alignment == StringAlignment.Center)
                     textFormat |= System.Windows.Forms.TextFormatFlags.HorizontalCenter;
                 else if (alignment == StringAlignment.Near)
                     textFormat |= System.Windows.Forms.TextFormatFlags.Left;
                 else
                     textFormat |= System.Windows.Forms.TextFormatFlags.Right;
-
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Text, font, textRect, textColor, textFormat);
+            }
+            finally
+            {
+                if (needDispose) font?.Dispose();
             }
         }
 

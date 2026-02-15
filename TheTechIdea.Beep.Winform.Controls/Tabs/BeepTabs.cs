@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Painters;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
  
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -29,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // New: toggle showing close buttons on tab headers
         private bool _showCloseButtons = true;
         private ITabPainter _painter;
+        private Font _textFont;
         public IBeepTheme CurrentTheme => _currentTheme;
 
         [Browsable(true)]
@@ -153,13 +155,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Replace hardcoded constants with DPI-aware properties
-        private int GetScaledCloseButtonSize() => 24;
-        private int GetScaledCloseButtonPadding() => 8;
-        private int GetScaledTextPadding() => 12;
-        private int GetScaledMinTabWidth() => 60;
-        private int GetScaledMaxTabWidth() => 250;
-        private int GetScaledMinTabHeight() => 60;
-        private int GetScaledMaxTabHeight() => 250;
+        private int GetScaledCloseButtonSize() => DpiScalingHelper.ScaleValue(24, this);
+        private int GetScaledCloseButtonPadding() => DpiScalingHelper.ScaleValue(8, this);
+        private int GetScaledTextPadding() => DpiScalingHelper.ScaleValue(12, this);
+        private int GetScaledMinTabWidth() => DpiScalingHelper.ScaleValue(60, this);
+        private int GetScaledMaxTabWidth() => DpiScalingHelper.ScaleValue(250, this);
+        private int GetScaledMinTabHeight() => DpiScalingHelper.ScaleValue(60, this);
+        private int GetScaledMaxTabHeight() => DpiScalingHelper.ScaleValue(250, this);
+        private int GetScaledHeaderHeight() => DpiScalingHelper.ScaleValue(_headerHeight, this);
 
         // Keep original constants for reference
         private const int CloseButtonSize = 16;
@@ -267,6 +270,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdatePainter();
         }
 
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+        }
+
         /// <summary>
         /// Apply TabStyle preset to this tabs control
         /// </summary>
@@ -277,8 +285,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         // ✅ Initialize DPI scaling when handle is created
         private void BeepTabs_HandleCreated(object sender, EventArgs e)
         {
-          
-
             // Now set DPI-scaled values
             closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
             UpdateLayout();
@@ -303,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                int scaledHeaderHeight = _headerHeight;
+                int scaledHeaderHeight = GetScaledHeaderHeight();
                 switch (_headerPosition)
                 {
                     case TabHeaderPosition.Top:
@@ -358,11 +364,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case TabHeaderPosition.Top:
                 case TabHeaderPosition.Bottom:
-                    baseSize.Height += HeaderHeight;
+                    baseSize.Height += GetScaledHeaderHeight();
                     break;
                 case TabHeaderPosition.Left:
                 case TabHeaderPosition.Right:
-                    baseSize.Width += HeaderHeight;
+                    baseSize.Width += GetScaledHeaderHeight();
                     break;
             }
             return baseSize;
@@ -371,7 +377,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             // Let Windows/child controls paint backgrounds; only fill our header to prevent overdraw
-            int scaledHeaderHeight = _headerHeight;
+            int scaledHeaderHeight = GetScaledHeaderHeight();
             Rectangle headerRegion;
             switch (_headerPosition)
             {
@@ -419,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_dropMarkerX >=0)
                 {
                     var pen = PaintersFactory.GetPen(Color.Black,2);
-                    e.Graphics.DrawLine(pen, _dropMarkerX,0, _dropMarkerX, HeaderHeight);
+                    e.Graphics.DrawLine(pen, _dropMarkerX,0, _dropMarkerX, GetScaledHeaderHeight());
                 }
             }
             else if (_headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right)
@@ -427,8 +433,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_dropMarkerX >=0)
                 {
                     var pen = PaintersFactory.GetPen(Color.Black,2);
-                    float xPos = _headerPosition == TabHeaderPosition.Left ?0 : ClientSize.Width - HeaderHeight;
-                    e.Graphics.DrawLine(pen, xPos, _dropMarkerX, xPos + HeaderHeight, _dropMarkerX);
+                    int headerH = GetScaledHeaderHeight();
+                    float xPos = _headerPosition == TabHeaderPosition.Left ?0 : ClientSize.Width - headerH;
+                    e.Graphics.DrawLine(pen, xPos, _dropMarkerX, xPos + headerH, _dropMarkerX);
                 }
             }
         }
@@ -436,11 +443,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float[] CalculateTabSizes(Graphics g, bool vertical)
         {
             float[] sizes = new float[TabCount];
-            using (Font font = new Font(this.Font, FontStyle.Regular))
-            {
+            Font fontToUse = _textFont ?? Font;
                 for (int i = 0; i < TabCount; i++)
                 {
-                    SizeF tabSize = _painter.MeasureTab(g, i, font);
+                    SizeF tabSize = _painter.MeasureTab(g, i, fontToUse);
                     if (vertical)
                     {
                         sizes[i] = Math.Max(GetScaledMinTabHeight(), Math.Min(GetScaledMaxTabHeight(), tabSize.Height));
@@ -450,7 +456,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                         sizes[i] = Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), tabSize.Width));
                     }
                 }
-            }
             return sizes;
         }
         private void DrawTabHeaders(Graphics g)
@@ -462,7 +467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             float[] tabSizes = CalculateTabSizes(g, _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
 
             // Use scaled header height consistently
-            int scaledHeaderHeight = _headerHeight;
+            int scaledHeaderHeight = GetScaledHeaderHeight();
 
             switch (_headerPosition)
             {
@@ -557,6 +562,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_painter != null)
             {
                 _painter.Theme = _currentTheme;
+                if (_painter is BaseTabPainter basePainter)
+                {
+                    basePainter.TextFont = _textFont;
+                }
             }
         }
 
@@ -636,16 +645,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             _dropMarkerX = -1;
             _dropMarkerY = -1;
 
+            int headerH = GetScaledHeaderHeight();
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
                 case TabHeaderPosition.Bottom:
                     {
                         float currentX = 0;
-                        int yPos = _headerPosition == TabHeaderPosition.Top ? 0 : ClientSize.Height - HeaderHeight;
+                        int yPos = _headerPosition == TabHeaderPosition.Top ? 0 : ClientSize.Height - headerH;
                         for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], HeaderHeight);
+                            RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], headerH);
                             if (clientPoint.X >= currentX && clientPoint.X < currentX + tabSizes[i])
                             {
                                 _dropTargetIndex = i;
@@ -669,10 +679,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Right:
                     {
                         float currentY = 0;
-                        int xPos = _headerPosition == TabHeaderPosition.Left ? 0 : ClientSize.Width - HeaderHeight;
+                        int xPos = _headerPosition == TabHeaderPosition.Left ? 0 : ClientSize.Width - headerH;
                         for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
+                            RectangleF tabRect = new RectangleF(xPos, currentY, headerH, tabSizes[i]);
                             if (clientPoint.Y >= currentY && clientPoint.Y < currentY + tabSizes[i])
                             {
                                 _dropTargetIndex = i;
@@ -779,19 +789,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void StartUnderlineAnimation()
         {
             if (TabCount == 0) return;
+            int headerH = GetScaledHeaderHeight();
+            int pad = DpiScalingHelper.ScaleValue(6, this);
+            int thick = DpiScalingHelper.ScaleValue(3, this);
             // Calculate current tab rect for selected index
             using (var g = CreateGraphics())
             {
                 float[] sizes = CalculateTabSizes(g, _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
                 float currentX = 0;
-                int headerH = _headerHeight;
                 int yPos = (_headerPosition == TabHeaderPosition.Top) ? 0 : ClientSize.Height - headerH;
                 for (int i = 0; i < TabCount; i++)
                 {
                     var r = new RectangleF(currentX, yPos, sizes[i], headerH);
                     if (i == SelectedIndex)
                     {
-                        _underlineTargetRect = new RectangleF(r.X + 6, r.Bottom - 3, r.Width - 12, 3);
+                        _underlineTargetRect = new RectangleF(r.X + pad, r.Bottom - thick, r.Width - pad * 2, thick);
                         break;
                     }
                     currentX += sizes[i];
@@ -849,7 +861,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
             ForeColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabTextColor(_currentTheme, true);
             Font = BeepThemesManager.ToFont(_currentTheme.TabFont);
-            if (_painter != null) _painter.Theme = _currentTheme;
+            _textFont = BeepThemesManager.ToFont(_currentTheme.TabFont);
+            if (_painter != null)
+            {
+                _painter.Theme = _currentTheme;
+                if (_painter is BaseTabPainter basePainter)
+                {
+                    basePainter.TextFont = _textFont;
+                }
+            }
             foreach (TabPage page in TabPages)
             {
                 page.BackColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabControlBackgroundColor(_currentTheme, true);
@@ -901,7 +921,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Point clientPoint = e.Location;
             float[] tabSizes = CalculateTabSizes(CreateGraphics(), _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
-            int scaledHeaderHeight = _headerHeight;
+            int scaledHeaderHeight = GetScaledHeaderHeight();
 
             switch (_headerPosition)
             {
@@ -1007,16 +1027,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Detect if clicking on a tab (but not the close button)
             float[] tabSizes = CalculateTabSizes(CreateGraphics(), _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
+            int headerH = GetScaledHeaderHeight();
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
                 case TabHeaderPosition.Bottom:
                     {
                         float currentX = 0;
-                        int yPos = _headerPosition == TabHeaderPosition.Top ? 0 : ClientSize.Height - HeaderHeight;
+                        int yPos = _headerPosition == TabHeaderPosition.Top ? 0 : ClientSize.Height - headerH;
                         for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], HeaderHeight);
+                            RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], headerH);
                             RectangleF closeRect = RectangleF.Empty;
                             if (ShowCloseButtons)
                                 closeRect = _painter.GetCloseButtonRect(tabRect, false);
@@ -1034,10 +1055,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TabHeaderPosition.Right:
                     {
                         float currentY = 0;
-                        int xPos = _headerPosition == TabHeaderPosition.Left ? 0 : ClientSize.Width - HeaderHeight;
+                        int xPos = _headerPosition == TabHeaderPosition.Left ? 0 : ClientSize.Width - headerH;
                         for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
+                            RectangleF tabRect = new RectangleF(xPos, currentY, headerH, tabSizes[i]);
                             RectangleF closeRect = RectangleF.Empty;
                             if (ShowCloseButtons)
                                 closeRect = _painter.GetCloseButtonRect(tabRect, true);

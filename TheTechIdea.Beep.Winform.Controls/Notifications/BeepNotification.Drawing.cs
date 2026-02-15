@@ -65,9 +65,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (content.IsEmpty || content.Width <= 0 || content.Height <= 0)
                 return;
 
-            int padding = NotificationStyleHelpers.GetRecommendedPadding(_notificationData.Layout);
-            int spacing = NotificationStyleHelpers.GetRecommendedSpacing(_notificationData.Layout);
-            int iconSize = NotificationStyleHelpers.GetRecommendedIconSize(_notificationData.Layout);
+            int padding = NotificationStyleHelpers.GetRecommendedPadding(_notificationData.Layout, this);
+            int spacing = NotificationStyleHelpers.GetRecommendedSpacing(_notificationData.Layout, this);
+            int iconSize = NotificationStyleHelpers.GetRecommendedIconSize(_notificationData.Layout, this);
 
             bool hasIcon = !string.IsNullOrEmpty(_notificationData.IconPath) ||
                           _notificationData.Type != NotificationType.Custom;
@@ -84,7 +84,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _notificationData.ShowProgressBar,
                 iconSize,
                 padding,
-                spacing
+                spacing,
+                this
             );
 
             _iconRect = metrics.IconRect;
@@ -99,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (!_actionsRect.IsEmpty)
                 requiredHeight += _actionsRect.Height + spacing;
             if (_notificationData.ShowProgressBar)
-                requiredHeight += PROGRESS_BAR_HEIGHT;
+                requiredHeight += ScaledProgressBarHeight;
 
             if (Height < requiredHeight)
             {

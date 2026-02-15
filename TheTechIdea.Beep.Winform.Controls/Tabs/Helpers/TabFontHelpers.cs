@@ -1,6 +1,8 @@
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
@@ -35,10 +37,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
         /// Gets the font for tab subtext/description
         /// </summary>
         public static Font GetTabSubtextFont(
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            Control ownerControl = null)
         {
             float baseSize = StyleTypography.GetFontSize(controlStyle);
-            float subtextSize = Math.Max(8f, baseSize - 2f); // Smaller for subtext
+            float minSubtext = DpiScalingHelper.ScaleValue(8f, ownerControl);
+            float subtextSize = Math.Max(minSubtext, baseSize - 2f); // Smaller for subtext
             FontStyle fontStyle = FontStyle.Regular;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);

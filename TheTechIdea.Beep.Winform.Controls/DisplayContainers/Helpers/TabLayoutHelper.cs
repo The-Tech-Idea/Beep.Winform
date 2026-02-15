@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 {
@@ -16,6 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
     {
         private BeepControlStyle _controlStyle = BeepControlStyle.Modern;
         private Font _font = new Font("Segoe UI", 9f);
+
+        public Control OwnerControl { get; set; }
+        public Font TextFont { get => _font; set => _font = value ?? new Font("Segoe UI", 9f); }
         
         public struct TabLayoutResult
         {
@@ -26,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         }
         
         /// <summary>
-        /// Updates the control style used for calculating tab metrics
+        /// Updates the control style and font used for calculating tab metrics
         /// </summary>
         public void UpdateStyle(BeepControlStyle style, Font font)
         {
@@ -43,8 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool isHorizontal = position == TabPosition.Top || position == TabPosition.Bottom;
             int availableSpace = isHorizontal ? tabArea.Width : tabArea.Height;
             
-            // Reserve space for scroll buttons (40px each) and new tab button (40px)
-            availableSpace -= 120;
+            // Reserve space for scroll buttons and new tab button (scaled)
+            int reservedSpace = DpiScalingHelper.ScaleValue(120, OwnerControl);
+            availableSpace -= reservedSpace;
 
             // Calculate actual tab widths based on content and style metrics
             var tabWidths = CalculateTabWidths(tabs, minWidth, maxWidth);
@@ -100,8 +105,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// </summary>
         private int CalculateTabContentWidth(AddinTab tab, int chromeWidth)
         {
+            int minWidthScaled = DpiScalingHelper.ScaleValue(80, OwnerControl);
             if (tab == null || string.IsNullOrEmpty(tab.Title))
-                return 80 + chromeWidth; // Minimum width
+                return minWidthScaled + chromeWidth; // Minimum width
             
             // Measure text width using TextRenderer (safe and accurate)
             int textWidth = 0;
@@ -114,13 +120,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             }
             catch
             {
-                // Fallback: estimate based on character count
-                textWidth = tab.Title.Length * 7; // Rough estimate
+                // Fallback: estimate based on character count (scaled)
+                textWidth = tab.Title.Length * DpiScalingHelper.ScaleValue(7, OwnerControl);
             }
             
             // Add space for close button (if enabled) and internal padding
-            int closeButtonWidth = tab.CanClose ? 20 : 0; // Close button + spacing
-            int internalPadding = 16; // 8px on each side
+            int closeButtonWidth = tab.CanClose ? DpiScalingHelper.ScaleValue(20, OwnerControl) : 0;
+            int internalPadding = DpiScalingHelper.ScaleValue(16, OwnerControl); // 8px on each side
             
             // Total content width = text + close button + internal padding
             int contentWidth = textWidth + closeButtonWidth + internalPadding;
@@ -152,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                         tabWidth,
                         tabArea.Height
                     );
-                    currentX += tabWidth + 2; // 2px gap between tabs
+                    currentX += tabWidth + DpiScalingHelper.ScaleValue(2, OwnerControl); // gap between tabs
                 }
                 else
                 {
@@ -162,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                         tabArea.Width,
                         tabWidth
                     );
-                    currentY += tabWidth + 2; // 2px gap between tabs
+                    currentY += tabWidth + DpiScalingHelper.ScaleValue(2, OwnerControl); // gap between tabs
                 }
                 tab.IsVisible = true;
             }
@@ -214,10 +220,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 if (i >= startIndex && i < endIndex)
                 {
                     int visibleIndex = i - startIndex;
+                    int scrollOffsetScaled = DpiScalingHelper.ScaleValue(40, OwnerControl);
                     if (isHorizontal)
                     {
                         tab.Bounds = new Rectangle(
-                            tabArea.X + 40 + visibleIndex * minWidth, // 40px offset for scroll button
+                            tabArea.X + scrollOffsetScaled + visibleIndex * minWidth,
                             tabArea.Y,
                             minWidth,
                             tabArea.Height
@@ -227,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     {
                         tab.Bounds = new Rectangle(
                             tabArea.X,
-                            tabArea.Y + 40 + visibleIndex * minWidth,
+                            tabArea.Y + scrollOffsetScaled + visibleIndex * minWidth,
                             tabArea.Width,
                             minWidth
                         );
@@ -243,36 +250,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         private Rectangle GetScrollLeftButtonRect(Rectangle tabArea, TabPosition position)
         {
+            int pad = DpiScalingHelper.ScaleValue(4, OwnerControl);
+            int size = DpiScalingHelper.ScaleValue(32, OwnerControl);
+            int pos120 = DpiScalingHelper.ScaleValue(120, OwnerControl);
             return position switch
             {
                 TabPosition.Top or TabPosition.Bottom => 
-                    new Rectangle(tabArea.Right - 120, tabArea.Y + 4, 32, tabArea.Height - 8),
+                    new Rectangle(tabArea.Right - pos120, tabArea.Y + pad, size, tabArea.Height - pad * 2),
                 TabPosition.Left or TabPosition.Right => 
-                    new Rectangle(tabArea.X + 4, tabArea.Bottom - 120, tabArea.Width - 8, 32),
+                    new Rectangle(tabArea.X + pad, tabArea.Bottom - pos120, tabArea.Width - pad * 2, size),
                 _ => Rectangle.Empty
             };
         }
 
         private Rectangle GetScrollRightButtonRect(Rectangle tabArea, TabPosition position)
         {
+            int pad = DpiScalingHelper.ScaleValue(4, OwnerControl);
+            int size = DpiScalingHelper.ScaleValue(32, OwnerControl);
+            int pos80 = DpiScalingHelper.ScaleValue(80, OwnerControl);
             return position switch
             {
                 TabPosition.Top or TabPosition.Bottom => 
-                    new Rectangle(tabArea.Right - 80, tabArea.Y + 4, 32, tabArea.Height - 8),
+                    new Rectangle(tabArea.Right - pos80, tabArea.Y + pad, size, tabArea.Height - pad * 2),
                 TabPosition.Left or TabPosition.Right => 
-                    new Rectangle(tabArea.X + 4, tabArea.Bottom - 80, tabArea.Width - 8, 32),
+                    new Rectangle(tabArea.X + pad, tabArea.Bottom - pos80, tabArea.Width - pad * 2, size),
                 _ => Rectangle.Empty
             };
         }
 
         private Rectangle GetNewTabButtonRect(Rectangle tabArea, TabPosition position)
         {
+            int pad = DpiScalingHelper.ScaleValue(4, OwnerControl);
+            int size = DpiScalingHelper.ScaleValue(32, OwnerControl);
+            int pos40 = DpiScalingHelper.ScaleValue(40, OwnerControl);
             return position switch
             {
                 TabPosition.Top or TabPosition.Bottom => 
-                    new Rectangle(tabArea.Right - 40, tabArea.Y + 4, 32, tabArea.Height - 8),
+                    new Rectangle(tabArea.Right - pos40, tabArea.Y + pad, size, tabArea.Height - pad * 2),
                 TabPosition.Left or TabPosition.Right => 
-                    new Rectangle(tabArea.X + 4, tabArea.Bottom - 40, tabArea.Width - 8, 32),
+                    new Rectangle(tabArea.X + pad, tabArea.Bottom - pos40, tabArea.Width - pad * 2, size),
                 _ => Rectangle.Empty
             };
         }
@@ -284,11 +300,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         public Rectangle GetCloseButtonRect(Rectangle tabBounds)
         {
+            int closeW = DpiScalingHelper.ScaleValue(20, OwnerControl);
+            int closeSize = DpiScalingHelper.ScaleValue(12, OwnerControl);
             return new Rectangle(
-                tabBounds.Right - 20,
-                tabBounds.Y + (tabBounds.Height - 12) / 2,
-                12,
-                12
+                tabBounds.Right - closeW,
+                tabBounds.Y + (tabBounds.Height - closeSize) / 2,
+                closeSize,
+                closeSize
             );
         }
     }

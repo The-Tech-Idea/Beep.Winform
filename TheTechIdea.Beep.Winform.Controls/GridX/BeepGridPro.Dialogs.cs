@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -26,6 +27,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public void ShowFilterDialog(string? preferredColumnName = null, string? preferredFilterText = null)
         {
             Dialog.ShowFilterDialog(preferredColumnName, preferredFilterText);
+        }
+
+        /// <summary>
+        /// Shows an inline criterion editor popup anchored near a toolbar chip/tag.
+        /// </summary>
+        public void ShowInlineCriterionEditor(string columnName, Point? anchorClientPoint = null)
+        {
+            Dialog.ShowInlineCriterionEditor(columnName, anchorClientPoint);
         }
 
         /// <summary>
@@ -58,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 col.ShowFilterIcon = true;
             }
-            Invalidate();
+            SafeInvalidate();
         }
 
         /// <summary>
@@ -95,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             SortFilter.Sort(column.ColumnName, newDirection);
 
             // Refresh the grid
-            Invalidate();
+            SafeInvalidate();
         }
         #endregion
     }

@@ -5,10 +5,12 @@ using TheTechIdea.Beep.Vis.Modules;
 
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 
@@ -60,6 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly Dictionary<SimpleItem, bool> _expandedState = new();
         // New: control whether clicking a menu item collapses the side menu
         private bool _collapseOnItemClick = false;
+        private Font _textFont = new Font("Segoe UI", 9);
+        private Font _titleFont = new Font("Segoe UI", 12, FontStyle.Bold);
         [Browsable(true)]
         [Category("Behavior")]
         [Description("If true, the side menu collapses when a menu item is clicked.")]
@@ -281,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DoubleBuffered = true;
             Width = expandedWidth;
             IsChild = false;
-            Padding = new Padding(5);
+            Padding = DpiScalingHelper.ScalePadding(new Padding(5), this);
 
             _buttonSize = new Size(DrawingRect.Width, menuItemHeight);
             _isControlinvalidated = true;
@@ -311,12 +315,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton = new BeepButton
             {
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
-                MaxImageSize = new Size(24, 24),
+                MaxImageSize = DpiScalingHelper.ScaleSize(new Size(24, 24), this),
                 ImageAlign = ContentAlignment.MiddleCenter,
                 IsFrameless = true,
                 ApplyThemeOnImage = true,
                 ImageEmbededin = ImageEmbededin.SideBar
             };
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (toggleButton != null)
+                toggleButton.MaxImageSize = DpiScalingHelper.ScaleSize(new Size(24, 24), this);
+            Padding = DpiScalingHelper.ScalePadding(new Padding(5), this);
+            // Scale initial width if still at design default
+            if (Width == expandedWidth)
+                Width = DpiScalingHelper.ScaleValue(expandedWidth, this);
+            else if (Width == collapsedWidth)
+                Width = DpiScalingHelper.ScaleValue(collapsedWidth, this);
         }
 
         protected override void OnResize(EventArgs e)
@@ -328,13 +345,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.InitLayout();
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
-                Width = 300;
-                Height = 300;
+                Width = DpiScalingHelper.ScaleValue(300, this);
+                Height = DpiScalingHelper.ScaleValue(300, this);
             }
             Dock = DockStyle.Left;
             BackColor = BeepStyling.CurrentTheme?.SideMenuBackColor ?? Color.Empty;
             ForeColor = Color.White;
-            Font = new Font("Segoe UI", 9);
+            Font = _textFont ?? new Font("Segoe UI", 9);
             Init();
             ApplyTheme();
             if (!isCollapsed) EndMenuCollapseExpand?.Invoke(false);
@@ -371,7 +388,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Time-based animation setup
             _animStartWidth = Width;
-            _animTargetWidth = isCollapsed ? collapsedWidth : expandedWidth;
+            _animTargetWidth = isCollapsed
+                ? DpiScalingHelper.ScaleValue(collapsedWidth, this)
+                : DpiScalingHelper.ScaleValue(expandedWidth, this);
             _animationStartTime = DateTime.UtcNow;
 
             // Optimize before starting animation
@@ -615,8 +634,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            base.ApplyTheme();
             // Update theme-related colors
             BackColor = _currentTheme.SideMenuBackColor;
+            // Set fonts from theme (with null checks)
+            if (_currentTheme != null)
+            {
+                var textFont = BeepFontManager.ToFont(_currentTheme.SideMenuTextFont);
+                if (textFont != null) _textFont = textFont;
+                var titleFont = BeepFontManager.ToFont(_currentTheme.SideMenuTitleFont);
+                if (titleFont != null) _titleFont = titleFont;
+            }
             // Ensure toggle button uses current theme
             if (toggleButton != null)
             {
@@ -720,8 +748,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Calculate layout regions
-            int padding = 5;
+            // Calculate scaled layout values
+            int padding = DpiScalingHelper.ScaleValue(5, this);
+            int scaledMenuItemHeight = DpiScalingHelper.ScaleValue(menuItemHeight, this);
+            int scaledHighlightPanelSize = DpiScalingHelper.ScaleValue(_highlightPanelSize, this);
+            Size scaledLogoSize = DpiScalingHelper.ScaleSize(_logosize, this);
+            Size scaledListImageSize = DpiScalingHelper.ScaleSize(_listimagesize, this);
+            int verticalPadding = DpiScalingHelper.ScaleValue(10, this);
+
             int yOffset = drawRectY + padding;
             int contentWidth = drawRectWidth - (padding * 2);
 
@@ -729,10 +763,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(LogoImage))
             {
                 Rectangle logoRect = new Rectangle(
-                    drawRectX + (drawRectWidth - LogoSize.Width) / 2,
+                    drawRectX + (drawRectWidth - scaledLogoSize.Width) / 2,
                     yOffset,
-                    LogoSize.Width,
-                    LogoSize.Height);
+                    scaledLogoSize.Width,
+                    scaledLogoSize.Height);
 
                 using (BeepImage img = new BeepImage())
                 {
@@ -741,27 +775,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     img.Draw(graphics, logoRect);
                 }
 
-                yOffset += LogoSize.Height + padding;
+                yOffset += scaledLogoSize.Height + padding;
             }
 
             // Draw title (if not collapsed or during animation)
-            if (!isCollapsed || Width > (collapsedWidth + 20))
+            int scaledCollapsedWidth = DpiScalingHelper.ScaleValue(collapsedWidth, this);
+            if (!isCollapsed || Width > (scaledCollapsedWidth + DpiScalingHelper.ScaleValue(20, this)))
             {
                 // First check if the title is empty or null to avoid rendering issues
                 if (!string.IsNullOrEmpty(Title))
                 {
-                    // Use the theme font if available, or fallback to a default
-                    Font titleFont = BeepThemesManager.ToFont(_currentTheme?.SideMenuTitleFont);
-                    if (titleFont == null)
-                    {
-                        titleFont = new Font("Segoe UI", 12, FontStyle.Bold);
-                    }
+                    Font titleFontToUse = _titleFont ?? BeepFontManager.ToFont(_currentTheme?.SideMenuTitleFont);
 
                     // Calculate the size needed to render the full text
-                    SizeF textSize = TextUtils.MeasureText(graphics, Title, titleFont);
+                    SizeF textSize = TextUtils.MeasureText(graphics, Title, titleFontToUse);
 
                     // Add extra vertical padding to prevent text from being cut off
-                    int verticalPadding = 10; // More padding for taller fonts
                     int titleHeight = (int)Math.Ceiling(textSize.Height) + verticalPadding;
 
                     // For very narrow widths, ensure we have adequate height for wrapped text
@@ -795,7 +824,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         };
 
                         // Draw the title text
-                        graphics.DrawString(Title, titleFont, titleBrush, titleRect, titleFormat);
+                        graphics.DrawString(Title, titleFontToUse, titleBrush, titleRect, titleFormat);
                     }
 
                     // Update the offset for the next element
@@ -808,7 +837,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 drawRectX + padding,
                 yOffset,
                 contentWidth,
-                menuItemHeight);
+                scaledMenuItemHeight);
 
             // Reuse the cached toggleButton instance to avoid allocations
             toggleButton.BackColor = BackColor;
@@ -817,7 +846,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.ApplyTheme();
             toggleButton.Draw(graphics, toggleRect);
 
-            yOffset += menuItemHeight + padding;
+            yOffset += scaledMenuItemHeight + padding;
 
             // Draw menu items
             if (menuItems != null && menuItems.Count > 0)
@@ -832,7 +861,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         drawRectX + padding,
                         yOffset,
                         contentWidth,
-                        menuItemHeight);
+                        scaledMenuItemHeight);
 
                     // Check if mouse is hovering over this item
                     bool isHovered = itemRect.Contains(mousePosition);
@@ -841,7 +870,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Rectangle highlightRect = new Rectangle(
                         itemRect.X,
                         itemRect.Y,
-                        HilightPanelSize,
+                        scaledHighlightPanelSize,
                         itemRect.Height);
 
                     using (SolidBrush highlightBrush = new SolidBrush(
@@ -878,7 +907,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Draw item icon
                     if (!string.IsNullOrEmpty(item.ImagePath))
                     {
-                        int imageSize = ListImageSize.Width;
+                        int imageSize = scaledListImageSize.Width;
                         Rectangle imageRect = new Rectangle(
                             buttonRect.X + padding,
                             buttonRect.Y + (buttonRect.Height - imageSize) / 2,
@@ -894,7 +923,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (!isCollapsed)
                     {
                         int imageOffset = !string.IsNullOrEmpty(item.ImagePath) ?
-                            ListImageSize.Width + (padding * 2) : padding;
+                            scaledListImageSize.Width + (padding * 2) : padding;
 
                         Rectangle textRect = new Rectangle(
                             buttonRect.X + imageOffset,
@@ -903,9 +932,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             buttonRect.Height);
 
                         using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
-                        using (Font itemFont = UseThemeFont ?
-                            FontListHelper.CreateFontFromTypography(_currentTheme.SideMenuTextFont) :
-                            ListButtonFont)
+                        using (Font itemFont = UseThemeFont ? _textFont : ListButtonFont)
                         {
                             StringFormat textFormat = new StringFormat
                             {
@@ -924,7 +951,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     item.Width = itemRect.Width;
                     item.Height = itemRect.Height;
 
-                    yOffset += menuItemHeight + padding;
+                    yOffset += scaledMenuItemHeight + padding;
 
                     // Draw child items if this item has children and we're not collapsed
                     if (!isCollapsed && item.Children != null && item.Children.Count > 0)
@@ -939,7 +966,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     drawRectX + (padding * 2),
                                     yOffset,
                                     contentWidth - padding,
-                                    menuItemHeight);
+                                    scaledMenuItemHeight);
 
                                 // Check if mouse is hovering over this child item
                                 bool isChildHovered = childRect.Contains(mousePosition);
@@ -948,7 +975,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 Rectangle childHighlightRect = new Rectangle(
                                     childRect.X,
                                     childRect.Y,
-                                    HilightPanelSize,
+                                    scaledHighlightPanelSize,
                                     childRect.Height);
 
                                 using (SolidBrush highlightBrush = new SolidBrush(
@@ -985,7 +1012,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 // Draw child icon
                                 if (!string.IsNullOrEmpty(childItem.ImagePath))
                                 {
-                                    int imageSize = ListImageSize.Width;
+                                    int imageSize = scaledListImageSize.Width;
                                     Rectangle imageRect = new Rectangle(
                                         childButtonRect.X + padding,
                                         childButtonRect.Y + (childButtonRect.Height - imageSize) / 2,
@@ -999,7 +1026,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                                 // Draw child text
                                 int childImageOffset = !string.IsNullOrEmpty(childItem.ImagePath) ?
-                                    ListImageSize.Width + (padding * 2) : padding;
+                                    scaledListImageSize.Width + (padding * 2) : padding;
 
                                 Rectangle childTextRect = new Rectangle(
                                     childButtonRect.X + childImageOffset,
@@ -1008,9 +1035,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     childButtonRect.Height);
 
                                 using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
-                                using (Font itemFont = UseThemeFont ?
-                                   FontListHelper.CreateFontFromTypography(_currentTheme.SideMenuTextFont) :
-                                    ListButtonFont)
+                                using (Font itemFont = UseThemeFont ? _textFont : ListButtonFont)
                                 {
                                     StringFormat textFormat = new StringFormat
                                     {

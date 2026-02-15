@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls; // TabStyle enum
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 {
@@ -18,6 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private BeepControlStyle _controlStyle = BeepControlStyle.Modern;
         private bool _isTransparent = false;
         private TabStyle _tabStyle = TabStyle.Capsule; // default for DC2
+
+        public Control OwnerControl { get; set; }
 
         public TabPaintHelper(IBeepTheme theme)
         {
@@ -123,9 +126,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 }
                 
                 // Draw close button if needed and there's space
-                if (showCloseButton && bounds.Width > 30 && bounds.Height > 16)
+                int closeW = DpiScalingHelper.ScaleValue(20, OwnerControl);
+                int closeSize = DpiScalingHelper.ScaleValue(12, OwnerControl);
+                if (showCloseButton && bounds.Width > closeW + 10 && bounds.Height > closeSize + 4)
                 {
-                    var closeRect = new Rectangle(bounds.Right - 20, bounds.Y + (bounds.Height - 12) / 2, 12, 12);
+                    var closeRect = new Rectangle(bounds.Right - closeW, bounds.Y + (bounds.Height - closeSize) / 2, closeSize, closeSize);
                     DrawCloseButton(g, closeRect, isCloseHovered, colors.TextColor);
                 }
                 // If style is underline or minimal and active, draw underline accent

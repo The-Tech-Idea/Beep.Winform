@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.Ratings;
 using TheTechIdea.Beep.Winform.Controls.Ratings.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 
 
@@ -1007,9 +1009,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (bounds.Width <= 0 || bounds.Height <= 0)
                 return;
 
-            // Create painter context
+            // Set text font on painter before paint
+            if (_painter is RatingPainterBase basePainter)
+            {
+                basePainter.TextFont = _textFont;
+            }
+
+            // Create painter context (use DPI-scaled values)
             var context = new RatingPainterContext
             {
+                OwnerControl = this,
                 Graphics = g,
                 Bounds = bounds,
                 StarCount = _starCount,
@@ -1018,8 +1027,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HoveredStar = _hoveredStar,
                 AllowHalfStars = _allowHalfStars,
                 ReadOnly = _readOnly,
-                StarSize = _starSize,
-                Spacing = _spacing,
+                StarSize = DpiScalingHelper.ScaleValue(_starSize, this),
+                Spacing = Math.Max(1, DpiScalingHelper.ScaleValue(_spacing, this)),
                 FilledStarColor = _filledStarColor,
                 EmptyStarColor = _emptyStarColor,
                 HoverStarColor = _hoverStarColor,
@@ -1356,6 +1365,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return new RatingPainterContext
             {
+                OwnerControl = this,
                 Graphics = null, // Not needed for hit testing
                 Bounds = DrawingRect,
                 StarCount = _starCount,
@@ -1364,8 +1374,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HoveredStar = _hoveredStar,
                 AllowHalfStars = _allowHalfStars,
                 ReadOnly = _readOnly,
-                StarSize = _starSize,
-                Spacing = _spacing,
+                StarSize = DpiScalingHelper.ScaleValue(_starSize, this),
+                Spacing = Math.Max(1, DpiScalingHelper.ScaleValue(_spacing, this)),
                 FilledStarColor = _filledStarColor,
                 EmptyStarColor = _emptyStarColor,
                 HoverStarColor = _hoverStarColor,
@@ -1405,6 +1415,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_currentTheme == null)
                     return;
 
+                _textFont = _currentTheme?.StarUnSelectedFont != null
+                    ? BeepFontManager.ToFont(_currentTheme.StarUnSelectedFont)
+                    : _textFont;
+
                 // Use theme helpers for centralized color management
                 if (UseThemeColors)
                 {
@@ -1417,8 +1431,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply background color
                 BackColor = _currentTheme.BackColor;
 
-                // Apply font theme using font helpers
-                RatingFontHelpers.ApplyFontTheme(this, ControlStyle);
+                // Apply font theme using font helpers (pass theme-sourced text font)
+                RatingFontHelpers.ApplyFontTheme(this, ControlStyle, _textFont);
 
                 // Respect reduced motion for animations and glow effects
                 if (RatingAccessibilityHelpers.ShouldDisableAnimations(_enableAnimations))
@@ -1493,6 +1507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _animationTimer?.Dispose();
                 _labelFont?.Dispose();
+                _textFont?.Dispose();
                 _painter?.Dispose();
             }
 

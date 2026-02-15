@@ -6,6 +6,9 @@ This document explains how `BaseControl` renders and how to extend it safely. It
 
 BaseControl uses a **Painter Strategy Pattern** to handle all visual rendering. This architecture separates outer styling (borders, shadows, backgrounds) from inner content, allowing for maximum flexibility and consistency across different visual styles.
 
+## Recent updates
+- BeepGridPro top filter panel now supports a `GridTitle` label and is enabled by default via `ShowTopFilterPanel`.
+
 ## Structure
 
 - **`BaseControl`** (partial): Core behavior, theming, events, drawing entry points

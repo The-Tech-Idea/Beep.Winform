@@ -82,38 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             OnStateChanged();
         }
 
-        public override void ApplyTheme()
-        {
-            base.ApplyTheme();
 
-            // Apply font theme based on ControlStyle
-            CheckBoxFontHelpers.ApplyFontTheme(ControlStyle);
-
-            if (Theme != null && _currentTheme != null)
-            {
-                if (_beepImage != null)
-                    _beepImage.Theme = Theme;
-
-                // Use theme helpers for consistent color retrieval
-                ForeColor = CheckBoxThemeHelpers.GetForegroundColor(
-                    _currentTheme,
-                    UseThemeColors);
-                BackColor = _currentTheme.BackColor;
-
-                // Update checkbox size and spacing based on style
-                checkboxsize = CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(_checkBoxStyle);
-                Spacing = CheckBoxStyleHelpers.GetRecommendedSpacing(_checkBoxStyle);
-                Padding = new Padding(CheckBoxStyleHelpers.GetRecommendedPadding(_checkBoxStyle));
-
-                if (UseThemeFont)
-                {
-                    _textFont = _currentTheme.CheckBoxFont != null
-                        ? BeepThemesManager.ToFont(_currentTheme.CheckBoxFont)
-                        : CheckBoxFontHelpers.GetCheckBoxFont(ControlStyle);
-                }
-            }
-            Invalidate();
-        }
 
         #region Helper Methods
         // Optimized color selection

@@ -1,11 +1,14 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -14,26 +17,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     /// </summary>
     internal class OutlinedChipGroupPainter : IChipGroupPainter
     {
+        private BaseControl _owner;
         private IBeepTheme _theme;
         private readonly StringFormat _centerFmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
 
-        public void Initialize(BaseControl owner, IBeepTheme theme) => UpdateTheme(theme);
+        public void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            _owner = owner;
+            UpdateTheme(theme);
+        }
         public void UpdateTheme(IBeepTheme theme) => _theme = theme;
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions opt)
         {
-            var font = ResolveFont(opt);
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
+            var font = ResolveFont(opt, scale);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
-            return new Size(sz.Width + GetHorizontalPadding(opt.Size), GetChipHeight(opt.Size));
+            return new Size(sz.Width + GetHorizontalPadding(opt.Size, scale), GetChipHeight(opt.Size, scale));
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions opt, out Rectangle closeRect)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             closeRect = Rectangle.Empty;
-            var font = ResolveFont(opt);
+            var font = ResolveFont(opt, scale);
             var (stroke, text, hoverFill) = GetPalette(state);
-            using var path = RoundedPath(bounds, opt.CornerRadius);
+            using var path = RoundedPath(bounds, DpiScalingHelper.ScaleValue(opt.CornerRadius, scale));
 
             // hover/selected subtle background
             if (state.IsHovered || state.IsSelected)
@@ -44,7 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (opt.ShowBorders)
             {
-                var pen = (Pen)PaintersFactory.GetPen(stroke, Math.Max(1, opt.BorderWidth)).Clone();
+                // Ensure min width of 1 after scaling if it was intended to be visible
+                var pen = (Pen)PaintersFactory.GetPen(stroke, Math.Max(1, DpiScalingHelper.ScaleValue(opt.BorderWidth, scale))).Clone();
                 try
                 {
                     g.DrawPath(pen, path);
@@ -55,23 +66,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 }
             }
 
-            var contentRect = Rectangle.Inflate(bounds, -8, -2);
+            var contentRect = Rectangle.Inflate(bounds, -DpiScalingHelper.ScaleValue(8, scale), -DpiScalingHelper.ScaleValue(2, scale));
             int leftPad = 0;
             if (opt.ShowSelectionCheck && state.IsSelected)
             {
-                int dot = Math.Min(contentRect.Height - 6, 10);
+                int dot = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(10, scale));
                 var dotRect = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - dot) / 2, dot, dot);
                 var dotBr = PaintersFactory.GetSolidBrush(stroke);
                 g.FillEllipse(dotBr, dotRect);
-                leftPad = dot + 6;
+                leftPad = dot + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             int rightPad = 0;
             if (opt.ShowCloseOnSelected && state.IsSelected)
             {
-                int s = Math.Min(contentRect.Height - 6, 12);
+                int s = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(12, scale));
                 closeRect = new Rectangle(contentRect.Right - s, contentRect.Top + (contentRect.Height - s) / 2, s, s);
-                var xpen = (Pen)PaintersFactory.GetPen(stroke, 1.5f).Clone();
+                var xpen = (Pen)PaintersFactory.GetPen(stroke, DpiScalingHelper.ScaleValue(1.5f, scale)).Clone();
                 try
                 {
                     xpen.StartCap = LineCap.Round;
@@ -83,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 {
                     xpen.Dispose();
                 }
-                rightPad = s + 4;
+                rightPad = s + DpiScalingHelper.ScaleValue(4, scale);
             }
 
             var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
@@ -103,9 +114,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             p.AddArc(rect.Left, rect.Bottom - d, d, d, 90, 90);
             p.CloseFigure(); return p;
         }
-        private static int GetChipHeight(ChipSize size) => size switch { ChipSize.Small => 24, ChipSize.Medium => 32, ChipSize.Large => 40, _ => 32 };
-        private static int GetHorizontalPadding(ChipSize size) => size switch { ChipSize.Small => 16, ChipSize.Medium => 20, ChipSize.Large => 24, _ => 20 };
-        private static Font ResolveFont(ChipRenderOptions opt) => (opt.Size == ChipSize.Small) ? PaintersFactory.GetFont(opt.Font.FontFamily.Name, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : PaintersFactory.GetFont(opt.Font);
+
+        private static int GetChipHeight(ChipSize size, float scale) 
+        {
+            int val = size switch { ChipSize.Small => 24, ChipSize.Medium => 32, ChipSize.Large => 40, _ => 32 };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private static int GetHorizontalPadding(ChipSize size, float scale)
+        {
+            int val = size switch { ChipSize.Small => 16, ChipSize.Medium => 20, ChipSize.Large => 24, _ => 20 };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private Font ResolveFont(ChipRenderOptions opt, float scale)
+        {
+            // Prefer using ChipFontHelpers for consistent scaling
+            return ChipFontHelpers.GetChipFont(_owner.ControlStyle, opt.Size, scale);
+        }
 
         private (Color stroke, Color text, Color hover) GetPalette(ChipVisualState s)
         {

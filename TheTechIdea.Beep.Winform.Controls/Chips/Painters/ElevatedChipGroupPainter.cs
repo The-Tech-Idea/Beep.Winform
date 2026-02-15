@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
@@ -8,7 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -28,8 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             Trimming = StringTrimming.EllipsisCharacter
         };
 
-        private const int SHADOW_OFFSET = 3;
-        private const int SHADOW_BLUR = 6;
+        private const int BASE_SHADOW_OFFSET = 3;
+        private const int BASE_SHADOW_BLUR = 6;
 
         public void Initialize(BaseControl owner, IBeepTheme theme)
         {
@@ -44,44 +46,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions options)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
-            var font = GetFont(options);
+            var font = GetFont(options, scale);
             var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
 
             int extraWidth = 0;
             if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
-                extraWidth += options.IconMaxSize.Width + 6;
+                extraWidth += DpiScalingHelper.ScaleSize(options.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(6, scale);
             if (options.ShowSelectionCheck)
-                extraWidth += 18;
+                extraWidth += DpiScalingHelper.ScaleValue(18, scale);
             if (options.ShowCloseOnSelected)
-                extraWidth += 16;
+                extraWidth += DpiScalingHelper.ScaleValue(16, scale);
 
-            int height = GetChipHeight(options.Size);
-            int padding = GetHorizontalPadding(options.Size);
+            int height = GetChipHeight(options.Size, scale);
+            int padding = GetHorizontalPadding(options.Size, scale);
+            int shadowOffset = DpiScalingHelper.ScaleValue(BASE_SHADOW_OFFSET, scale);
 
             // Add shadow space
-            return new Size(textSize.Width + padding + extraWidth + SHADOW_OFFSET, height + SHADOW_OFFSET);
+            return new Size(textSize.Width + padding + extraWidth + shadowOffset, height + shadowOffset);
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions options, out Rectangle closeRect)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             closeRect = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            var font = GetFont(options);
+            var font = GetFont(options, scale);
             var (bgColor, fgColor, shadowColor) = GetColors(state, options);
+            int shadowOffset = DpiScalingHelper.ScaleValue(BASE_SHADOW_OFFSET, scale);
 
             // Adjust bounds to account for shadow
             var chipBounds = new Rectangle(
                 bounds.X,
                 bounds.Y,
-                bounds.Width - SHADOW_OFFSET,
-                bounds.Height - SHADOW_OFFSET);
+                bounds.Width - shadowOffset,
+                bounds.Height - shadowOffset);
 
-            int cornerRadius = 12;
+            int cornerRadius = DpiScalingHelper.ScaleValue(12, scale);
 
             // Draw shadow layers (soft shadow effect)
-            DrawShadow(g, chipBounds, cornerRadius, shadowColor, state.IsHovered);
+            DrawShadow(g, chipBounds, cornerRadius, shadowColor, state.IsHovered, scale);
 
             // Main chip path
             using var path = CreateRoundedPath(chipBounds, cornerRadius);
@@ -105,27 +111,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 g.FillPath(highlightBrush, highlightPath);
             }
 
-            var contentRect = Rectangle.Inflate(chipBounds, -10, -2);
+            var contentRect = Rectangle.Inflate(chipBounds, -DpiScalingHelper.ScaleValue(10, scale), -DpiScalingHelper.ScaleValue(2, scale));
             int leftOffset = 0;
             int rightOffset = 0;
 
             // Selection checkmark
             if (options.ShowSelectionCheck && state.IsSelected)
             {
-                int checkSize = Math.Min(contentRect.Height - 4, 14);
+                int checkSize = Math.Min(contentRect.Height - 4, DpiScalingHelper.ScaleValue(14, scale));
                 var checkRect = new Rectangle(
                     contentRect.Left,
                     contentRect.Top + (contentRect.Height - checkSize) / 2,
                     checkSize, checkSize);
 
-                DrawCheckmark(g, checkRect, fgColor);
-                leftOffset += checkSize + 6;
+                DrawCheckmark(g, checkRect, fgColor, scale);
+                leftOffset += checkSize + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             // Leading icon
             if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
             {
-                var iconSize = options.IconMaxSize;
+                var iconSize = DpiScalingHelper.ScaleSize(options.IconMaxSize, scale);
                 var iconRect = new Rectangle(
                     contentRect.Left + leftOffset,
                     contentRect.Top + (contentRect.Height - iconSize.Height) / 2,
@@ -135,27 +141,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 {
                     using var iconPath = new GraphicsPath();
                     iconPath.AddRectangle(iconRect);
-                    StyledImagePainter.PaintWithTint(g, iconPath, item.ImagePath, fgColor, 1f);
+                    StyledImagePainter.PaintWithTint(g, iconPath, item?.ImagePath, fgColor, 1f);
                 }
                 catch
                 {
-                    _iconRenderer.ImagePath = item.ImagePath;
+                    _iconRenderer.ImagePath = item?.ImagePath;
                     _iconRenderer.Draw(g, iconRect);
                 }
-                leftOffset += iconSize.Width + 6;
+                leftOffset += iconSize.Width + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             // Close button
             if (options.ShowCloseOnSelected && state.IsSelected)
             {
-                int closeSize = Math.Min(contentRect.Height - 6, 12);
+                int closeSize = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(12, scale));
                 closeRect = new Rectangle(
                     contentRect.Right - closeSize,
                     contentRect.Top + (contentRect.Height - closeSize) / 2,
                     closeSize, closeSize);
 
-                DrawCloseButton(g, closeRect, fgColor);
-                rightOffset += closeSize + 6;
+                DrawCloseButton(g, closeRect, fgColor, scale);
+                rightOffset += closeSize + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             // Text
@@ -178,14 +184,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         #region Private Helpers
 
-        private void DrawShadow(Graphics g, Rectangle chipBounds, int cornerRadius, Color shadowColor, bool isHovered)
+        private void DrawShadow(Graphics g, Rectangle chipBounds, int cornerRadius, Color shadowColor, bool isHovered, float scale)
         {
             int layers = isHovered ? 4 : 3;
-            int maxOffset = isHovered ? SHADOW_OFFSET + 2 : SHADOW_OFFSET;
+            float baseShadowOffset = DpiScalingHelper.ScaleValue(BASE_SHADOW_OFFSET, scale);
+            float maxOffset = isHovered ? baseShadowOffset + DpiScalingHelper.ScaleValue(2, scale) : baseShadowOffset;
 
             for (int i = layers; i >= 1; i--)
             {
-                int offset = (maxOffset * i) / layers;
+                int offset = (int)((maxOffset * i) / layers);
                 int alpha = 15 + (i * 10);
                 var shadowRect = new Rectangle(
                     chipBounds.X + offset,
@@ -213,9 +220,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             return path;
         }
 
-        private void DrawCheckmark(Graphics g, Rectangle rect, Color color)
+        private void DrawCheckmark(Graphics g, Rectangle rect, Color color, float scale)
         {
-            using var pen = new Pen(color, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            using var pen = new Pen(color, DpiScalingHelper.ScaleValue(2f, scale)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             var points = new Point[]
             {
                 new Point(rect.Left + 2, rect.Top + rect.Height / 2),
@@ -225,39 +232,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             g.DrawLines(pen, points);
         }
 
-        private void DrawCloseButton(Graphics g, Rectangle rect, Color color)
+        private void DrawCloseButton(Graphics g, Rectangle rect, Color color, float scale)
         {
-            using var pen = new Pen(color, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             g.DrawLine(pen, rect.Left + 2, rect.Top + 2, rect.Right - 2, rect.Bottom - 2);
             g.DrawLine(pen, rect.Right - 2, rect.Top + 2, rect.Left + 2, rect.Bottom - 2);
         }
 
-        private int GetChipHeight(ChipSize size) => size switch
+        private int GetChipHeight(ChipSize size, float scale)
         {
-            ChipSize.Small => 26,
-            ChipSize.Medium => 34,
-            ChipSize.Large => 42,
-            _ => 34
-        };
-
-        private int GetHorizontalPadding(ChipSize size) => size switch
-        {
-            ChipSize.Small => 18,
-            ChipSize.Medium => 24,
-            ChipSize.Large => 30,
-            _ => 24
-        };
-
-        private Font GetFont(ChipRenderOptions options)
-        {
-            float size = options.Size switch
+            int val = size switch
             {
-                ChipSize.Small => 8f,
-                ChipSize.Medium => 9f,
-                ChipSize.Large => 10f,
-                _ => 9f
+                ChipSize.Small => 26,
+                ChipSize.Medium => 34,
+                ChipSize.Large => 42,
+                _ => 34
             };
-            return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, size, FontStyle.Regular);
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private int GetHorizontalPadding(ChipSize size, float scale)
+        {
+            int val = size switch
+            {
+                ChipSize.Small => 18,
+                ChipSize.Medium => 24,
+                ChipSize.Large => 30,
+                _ => 24
+            };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private Font GetFont(ChipRenderOptions options, float scale)
+        {
+            return ChipFontHelpers.GetChipFont(_owner.ControlStyle, options.Size, scale);
         }
 
         private (Color bg, Color fg, Color shadow) GetColors(ChipVisualState state, ChipRenderOptions options)
@@ -297,4 +305,3 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         #endregion
     }
 }
-

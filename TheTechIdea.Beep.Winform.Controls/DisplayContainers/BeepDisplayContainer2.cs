@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 
@@ -189,8 +190,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             var controlStyle = ControlStyle;
             
             // Initialize helpers with modern styling
-            _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
-            _layoutHelper = new TabLayoutHelper();
+            _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground) { OwnerControl = this };
+            _layoutHelper = new TabLayoutHelper { OwnerControl = this };
             _animationHelper = new TabAnimationHelper(() => Invalidate());
             
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 }; // 60 FPS
@@ -209,10 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             RecalculateLayout();
             
             // Hook into handle creation to force initial paint
-            HandleCreated += (s, e) =>
-            {
-                Invalidate(true);
-            };
+            HandleCreated += (s, e) => Invalidate(true);
             
             // Hook into visible changed to force paint when control becomes visible
             VisibleChanged += (s, e) =>
@@ -371,6 +369,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             Invalidate();
         }
         #endregion
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+        }
 
         #region Helper Methods
 

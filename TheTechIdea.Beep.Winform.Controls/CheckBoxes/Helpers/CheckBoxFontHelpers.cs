@@ -15,15 +15,18 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         /// Gets the font for checkbox text
         /// </summary>
         public static Font GetCheckBoxFont(
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle, float dpiScale = 1.0f)
         {
             float baseSize = StyleTypography.GetFontSize(controlStyle);
+            // Scale font size
+            float scaledSize = DpiScalingHelper.ScaleValue(baseSize, dpiScale);
             FontStyle fontStyle = FontStyle.Regular;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
+            // string primaryFont = fontFamily.Split(',')[0].Trim(); // BeepFontManager handles comma-separated list now likely, or we keep as is
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, baseSize, fontStyle);
+            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
         }
 
         /// <summary>
@@ -31,10 +34,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         /// Updates the control's Font property based on ControlStyle
         /// </summary>
         public static void ApplyFontTheme(
-            BeepControlStyle controlStyle)
+            Control control,
+            BeepControlStyle controlStyle,
+            float dpiScale)
         {
-            // This is a helper for getting fonts, not for setting control font
-            // The control should use these helpers when painting
+            if (control == null) return;
+            control.Font = GetCheckBoxFont(controlStyle, dpiScale);
         }
     }
 }

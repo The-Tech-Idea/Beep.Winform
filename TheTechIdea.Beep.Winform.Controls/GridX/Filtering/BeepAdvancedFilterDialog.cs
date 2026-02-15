@@ -1,26 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
     /// <summary>
-    /// Modern advanced filter dialog using BeepiFormPro
-    /// Allows multi-column filtering with various operators
+    /// Data model for a single filter row displayed in the grid
+    /// </summary>
+    public class FilterRowData : INotifyPropertyChanged
+    {
+        private string _columnName = string.Empty;
+        private string _operator = "Contains";
+        private string _value = string.Empty;
+        private string _value2 = string.Empty;
+
+        /// <inheritdoc/>
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>Gets or sets the column name to filter on</summary>
+        public string ColumnName
+        {
+            get => _columnName;
+            set { _columnName = value ?? string.Empty; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColumnName))); }
+        }
+
+        /// <summary>Gets or sets the filter operator name</summary>
+        public string Operator
+        {
+            get => _operator;
+            set { _operator = value ?? "Contains"; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Operator))); }
+        }
+
+        /// <summary>Gets or sets the primary filter value</summary>
+        public string Value
+        {
+            get => _value;
+            set { _value = value ?? string.Empty; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value))); }
+        }
+
+        /// <summary>Gets or sets the secondary filter value (for Between operators)</summary>
+        public string Value2
+        {
+            get => _value2;
+            set { _value2 = value ?? string.Empty; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value2))); }
+        }
+    }
+
+    /// <summary>
+    /// Modern advanced filter dialog using BeepiFormPro with BeepGridPro for filter rows
     /// </summary>
     public class BeepAdvancedFilterDialog : BeepiFormPro
     {
-        private Panel _mainPanel = null!;
-        private FlowLayoutPanel _filterRowsPanel = null!;
+        private Panel _buttonPanel = null!;
+        private Panel _logicPanel = null!;
+        private BeepGridPro _filterGrid = null!;
         private BeepButton _addFilterButton = null!;
+        private BeepButton _removeFilterButton = null!;
         private BeepButton _applyButton = null!;
         private BeepButton _clearButton = null!;
         private BeepButton _cancelButton = null!;
@@ -29,8 +75,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         private BeepComboBox _logicCombo = null!;
         private BeepLabel _logicLabel = null!;
 
-        private List<BeepFilterRow> _filterRows = new List<BeepFilterRow>();
+        private BindingList<FilterRowData> _filterData = new BindingList<FilterRowData>();
         private Dictionary<string, Type> _columnTypes = null!;
+        private string[] _columnNames = Array.Empty<string>();
         private FilterConfiguration? _result;
 
         /// <summary>
@@ -41,47 +88,45 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         /// <summary>
         /// Initializes a new instance of the BeepAdvancedFilterDialog class
         /// </summary>
-        /// <param name="columns">Column collection to filter</param>
-        /// <param name="existingConfig">Optional existing filter configuration to load</param>
-        public BeepAdvancedFilterDialog(BeepGridColumnConfigCollection columns, FilterConfiguration? existingConfig = null)
+        public BeepAdvancedFilterDialog(BeepGridColumnConfigCollection columns, FilterConfiguration? existingConfig = null, string? themeName = null)
         {
+            if (!string.IsNullOrWhiteSpace(themeName))
+            {
+                Theme = themeName;
+            }
+
+            UseThemeColors = true;
             InitializeDialog();
             LoadColumns(columns);
-            
+            ConfigureFilterGrid();
+
             if (existingConfig != null)
             {
                 LoadConfiguration(existingConfig);
             }
             else
             {
-                AddFilterRow(); // Add one empty row by default
+                // Add one empty row by default
+                AddFilterRow();
             }
+
+            ApplyTheme();
         }
 
         private void InitializeDialog()
         {
-            // Form settings
             Text = "Advanced Filter";
-            Size = new Size(900, 600);
+            Size = new Size(900, 500);
             StartPosition = FormStartPosition.CenterParent;
             FormStyle = FormStyle.Modern;
             ShowCaptionBar = true;
             ShowMinMaxButtons = false;
-     
             ShowCloseButton = true;
             MaximizeBox = true;
             MinimizeBox = false;
 
-            // Main panel
-            _mainPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true,
-                Padding = new Padding(10)
-            };
-
-            // Logic selector panel (AND/OR)
-            var logicPanel = new Panel
+            // Logic selector panel (AND/OR) - top
+            _logicPanel = new Panel
             {
                 Height = 40,
                 Dock = DockStyle.Top,
@@ -110,172 +155,200 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             _logicCombo.Items.Add("OR");
             _logicCombo.SelectedIndex = 0;
 
-            logicPanel.Controls.Add(_logicLabel);
-            logicPanel.Controls.Add(_logicCombo);
+            _logicPanel.Controls.Add(_logicLabel);
+            _logicPanel.Controls.Add(_logicCombo);
 
-            // Filter rows panel
-            _filterRowsPanel = new FlowLayoutPanel
+            // Button panel - bottom
+            _buttonPanel = new Panel
             {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
-                AutoScroll = true,
-                Padding = new Padding(10)
-            };
-
-            // Button panel
-            var buttonPanel = new Panel
-            {
-                Height = 60,
+                Height = 50,
                 Dock = DockStyle.Bottom,
-                Padding = new Padding(10)
+                Padding = new Padding(5)
             };
 
-            _addFilterButton = new BeepButton
-            {
-                Text = "+ Add Filter",
-                Width = 120,
-                Height = 35,
-                Location = new Point(10, 12),
-                IsChild = true,
-                IsFrameless = true,
-                ShowAllBorders = true
-            };
+            int bx = 10;
+            _addFilterButton = CreateButton("+ Add", ref bx);
             _addFilterButton.Click += (s, e) => AddFilterRow();
 
-            _clearButton = new BeepButton
-            {
-                Text = "Clear All",
-                Width = 100,
-                Height = 35,
-                Location = new Point(140, 12),
-                IsChild = true,
-                IsFrameless = true,
-                ShowAllBorders = true
-            };
+            _removeFilterButton = CreateButton("- Remove", ref bx);
+            _removeFilterButton.Click += (s, e) => RemoveSelectedFilterRow();
+
+            _clearButton = CreateButton("Clear All", ref bx);
             _clearButton.Click += (s, e) => ClearAllFilters();
 
-            _saveConfigButton = new BeepButton
-            {
-                Text = "💾 Save",
-                Width = 100,
-                Height = 35,
-                Location = new Point(250, 12),
-                IsChild = true,
-                IsFrameless = true,
-                ShowAllBorders = true
-            };
+            _saveConfigButton = CreateButton("Save", ref bx);
             _saveConfigButton.Click += (s, e) => SaveConfiguration();
 
-            _loadConfigButton = new BeepButton
-            {
-                Text = "📂 Load",
-                Width = 100,
-                Height = 35,
-                Location = new Point(360, 12),
-                IsChild = true,
-                IsFrameless = true,
-                ShowAllBorders = true
-            };
+            _loadConfigButton = CreateButton("Load", ref bx);
             _loadConfigButton.Click += (s, e) => LoadConfigurationFromFile();
 
-            _applyButton = new BeepButton
-            {
-                Text = "Apply",
-                Width = 100,
-                Height = 35,
-                Location = new Point(580, 12),
-                IsChild = true,
-                IsFrameless = true,
-                ShowAllBorders = true
-            };
+            // Spacer
+            bx = 650;
+            _applyButton = CreateButton("Apply", ref bx);
             _applyButton.Click += (s, e) => ApplyFilters();
 
-            _cancelButton = new BeepButton
+            _cancelButton = CreateButton("Cancel", ref bx);
+            _cancelButton.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
+
+            _buttonPanel.Controls.Add(_addFilterButton);
+            _buttonPanel.Controls.Add(_removeFilterButton);
+            _buttonPanel.Controls.Add(_clearButton);
+            _buttonPanel.Controls.Add(_saveConfigButton);
+            _buttonPanel.Controls.Add(_loadConfigButton);
+            _buttonPanel.Controls.Add(_applyButton);
+            _buttonPanel.Controls.Add(_cancelButton);
+
+            // Filter grid - fill
+            _filterGrid = new BeepGridPro
             {
-                Text = "Cancel",
-                Width = 100,
+                Dock = DockStyle.Fill,
+                ShowNavigator = false,
+                ShowTopFilterPanel = false,
+                ShowCheckBox = false,
+                ShowColumnHeaders = true,
+                ReadOnly = false,
+                AllowColumnReorder = false,
+                AllowUserToResizeRows = false,
+                IsChild = true,
+                IsFrameless = true,
+            };
+
+            // Add controls in correct order for Dock layout
+            Controls.Add(_filterGrid);
+            Controls.Add(_buttonPanel);
+            Controls.Add(_logicPanel);
+        }
+
+        private BeepButton CreateButton(string text, ref int x)
+        {
+            var btn = new BeepButton
+            {
+                Text = text,
+                Width = 90,
                 Height = 35,
-                Location = new Point(690, 12),
+                Location = new Point(x, 8),
                 IsChild = true,
                 IsFrameless = true,
                 ShowAllBorders = true
             };
-            _cancelButton.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
-
-            buttonPanel.Controls.Add(_addFilterButton);
-            buttonPanel.Controls.Add(_clearButton);
-            buttonPanel.Controls.Add(_saveConfigButton);
-            buttonPanel.Controls.Add(_loadConfigButton);
-            buttonPanel.Controls.Add(_applyButton);
-            buttonPanel.Controls.Add(_cancelButton);
-
-            _mainPanel.Controls.Add(_filterRowsPanel);
-            _mainPanel.Controls.Add(logicPanel);
-            _mainPanel.Controls.Add(buttonPanel);
-
-            Controls.Add(_mainPanel);
+            x += 100;
+            return btn;
         }
 
         private void LoadColumns(BeepGridColumnConfigCollection columns)
         {
             _columnTypes = new Dictionary<string, Type>();
-            
-            foreach (var col in columns.Where(c => c.Visible && !c.IsSelectionCheckBox && !c.IsRowID && !c.IsRowNumColumn  ))
+
+            foreach (var col in columns.Where(c => c.Visible && !c.IsSelectionCheckBox && !c.IsRowID && !c.IsRowNumColumn))
             {
                 _columnTypes[col.ColumnName] = col.DataType ?? typeof(string);
             }
+
+            _columnNames = _columnTypes.Keys.ToArray();
+        }
+
+        private void ConfigureFilterGrid()
+        {
+            // Build operator items (all operators for display)
+            var allOperators = Enum.GetValues(typeof(FilterOperator)).Cast<FilterOperator>().ToArray();
+
+            // Bind data
+            _filterGrid.DataSource = _filterData;
+
+            // Configure columns after binding
+            _filterGrid.BeginInvoke(new Action(() =>
+            {
+                try
+                {
+                    ConfigureGridColumns(allOperators);
+                }
+                catch { }
+            }));
+        }
+
+        private void ConfigureGridColumns(FilterOperator[] allOperators)
+        {
+            foreach (var col in _filterGrid.Data.Columns)
+            {
+                if (col.IsSelectionCheckBox || col.IsRowNumColumn || col.IsRowID)
+                    continue;
+
+                switch (col.ColumnName)
+                {
+                    case "ColumnName":
+                        col.ColumnCaption = "Column";
+                        col.CellEditor = BeepColumnType.ComboBox;
+                        col.Width = 200;
+                        col.Items = _columnNames.Select(n => new SimpleItem { Name = n, Text = n, DisplayField = n, Value = n }).ToList();
+                        break;
+
+                    case "Operator":
+                        col.ColumnCaption = "Operator";
+                        col.CellEditor = BeepColumnType.ComboBox;
+                        col.Width = 200;
+                        col.Items = allOperators.Select(op => new SimpleItem
+                        {
+                            Name = op.ToString(),
+                            Text = $"{op.GetSymbol()} {op.GetDisplayName()}",
+                            DisplayField = $"{op.GetSymbol()} {op.GetDisplayName()}",
+                            Value = op.ToString()
+                        }).ToList();
+                        break;
+
+                    case "Value":
+                        col.ColumnCaption = "Value";
+                        col.CellEditor = BeepColumnType.Text;
+                        col.Width = 200;
+                        break;
+
+                    case "Value2":
+                        col.ColumnCaption = "Value 2 (Between)";
+                        col.CellEditor = BeepColumnType.Text;
+                        col.Width = 180;
+                        break;
+                }
+            }
+
+            _filterGrid.Layout.Recalculate();
+            _filterGrid.Invalidate();
         }
 
         private void AddFilterRow()
         {
-            var row = new BeepFilterRow
+            var defaultColumn = _columnNames.Length > 0 ? _columnNames[0] : string.Empty;
+            _filterData.Add(new FilterRowData
             {
-                AvailableColumns = _columnTypes.Keys.ToArray(),
-                Margin = new Padding(5),
-                IsChild = true
-            };
-
-            row.RemoveRequested += (s, e) => RemoveFilterRow(row);
-            
-            // Set column type when column is selected
-            row.FilterChanged += (s, e) =>
-            {
-                var selectedCol = row.SelectedColumn;
-                if (!string.IsNullOrEmpty(selectedCol) && _columnTypes.ContainsKey(selectedCol))
-                {
-                    row.SetColumnType(_columnTypes[selectedCol]);
-                }
-            };
-
-            _filterRows.Add(row);
-            _filterRowsPanel.Controls.Add(row);
-
-            // Set default column if available
-            if (_columnTypes.Count > 0)
-            {
-                row.SelectedColumn = _columnTypes.Keys.First();
-                row.SetColumnType(_columnTypes[row.SelectedColumn]);
-            }
+                ColumnName = defaultColumn,
+                Operator = FilterOperator.Contains.ToString(),
+                Value = string.Empty,
+                Value2 = string.Empty
+            });
         }
 
-        private void RemoveFilterRow(BeepFilterRow row)
+        private void RemoveSelectedFilterRow()
         {
-            _filterRows.Remove(row);
-            _filterRowsPanel.Controls.Remove(row);
-            row.Dispose();
+            var selectedIndices = _filterGrid.SelectedRowIndices;
+            if (selectedIndices.Count > 0)
+            {
+                // Remove from highest index to lowest to avoid index shifting
+                foreach (var idx in selectedIndices.OrderByDescending(i => i))
+                {
+                    if (idx >= 0 && idx < _filterData.Count)
+                    {
+                        _filterData.RemoveAt(idx);
+                    }
+                }
+            }
+            else if (_filterData.Count > 0)
+            {
+                // Remove last row if nothing selected
+                _filterData.RemoveAt(_filterData.Count - 1);
+            }
         }
 
         private void ClearAllFilters()
         {
-            foreach (var row in _filterRows.ToList())
-            {
-                _filterRowsPanel.Controls.Remove(row);
-                row.Dispose();
-            }
-            _filterRows.Clear();
-            
-            // Add one empty row
+            _filterData.Clear();
             AddFilterRow();
         }
 
@@ -287,13 +360,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                 IsActive = true
             };
 
-            foreach (var row in _filterRows)
+            foreach (var rowData in _filterData)
             {
-                var criteria = row.GetFilterCriteria();
-                if (criteria != null)
-                {
-                    _result.AddCriteria(criteria);
-                }
+                if (string.IsNullOrWhiteSpace(rowData.ColumnName))
+                    continue;
+
+                if (!Enum.TryParse<FilterOperator>(rowData.Operator, out var op))
+                    op = FilterOperator.Contains;
+
+                var criteria = (op == FilterOperator.Between || op == FilterOperator.NotBetween)
+                    ? new FilterCriteria(rowData.ColumnName, op, rowData.Value, rowData.Value2)
+                    : new FilterCriteria(rowData.ColumnName, op, rowData.Value);
+
+                _result.AddCriteria(criteria);
             }
 
             DialogResult = DialogResult.OK;
@@ -302,34 +381,84 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 
         private void LoadConfiguration(FilterConfiguration config)
         {
-            // Clear existing rows
-            ClearAllFilters();
-            _filterRows.Clear();
-            _filterRowsPanel.Controls.Clear();
+            _filterData.Clear();
 
-            // Set logic
             _logicCombo.SelectedIndex = config.Logic == FilterLogic.And ? 0 : 1;
 
-            // Add rows for each criterion
             foreach (var criterion in config.Criteria)
             {
-                var row = new BeepFilterRow
+                _filterData.Add(new FilterRowData
                 {
-                    AvailableColumns = _columnTypes.Keys.ToArray(),
-                    Margin = new Padding(5),
-                    IsChild = true
-                };
+                    ColumnName = criterion.ColumnName,
+                    Operator = criterion.Operator.ToString(),
+                    Value = criterion.Value?.ToString() ?? string.Empty,
+                    Value2 = criterion.Value2?.ToString() ?? string.Empty
+                });
+            }
 
-                row.RemoveRequested += (s, e) => RemoveFilterRow(row);
-                row.SetFilterCriteria(criterion);
-                
-                if (_columnTypes.ContainsKey(criterion.ColumnName))
+            if (_filterData.Count == 0)
+            {
+                AddFilterRow();
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+
+            var theme = CurrentTheme ?? BeepThemesManager.CurrentTheme ?? BeepThemesManager.GetDefaultTheme();
+            if (theme == null)
+                return;
+
+            BackColor = theme.BackColor != Color.Empty ? theme.BackColor : SystemColors.Control;
+            ForeColor = theme.ForeColor != Color.Empty ? theme.ForeColor : SystemColors.ControlText;
+
+            var surfaceBack = theme.PanelBackColor != Color.Empty
+                ? theme.PanelBackColor
+                : (theme.BackColor != Color.Empty ? theme.BackColor : SystemColors.Control);
+            var surfaceFore = theme.ForeColor != Color.Empty ? theme.ForeColor : SystemColors.ControlText;
+
+            if (_logicPanel != null)
+            {
+                _logicPanel.BackColor = surfaceBack;
+                _logicPanel.ForeColor = surfaceFore;
+            }
+            if (_buttonPanel != null)
+            {
+                _buttonPanel.BackColor = surfaceBack;
+                _buttonPanel.ForeColor = surfaceFore;
+            }
+
+            // Propagate theme to BeepGridPro and all child controls
+            if (_filterGrid != null)
+            {
+                _filterGrid.Theme = Theme;
+                _filterGrid.ApplyTheme();
+            }
+
+            // Propagate theme to all Beep child controls (buttons, combos, labels)
+            PropagateThemeToChildren(this);
+        }
+
+        private void PropagateThemeToChildren(Control parent)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                if (child is BaseControl bc)
                 {
-                    row.SetColumnType(_columnTypes[criterion.ColumnName]);
+                    bc.Theme = Theme;
+                    bc.ApplyTheme();
+                }
+                else if (child is IBeepUIComponent ui)
+                {
+                    ui.Theme = Theme;
                 }
 
-                _filterRows.Add(row);
-                _filterRowsPanel.Controls.Add(row);
+                if (child.HasChildren)
+                {
+                    PropagateThemeToChildren(child);
+                }
             }
         }
 
@@ -348,18 +477,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                         Logic = _logicCombo.SelectedIndex == 0 ? FilterLogic.And : FilterLogic.Or
                     };
 
-                    foreach (var row in _filterRows)
+                    foreach (var rowData in _filterData)
                     {
-                        var criteria = row.GetFilterCriteria();
-                        if (criteria != null)
-                        {
-                            config.AddCriteria(criteria);
-                        }
+                        if (string.IsNullOrWhiteSpace(rowData.ColumnName))
+                            continue;
+
+                        if (!Enum.TryParse<FilterOperator>(rowData.Operator, out var op))
+                            op = FilterOperator.Contains;
+
+                        var criteria = (op == FilterOperator.Between || op == FilterOperator.NotBetween)
+                            ? new FilterCriteria(rowData.ColumnName, op, rowData.Value, rowData.Value2)
+                            : new FilterCriteria(rowData.ColumnName, op, rowData.Value);
+
+                        config.AddCriteria(criteria);
                     }
 
-                    var json = System.Text.Json.JsonSerializer.Serialize(config, new System.Text.Json.JsonSerializerOptions 
-                    { 
-                        WriteIndented = true 
+                    var json = System.Text.Json.JsonSerializer.Serialize(config, new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true
                     });
                     System.IO.File.WriteAllText(dialog.FileName, json);
 
@@ -381,7 +516,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                     {
                         var json = System.IO.File.ReadAllText(dialog.FileName);
                         var config = System.Text.Json.JsonSerializer.Deserialize<FilterConfiguration>(json);
-                        
+
                         if (config != null)
                         {
                             LoadConfiguration(config);
@@ -401,15 +536,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         {
             if (disposing)
             {
-                foreach (var row in _filterRows)
-                {
-                    row.Dispose();
-                }
-                _filterRows.Clear();
-
-                _mainPanel?.Dispose();
-                _filterRowsPanel?.Dispose();
+                _filterGrid?.Dispose();
+                _buttonPanel?.Dispose();
+                _logicPanel?.Dispose();
                 _addFilterButton?.Dispose();
+                _removeFilterButton?.Dispose();
                 _applyButton?.Dispose();
                 _clearButton?.Dispose();
                 _cancelButton?.Dispose();

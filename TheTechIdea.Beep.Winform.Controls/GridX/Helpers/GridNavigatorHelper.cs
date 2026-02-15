@@ -40,9 +40,49 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Bind to a data source without a visual navigator (owner-drawn case)
         public void BindTo(object? dataSource)
         {
+            // Handle null case - clear binding
+            if (dataSource == null)
+            {
+                UnhookBindingSource();
+                SyncNavigatorBindingSource();
+                return;
+            }
+
             var effectiveData = GetEffectiveDataSourceForBinding(dataSource);
-            HookBindingSource(ResolveBindingSource(effectiveData));
+
+            // If effective data is also null after resolution, clear binding
+            if (effectiveData == null)
+            {
+                UnhookBindingSource();
+                SyncNavigatorBindingSource();
+                return;
+            }
+
+            // If dataSource is a BindingSource, use it directly (don't create a new one)
+            if (dataSource is BindingSource bs)
+            {
+                HookBindingSource(bs);
+            }
+            else
+            {
+                HookBindingSource(ResolveBindingSource(effectiveData));
+            }
             SyncNavigatorBindingSource();
+        }
+
+        /// <summary>
+        /// Unhooks and clears the current BindingSource.
+        /// </summary>
+        private void UnhookBindingSource()
+        {
+            if (_bindingSource != null)
+            {
+                _bindingSource.ListChanged -= BindingSource_ListChanged;
+                _bindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
+                _bindingSource.CurrentChanged -= BindingSource_CurrentChanged;
+                _bindingSource.PositionChanged -= BindingSource_PositionChanged;
+                _bindingSource = null;
+            }
         }
 
         public void Attach(BeepBindingNavigator navigator, object? dataSource)
@@ -58,7 +98,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _navigator = navigator;
             var effectiveData = GetEffectiveDataSourceForBinding(dataSource);
 
-            HookBindingSource(ResolveBindingSource(effectiveData));
+            if (dataSource is BindingSource bs)
+            {
+                HookBindingSource(bs);
+            }
+            else
+            {
+                HookBindingSource(ResolveBindingSource(effectiveData));
+            }
             SyncNavigatorBindingSource();
 
             _navigator.PositionChanged += Navigator_PositionChanged;
@@ -66,14 +113,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _navigator.DeleteCalled += Navigator_DeleteCalled;
             _navigator.SaveCalled += Navigator_SaveCalled;
 
-            _grid.Data.Bind(effectiveData);
-            _grid.Data.InitializeData();
-            _grid.Layout.Recalculate();
+            if (effectiveData != null)
+            {
+                _grid.Data.Bind(effectiveData);
+                _grid.Data.InitializeData();
+                _grid.Layout.Recalculate();
+            }
             _grid.SafeInvalidate();
         }
 
-        private BindingSource ResolveBindingSource(object? data)
+        private BindingSource? ResolveBindingSource(object? data)
         {
+            if (data == null)
+                return null;
+
             if (data is BindingSource bs)
                 return bs;
 
@@ -118,14 +171,95 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (_bindingSource != null && !ReferenceEquals(_bindingSource, source))
             {
+                // Unsubscribe from all events on the old binding source
                 _bindingSource.ListChanged -= BindingSource_ListChanged;
+                _bindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
+                _bindingSource.CurrentChanged -= BindingSource_CurrentChanged;
+                _bindingSource.PositionChanged -= BindingSource_PositionChanged;
             }
 
             _bindingSource = source;
             if (_bindingSource != null)
             {
+                // Subscribe to all relevant events
                 _bindingSource.ListChanged -= BindingSource_ListChanged;
                 _bindingSource.ListChanged += BindingSource_ListChanged;
+                _bindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
+                _bindingSource.DataSourceChanged += BindingSource_DataSourceChanged;
+                _bindingSource.CurrentChanged -= BindingSource_CurrentChanged;
+                _bindingSource.CurrentChanged += BindingSource_CurrentChanged;
+                _bindingSource.PositionChanged -= BindingSource_PositionChanged;
+                _bindingSource.PositionChanged += BindingSource_PositionChanged;
+            }
+        }
+
+        /// <summary>
+        /// Handles BindingSource.DataSourceChanged - fires when the underlying data source changes.
+        /// </summary>
+        private void BindingSource_DataSourceChanged(object? sender, EventArgs e)
+        {
+            if (IsUowMode) return; // UOW mode is authoritative
+
+            try
+            {
+                // Re-bind to pick up the new data source
+                _grid.Data.Bind(_bindingSource);
+                _grid.Data.InitializeData();
+                _grid.Layout.Recalculate();
+                _grid.SafeInvalidate();
+            }
+            catch
+            {
+                _grid.SafeInvalidate();
+            }
+        }
+
+        /// <summary>
+        /// Handles BindingSource.CurrentChanged - fires when the current item changes.
+        /// </summary>
+        private void BindingSource_CurrentChanged(object? sender, EventArgs e)
+        {
+            if (_bindingSource == null) return;
+
+            try
+            {
+                int position = _bindingSource.Position;
+                if (position >= 0 && position < _grid.Rows.Count)
+                {
+                    // Sync the current position with the grid's selected row
+                    if (!_grid.Selection.HasSelection || _grid.Selection.RowIndex != position)
+                    {
+                        _grid.SelectCell(position, _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore sync failures to keep UI responsive
+            }
+        }
+
+        /// <summary>
+        /// Handles BindingSource.PositionChanged - fires when the position changes.
+        /// </summary>
+        private void BindingSource_PositionChanged(object? sender, EventArgs e)
+        {
+            if (_bindingSource == null) return;
+
+            try
+            {
+                int position = _bindingSource.Position;
+                if (position >= 0 && position < _grid.Rows.Count)
+                {
+                    if (!_grid.Selection.HasSelection || _grid.Selection.RowIndex != position)
+                    {
+                        _grid.SelectCell(position, _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore sync failures to keep UI responsive
             }
         }
 

@@ -833,7 +833,91 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
     [Serializable]
     public class BeepGridColumnConfigCollection : BindingList<BeepColumnConfig>
     {
+        /// <summary>
+        /// Event fired when any column property changes (e.g., Visible, Width, etc.)
+        /// </summary>
+        public event EventHandler<ColumnPropertyChangedEventArgs> ColumnPropertyChanged;
+
         public BeepGridColumnConfigCollection() : base() { }
+
+        protected override void InsertItem(int index, BeepColumnConfig item)
+        {
+            base.InsertItem(index, item);
+            SubscribeToColumnChanges(item);
+        }
+
+        protected override void SetItem(int index, BeepColumnConfig item)
+        {
+            // Unsubscribe from old item
+            if (index >= 0 && index < Count)
+            {
+                UnsubscribeFromColumnChanges(this[index]);
+            }
+
+            base.SetItem(index, item);
+            SubscribeToColumnChanges(item);
+        }
+
+        protected override void RemoveItem(int index)
+        {
+            if (index >= 0 && index < Count)
+            {
+                UnsubscribeFromColumnChanges(this[index]);
+            }
+            base.RemoveItem(index);
+        }
+
+        protected override void ClearItems()
+        {
+            foreach (var item in this)
+            {
+                UnsubscribeFromColumnChanges(item);
+            }
+            base.ClearItems();
+        }
+
+        private void SubscribeToColumnChanges(BeepColumnConfig column)
+        {
+            if (column != null)
+            {
+                column.PropertyChanged -= Column_PropertyChanged;
+                column.PropertyChanged += Column_PropertyChanged;
+            }
+        }
+
+        private void UnsubscribeFromColumnChanges(BeepColumnConfig column)
+        {
+            if (column != null)
+            {
+                column.PropertyChanged -= Column_PropertyChanged;
+            }
+        }
+
+        private void Column_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is BeepColumnConfig column)
+            {
+                int columnIndex = IndexOf(column);
+                ColumnPropertyChanged?.Invoke(this, new ColumnPropertyChangedEventArgs(column, columnIndex, e.PropertyName));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Event args for column property changes
+    /// </summary>
+    public class ColumnPropertyChangedEventArgs : EventArgs
+    {
+        public BeepColumnConfig Column { get; }
+        public int ColumnIndex { get; }
+        public string PropertyName { get; }
+
+        public ColumnPropertyChangedEventArgs(BeepColumnConfig column, int columnIndex, string propertyName)
+        {
+            Column = column;
+            ColumnIndex = columnIndex;
+            PropertyName = propertyName;
+        }
     }
 
 }

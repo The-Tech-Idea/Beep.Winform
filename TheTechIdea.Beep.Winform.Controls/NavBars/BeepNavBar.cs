@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -299,10 +301,10 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             {
                 g = CreateGraphics();
                 
-                int maxWidth = 80; // Minimum width
-                int maxHeight = 48; // Minimum height
-                const int iconSize = 24;
-                const int padding = 12;
+                int maxWidth = DpiScalingHelper.ScaleValue(80, this);
+                int maxHeight = DpiScalingHelper.ScaleValue(48, this);
+                int iconSize = DpiScalingHelper.ScaleValue(24, this);
+                int padding = DpiScalingHelper.ScaleValue(12, this);
 
                 foreach (var item in _items)
                 {
@@ -316,12 +318,10 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
                     Size textSize = Size.Empty;
                     if (hasText)
                     {
-                        using (var font = new Font("Segoe UI", 9f, FontStyle.Regular))
-                        {
-                            textSize = TextRenderer.MeasureText(g, item.Text, font,
+                        var fontToUse = _textFont ?? BeepFontManager.DefaultFont;
+                        textSize = TextRenderer.MeasureText(g, item.Text, fontToUse,
                                 new Size(int.MaxValue, int.MaxValue),
                                 TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
-                        }
                     }
 
                     if (_orientation == NavBarOrientation.Horizontal)
@@ -385,8 +385,8 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
                 }
 
                 // Update sizes (add a bit of extra space for safety)
-                _itemWidth = maxWidth + 8;
-                _itemHeight = maxHeight + 4;
+                _itemWidth = maxWidth + DpiScalingHelper.ScaleValue(8, this);
+                _itemHeight = maxHeight + DpiScalingHelper.ScaleValue(4, this);
                 _itemSizesDirty = false;
 
                 // Update control height for horizontal navbar
@@ -416,6 +416,19 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             {
                 OnItemClicked(_items[index]);
             }
+        }
+        #endregion
+
+        #region Theme
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if (_currentTheme != null)
+            {
+                _textFont = BeepFontManager.ToFont(_currentTheme?.NavigationUnSelectedFont);
+            }
+            _textFont ??= BeepFontManager.DefaultFont;
+            Invalidate();
         }
         #endregion
 

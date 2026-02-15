@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // Check action buttons
             if (!_actionsRect.IsEmpty && _notificationData.Actions != null)
             {
-                int buttonWidth = (_actionsRect.Width - (PADDING * (_notificationData.Actions.Length - 1))) / _notificationData.Actions.Length;
+                int buttonWidth = (_actionsRect.Width - (ScaledPadding * (_notificationData.Actions.Length - 1))) / _notificationData.Actions.Length;
                 int x = _actionsRect.X;
 
                 for (int i = 0; i < _notificationData.Actions.Length; i++)
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                         action.OnClick?.Invoke(_notificationData);
                         return;
                     }
-                    x += buttonWidth + PADDING;
+                    x += buttonWidth + ScaledPadding;
                 }
             }
 

@@ -54,7 +54,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     RatingStyle.Emoji,
                     isFilled,
                     isHovered,
-                    iconColor);
+                    iconColor,
+                    rotation: 0f,
+                    textFont: TextFont,
+                    ownerControl: context.OwnerControl);
             }
 
             DrawLabels(context);

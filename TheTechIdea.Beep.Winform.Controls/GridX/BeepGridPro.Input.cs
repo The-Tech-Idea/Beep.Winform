@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"BeepGridPro.OnMouseDown at {e.Location}, TopFilterRect={Layout.TopFilterRect}, ShowTopFilterPanel={ShowTopFilterPanel}");
             // === ADD THESE TWO LINES ===
             Layout.EnsureCalculated();
             ScrollBars?.UpdateBars();
@@ -23,9 +24,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return;
             }
             bool handledByScrollbar = ScrollBars?.HandleMouseDown(e.Location, e.Button) ?? false;
+            System.Diagnostics.Debug.WriteLine($"handledByScrollbar={handledByScrollbar}, Input is null: {Input == null}, Input type: {Input?.GetType().FullName}");
             if (!handledByScrollbar)
             {
+                System.Diagnostics.Debug.WriteLine($"About to call Input.HandleMouseDown, method exists: {Input.GetType().GetMethod("HandleMouseDown") != null}");
                 Input.HandleMouseDown(e);
+                System.Diagnostics.Debug.WriteLine("Input.HandleMouseDown returned");
             }
             base.OnMouseDown(e);
         }

@@ -8,6 +8,8 @@ using TheTechIdea.Beep.Winform.Controls.Dates.Painters;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 using TheTechIdea.Beep.Winform.Controls.Dates.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -68,6 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         private bool _useScaledFont = false;
         private bool _useThemeFont = true;
         private Font _textFont;
+        internal Font TextFontForPainter => _textFont ?? BeepFontManager.DefaultFont;
 
         #endregion
 
@@ -115,8 +118,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             DoubleBuffered = true;
             TabStop = true; // Allow tab navigation
 
-            // Initialize font
-            _textFont = new Font("Segoe UI", 9.75f);
+            // Initialize font (fallback; ApplyTheme sets from theme)
+            _textFont = BeepFontManager.DefaultFont ?? new Font("Segoe UI", 9.75f);
 
             // Initialize hit test helper for BaseControl integration
             _hitHelper = new BeepDateTimePickerHitTestHelper(this);
@@ -157,9 +160,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 catch { /* fallback to null-safe painters */ }
             }
 
-            // Create painter based on current mode
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
-            
+            if (_currentPainter is Painters.AppointmentDateTimePickerPainter apt)
+            {
+                apt.TextFont = _textFont ?? BeepFontManager.DefaultFont;
+            }
             // Initialize hit handler for this mode
             InitializeHitHandler();
             
@@ -284,6 +289,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         }
 
         #endregion
+
+        // ApplyTheme is in BeepDateTimePicker.Methods.cs partial
 
         #region Helper Methods
 

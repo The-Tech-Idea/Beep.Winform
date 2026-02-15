@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 
@@ -20,10 +22,13 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             BeepBreadcrump breadcrumb,
             BreadcrumbStyle breadcrumbStyle,
             BeepControlStyle controlStyle,
-            bool isLast = false)
+            bool isLast = false,
+            Control ownerControl = null)
         {
             if (breadcrumb == null)
                 return BeepFontManager.DefaultFont;
+
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
 
             // Base size from ControlStyle
             float baseSize = StyleTypography.GetFontSize(controlStyle);
@@ -44,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 itemSize = Math.Min(itemSize + 0.5f, baseSize + 1f);
             }
 
-            // Ensure minimum readable size
-            itemSize = Math.Max(8f, itemSize);
+            float minSize = 8f * Math.Max(0.5f, dpiScale);
+            itemSize = Math.Max(minSize, itemSize);
 
             // Font style: Regular for items, can be customized
             FontStyle fontStyle = isLast ? FontStyle.Bold : FontStyle.Regular;
@@ -67,15 +72,15 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         public static Font GetSeparatorFont(
             BeepBreadcrump breadcrumb,
             BreadcrumbStyle breadcrumbStyle,
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            Control ownerControl = null)
         {
             if (breadcrumb == null)
                 return BeepFontManager.DefaultFont;
 
-            float baseSize = StyleTypography.GetFontSize(controlStyle);
-            
-            // Separators are typically smaller
-            float separatorSize = Math.Max(7f, baseSize - 2f);
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
+            float baseSize = StyleTypography.GetFontSize(controlStyle) * Math.Max(0.5f, dpiScale);
+            float separatorSize = Math.Max(7f * Math.Max(0.5f, dpiScale), baseSize - 2f);
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
@@ -109,13 +114,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         public static Font GetBreadcrumbFont(
             BeepBreadcrump breadcrumb,
             BreadcrumbStyle breadcrumbStyle,
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            Control ownerControl = null)
         {
             if (breadcrumb == null)
                 return BeepFontManager.DefaultFont;
 
-            // Use ControlStyle-based font
-            float fontSize = StyleTypography.GetFontSize(controlStyle);
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
+            float fontSize = StyleTypography.GetFontSize(controlStyle) * Math.Max(0.5f, dpiScale);
             FontStyle fontStyle = StyleTypography.GetFontStyle(controlStyle);
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
@@ -129,13 +135,15 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         /// </summary>
         public static Font GetCompactFont(
             BeepBreadcrump breadcrumb,
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            Control ownerControl = null)
         {
             if (breadcrumb == null)
                 return BeepFontManager.DefaultFont;
 
-            float baseSize = StyleTypography.GetFontSize(controlStyle);
-            float compactSize = Math.Max(7f, baseSize - 2f); // Smaller for compact
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
+            float baseSize = StyleTypography.GetFontSize(controlStyle) * Math.Max(0.5f, dpiScale);
+            float compactSize = Math.Max(7f * Math.Max(0.5f, dpiScale), baseSize - 2f);
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();

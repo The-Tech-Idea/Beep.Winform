@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.NavBars
@@ -60,59 +62,63 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
             }
             
             // Title
-            using (var font = new Font("Segoe UI", 10, FontStyle.Bold))
+            var baseFont = _textFont ?? BeepFontManager.DefaultFont;
+            using (var titleFont = new Font(baseFont.FontFamily, Math.Min(10f, baseFont.Size + 1), FontStyle.Bold))
             using (var brush = new SolidBrush(Color.FromArgb(100, 100, 100)))
             {
+                int pad = DpiScalingHelper.ScaleValue(8, this);
                 string orientationText = _orientation == NavBarOrientation.Horizontal ? "Horizontal" : "Vertical";
-                g.DrawString($"BeepNavBar ({orientationText})", font, brush, 8, 4);
+                g.DrawString($"BeepNavBar ({orientationText})", titleFont, brush, pad, DpiScalingHelper.ScaleValue(4, this));
             }
             
             // Item count info
-            using (var font = new Font("Segoe UI", 9))
+            var infoFont = _textFont ?? BeepFontManager.DefaultFont;
             using (var brush = new SolidBrush(Color.FromArgb(120, 120, 120)))
             {
                 int itemCount = _items?.Count ?? 0;
-                g.DrawString($"Items: {itemCount} | Style: {_style}", font, brush, 8, 24);
+                int pad = DpiScalingHelper.ScaleValue(8, this);
+                g.DrawString($"Items: {itemCount} | Style: {_style}", infoFont, brush, pad, DpiScalingHelper.ScaleValue(24, this));
             }
             
             // Draw placeholder items
             if (_items != null && _items.Count > 0)
             {
-                int padding = 8;
-                int previewItemSize = 40;
+                int padding = DpiScalingHelper.ScaleValue(8, this);
+                int previewItemSize = DpiScalingHelper.ScaleValue(40, this);
+                int spacing = DpiScalingHelper.ScaleValue(4, this);
                 
                 if (_orientation == NavBarOrientation.Horizontal)
                 {
                     int x = padding;
                     int y = Height - previewItemSize - padding;
-                    
+                    int itemHeight = previewItemSize - DpiScalingHelper.ScaleValue(10, this);
                     for (int i = 0; i < System.Math.Min(_items.Count, 6); i++)
                     {
                         using (var fillBrush = new SolidBrush(Color.FromArgb(230, 230, 230)))
                         using (var borderPen = new Pen(Color.FromArgb(200, 200, 200)))
                         {
-                            var rect = new Rectangle(x, y, previewItemSize, previewItemSize - 10);
+                            var rect = new Rectangle(x, y, previewItemSize, itemHeight);
                             g.FillRectangle(fillBrush, rect);
                             g.DrawRectangle(borderPen, rect);
                         }
-                        x += previewItemSize + 4;
+                        x += previewItemSize + spacing;
                     }
                 }
                 else
                 {
                     int x = padding;
-                    int y = 48;
-                    
+                    int y = DpiScalingHelper.ScaleValue(48, this);
+                    int rowHeight = DpiScalingHelper.ScaleValue(28, this);
                     for (int i = 0; i < System.Math.Min(_items.Count, 4); i++)
                     {
                         using (var fillBrush = new SolidBrush(Color.FromArgb(230, 230, 230)))
                         using (var borderPen = new Pen(Color.FromArgb(200, 200, 200)))
                         {
-                            var rect = new Rectangle(x, y, Width - padding * 2, 24);
+                            var rect = new Rectangle(x, y, Width - padding * 2, DpiScalingHelper.ScaleValue(24, this));
                             g.FillRectangle(fillBrush, rect);
                             g.DrawRectangle(borderPen, rect);
                         }
-                        y += 28;
+                        y += rowHeight;
                     }
                 }
             }

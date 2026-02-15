@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
@@ -32,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private int _itemHeight = 60;
         private int _maxHistorySize = 100;
         private NotificationType? _filterType = null;
+        private Font _textFont;
         #endregion
 
         #region Constructor
@@ -45,19 +48,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // BaseControl configuration
             ControlStyle = BeepControlStyle.Material3;
             IsRounded = true;
-            BorderRadius = 8;
+            BorderRadius = DpiScalingHelper.ScaleValue(8, this);
             ShowShadow = true;
-            ShadowOffset = 2;
+            ShadowOffset = DpiScalingHelper.ScaleValue(2, this);
             ShowAllBorders = true;
             BorderThickness = 1;
-            MinimumSize = new Size(300, 400);
-            Size = new Size(350, 500);
+            MinimumSize = new Size(DpiScalingHelper.ScaleValue(300, this), DpiScalingHelper.ScaleValue(400, this));
+            Size = new Size(DpiScalingHelper.ScaleValue(350, this), DpiScalingHelper.ScaleValue(500, this));
 
             // Header panel
             _headerPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 100,
+                Height = DpiScalingHelper.ScaleValue(100, this),
                 BackColor = Color.Transparent
             };
 
@@ -65,25 +68,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 Text = "Notification History",
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                Location = new Point(12, 12),
+                Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(12, this)),
                 AutoSize = true
             };
 
             _searchBox = new TextBox
             {
                 PlaceholderText = "Search notifications...",
-                Location = new Point(12, 40),
-                Width = 200,
-                Height = 24
+                Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(40, this)),
+                Width = DpiScalingHelper.ScaleValue(200, this),
+                Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _searchBox.TextChanged += SearchBox_TextChanged;
 
             _filterCombo = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(220, 40),
-                Width = 100,
-                Height = 24
+                Location = new Point(DpiScalingHelper.ScaleValue(220, this), DpiScalingHelper.ScaleValue(40, this)),
+                Width = DpiScalingHelper.ScaleValue(100, this),
+                Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _filterCombo.Items.Add("All");
             _filterCombo.Items.Add("Info");
@@ -97,9 +100,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _clearButton = new Button
             {
                 Text = "Clear",
-                Location = new Point(12, 70),
-                Width = 80,
-                Height = 24
+                Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(70, this)),
+                Width = DpiScalingHelper.ScaleValue(80, this),
+                Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _clearButton.Click += ClearButton_Click;
 
@@ -276,7 +279,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (!_scrollBar.Visible)
                 return;
 
-            int delta = e.Delta / 120 * 20; // Each wheel click = 20 pixels
+            int scrollDelta = DpiScalingHelper.ScaleValue(20, this);
+            int delta = e.Delta / 120 * scrollDelta;
             _scrollOffset = Math.Max(0, Math.Min(_scrollBar.Maximum - _scrollBar.LargeChange + 1, _scrollOffset - delta));
             _scrollBar.Value = _scrollOffset;
             _listPanel.Invalidate();
@@ -342,42 +346,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 g.DrawLine(pen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
             }
 
+            int labelLeft = DpiScalingHelper.ScaleValue(12, this);
+            int titleTop = DpiScalingHelper.ScaleValue(8, this);
+            int titleW = bounds.Width - DpiScalingHelper.ScaleValue(100, this);
+            int titleH = DpiScalingHelper.ScaleValue(16, this);
+            int msgTop = DpiScalingHelper.ScaleValue(26, this);
+            int msgH = DpiScalingHelper.ScaleValue(20, this);
+
             // Title
-            using (var titleFont = new Font("Segoe UI", 9, FontStyle.Bold))
-            using (var titleBrush = new SolidBrush(this.ForeColor))
+            Font titleFont = _textFont != null ? new Font(_textFont, FontStyle.Bold) : new Font("Segoe UI", 9, FontStyle.Bold);
+            try
             {
-                var titleRect = new Rectangle(bounds.X + 12, bounds.Y + 8, bounds.Width - 100, 16);
-                g.DrawString(item.Data.Title ?? "Notification", titleFont, titleBrush, titleRect);
+                using (var titleBrush = new SolidBrush(this.ForeColor))
+                {
+                    var titleRect = new Rectangle(bounds.X + labelLeft, bounds.Y + titleTop, titleW, titleH);
+                    g.DrawString(item.Data.Title ?? "Notification", titleFont, titleBrush, titleRect);
+                }
+            }
+            finally
+            {
+                if (titleFont != _textFont) titleFont?.Dispose();
             }
 
             // Message
-            using (var messageFont = new Font("Segoe UI", 8))
-            using (var messageBrush = new SolidBrush(Color.FromArgb(180, this.ForeColor)))
+            Font messageFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(7f, _textFont.Size - 2f)) : new Font("Segoe UI", 8);
+            try
             {
-                var messageRect = new Rectangle(bounds.X + 12, bounds.Y + 26, bounds.Width - 100, 20);
-                g.DrawString(item.Data.Message ?? "", messageFont, messageBrush, messageRect);
+                using (var messageBrush = new SolidBrush(Color.FromArgb(180, this.ForeColor)))
+                {
+                    var messageRect = new Rectangle(bounds.X + labelLeft, bounds.Y + msgTop, titleW, msgH);
+                    g.DrawString(item.Data.Message ?? "", messageFont, messageBrush, messageRect);
+                }
+            }
+            finally
+            {
+                if (messageFont != _textFont) messageFont?.Dispose();
             }
 
             // Timestamp
             var timeAgo = GetTimeAgo(item.DismissedAt);
-            using (var timeFont = new Font("Segoe UI", 7))
-            using (var timeBrush = new SolidBrush(Color.FromArgb(120, this.ForeColor)))
+            Font timeFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(6f, _textFont.Size - 3f)) : new Font("Segoe UI", 7);
+            try
             {
-                var timeSize = g.MeasureString(timeAgo, timeFont);
-                g.DrawString(timeAgo, timeFont, timeBrush, bounds.Right - timeSize.Width - 12, bounds.Y + 8);
+                using (var timeBrush = new SolidBrush(Color.FromArgb(120, this.ForeColor)))
+                {
+                    var timeSize = g.MeasureString(timeAgo, timeFont);
+                    g.DrawString(timeAgo, timeFont, timeBrush, bounds.Right - timeSize.Width - labelLeft, bounds.Y + titleTop);
+                }
+            }
+            finally
+            {
+                if (timeFont != _textFont) timeFont?.Dispose();
             }
         }
 
         private void DrawEmptyMessage(Graphics g)
         {
             var message = "No notifications in history";
-            using (var font = new Font("Segoe UI", 10, FontStyle.Italic))
+            Font emptyFont = _textFont != null ? new Font(_textFont, FontStyle.Italic) : new Font("Segoe UI", 10, FontStyle.Italic);
+            try
+            {
             using (var brush = new SolidBrush(Color.FromArgb(120, this.ForeColor)))
             {
-                var size = g.MeasureString(message, font);
+                var size = g.MeasureString(message, emptyFont);
                 var x = (_listPanel.Width - size.Width) / 2;
                 var y = (_listPanel.Height - size.Height) / 2;
-                g.DrawString(message, font, brush, x, y);
+                g.DrawString(message, emptyFont, brush, x, y);
+            }
+            }
+            finally
+            {
+                if (emptyFont != _textFont) emptyFont?.Dispose();
             }
         }
 
@@ -419,6 +458,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
         }
 
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if (_currentTheme != null)
+                _textFont = BeepFontManager.ToFont(_currentTheme.BodyMedium);
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            _itemHeight = DpiScalingHelper.ScaleValue(60, this);
+            BorderRadius = DpiScalingHelper.ScaleValue(8, this);
+            ShadowOffset = DpiScalingHelper.ScaleValue(2, this);
+            MinimumSize = DpiScalingHelper.ScaleSize(new Size(300, 400), this);
+            Size = DpiScalingHelper.ScaleSize(new Size(350, 500), this);
+            UpdateScrollBar();
+            Invalidate();
+        }
+
         /// <summary>
         /// Cleanup resources
         /// </summary>
@@ -426,6 +484,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         {
             if (disposing)
             {
+                _textFont?.Dispose();
                 _headerPanel?.Dispose();
                 _listPanel?.Dispose();
                 _scrollBar?.Dispose();

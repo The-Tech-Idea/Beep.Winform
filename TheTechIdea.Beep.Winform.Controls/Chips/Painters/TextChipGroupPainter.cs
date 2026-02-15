@@ -1,9 +1,13 @@
+using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -12,25 +16,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     /// </summary>
     internal class TextChipGroupPainter : IChipGroupPainter
     {
+        private BaseControl _owner;
         private IBeepTheme _theme;
+
         private readonly StringFormat _centerFmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-        public void Initialize(BaseControl owner, IBeepTheme theme) => UpdateTheme(theme);
+        public void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            _owner = owner;
+            UpdateTheme(theme);
+        }
         public void UpdateTheme(IBeepTheme theme) => _theme = theme;
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions opt)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             string text = item?.Text ?? string.Empty;
-            var font = ResolveFont(opt);
+            var font = ResolveFont(opt, scale);
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
-            int pad = opt.Size switch { ChipSize.Small => 12, ChipSize.Medium => 16, ChipSize.Large => 20, _ => 16 };
-            int h = opt.Size switch { ChipSize.Small => 22, ChipSize.Medium => 28, ChipSize.Large => 36, _ => 28 };
+            
+            int pad = GetPadding(opt.Size, scale);
+            int h = GetHeight(opt.Size, scale);
             return new Size(sz.Width + pad, h);
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions opt, out Rectangle closeRect)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             closeRect = Rectangle.Empty;
-            var font = ResolveFont(opt);
+            var font = ResolveFont(opt, scale);
             var accent = _theme?.PrimaryColor ?? Color.RoyalBlue;
             var text = _theme?.ForeColor ?? Color.Black;
             if (state.IsSelected) text = accent;
@@ -46,9 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (opt.ShowCloseOnSelected && state.IsSelected)
             {
-                int s = Math.Min(bounds.Height - 6, 12);
-                closeRect = new Rectangle(bounds.Right - s - 4, bounds.Top + (bounds.Height - s) / 2, s, s);
-                var xpen = (Pen)PaintersFactory.GetPen(text, 1.5f).Clone();
+                int s = Math.Min(bounds.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(12, scale));
+                closeRect = new Rectangle(bounds.Right - s - DpiScalingHelper.ScaleValue(4, scale), bounds.Top + (bounds.Height - s) / 2, s, s);
+                var xpen = (Pen)PaintersFactory.GetPen(text, DpiScalingHelper.ScaleValue(1.5f, scale)).Clone();
                 try
                 {
                     xpen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
@@ -64,6 +77,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options) { }
-        private static Font ResolveFont(ChipRenderOptions opt) => (opt.Size == ChipSize.Small) ? PaintersFactory.GetFont(opt.Font.FontFamily.Name, Math.Max(6f, opt.Font.Size * 0.9f), opt.Font.Style) : PaintersFactory.GetFont(opt.Font);
+        
+        private Font ResolveFont(ChipRenderOptions opt, float scale = 1.0f)
+        {
+             // Use ChipFontHelpers for consistent scaling if possible, or manual scaling
+             return ChipFontHelpers.GetChipFont(_owner.ControlStyle, opt.Size, scale);
+        }
+
+        private int GetPadding(ChipSize size, float scale)
+        {
+            int val = size switch { ChipSize.Small => 12, ChipSize.Medium => 16, ChipSize.Large => 20, _ => 16 };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private int GetHeight(ChipSize size, float scale)
+        {
+            int val = size switch { ChipSize.Small => 22, ChipSize.Medium => 28, ChipSize.Large => 36, _ => 28 };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
     }
 }

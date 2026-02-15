@@ -2,24 +2,61 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Filtering;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 {
     /// <summary>
-    /// Base implementation for top filter panel painters.
-    /// Handles common geometry, glyph drawing, text rendering, and hit-map registration.
+    /// Base implementation for modern filter toolbar painters.
+    /// Displays a unified filter bar with active filter chips (not per-column inputs).
+    /// Pattern: [Filter Icon] [Filters label] [Active Filter Chips...] [Clear All]
     /// </summary>
     public abstract class BaseFilterPanelPainter : IGridFilterPanelPainter
     {
+        public const int ClearAllActionKey = -1;
+        public const int SearchActionKey = -2;
+        public const int AdvancedFilterActionKey = -3;
+
         public abstract navigationStyle Style { get; }
         public abstract string StyleName { get; }
 
+        // Layout constants
+        protected const int FilterIconSize = 16;
+        protected const int ChipHeight = 24;
+        protected const int ChipSpacing = 6;
+        protected const int SectionPadding = 12;
+
         public virtual int CalculateFilterPanelHeight(BeepGridPro grid)
         {
-            return 34;
+            return 36; // Compact toolbar height
+        }
+
+        protected class ModernToolbarOptions
+        {
+            public int LeftPadding { get; set; } = 12;
+            public int RightPadding { get; set; } = 12;
+            public int SeparatorInset { get; set; } = 8;
+            public int Spacing { get; set; } = 8;
+            public int ControlHeight { get; set; } = 24;
+            public int CornerRadius { get; set; } = 6;
+            public int TitleMinWidth { get; set; } = 96;
+            public int TitleMaxWidthRatioDivisor { get; set; } = 3;
+            public int SearchMinWidth { get; set; } = 140;
+            public int SearchMaxWidth { get; set; } = 260;
+            public int ClearWidth { get; set; } = 84;
+            public int CountWidth { get; set; } = 88;
+            public int FilterWidth { get; set; } = 74;
+            public string SearchPlaceholder { get; set; } = "Search all columns";
+            public string FilterText { get; set; } = "Filter";
+            public string ClearText { get; set; } = "Clear";
+            public string CountFormat { get; set; } = "{0} active";
+            public bool FlatControls { get; set; } = false;
         }
 
         public virtual void PaintFilterPanel(
@@ -35,56 +72,489 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 return;
             }
 
+            // Clear old hit rects
+            filterCellRects.Clear();
+            clearIconRects.Clear();
+
             var tokens = CreateStyleTokens(theme);
-
-            using (var panelBrush = new SolidBrush(tokens.PanelBackColor))
-            using (var borderPen = new Pen(tokens.PanelBorderColor))
-            {
-                g.FillRectangle(panelBrush, panelRect);
-                g.DrawLine(borderPen, panelRect.Left, panelRect.Top, panelRect.Right, panelRect.Top);
-                g.DrawLine(borderPen, panelRect.Left, panelRect.Bottom - 1, panelRect.Right, panelRect.Bottom - 1);
-            }
-
-            var state = g.Save();
-            g.SetClip(panelRect);
+            var oldMode = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
             try
             {
-                int columnCount = grid.Data.Columns.Count;
-                for (int i = 0; i < columnCount; i++)
+                // Draw panel background
+                DrawPanelBackground(g, panelRect, tokens);
+
+                // Get active filters
+                var activeFilters = GetActiveFilters(grid);
+
+                int x = panelRect.Left + SectionPadding;
+                int centerY = panelRect.Top + (panelRect.Height - ChipHeight) / 2;
+                var font = GetFont(theme);
+
+                // Draw grid title
+                string title = GetGridTitle(grid);
+                if (!string.IsNullOrWhiteSpace(title))
                 {
-                    var column = grid.Data.Columns[i];
-                    if (!column.Visible || column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID)
-                    {
-                        filterCellRects.Remove(i);
-                        clearIconRects.Remove(i);
-                        continue;
-                    }
+                    var titleFont = GetTitleFont(theme, grid);
+                    int maxTitleWidth = Math.Max(0, panelRect.Width / 3);
+                    var titleSize = TextRenderer.MeasureText(title, titleFont);
+                    int titleWidth = maxTitleWidth > 0 ? Math.Min(titleSize.Width, maxTitleWidth) : titleSize.Width;
+                    var titleRect = new Rectangle(x, panelRect.Top + (panelRect.Height - titleSize.Height) / 2, titleWidth, titleSize.Height);
 
-                    if (i >= grid.Layout.HeaderCellRects.Length)
-                    {
-                        continue;
-                    }
+                    TextRenderer.DrawText(g, title, titleFont, titleRect, tokens.ActiveTextColor,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-                    var headerCellRect = grid.Layout.HeaderCellRects[i];
-                    if (headerCellRect.IsEmpty || headerCellRect.Width <= 0)
-                    {
-                        continue;
-                    }
+                    x = titleRect.Right + SectionPadding;
 
-                    var filterCellRect = new Rectangle(headerCellRect.X, panelRect.Top, headerCellRect.Width, panelRect.Height);
-                    if (filterCellRect.Right < panelRect.Left || filterCellRect.Left > panelRect.Right)
-                    {
-                        continue;
-                    }
+                    using var titleSeparatorPen = new Pen(tokens.SeparatorColor);
+                    g.DrawLine(titleSeparatorPen, x, panelRect.Top + 8, x, panelRect.Bottom - 8);
+                    x += SectionPadding;
+                }
 
-                    DrawFilterCell(g, column, i, filterCellRect, theme, tokens, filterCellRects, clearIconRects);
+                // Draw filter icon
+                var filterIconRect = new Rectangle(x, panelRect.Top + (panelRect.Height - FilterIconSize) / 2, FilterIconSize, FilterIconSize);
+                DrawFilterIcon(g, filterIconRect, tokens, activeFilters.Count > 0);
+                x += FilterIconSize + 8;
+
+                // Draw "Filters" label
+                string filtersLabel = activeFilters.Count > 0 ? $"Filters ({activeFilters.Count})" : "Filters";
+                var labelSize = TextRenderer.MeasureText(filtersLabel, font);
+                var labelRect = new Rectangle(x, panelRect.Top + (panelRect.Height - labelSize.Height) / 2, labelSize.Width, labelSize.Height);
+
+                TextRenderer.DrawText(g, filtersLabel, font, labelRect, 
+                    activeFilters.Count > 0 ? tokens.ActiveTextColor : tokens.InactiveTextColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                x += labelSize.Width + SectionPadding;
+
+                // Draw separator line
+                if (activeFilters.Count > 0)
+                {
+                    using var separatorPen = new Pen(tokens.SeparatorColor);
+                    g.DrawLine(separatorPen, x, panelRect.Top + 8, x, panelRect.Bottom - 8);
+                    x += SectionPadding;
+                }
+
+                // Draw active filter chips
+                int maxChipWidth = panelRect.Width - x - 100; // Reserve space for clear all button
+                foreach (var filter in activeFilters)
+                {
+                    if (x >= panelRect.Right - 100) break; // Stop if no space
+
+                    var chipRect = DrawFilterChip(g, x, centerY, filter, tokens, font, maxChipWidth);
+
+                    // Store hit rect for the chip (clicking clears this filter)
+                    filterCellRects[filter.ColumnIndex] = chipRect;
+
+                    // Store clear icon rect (X button on chip)
+                    var clearRect = new Rectangle(chipRect.Right - 18, chipRect.Top + (chipRect.Height - 12) / 2, 12, 12);
+                    clearIconRects[filter.ColumnIndex] = clearRect;
+
+                    x = chipRect.Right + ChipSpacing;
+                }
+
+                // Draw "Clear All" button if there are active filters
+                if (activeFilters.Count > 0)
+                {
+                    DrawClearAllButton(g, panelRect, tokens, font, clearIconRects);
                 }
             }
             finally
             {
-                g.Restore(state);
+                g.SmoothingMode = oldMode;
             }
+        }
+
+        protected virtual void PaintModernToolbar(
+            Graphics g,
+            Rectangle panelRect,
+            BeepGridPro grid,
+            IBeepTheme? theme,
+            Dictionary<int, Rectangle> filterCellRects,
+            Dictionary<int, Rectangle> clearIconRects,
+            ModernToolbarOptions options)
+        {
+            if (g == null || grid == null || panelRect.Width <= 0 || panelRect.Height <= 0)
+            {
+                return;
+            }
+
+            filterCellRects.Clear();
+            clearIconRects.Clear();
+
+            var tokens = CreateStyleTokens(theme);
+            var activeFilters = GetActiveFilters(grid);
+            var oldMode = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            try
+            {
+                DrawPanelBackground(g, panelRect, tokens);
+
+                var font = GetFont(theme);
+                var titleFont = GetTitleFont(theme, grid);
+
+                int x = panelRect.Left + options.LeftPadding;
+                int centerY = panelRect.Top + panelRect.Height / 2;
+
+                string title = GetGridTitle(grid);
+                int titleMaxWidth = Math.Max(options.TitleMinWidth, panelRect.Width / Math.Max(2, options.TitleMaxWidthRatioDivisor));
+                var titleRect = new Rectangle(x, panelRect.Top + 4, titleMaxWidth, panelRect.Height - 8);
+                TextRenderer.DrawText(g, title, titleFont, titleRect, tokens.ActiveTextColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                x = titleRect.Right + options.Spacing;
+
+                using (var sepPen = new Pen(tokens.SeparatorColor))
+                {
+                    g.DrawLine(sepPen, x, panelRect.Top + options.SeparatorInset, x, panelRect.Bottom - options.SeparatorInset);
+                }
+                x += options.Spacing;
+
+                int right = panelRect.Right - options.RightPadding;
+
+                if (activeFilters.Count > 0 || grid.IsFiltered)
+                {
+                    var clearRect = new Rectangle(right - options.ClearWidth, centerY - options.ControlHeight / 2, options.ClearWidth, options.ControlHeight);
+                    DrawModernActionButton(g, clearRect, options.ClearText, tokens.ClearAllColor, Alpha(tokens.ClearAllColor, 24), options.CornerRadius, font, options.FlatControls);
+                    clearIconRects[ClearAllActionKey] = clearRect;
+                    right = clearRect.Left - options.Spacing;
+                }
+
+                string countText = string.Format(options.CountFormat, activeFilters.Count);
+                var countRect = new Rectangle(right - options.CountWidth, centerY - (options.ControlHeight - 2) / 2, options.CountWidth, options.ControlHeight - 2);
+                DrawModernBadge(g, countRect, countText, tokens, font, options.CornerRadius, options.FlatControls);
+                right = countRect.Left - options.Spacing;
+
+                var filterRect = new Rectangle(right - options.FilterWidth, centerY - options.ControlHeight / 2, options.FilterWidth, options.ControlHeight);
+                DrawModernActionButton(g, filterRect, options.FilterText, tokens.ActiveGlyphColor, tokens.ButtonBackColor, options.CornerRadius, font, options.FlatControls);
+                clearIconRects[AdvancedFilterActionKey] = filterRect;
+                right = filterRect.Left - options.Spacing;
+
+                int searchWidth = Math.Min(options.SearchMaxWidth, Math.Max(options.SearchMinWidth, right - x));
+                var searchRect = new Rectangle(right - searchWidth, centerY - options.ControlHeight / 2, searchWidth, options.ControlHeight);
+                DrawModernSearchBox(g, searchRect, options.SearchPlaceholder, tokens, font, options.CornerRadius, options.FlatControls);
+                filterCellRects[SearchActionKey] = searchRect;
+            }
+            finally
+            {
+                g.SmoothingMode = oldMode;
+            }
+        }
+
+        protected virtual void DrawModernActionButton(Graphics g, Rectangle rect, string text, Color borderColor, Color backColor, int radius, Font font, bool flat)
+        {
+            if (flat)
+            {
+                using var flatBrush = new SolidBrush(backColor);
+                using var flatPen = new Pen(borderColor, 1f);
+                g.FillRectangle(flatBrush, rect);
+                g.DrawRectangle(flatPen, rect);
+            }
+            else
+            {
+                using var path = CreateRoundedRectangle(rect, radius);
+                using var brush = new SolidBrush(backColor);
+                using var pen = new Pen(borderColor, 1f);
+                g.FillPath(brush, path);
+                g.DrawPath(pen, path);
+            }
+
+            TextRenderer.DrawText(g, text, font, rect, borderColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        protected virtual void DrawModernBadge(Graphics g, Rectangle rect, string text, FilterPanelStyleTokens tokens, Font font, int radius, bool flat)
+        {
+            if (flat)
+            {
+                using var flatBrush = new SolidBrush(tokens.BadgeBackColor);
+                using var flatPen = new Pen(tokens.PanelBorderColor, 1f);
+                g.FillRectangle(flatBrush, rect);
+                g.DrawRectangle(flatPen, rect);
+            }
+            else
+            {
+                using var path = CreateRoundedRectangle(rect, Math.Max(4, radius));
+                using var brush = new SolidBrush(tokens.BadgeBackColor);
+                using var pen = new Pen(tokens.PanelBorderColor, 1f);
+                g.FillPath(brush, path);
+                g.DrawPath(pen, path);
+            }
+
+            TextRenderer.DrawText(g, text, font, rect, tokens.InactiveTextColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        protected virtual void DrawModernSearchBox(Graphics g, Rectangle rect, string placeholder, FilterPanelStyleTokens tokens, Font font, int radius, bool flat)
+        {
+            if (flat)
+            {
+                using var flatBrush = new SolidBrush(tokens.SearchBackColor);
+                using var flatPen = new Pen(tokens.PanelBorderColor, 1f);
+                g.FillRectangle(flatBrush, rect);
+                g.DrawRectangle(flatPen, rect);
+            }
+            else
+            {
+                using var path = CreateRoundedRectangle(rect, Math.Max(3, radius - 2));
+                using var brush = new SolidBrush(tokens.SearchBackColor);
+                using var pen = new Pen(Alpha(tokens.PanelBorderColor, 180), 1f);
+                g.FillPath(brush, path);
+                g.DrawPath(pen, path);
+            }
+
+            var iconRect = new Rectangle(rect.Left + 6, rect.Top + Math.Max(3, (rect.Height - 14) / 2), 14, 14);
+            DrawModernSearchGlyph(g, iconRect, tokens.InactiveTextColor);
+
+            var textRect = new Rectangle(rect.Left + 24, rect.Top, rect.Width - 28, rect.Height);
+            TextRenderer.DrawText(g, placeholder, font, textRect, tokens.InactiveTextColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        protected virtual void DrawModernSearchGlyph(Graphics g, Rectangle rect, Color color)
+        {
+            using var pen = new Pen(color, 1.2f);
+            var lens = new Rectangle(rect.Left, rect.Top, Math.Max(6, rect.Width - 4), Math.Max(6, rect.Height - 4));
+            g.DrawEllipse(pen, lens);
+            g.DrawLine(pen, lens.Right, lens.Bottom, rect.Right, rect.Bottom);
+        }
+
+        protected virtual void DrawPanelBackground(Graphics g, Rectangle panelRect, FilterPanelStyleTokens tokens)
+        {
+            using var panelBrush = new SolidBrush(tokens.PanelBackColor);
+            g.FillRectangle(panelBrush, panelRect);
+
+            // Draw bottom border only (subtle)
+            using var borderPen = new Pen(tokens.PanelBorderColor);
+            g.DrawLine(borderPen, panelRect.Left, panelRect.Bottom - 1, panelRect.Right, panelRect.Bottom - 1);
+        }
+
+        protected virtual void DrawFilterIcon(Graphics g, Rectangle rect, FilterPanelStyleTokens tokens, bool hasActiveFilters)
+        {
+            Color color = hasActiveFilters ? tokens.ActiveGlyphColor : tokens.InactiveGlyphColor;
+            float penWidth = hasActiveFilters ? 1.8f : 1.4f;
+
+            using var pen = new Pen(color, penWidth);
+            using var brush = new SolidBrush(Color.FromArgb(hasActiveFilters ? 100 : 60, color));
+
+            // Draw funnel shape
+            int cx = rect.X + rect.Width / 2;
+            int padding = 2;
+            int halfWidth = (rect.Width - padding * 2) / 2;
+            int stemWidth = Math.Max(2, rect.Width / 5);
+
+            Point[] funnel = {
+                new Point(cx - halfWidth, rect.Y + padding),
+                new Point(cx + halfWidth, rect.Y + padding),
+                new Point(cx + stemWidth, rect.Y + rect.Height / 2),
+                new Point(cx + stemWidth, rect.Bottom - padding),
+                new Point(cx - stemWidth, rect.Bottom - padding),
+                new Point(cx - stemWidth, rect.Y + rect.Height / 2)
+            };
+
+            g.FillPolygon(brush, funnel);
+            g.DrawPolygon(pen, funnel);
+        }
+
+        protected virtual Rectangle DrawFilterChip(Graphics g, int x, int y, ActiveFilter filter, 
+            FilterPanelStyleTokens tokens, Font font, int maxWidth)
+        {
+            // Format chip text: "ColumnName: Value"
+            string chipText = $"{filter.ColumnCaption}: {filter.FilterValue}";
+            var textSize = TextRenderer.MeasureText(chipText, font);
+
+            int chipWidth = Math.Min(textSize.Width + 28, maxWidth); // 28 = padding + clear icon
+            int chipHeight = ChipHeight;
+
+            var chipRect = new Rectangle(x, y, chipWidth, chipHeight);
+
+            // Draw chip background with rounded corners
+            using var path = CreateRoundedRectangle(chipRect, tokens.ChipCornerRadius);
+            using var chipBrush = new SolidBrush(tokens.ChipBackColor);
+            using var chipPen = new Pen(tokens.ChipBorderColor, 1f);
+
+            g.FillPath(chipBrush, path);
+            g.DrawPath(chipPen, path);
+
+            // Draw chip text
+            var textRect = new Rectangle(chipRect.X + 8, chipRect.Y, chipRect.Width - 24, chipRect.Height);
+            TextRenderer.DrawText(g, chipText, font, textRect, tokens.ChipTextColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+
+            // Draw clear (X) icon
+            var clearRect = new Rectangle(chipRect.Right - 18, chipRect.Top + (chipRect.Height - 12) / 2, 12, 12);
+            DrawClearIcon(g, clearRect, tokens.ChipClearIconColor);
+
+            return chipRect;
+        }
+
+        protected virtual void DrawClearIcon(Graphics g, Rectangle rect, Color color)
+        {
+            using var pen = new Pen(color, 1.5f);
+            int padding = 3;
+            g.DrawLine(pen, rect.Left + padding, rect.Top + padding, rect.Right - padding, rect.Bottom - padding);
+            g.DrawLine(pen, rect.Right - padding, rect.Top + padding, rect.Left + padding, rect.Bottom - padding);
+        }
+
+        protected virtual void DrawClearAllButton(Graphics g, Rectangle panelRect, FilterPanelStyleTokens tokens, 
+            Font font, Dictionary<int, Rectangle> clearIconRects)
+        {
+            string clearAllText = "Clear All";
+            var textSize = TextRenderer.MeasureText(clearAllText, font);
+
+            int buttonWidth = textSize.Width + 16;
+            int buttonHeight = ChipHeight;
+            int x = panelRect.Right - buttonWidth - SectionPadding;
+            int y = panelRect.Top + (panelRect.Height - buttonHeight) / 2;
+
+            var buttonRect = new Rectangle(x, y, buttonWidth, buttonHeight);
+
+            // Draw button with hover-style background
+            using var path = CreateRoundedRectangle(buttonRect, tokens.ChipCornerRadius);
+            using var brush = new SolidBrush(Color.FromArgb(40, tokens.ClearAllColor));
+            using var pen = new Pen(tokens.ClearAllColor, 1f);
+
+            g.FillPath(brush, path);
+            g.DrawPath(pen, path);
+
+            // Draw text
+            TextRenderer.DrawText(g, clearAllText, font, buttonRect, tokens.ClearAllColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+
+            // Store the clear all button rect with a special index (-1)
+            clearIconRects[-1] = buttonRect;
+        }
+
+        protected List<ActiveFilter> GetActiveFilters(BeepGridPro grid)
+        {
+            var filters = new List<ActiveFilter>();
+
+            if (grid?.Data?.Columns == null) return filters;
+
+            // Advanced filter criteria (from GridX/Filtering)
+            if (grid.ActiveFilter?.Criteria != null)
+            {
+                int advancedFallbackIndex = -100;
+                foreach (var criterion in grid.ActiveFilter.Criteria.Where(c => c != null && c.IsEnabled))
+                {
+                    var matchingIndex = grid.Data.Columns.FindIndex(c =>
+                        string.Equals(c.ColumnName, criterion.ColumnName, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(c.ColumnCaption, criterion.ColumnName, StringComparison.OrdinalIgnoreCase));
+
+                    var matchingColumn = matchingIndex >= 0 && matchingIndex < grid.Data.Columns.Count
+                        ? grid.Data.Columns[matchingIndex]
+                        : null;
+
+                    var columnCaption = matchingColumn?.ColumnCaption
+                        ?? matchingColumn?.ColumnName
+                        ?? criterion.ColumnName
+                        ?? "Filter";
+
+                    var valueText = BuildCriterionValueText(criterion);
+                    filters.Add(new ActiveFilter
+                    {
+                        ColumnIndex = matchingIndex >= 0 ? matchingIndex : advancedFallbackIndex--,
+                        ColumnName = matchingColumn?.ColumnName ?? criterion.ColumnName ?? string.Empty,
+                        ColumnCaption = columnCaption,
+                        FilterValue = valueText
+                    });
+                }
+            }
+
+            for (int i = 0; i < grid.Data.Columns.Count; i++)
+            {
+                var column = grid.Data.Columns[i];
+                if (column.IsFiltered && !string.IsNullOrWhiteSpace(column.Filter))
+                {
+                    bool exists = filters.Any(f =>
+                        (f.ColumnIndex == i) ||
+                        string.Equals(f.ColumnName, column.ColumnName, StringComparison.OrdinalIgnoreCase));
+                    if (exists)
+                    {
+                        continue;
+                    }
+
+                    filters.Add(new ActiveFilter
+                    {
+                        ColumnIndex = i,
+                        ColumnName = column.ColumnName ?? $"Column {i}",
+                        ColumnCaption = column.ColumnCaption ?? column.ColumnName ?? $"Column {i}",
+                        FilterValue = column.Filter.Trim()
+                    });
+                }
+            }
+
+            return filters;
+        }
+
+        protected virtual string BuildCriterionValueText(FilterCriteria criterion)
+        {
+            if (criterion == null)
+            {
+                return string.Empty;
+            }
+
+            string op = criterion.Operator.GetSymbol();
+            string value1 = criterion.Value?.ToString() ?? "∅";
+
+            if (criterion.Operator == FilterOperator.Between || criterion.Operator == FilterOperator.NotBetween)
+            {
+                string value2 = criterion.Value2?.ToString() ?? "∅";
+                return $"{op} {value1} … {value2}";
+            }
+
+            if (criterion.Operator == FilterOperator.IsNull || criterion.Operator == FilterOperator.IsNotNull)
+            {
+                return op;
+            }
+
+            return $"{op} {value1}";
+        }
+
+        protected virtual string GetGridTitle(BeepGridPro grid)
+        {
+            if (grid == null) return "Grid";
+            if (!string.IsNullOrWhiteSpace(grid.GridTitle)) return grid.GridTitle.Trim();
+            if (!string.IsNullOrWhiteSpace(grid.Name)) return grid.Name.Trim();
+            return "Grid";
+        }
+
+        protected Font GetFont(IBeepTheme? theme)
+        {
+            if (theme?.GridHeaderFont != null)
+            {
+                var themedFont = BeepFontManager.ToFont(theme.GridHeaderFont);
+                if (themedFont != null)
+                {
+                    return themedFont;
+                }
+            }
+
+            return SystemFonts.DefaultFont;
+        }
+
+        protected Font GetTitleFont(IBeepTheme? theme, BeepGridPro grid)
+        {
+            if (theme?.GridHeaderFont != null && grid != null)
+            {
+                var style = theme.GridHeaderFont;
+                var fontStyle = style.FontWeight >= FontWeight.Bold ? FontStyle.Bold : FontStyle.Bold;
+
+                var scaledFont = BeepFontManager.GetFontForControl(
+                    style.FontFamily,
+                    style.FontSize,
+                    grid,
+                    fontStyle);
+
+                if (scaledFont != null)
+                {
+                    return scaledFont;
+                }
+            }
+
+            var baseFont = GetFont(theme);
+            return BeepFontManager.GetFontForControl(baseFont.FontFamily.Name, baseFont.Size, grid, FontStyle.Bold)
+                ?? baseFont;
         }
 
         protected virtual FilterPanelStyleTokens CreateStyleTokens(IBeepTheme? theme)
@@ -93,192 +563,61 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             Color gridBack = theme?.GridBackColor ?? SystemColors.Window;
             Color headerFore = theme?.GridHeaderForeColor ?? SystemColors.ControlText;
             Color gridLine = theme?.GridLineColor ?? SystemColors.ControlDark;
-            Color focus = (theme?.FocusIndicatorColor ?? Color.Empty) != Color.Empty
+            Color accent = (theme?.FocusIndicatorColor ?? Color.Empty) != Color.Empty
                 ? theme!.FocusIndicatorColor
-                : SystemColors.Highlight;
+                : Color.FromArgb(59, 130, 246); // Default blue
 
             var tokens = new FilterPanelStyleTokens
             {
-                PanelBackColor = BlendColors(headerBack, gridBack, 0.15f),
+                PanelBackColor = gridBack,
                 PanelBorderColor = gridLine,
-                InactiveChipBackColor = Color.FromArgb(90, Color.White),
-                ActiveChipBackColor = Color.FromArgb(40, focus),
-                InactiveChipBorderColor = Color.FromArgb(150, gridLine),
-                ActiveChipBorderColor = Color.FromArgb(190, focus),
+                SeparatorColor = Color.FromArgb(100, gridLine),
+
                 InactiveTextColor = Color.FromArgb(150, headerFore),
                 ActiveTextColor = headerFore,
-                InactiveGlyphColor = Color.FromArgb(140, headerFore),
-                ActiveGlyphColor = focus,
-                ClearGlyphColor = Color.FromArgb(170, headerFore),
-                OuterPadding = 4,
-                CornerRadius = 8,
-                BorderWidthInactive = 1f,
-                BorderWidthActive = 1.5f
+                InactiveGlyphColor = Color.FromArgb(120, headerFore),
+                ActiveGlyphColor = accent,
+
+                ChipBackColor = Color.FromArgb(25, accent),
+                ChipBorderColor = Color.FromArgb(80, accent),
+                ChipTextColor = headerFore,
+                ChipClearIconColor = Color.FromArgb(150, headerFore),
+                ChipCornerRadius = 4,
+
+                ClearAllColor = Color.FromArgb(220, 53, 69), // Red for clear all
+                SearchBackColor = Color.FromArgb(245, gridBack),
+                BadgeBackColor = Color.FromArgb(230, gridBack),
+                ButtonBackColor = Color.FromArgb(25, accent)
             };
 
-            switch (Style)
-            {
-                case navigationStyle.Material:
-                    tokens.PanelBackColor = BlendColors(headerBack, gridBack, 0.22f);
-                    tokens.CornerRadius = 10;
-                    tokens.BorderWidthActive = 1.8f;
-                    break;
-                case navigationStyle.Compact:
-                    tokens.OuterPadding = 3;
-                    tokens.CornerRadius = 5;
-                    break;
-                case navigationStyle.Minimal:
-                    tokens.PanelBackColor = BlendColors(headerBack, gridBack, 0.10f);
-                    tokens.InactiveChipBackColor = Color.FromArgb(55, Color.White);
-                    tokens.CornerRadius = 6;
-                    break;
-                case navigationStyle.Bootstrap:
-                    tokens.CornerRadius = 6;
-                    tokens.PanelBackColor = BlendColors(headerBack, gridBack, 0.18f);
-                    break;
-                case navigationStyle.Fluent:
-                    tokens.CornerRadius = 11;
-                    tokens.InactiveChipBackColor = Color.FromArgb(120, Color.White);
-                    break;
-                case navigationStyle.AntDesign:
-                    tokens.CornerRadius = 7;
-                    tokens.BorderWidthInactive = 1.2f;
-                    break;
-                case navigationStyle.Telerik:
-                    tokens.CornerRadius = 9;
-                    tokens.PanelBackColor = BlendColors(headerBack, gridBack, 0.20f);
-                    break;
-                case navigationStyle.AGGrid:
-                    tokens.CornerRadius = 4;
-                    tokens.OuterPadding = 3;
-                    break;
-                case navigationStyle.DataTables:
-                    tokens.CornerRadius = 4;
-                    tokens.OuterPadding = 3;
-                    tokens.InactiveChipBackColor = Color.FromArgb(80, Color.White);
-                    break;
-                case navigationStyle.Card:
-                    tokens.CornerRadius = 12;
-                    tokens.PanelBackColor = BlendColors(headerBack, gridBack, 0.25f);
-                    break;
-                case navigationStyle.Tailwind:
-                    tokens.CornerRadius = 6;
-                    tokens.PanelBackColor = BlendColors(headerBack, gridBack, 0.14f);
-                    tokens.InactiveChipBackColor = Color.FromArgb(105, Color.White);
-                    break;
-            }
+            // Apply style-specific customizations
+            ApplyStyleTokens(tokens, theme);
 
             return tokens;
         }
 
-        private void DrawFilterCell(
-            Graphics g,
-            BeepColumnConfig column,
-            int columnIndex,
-            Rectangle cellRect,
-            IBeepTheme? theme,
-            FilterPanelStyleTokens tokens,
-            Dictionary<int, Rectangle> filterCellRects,
-            Dictionary<int, Rectangle> clearIconRects)
+        protected virtual void ApplyStyleTokens(FilterPanelStyleTokens tokens, IBeepTheme? theme)
         {
-            int outerPadding = Math.Max(2, tokens.OuterPadding);
-            int radius = Math.Max(2, tokens.CornerRadius);
-
-            var chipRect = new Rectangle(
-                cellRect.X + outerPadding,
-                cellRect.Y + outerPadding,
-                Math.Max(1, cellRect.Width - (outerPadding * 2)),
-                Math.Max(1, cellRect.Height - (outerPadding * 2)));
-
-            bool hasActiveFilter = column.IsFiltered && !string.IsNullOrWhiteSpace(column.Filter);
-            Color chipBack = hasActiveFilter ? tokens.ActiveChipBackColor : tokens.InactiveChipBackColor;
-            Color chipBorder = hasActiveFilter ? tokens.ActiveChipBorderColor : tokens.InactiveChipBorderColor;
-            Color textColor = hasActiveFilter ? tokens.ActiveTextColor : tokens.InactiveTextColor;
-            Color glyphColor = hasActiveFilter ? tokens.ActiveGlyphColor : tokens.InactiveGlyphColor;
-            float borderWidth = hasActiveFilter ? tokens.BorderWidthActive : tokens.BorderWidthInactive;
-
-            using (var path = CreateRoundedRectangle(chipRect, radius))
-            using (var chipBrush = new SolidBrush(chipBack))
-            using (var chipPen = new Pen(chipBorder, borderWidth))
+            // Override in derived classes for style-specific customizations
+            switch (Style)
             {
-                g.FillPath(chipBrush, path);
-                g.DrawPath(chipPen, path);
+                case navigationStyle.Material:
+                    tokens.ChipCornerRadius = 16; // Pill shape
+                    break;
+                case navigationStyle.Bootstrap:
+                    tokens.ChipCornerRadius = 4;
+                    tokens.ClearAllColor = Color.FromArgb(108, 117, 125); // Bootstrap secondary
+                    break;
+                case navigationStyle.Fluent:
+                    tokens.ChipCornerRadius = 2;
+                    break;
+                case navigationStyle.Tailwind:
+                    tokens.ChipCornerRadius = 6;
+                    break;
+                case navigationStyle.Card:
+                    tokens.ChipCornerRadius = 8;
+                    break;
             }
-
-            int iconSize = Math.Max(10, chipRect.Height - 10);
-            var filterIconRect = new Rectangle(
-                chipRect.X + 6,
-                chipRect.Y + (chipRect.Height - iconSize) / 2,
-                iconSize,
-                iconSize);
-            DrawFilterGlyph(g, filterIconRect, glyphColor, hasActiveFilter);
-
-            Rectangle clearRect = Rectangle.Empty;
-            if (hasActiveFilter)
-            {
-                int clearSize = Math.Max(10, iconSize - 1);
-                clearRect = new Rectangle(
-                    chipRect.Right - clearSize - 6,
-                    chipRect.Y + (chipRect.Height - clearSize) / 2,
-                    clearSize,
-                    clearSize);
-                DrawClearGlyph(g, clearRect, tokens.ClearGlyphColor);
-                clearIconRects[columnIndex] = clearRect;
-            }
-            else
-            {
-                clearIconRects.Remove(columnIndex);
-            }
-
-            string caption = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
-            string valueText = string.IsNullOrWhiteSpace(column.Filter)
-                ? $"Filter {caption}"
-                : column.Filter!.Trim();
-
-            var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) ?? SystemFonts.DefaultFont;
-            var textRect = new Rectangle(
-                filterIconRect.Right + 6,
-                chipRect.Y + 1,
-                Math.Max(1, chipRect.Width - (filterIconRect.Width + 12 + (clearRect.IsEmpty ? 0 : clearRect.Width + 8))),
-                Math.Max(1, chipRect.Height - 2));
-
-            TextRenderer.DrawText(
-                g,
-                valueText,
-                font,
-                textRect,
-                textColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-
-            filterCellRects[columnIndex] = chipRect;
-        }
-
-        private static void DrawFilterGlyph(Graphics g, Rectangle rect, Color color, bool active)
-        {
-            using var pen = new Pen(color, active ? 1.6f : 1.25f);
-            using var brush = new SolidBrush(Color.FromArgb(active ? 140 : 90, color));
-
-            int padding = 1;
-            int funnelHeight = rect.Height - (padding * 2);
-            Point[] funnel =
-            {
-                new Point(rect.X + padding, rect.Y + padding),
-                new Point(rect.Right - padding, rect.Y + padding),
-                new Point(rect.X + rect.Width / 2 + 2, rect.Y + funnelHeight / 2),
-                new Point(rect.X + rect.Width / 2 + 2, rect.Bottom - padding),
-                new Point(rect.X + rect.Width / 2 - 2, rect.Bottom - padding),
-                new Point(rect.X + rect.Width / 2 - 2, rect.Y + funnelHeight / 2)
-            };
-
-            g.FillPolygon(brush, funnel);
-            g.DrawPolygon(pen, funnel);
-        }
-
-        private static void DrawClearGlyph(Graphics g, Rectangle rect, Color color)
-        {
-            using var pen = new Pen(color, 1.4f);
-            g.DrawLine(pen, rect.Left + 3, rect.Top + 3, rect.Right - 3, rect.Bottom - 3);
-            g.DrawLine(pen, rect.Right - 3, rect.Top + 3, rect.Left + 3, rect.Bottom - 3);
         }
 
         protected static GraphicsPath CreateRoundedRectangle(Rectangle rect, int radius)
@@ -290,41 +629,84 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 return path;
             }
 
+            radius = Math.Min(radius, Math.Min(rect.Width, rect.Height) / 2);
             int d = radius * 2;
+
             path.AddArc(rect.X, rect.Y, d, d, 180, 90);
             path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
             path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
             path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
             path.CloseFigure();
+
             return path;
         }
 
-        protected static Color BlendColors(Color baseColor, Color blendColor, float blendFactor)
+        protected static Color Blend(Color baseColor, Color blendColor, float amount)
         {
-            blendFactor = Math.Max(0f, Math.Min(1f, blendFactor));
-            int r = (int)(baseColor.R + ((blendColor.R - baseColor.R) * blendFactor));
-            int gr = (int)(baseColor.G + ((blendColor.G - baseColor.G) * blendFactor));
-            int b = (int)(baseColor.B + ((blendColor.B - baseColor.B) * blendFactor));
-            return Color.FromArgb(255, r, gr, b);
+            amount = Math.Max(0f, Math.Min(1f, amount));
+            int r = (int)(baseColor.R + ((blendColor.R - baseColor.R) * amount));
+            int g = (int)(baseColor.G + ((blendColor.G - baseColor.G) * amount));
+            int b = (int)(baseColor.B + ((blendColor.B - baseColor.B) * amount));
+            return Color.FromArgb(255, r, g, b);
         }
 
-        protected sealed class FilterPanelStyleTokens
+        protected static Color Alpha(Color color, int alpha)
+        {
+            return Color.FromArgb(Math.Max(0, Math.Min(255, alpha)), color);
+        }
+
+        protected static Color ResolveAccent(IBeepTheme? theme, Color fallback)
+        {
+            if ((theme?.FocusIndicatorColor ?? Color.Empty) != Color.Empty)
+            {
+                return theme!.FocusIndicatorColor;
+            }
+
+            return fallback;
+        }
+
+        protected class ActiveFilter
+        {
+            public int ColumnIndex { get; set; }
+            public string ColumnName { get; set; } = string.Empty;
+            public string ColumnCaption { get; set; } = string.Empty;
+            public string FilterValue { get; set; } = string.Empty;
+        }
+
+        protected class FilterPanelStyleTokens
         {
             public Color PanelBackColor { get; set; }
             public Color PanelBorderColor { get; set; }
-            public Color InactiveChipBackColor { get; set; }
-            public Color ActiveChipBackColor { get; set; }
-            public Color InactiveChipBorderColor { get; set; }
-            public Color ActiveChipBorderColor { get; set; }
+            public Color SeparatorColor { get; set; }
+
             public Color InactiveTextColor { get; set; }
             public Color ActiveTextColor { get; set; }
             public Color InactiveGlyphColor { get; set; }
             public Color ActiveGlyphColor { get; set; }
+
+            public Color ChipBackColor { get; set; }
+            public Color ChipBorderColor { get; set; }
+            public Color ChipTextColor { get; set; }
+            public Color ChipClearIconColor { get; set; }
+            public int ChipCornerRadius { get; set; }
+
+            public Color ClearAllColor { get; set; }
+
+        
+            public Color InactiveChipBackColor { get; set; }
+            public Color ActiveChipBackColor { get; set; }
+            public Color InactiveChipBorderColor { get; set; }
+            public Color ActiveChipBorderColor { get; set; }
+          
             public Color ClearGlyphColor { get; set; }
             public int OuterPadding { get; set; }
             public int CornerRadius { get; set; }
             public float BorderWidthInactive { get; set; }
             public float BorderWidthActive { get; set; }
+
+            public Color SearchBackColor { get; set; }
+            public Color BadgeBackColor { get; set; }
+            public Color ButtonBackColor { get; set; }
         }
     }
 }

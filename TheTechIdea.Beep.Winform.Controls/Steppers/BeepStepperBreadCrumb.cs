@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -7,6 +7,8 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
@@ -30,6 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int animFramesTotal = 10;
         private int animIndex = -1;
         private Color animStart, animEnd;
+
+        private Font _textFont;
 
         // Tooltip support
         private bool _autoGenerateTooltips = true;
@@ -321,8 +325,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Fonts - use font helpers
                     StepState state = i == selectedIndex ? StepState.Active : StepState.Pending;
-                    Font headerFont = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state);
-                    Font subFont = StepperFontHelpers.GetStepTextFont(this, ControlStyle);
+                    Font headerFont = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state, _textFont, this);
+                    Font subFont = StepperFontHelpers.GetStepTextFont(this, ControlStyle, _textFont, this);
 
                     // Measure both
                     var headerSize = TextUtils.MeasureText(g,headerText, headerFont);
@@ -473,6 +477,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ListItems[i].IsChecked = i <= index;
             }
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _textFont?.Dispose();
+                _textFont = null;
+            }
+            base.Dispose(disposing);
+        }
+
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -503,8 +518,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             PressedBackColor = _currentTheme?.ButtonPressedBackColor ?? PressedBackColor;
             PressedForeColor = _currentTheme?.ButtonPressedForeColor ?? PressedForeColor;
 
+            // Set fonts from theme stepper properties
+            _textFont?.Dispose();
+            _textFont = (_currentTheme?.StepperItemFont != null)
+                ? BeepFontManager.ToFont(_currentTheme.StepperItemFont)
+                : null;
+
             // Apply font theme
-            StepperFontHelpers.ApplyFontTheme(this, ControlStyle);
+            StepperFontHelpers.ApplyFontTheme(this, ControlStyle, _textFont);
             
             // Apply accessibility adjustments (high contrast, reduced motion)
             ApplyAccessibilityAdjustments();

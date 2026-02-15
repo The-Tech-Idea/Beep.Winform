@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -165,6 +165,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// Scales an integer value using control's DPI
         /// </summary>
         public static int ScaleValue(int value, Control control)
+        {
+            return ScaleValue(value, GetDpiScaleFactor(control));
+        }
+
+        /// <summary>
+        /// Scales a float value using control's DPI
+        /// </summary>
+        public static float ScaleValue(float value, Control control)
         {
             return ScaleValue(value, GetDpiScaleFactor(control));
         }

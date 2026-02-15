@@ -145,6 +145,7 @@ Reserved for filter-specific implementations and filter UI components.
 - Column resizing
 - Sticky/frozen columns
 - Sorting and filtering
+- Top filter panel with title (controlled by `ShowTopFilterPanel` and `GridTitle`)
 - Excel-like filter dropdowns
 - Keyboard navigation (arrows, Page Up/Down, Home/End)
 

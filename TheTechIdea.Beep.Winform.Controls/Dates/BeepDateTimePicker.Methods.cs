@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 using TheTechIdea.Beep.Winform.Controls.Dates.Painters;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -339,6 +340,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
             if (_currentTheme == null)
                 return;
+
+            // Set _textFont from theme
+            try
+            {
+                var themeFont = BeepFontManager.ToFont(_currentTheme.DateFont);
+                if (themeFont != null) _textFont = themeFont;
+            }
+            catch { }
+            _textFont ??= BeepFontManager.DefaultFont ?? new Font("Segoe UI", 9.75f);
 
             // Apply calendar-specific theme properties to the control
             BackColor = _currentTheme.CalendarBackColor;

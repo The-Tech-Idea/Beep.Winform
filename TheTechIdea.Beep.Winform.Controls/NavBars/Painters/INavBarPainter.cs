@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -23,6 +24,10 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars.Painters
         int ItemHeight { get; }
         NavBarOrientation Orientation { get; }
         IBeepTheme Theme { get; }
+        /// <summary>Owner control for DPI scaling (implement via DpiScalingHelper.GetDpiScaleFactor).</summary>
+        Control OwnerControl { get; }
+        float DpiScale { get; }
+        Font TextFont { get; }
         void SelectItemByIndex(int index);
     }
 

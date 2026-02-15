@@ -29,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         private System.Windows.Forms.Timer? _autoSizeDebounceTimer;
         private AutoSizeTriggerMode _autoSizeTriggerMode = AutoSizeTriggerMode.OnDataBind;
         private int _autoSizeDebounceMilliseconds = 120;
+        private string _gridTitle = "Grid";
 
         [Browsable(false)]
         internal Type EntityType => _entityType;
@@ -65,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         Navigator.BindTo(_regularDataSource);
                         Data.InitializeData();
                         Layout.Recalculate();
-                        if (!DesignMode) Invalidate();
+                        if (!DesignMode) SafeInvalidate();
                     }
                 }
             }
@@ -80,6 +81,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             get => _regularDataSource ?? Data.DataSource;
             set
             {
+                // Store old value to detect changes
+                object? oldValue = _regularDataSource;
                 _regularDataSource = value;
 
                 // UOW mode is authoritative. Keep regular DataSource value for fallback.
@@ -88,14 +91,72 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     return;
                 }
 
-                if (!ReferenceEquals(Data.DataSource, value))
+                // Always rebind when value changes (including null)
+                bool valueChanged = !ReferenceEquals(oldValue, value);
+                bool isNull = value == null;
+
+                // Rebind if: value changed, or setting to null, or BindingSource scenario
+                if (valueChanged || isNull || value is BindingSource)
                 {
-                    Data.Bind(value);
-                    Navigator.BindTo(value);
-                    Data.InitializeData();
-                    Layout.Recalculate();
-                    if (!DesignMode) Invalidate();
+                    if (isNull)
+                    {
+                        // Clear the grid when DataSource is set to null
+                        ClearGrid();
+                    }
+                    else
+                    {
+                        Data.Bind(value);
+                        Navigator.BindTo(value);
+                        Data.InitializeData();
+                        Layout.Recalculate();
+                    }
+                    SafeInvalidate();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Clears all data and non-system columns from the grid.
+        /// </summary>
+        public void ClearGrid()
+        {
+            // Clear rows
+            Data.Rows.Clear();
+
+            // Clear non-system columns
+            var systemColumns = Data.Columns.Where(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID).ToList();
+            Data.Columns.Clear();
+            foreach (var col in systemColumns)
+            {
+                Data.Columns.Add(col);
+            }
+
+            // Clear the data source reference
+            Data.ClearDataSource();
+
+            // Reset navigator
+            Navigator.BindTo(null);
+
+            // Recalculate layout
+            Layout.Recalculate();
+
+            // Clear selection
+            Selection?.Clear();
+
+            SafeInvalidate();
+        }
+
+        /// <summary>
+        /// Refreshes the grid from its current DataSource.
+        /// </summary>
+        public void RefreshData()
+        {
+            if (_regularDataSource != null)
+            {
+                Data.Bind(_regularDataSource);
+                Data.InitializeData();
+                Layout.Recalculate();
+                SafeInvalidate();
             }
         }
 
@@ -117,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         Navigator.BindTo(Data.DataSource);
                         Data.Bind(Data.DataSource);
                         Data.InitializeData();
-                        Invalidate();
+                        SafeInvalidate();
                     }
                 }
             }
@@ -146,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Layout.RowHeight != System.Math.Max(18, value))
                 {
                     Layout.RowHeight = System.Math.Max(18, value);
-                    if (!DesignMode) Invalidate();
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
@@ -161,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Layout.ColumnHeaderHeight != System.Math.Max(22, value))
                 {
                     Layout.ColumnHeaderHeight = System.Math.Max(22, value);
-                    if (!DesignMode) Invalidate();
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
@@ -176,14 +237,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Layout.ShowColumnHeaders != value)
                 {
                     Layout.ShowColumnHeaders = value;
-                    if (!DesignMode) Invalidate();
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
 
         [Browsable(true)]
         [Category("Filtering")]
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         [RefreshProperties(RefreshProperties.Repaint)]
         [Description("Shows a modern filter panel above column headers for per-column filtering.")]
         public bool ShowTopFilterPanel
@@ -195,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     Layout.ShowTopFilterPanel = value;
                     Layout.Recalculate();
-                    if (!DesignMode) Invalidate();
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
@@ -215,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     Layout.TopFilterHeight = clamped;
                     Layout.Recalculate();
-                    if (!DesignMode) Invalidate();
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
@@ -234,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     _showNavigator = value;
                     Layout.Recalculate();
-                    if (!DesignMode) Invalidate();
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
@@ -255,13 +316,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     _gridStyle = value;
                     ApplyGridStyle();
-                    Invalidate();
+                    SafeInvalidate();
                     Refresh();
                     if (DesignMode && Site != null)
                     {
                         var changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
                         changeService?.OnComponentChanged(this, null, null, null);
                     }
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Title displayed in the top filter panel.")]
+        [DefaultValue("Grid")]
+        public string GridTitle
+        {
+            get => _gridTitle;
+            set
+            {
+                var next = value ?? string.Empty;
+                if (!string.Equals(_gridTitle, next, System.StringComparison.Ordinal))
+                {
+                    _gridTitle = next;
+                    if (!DesignMode) SafeInvalidate();
                 }
             }
         }
@@ -286,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         if (value == navigationStyle.None) Layout.NavigatorHeight = 0; else Layout.NavigatorHeight = NavigatorPainter.GetRecommendedNavigatorHeight();
                         Layout.Recalculate();
                     }
-                    Invalidate();
+                    SafeInvalidate();
                     Refresh();
                     if (DesignMode && Site != null)
                     {
@@ -311,7 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     _usePainterNavigation = value;
                     NavigatorPainter.UsePainterNavigation = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -329,16 +408,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.SortIconVisibility != value)
                 {
                     Render.SortIconVisibility = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
 
         [Browsable(true)]
         [Category("Appearance")]
-        [DefaultValue(HeaderIconVisibility.Always)]
+        [DefaultValue(HeaderIconVisibility.Hidden)]
         [RefreshProperties(RefreshProperties.Repaint)]
-        [Description("Controls filter icon visibility in column headers: Always, HoverOnly, or Hidden.")]
+        [Description("Controls filter icon visibility in column headers: Always, HoverOnly, or Hidden. Icons are hidden while ShowTopFilterPanel is enabled.")]
         public HeaderIconVisibility FilterIconVisibility
         {
             get => Render.FilterIconVisibility;
@@ -347,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.FilterIconVisibility != value)
                 {
                     Render.FilterIconVisibility = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -365,7 +444,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.UseDedicatedFocusedRowStyle != value)
                 {
                     Render.UseDedicatedFocusedRowStyle = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -382,7 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.FocusedRowBackColor != value)
                 {
                     Render.FocusedRowBackColor = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -400,7 +479,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.ShowFocusedCellFill != value)
                 {
                     Render.ShowFocusedCellFill = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -417,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.FocusedCellFillColor != value)
                 {
                     Render.FocusedCellFillColor = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -436,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.FocusedCellFillOpacity != clamped)
                 {
                     Render.FocusedCellFillOpacity = clamped;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -454,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.ShowFocusedCellBorder != value)
                 {
                     Render.ShowFocusedCellBorder = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -471,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Render.FocusedCellBorderColor != value)
                 {
                     Render.FocusedCellBorderColor = value;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -490,7 +569,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (System.Math.Abs(Render.FocusedCellBorderWidth - clamped) > 0.001f)
                 {
                     Render.FocusedCellBorderWidth = clamped;
-                    Invalidate();
+                    SafeInvalidate();
                 }
             }
         }
@@ -509,7 +588,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (_layoutPreset == value) return;
                 _layoutPreset = value;
                 ApplyLayoutPreset(value);
-                Invalidate();
+                SafeInvalidate();
                 Refresh();
                 if (DesignMode && Site != null)
                 {
@@ -580,7 +659,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     {
                         selColumn.Visible = value;
                         Layout.Recalculate();
-                        if (!DesignMode) Invalidate();
+                        if (!DesignMode) SafeInvalidate();
                     }
                 }
             }
@@ -693,7 +772,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             set
             {
                 base.AccessibleName = value;
-                Invalidate();
+                SafeInvalidate();
             }
         }
 
@@ -709,7 +788,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             set
             {
                 base.AccessibleDescription = value;
-                Invalidate();
+                SafeInvalidate();
             }
         }
     }

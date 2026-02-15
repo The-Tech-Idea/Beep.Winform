@@ -4,6 +4,7 @@ using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 {
@@ -45,7 +46,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         public int BorderWidth { get; set; } = 1;
         public ChipSize Size { get; set; } = ChipSize.Medium;
         public IBeepTheme Theme { get; set; }
-        public Chips.ChipStyle Style { get; set; } = Chips.ChipStyle.Default;
+        public ChipStyle Style { get; set; } = ChipStyle.Default;
+        public float DpiScale { get; set; } = 1.0f;
         // Icons
         public bool ShowIcon { get; set; } = true;
         public Size IconMaxSize { get; set; } = new Size(16, 16);

@@ -1,14 +1,16 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -48,32 +50,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions options)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
-            var font = GetFont(options);
+            var font = GetFont(options, scale);
             var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
 
             int extraWidth = 0;
             // Heart icon always shown
-            extraWidth += 22; // Heart icon space
+            extraWidth += DpiScalingHelper.ScaleValue(22, scale); // Heart icon space
             // Close button
             if (options.ShowCloseOnSelected)
-                extraWidth += 16;
+                extraWidth += DpiScalingHelper.ScaleValue(16, scale);
 
-            int height = GetChipHeight(options.Size);
-            int padding = GetHorizontalPadding(options.Size);
+            int height = GetChipHeight(options.Size, scale);
+            int padding = GetHorizontalPadding(options.Size, scale);
 
             return new Size(textSize.Width + padding + extraWidth, height);
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions options, out Rectangle closeRect)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             closeRect = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            var font = GetFont(options);
+            var font = GetFont(options, scale);
             var (bgColor, fgColor, heartColor) = GetColors(state);
 
-            int cornerRadius = 16;
+            int cornerRadius = DpiScalingHelper.ScaleValue(16, scale);
             using var path = CreateRoundedPath(bounds, cornerRadius);
 
             // Gradient background for selected state
@@ -95,35 +99,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             // Subtle border for unselected
             if (!state.IsSelected)
             {
-                using var pen = new Pen(Color.FromArgb(80, PinkPrimary), 1f);
+                using var pen = new Pen(Color.FromArgb(80, PinkPrimary), DpiScalingHelper.ScaleValue(1f, scale));
                 g.DrawPath(pen, path);
             }
 
-            var contentRect = Rectangle.Inflate(bounds, -10, -2);
+            var contentRect = Rectangle.Inflate(bounds, -DpiScalingHelper.ScaleValue(10, scale), -DpiScalingHelper.ScaleValue(2, scale));
             int leftOffset = 0;
             int rightOffset = 0;
 
             // Heart icon (always on left)
-            int heartSize = Math.Min(contentRect.Height - 4, 18);
+            int heartSize = Math.Min(contentRect.Height - 4, DpiScalingHelper.ScaleValue(18, scale));
             var heartRect = new Rectangle(
                 contentRect.Left,
                 contentRect.Top + (contentRect.Height - heartSize) / 2,
                 heartSize, heartSize);
 
-            DrawHeart(g, heartRect, heartColor, state.IsSelected);
-            leftOffset += heartSize + 8;
+            DrawHeart(g, heartRect, heartColor, state.IsSelected, scale);
+            leftOffset += heartSize + DpiScalingHelper.ScaleValue(8, scale);
 
             // Close button
             if (options.ShowCloseOnSelected && state.IsSelected)
             {
-                int closeSize = Math.Min(contentRect.Height - 6, 12);
+                int closeSize = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(12, scale));
                 closeRect = new Rectangle(
                     contentRect.Right - closeSize,
                     contentRect.Top + (contentRect.Height - closeSize) / 2,
                     closeSize, closeSize);
 
-                DrawCloseButton(g, closeRect, fgColor);
-                rightOffset += closeSize + 6;
+                DrawCloseButton(g, closeRect, fgColor, scale);
+                rightOffset += closeSize + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             // Text
@@ -146,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         #region Private Helpers
 
-        private void DrawHeart(Graphics g, Rectangle rect, Color color, bool filled)
+        private void DrawHeart(Graphics g, Rectangle rect, Color color, bool filled, float scale)
         {
             // Try to use SVG icon first
             try
@@ -159,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 }
                 else
                 {
-                    using var pen = new Pen(color, 1.5f);
+                    using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale));
                     g.DrawPath(pen, heartPath);
                 }
             }
@@ -174,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 }
                 else
                 {
-                    using var pen = new Pen(color, 1.5f);
+                    using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale));
                     g.DrawPath(pen, heartPath);
                 }
             }
@@ -221,39 +225,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             return path;
         }
 
-        private void DrawCloseButton(Graphics g, Rectangle rect, Color color)
+        private void DrawCloseButton(Graphics g, Rectangle rect, Color color, float scale)
         {
-            using var pen = new Pen(color, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             g.DrawLine(pen, rect.Left + 2, rect.Top + 2, rect.Right - 2, rect.Bottom - 2);
             g.DrawLine(pen, rect.Right - 2, rect.Top + 2, rect.Left + 2, rect.Bottom - 2);
         }
 
-        private int GetChipHeight(ChipSize size) => size switch
+        private int GetChipHeight(ChipSize size, float scale)
         {
-            ChipSize.Small => 26,
-            ChipSize.Medium => 34,
-            ChipSize.Large => 42,
-            _ => 34
-        };
-
-        private int GetHorizontalPadding(ChipSize size) => size switch
-        {
-            ChipSize.Small => 16,
-            ChipSize.Medium => 22,
-            ChipSize.Large => 28,
-            _ => 22
-        };
-
-        private Font GetFont(ChipRenderOptions options)
-        {
-            float size = options.Size switch
+            int val = size switch
             {
-                ChipSize.Small => 8f,
-                ChipSize.Medium => 9f,
-                ChipSize.Large => 10f,
-                _ => 9f
+                ChipSize.Small => 26,
+                ChipSize.Medium => 34,
+                ChipSize.Large => 42,
+                _ => 34
             };
-            return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, size, FontStyle.Regular);
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private int GetHorizontalPadding(ChipSize size, float scale)
+        {
+            int val = size switch
+            {
+                ChipSize.Small => 16,
+                ChipSize.Medium => 22,
+                ChipSize.Large => 28,
+                _ => 22
+            };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private Font GetFont(ChipRenderOptions options, float scale)
+        {
+            return ChipFontHelpers.GetChipFont(_owner.ControlStyle, options.Size, scale);
         }
 
         private (Color bg, Color fg, Color heart) GetColors(ChipVisualState state)
@@ -275,4 +280,3 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         #endregion
     }
 }
-

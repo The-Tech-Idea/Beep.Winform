@@ -12,18 +12,102 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
-    internal class GridDataHelper
+    internal partial class GridDataHelper
     {
         private readonly BeepGridPro _grid;
         public object DataSource { get; private set; }
         public string DataMember { get; private set; }
         public BindingList<BeepRowConfig> Rows { get; } = new();
-        public BeepGridColumnConfigCollection Columns { get; } = new();
+        public BeepGridColumnConfigCollection Columns { get; }
         private readonly Dictionary<INotifyPropertyChanged, PropertyChangedEventHandler> _rowChangeHandlers = new();
 
         public GridDataHelper(BeepGridPro grid)
         {
             _grid = grid;
+            Columns = new BeepGridColumnConfigCollection();
+
+            // Subscribe to column property changes to refresh the grid
+            Columns.ColumnPropertyChanged += Columns_ColumnPropertyChanged;
+            Columns.ListChanged += Columns_ListChanged;
+        }
+
+        /// <summary>
+        /// Handles when any column property changes (e.g., Visible, Width, etc.)
+        /// </summary>
+        private void Columns_ColumnPropertyChanged(object sender, ColumnPropertyChangedEventArgs e)
+        {
+            // Determine what kind of refresh is needed based on the property that changed
+            switch (e.PropertyName)
+            {
+                case nameof(BeepColumnConfig.Visible):
+                case nameof(BeepColumnConfig.Width):
+                case nameof(BeepColumnConfig.MinWidth):
+                case nameof(BeepColumnConfig.MaxWidth):
+                case nameof(BeepColumnConfig.Index):
+                case nameof(BeepColumnConfig.Sticked):
+                    // These require layout recalculation
+                    _grid.Layout?.Recalculate();
+                    _grid.Invalidate();
+                    break;
+
+                case nameof(BeepColumnConfig.ColumnCaption):
+                case nameof(BeepColumnConfig.ColumnBackColor):
+                case nameof(BeepColumnConfig.ColumnForeColor):
+                case nameof(BeepColumnConfig.ColumnHeaderBackColor):
+                case nameof(BeepColumnConfig.ColumnHeaderForeColor):
+                case nameof(BeepColumnConfig.UseCustomColors):
+                case nameof(BeepColumnConfig.CellTextAlignment):
+                case nameof(BeepColumnConfig.HeaderTextAlignment):
+                    // These only require repaint
+                    _grid.Invalidate();
+                    break;
+
+                case nameof(BeepColumnConfig.ReadOnly):
+                case nameof(BeepColumnConfig.CellEditor):
+                case nameof(BeepColumnConfig.AllowSort):
+                case nameof(BeepColumnConfig.AllowFilter):
+                    // These affect behavior but may need repaint for visual indicators
+                    _grid.Invalidate();
+                    break;
+
+                default:
+                    // For any other property, just invalidate to be safe
+                    _grid.Invalidate();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Handles when columns are added, removed, or the list is reset
+        /// </summary>
+        private void Columns_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            switch (e.ListChangedType)
+            {
+                case ListChangedType.ItemAdded:
+                case ListChangedType.ItemDeleted:
+                case ListChangedType.Reset:
+                    // Column structure changed - need full layout recalculation
+                    _grid.Layout?.Recalculate();
+                    _grid.Invalidate();
+                    break;
+
+                case ListChangedType.ItemMoved:
+                    // Column order changed
+                    _grid.Layout?.Recalculate();
+                    _grid.Invalidate();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Clears the DataSource reference and unsubscribes from row change handlers.
+        /// </summary>
+        public void ClearDataSource()
+        {
+            UnsubscribeRowChangeHandlers();
+            DataSource = null;
+            DataMember = null;
         }
 
         public void Bind(object dataSource, bool triggerAutoSize = true)
@@ -291,104 +375,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return ienum?.GetGenericArguments().FirstOrDefault();
         }
 
-        public void RefreshRows()
-        {
-            UnsubscribeRowChangeHandlers();
-            Rows.Clear();
-            var (enumerable, schemaTable) = GetEffectiveEnumerableWithSchema();
-            var items = enumerable.Cast<object?>().ToList();
-
-            // In design mode, limit to a small number of sample rows to reduce overhead
-            int maxRows = System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime ? 
-                          Math.Min(5, items.Count) : items.Count;
-
-            for (int i = 0; i < maxRows; i++)
-            {
-                var r = new BeepRowConfig { RowIndex = i, DisplayIndex = i, Height = _grid.RowHeight, RowData = items[i] };
-                
-                // Subscribe to property changes on the data object for automatic updates
-                if (items[i] is INotifyPropertyChanged inpc)
-                {
-                    if (_rowChangeHandlers.TryGetValue(inpc, out var existingHandler))
-                    {
-                        inpc.PropertyChanged -= existingHandler;
-                    }
-
-                    PropertyChangedEventHandler handler = (sender, e) => OnDataObjectPropertyChanged(sender, e, r);
-                    _rowChangeHandlers[inpc] = handler;
-                    inpc.PropertyChanged += handler;
-                }
-                
-                int colIndex = 0;
-                
-                foreach (var col in Columns)
-                {
-                    object? val = null;
-
-                    // Handle system columns exactly like BeepSimpleGrid
-                    if (col.IsSelectionCheckBox)
-                    {
-                        val = false; // Default unchecked state
-                    }
-                    else if (col.IsRowNumColumn)
-                    {
-                        val = i + 1; // 1-based row number
-                    }
-                    else if (col.IsRowID)
-                    {
-                        val = i; // 0-based row ID for internal use
-                    }
-                    else if (items[i] is System.Data.DataRowView drv)
-                    {
-                        if (drv.DataView?.Table?.Columns.Contains(col.ColumnName) == true)
-                        {
-                            val = drv.Row[col.ColumnName];
-                        }
-                    }
-                    else if (items[i] is System.Data.DataRow dr)
-                    {
-                        if (dr.Table?.Columns.Contains(col.ColumnName) == true)
-                        {
-                            val = dr[col.ColumnName];
-                        }
-                    }
-                    else if (items[i] != null)
-                    {
-                        val = items[i].GetType().GetProperty(col.ColumnName)?.GetValue(items[i]);
-                    }
-
-                    var cell = new BeepCellConfig
-                    {
-                        RowIndex = i,
-                        ColumnIndex = colIndex,
-                        DisplayIndex = colIndex,
-                        ColumnName = col.ColumnName,
-                        CellValue = val,
-                        Width = col.Width,
-                        Height = _grid.RowHeight,
-                        IsReadOnly = col.ReadOnly,  // Inherit ReadOnly from column
-                        IsEditable = !col.ReadOnly  // Inverse of ReadOnly for clarity
-                    };
-                    r.Cells.Add(cell);
-                    colIndex++;
-                }
-                Rows.Add(r);
-            }
-
-            // Update page info after refreshing rows
-            UpdatePageInfo();
-        }
-
-        private void UnsubscribeRowChangeHandlers()
-        {
-            if (_rowChangeHandlers.Count == 0) return;
-
-            foreach (var kv in _rowChangeHandlers)
-            {
-                kv.Key.PropertyChanged -= kv.Value;
-            }
-            _rowChangeHandlers.Clear();
-        }
 
         // Resolve the data source honoring BindingSource and the BeepGridPro.DataMember
         private object ResolveDataForBinding()
@@ -555,169 +541,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return BeepColumnType.Text;
         }
 
-        /// <summary>
-        /// Updates a cell value and the underlying data source
-        /// </summary>
-        public void UpdateCellValue(BeepCellConfig cell, object newValue)
-        {
-            if (cell == null) return;
-
-            var column = Columns[cell.ColumnIndex];
-            if (column.ReadOnly || !cell.IsEditable) return;
-
-            // Normalize the value first (handle SimpleItem objects from editors)
-            var normalizedValue = NormalizeEditorValue(newValue, column, cell);
-
-            // Update the cell
-            cell.CellValue = normalizedValue;
-            cell.IsDirty = true;
-
-            // Update the underlying data source
-            if (cell.RowIndex >= 0 && cell.RowIndex < Rows.Count)
-            {
-                var row = Rows[cell.RowIndex];
-                row.IsDirty = true;
-
-                // Update the data object if available
-                if (row.RowData != null && !string.IsNullOrEmpty(column.ColumnName))
-                {
-                    try
-                    {
-                        if (row.RowData is DataRowView drv)
-                        {
-                            if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
-                            {
-                                drv.Row[column.ColumnName] = normalizedValue ?? DBNull.Value;
-                            }
-                        }
-                        else if (row.RowData is DataRow dr)
-                        {
-                            if (dr.Table?.Columns.Contains(column.ColumnName) == true)
-                            {
-                                dr[column.ColumnName] = normalizedValue ?? DBNull.Value;
-                            }
-                        }
-                        else
-                        {
-                            var prop = row.RowData.GetType().GetProperty(column.ColumnName);
-                            if (prop != null && prop.CanWrite)
-                            {
-                                var convertedValue = ConvertValue(normalizedValue, prop.PropertyType);
-                                prop.SetValue(row.RowData, convertedValue);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log error but don't throw to maintain grid stability
-#if DEBUG
-                        System.Diagnostics.Debug.WriteLine($"Error updating cell value: {ex.Message}");
-#endif
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Normalizes editor values, especially handling SimpleItem objects from ComboBox/ListBox editors
-        /// </summary>
-        private object NormalizeEditorValue(object rawValue, BeepColumnConfig column, BeepCellConfig cell)
-        {
-            if (rawValue == null) return null;
-
-            // Get target type from the data source
-            Type targetType = null;
-            if (cell.RowIndex >= 0 && cell.RowIndex < Rows.Count)
-            {
-                var row = Rows[cell.RowIndex];
-                if (row.RowData is DataRowView drv)
-                {
-                    if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
-                    {
-                        targetType = drv.Row.Table.Columns[column.ColumnName].DataType;
-                    }
-                }
-                else if (row.RowData is DataRow dr)
-                {
-                    if (dr.Table?.Columns.Contains(column.ColumnName) == true)
-                    {
-                        targetType = dr.Table.Columns[column.ColumnName].DataType;
-                    }
-                }
-                else if (row.RowData != null && !string.IsNullOrEmpty(column.ColumnName))
-                {
-                    var prop = row.RowData.GetType().GetProperty(column.ColumnName, 
-                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                    targetType = prop?.PropertyType;
-                }
-            }
-
-            // Handle SimpleItem objects from ComboBox/ListBox editors
-            if (rawValue is SimpleItem si)
-            {
-                if (targetType == null)
-                {
-                    return si.Item ?? si.Value ?? si.Text;
-                }
-                if (targetType == typeof(string))
-                    return si.Text ?? si.Value?.ToString() ?? si.Item?.ToString();
-                if (targetType.IsEnum)
-                {
-                    try { return Enum.Parse(targetType, si.Text, true); } catch { }
-                    if (si.Value != null)
-                    {
-                        try { return Enum.Parse(targetType, si.Value.ToString(), true); } catch { }
-                    }
-                    return Activator.CreateInstance(targetType);
-                }
-                if (IsNumericType(targetType))
-                {
-                    object candidate = si.Value ?? si.Text;
-                    try { return Convert.ChangeType(candidate, Nullable.GetUnderlyingType(targetType) ?? targetType); } catch { }
-                    return Activator.CreateInstance(Nullable.GetUnderlyingType(targetType) ?? targetType);
-                }
-                if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))
-                {
-                    if (DateTime.TryParse(si.Value?.ToString() ?? si.Text, out var dt)) return dt;
-                    return default(DateTime);
-                }
-                return si.Item ?? si.Value ?? si.Text;
-            }
-
-            // For non-SimpleItem values, return as-is or convert if target type is known
-            if (targetType != null)
-            {
-                return ConvertValue(rawValue, targetType);
-            }
-            return rawValue;
-        }
-
-        private bool IsNumericType(Type type)
-        {
-            var t = Nullable.GetUnderlyingType(type) ?? type;
-            return t == typeof(byte) || t == typeof(sbyte) || t == typeof(short) || t == typeof(ushort) ||
-                   t == typeof(int) || t == typeof(uint) || t == typeof(long) || t == typeof(ulong) ||
-                   t == typeof(float) || t == typeof(double) || t == typeof(decimal);
-        }
-
-        private object ConvertValue(object value, Type targetType)
-        {
-            if (value == null)
-            {
-                var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-                return underlyingType.IsValueType ? Activator.CreateInstance(underlyingType) : null;
-            }
-
-            var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
-            try 
-            { 
-                return Convert.ChangeType(value, underlying); 
-            }
-            catch 
-            { 
-                return value; 
-            }
-        }
 
         // Data synchronization methods (moved from BeepGridPro for better encapsulation)
         internal void SyncFullDataFromBindingSource()
@@ -767,84 +590,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid._dataOffset = 0;
         }
 
-        /// <summary>
-        /// Handles property changes on data objects to automatically update grid cells
-        /// </summary>
-        private void OnDataObjectPropertyChanged(object? sender, PropertyChangedEventArgs e, BeepRowConfig row)
-        {
-            if (sender == null || e.PropertyName == null || row == null) return;
-
-            // Find the column that matches the changed property
-            var column = Columns.FirstOrDefault(c => 
-                string.Equals(c.ColumnName, e.PropertyName, StringComparison.OrdinalIgnoreCase));
-
-            if (column == null) return;
-
-            // Find the cell for this column in the row
-            var cell = row.Cells.FirstOrDefault(c => c.ColumnIndex == column.Index);
-            if (cell == null) return;
-
-            try
-            {
-                // Get the new value from the data object
-                object? newValue = null;
-
-                if (sender is DataRowView drv)
-                {
-                    if (drv.DataView?.Table?.Columns.Contains(column.ColumnName) == true)
-                        newValue = drv[column.ColumnName];
-                }
-                else if (sender is DataRow dr)
-                {
-                    if (dr.Table?.Columns.Contains(column.ColumnName) == true)
-                        newValue = dr[column.ColumnName];
-                }
-                else
-                {
-                    var prop = sender.GetType().GetProperty(column.ColumnName,
-                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                    
-                    if (prop != null && prop.CanRead)
-                        newValue = prop.GetValue(sender);
-                }
-
-                // Update the cell value and mark as dirty
-                if (cell.CellValue != newValue && (newValue == null || !newValue.Equals(cell.CellValue)))
-                {
-                    cell.CellValue = newValue;
-                    cell.IsDirty = true;
-                    row.IsDirty = true;
-
-                    // Invalidate the specific row to refresh display
-                    int rowIndex = row.RowIndex;
-                    if (rowIndex < 0 || rowIndex >= Rows.Count || !ReferenceEquals(Rows[rowIndex], row))
-                    {
-                        rowIndex = Rows.IndexOf(row);
-                    }
-
-                    if (rowIndex >= 0 && rowIndex < Rows.Count)
-                    {
-                        _grid.InvalidateRow(rowIndex);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine($"Error handling property change: {ex.Message}");
-#endif
-            }
-        }
-
         private void UpdatePageInfo()
         {
-            // Update page info in the render helper
-            // TODO: Implement paging support
-            // int totalRecords = Rows.Count;
-            // int currentPage = 1; // For now, assume single page until paging is implemented
-            // int totalPages = 1;   // For now, assume single page until paging is implemented
+            int totalRecords = Rows.Count;
 
-            // _grid.Render.UpdatePageInfo(currentPage, totalPages, totalRecords);
+            int currentPage = 1;
+            int totalPages = 1;
+
+            if (totalRecords > 0)
+            {
+                // Use render helper pagination math (based on visible row capacity + selection).
+                totalPages = Math.Max(1, _grid.Render.GetTotalPages(_grid));
+                currentPage = Math.Max(1, Math.Min(totalPages, _grid.Render.GetCurrentPage(_grid)));
+            }
+
+            _grid.NavigatorPainter.UpdatePageInfo(currentPage, totalPages, totalRecords);
+            _grid.NavigatorPainter.EnablePagingControls(totalRecords > 1);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Ratings.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -13,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
     public abstract class RatingPainterBase : IRatingPainter
     {
         public virtual string Name => GetType().Name;
+
+        public Font TextFont { get; set; }
 
         public virtual void Dispose() { }
 
@@ -94,7 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     context.ControlStyle,
                     context.RatingStyle,
                     context.StarSize,
-                    null);
+                    TextFont,
+                    context.OwnerControl);
             }
 
             using (SolidBrush brush = new SolidBrush(context.LabelColor))
@@ -145,21 +149,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
                     infoFont = RatingFontHelpers.GetCountFont(
                         context.ControlStyle,
                         context.RatingStyle,
-                        context.LabelFont);
+                        context.LabelFont ?? TextFont,
+                        context.OwnerControl);
                 }
                 else if (context.ShowRatingCount)
                 {
                     infoFont = RatingFontHelpers.GetCountFont(
                         context.ControlStyle,
                         context.RatingStyle,
-                        context.LabelFont);
+                        context.LabelFont ?? TextFont,
+                        context.OwnerControl);
                 }
                 else
                 {
                     infoFont = RatingFontHelpers.GetAverageFont(
                         context.ControlStyle,
                         context.RatingStyle,
-                        context.LabelFont);
+                        context.LabelFont ?? TextFont,
+                        context.OwnerControl);
                 }
 
                 using (SolidBrush brush = new SolidBrush(Color.FromArgb(128, context.LabelColor)))
@@ -185,9 +192,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
         /// </summary>
         protected int GetStarsBottom(RatingPainterContext context)
         {
+            int labelHeight = DpiScalingHelper.ScaleValue(20, context.OwnerControl);
+            int labelOffset = DpiScalingHelper.ScaleValue(15, context.OwnerControl);
+
             int additionalTextHeight = 0;
-            if (context.ShowLabels) additionalTextHeight += 20;
-            if (context.ShowRatingCount || context.ShowAverage) additionalTextHeight += 15;
+            if (context.ShowLabels) additionalTextHeight += labelHeight;
+            if (context.ShowRatingCount || context.ShowAverage) additionalTextHeight += labelOffset;
 
             int availableWidth = context.Bounds.Width - (context.Spacing * (context.StarCount - 1));
             int availableHeight = context.Bounds.Height - additionalTextHeight;
@@ -203,9 +213,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
         /// </summary>
         protected (int startX, int startY, int starSize) CalculateStarLayout(RatingPainterContext context)
         {
+            int labelHeight = DpiScalingHelper.ScaleValue(20, context.OwnerControl);
+            int labelOffset = DpiScalingHelper.ScaleValue(15, context.OwnerControl);
+
             int additionalTextHeight = 0;
-            if (context.ShowLabels) additionalTextHeight += 20;
-            if (context.ShowRatingCount || context.ShowAverage) additionalTextHeight += 15;
+            if (context.ShowLabels) additionalTextHeight += labelHeight;
+            if (context.ShowRatingCount || context.ShowAverage) additionalTextHeight += labelOffset;
 
             int availableWidth = context.Bounds.Width - (context.Spacing * (context.StarCount - 1));
             int availableHeight = context.Bounds.Height - additionalTextHeight;

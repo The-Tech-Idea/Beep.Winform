@@ -182,6 +182,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         [Category("Appearance")]
+        [Description("Title displayed in the top filter panel")]
+        public string GridTitle
+        {
+            get => _designer.GetProperty<string>("GridTitle");
+            set => _designer.SetProperty("GridTitle", value);
+        }
+
+        [Category("Appearance")]
         [Description("Navigation bar style")]
         public navigationStyle NavigationStyle
         {
@@ -451,6 +459,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Appearance properties
             items.Add(new DesignerActionHeaderItem("Appearance Properties"));
             items.Add(new DesignerActionPropertyItem("GridStyle", "Grid Style", "Appearance Properties"));
+            items.Add(new DesignerActionPropertyItem("GridTitle", "Grid Title", "Appearance Properties"));
             items.Add(new DesignerActionPropertyItem("NavigationStyle", "Navigation Style", "Appearance Properties"));
             items.Add(new DesignerActionPropertyItem("LayoutPreset", "Layout Preset", "Appearance Properties"));
             items.Add(new DesignerActionPropertyItem("ShowCheckBox", "Show Check Box", "Appearance Properties"));

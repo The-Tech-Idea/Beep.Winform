@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls;
     /// <summary>
@@ -89,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
         private bool _showImage = true;
         private bool _showHilightBox = true;
         
-        // Layout caching
+        // Layout caching (base values; scaled at runtime via DpiScalingHelper.ScaleValue(value, this))
         private int _menuItemHeight = 32;
             private SimpleItem _anchorItem = null; // for range selection as item anchor
         private int _imageSize = 24;
@@ -107,9 +109,6 @@ namespace TheTechIdea.Beep.Winform.Controls;
         
         // Font
         private Font _textFont = new Font("Segoe UI", 9f);
-        
-        // DPI scaling
-        private float _scaleFactor = 1.0f;
 
         // Scrolling support
         private int _yOffset = 0;
@@ -271,11 +270,11 @@ namespace TheTechIdea.Beep.Winform.Controls;
             }
             _listItems.ListChanged += ListItems_ListChanged;
             
-            // Set default size
+            // Set default size (scaled for DPI)
             if (Width <= 0 || Height <= 0)
             {
-                Width = 200;
-                Height = 250;
+                Width = DpiScalingHelper.ScaleValue(200, this);
+                Height = DpiScalingHelper.ScaleValue(250, this);
             }
            
             // Panel settings
@@ -293,12 +292,6 @@ namespace TheTechIdea.Beep.Winform.Controls;
             SetStyle(ControlStyles.Selectable, true);
             TabStop = true;
            
-            // Get DPI scaling
-            using (var g = CreateGraphics())
-            {
-                _scaleFactor = g.DpiX / 96f;
-            }
-            
             // Initialize delayed invalidate timer
             _delayedInvalidateTimer = new Timer();
             _delayedInvalidateTimer.Interval = 50;
@@ -308,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
                 if (_listBoxPainter != null)
                 {
                     UpdateLayout();
-                    _layoutHelper.CalculateLayout();
+                    _layoutHelper.CalculateLayout(this);
                     _hitHelper.RegisterHitAreas();
                 }
                 Invalidate();
@@ -409,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
                         IsChild = true,
                         ScrollOrientation = Orientation.Vertical,
                         Dock = DockStyle.None,
-                        Width = 16
+                        Width = DpiScalingHelper.ScaleValue(16, this)
                     };
                     _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
                     Controls.Add(_verticalScrollBar);
@@ -422,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
                         IsChild = true,
                         ScrollOrientation = Orientation.Horizontal,
                         Dock = DockStyle.None,
-                        Height = 16
+                        Height = DpiScalingHelper.ScaleValue(16, this)
                     };
                     _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
                     Controls.Add(_horizontalScrollBar);
@@ -481,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
                 _verticalScrollBar.Minimum = 0;
                 int newVMax = Math.Max(0, _virtualSize.Height);
                 int newVLarge = Math.Max(1, clientArea.Height);
-                int newVSmall = Math.Max(1, _menuItemHeight);
+                int newVSmall = Math.Max(1, DpiScalingHelper.ScaleValue(_menuItemHeight, this));
                 if (_verticalScrollBar.Maximum != newVMax) _verticalScrollBar.Maximum = newVMax;
                 if (_verticalScrollBar.LargeChange != newVLarge) _verticalScrollBar.LargeChange = newVLarge;
                 if (_verticalScrollBar.SmallChange != newVSmall) _verticalScrollBar.SmallChange = newVSmall;
@@ -543,14 +536,14 @@ namespace TheTechIdea.Beep.Winform.Controls;
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (sender is BeepScrollBar sb) _yOffset = sb.Value;
-            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
 
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (sender is BeepScrollBar sb) _xOffset = sb.Value;
-            try { _layoutHelper?.CalculateLayout(); _hitHelper?.RegisterHitAreas(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
 
@@ -584,9 +577,17 @@ namespace TheTechIdea.Beep.Winform.Controls;
         #endregion
         
         #region DPI Scaling Helpers
-     
-     
-        
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+        }
+
+        /// <summary>
+        /// Returns the theme-sourced text font for use by painters.
+        /// </summary>
+        internal Font ListBoxTextFont => _textFont;
+
         #endregion
         
         #region Layout Management
@@ -600,11 +601,12 @@ namespace TheTechIdea.Beep.Winform.Controls;
             // Search area
             if (_showSearch && _listBoxPainter != null && _listBoxPainter.SupportsSearch())
             {
+                int searchHeight = DpiScalingHelper.ScaleValue(36, this);
                 _searchAreaRect = new Rectangle(
                     clientRect.Left,
                     currentY,
                     clientRect.Width,
-                    36);
+                    searchHeight);
                 currentY += _searchAreaRect.Height;
             }
             else
@@ -620,7 +622,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
                 clientRect.Bottom - currentY);
 
             // After layout update, refresh layout cache and scrollbars virtual size
-            try { _layoutHelper?.CalculateLayout(); } catch { }
+            try { _layoutHelper?.CalculateLayout(this); } catch { }
             UpdateScrollBars();
         }
         

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
@@ -8,6 +9,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Chips;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 {
@@ -58,33 +61,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions options)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
-            var font = GetFont(options);
+            var font = GetFont(options, scale);
             var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
 
             int extraWidth = 0;
             // Avatar circle always shown
-            int avatarSize = GetAvatarSize(options.Size);
-            extraWidth += avatarSize + 8;
+            int avatarSize = GetAvatarSize(options.Size, scale);
+            extraWidth += avatarSize + DpiScalingHelper.ScaleValue(8, scale);
             // Close button
             if (options.ShowCloseOnSelected)
-                extraWidth += 16;
+                extraWidth += DpiScalingHelper.ScaleValue(16, scale);
 
-            int height = GetChipHeight(options.Size);
-            int padding = GetHorizontalPadding(options.Size);
+            int height = GetChipHeight(options.Size, scale);
+            int padding = GetHorizontalPadding(options.Size, scale);
 
             return new Size(textSize.Width + padding + extraWidth, height);
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions options, out Rectangle closeRect)
         {
+            float scale = DpiScalingHelper.GetDpiScaleFactor(g);
             closeRect = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            var font = GetFont(options);
+            var font = GetFont(options, scale);
             var (bgColor, fgColor, borderColor) = GetColors(state);
 
-            int cornerRadius = 16;
+            int cornerRadius = DpiScalingHelper.ScaleValue(16, scale);
             using var path = CreateRoundedPath(bounds, cornerRadius);
 
             // Background
@@ -94,24 +99,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
 
             // Border
-            using (var pen = new Pen(borderColor, 1f))
+            using (var pen = new Pen(borderColor, DpiScalingHelper.ScaleValue(1f, scale)))
             {
                 g.DrawPath(pen, path);
             }
 
-            var contentRect = Rectangle.Inflate(bounds, -4, -2);
+            var contentRect = Rectangle.Inflate(bounds, -DpiScalingHelper.ScaleValue(4, scale), -DpiScalingHelper.ScaleValue(2, scale));
             int leftOffset = 0;
             int rightOffset = 0;
 
             // Avatar circle (always on left, slightly protruding)
-            int avatarSize = GetAvatarSize(options.Size);
+            int avatarSize = GetAvatarSize(options.Size, scale);
             var avatarRect = new Rectangle(
-                bounds.Left + 2,
+                bounds.Left + DpiScalingHelper.ScaleValue(2, scale),
                 bounds.Top + (bounds.Height - avatarSize) / 2,
                 avatarSize, avatarSize);
 
-            DrawAvatar(g, avatarRect, item, state.IsSelected);
-            leftOffset += avatarSize + 6;
+            DrawAvatar(g, avatarRect, item, state.IsSelected, scale);
+            leftOffset += avatarSize + DpiScalingHelper.ScaleValue(6, scale);
 
             // Selection badge on avatar
             if (state.IsSelected)
@@ -121,25 +126,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                     avatarRect.Right - badgeSize,
                     avatarRect.Bottom - badgeSize,
                     badgeSize, badgeSize);
-                DrawSelectionBadge(g, badgeRect);
+                DrawSelectionBadge(g, badgeRect, scale);
             }
 
             // Close button
             if (options.ShowCloseOnSelected && state.IsSelected)
             {
-                int closeSize = Math.Min(contentRect.Height - 6, 12);
+                int closeSize = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(12, scale));
                 closeRect = new Rectangle(
                     contentRect.Right - closeSize - 2,
                     contentRect.Top + (contentRect.Height - closeSize) / 2,
                     closeSize, closeSize);
 
-                DrawCloseButton(g, closeRect, fgColor);
-                rightOffset += closeSize + 8;
+                DrawCloseButton(g, closeRect, fgColor, scale);
+                rightOffset += closeSize + DpiScalingHelper.ScaleValue(8, scale);
             }
 
             // Text (user name)
             var textRect = new Rectangle(
-                bounds.Left + leftOffset + 4,
+                bounds.Left + leftOffset + DpiScalingHelper.ScaleValue(4, scale),
                 contentRect.Top,
                 contentRect.Width - leftOffset - rightOffset,
                 contentRect.Height);
@@ -157,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         #region Private Helpers
 
-        private void DrawAvatar(Graphics g, Rectangle rect, SimpleItem item, bool isSelected)
+        private void DrawAvatar(Graphics g, Rectangle rect, SimpleItem item, bool isSelected, float scale)
         {
             using var clipPath = new GraphicsPath();
             clipPath.AddEllipse(rect);
@@ -185,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
 
             // Avatar border
-            using var borderPen = new Pen(isSelected ? AvatarSelected : Color.White, 2f);
+            using var borderPen = new Pen(isSelected ? AvatarSelected : Color.White, DpiScalingHelper.ScaleValue(2f, scale));
             g.DrawEllipse(borderPen, rect);
         }
 
@@ -225,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             return name.Substring(0, Math.Min(2, name.Length)).ToUpper();
         }
 
-        private void DrawSelectionBadge(Graphics g, Rectangle rect)
+        private void DrawSelectionBadge(Graphics g, Rectangle rect, float scale)
         {
             // Blue circle with white checkmark
             using (var brush = new SolidBrush(AvatarSelected))
@@ -234,14 +239,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
 
             // White border
-            using (var pen = new Pen(Color.White, 1f))
+            using (var pen = new Pen(Color.White, DpiScalingHelper.ScaleValue(1f, scale)))
             {
                 g.DrawEllipse(pen, rect);
             }
 
             // Tiny checkmark
-            using var checkPen = new Pen(Color.White, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
-            int inset = 2;
+            using var checkPen = new Pen(Color.White, DpiScalingHelper.ScaleValue(1.5f, scale)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            int inset = DpiScalingHelper.ScaleValue(2, scale);
             var points = new Point[]
             {
                 new Point(rect.Left + inset, rect.Top + rect.Height / 2),
@@ -265,47 +270,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             return path;
         }
 
-        private void DrawCloseButton(Graphics g, Rectangle rect, Color color)
+        private void DrawCloseButton(Graphics g, Rectangle rect, Color color, float scale)
         {
-            using var pen = new Pen(color, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             g.DrawLine(pen, rect.Left + 2, rect.Top + 2, rect.Right - 2, rect.Bottom - 2);
             g.DrawLine(pen, rect.Right - 2, rect.Top + 2, rect.Left + 2, rect.Bottom - 2);
         }
 
-        private int GetAvatarSize(ChipSize size) => size switch
+        private int GetAvatarSize(ChipSize size, float scale)
         {
-            ChipSize.Small => 22,
-            ChipSize.Medium => 28,
-            ChipSize.Large => 36,
-            _ => 28
-        };
-
-        private int GetChipHeight(ChipSize size) => size switch
-        {
-            ChipSize.Small => 28,
-            ChipSize.Medium => 36,
-            ChipSize.Large => 44,
-            _ => 36
-        };
-
-        private int GetHorizontalPadding(ChipSize size) => size switch
-        {
-            ChipSize.Small => 12,
-            ChipSize.Medium => 16,
-            ChipSize.Large => 20,
-            _ => 16
-        };
-
-        private Font GetFont(ChipRenderOptions options)
-        {
-            float size = options.Size switch
+            int val = size switch
             {
-                ChipSize.Small => 8f,
-                ChipSize.Medium => 9f,
-                ChipSize.Large => 10f,
-                _ => 9f
+                ChipSize.Small => 22,
+                ChipSize.Medium => 28,
+                ChipSize.Large => 36,
+                _ => 28
             };
-            return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, size, FontStyle.Regular);
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private int GetChipHeight(ChipSize size, float scale)
+        {
+            int val = size switch
+            {
+                ChipSize.Small => 28,
+                ChipSize.Medium => 36,
+                ChipSize.Large => 44,
+                _ => 36
+            };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private int GetHorizontalPadding(ChipSize size, float scale)
+        {
+            int val = size switch
+            {
+                ChipSize.Small => 12,
+                ChipSize.Medium => 16,
+                ChipSize.Large => 20,
+                _ => 16
+            };
+            return DpiScalingHelper.ScaleValue(val, scale);
+        }
+
+        private Font GetFont(ChipRenderOptions options, float scale)
+        {
+            return ChipFontHelpers.GetChipFont(_owner.ControlStyle, options.Size, scale);
         }
 
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState state)
@@ -327,4 +337,3 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         #endregion
     }
 }
-

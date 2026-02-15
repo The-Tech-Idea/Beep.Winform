@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -24,13 +25,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     protected BeepListBoxLayoutHelper _layout;
     public BeepControlStyle Style { get; set; } = BeepControlStyle.Minimal;
 
+    public Font TextFont { get; set; }
+
     public virtual void Initialize(BeepListBox owner, IBeepTheme theme)
     {
         _owner = owner ?? throw new ArgumentNullException(nameof(owner));
         _theme = theme;
         _helper = new BeepListBoxHelper(owner);
-            _layout = owner.LayoutHelper;
-        }
+        _layout = owner.LayoutHelper;
+        TextFont = owner.ListBoxTextFont ?? owner.Font;
+    }
         
         public virtual void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
         {
@@ -54,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Get layout and items
             var items = _helper.GetVisibleItems();
-            _layout.CalculateLayout();
+            _layout.CalculateLayout(_owner);
             var cache = _layout.GetCachedLayout();
 
             // Optionally draw search at top (kept simple)
@@ -76,24 +80,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected virtual void DrawEmptyState(Graphics g, Rectangle drawingRect, int yOffset)
         {
-            var rect = new Rectangle(drawingRect.Left, yOffset + 12, drawingRect.Width, drawingRect.Height - (yOffset - drawingRect.Top) - 12);
+            int v12 = DpiScalingHelper.ScaleValue(12, _owner);
+            int v8 = DpiScalingHelper.ScaleValue(8, _owner);
+            int v36 = DpiScalingHelper.ScaleValue(36, _owner);
+            int v16 = DpiScalingHelper.ScaleValue(16, _owner);
+            var rect = new Rectangle(drawingRect.Left, yOffset + v12, drawingRect.Width, drawingRect.Height - (yOffset - drawingRect.Top) - v12);
             string text = !string.IsNullOrEmpty(_owner.EmptyStateText) ? _owner.EmptyStateText : "No items";
 
             // Small icon or circle
-            int iconSize = 36;
-            Rectangle iconRect = new Rectangle(rect.Left + (rect.Width - iconSize) / 2, rect.Top + 8, iconSize, iconSize);
+            Rectangle iconRect = new Rectangle(rect.Left + (rect.Width - v36) / 2, rect.Top + v8, v36, v36);
             using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.Empty, 40)))
             {
                 g.FillEllipse(brush, iconRect);
             }
 
-            // Draw text
-            var textRect = new Rectangle(rect.Left + 8, iconRect.Bottom + 8, rect.Width - 16, 36);
-            using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
-            using (var font = new Font(_owner.Font.FontFamily, Math.Max(10, _owner.Font.Size - 1f), FontStyle.Regular))
-            using (var brush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray))
+            // Draw text (use TextFont from theme, fallback to _owner.Font)
+            var textRect = new Rectangle(rect.Left + v8, iconRect.Bottom + v8, rect.Width - v16, v36);
+            var fontToUse = TextFont ?? new Font(_owner.Font.FontFamily, Math.Max(10, _owner.Font.Size - 1f), FontStyle.Regular);
+            try
             {
-                g.DrawString(text, font, brush, textRect, sf);
+                using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
+                using (var brush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray))
+                {
+                    g.DrawString(text, fontToUse, brush, textRect, sf);
+                }
+            }
+            finally
+            {
+                if (fontToUse != TextFont) fontToUse?.Dispose();
             }
         }
         
@@ -190,13 +204,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ownerVirt = new Size(_owner.Width, _owner.PreferredItemHeight * items.Count);
                 if (clientArea.Height > 0 && ownerVirt.Height > clientArea.Height)
                 {
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
-                    using (var font = new Font(_owner.Font.FontFamily, Math.Max(8, _owner.Font.Size - 2), FontStyle.Regular))
-                    using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.ListForeColor ?? Color.Empty, 140)))
+                    int v120 = DpiScalingHelper.ScaleValue(120, _owner);
+                    int v26 = DpiScalingHelper.ScaleValue(26, _owner);
+                    int v110 = DpiScalingHelper.ScaleValue(110, _owner);
+                    int v20 = DpiScalingHelper.ScaleValue(20, _owner);
+                    var hintFont = TextFont ?? new Font(_owner.Font.FontFamily, Math.Max(8, _owner.Font.Size - 2), FontStyle.Regular);
+                    try
                     {
-                        var hint = "PgUp / PgDn";
-                        var hintRect = new Rectangle(drawingRect.Right - 120, drawingRect.Bottom - 26, 110, 20);
-                        g.DrawString(hint, font, brush, hintRect, sf);
+                        using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
+                        using (var brush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.ListForeColor ?? Color.Empty, 140)))
+                        {
+                            var hint = "PgUp / PgDn";
+                            var hintRect = new Rectangle(drawingRect.Right - v120, drawingRect.Bottom - v26, v110, v20);
+                            g.DrawString(hint, hintFont, brush, hintRect, sf);
+                        }
+                    }
+                    finally
+                    {
+                        if (hintFont != TextFont) hintFont?.Dispose();
                     }
                 }
             }
@@ -229,10 +254,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             catch
             {
                 // Fallback: draw a placeholder
+                int inflate = DpiScalingHelper.ScaleValue(4, _owner);
                 using (var brush = new SolidBrush(Color.FromArgb(150, Color.Gray)))
                 {
                     var smallRect = imageRect;
-                    smallRect.Inflate(-4, -4);
+                    smallRect.Inflate(-inflate, -inflate);
                     g.FillEllipse(brush, smallRect);
                 }
             }
@@ -257,14 +283,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw checkmark if checked
             if (isChecked)
             {
+                int ck3 = DpiScalingHelper.ScaleValue(3, _owner);
+                int ck4 = DpiScalingHelper.ScaleValue(4, _owner);
                 using (var pen = new Pen(_theme?.PrimaryColor ?? Color.Blue, 2f))
                 {
                     // Draw checkmark
                     Point[] checkPoints = new Point[]
                     {
-                        new Point(checkboxRect.Left + 3, checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - 4),
-                        new Point(checkboxRect.Right - 3, checkboxRect.Top + 3)
+                        new Point(checkboxRect.Left + ck3, checkboxRect.Top + checkboxRect.Height / 2),
+                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - ck4),
+                        new Point(checkboxRect.Right - ck3, checkboxRect.Top + ck3)
                     };
                     g.DrawLines(pen, checkPoints);
                 }
@@ -423,15 +451,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw image if available
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var imageRect = new Rectangle(contentRect.X, contentRect.Y, 32, 32);
+                int imgSz = DpiScalingHelper.ScaleValue(32, _owner);
+                int imgGap = DpiScalingHelper.ScaleValue(36, _owner);
+                var imageRect = new Rectangle(contentRect.X, contentRect.Y, imgSz, imgSz);
                 DrawItemImage(g, imageRect, item.ImagePath);
-                contentRect.X += 36; // Adjust content rect after image
-                contentRect.Width -= 36;
+                contentRect.X += imgGap; // Adjust content rect after image
+                contentRect.Width -= imgGap;
             }
 
-            // Draw text
+            // Draw text (use TextFont from theme)
             Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
-            DrawItemText(g, contentRect, item.Text, textColor, _owner.Font);
+            DrawItemText(g, contentRect, item.Text, textColor, TextFont ?? _owner.Font);
         }
         
         #endregion

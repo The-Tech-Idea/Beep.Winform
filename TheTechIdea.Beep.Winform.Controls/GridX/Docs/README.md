@@ -33,6 +33,7 @@ var grid = new BeepGridPro
 {
     Dock = DockStyle.Fill,
     GridStyle = BeepGridStyle.Clean,
+    GridTitle = "Customers",
     ShowNavigator = true,
 };
 
@@ -48,6 +49,9 @@ grid.EnsureSystemColumns();
 
 // Optional: Excel-like filter icons in headers (hover shows icons)
 grid.EnableExcelFilter();
+
+// Top filter panel is shown by default; use ShowTopFilterPanel to toggle visibility
+// and GridTitle to customize the toolbar title.
 
 // Optional: auto-size columns/rows
 grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;

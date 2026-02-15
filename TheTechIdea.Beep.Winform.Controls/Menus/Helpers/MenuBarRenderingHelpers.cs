@@ -3,8 +3,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
-
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
@@ -252,14 +253,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// Calculates layout rectangles for menu item components
         /// </summary>
         public static MenuItemLayout CalculateMenuItemLayout(Rectangle itemRect, SimpleItem item, Font font, 
-            Size iconSize, bool showIcon, bool showDropdownIndicator)
+            Size iconSize, bool showIcon, bool showDropdownIndicator, Control ownerControl = null)
         {
             var layout = new MenuItemLayout();
             if (itemRect.IsEmpty) return layout;
 
-            int padding = 8;
-            int iconTextSpacing = 4;
-            int dropdownWidth = 12;
+            int padding = DpiScalingHelper.ScaleValue(8, ownerControl);
+            int iconTextSpacing = DpiScalingHelper.ScaleValue(4, ownerControl);
+            int dropdownWidth = DpiScalingHelper.ScaleValue(12, ownerControl);
 
             // Start with full item rectangle
             var availableRect = Rectangle.Inflate(itemRect, -padding, -padding);
@@ -280,11 +281,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
             // Dropdown indicator area
             if (showDropdownIndicator && item?.Children?.Count > 0)
             {
+                int dh = DpiScalingHelper.ScaleValue(8, ownerControl);
                 layout.DropdownRect = new Rectangle(
                     availableRect.Right - dropdownWidth,
-                    availableRect.Y + (availableRect.Height - 8) / 2,
+                    availableRect.Y + (availableRect.Height - dh) / 2,
                     dropdownWidth,
-                    8
+                    dh
                 );
             }
 
@@ -386,12 +388,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// Draws menu bar title/logo
         /// </summary>
         public static void DrawMenuBarTitle(Graphics g, Rectangle rect, string title, string iconPath, 
-            Font font, Color textColor, Size iconSize)
+            Font font, Color textColor, Size iconSize, Control ownerControl = null)
         {
             if (g == null || rect.IsEmpty) return;
 
-            int padding = 8;
-            int iconTextSpacing = 8;
+            int padding = DpiScalingHelper.ScaleValue(8, ownerControl);
+            int iconTextSpacing = DpiScalingHelper.ScaleValue(8, ownerControl);
             int currentX = rect.X + padding;
 
             // Draw icon if available
@@ -426,7 +428,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// Calculates menu item rectangles for horizontal layout
         /// </summary>
         public static List<Rectangle> CalculateHorizontalMenuItemRects(Rectangle contentRect, 
-            List<SimpleItem> items, int itemHeight, int itemSpacing, int minItemWidth = 60)
+            List<SimpleItem> items, int itemHeight, int itemSpacing, int minItemWidth = 60, Control ownerControl = null)
         {
             var rects = new List<Rectangle>();
             if (contentRect.IsEmpty || items == null || items.Count == 0) return rects;
@@ -459,39 +461,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
         /// <summary>
         /// Calculates preferred width for a menu item
         /// </summary>
-        public static int CalculateMenuItemWidth(SimpleItem item, int itemHeight, Font font = null)
+        public static int CalculateMenuItemWidth(SimpleItem item, int itemHeight, Font font = null, Control ownerControl = null)
         {
-            if (item == null) return 60;
+            if (item == null) return DpiScalingHelper.ScaleValue(60, ownerControl);
 
-            int width = 20; // Base padding
+            int width = DpiScalingHelper.ScaleValue(20, ownerControl); // Base padding
             
-            // Add icon width
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                width += 16 + 4; // Icon + spacing
+                width += DpiScalingHelper.ScaleValue(16, ownerControl) + DpiScalingHelper.ScaleValue(4, ownerControl);
             }
 
-            // Add text width
             if (!string.IsNullOrEmpty(item.Text) && font != null)
             {
                 using var tempBitmap = new Bitmap(1, 1);
                 using var g = Graphics.FromImage(tempBitmap);
-                var textSize = TextUtils.MeasureText(g,item.Text, font);
-                width += (int)textSize.Width + 4; // Text + spacing
+                var textSize = TextUtils.MeasureText(g, item.Text, font);
+                width += (int)textSize.Width + DpiScalingHelper.ScaleValue(4, ownerControl);
             }
             else if (!string.IsNullOrEmpty(item.Text))
             {
-                // Rough estimation without font
-                width += item.Text.Length * 8;
+                width += item.Text.Length * DpiScalingHelper.ScaleValue(8, ownerControl);
             }
 
-            // Add dropdown indicator width
             if (item.Children?.Count > 0)
             {
-                width += 12 + 4; // Dropdown arrow + spacing
+                width += DpiScalingHelper.ScaleValue(12, ownerControl) + DpiScalingHelper.ScaleValue(4, ownerControl);
             }
 
-            return Math.Max(width, 60); // Minimum width
+            return Math.Max(width, DpiScalingHelper.ScaleValue(60, ownerControl));
         }
         #endregion
     }

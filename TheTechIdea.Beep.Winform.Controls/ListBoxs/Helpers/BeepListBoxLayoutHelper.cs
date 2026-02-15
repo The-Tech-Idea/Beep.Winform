@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
 {
@@ -30,8 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
 
         public void Clear() => _layoutCache.Clear();
 
-        public void CalculateLayout()
+        public void CalculateLayout(Control ownerControl = null)
         {
+            var ctrl = ownerControl ?? (Control)_owner;
             _layoutCache.Clear();
             if (_owner.Width <= 0 || _owner.Height <= 0) return;
 
@@ -50,9 +53,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             int x = drawingRect.Left;
             int w = drawingRect.Width;
 
-            // Metrics
-            int paddingX = 8;
-            int checkboxSize = Math.Min(18, Math.Max(14, _owner.ImageSize));
+            // Metrics (DPI-scaled)
+            int paddingX = DpiScalingHelper.ScaleValue(8, ctrl);
+            int checkboxSize = Math.Min(DpiScalingHelper.ScaleValue(18, ctrl), Math.Max(DpiScalingHelper.ScaleValue(14, ctrl), _owner.ImageSize));
             int checkboxArea = _owner.ShowCheckBox ? (checkboxSize + paddingX) : 0;
             int iconSize = _owner.ImageSize;
             int iconArea = iconSize > 0 ? (iconSize + paddingX) : 0;

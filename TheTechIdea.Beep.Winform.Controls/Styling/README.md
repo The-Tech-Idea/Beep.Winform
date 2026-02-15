@@ -4,6 +4,8 @@
 
 ## 🎯 OverviewA comprehensive styling system for Beep WinForm controls with support for 21 distinct design systems.
 
+Note: The BeepGridPro top filter panel uses themed tokens and now shows a configurable `GridTitle` in its toolbar.
+
 
 
 The **Beep WinForm Styling System** is a comprehensive, modular architecture for rendering UI controls across **27 distinct design systems**. It consists of:## Overview

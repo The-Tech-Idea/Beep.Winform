@@ -1,5 +1,7 @@
 using System;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
@@ -21,23 +23,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
         /// <summary>
         /// Gets recommended padding for notification layout
         /// </summary>
-        public static int GetRecommendedPadding(NotificationLayout layout)
+        public static int GetRecommendedPadding(NotificationLayout layout, Control ownerControl = null)
         {
-            return layout switch
+            int baseValue = layout switch
             {
                 NotificationLayout.Compact => 8,
                 NotificationLayout.Toast => 10,
                 NotificationLayout.Banner => 6,
                 _ => 12 // Standard, Prominent
             };
+            return ownerControl != null ? DpiScalingHelper.ScaleValue(baseValue, ownerControl) : baseValue;
         }
 
         /// <summary>
         /// Gets recommended icon size for notification layout
         /// </summary>
-        public static int GetRecommendedIconSize(NotificationLayout layout)
+        public static int GetRecommendedIconSize(NotificationLayout layout, Control ownerControl = null)
         {
-            return layout switch
+            int baseValue = layout switch
             {
                 NotificationLayout.Compact => 16,
                 NotificationLayout.Toast => 20,
@@ -45,34 +48,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
                 NotificationLayout.Banner => 24,
                 _ => 24 // Standard
             };
+            return ownerControl != null ? DpiScalingHelper.ScaleValue(baseValue, ownerControl) : baseValue;
         }
 
         /// <summary>
         /// Gets recommended minimum width for notification
         /// </summary>
-        public static int GetRecommendedMinWidth(NotificationLayout layout)
+        public static int GetRecommendedMinWidth(NotificationLayout layout, Control ownerControl = null)
         {
-            return layout switch
+            int baseValue = layout switch
             {
                 NotificationLayout.Compact => 200,
                 NotificationLayout.Toast => 250,
                 NotificationLayout.Banner => 400,
                 _ => 280 // Standard, Prominent
             };
+            return ownerControl != null ? DpiScalingHelper.ScaleValue(baseValue, ownerControl) : baseValue;
         }
 
         /// <summary>
         /// Gets recommended maximum width for notification
         /// </summary>
-        public static int GetRecommendedMaxWidth(NotificationLayout layout)
+        public static int GetRecommendedMaxWidth(NotificationLayout layout, Control ownerControl = null)
         {
-            return layout switch
+            int baseValue = layout switch
             {
                 NotificationLayout.Compact => 320,
                 NotificationLayout.Toast => 380,
                 NotificationLayout.Banner => 600,
                 _ => 420 // Standard, Prominent
             };
+            return ownerControl != null ? DpiScalingHelper.ScaleValue(baseValue, ownerControl) : baseValue;
         }
 
         /// <summary>
@@ -93,14 +99,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
         /// <summary>
         /// Gets recommended spacing between notification elements
         /// </summary>
-        public static int GetRecommendedSpacing(NotificationLayout layout)
+        public static int GetRecommendedSpacing(NotificationLayout layout, Control ownerControl = null)
         {
-            return layout switch
+            int baseValue = layout switch
             {
                 NotificationLayout.Compact => 4,
                 NotificationLayout.Toast => 6,
                 _ => 8 // Standard, Prominent, Banner
             };
+            return ownerControl != null ? DpiScalingHelper.ScaleValue(baseValue, ownerControl) : baseValue;
         }
     }
 }

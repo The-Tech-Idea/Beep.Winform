@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -230,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = Color.Black;
             Font = new Font("Segoe UI", 9);
             BorderRadius = 8;
-            Height = 36;
+            Height = DpiScalingHelper.ScaleValue(36, this);
 
             // Enable keyboard navigation
             SetStyle(ControlStyles.Selectable, true);
@@ -260,6 +261,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 UpdateAllItemTooltips();
             }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
         }
 
         private void InitializePainter()
@@ -321,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
         }
 
-        protected override Size DefaultSize => new Size(300, 36);
+        protected override Size DefaultSize => new Size(DpiScalingHelper.ScaleValue(300, this), DpiScalingHelper.ScaleValue(36, this));
         #endregion
 
         #region Item Management
@@ -427,7 +433,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
             _painter?.Initialize(this, theme, _textFont ?? Font, _showIcons);
 
-            int x = DrawingRect.Left + 5;
+            int pad = DpiScalingHelper.ScaleValue(8, this);
+            int x = DrawingRect.Left + DpiScalingHelper.ScaleValue(5, this);
             int y = DrawingRect.Top;
             int itemHeight = DrawingRect.Height;
 
@@ -851,7 +858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     // Use BreadcrumbFontHelpers for theme font
                     var oldFont = _textFont;
-                    _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle);
+                    _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle, this);
                     // Dispose old font if it was different (and not a system font)
                     if (oldFont != null && oldFont != _textFont && oldFont != Font)
                     {
@@ -863,7 +870,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Apply font theme based on ControlStyle (even if UseThemeFont is false)
                     // This ensures fonts are consistent with ControlStyle
                     var oldFont = _textFont;
-                    _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle);
+                    _textFont = BreadcrumbFontHelpers.GetBreadcrumbFont(this, _style, ControlStyle, this);
                     if (oldFont != null && oldFont != _textFont && oldFont != Font)
                     {
                         try { oldFont.Dispose(); } catch { }

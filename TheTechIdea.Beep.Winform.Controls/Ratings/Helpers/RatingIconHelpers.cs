@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -209,7 +210,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             bool isFilled,
             bool isHovered,
             Color? tintColor = null,
-            float rotation = 0f)
+            float rotation = 0f,
+            Font textFont = null,
+            Control ownerControl = null)
         {
             if (g == null || bounds.IsEmpty || string.IsNullOrEmpty(iconPath))
                 return;
@@ -225,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             // For emoji, draw as text instead of icon
             if (style == RatingStyle.Emoji && iconPath.Length == 1 && char.IsSurrogate(iconPath[0]))
             {
-                PaintEmoji(g, bounds, iconPath, iconColor);
+                PaintEmoji(g, bounds, iconPath, iconColor, textFont, ownerControl);
                 return;
             }
 
@@ -347,15 +350,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
         /// <summary>
         /// Paint emoji as text
         /// </summary>
-        private static void PaintEmoji(Graphics g, Rectangle bounds, string emoji, Color color)
+        private static void PaintEmoji(Graphics g, Rectangle bounds, string emoji, Color color, Font textFont = null, Control ownerControl = null)
         {
             if (string.IsNullOrEmpty(emoji))
                 return;
 
+            // Use Segoe UI Emoji for emoji rendering; derive size from textFont when available
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
+            float emojiSize = textFont != null
+                ? textFont.Size * 1.2f
+                : bounds.Height * 0.8f * Math.Max(1f, dpiScale);
+
             using (SolidBrush brush = new SolidBrush(color))
+            using (Font emojiFont = new Font("Segoe UI Emoji", emojiSize, FontStyle.Regular))
             {
-                // Use a large font for emoji
-                Font emojiFont = new Font("Segoe UI Emoji", bounds.Height * 0.8f, FontStyle.Regular);
                 StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Center,
@@ -363,7 +371,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 };
 
                 g.DrawString(emoji, emojiFont, brush, bounds, format);
-                emojiFont.Dispose();
             }
         }
 

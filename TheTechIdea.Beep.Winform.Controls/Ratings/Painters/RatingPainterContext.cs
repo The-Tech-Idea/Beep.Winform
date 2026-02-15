@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
@@ -10,6 +11,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
     /// </summary>
     public class RatingPainterContext
     {
+        /// <summary>
+        /// Owner control for DPI scaling; used with DpiScalingHelper.ScaleValue(value, OwnerControl)
+        /// </summary>
+        public Control OwnerControl { get; set; }
         // Core rating properties
         public int StarCount { get; set; }
         public int SelectedRating { get; set; }

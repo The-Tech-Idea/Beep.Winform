@@ -52,15 +52,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ? _filteredRowIndices.Count 
             : Data.Rows.Count;
 
-        /// <summary>
-        /// Gets or sets whether to show the quick filter bar
-        /// </summary>
-        [Browsable(true)]
-        [Category("Filtering")]
-        [DefaultValue(false)]
-        [Description("Shows a quick filter bar above the grid for instant filtering")]
-        public bool ShowQuickFilterBar { get; set; } = false;
-
         #endregion
 
         #region Filter Events
@@ -84,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         public void ShowAdvancedFilterDialog()
         {
-            using (var dialog = new BeepAdvancedFilterDialog(Data.Columns, _activeFilter))
+            using (var dialog = new BeepAdvancedFilterDialog(Data.Columns, _activeFilter, Theme))
             {
                 if (dialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
                 {
@@ -106,19 +97,58 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return;
             }
 
-            // Create filter configuration for quick filter
+            // Manually apply quick filter across all or specific column
+            var searchLower = searchText.ToLowerInvariant();
+            var matchingIndices = new List<int>();
+
+            for (int i = 0; i < Data.Rows.Count; i++)
+            {
+                var row = Data.Rows[i];
+                bool matches = false;
+
+                if (string.IsNullOrEmpty(columnName))
+                {
+                    // Search all columns
+                    foreach (var cell in row.Cells)
+                    {
+                        string cellText = cell.CellValue?.ToString() ?? string.Empty;
+                        if (cellText.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            matches = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    // Search specific column
+                    var cell = row.Cells.FirstOrDefault(c => c.ColumnName == columnName);
+                    if (cell != null)
+                    {
+                        string cellText = cell.CellValue?.ToString() ?? string.Empty;
+                        matches = cellText.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                    }
+                }
+
+                if (matches)
+                {
+                    matchingIndices.Add(i);
+                }
+            }
+
+            // Create and store filter configuration for display purposes
             var config = new FilterConfiguration("Quick Filter")
             {
                 IsActive = true
             };
             config.AddCriteria(new FilterCriteria(
-                columnName ?? "All",
+                columnName ?? "All Columns",
                 FilterOperator.Contains,
                 searchText
             ));
 
-            // Apply filter using generic engine
-            _filteredRowIndices = ApplyFilterToRows(config);
+            // Apply the matching indices
+            _filteredRowIndices = matchingIndices;
             _isFiltered = true;
             _activeFilter = config;
 
@@ -317,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // Recalculate layout and refresh display
             Layout.Recalculate();
             ScrollBars?.UpdateBars();
-            Invalidate();
+            SafeInvalidate();
         }
 
         private void OnFilterApplied(FilterAppliedEventArgs args)

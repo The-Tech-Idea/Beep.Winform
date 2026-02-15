@@ -1,7 +1,9 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls;
@@ -30,31 +32,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get font for step numbers displayed inside step circles
         /// </summary>
-        public static Font GetStepNumberFont(dynamic stepper, BeepControlStyle controlStyle)
+        public static Font GetStepNumberFont(dynamic stepper, BeepControlStyle controlStyle, Font textFont = null, Control ownerControl = null)
         {
-            if (stepper == null)
-                return new Font("Segoe UI", 10, FontStyle.Bold);
+            Font baseFont = textFont ?? (stepper != null ? stepper.Font : null) ?? BeepFontManager.DefaultFont;
+            if (baseFont == null)
+                baseFont = BeepFontManager.GetFont("Segoe UI", 10, FontStyle.Bold) ?? new Font("Segoe UI", 10, FontStyle.Bold);
 
-            // Get base font from control or use default
-            Font baseFont = stepper.Font ?? new Font("Segoe UI", 10, FontStyle.Bold);
-
-            // Calculate size based on button size and control style
-            int fontSize = GetFontSizeForElement(controlStyle, StepperFontElement.StepNumber);
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
+            int minSize = Math.Max(6, (int)(8 * dpiScale));
+            int maxSize = Math.Max(minSize, (int)(16 * dpiScale));
+            int fontSize = GetFontSizeForElement(controlStyle, StepperFontElement.StepNumber, ownerControl);
             
-            // Adjust based on button size if available
-            if (HasProperty(stepper, "ButtonSize"))
+            if (stepper != null && HasProperty(stepper, "ButtonSize"))
             {
                 var buttonSize = GetPropertyValue<Size?>(stepper, "ButtonSize");
                 if (buttonSize.HasValue)
-                {
-                    // Font size should be proportional to button size (about 30-40% of button height)
-                    fontSize = Math.Max(8, Math.Min(16, (int)(buttonSize.Value.Height * 0.35f)));
-                }
+                    fontSize = Math.Max(minSize, Math.Min(maxSize, (int)(buttonSize.Value.Height * 0.35f)));
             }
 
             FontStyle fontStyle = GetFontStyleForElement(controlStyle, StepperFontElement.StepNumber);
             
-            // Use BeepFontManager if available
             try
             {
                 var fontFamily = BeepFontManager.GetFontFamily(controlStyle) ?? baseFont.FontFamily;
@@ -62,7 +59,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
             catch
             {
-                // Fallback to base font with adjusted size
                 return new Font(baseFont.FontFamily, fontSize, fontStyle);
             }
         }
@@ -70,21 +66,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get font for step labels (text below/next to steps)
         /// </summary>
-        public static Font GetStepLabelFont(dynamic stepper, BeepControlStyle controlStyle, StepState state = StepState.Pending)
+        public static Font GetStepLabelFont(dynamic stepper, BeepControlStyle controlStyle, StepState state = StepState.Pending, Font textFont = null, Control ownerControl = null)
         {
-            if (stepper == null)
-                return new Font("Segoe UI", 9, FontStyle.Regular);
-
-            Font baseFont = stepper.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
+            Font baseFont = textFont ?? (stepper != null ? stepper.Font : null) ?? BeepFontManager.DefaultFont;
+            if (baseFont == null)
+                baseFont = BeepFontManager.GetFont("Segoe UI", 9, FontStyle.Regular) ?? new Font("Segoe UI", 9, FontStyle.Regular);
             
-            int fontSize = GetFontSizeForElement(controlStyle, StepperFontElement.StepLabel);
-            
-            // Active steps can have slightly larger/bolder labels
+            int fontSize = GetFontSizeForElement(controlStyle, StepperFontElement.StepLabel, ownerControl);
             FontStyle fontStyle = GetFontStyleForElement(controlStyle, StepperFontElement.StepLabel);
             if (state == StepState.Active)
             {
                 fontStyle |= FontStyle.Bold;
-                fontSize = (int)(fontSize * 1.1f); // 10% larger for active
+                fontSize = (int)(fontSize * 1.1f);
             }
 
             try
@@ -101,13 +94,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get font for additional step text
         /// </summary>
-        public static Font GetStepTextFont(dynamic stepper, BeepControlStyle controlStyle)
+        public static Font GetStepTextFont(dynamic stepper, BeepControlStyle controlStyle, Font textFont = null, Control ownerControl = null)
         {
-            if (stepper == null)
-                return new Font("Segoe UI", 9, FontStyle.Regular);
-
-            Font baseFont = stepper.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
-            int fontSize = GetFontSizeForElement(controlStyle, StepperFontElement.StepText);
+            Font baseFont = textFont ?? (stepper != null ? stepper.Font : null) ?? BeepFontManager.DefaultFont;
+            if (baseFont == null)
+                baseFont = BeepFontManager.GetFont("Segoe UI", 9, FontStyle.Regular) ?? new Font("Segoe UI", 9, FontStyle.Regular);
+            int fontSize = GetFontSizeForElement(controlStyle, StepperFontElement.StepText, ownerControl);
             FontStyle fontStyle = GetFontStyleForElement(controlStyle, StepperFontElement.StepText);
 
             try
@@ -124,12 +116,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get general stepper font (for breadcrumb text)
         /// </summary>
-        public static Font GetStepperFont(dynamic stepper, BeepControlStyle controlStyle)
+        public static Font GetStepperFont(dynamic stepper, BeepControlStyle controlStyle, Font textFont = null)
         {
-            if (stepper == null)
-                return new Font("Segoe UI", 9, FontStyle.Regular);
-
-            Font baseFont = stepper.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
+            Font baseFont = textFont ?? (stepper != null ? stepper.Font : null) ?? BeepFontManager.DefaultFont;
+            if (baseFont == null)
+                baseFont = BeepFontManager.GetFont("Segoe UI", 9, FontStyle.Regular) ?? new Font("Segoe UI", 9, FontStyle.Regular);
             
             // Use StyleTypography for control style-based font
             try
@@ -161,19 +152,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// <summary>
         /// Get font size for a specific stepper font element based on control style
         /// </summary>
-        public static int GetFontSizeForElement(BeepControlStyle controlStyle, StepperFontElement element)
+        public static int GetFontSizeForElement(BeepControlStyle controlStyle, StepperFontElement element, Control ownerControl = null)
         {
-            // Base sizes for different elements
             int baseSize = element switch
             {
-                StepperFontElement.StepNumber => 10,  // Numbers in circles
-                StepperFontElement.StepLabel => 9,    // Labels below steps
-                StepperFontElement.StepText => 9,     // Additional text
-                StepperFontElement.Connector => 8,     // Text on connectors (if any)
+                StepperFontElement.StepNumber => 10,
+                StepperFontElement.StepLabel => 9,
+                StepperFontElement.StepText => 9,
+                StepperFontElement.Connector => 8,
                 _ => 9
             };
 
-            // Adjust based on control style
             float multiplier = controlStyle switch
             {
                 BeepControlStyle.Material3 => 1.1f,
@@ -196,11 +185,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 BeepControlStyle.Metro => 1.0f,
                 BeepControlStyle.Office => 1.0f,
                 BeepControlStyle.NeoBrutalist => 1.1f,
-                BeepControlStyle.HighContrast => 1.2f, // Larger for accessibility
+                BeepControlStyle.HighContrast => 1.2f,
                 _ => 1.0f
             };
 
-            return Math.Max(8, Math.Min(20, (int)(baseSize * multiplier)));
+            float dpiScale = ownerControl != null ? DpiScalingHelper.GetDpiScaleFactor(ownerControl) : 1f;
+            int minSize = Math.Max(6, (int)(8 * dpiScale));
+            int maxSize = Math.Max(minSize, (int)(16 * dpiScale));
+            return Math.Max(minSize, Math.Min(maxSize, (int)(baseSize * multiplier * dpiScale)));
         }
 
         /// <summary>
@@ -254,15 +246,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// Apply font theme to a stepper control
         /// Updates fonts based on control style
         /// </summary>
-        public static void ApplyFontTheme(dynamic stepper, BeepControlStyle controlStyle)
+        public static void ApplyFontTheme(dynamic stepper, BeepControlStyle controlStyle, Font textFont = null)
         {
             if (stepper == null)
                 return;
 
             try
             {
-                // Get base stepper font
-                Font stepperFont = GetStepperFont(stepper, controlStyle);
+                Font stepperFont = GetStepperFont(stepper, controlStyle, textFont);
                 
                 // Update control font if property exists
                 if (HasProperty(stepper, "Font"))

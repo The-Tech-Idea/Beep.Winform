@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
@@ -110,6 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _paintHelper.IsTransparent = IsTransparentBackground;
             _paintHelper.TabStyle = TabStyle;
             _paintHelper.Theme = _currentTheme;
+            _paintHelper.OwnerControl = this;
         }
       
         /// <summary>
@@ -239,8 +241,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             // Use theme border color
             Color separatorColor = _borderColor;
+            float penWidth = Math.Max(1f, DpiScalingHelper.ScaleValue(1f, this));
             
-            using (var pen = new Pen(separatorColor, 1f))
+            using (var pen = new Pen(separatorColor, penWidth))
             {
                 switch (_tabPosition)
                 {
@@ -308,15 +311,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     g.FillPath(brush, buttonPath);
                 }
                 
-                // Draw button border
-                using (var pen = new Pen(_borderColor, 1f))
+                // Draw button border (DPI-scaled)
+                float borderWidth = Math.Max(1f, DpiScalingHelper.ScaleValue(1f, this));
+                using (var pen = new Pen(_borderColor, borderWidth))
                 {
                     g.DrawPath(pen, buttonPath);
                 }
                 
-                // Draw icon (arrow or plus)
+                // Draw icon (arrow or plus) - DPI-scaled pen
                 var iconColor = _tabForeColor;
-                using (var pen = new Pen(iconColor, 2f))
+                float iconPenWidth = Math.Max(1.5f, DpiScalingHelper.ScaleValue(2f, this));
+                using (var pen = new Pen(iconColor, iconPenWidth))
                 {
                     pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
                     pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;

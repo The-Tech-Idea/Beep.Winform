@@ -125,7 +125,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             if (string.IsNullOrEmpty(text) || bounds.IsEmpty)
                 return;
 
-            Font font = options.TextFont ?? CheckBoxFontHelpers.GetCheckBoxFont(options.ControlStyle);
+            Font font = options.TextFont;
+            if (font == null)
+            {
+                float scale = DpiScalingHelper.GetDpiScaleFactor(g);
+                font = CheckBoxFontHelpers.GetCheckBoxFont(options.ControlStyle, scale);
+            }
+
             Color textColor = CheckBoxThemeHelpers.GetForegroundColor(
                 options.Theme,
                 options.UseThemeColors);
@@ -134,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             {
                 var format = new StringFormat
                 {
-                    Alignment = StringAlignment.Near,
+                    Alignment = options.TextAlignment == TextAlignment.Left ? StringAlignment.Far : StringAlignment.Near,
                     LineAlignment = StringAlignment.Center,
                     Trimming = StringTrimming.EllipsisCharacter
                 };

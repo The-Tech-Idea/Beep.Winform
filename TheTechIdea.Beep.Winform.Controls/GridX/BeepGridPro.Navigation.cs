@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public void SelectCell(int rowIndex, int columnIndex)
         {
             Selection.SelectCell(rowIndex, columnIndex);
-            Invalidate();
+            SafeInvalidate();
         }
 
         /// <summary>

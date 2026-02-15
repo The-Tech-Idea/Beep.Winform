@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public Dictionary<int, Rectangle> TopFilterClearIconRects => _topFilterClearIconRects;
 
         private IGridFilterPanelPainter? _filterPanelPainter;
-        private navigationStyle _filterPanelPainterStyle = navigationStyle.None;
+        private BeepGridStyle _filterPanelGridStyle = BeepGridStyle.Default;
 
         public GridRenderHelper(BeepGridPro grid)
         {
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public bool UseHeaderGradient { get; set; } = false;
         public bool ShowSortIndicators { get; set; } = true;
         public HeaderIconVisibility SortIconVisibility { get; set; } = HeaderIconVisibility.Always;
-        public HeaderIconVisibility FilterIconVisibility { get; set; } = HeaderIconVisibility.Always;
+        public HeaderIconVisibility FilterIconVisibility { get; set; } = HeaderIconVisibility.Hidden;
         public bool UseHeaderHoverEffects { get; set; } = true;
         public bool UseBoldHeaderText { get; set; } = false;
         public int HeaderCellPadding { get; set; } = 2;
@@ -506,38 +506,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             //    Console.WriteLine("Draw skipped: Invalid rows rectangle.");
                 return;
             }
+            
+            // Save the original clip region and exclude all visible child controls for entire render
+            var originalClip = g.Clip;
+            Region? globalExclusionRegion = null;
+            try
+            {
+                // Create a global clip region that excludes filter panel controls (BeepTextBox, BeepComboBox)
+                if (_grid.FilterPanelSearchBox != null && _grid.FilterPanelSearchBox.Visible)
+                {
+                    if (globalExclusionRegion == null)
+                        globalExclusionRegion = new Region(_grid.ClientRectangle);
+                    globalExclusionRegion.Exclude(_grid.FilterPanelSearchBox.Bounds);
+                }
+                if (_grid.FilterPanelColumnCombo != null && _grid.FilterPanelColumnCombo.Visible)
+                {
+                    if (globalExclusionRegion == null)
+                        globalExclusionRegion = new Region(_grid.ClientRectangle);
+                    globalExclusionRegion.Exclude(_grid.FilterPanelColumnCombo.Bounds);
+                }
+                
+                // Apply the exclusion region for the entire paint operation
+                if (globalExclusionRegion != null)
+                {
+                    g.Clip = globalExclusionRegion;
+                }
                
           //  Console.WriteLine($"RowsRect: {rowsRect}");
             // Draw background (exclude child control areas to prevent painting over editors)
             using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
             {
-                // Save the current clip region
-                var originalClip = g.Clip;
-                try
-                {
-                    // Exclude child controls from the clip region to prevent painting over them
-                    if (_grid.Controls.Count > 0)
-                    {
-                        var region = new Region(rowsRect);
-                        foreach (Control child in _grid.Controls)
-                        {
-                            if (child.Visible && child.Bounds.IntersectsWith(rowsRect))
-                            {
-                                region.Exclude(child.Bounds);
-                            }
-                        }
-                        g.Clip = region;
-                        region.Dispose();
-                    }
                     
                     g.FillRectangle(brush, rowsRect);
-                }
-                finally
-                {
-                    // Restore the original clip region
-                    g.Clip = originalClip;
-                    originalClip?.Dispose();
-                }
+                
             }
           //  Console.WriteLine("Background drawn.");
             // Draw column headers
@@ -547,7 +548,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     try
                     {
-                        DrawTopFilterPanel(g);
+                        // Filter panel painting disabled - using embedded controls instead
+                        //DrawTopFilterPanel(g);
                     }
                     catch (Exception)
                     {
@@ -623,6 +625,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     // Silently handle drag feedback errors
                 }
+            }
+            }
+            finally
+            {
+                // Restore the original clip region and dispose exclusion region
+                g.Clip = originalClip;
+                originalClip?.Dispose();
+                globalExclusionRegion?.Dispose();
             }
         }
 
@@ -719,11 +729,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            var style = _grid.NavigationStyle;
-            if (_filterPanelPainter == null || _filterPanelPainterStyle != style)
+            var gridStyle = _grid.GridStyle;
+            if (_filterPanelPainter == null || _filterPanelGridStyle != gridStyle)
             {
-                _filterPanelPainter = FilterPanelPainterFactory.CreatePainter(style);
-                _filterPanelPainterStyle = style;
+                _filterPanelPainter = FilterPanelPainterFactory.CreatePainterForGridStyle(gridStyle);
+                _filterPanelGridStyle = gridStyle;
             }
 
             if (_filterPanelPainter == null)
@@ -915,7 +925,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             bool isSystemColumn = column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID;
             bool hasSortArea = ShowSortIndicators && SortIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn && column.AllowSort;
-            bool hasFilterArea = FilterIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn;
+            bool hasFilterArea = !_grid.ShowTopFilterPanel && FilterIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn;
 
             // Calculate areas with custom padding
             int sortIconSize = hasSortArea ? Math.Min(cellRect.Height - HeaderCellPadding * 2, 14) : 0;

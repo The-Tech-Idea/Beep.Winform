@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,6 +7,8 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
@@ -67,6 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color warningStepColor = Color.FromArgb(245, 158, 11);   // Orange
         
         private bool _isApplyingTheme = false;
+        private Font _textFont;
 
         // Tooltip support
         private bool _autoGenerateTooltips = true;
@@ -778,7 +781,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             string text = (stepIndex + 1).ToString();
             
             // Use font helpers for step number font
-            Font font = StepperFontHelpers.GetStepNumberFont(this, ControlStyle);
+            Font font = StepperFontHelpers.GetStepNumberFont(this, ControlStyle, _textFont, this);
             
             var textSize = TextUtils.MeasureText(graphics, text, font);
             var textX = rect.Left + (rect.Width - textSize.Width) / 2;
@@ -831,7 +834,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Use font helpers for step label font
             StepState state = GetStepState(stepIndex);
-            Font font = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state);
+            Font font = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state, _textFont);
             
             var textSize = TextUtils.MeasureText(graphics, label, font);
             
@@ -993,8 +996,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     StepperThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
                 }
                 
+                // Set _textFont from theme stepper properties
+                _textFont?.Dispose();
+                _textFont = (_currentTheme?.StepperItemFont != null)
+                    ? BeepFontManager.ToFont(_currentTheme.StepperItemFont)
+                    : null;
+                
                 // Apply font theme
-                StepperFontHelpers.ApplyFontTheme(this, ControlStyle);
+                StepperFontHelpers.ApplyFontTheme(this, ControlStyle, _textFont);
                 
                 // Apply accessibility adjustments (high contrast, reduced motion)
                 ApplyAccessibilityAdjustments();
@@ -1357,6 +1366,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
+                _textFont?.Dispose();
                 animationTimer?.Stop();
                 animationTimer?.Dispose();
                 

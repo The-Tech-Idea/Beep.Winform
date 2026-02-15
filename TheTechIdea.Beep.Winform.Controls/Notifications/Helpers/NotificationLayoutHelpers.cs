@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 {
@@ -10,6 +11,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
     /// </summary>
     public static class NotificationLayoutHelpers
     {
+        private static int ScaleVal(int value, Control ctrl)
+            => ctrl != null ? DpiScalingHelper.ScaleValue(value, ctrl) : value;
+
         /// <summary>
         /// Calculates layout rectangles for notification elements
         /// </summary>
@@ -24,7 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             bool showProgressBar,
             int iconSize,
             int padding,
-            int spacing)
+            int spacing,
+            Control ownerControl = null)
         {
             var metrics = new NotificationLayoutMetrics();
 
@@ -35,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
             if (showCloseButton)
             {
-                int closeButtonSize = 20;
+                int closeButtonSize = ScaleVal(20, ownerControl);
                 metrics.CloseButtonRect = new Rectangle(
                     bounds.Right - padding - closeButtonSize,
                     y,
@@ -71,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             // Adjust close button position if needed
             if (showCloseButton && metrics.CloseButtonRect.IsEmpty)
             {
-                int closeButtonSize = 20;
+                int closeButtonSize = ScaleVal(20, ownerControl);
                 metrics.CloseButtonRect = new Rectangle(
                     bounds.Right - padding - closeButtonSize,
                     bounds.Y + padding,
@@ -83,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             // Progress bar at bottom
             if (showProgressBar)
             {
-                int progressBarHeight = 4;
+                int progressBarHeight = ScaleVal(4, ownerControl);
                 metrics.ProgressBarRect = new Rectangle(
                     bounds.X,
                     bounds.Bottom - progressBarHeight,
@@ -97,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
         private static NotificationLayoutMetrics CalculateStandardLayout(
             Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing)
+            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
         {
             var metrics = new NotificationLayoutMetrics();
             int x = bounds.X + padding;
@@ -113,24 +118,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             }
 
             // Title and message
+            int titleHeight = ScaleVal(20, ownerControl);
+            int titleSpacing = ScaleVal(4, ownerControl);
             if (hasTitle)
             {
                 // Title will be measured in the control
-                metrics.TitleRect = new Rectangle(x, y, availableWidth, 20);
-                y += 20 + 4;
+                metrics.TitleRect = new Rectangle(x, y, availableWidth, titleHeight);
+                y += titleHeight + titleSpacing;
             }
 
+            int progressBarHeight = ScaleVal(4, ownerControl);
             if (hasMessage)
             {
                 // Message will be measured in the control
-                metrics.MessageRect = new Rectangle(x, y, availableWidth, bounds.Height - y - padding - (showProgressBar ? 4 : 0));
+                metrics.MessageRect = new Rectangle(x, y, availableWidth, bounds.Height - y - padding - (showProgressBar ? progressBarHeight : 0));
             }
 
             // Actions below
             if (hasActions)
             {
-                int actionHeight = 32;
-                metrics.ActionsRect = new Rectangle(x, bounds.Bottom - padding - actionHeight - (showProgressBar ? 4 : 0), availableWidth, actionHeight);
+                int actionHeight = ScaleVal(32, ownerControl);
+                metrics.ActionsRect = new Rectangle(x, bounds.Bottom - padding - actionHeight - (showProgressBar ? progressBarHeight : 0), availableWidth, actionHeight);
             }
 
             return metrics;
@@ -138,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
         private static NotificationLayoutMetrics CalculateCompactLayout(
             Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing)
+            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
         {
             var metrics = new NotificationLayoutMetrics();
             int x = bounds.X + padding;
@@ -153,15 +161,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
                 availableWidth -= (iconSize + spacing);
             }
 
+            int compactHeight = ScaleVal(16, ownerControl);
             // Title and message on same line if possible
             if (hasTitle)
             {
-                metrics.TitleRect = new Rectangle(x, y, availableWidth / 2, 16);
+                metrics.TitleRect = new Rectangle(x, y, availableWidth / 2, compactHeight);
             }
 
             if (hasMessage)
             {
-                metrics.MessageRect = new Rectangle(x + (hasTitle ? availableWidth / 2 + spacing : 0), y, availableWidth - (hasTitle ? availableWidth / 2 + spacing : 0), 16);
+                metrics.MessageRect = new Rectangle(x + (hasTitle ? availableWidth / 2 + spacing : 0), y, availableWidth - (hasTitle ? availableWidth / 2 + spacing : 0), compactHeight);
             }
 
             return metrics;
@@ -169,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
         private static NotificationLayoutMetrics CalculateProminentLayout(
             Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing)
+            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
         {
             var metrics = new NotificationLayoutMetrics();
             int x = bounds.X + padding;
@@ -177,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             int availableWidth = bounds.Width - (padding * 2);
 
             // Large icon centered
-            int largeIconSize = Math.Max(iconSize, 32);
+            int largeIconSize = Math.Max(iconSize, ScaleVal(32, ownerControl));
             if (hasIcon)
             {
                 metrics.IconRect = new Rectangle(
@@ -189,17 +198,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
                 y += largeIconSize + spacing;
             }
 
+            int prominentTitleHeight = ScaleVal(24, ownerControl);
+            int prominentSpacing = ScaleVal(4, ownerControl);
             // Title centered
             if (hasTitle)
             {
-                metrics.TitleRect = new Rectangle(x, y, availableWidth, 24);
-                y += 24 + 4;
+                metrics.TitleRect = new Rectangle(x, y, availableWidth, prominentTitleHeight);
+                y += prominentTitleHeight + prominentSpacing;
             }
 
             // Message centered
+            int progressBarH = ScaleVal(4, ownerControl);
             if (hasMessage)
             {
-                metrics.MessageRect = new Rectangle(x, y, availableWidth, bounds.Height - y - padding - (showProgressBar ? 4 : 0));
+                metrics.MessageRect = new Rectangle(x, y, availableWidth, bounds.Height - y - padding - (showProgressBar ? progressBarH : 0));
             }
 
             return metrics;
@@ -207,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
         private static NotificationLayoutMetrics CalculateBannerLayout(
             Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing)
+            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
         {
             var metrics = new NotificationLayoutMetrics();
             int x = bounds.X + padding;
@@ -238,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
         private static NotificationLayoutMetrics CalculateToastLayout(
             Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing)
+            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
         {
             var metrics = new NotificationLayoutMetrics();
             int x = bounds.X + padding;

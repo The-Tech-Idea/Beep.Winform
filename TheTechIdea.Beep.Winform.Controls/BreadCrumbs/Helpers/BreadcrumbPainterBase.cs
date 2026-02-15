@@ -8,7 +8,6 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
- 
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 {
@@ -29,7 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             return $"{family.Name}:{size}:{(int)style}";
         }
 
-        protected static Font GetCachedFont(FontFamily family, float size, FontStyle style)
+        protected Font GetCachedFont(FontFamily family, float size, FontStyle style)
+        {
+            float dpiScale = Owner != null ? DpiScalingHelper.GetDpiScaleFactor(Owner) : 1f;
+            float scaledSize = Math.Max(6f, size * dpiScale);
+            return GetCachedFontStatic(family, scaledSize, style);
+        }
+
+        private static Font GetCachedFontStatic(FontFamily family, float size, FontStyle style)
         {
             if (family == null) family = SystemFonts.DefaultFont.FontFamily;
             var key = FontKey(family, size, style);
@@ -55,21 +61,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             // Use cached font instance when possible
             if (textFont != null)
             {
-                TextFont = GetCachedFont(textFont.FontFamily, textFont.Size, textFont.Style);
+                float dpiScale = owner != null ? DpiScalingHelper.GetDpiScaleFactor(owner) : 1f;
+                TextFont = GetCachedFontStatic(textFont.FontFamily, textFont.Size * dpiScale, textFont.Style);
             }
             else
             {
-                // Fallback to BreadcrumbFontHelpers if no font provided
                 if (owner is BeepBreadcrump breadcrumb)
                 {
                     var breadcrumbStyle = breadcrumb.BreadcrumbStyle;
                     var controlStyle = breadcrumb.ControlStyle;
-                    var helperFont = BreadcrumbFontHelpers.GetBreadcrumbFont(breadcrumb, breadcrumbStyle, controlStyle);
-                    TextFont = GetCachedFont(helperFont.FontFamily, helperFont.Size, helperFont.Style);
+                    var helperFont = BreadcrumbFontHelpers.GetBreadcrumbFont(breadcrumb, breadcrumbStyle, controlStyle, breadcrumb);
+                    TextFont = GetCachedFontStatic(helperFont.FontFamily, helperFont.Size, helperFont.Style);
                 }
                 else
                 {
-                    TextFont = GetCachedFont(SystemFonts.DefaultFont.FontFamily, SystemFonts.DefaultFont.Size, SystemFonts.DefaultFont.Style);
+                    TextFont = GetCachedFontStatic(SystemFonts.DefaultFont.FontFamily, SystemFonts.DefaultFont.Size, SystemFonts.DefaultFont.Style);
                 }
             }
         }
@@ -151,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             }
             else if (Owner is BeepBreadcrump breadcrumb)
             {
-                var separatorFont = BreadcrumbFontHelpers.GetSeparatorFont(breadcrumb, breadcrumb.BreadcrumbStyle, breadcrumb.ControlStyle);
+                var separatorFont = BreadcrumbFontHelpers.GetSeparatorFont(breadcrumb, breadcrumb.BreadcrumbStyle, breadcrumb.ControlStyle, breadcrumb);
                 useFont = GetCachedFont(separatorFont.FontFamily, separatorFont.Size, separatorFont.Style);
             }
             else

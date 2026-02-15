@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -507,14 +508,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             TryCommitPendingEdit();
 
             object? selectedRowData = null;
+            object? selectedRowIdentity = null;
             int selectedRow = _grid.Selection.RowIndex;
             int selectedCol = _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0;
+            int bindingSourcePosition = bs.Position;
 
             if (_grid.Selection.HasSelection &&
                 selectedRow >= 0 &&
                 selectedRow < _grid.Rows.Count)
             {
                 selectedRowData = _grid.Rows[selectedRow].RowData;
+                if (selectedRowData is DataRowView selectedView)
+                {
+                    selectedRowIdentity = selectedView.Row;
+                }
+                else if (selectedRowData is DataRow selectedDataRow)
+                {
+                    selectedRowIdentity = selectedDataRow;
+                }
+                else
+                {
+                    selectedRowIdentity = selectedRowData;
+                }
             }
 
             // Keep binding intact when unchanged (important for ObservableBindingList/UOW mode).
@@ -532,7 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (_grid.Rows.Count > 0)
             {
-                int newRow = ResolveSelectionRow(selectedRowData, selectedRow);
+                int newRow = ResolveSelectionRow(selectedRowData, selectedRowIdentity, selectedRow, bindingSourcePosition);
                 int col = Math.Max(0, Math.Min(selectedCol, Math.Max(0, _grid.Columns.Count - 1)));
                 _grid.SelectCell(newRow, col);
             }
@@ -544,8 +559,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             RecalculateAndInvalidate();
         }
 
-        private int ResolveSelectionRow(object? selectedRowData, int fallbackRow)
+        private int ResolveSelectionRow(object? selectedRowData, object? selectedRowIdentity, int fallbackRow, int bindingSourcePosition)
         {
+            if (selectedRowIdentity is DataRow selectedDataRow)
+            {
+                for (int i = 0; i < _grid.Rows.Count; i++)
+                {
+                    var rowData = _grid.Rows[i].RowData;
+                    if (rowData is DataRowView rowView && ReferenceEquals(rowView.Row, selectedDataRow))
+                    {
+                        return i;
+                    }
+
+                    if (rowData is DataRow row && ReferenceEquals(row, selectedDataRow))
+                    {
+                        return i;
+                    }
+                }
+            }
+
             if (selectedRowData != null)
             {
                 for (int i = 0; i < _grid.Rows.Count; i++)
@@ -556,6 +588,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         return i;
                     }
                 }
+            }
+
+            if (bindingSourcePosition >= 0)
+            {
+                return Math.Max(0, Math.Min(bindingSourcePosition, _grid.Rows.Count - 1));
             }
 
             if (fallbackRow < 0) return 0;

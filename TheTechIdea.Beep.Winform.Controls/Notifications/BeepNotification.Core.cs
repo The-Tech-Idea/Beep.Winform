@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -37,14 +38,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private Rectangle _closeButtonRect;
         private Rectangle _progressBarRect;
         private Rectangle _actionsRect;
-        private const int ICON_SIZE = 24;
-        private const int CLOSE_BUTTON_SIZE = 20;
-        private const int PROGRESS_BAR_HEIGHT = 4;
-        private const int ACTION_BUTTON_HEIGHT = 32;
-        private const int PADDING = 12;
 
         // Painter system
         private INotificationPainter _painter;
+
+        private int ScaledIconSize => DpiScalingHelper.ScaleValue(24, this);
+        private int ScaledCloseButtonSize => DpiScalingHelper.ScaleValue(20, this);
+        private int ScaledProgressBarHeight => DpiScalingHelper.ScaleValue(4, this);
+        private int ScaledActionButtonHeight => DpiScalingHelper.ScaleValue(32, this);
+        private int ScaledPadding => DpiScalingHelper.ScaleValue(12, this);
         #endregion
 
         #region Constructor
@@ -70,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             ShowCaptionBar = false;
             FormStyle = BeepThemesManager.CurrentStyle;
             
-            // Size configuration
+            // Size configuration (base values, scaled in OnHandleCreated)
             MinimumSize = new Size(280, 60);
             MaximumSize = new Size(420, 300);
             Size = new Size(350, 80);
@@ -94,6 +96,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private void InitializePainter()
         {
             _painter = NotificationPainterFactory.CreatePainter(_notificationData?.Layout ?? NotificationLayout.Standard);
+            if (_painter is NotificationPainterBase basePainter)
+            {
+                basePainter.OwnerControl = this;
+                if (IsHandleCreated)
+                {
+                    var theme = BeepThemesManager.CurrentTheme;
+                    basePainter.TextFont = theme != null
+                        ? TheTechIdea.Beep.Winform.Controls.FontManagement.BeepFontManager.ToFont(theme.BodyMedium)
+                        : SystemFonts.DefaultFont;
+                }
+            }
         }
         #endregion
 
@@ -266,6 +279,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// Raised when the notification is clicked (not action button)
         /// </summary>
         public event EventHandler<NotificationEventArgs> NotificationClicked;
+        #endregion
+
+        #region DPI Scaling
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            MinimumSize = DpiScalingHelper.ScaleSize(new Size(280, 60), this);
+            MaximumSize = DpiScalingHelper.ScaleSize(new Size(420, 300), this);
+            Size = DpiScalingHelper.ScaleSize(new Size(350, 80), this);
+            if (_painter is NotificationPainterBase basePainter)
+            {
+                var theme = BeepThemesManager.CurrentTheme;
+                basePainter.TextFont = theme != null
+                    ? TheTechIdea.Beep.Winform.Controls.FontManagement.BeepFontManager.ToFont(theme.BodyMedium)
+                    : SystemFonts.DefaultFont;
+            }
+        }
         #endregion
     }
 }

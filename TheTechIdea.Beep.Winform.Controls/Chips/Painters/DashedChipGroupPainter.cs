@@ -220,22 +220,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
-            Color primary = theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
-            Color textColor = theme?.ForeColor ?? Color.FromArgb(117, 117, 117);
-            Color borderColor = theme?.BorderColor ?? Color.FromArgb(189, 189, 189);
-
+            
+            // Use theme button colors
+            Color bg, fg, border;
+            
             if (state.IsSelected)
             {
-                return (Color.FromArgb(30, primary), primary, primary);
+                Color primary = theme?.ButtonSelectedBackColor ?? (theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243));
+                bg = Color.FromArgb(30, primary);
+                fg = primary;
+                border = primary;
             }
             else if (state.IsHovered)
             {
-                return (Color.FromArgb(250, 250, 250), Color.FromArgb(97, 97, 97), Color.FromArgb(158, 158, 158));
+                bg = theme?.ButtonHoverBackColor ?? Color.FromArgb(250, 250, 250);
+                fg = theme?.ButtonHoverForeColor ?? Color.FromArgb(97, 97, 97);
+                border = theme?.ButtonHoverBorderColor ?? Color.FromArgb(158, 158, 158);
             }
             else
             {
-                return (Color.White, textColor, borderColor);
+                bg = theme?.ButtonBackColor ?? Color.White;
+                fg = theme?.ButtonForeColor ?? (theme?.ForeColor ?? Color.FromArgb(117, 117, 117));
+                border = theme?.ButtonBorderColor ?? (theme?.BorderColor ?? Color.FromArgb(189, 189, 189));
             }
+            
+            return (bg, fg, border);
         }
 
         #endregion

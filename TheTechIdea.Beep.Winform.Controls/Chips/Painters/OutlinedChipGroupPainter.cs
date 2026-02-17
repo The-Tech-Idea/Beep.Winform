@@ -135,17 +135,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private (Color stroke, Color text, Color hover) GetPalette(ChipVisualState s)
         {
-            Color primary = _theme?.PrimaryColor ?? Color.RoyalBlue;
-            Color text = _theme?.ForeColor ?? Color.Black;
+            // Use theme button colors
+            Color stroke, text, hover;
+            Color primary = _theme?.ButtonBorderColor ?? (_theme?.PrimaryColor ?? Color.RoyalBlue);
+            
+            // Override for semantic colors
             if (s.Color == ChipColor.Success) primary = Color.FromArgb(34, 197, 94);
             else if (s.Color == ChipColor.Warning) primary = Color.FromArgb(234, 179, 8);
             else if (s.Color == ChipColor.Error) primary = Color.FromArgb(239, 68, 68);
             else if (s.Color == ChipColor.Info) primary = Color.FromArgb(59, 130, 246);
-            else if (s.Color == ChipColor.Dark) { text = Color.White; }
-            var stroke = s.IsSelected ? primary : (_theme?.BorderColor ?? Color.Silver);
-            var hover = Color.FromArgb(s.IsSelected ? 32 : 16, primary);
-            var txt = s.IsSelected ? primary : text;
-            return (stroke, txt, hover);
+            
+            if (s.IsSelected)
+            {
+                stroke = _theme?.ButtonSelectedBorderColor ?? primary;
+                text = _theme?.ButtonSelectedForeColor ?? primary;
+                hover = Color.FromArgb(32, primary);
+            }
+            else if (s.IsHovered)
+            {
+                stroke = _theme?.ButtonHoverBorderColor ?? (_theme?.BorderColor ?? Color.Silver);
+                text = _theme?.ButtonHoverForeColor ?? (_theme?.ForeColor ?? Color.Black);
+                hover = Color.FromArgb(16, primary);
+            }
+            else
+            {
+                stroke = _theme?.ButtonBorderColor ?? (_theme?.BorderColor ?? Color.Silver);
+                text = _theme?.ButtonForeColor ?? (_theme?.ForeColor ?? Color.Black);
+                hover = Color.FromArgb(8, primary);
+            }
+            
+            if (s.Color == ChipColor.Dark) { text = Color.White; }
+            
+            return (stroke, text, hover);
         }
     }
 }

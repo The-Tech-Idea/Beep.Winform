@@ -8,6 +8,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color BadgeBackColor { get; set; } = Color.FromArgb(0, 150, 200);
         public Color BadgeForeColor { get; set; } = Color.White;
         public Color HighlightBackColor { get; set; } = Color.FromArgb(0, 180, 230);
-        public TypographyStyle BadgeFont { get; set; } = new TypographyStyle() { FontSize = 10, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle BadgeFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
     }
 }

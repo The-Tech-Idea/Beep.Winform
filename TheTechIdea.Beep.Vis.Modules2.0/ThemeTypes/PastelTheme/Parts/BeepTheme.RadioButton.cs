@@ -14,8 +14,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color RadioButtonHoverBackColor { get; set; } = Color.FromArgb(255, 224, 239);
         public Color RadioButtonHoverForeColor { get; set; } = Color.FromArgb(80, 80, 80);
         public Color RadioButtonHoverBorderColor { get; set; } = Color.FromArgb(247, 221, 229);
-        public TypographyStyle RadioButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle RadioButtonCheckedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle RadioButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle RadioButtonCheckedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
         public Color RadioButtonSelectedForeColor { get; set; } = Color.White;
         public Color RadioButtonSelectedBackColor { get; set; } = Color.FromArgb(245, 183, 203);
     }

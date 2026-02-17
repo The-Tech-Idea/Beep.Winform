@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Dashboard Colors & Fonts
 
-        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14.5f, FontStyle.Bold);
+        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14f, FontStyle.Bold);
         public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Italic);
 
         public Color DashboardBackColor { get; set; } = Color.FromArgb(18, 18, 32);              // Cyberpunk Black

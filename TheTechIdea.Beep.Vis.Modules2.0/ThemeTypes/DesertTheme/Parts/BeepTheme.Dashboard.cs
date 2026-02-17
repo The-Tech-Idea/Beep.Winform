@@ -7,8 +7,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Dashboard Colors & Fonts
 
-        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI Semibold", 20, FontStyle.Bold);
-        public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Regular);
+        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI Semibold", 14f, FontStyle.Bold);
+        public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Regular);
 
         public Color DashboardBackColor { get; set; } = Color.FromArgb(255, 244, 229); // Soft beige
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(245, 222, 179); // Wheat tone

@@ -6,7 +6,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Chart Fonts & Colors
-        public TypographyStyle ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16F, FontStyle.Bold);
+        public TypographyStyle ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
         public TypographyStyle ChartSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
         public Color ChartBackColor { get; set; } = Color.FromArgb(240, 255, 240); // Very light green background
         public Color ChartLineColor { get; set; } = Color.ForestGreen;

@@ -21,8 +21,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(255, 99, 132);   // Candy Red
         public Color ComboBoxErrorForeColor { get; set; } = Color.White;                    // White for contrast
 
-        public TypographyStyle ComboBoxItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
-        public TypographyStyle ComboBoxListFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold);
+        public TypographyStyle ComboBoxItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
+        public TypographyStyle ComboBoxListFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 8f, FontStyle.Bold);
 
         // In case ComboBox supports checkbox-multiselect items, themed as well:
         public Color CheckBoxSelectedForeColor { get; set; } = Color.FromArgb(240, 100, 180); // Candy Pink

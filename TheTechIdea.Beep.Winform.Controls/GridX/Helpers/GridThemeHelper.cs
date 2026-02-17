@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.ForeColor = t.GridForeColor;
                 // Align font sizing with BeepSimpleGrid: use theme grid cell font
                 var cellFont = BeepThemesManager.ToFont(t.GridCellFont);
+                _grid.ScrollBars.ApplyTheme(_grid.Theme);
                 //if (cellFont != null)
                 //{
                 //    _grid.Font = cellFont;

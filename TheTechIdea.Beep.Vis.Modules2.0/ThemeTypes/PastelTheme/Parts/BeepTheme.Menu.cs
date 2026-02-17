@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Menu Fonts & Colors
-        public TypographyStyle MenuTitleFont { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle MenuItemSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle MenuItemUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public TypographyStyle MenuTitleFont { get; set; } = new TypographyStyle() { FontSize = 14f, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle MenuItemSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle MenuItemUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
         public Color MenuBackColor { get; set; } = Color.FromArgb(255, 245, 247);
         public Color MenuForeColor { get; set; } = Color.FromArgb(120, 120, 120);
         public Color MenuBorderColor { get; set; } = Color.FromArgb(242, 201, 215);

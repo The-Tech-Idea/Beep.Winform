@@ -5,12 +5,12 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         public string FontName { get; set; } = "Segoe UI";
-        public float FontSize { get; set; } = 14f;
+        public float FontSize { get; set; } = 8f;
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 22,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             FontStyle = FontStyle.Regular,
             TextColor = Color.FromArgb(101, 67, 33), // Rich Brown
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 18,
+            FontSize = 14f,
             FontWeight = FontWeight.SemiBold,
             FontStyle = FontStyle.Italic,
             TextColor = Color.FromArgb(160, 82, 45), // Saddle Brown
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = FontStyle.Regular,
             TextColor = Color.FromArgb(92, 64, 51), // Medium Brown
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = FontStyle.Italic,
             TextColor = Color.FromArgb(160, 82, 45), // Saddle Brown
@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.SemiBold,
             FontStyle = FontStyle.Regular,
             TextColor = Color.FromArgb(255, 248, 220), // Cornsilk
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = FontStyle.Underline,
             TextColor = Color.FromArgb(184, 134, 11), // Goldenrod
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OverlineStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = FontStyle.Regular,
             TextColor = Color.FromArgb(210, 180, 140), // Tan

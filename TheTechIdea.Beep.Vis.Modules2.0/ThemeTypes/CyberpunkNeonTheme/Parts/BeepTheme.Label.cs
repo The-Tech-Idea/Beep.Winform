@@ -22,8 +22,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LabelDisabledForeColor { get; set; } = Color.FromArgb(128, 128, 160);// Muted neon blue
         public Color LabelDisabledBorderColor { get; set; } = Color.FromArgb(80, 80, 128);// Muted magenta
 
-        public TypographyStyle LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Regular);
-        public TypographyStyle SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 10f, FontStyle.Italic);
+        public TypographyStyle LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Regular);
+        public TypographyStyle SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Italic);
 
         public Color SubLabelForColor { get; set; } = Color.FromArgb(0, 255, 128);        // Neon Green
         public Color SubLabelBackColor { get; set; } = Color.FromArgb(34, 34, 68);        // Cyberpunk Panel

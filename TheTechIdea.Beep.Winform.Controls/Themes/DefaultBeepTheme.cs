@@ -750,40 +750,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 // -- Typography (Segoe UI baseline)
                 FontName = "Segoe UI";
                 FontFamily = FontName;
-                FontSize = 12f;
+                FontSize = 8f;
 
-                TitleStyle = TS(24, FontStyle.Bold, 700, ForeColor);
-                SubtitleStyle = TS(18, FontStyle.Regular, 600, C(55, 65, 81));
-                BodyStyle = TS(12, FontStyle.Regular, 400, ForeColor);
-                CaptionStyle = TS(11, FontStyle.Regular, 400, C(75, 85, 99));
-                ButtonStyle = TS(12, FontStyle.Bold, 600, OnPrimaryColor);
-                LinkStyle = TS(12, FontStyle.Regular, 500, C(37, 99, 235));
-                OverlineStyle = TS(10, FontStyle.Regular, 600, C(75, 85, 99));
+                TitleStyle = TS(20, FontStyle.Bold, 700, ForeColor);
+                SubtitleStyle = TS(14, FontStyle.Regular, 600, C(55, 65, 81));
+                BodyStyle = TS(8, FontStyle.Regular, 400, ForeColor);
+                CaptionStyle = TS(8, FontStyle.Regular, 400, C(75, 85, 99));
+                ButtonStyle = TS(8, FontStyle.Bold, 600, OnPrimaryColor);
+                LinkStyle = TS(8, FontStyle.Regular, 500, C(37, 99, 235));
+                OverlineStyle = TS(8, FontStyle.Regular, 600, C(75, 85, 99));
 
                 // Material-ish token set
-                DisplayLarge = TS(57, FontStyle.Regular, 300, ForeColor);
-                DisplayMedium = TS(45, FontStyle.Regular, 300, ForeColor);
-                DisplaySmall = TS(36, FontStyle.Regular, 400, ForeColor);
-                HeadlineLarge = TS(32, FontStyle.Bold, 600, ForeColor);
-                HeadlineMedium = TS(28, FontStyle.Bold, 600, ForeColor);
-                HeadlineSmall = TS(24, FontStyle.Bold, 600, ForeColor);
-                TitleLarge = TS(22, FontStyle.Bold, 600, ForeColor);
-                TitleMedium = TS(16, FontStyle.Bold, 600, ForeColor);
-                TitleSmall = TS(14, FontStyle.Bold, 600, ForeColor);
-                BodyLarge = TS(16, FontStyle.Regular, 400, ForeColor);
-                BodyMedium = TS(14, FontStyle.Regular, 400, ForeColor);
-                BodySmall = TS(12, FontStyle.Regular, 400, C(55, 65, 81));
-                LabelLarge = TS(14, FontStyle.Regular, 500, C(55, 65, 81));
-                LabelMedium = TS(12, FontStyle.Regular, 500, C(75, 85, 99));
-                LabelSmall = TS(11, FontStyle.Regular, 500, C(75, 85, 99));
+                DisplayLarge = TS(44, FontStyle.Regular, 300, ForeColor);
+                DisplayMedium = TS(34, FontStyle.Regular, 300, ForeColor);
+                DisplaySmall = TS(26, FontStyle.Regular, 400, ForeColor);
+                HeadlineLarge = TS(22, FontStyle.Bold, 600, ForeColor);
+                HeadlineMedium = TS(20, FontStyle.Bold, 600, ForeColor);
+                HeadlineSmall = TS(18, FontStyle.Bold, 600, ForeColor);
+                TitleLarge = TS(16, FontStyle.Bold, 600, ForeColor);
+                TitleMedium = TS(14, FontStyle.Bold, 600, ForeColor);
+                TitleSmall = TS(12, FontStyle.Bold, 600, ForeColor);
+                BodyLarge = TS(12, FontStyle.Regular, 400, ForeColor);
+                BodyMedium = TS(10, FontStyle.Regular, 400, ForeColor);
+                BodySmall = TS(8, FontStyle.Regular, 400, C(55, 65, 81));
+                LabelLarge = TS(12, FontStyle.Regular, 500, C(55, 65, 81));
+                LabelMedium = TS(10, FontStyle.Regular, 500, C(75, 85, 99));
+                LabelSmall = TS(8, FontStyle.Regular, 500, C(75, 85, 99));
 
                 // Global font sizes
-                FontSizeBlockHeader = 20f;
-                FontSizeBlockText = 12f;
-                FontSizeQuestion = 16f;
-                FontSizeAnswer = 14f;
-                FontSizeCaption = 11f;
-                FontSizeButton = 12f;
+                FontSizeBlockHeader = 14f;
+                FontSizeBlockText = 8f;
+                FontSizeQuestion = 12f;
+                FontSizeAnswer = 10f;
+                FontSizeCaption = 8f;
+                FontSizeButton = 8f;
 
                 FontStyleRegular = FontStyle.Regular;
                 FontStyleBold = FontStyle.Bold;
@@ -855,12 +855,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 // -- Calendar
                 CalendarTitleFont = TitleSmall;
                 CalendarTitleForColor = ForeColor;
-                DaysHeaderFont = LabelMedium;
+                DaysHeaderFont = LabelSmall;
                 CalendarDaysHeaderForColor = C(75, 85, 99);
-                SelectedDateFont = LabelMedium;
+                SelectedDateFont = LabelSmall;
                 CalendarSelectedDateBackColor = Blend(PrimaryColor, Color.White, 0.85);
                 CalendarSelectedDateForColor = Darken(PrimaryColor, 0.35);
-                CalendarSelectedFont = LabelMedium;
+                CalendarSelectedFont = LabelSmall;
                 CalendarUnSelectedFont = LabelSmall;
                 CalendarBackColor = SurfaceColor;
                 CalendarForeColor = ForeColor;
@@ -870,9 +870,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 HeaderFont = TitleSmall;
                 MonthFont = TitleSmall;
                 YearFont = TitleSmall;
-                DaysFont = LabelMedium;
-                DaysSelectedFont = LabelMedium;
-                DateFont = LabelMedium;
+                DaysFont = LabelSmall;
+                DaysSelectedFont = LabelSmall;
+                DateFont = LabelSmall;
                 CalendarFooterColor = C(75, 85, 99);
                 FooterFont = LabelSmall;
 
@@ -906,8 +906,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 CheckBoxHoverBackColor = Blend(PrimaryColor, Color.White, 0.94);
                 CheckBoxHoverForeColor = Darken(PrimaryColor, 0.35);
                 CheckBoxHoverBorderColor = PrimaryColor;
-                CheckBoxFont = BodyMedium;
-                CheckBoxCheckedFont = BodyMedium;
+                CheckBoxFont = BodySmall;
+                CheckBoxCheckedFont = BodySmall;
 
                 RadioButtonBackColor = BackgroundColor;
                 RadioButtonForeColor = ForeColor;
@@ -918,8 +918,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 RadioButtonHoverBackColor = Blend(PrimaryColor, Color.White, 0.94);
                 RadioButtonHoverForeColor = Darken(PrimaryColor, 0.35);
                 RadioButtonHoverBorderColor = PrimaryColor;
-                RadioButtonFont = BodyMedium;
-                RadioButtonCheckedFont = BodyMedium;
+                RadioButtonFont = BodySmall;
+                RadioButtonCheckedFont = BodySmall;
                 RadioButtonSelectedForeColor = Darken(PrimaryColor, 0.35);
                 RadioButtonSelectedBackColor = Blend(PrimaryColor, Color.White, 0.90);
 
@@ -935,8 +935,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ComboBoxSelectedBorderColor = ActiveBorderColor;
                 ComboBoxErrorBackColor = Blend(ErrorColor, Color.White, 0.92);
                 ComboBoxErrorForeColor = C(97, 26, 21);
-                ComboBoxItemFont = BodyMedium;
-                ComboBoxListFont = BodyMedium;
+                ComboBoxItemFont = BodySmall;
+                ComboBoxListFont = BodySmall;
 
                 // -- Lists
                 ListBackColor = CardBackColor;
@@ -951,8 +951,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ListItemBorderColor = BorderColor;
                 ListItemHoverBorderColor = ActiveBorderColor;
                 ListTitleFont = TitleSmall;
-                ListSelectedFont = BodyMedium;
-                ListUnSelectedFont = BodyMedium;
+                ListSelectedFont = BodySmall;
+                ListUnSelectedFont = BodySmall;
 
                 // -- Links
                 LinkColor = C(37, 99, 235);
@@ -973,7 +973,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 LabelDisabledBackColor = DisabledBackColor;
                 LabelDisabledForeColor = DisabledForeColor;
                 LabelDisabledBorderColor = DisabledBorderColor;
-                LabelFont = BodyMedium;
+                LabelFont = BodySmall;
                 SubLabelFont = BodySmall;
                 SubLabelBackColor = BackgroundColor;
                 SubLabelForColor = C(75, 85, 99);
@@ -999,18 +999,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TextBoxErrorTextBoxColor = TextBoxErrorBackColor;
                 TextBoxErrorTextBoxBorderColor = Darken(ErrorColor, 0.18);
                 TextBoxErrorTextBoxHoverColor = Darken(ErrorColor, 0.12);
-                TextBoxFont = BodyMedium;
-                TextBoxHoverFont = BodyMedium;
-                TextBoxSelectedFont = BodyMedium;
+                TextBoxFont = BodySmall;
+                TextBoxHoverFont = BodySmall;
+                TextBoxSelectedFont = BodySmall;
 
                 // -- Grid
-                GridHeaderFont = LabelMedium;
-                GridRowFont = BodyMedium;
-                GridCellFont = BodyMedium;
-                GridCellSelectedFont = BodyMedium;
-                GridCellHoverFont = BodyMedium;
-                GridCellErrorFont = BodyMedium;
-                GridColumnFont = LabelMedium;
+                GridHeaderFont = LabelSmall;
+                GridRowFont = BodySmall;
+                GridCellFont = BodySmall;
+                GridCellSelectedFont = BodySmall;
+                GridCellHoverFont = BodySmall;
+                GridCellErrorFont = BodySmall;
+                GridColumnFont = LabelSmall;
                 GridBackColor = CardBackColor;
                 GridForeColor = ForeColor;
                 GridHeaderBackColor = C(243, 244, 246);
@@ -1037,8 +1037,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
                 // -- Navigation / Menu / Side Menu
                 NavigationTitleFont = TitleSmall;
-                NavigationSelectedFont = BodyMedium;
-                NavigationUnSelectedFont = BodyMedium;
+                NavigationSelectedFont = BodySmall;
+                NavigationUnSelectedFont = BodySmall;
                 NavigationBackColor = BackgroundColor;
                 NavigationForeColor = ForeColor;
                 NavigationHoverBackColor = Blend(PrimaryColor, Color.White, 0.93);
@@ -1048,8 +1048,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
                 // Menu fonts and colors
                 MenuTitleFont = TitleSmall;
-                MenuItemSelectedFont = BodyMedium;
-                MenuItemUnSelectedFont = BodyMedium;
+                MenuItemSelectedFont = BodySmall;
+                MenuItemUnSelectedFont = BodySmall;
                 MenuBackColor = CardBackColor;
                 MenuForeColor = ForeColor;
                 MenuBorderColor = BorderColor;
@@ -1129,8 +1129,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 StarRatingSelectedBorderColor = AccentColor;
                 StarTitleFont = TitleSmall;
                 StarSubTitleFont = BodySmall;
-                StarSelectedFont = BodyMedium;
-                StarUnSelectedFont = BodyMedium;
+                StarSelectedFont = BodySmall;
+                StarUnSelectedFont = BodySmall;
                 StarTitleForeColor = ForeColor;
                 StarTitleBackColor = BackgroundColor;
 
@@ -1152,8 +1152,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 DashboardGradiantDirection = LinearGradientMode.Vertical;
 
                 StatsTitleFont = TitleSmall;
-                StatsSelectedFont = BodyMedium;
-                StatsUnSelectedFont = BodyMedium;
+                StatsSelectedFont = BodySmall;
+                StatsUnSelectedFont = BodySmall;
                 StatsCardBackColor = CardBackColor;
                 StatsCardForeColor = ForeColor;
                 StatsCardBorderColor = BorderColor;
@@ -1180,8 +1180,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 StatsCardTrendStyle = BodySmall;
 
                 TaskCardTitleFont = TitleSmall;
-                TaskCardSelectedFont = BodyMedium;
-                TaskCardUnSelectedFont = BodyMedium;
+                TaskCardSelectedFont = BodySmall;
+                TaskCardUnSelectedFont = BodySmall;
                 TaskCardBackColor = CardBackColor;
                 TaskCardForeColor = ForeColor;
                 TaskCardBorderColor = BorderColor;
@@ -1304,13 +1304,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 Link = LinkStyle;
                 LinkIsUnderline = false;
                 SmallText = LabelSmall;
-                StrongText = TS(12, FontStyle.Bold, 700, ForeColor);
-                EmphasisText = TS(12, FontStyle.Italic, 400, ForeColor);
+                StrongText = TS(8, FontStyle.Bold, 700, ForeColor);
+                EmphasisText = TS(8, FontStyle.Italic, 400, ForeColor);
 
                 // -- Tabs
-                TabFont = BodyMedium;
-                TabHoverFont = BodyMedium;
-                TabSelectedFont = BodyMedium;
+                TabFont = BodySmall;
+                TabHoverFont = BodySmall;
+                TabSelectedFont = BodySmall;
                 TabBackColor = CardBackColor;
                 TabForeColor = C(75, 85, 99);
                 ActiveTabBackColor = BackgroundColor;
@@ -1327,8 +1327,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
 
                 // -- Trees
                 TreeTitleFont = TitleSmall;
-                TreeNodeSelectedFont = BodyMedium;
-                TreeNodeUnSelectedFont = BodyMedium;
+                TreeNodeSelectedFont = BodySmall;
+                TreeNodeUnSelectedFont = BodySmall;
                 TreeBackColor = CardBackColor;
                 TreeForeColor = ForeColor;
                 TreeBorderColor = BorderColor;
@@ -1354,7 +1354,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 LoginTitleFont = TitleSmall;
                 LoginSubtitleFont = BodySmall;
                 LoginDescriptionFont = BodySmall;
-                LoginLinkFont = BodyMedium;
+                LoginLinkFont = BodySmall;
                 LoginButtonFont = ButtonStyle;
 
                 CompanyPopoverBackgroundColor = CardBackColor;
@@ -1370,17 +1370,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 CompanyTitleFont = TitleSmall;
                 CompanySubTitleFont = BodySmall;
                 CompanyDescriptionFont = BodySmall;
-                CompanyLinkFont = BodyMedium;
+                CompanyLinkFont = BodySmall;
                 CompanyButtonFont = ButtonStyle;
 
                 // -- Stepper / Switch
                 StepperTitleFont = TitleSmall;
-                StepperSelectedFont = BodyMedium;
-                StepperUnSelectedFont = BodyMedium;
+                StepperSelectedFont = BodySmall;
+                StepperUnSelectedFont = BodySmall;
                 StepperBackColor = CardBackColor;
                 StepperForeColor = ForeColor;
                 StepperBorderColor = BorderColor;
-                StepperItemFont = BodyMedium;
+                StepperItemFont = BodySmall;
                 StepperSubTitleFont = BodySmall;
                 StepperItemForeColor = ForeColor;
                 StepperItemHoverForeColor = Darken(PrimaryColor, 0.35);
@@ -1395,8 +1395,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 StepperItemCheckedBoxBorderColor = PrimaryColor;
 
                 SwitchTitleFont = TitleSmall;
-                SwitchSelectedFont = BodyMedium;
-                SwitchUnSelectedFont = BodyMedium;
+                SwitchSelectedFont = BodySmall;
+                SwitchUnSelectedFont = BodySmall;
                 SwitchBackColor = C(229, 231, 235);
                 SwitchBorderColor = BorderColor;
                 SwitchForeColor = C(75, 85, 99);

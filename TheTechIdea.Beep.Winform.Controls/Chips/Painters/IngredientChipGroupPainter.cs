@@ -255,17 +255,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private (Color bg, Color fg, Color border, Color check) GetColors(ChipVisualState state)
         {
+            var theme = _theme;
+            
             if (state.IsSelected)
             {
-                return (GreenHover, TextDark, GreenSelected, GreenSelected);
+                Color bg = theme?.ButtonSelectedBackColor ?? GreenHover;
+                Color fg = theme?.ButtonSelectedForeColor ?? TextDark;
+                Color border = theme?.ButtonSelectedBorderColor ?? GreenSelected;
+                return (bg, fg, border, border);
             }
             else if (state.IsHovered)
             {
-                return (GreenLight, TextDark, GreenPrimary, GreenPrimary);
+                Color bg = theme?.ButtonHoverBackColor ?? GreenLight;
+                Color fg = theme?.ButtonHoverForeColor ?? TextDark;
+                Color border = theme?.ButtonHoverBorderColor ?? GreenPrimary;
+                return (bg, fg, border, border);
             }
             else
             {
-                return (Color.White, Color.FromArgb(97, 97, 97), GreenBorder, GreenBorder);
+                Color bg = theme?.ButtonBackColor ?? Color.White;
+                Color fg = theme?.ButtonForeColor ?? Color.FromArgb(97, 97, 97);
+                Color border = theme?.ButtonBorderColor ?? GreenBorder;
+                return (bg, fg, border, border);
             }
         }
 

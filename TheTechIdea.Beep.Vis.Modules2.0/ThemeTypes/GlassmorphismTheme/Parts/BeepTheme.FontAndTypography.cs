@@ -3,12 +3,12 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         public string FontName { get; set; } = "Segoe UI";
-        public float FontSize { get; set; } = 10f;
+        public float FontSize { get; set; } = 8f;
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16f,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.Black,
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12f,
+            FontSize = 14f,
             FontWeight = FontWeight.Regular,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.DimGray,
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.Black,
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 9f,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.Gray,
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.SemiBold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.Black,
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             FontStyle = System.Drawing.FontStyle.Underline,
             TextColor = System.Drawing.Color.SteelBlue,

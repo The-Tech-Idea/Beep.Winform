@@ -231,10 +231,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color bg, Color fg, Color accent) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
-            Color primary = theme?.PrimaryColor ?? Color.FromArgb(98, 0, 238); // Material purple
-            Color surface = theme?.CardBackColor ?? Color.White;
-            Color textColor = theme?.ForeColor ?? Color.FromArgb(33, 33, 33);
+            
+            // Use theme button colors
+            Color bg, fg, accent;
+            Color primary = theme?.ButtonBorderColor ?? Color.FromArgb(98, 0, 238);
 
+            // Override for semantic colors
             primary = state.Color switch
             {
                 ChipColor.Success => Color.FromArgb(76, 175, 80),
@@ -248,16 +250,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (state.IsSelected)
             {
-                return (primary, Color.White, primary);
+                bg = theme?.ButtonSelectedBackColor ?? primary;
+                fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                accent = bg;
             }
             else if (state.IsHovered)
             {
-                return (Color.FromArgb(245, 245, 245), textColor, primary);
+                bg = theme?.ButtonHoverBackColor ?? Color.FromArgb(245, 245, 245);
+                fg = theme?.ButtonHoverForeColor ?? (theme?.ForeColor ?? Color.FromArgb(33, 33, 33));
+                accent = primary;
             }
             else
             {
-                return (surface, textColor, primary);
+                bg = theme?.ButtonBackColor ?? (theme?.CardBackColor ?? Color.White);
+                fg = theme?.ButtonForeColor ?? (theme?.ForeColor ?? Color.FromArgb(33, 33, 33));
+                accent = primary;
             }
+            
+            return (bg, fg, accent);
         }
 
         #endregion

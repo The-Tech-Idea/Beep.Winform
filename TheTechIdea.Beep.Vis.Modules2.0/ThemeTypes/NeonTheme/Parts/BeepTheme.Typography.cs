@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading1 { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 32f,
+            FontSize = 22f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.5f,
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading2 { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 28f,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.4f,
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading3 { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 24f,
+            FontSize = 18f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.4f,
@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading4 { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 20f,
+            FontSize = 16f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.3f,
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading5 { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 18f,
+            FontSize = 14f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.3f,
@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading6 { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 16f,
+            FontSize = 12f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.2f,
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Paragraph { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.5f,
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Blockquote { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 10f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.5f,
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle InlineCode { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto Mono", // Fallback: Consolas
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(46, 204, 113), // Neon green
             LineHeight = 1.2f,
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CodeBlock { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto Mono", // Fallback: Consolas
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(241, 196, 15), // Neon yellow
             LineHeight = 1.4f,
@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle UnorderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.5f,
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OrderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.5f,
@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Link { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(155, 89, 182), // Neon purple
             LineHeight = 1.2f,
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SmallText { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(100, 100, 120), // Muted gray-blue
             LineHeight = 1.1f,
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StrongText { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.2f,
@@ -197,7 +197,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle EmphasisText { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.2f,
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 48f,
+            FontSize = 44f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.6f,
@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 36f,
+            FontSize = 34f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.5f,
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplaySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 28f,
+            FontSize = 26f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.4f,
@@ -245,7 +245,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 24f,
+            FontSize = 22f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.4f,
@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 16f,
+            FontSize = 12f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.5f,
@@ -329,7 +329,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 10f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.5f,
@@ -341,7 +341,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.4f,
@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 14f,
+            FontSize = 12f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.2f,
@@ -365,7 +365,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 12f,
+            FontSize = 10f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.2f,
@@ -377,7 +377,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.1f,

@@ -16,8 +16,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ComboBoxSelectedBorderColor { get; set; } = Color.FromArgb(0, 150, 200);
         public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(255, 100, 100);
         public Color ComboBoxErrorForeColor { get; set; } = Color.White;
-        public TypographyStyle ComboBoxItemFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.White };
-        public TypographyStyle ComboBoxListFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
+        public TypographyStyle ComboBoxItemFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.White };
+        public TypographyStyle ComboBoxListFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
         public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
         public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(0, 180, 230);
     }

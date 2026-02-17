@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class OceanTheme
     {
         // Switch control Fonts & Colors
-        public TypographyStyle SwitchTitleFont { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.White };
-        public TypographyStyle SwitchSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle SwitchUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
+        public TypographyStyle SwitchTitleFont { get; set; } = new TypographyStyle() { FontSize = 14f, FontWeight = FontWeight.Bold, TextColor = Color.White };
+        public TypographyStyle SwitchSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle SwitchUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
         public Color SwitchBackColor { get; set; } = Color.FromArgb(0, 105, 148);
         public Color SwitchBorderColor { get; set; } = Color.FromArgb(0, 120, 170);
         public Color SwitchForeColor { get; set; } = Color.FromArgb(200, 255, 255);

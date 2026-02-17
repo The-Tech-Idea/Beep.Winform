@@ -227,12 +227,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
-            Color primary = theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
-            Color surface = theme?.CardBackColor ?? Color.White;
-            Color textColor = theme?.ForeColor ?? Color.Black;
-            Color borderColor = theme?.BorderColor ?? Color.LightGray;
+            Color primary = theme?.ButtonBorderColor ?? Color.FromArgb(33, 150, 243);
 
-            // Apply ChipColor
+            // Apply ChipColor semantic overrides
             primary = state.Color switch
             {
                 ChipColor.Success => Color.FromArgb(76, 175, 80),
@@ -247,21 +244,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             Color bg, fg, border;
             if (state.IsSelected)
             {
-                bg = primary;
-                fg = Color.White;
-                border = primary;
+                bg = theme?.ButtonSelectedBackColor ?? primary;
+                fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                border = bg;
             }
             else if (state.IsHovered)
             {
-                bg = Color.FromArgb(30, primary);
-                fg = textColor;
-                border = Color.FromArgb(100, primary);
+                bg = theme?.ButtonHoverBackColor ?? Color.FromArgb(30, primary);
+                fg = theme?.ButtonHoverForeColor ?? (theme?.ForeColor ?? Color.Black);
+                border = theme?.ButtonHoverBorderColor ?? Color.FromArgb(100, primary);
             }
             else
             {
-                bg = surface;
-                fg = textColor;
-                border = borderColor;
+                bg = theme?.ButtonBackColor ?? (theme?.CardBackColor ?? Color.White);
+                fg = theme?.ButtonForeColor ?? (theme?.ForeColor ?? Color.Black);
+                border = theme?.ButtonBorderColor ?? (theme?.BorderColor ?? Color.LightGray);
             }
 
             return (bg, fg, border);

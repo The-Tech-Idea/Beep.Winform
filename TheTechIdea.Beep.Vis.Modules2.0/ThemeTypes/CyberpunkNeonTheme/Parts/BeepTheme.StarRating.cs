@@ -19,10 +19,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StarRatingSelectedBackColor { get; set; } = Color.FromArgb(34, 34, 68);   // Deep panel
         public Color StarRatingSelectedBorderColor { get; set; } = Color.FromArgb(0, 255, 128);// Neon Green
 
-        public TypographyStyle StarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Bold);
-        public TypographyStyle StarSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Italic);
-        public TypographyStyle StarSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Bold | FontStyle.Italic);
-        public TypographyStyle StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Regular);
+        public TypographyStyle StarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14f, FontStyle.Bold);
+        public TypographyStyle StarSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Italic);
+        public TypographyStyle StarSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Regular);
 
         public Color StarTitleForeColor { get; set; } = Color.FromArgb(0, 255, 255);           // Neon Cyan
         public Color StarTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);

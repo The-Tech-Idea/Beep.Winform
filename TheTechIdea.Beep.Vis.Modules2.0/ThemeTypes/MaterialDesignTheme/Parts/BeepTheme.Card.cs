@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // Card Colors & Fonts
-        public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 18f, FontStyle.Bold);
+        public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark Grey 900
         public Color CardBackColor { get; set; } = Color.White;
         public Color CardTitleForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark Grey 900
-        public TypographyStyle  CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
         public Color CardSubTitleForeColor { get; set; } = Color.FromArgb(117, 117, 117); // Grey 600
 
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle

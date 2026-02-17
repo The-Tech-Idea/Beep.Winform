@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading1 { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 28,
+            FontSize = 22f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading2 { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 24,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading3 { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 20,
+            FontSize = 18f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(127, 255, 212), // Mint
@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading4 { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 18,
+            FontSize = 16f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(255, 223, 93), // Lemon
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading5 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 14f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading6 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.FromArgb(206, 183, 255), // Pastel Lavender
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Paragraph { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(44, 62, 80), // Navy
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Blockquote { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 10f,
             FontWeight = FontWeight.SemiBold,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle InlineCode { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CodeBlock { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(44, 62, 80), // Navy
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle UnorderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(127, 255, 212), // Mint
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OrderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Link { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Underline,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SmallText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(206, 183, 255), // Pastel Lavender
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StrongText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Bold,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle EmphasisText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 34,
+            FontSize = 44f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -186,7 +186,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 30,
+            FontSize = 34f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplaySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 24,
+            FontSize = 26f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(127, 255, 212), // Mint
@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 20,
+            FontSize = 22f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 18,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 16,
+            FontSize = 18f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(127, 255, 212), // Mint
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle TitleLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Comic Sans MS",
-            FontSize = 16,
+            FontSize = 16f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(255, 223, 93), // Lemon
@@ -242,7 +242,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle TitleMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 14f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue
@@ -251,7 +251,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle TitleSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 12f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(44, 62, 80), // Navy
@@ -270,7 +270,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 10f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(44, 62, 80), // Navy
@@ -279,7 +279,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(206, 183, 255), // Pastel Lavender
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(127, 255, 212), // Mint
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 10f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(240, 100, 180), // Candy Pink
@@ -307,7 +307,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(54, 162, 235), // Soft Blue

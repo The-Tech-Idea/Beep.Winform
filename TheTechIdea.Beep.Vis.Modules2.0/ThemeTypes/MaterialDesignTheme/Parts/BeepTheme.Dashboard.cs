@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         // Dashboard Colors & Fonts
-        public TypographyStyle  DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 24f, FontStyle.Bold);
-        public TypographyStyle  DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Regular);
+        public TypographyStyle  DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
         public Color DashboardBackColor { get; set; } = Color.FromArgb(250, 250, 250);
         public Color DashboardCardBackColor { get; set; } = Color.White;
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(245, 245, 245);

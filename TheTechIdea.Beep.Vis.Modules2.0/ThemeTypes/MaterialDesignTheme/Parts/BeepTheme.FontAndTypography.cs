@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MaterialDesignTheme
     {
         public string FontName { get; set; } = "Roboto";
-        public float FontSize { get; set; } = 14f;
+        public float FontSize { get; set; } = 8f;
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
-            FontSize = 16f,
+            FontSize = 14f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.FromArgb(117, 117, 117) // Medium gray
         };
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.FromArgb(66, 66, 66) // Standard body text gray
         };
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.FromArgb(117, 117, 117) // Caption gray
         };
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.White,
             IsUnderlined = false
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
-            FontSize = 14f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.FromArgb(33, 150, 243), // Material Blue 500
             IsUnderlined = true
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OverlineStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.FromArgb(117, 117, 117), // Gray
             IsUnderlined = false

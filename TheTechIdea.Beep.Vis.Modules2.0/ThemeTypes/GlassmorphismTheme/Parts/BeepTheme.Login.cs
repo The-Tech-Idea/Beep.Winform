@@ -13,14 +13,14 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle  LoginSubtitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Italic);
 
         public Color LoginDescriptionColor { get; set; } = Color.Gray;
-        public TypographyStyle  LoginDescriptionFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  LoginDescriptionFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
 
         public Color LoginLinkColor { get; set; } = Color.SteelBlue;
-        public TypographyStyle  LoginLinkFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Underline);
+        public TypographyStyle  LoginLinkFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Underline);
 
         public Color LoginButtonBackgroundColor { get; set; } = Color.SkyBlue;
         public Color LoginButtonTextColor { get; set; } = Color.White;
-        public TypographyStyle  LoginButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  LoginButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
 
         public Color LoginDropdownBackgroundColor { get; set; } = Color.WhiteSmoke;
         public Color LoginDropdownTextColor { get; set; } = Color.Black;

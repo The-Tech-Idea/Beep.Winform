@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Tree Fonts & Colors
         public TypographyStyle TreeTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14f, FontStyle.Bold);
-        public TypographyStyle TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
-        public TypographyStyle TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Regular);
 
         public Color TreeBackColor { get; set; } = Color.FromArgb(18, 18, 32);                  // Dark background
         public Color TreeForeColor { get; set; } = Color.FromArgb(0, 255, 255);                  // Neon cyan text

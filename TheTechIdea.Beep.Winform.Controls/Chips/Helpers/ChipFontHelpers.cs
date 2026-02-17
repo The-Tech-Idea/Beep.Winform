@@ -4,6 +4,8 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.Helpers; // For DpiScalingHelper
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 {
@@ -15,12 +17,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
     {
         /// <summary>
         /// Gets the font for chip text based on chip size and control style
+        /// Uses theme ButtonFont when available, otherwise falls back to computed font
         /// </summary>
         public static Font GetChipFont(
             BeepControlStyle controlStyle,
             ChipSize chipSize,
             float dpiScale = 1.0f)
         {
+            // Try to get font from current theme first
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme != null && theme.ButtonFont != null)
+            {
+                var themeFont = BeepThemesManager.ToFont(theme.ButtonFont);
+                if (themeFont != null)
+                    return themeFont;
+            }
+
+            // Fallback to computed font
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             
             // Adjust size based on chip size
@@ -45,11 +58,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 
         /// <summary>
         /// Gets the font for chip group title
+        /// Uses theme TitleMedium when available, otherwise falls back to computed font
         /// </summary>
         public static Font GetTitleFont(
             BeepControlStyle controlStyle,
             float dpiScale = 1.0f)
         {
+            // Try to get font from current theme first
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme != null)
+            {
+                // Try TitleMedium first, then TitleStyle
+                var titleStyle = theme.TitleMedium ?? theme.TitleStyle;
+                if (titleStyle != null)
+                {
+                    var themeFont = BeepThemesManager.ToFont(titleStyle);
+                    if (themeFont != null)
+                        return themeFont;
+                }
+            }
+
+            // Fallback to computed font
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float titleSize = baseSize * 1.2f; // 20% larger
             
@@ -66,12 +95,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 
         /// <summary>
         /// Gets the font for chip icon (if text-based)
+        /// Uses theme LabelSmall/CaptionStyle when available, otherwise falls back to computed font
         /// </summary>
         public static Font GetIconFont(
             BeepControlStyle controlStyle,
             ChipSize chipSize,
             float dpiScale = 1.0f)
         {
+            // Try to get font from current theme first
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme != null)
+            {
+                // Try LabelSmall first, then CaptionStyle
+                var iconStyle = theme.LabelSmall ?? theme.CaptionStyle;
+                if (iconStyle != null)
+                {
+                    var themeFont = BeepThemesManager.ToFont(iconStyle);
+                    if (themeFont != null)
+                        return themeFont;
+                }
+            }
+
+            // Fallback to computed font
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             
             // Icon font is typically smaller
@@ -96,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 
         /// <summary>
         /// Applies font theme to chip control
-        /// Updates the control's Font property based on ControlStyle and ChipSize
+        /// Updates the control's Font property using theme ButtonFont (via GetChipFont)
         /// </summary>
         public static void ApplyFontTheme(
             Control control,
@@ -106,6 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         {
             if (control == null) return;
             
+            // GetChipFont already checks theme first, then falls back to computed font
             control.Font = GetChipFont(controlStyle, chipSize, dpiScale);
         }
     }

@@ -89,7 +89,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             System.Diagnostics.Debug.WriteLine("BeginEdit: Creating editor control...");
             cell = _grid.Data.Rows[r].Cells[c];
             
-
             // Remove previous editor from host - ALWAYS clear completely
             if (_editorControl != null)
             {

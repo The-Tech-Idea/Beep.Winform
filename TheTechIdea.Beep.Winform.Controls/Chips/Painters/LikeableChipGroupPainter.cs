@@ -263,17 +263,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private (Color bg, Color fg, Color heart) GetColors(ChipVisualState state)
         {
+            var theme = _theme;
+            
             if (state.IsSelected)
             {
-                return (PinkSelected, Color.White, Color.White);
+                Color bg = theme?.ButtonSelectedBackColor ?? PinkSelected;
+                Color fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                Color heart = fg;
+                return (bg, fg, heart);
             }
             else if (state.IsHovered)
             {
-                return (PinkHover, Color.FromArgb(136, 14, 79), HeartRed);
+                Color bg = theme?.ButtonHoverBackColor ?? PinkHover;
+                Color fg = theme?.ButtonHoverForeColor ?? Color.FromArgb(136, 14, 79);
+                Color heart = HeartRed;
+                return (bg, fg, heart);
             }
             else
             {
-                return (PinkLight, Color.FromArgb(136, 14, 79), PinkPrimary);
+                Color bg = theme?.ButtonBackColor ?? PinkLight;
+                Color fg = theme?.ButtonForeColor ?? Color.FromArgb(136, 14, 79);
+                Color heart = PinkPrimary;
+                return (bg, fg, heart);
             }
         }
 

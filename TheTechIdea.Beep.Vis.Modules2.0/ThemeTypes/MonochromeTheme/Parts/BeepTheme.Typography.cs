@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading1 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 32,
+            FontSize = 22f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.Black,
             LineHeight = 1.2f,
@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading2 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 28,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.Black,
             LineHeight = 1.3f,
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading3 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 24,
+            FontSize = 18f,
             FontWeight = FontWeight.SemiBold,
             TextColor = Color.Black,
             LineHeight = 1.3f,
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading4 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 20,
+            FontSize = 16f,
             FontWeight = FontWeight.SemiBold,
             TextColor = Color.Black,
             LineHeight = 1.35f,
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading5 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 18,
+            FontSize = 14f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
             LineHeight = 1.35f,
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading6 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 12f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
             LineHeight = 1.4f,
@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Paragraph { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
             LineHeight = 1.5f,
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Blockquote { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI Italic",
-            FontSize = 14,
+            FontSize = 10f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Gray,
            FontStyle= FontStyle.Italic
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle InlineCode { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 13,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.DarkGray,
         };
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CodeBlock { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 13,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.DarkGray,
         };
@@ -91,14 +91,14 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle UnorderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
         };
         public TypographyStyle OrderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
         };
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Link { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Blue,
             IsUnderlined = true,
@@ -116,21 +116,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SmallText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Gray,
         };
         public TypographyStyle StrongText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.Black,
         };
         public TypographyStyle EmphasisText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI Italic",
-            FontSize = 14,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
             FontStyle = FontStyle.Italic,
@@ -138,105 +138,105 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 57,
+            FontSize = 44f,
             FontWeight = FontWeight.Light,
             TextColor = Color.Black,
         };
         public TypographyStyle DisplayMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 45,
+            FontSize = 34f,
             FontWeight = FontWeight.Light,
             TextColor = Color.Black,
         };
         public TypographyStyle DisplaySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 36,
+            FontSize = 26f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.Black,
         };
         public TypographyStyle HeadlineLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 32,
+            FontSize = 22f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.Black,
         };
         public TypographyStyle HeadlineMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 28,
+            FontSize = 20f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.Black,
         };
         public TypographyStyle HeadlineSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 24,
+            FontSize = 18f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.Black,
         };
         public TypographyStyle TitleLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 22,
+            FontSize = 16f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
         };
         public TypographyStyle TitleMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 14f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
         };
         public TypographyStyle TitleSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
         };
         public TypographyStyle BodyLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 12f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
         };
         public TypographyStyle BodyMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 10f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
         };
         public TypographyStyle BodySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Black,
         };
         public TypographyStyle LabelLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
         };
         public TypographyStyle LabelMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 10f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
         };
         public TypographyStyle LabelSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             TextColor = Color.Black,
         };

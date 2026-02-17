@@ -17,8 +17,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsUnderlined = false,
             IsStrikeout = false
         };
-        public TypographyStyle ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 9F, FontStyle.Regular);
-        public TypographyStyle ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 9F, FontStyle.Bold);
+        public TypographyStyle ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 8f, FontStyle.Regular);
+        public TypographyStyle ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 8f, FontStyle.Bold);
 
         // Normal State
         public Color ButtonBackColor { get; set; } = Color.FromArgb(40, 40, 60); // Dark blue-gray

@@ -120,6 +120,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             System.Diagnostics.Debug.WriteLine($"=== After initializing fields ===");
 
+            // Hide each inline quick search control individually if click is outside its bounds
+            _grid.HideInlineQSComboIfClickedOutside(e.Location);
+            _grid.HideInlineQSTextIfClickedOutside(e.Location);
+
+            // Show each inline quick search control individually if click is on its painted rect
+            _grid.ShowInlineQSComboIfClickedOn(e.Location);
+            _grid.ShowInlineQSTextIfClickedOn(e.Location);
+
             if (e.Button == MouseButtons.Left && e.Clicks >= 2 && TryHandleColumnBorderDoubleClick(e.Location))
             {
                 System.Diagnostics.Debug.WriteLine("Double-click on column border handled");

@@ -71,12 +71,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                     if (cnt.HasValue)
                     {
                         string s = cnt.Value.ToString();
-                        var sz = TextRenderer.MeasureText(g, s, PaintersFactory.GetFont(Font), new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
+                        var sz = TextRenderer.MeasureText(g, s, _textFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
                         var br = new Rectangle(chip.Bounds.Right - (sz.Width +12), chip.Bounds.Top -8, sz.Width +10,16);
                         var bg = PaintersFactory.GetSolidBrush(_currentTheme.NavigationSelectedBackColor);
                         var fg = PaintersFactory.GetSolidBrush(_currentTheme.NavigationSelectedForeColor);
                         g.FillRectangle(bg, br);
-                        TextRenderer.DrawText(g, s, PaintersFactory.GetFont(Font), br, _currentTheme.NavigationSelectedForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                        TextRenderer.DrawText(g, s, _textFont, br, _currentTheme.NavigationSelectedForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                     }
                 }
             }

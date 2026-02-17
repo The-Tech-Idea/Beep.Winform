@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color BadgeBackColor { get; set; } = Color.FromArgb(70, 130, 180); // SteelBlue
         public Color BadgeForeColor { get; set; } = Color.White;
         public Color HighlightBackColor { get; set; } = Color.FromArgb(135, 206, 235); // SkyBlue
-        public TypographyStyle  BadgeFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle  BadgeFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
 
     }
 }

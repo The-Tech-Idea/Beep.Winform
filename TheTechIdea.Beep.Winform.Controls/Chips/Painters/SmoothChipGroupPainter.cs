@@ -257,10 +257,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color bg, Color fg, Color glow) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
-            Color primary = theme?.PrimaryColor ?? Color.FromArgb(103, 58, 183);
-            Color surface = theme?.CardBackColor ?? Color.White;
-            Color textColor = theme?.ForeColor ?? Color.FromArgb(33, 33, 33);
+            Color primary = theme?.ButtonBorderColor ?? Color.FromArgb(103, 58, 183);
 
+            // Override for semantic colors
             primary = state.Color switch
             {
                 ChipColor.Success => Color.FromArgb(76, 175, 80),
@@ -274,15 +273,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (state.IsSelected)
             {
-                return (primary, Color.White, primary);
+                Color bg = theme?.ButtonSelectedBackColor ?? primary;
+                Color fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                return (bg, fg, bg);
             }
             else if (state.IsHovered)
             {
-                return (Color.FromArgb(250, 250, 250), textColor, Color.FromArgb(100, 100, 100));
+                Color bg = theme?.ButtonHoverBackColor ?? Color.FromArgb(250, 250, 250);
+                Color fg = theme?.ButtonHoverForeColor ?? (theme?.ForeColor ?? Color.FromArgb(33, 33, 33));
+                Color glow = Color.FromArgb(100, 100, 100);
+                return (bg, fg, glow);
             }
             else
             {
-                return (surface, textColor, Color.FromArgb(150, 150, 150));
+                Color bg = theme?.ButtonBackColor ?? (theme?.CardBackColor ?? Color.White);
+                Color fg = theme?.ButtonForeColor ?? (theme?.ForeColor ?? Color.FromArgb(33, 33, 33));
+                Color glow = Color.FromArgb(150, 150, 150);
+                return (bg, fg, glow);
             }
         }
 

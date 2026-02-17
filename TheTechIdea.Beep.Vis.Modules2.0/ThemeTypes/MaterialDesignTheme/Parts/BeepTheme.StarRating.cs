@@ -16,10 +16,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StarRatingSelectedBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color StarRatingSelectedBorderColor { get; set; } = Color.FromArgb(255, 193, 7); // Amber 500
 
-        public TypographyStyle  StarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Bold);
+        public TypographyStyle  StarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
         public TypographyStyle  StarSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
-        public TypographyStyle  StarSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
-        public TypographyStyle  StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  StarSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 8f, FontStyle.Bold);
+        public TypographyStyle  StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 8f, FontStyle.Regular);
 
         public Color StarTitleForeColor { get; set; } = Color.Black;
         public Color StarTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);

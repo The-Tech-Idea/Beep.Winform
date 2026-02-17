@@ -18,8 +18,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color RadioButtonHoverForeColor { get; set; } = Color.FromArgb(255, 255, 0);   // Neon Yellow (hover text)
         public Color RadioButtonHoverBorderColor { get; set; } = Color.FromArgb(0, 255, 255); // Neon Cyan (hover border)
 
-        public TypographyStyle RadioButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Regular);
-        public TypographyStyle RadioButtonCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Bold);
+        public TypographyStyle RadioButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Regular);
+        public TypographyStyle RadioButtonCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Bold);
 
         public Color RadioButtonSelectedForeColor { get; set; } = Color.FromArgb(255, 255, 0);    // Neon Yellow (selected)
         public Color RadioButtonSelectedBackColor { get; set; } = Color.FromArgb(0, 255, 255);    // Neon Cyan (selected BG)

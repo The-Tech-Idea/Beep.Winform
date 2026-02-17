@@ -27,8 +27,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LabelDisabledBorderColor { get; set; } = Color.FromArgb(210, 210, 210); // Muted border
 
         // Fonts: playful main, lighter sublabel
-        public TypographyStyle LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
-        public TypographyStyle SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
+        public TypographyStyle LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 8f, FontStyle.Bold);
+        public TypographyStyle SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Italic);
 
         // SubLabel: mint on pink, lemon highlight on hover
         public Color SubLabelForColor { get; set; } = Color.FromArgb(127, 255, 212);         // Mint

@@ -23,9 +23,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TextBoxErrorTextBoxColor { get; set; } = Color.FromArgb(40, 0, 0);
         public Color TextBoxErrorTextBoxBorderColor { get; set; } = Color.OrangeRed;
         public Color TextBoxErrorTextBoxHoverColor { get; set; } = Color.Red;
-        public TypographyStyle  TextBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11f, FontStyle.Regular);
-        public TypographyStyle  TextBoxHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11f, FontStyle.Regular);
-        public TypographyStyle  TextBoxSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11f, FontStyle.Bold);
+        public TypographyStyle  TextBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
+        public TypographyStyle  TextBoxHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
+        public TypographyStyle  TextBoxSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
 
     }
 }

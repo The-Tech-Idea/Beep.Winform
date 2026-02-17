@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Tab Fonts & Colors
-        public TypographyStyle TabFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
-        public TypographyStyle TabHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle TabSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle TabFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public TypographyStyle TabHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle TabSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
         public Color TabBackColor { get; set; } = Color.FromArgb(255, 245, 247);
         public Color TabForeColor { get; set; } = Color.FromArgb(120, 120, 120);
         public Color ActiveTabBackColor { get; set; } = Color.FromArgb(245, 183, 203);

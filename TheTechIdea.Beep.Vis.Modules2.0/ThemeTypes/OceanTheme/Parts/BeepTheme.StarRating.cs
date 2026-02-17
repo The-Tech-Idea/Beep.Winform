@@ -15,10 +15,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StarRatingSelectedForeColor { get; set; } = Color.White;
         public Color StarRatingSelectedBackColor { get; set; } = Color.FromArgb(0, 180, 230);
         public Color StarRatingSelectedBorderColor { get; set; } = Color.FromArgb(0, 150, 200);
-        public TypographyStyle StarTitleFont { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.White };
-        public TypographyStyle StarSubTitleFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(200, 255, 255) };
-        public TypographyStyle StarSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle StarUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
+        public TypographyStyle StarTitleFont { get; set; } = new TypographyStyle() { FontSize = 14f, FontWeight = FontWeight.Bold, TextColor = Color.White };
+        public TypographyStyle StarSubTitleFont { get; set; } = new TypographyStyle() { FontSize = 12f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(200, 255, 255) };
+        public TypographyStyle StarSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle StarUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
         public Color StarTitleForeColor { get; set; } = Color.White;
         public Color StarTitleBackColor { get; set; } = Color.FromArgb(0, 150, 200);
     }

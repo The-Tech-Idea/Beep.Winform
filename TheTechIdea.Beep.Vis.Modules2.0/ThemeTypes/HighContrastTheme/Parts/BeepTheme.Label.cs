@@ -17,8 +17,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LabelDisabledBackColor { get; set; } = Color.Gray;
         public Color LabelDisabledForeColor { get; set; } = Color.DarkGray;
         public Color LabelDisabledBorderColor { get; set; } = Color.DimGray;
-        public TypographyStyle  LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
-        public TypographyStyle  SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 9, FontStyle.Regular);
+        public TypographyStyle  LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
+        public TypographyStyle  SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
         public Color SubLabelForColor { get; set; } = Color.LightGray;
         public Color SubLabelBackColor { get; set; } = Color.Black;
         public Color SubLabelHoverBackColor { get; set; } = Color.DarkGray;

@@ -7,19 +7,19 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Dialog Button Colors and Fonts
         public Color DialogBackColor { get; set; } = Color.FromArgb(255, 245, 247);
         public Color DialogForeColor { get; set; } = Color.FromArgb(80, 80, 80);
-        public TypographyStyle DialogYesButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogNoButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogOkButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogCancelButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogWarningButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogErrorButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogInformationButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogQuestionButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogHelpButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogCloseButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle DialogYesButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle DialogNoButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle DialogOkButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle DialogYesButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogNoButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogOkButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogCancelButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogWarningButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogErrorButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogInformationButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogQuestionButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogHelpButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogCloseButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle DialogYesButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle DialogNoButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle DialogOkButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
 
         public Color DialogYesButtonBackColor { get; set; } = Color.FromArgb(245, 183, 203);
         public Color DialogYesButtonForeColor { get; set; } = Color.FromArgb(80, 80, 80);

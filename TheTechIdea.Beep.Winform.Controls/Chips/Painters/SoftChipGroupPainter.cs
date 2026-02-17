@@ -191,13 +191,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private (Color bg, Color text) GetColors(SimpleItem item, ChipVisualState state)
         {
+            var theme = _theme;
             int colorIndex = Math.Abs((item?.GuidId ?? item?.Text ?? "").GetHashCode()) % PastelColors.Length;
             var (bg, text) = PastelColors[colorIndex];
 
             if (state.IsSelected)
             {
-                // Slightly more saturated for selected
-                bg = ControlPaint.Dark(bg, 0.05f);
+                // Use theme selected button color if available, otherwise darken pastel color
+                bg = theme?.ButtonSelectedBackColor ?? ControlPaint.Dark(bg, 0.05f);
+                text = theme?.ButtonSelectedForeColor ?? text;
+            }
+            else if (state.IsHovered)
+            {
+                // Use theme hover tint if available
+                bg = theme?.ButtonHoverBackColor ?? bg;
+                text = theme?.ButtonHoverForeColor ?? text;
             }
 
             return (bg, text);

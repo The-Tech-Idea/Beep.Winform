@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ProgressBarErrorColor { get; set; } = Color.FromArgb(255, 0, 0);         // Bright Red (error)
         public Color ProgressBarSuccessColor { get; set; } = Color.FromArgb(255, 255, 0);     // Neon Yellow (success)
 
-        public TypographyStyle ProgressBarFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Bold);
+        public TypographyStyle ProgressBarFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 8f, FontStyle.Bold);
         public Color ProgressBarInsideTextColor { get; set; } = Color.White;
 
         public Color ProgressBarHoverBackColor { get; set; } = Color.FromArgb(0, 255, 128);   // Neon Green (hover BG)

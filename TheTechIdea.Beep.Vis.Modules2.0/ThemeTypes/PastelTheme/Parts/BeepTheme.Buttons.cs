@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Button Colors and Styles
-        public TypographyStyle ButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle ButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle ButtonSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Bold, TextColor = Color.White };
+        public TypographyStyle ButtonFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle ButtonHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle ButtonSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Bold, TextColor = Color.White };
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(255, 204, 221);
         public Color ButtonHoverForeColor { get; set; } = Color.White;

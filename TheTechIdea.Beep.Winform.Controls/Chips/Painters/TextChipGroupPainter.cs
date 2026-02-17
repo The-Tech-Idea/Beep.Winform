@@ -44,9 +44,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
             closeRect = Rectangle.Empty;
             var font = ResolveFont(opt, scale);
-            var accent = _theme?.PrimaryColor ?? Color.RoyalBlue;
-            var text = _theme?.ForeColor ?? Color.Black;
-            if (state.IsSelected) text = accent;
+            
+            // Use theme button colors
+            Color accent, text;
+            if (state.IsSelected)
+            {
+                accent = _theme?.ButtonSelectedBackColor ?? (_theme?.PrimaryColor ?? Color.RoyalBlue);
+                text = _theme?.ButtonSelectedForeColor ?? accent;
+            }
+            else if (state.IsHovered)
+            {
+                accent = _theme?.ButtonHoverBackColor ?? (_theme?.PrimaryColor ?? Color.RoyalBlue);
+                text = _theme?.ButtonHoverForeColor ?? (_theme?.ForeColor ?? Color.Black);
+            }
+            else
+            {
+                accent = _theme?.ButtonBackColor ?? (_theme?.PrimaryColor ?? Color.RoyalBlue);
+                text = _theme?.ButtonForeColor ?? (_theme?.ForeColor ?? Color.Black);
+            }
 
             if (state.IsHovered || state.IsSelected)
             {

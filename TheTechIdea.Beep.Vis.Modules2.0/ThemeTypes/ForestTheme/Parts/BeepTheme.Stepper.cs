@@ -5,15 +5,15 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Stepper Fonts & Colors
-        public TypographyStyle StepperTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
-        public TypographyStyle StepperSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
-        public TypographyStyle StepperUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle StepperTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle StepperSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
+        public TypographyStyle StepperUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
         public Color StepperBackColor { get; set; } = Color.FromArgb(34, 139, 34); // ForestGreen
         public Color StepperForeColor { get; set; } = Color.White;
         public Color StepperBorderColor { get; set; } = Color.DarkGreen;
         public Color StepperItemForeColor { get; set; } = Color.LightGreen;
-        public TypographyStyle StepperItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Regular);
-        public TypographyStyle StepperSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Italic);
+        public TypographyStyle StepperItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
+        public TypographyStyle StepperSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Italic);
         public Color StepperItemHoverForeColor { get; set; } = Color.WhiteSmoke;
         public Color StepperItemHoverBackColor { get; set; } = Color.FromArgb(46, 139, 87); // MediumSeaGreen
         public Color StepperItemSelectedForeColor { get; set; } = Color.White;

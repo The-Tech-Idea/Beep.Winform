@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Tree Fonts & Colors with Material Design defaults
         public TypographyStyle  TreeTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14F, FontStyle.Bold);
-        public TypographyStyle  TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12F, FontStyle.Bold);
-        public TypographyStyle  TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12F, FontStyle.Regular);
+        public TypographyStyle  TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 8f, FontStyle.Bold);
+        public TypographyStyle  TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 8f, FontStyle.Regular);
 
         public Color TreeBackColor { get; set; } = Color.White;
         public Color TreeForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 900

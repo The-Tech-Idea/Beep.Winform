@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class OceanTheme
     {
         // Tree Fonts & Colors
-        public TypographyStyle TreeTitleFont { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.White };
-        public TypographyStyle TreeNodeSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle TreeNodeUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
+        public TypographyStyle TreeTitleFont { get; set; } = new TypographyStyle() { FontSize = 14f, FontWeight = FontWeight.Bold, TextColor = Color.White };
+        public TypographyStyle TreeNodeSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle TreeNodeUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
         public Color TreeBackColor { get; set; } = Color.FromArgb(0, 105, 148);
         public Color TreeForeColor { get; set; } = Color.FromArgb(200, 255, 255);
         public Color TreeBorderColor { get; set; } = Color.FromArgb(0, 120, 170);

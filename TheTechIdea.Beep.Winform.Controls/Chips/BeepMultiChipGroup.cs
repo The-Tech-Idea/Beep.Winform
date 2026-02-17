@@ -683,10 +683,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 _titleColor = Helpers.ChipThemeHelpers.GetTitleColor(_currentTheme, UseThemeColors);
                 BackColor = Helpers.ChipThemeHelpers.GetGroupBackgroundColor(_currentTheme, UseThemeColors);
                 
-                // Update title font
+                // Update title font (uses BeepFontManager internally)
                 _titleFont = Helpers.ChipFontHelpers.GetTitleFont(ControlStyle, dpiScale);
-                
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonFont) ?? _textFont;
+
+                // Use ChipFontHelpers (which uses BeepFontManager) for chip text font
+                _textFont = Helpers.ChipFontHelpers.GetChipFont(ControlStyle, _chipSize, dpiScale);
                 
                 _renderOptions.Theme = _currentTheme;
                 _painter?.UpdateTheme(_currentTheme);

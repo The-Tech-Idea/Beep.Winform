@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Chart Fonts & Colors
-        public TypographyStyle ChartTitleFont { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle ChartSubTitleFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(120, 120, 120) };
+        public TypographyStyle ChartTitleFont { get; set; } = new TypographyStyle() { FontSize = 14f, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle ChartSubTitleFont { get; set; } = new TypographyStyle() { FontSize = 12f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(120, 120, 120) };
         public Color ChartBackColor { get; set; } = Color.FromArgb(255, 245, 247);
         public Color ChartLineColor { get; set; } = Color.FromArgb(245, 183, 203);
         public Color ChartFillColor { get; set; } = Color.FromArgb(150, 245, 183, 203);

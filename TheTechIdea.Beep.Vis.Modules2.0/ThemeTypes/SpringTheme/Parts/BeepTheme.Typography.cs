@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading1 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 32,
+            FontSize = 22f,
             LineHeight = 1.2f,
             LetterSpacing = 0.5f,
             FontWeight = FontWeight.Bold,
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading2 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 28,
+            FontSize = 20f,
             LineHeight = 1.2f,
             LetterSpacing = 0.4f,
             FontWeight = FontWeight.Bold,
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading3 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 24,
+            FontSize = 18f,
             LineHeight = 1.2f,
             LetterSpacing = 0.3f,
             FontWeight = FontWeight.Bold,
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading4 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 20,
+            FontSize = 16f,
             LineHeight = 1.2f,
             LetterSpacing = 0.3f,
             FontWeight = FontWeight.Bold,
@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading5 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 14f,
             LineHeight = 1.2f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Bold,
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Heading6 { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             LineHeight = 1.2f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Bold,
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Paragraph { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Blockquote { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 10f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle InlineCode { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 12,
+            FontSize = 8f,
             LineHeight = 1.3f,
             LetterSpacing = 0.1f,
             FontWeight = FontWeight.Normal,
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CodeBlock { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 12,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.1f,
             FontWeight = FontWeight.Normal,
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle UnorderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OrderedList { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle Link { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SmallText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             LineHeight = 1.2f,
             LetterSpacing = 0.1f,
             FontWeight = FontWeight.Normal,
@@ -184,7 +184,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StrongText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Bold,
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle EmphasisText { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 48,
+            FontSize = 44f,
             LineHeight = 1.1f,
             LetterSpacing = 0.6f,
             FontWeight = FontWeight.Bold,
@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplayMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 36,
+            FontSize = 34f,
             LineHeight = 1.1f,
             LetterSpacing = 0.5f,
             FontWeight = FontWeight.Bold,
@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DisplaySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 28,
+            FontSize = 26f,
             LineHeight = 1.1f,
             LetterSpacing = 0.4f,
             FontWeight = FontWeight.Bold,
@@ -244,7 +244,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 32,
+            FontSize = 22f,
             LineHeight = 1.2f,
             LetterSpacing = 0.5f,
             FontWeight = FontWeight.Bold,
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 28,
+            FontSize = 20f,
             LineHeight = 1.2f,
             LetterSpacing = 0.4f,
             FontWeight = FontWeight.Bold,
@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle HeadlineSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 24,
+            FontSize = 18f,
             LineHeight = 1.2f,
             LetterSpacing = 0.3f,
             FontWeight = FontWeight.Bold,
@@ -280,7 +280,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle TitleLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 22,
+            FontSize = 16f,
             LineHeight = 1.2f,
             LetterSpacing = 0.3f,
             FontWeight = FontWeight.Medium,
@@ -292,7 +292,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle TitleMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 14f,
             LineHeight = 1.2f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Medium,
@@ -304,7 +304,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle TitleSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             LineHeight = 1.2f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Medium,
@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16,
+            FontSize = 12f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 10f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodySmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 8f,
             LineHeight = 1.4f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Normal,
@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelLarge { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 12f,
             LineHeight = 1.3f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Medium,
@@ -364,7 +364,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelMedium { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 10f,
             LineHeight = 1.3f,
             LetterSpacing = 0.2f,
             FontWeight = FontWeight.Medium,
@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelSmall { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 8f,
             LineHeight = 1.3f,
             LetterSpacing = 0.1f,
             FontWeight = FontWeight.Medium,

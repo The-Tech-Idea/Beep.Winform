@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
 
-        public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.FromArgb(220, 220, 240); // Light lavender text
         public Color CardBackColor { get; set; } = Color.FromArgb(25, 25, 50); // Deep space blue
         public Color CardTitleForeColor { get; set; } = Color.FromArgb(180, 180, 255); // Light blue-purple
-        public TypographyStyle  CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
+        public TypographyStyle  CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Italic);
         public Color CardSubTitleForeColor { get; set; } = Color.FromArgb(160, 160, 210); // Medium lavender
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
         {

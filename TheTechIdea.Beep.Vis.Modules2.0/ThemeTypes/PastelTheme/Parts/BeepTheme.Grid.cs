@@ -5,13 +5,13 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Grid Fonts
-        public TypographyStyle GridHeaderFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle GridRowFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
-        public TypographyStyle GridCellFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
-        public TypographyStyle GridCellSelectedFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle GridCellHoverFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle GridCellErrorFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(255, 182, 182) };
-        public TypographyStyle GridColumnFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle GridHeaderFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle GridRowFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public TypographyStyle GridCellFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public TypographyStyle GridCellSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle GridCellHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle GridCellErrorFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(255, 182, 182) };
+        public TypographyStyle GridColumnFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
 
         // Grid Colors
         public Color GridBackColor { get; set; } = Color.FromArgb(255, 245, 247);

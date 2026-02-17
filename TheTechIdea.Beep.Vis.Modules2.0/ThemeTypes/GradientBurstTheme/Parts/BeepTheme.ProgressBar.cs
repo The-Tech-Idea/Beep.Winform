@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ProgressBarChunkColor { get; set; } = Color.FromArgb(0, 153, 255);
         public Color ProgressBarErrorColor { get; set; } = Color.FromArgb(220, 53, 69);
         public Color ProgressBarSuccessColor { get; set; } = Color.FromArgb(40, 167, 69);
-        public TypographyStyle  ProgressBarFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle  ProgressBarFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
         public Color ProgressBarInsideTextColor { get; set; } = Color.White;
         public Color ProgressBarHoverBackColor { get; set; } = Color.FromArgb(210, 225, 245);
         public Color ProgressBarHoverForeColor { get; set; } = Color.FromArgb(0, 100, 180);

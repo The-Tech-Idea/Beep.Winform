@@ -61,7 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 repainted |= TryInvalidateCell(row, col);
             }
 
-            if (!repainted)
+            // Only do full invalidate if regional invalidations completely failed
+            // This prevents flickering of controls like combobox search textboxes
+            if (!repainted && _grid.Layout?.RowsRect.IsEmpty != false)
             {
                 _grid.SafeInvalidate();
             }

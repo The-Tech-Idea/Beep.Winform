@@ -23,8 +23,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TextBoxErrorTextBoxColor { get; set; } = Color.FromArgb(180, 80, 80);
         public Color TextBoxErrorTextBoxBorderColor { get; set; } = Color.FromArgb(255, 182, 182);
         public Color TextBoxErrorTextBoxHoverColor { get; set; } = Color.FromArgb(255, 200, 200);
-        public TypographyStyle TextBoxFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle TextBoxHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
-        public TypographyStyle TextBoxSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle TextBoxFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle TextBoxHoverFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle TextBoxSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(80, 80, 80) };
     }
 }

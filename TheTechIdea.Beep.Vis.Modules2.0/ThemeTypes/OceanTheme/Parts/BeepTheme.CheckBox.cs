@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CheckBoxHoverBackColor { get; set; } = Color.FromArgb(0, 160, 210);
         public Color CheckBoxHoverForeColor { get; set; } = Color.White;
         public Color CheckBoxHoverBorderColor { get; set; } = Color.FromArgb(0, 130, 180);
-        public TypographyStyle CheckBoxFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.White };
-        public TypographyStyle CheckBoxCheckedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle CheckBoxFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.White };
+        public TypographyStyle CheckBoxCheckedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
     }
 }

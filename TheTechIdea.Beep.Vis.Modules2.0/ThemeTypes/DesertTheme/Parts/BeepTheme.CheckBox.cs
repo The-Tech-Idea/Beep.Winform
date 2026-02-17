@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CheckBoxHoverForeColor { get; set; } = Color.FromArgb(92, 64, 51); // Darker hover text
         public Color CheckBoxHoverBorderColor { get; set; } = Color.FromArgb(201, 144, 66); // Warm orange border on hover
 
-        public TypographyStyle CheckBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
-        public TypographyStyle CheckBoxCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle CheckBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Regular);
+        public TypographyStyle CheckBoxCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Bold);
     }
 }

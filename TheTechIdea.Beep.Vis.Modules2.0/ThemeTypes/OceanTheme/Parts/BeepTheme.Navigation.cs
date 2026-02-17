@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class OceanTheme
     {
         // Navigation & Breadcrumbs Fonts & Colors
-        public TypographyStyle NavigationTitleFont { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.White };
-        public TypographyStyle NavigationSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
-        public TypographyStyle NavigationUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
+        public TypographyStyle NavigationTitleFont { get; set; } = new TypographyStyle() { FontSize = 14f, FontWeight = FontWeight.Bold, TextColor = Color.White };
+        public TypographyStyle NavigationSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle NavigationUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
         public Color NavigationBackColor { get; set; } = Color.FromArgb(0, 105, 148);
         public Color NavigationForeColor { get; set; } = Color.FromArgb(200, 255, 255);
         public Color NavigationHoverBackColor { get; set; } = Color.FromArgb(0, 160, 210);

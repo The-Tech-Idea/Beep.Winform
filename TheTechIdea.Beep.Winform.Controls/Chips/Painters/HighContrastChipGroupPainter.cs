@@ -250,18 +250,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState state)
         {
-            // High contrast: Black on White or White on Black
+            var theme = _theme;
+            
+            // Use theme button colors for high contrast
             if (state.IsSelected)
             {
-                return (Color.Black, Color.White, Color.Black);
+                Color bg = theme?.ButtonSelectedBackColor ?? Color.Black;
+                Color fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                return (bg, fg, bg);
             }
             else if (state.IsHovered)
             {
-                return (Color.FromArgb(240, 240, 240), Color.Black, Color.Black);
+                Color bg = theme?.ButtonHoverBackColor ?? Color.FromArgb(240, 240, 240);
+                Color fg = theme?.ButtonHoverForeColor ?? Color.Black;
+                Color border = theme?.ButtonHoverBorderColor ?? Color.Black;
+                return (bg, fg, border);
             }
             else
             {
-                return (Color.White, Color.Black, Color.Black);
+                Color bg = theme?.ButtonBackColor ?? Color.White;
+                Color fg = theme?.ButtonForeColor ?? Color.Black;
+                Color border = theme?.ButtonBorderColor ?? Color.Black;
+                return (bg, fg, border);
             }
         }
 

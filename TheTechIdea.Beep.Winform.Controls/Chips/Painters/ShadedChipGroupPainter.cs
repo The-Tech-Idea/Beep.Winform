@@ -256,8 +256,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color light, Color dark, Color fg) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
-            Color primary = theme?.PrimaryColor ?? Color.FromArgb(63, 81, 181);
+            Color primary = theme?.ButtonBorderColor ?? Color.FromArgb(63, 81, 181);
 
+            // Override for semantic colors
             primary = state.Color switch
             {
                 ChipColor.Success => Color.FromArgb(76, 175, 80),
@@ -271,24 +272,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (state.IsSelected)
             {
-                // Darker gradient for selected
-                Color light = ControlPaint.Light(primary, 0.3f);
-                Color dark = ControlPaint.Dark(primary, 0.2f);
-                return (light, dark, Color.White);
+                // Use theme selected button colors for gradient
+                Color baseColor = theme?.ButtonSelectedBackColor ?? primary;
+                Color light = ControlPaint.Light(baseColor, 0.3f);
+                Color dark = ControlPaint.Dark(baseColor, 0.2f);
+                Color fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                return (light, dark, fg);
             }
             else if (state.IsHovered)
             {
-                // Medium gradient for hover
-                Color light = Color.FromArgb(245, 245, 245);
-                Color dark = Color.FromArgb(210, 210, 210);
-                return (light, dark, Color.FromArgb(66, 66, 66));
+                // Use theme hover button colors for gradient
+                Color baseLight = theme?.ButtonHoverBackColor ?? Color.FromArgb(245, 245, 245);
+                Color baseDark = ControlPaint.Dark(baseLight, 0.05f);
+                Color fg = theme?.ButtonHoverForeColor ?? Color.FromArgb(66, 66, 66);
+                return (baseLight, baseDark, fg);
             }
             else
             {
-                // Light gradient for normal
-                Color light = Color.FromArgb(250, 250, 250);
-                Color dark = Color.FromArgb(225, 225, 225);
-                return (light, dark, Color.FromArgb(97, 97, 97));
+                // Use theme normal button colors for gradient
+                Color baseLight = theme?.ButtonBackColor ?? Color.FromArgb(250, 250, 250);
+                Color baseDark = ControlPaint.Dark(baseLight, 0.05f);
+                Color fg = theme?.ButtonForeColor ?? Color.FromArgb(97, 97, 97);
+                return (baseLight, baseDark, fg);
             }
         }
 

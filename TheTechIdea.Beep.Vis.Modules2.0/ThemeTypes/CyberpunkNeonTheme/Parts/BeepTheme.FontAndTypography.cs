@@ -3,12 +3,12 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class CyberpunkNeonTheme
     {
         public string FontName { get; set; } = "Consolas";
-        public float FontSize { get; set; } = 11f;
+        public float FontSize { get; set; } = 8f;
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 16f,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(255, 0, 255),  // Neon Magenta
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 13.5f,
+            FontSize = 14f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.FromArgb(0, 255, 128), // Neon Green
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 11f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(0, 255, 255), // Neon Cyan
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Italic,
             TextColor = System.Drawing.Color.FromArgb(255, 255, 0), // Neon Yellow
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 11f,
+            FontSize = 8f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(0, 255, 255), // Neon Cyan
@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 11f,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Underline,
             TextColor = System.Drawing.Color.FromArgb(255, 255, 0), // Neon Yellow
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OverlineStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
-            FontSize = 10.5f,
+            FontSize = 8f,
             FontWeight = FontWeight.Bold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.FromArgb(0, 255, 255), // Neon Cyan

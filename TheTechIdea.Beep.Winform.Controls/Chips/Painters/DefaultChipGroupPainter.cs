@@ -197,21 +197,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState s, ChipRenderOptions opt)
         {
             var th = opt.Theme ?? _theme;
-            Color primary = th?.PrimaryColor ?? Color.RoyalBlue;
-            Color surface = th?.CardBackColor ?? Color.White;
-            Color text = th?.ForeColor ?? Color.Black;
-            Color outline = th?.BorderColor ?? Color.Silver;
-
-            if (s.Color == ChipColor.Success) primary = Color.FromArgb(34, 197, 94);
-            else if (s.Color == ChipColor.Warning) primary = Color.FromArgb(234, 179, 8);
-            else if (s.Color == ChipColor.Error) primary = Color.FromArgb(239, 68, 68);
-            else if (s.Color == ChipColor.Info) primary = Color.FromArgb(59, 130, 246);
-            else if (s.Color == ChipColor.Dark) { surface = Color.FromArgb(51, 65, 85); text = Color.White; outline = Color.FromArgb(71, 85, 105); }
-
-            Color bg = s.IsSelected ? primary : surface;
-            Color fg = s.IsSelected ? (th?.ButtonForeColor ?? Color.White) : text;
-            Color border = s.IsSelected ? primary : outline;
-            if (opt.Style == ChipStyle.Minimalist) border = outline;
+            
+            // Use theme button colors for all states
+            Color bg, fg, border;
+            
+            if (s.IsSelected)
+            {
+                bg = th?.ButtonSelectedBackColor ?? th?.ButtonBackColor ?? Color.RoyalBlue;
+                fg = th?.ButtonSelectedForeColor ?? th?.ButtonForeColor ?? Color.White;
+                border = th?.ButtonSelectedBorderColor ?? th?.ButtonBorderColor ?? Color.RoyalBlue;
+            }
+            else if (s.IsHovered)
+            {
+                bg = th?.ButtonHoverBackColor ?? th?.ButtonBackColor ?? Color.LightGray;
+                fg = th?.ButtonHoverForeColor ?? th?.ButtonForeColor ?? Color.Black;
+                border = th?.ButtonHoverBorderColor ?? th?.ButtonBorderColor ?? Color.Gray;
+            }
+            else
+            {
+                bg = th?.ButtonBackColor ?? Color.White;
+                fg = th?.ButtonForeColor ?? Color.Black;
+                border = th?.ButtonBorderColor ?? Color.Silver;
+            }
+            
+            // Override for semantic colors
+            if (s.Color == ChipColor.Success) { bg = Color.FromArgb(34, 197, 94); fg = Color.White; border = bg; }
+            else if (s.Color == ChipColor.Warning) { bg = Color.FromArgb(234, 179, 8); fg = Color.White; border = bg; }
+            else if (s.Color == ChipColor.Error) { bg = Color.FromArgb(239, 68, 68); fg = Color.White; border = bg; }
+            else if (s.Color == ChipColor.Info) { bg = Color.FromArgb(59, 130, 246); fg = Color.White; border = bg; }
+            else if (s.Color == ChipColor.Dark) { bg = Color.FromArgb(51, 65, 85); fg = Color.White; border = Color.FromArgb(71, 85, 105); }
+            
             return (bg, fg, border);
         }
     }

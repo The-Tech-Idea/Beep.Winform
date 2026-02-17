@@ -5,12 +5,12 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DarkTheme
     {
         public string FontName { get; set; } = "Segoe UI";
-        public float FontSize { get; set; } = 12f;
+        public float FontSize { get; set; } = 8f;
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 24f,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.White,
             IsUnderlined = false
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 18f,
+            FontSize = 14f,
             FontWeight = FontWeight.SemiBold,
             TextColor = Color.LightGray
         };
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.Gainsboro
         };
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             TextColor = Color.Gray
         };
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.SemiBold,
             TextColor = Color.White
         };
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             TextColor = Color.CornflowerBlue,
             IsUnderlined = true

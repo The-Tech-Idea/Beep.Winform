@@ -117,6 +117,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
             EnsureInlineQuickSearchControls();
 
+            // Only update live (visible) control bounds during paint
+            if (_inlineQuickSearchIsLive)
+            {
+                if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed && _inlineQSCombo.Visible)
+                {
+                    _inlineQSCombo.Bounds = _inlineQSComboRect;
+                    _inlineQSCombo.BringToFront();
+                }
+
+                if (_inlineQSText != null && !_inlineQSText.IsDisposed && _inlineQSText.Visible)
+                {
+                    _inlineQSText.Bounds = _inlineQSTextRect;
+                    _inlineQSText.BringToFront();
+                }
+            }
+
             // Draw static images of the controls into the provided rect
             if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed)
             {
@@ -143,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             EnsureInlineQuickSearchControls();
             if (_inlineQSCombo == null || _inlineQSText == null) return;
 
-            // If the painter hasn't positioned us yet, try to get the rect
+            // If not yet live, position and show controls
             if (!_inlineQuickSearchIsLive)
             {
                 var targetRect = _inlineQuickSearchPaintRect;
@@ -177,8 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal void DeactivateInlineQuickSearch()
         {
             _inlineQuickSearchIsLive = false;
-            if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed)
-                _inlineQSCombo.Visible = false;
+          
             if (_inlineQSText != null && !_inlineQSText.IsDisposed)
                 _inlineQSText.Visible = false;
             SafeInvalidate();
@@ -198,36 +213,226 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             return _inlineQuickSearchPaintRect;
         }
 
-        internal void HideInlineQuickSearch()
+        #region Individual Control Management for Combo Box
+
+        /// <summary>
+        /// Hides the combo box control.
+        /// </summary>
+        internal void HideInlineQSCombo()
         {
-            _inlineQuickSearchIsLive = false;
             if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed)
+            {
                 _inlineQSCombo.Visible = false;
-            if (_inlineQSText != null && !_inlineQSText.IsDisposed)
-                _inlineQSText.Visible = false;
+                System.Diagnostics.Debug.WriteLine("Combo box hidden");
+            }
+           // CheckIfBothControlsHidden();
         }
 
         /// <summary>
+        /// Shows the combo box control.
+        /// </summary>
+        internal void ShowInlineQSCombo()
+        {
+            if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed)
+            {
+                _inlineQSCombo.Visible = true;
+                _inlineQuickSearchIsLive = true;
+                System.Diagnostics.Debug.WriteLine("Combo box shown");
+            }
+        }
+
+        /// <summary>
+        /// Checks if the click location is ON the combo box control.
+        /// </summary>
+        internal bool IsClickOnInlineQSCombo(Point clickLocation)
+        {
+            // Check actual control state, not just the live flag
+            if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed && _inlineQSCombo.Visible && _inlineQSCombo.Enabled)
+            {
+                bool isOn = _inlineQSCombo.Bounds.Contains(clickLocation);
+                System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is {(isOn ? "ON" : "NOT ON")} combo bounds {_inlineQSCombo.Bounds}");
+                return isOn;
+            }
+            System.Diagnostics.Debug.WriteLine($"Combo box is not available for click detection (Disposed={_inlineQSCombo?.IsDisposed}, Visible={_inlineQSCombo?.Visible}, Enabled={_inlineQSCombo?.Enabled})");
+            return false;
+        }
+
+        /// <summary>
+        /// Hides combo box if click is outside its bounds.
+        /// </summary>
+        internal void HideInlineQSComboIfClickedOutside(Point clickLocation)
+        {
+            // Check actual control state
+            if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed && _inlineQSCombo.Visible)
+            {
+                if (!_inlineQSCombo.Bounds.Contains(clickLocation))
+                {
+                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is OUTSIDE combo bounds {_inlineQSCombo.Bounds} - hiding combo");
+                    HideInlineQSCombo();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is INSIDE combo bounds - keeping visible");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shows combo box if click is on its painted rect (works even when real control is hidden).
+        /// </summary>
+        internal void ShowInlineQSComboIfClickedOn(Point clickLocation)
+        {
+            if (!_inlineQSComboRect.IsEmpty && _inlineQSComboRect.Contains(clickLocation))
+            {
+                EnsureInlineQuickSearchControls();
+                if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed && !_inlineQSCombo.Visible)
+                {
+                    SyncInlineQSColumnList();
+                    _inlineQSCombo.Bounds = _inlineQSComboRect;
+                    ShowInlineQSCombo();
+                    _inlineQSCombo.BringToFront();
+                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is ON combo painted rect {_inlineQSComboRect} - showing combo");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Individual Control Management for Text Box
+
+        /// <summary>
+        /// Hides the text box control.
+        /// </summary>
+        internal void HideInlineQSText()
+        {
+            if (_inlineQSText != null && !_inlineQSText.IsDisposed)
+            {
+                _inlineQSText.Visible = false;
+                System.Diagnostics.Debug.WriteLine("Text box hidden");
+            }
+            CheckIfBothControlsHidden();
+        }
+
+        /// <summary>
+        /// Shows the text box control.
+        /// </summary>
+        internal void ShowInlineQSText()
+        {
+            if (_inlineQSText != null && !_inlineQSText.IsDisposed)
+            {
+                _inlineQSText.Visible = true;
+                _inlineQuickSearchIsLive = true;
+                System.Diagnostics.Debug.WriteLine("Text box shown");
+            }
+        }
+
+        /// <summary>
+        /// Checks if the click location is ON the text box control.
+        /// </summary>
+        internal bool IsClickOnInlineQSText(Point clickLocation)
+        {
+            // Check actual control state, not just the live flag
+            if (_inlineQSText != null && !_inlineQSText.IsDisposed && _inlineQSText.Visible && _inlineQSText.Enabled)
+            {
+                bool isOn = _inlineQSText.Bounds.Contains(clickLocation);
+                System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is {(isOn ? "ON" : "NOT ON")} textbox bounds {_inlineQSText.Bounds}");
+                return isOn;
+            }
+            System.Diagnostics.Debug.WriteLine($"Text box is not available for click detection (Disposed={_inlineQSText?.IsDisposed}, Visible={_inlineQSText?.Visible}, Enabled={_inlineQSText?.Enabled})");
+            return false;
+        }
+
+        /// <summary>
+        /// Hides text box if click is outside its bounds.
+        /// </summary>
+        internal void HideInlineQSTextIfClickedOutside(Point clickLocation)
+        {
+            // Check actual control state
+            if (_inlineQSText != null && !_inlineQSText.IsDisposed && _inlineQSText.Visible)
+            {
+                if (!_inlineQSText.Bounds.Contains(clickLocation))
+                {
+                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is OUTSIDE textbox bounds {_inlineQSText.Bounds} - hiding textbox");
+                    HideInlineQSText();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is INSIDE textbox bounds - keeping visible");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shows text box if click is on its painted rect (works even when real control is hidden).
+        /// </summary>
+        internal void ShowInlineQSTextIfClickedOn(Point clickLocation)
+        {
+            if (!_inlineQSTextRect.IsEmpty && _inlineQSTextRect.Contains(clickLocation))
+            {
+                EnsureInlineQuickSearchControls();
+                if (_inlineQSText != null && !_inlineQSText.IsDisposed && !_inlineQSText.Visible)
+                {
+                    _inlineQSText.Bounds = _inlineQSTextRect;
+                    ShowInlineQSText();
+                    _inlineQSText.BringToFront();
+                    _inlineQSText.Focus();
+                    System.Diagnostics.Debug.WriteLine($"Click {clickLocation} is ON text painted rect {_inlineQSTextRect} - showing text");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Shared Helper
+
+        /// <summary>
+        /// Checks if both controls are hidden and updates the live flag.
+        /// </summary>
+        private void CheckIfBothControlsHidden()
+        {
+            bool comboVisible = _inlineQSCombo != null && !_inlineQSCombo.IsDisposed && _inlineQSCombo.Visible;
+            bool textVisible = _inlineQSText != null && !_inlineQSText.IsDisposed && _inlineQSText.Visible;
+
+            if (!comboVisible && !textVisible)
+            {
+                _inlineQuickSearchIsLive = false;
+                System.Diagnostics.Debug.WriteLine("Both controls hidden - marking as not live");
+            }
+        }
+
+        #endregion
+
+        #region Legacy Combined Methods (for backward compatibility)
+
+        internal void HideInlineQuickSearch()
+        {
+            HideInlineQSCombo();
+            HideInlineQSText();
+        }
+
+        internal bool IsClickOnInlineQuickSearchControls(Point clickLocation)
+        {
+            return IsClickOnInlineQSCombo(clickLocation) || IsClickOnInlineQSText(clickLocation);
+        }
+
+        internal void HideInlineQuickSearchIfClickedOutside(Point clickLocation)
+        {
+            HideInlineQSComboIfClickedOutside(clickLocation);
+            HideInlineQSTextIfClickedOutside(clickLocation);
+        }
+
+        #endregion
+
+        /// <summary>
         /// Updates the control positions from the painter's search rect.
-        /// Called after each paint to keep live controls in sync with layout.
+        /// NOTE: Positioning is now handled directly in PaintInlineQuickSearch() to ensure
+        /// perfect synchronization between paint location and control bounds during resize/scroll.
+        /// This method is kept for backward compatibility but is effectively a no-op.
         /// </summary>
         internal void PositionInlineQuickSearchControl()
         {
-            // PaintInlineQuickSearch already positions the controls during paint.
-            // This method handles cases where the rect changes outside of paint (e.g., resize)
-            if (Render.TopFilterCellRects.TryGetValue(BaseFilterPanelPainter.SearchActionKey, out var searchRect))
-            {
-                _inlineQuickSearchPaintRect = searchRect;
-                CalculateInlineQSSubRects(searchRect);
-
-                if (_inlineQuickSearchIsLive)
-                {
-                    if (_inlineQSCombo != null && !_inlineQSCombo.IsDisposed && _inlineQSCombo.Bounds != _inlineQSComboRect)
-                        _inlineQSCombo.Bounds = _inlineQSComboRect;
-                    if (_inlineQSText != null && !_inlineQSText.IsDisposed && _inlineQSText.Bounds != _inlineQSTextRect)
-                        _inlineQSText.Bounds = _inlineQSTextRect;
-                }
-            }
+            // Position updates are now handled synchronously in PaintInlineQuickSearch()
+            // to prevent alignment issues during resize
         }
 
         internal void EnsureInlineQuickSearchVisible()
@@ -267,7 +472,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     IsFrameless = true,
                     Theme = Theme,
                     Visible = false,
-                    TabStop = true
+                    TabStop = true,
+                    Enabled = true  // Explicitly enable for mouse events
                 };
 
                 SyncInlineQSColumnList();
@@ -279,7 +485,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _inlineQSCombo.SelectedItem = allItem;
 
                 _inlineQSCombo.SelectedItemChanged += InlineQSCombo_SelectedItemChanged;
+                _inlineQSCombo.LostFocus += InlineQSControl_LostFocus;
                 Controls.Add(_inlineQSCombo);
+                
+                System.Diagnostics.Debug.WriteLine("Combo box created and added to Controls");
             }
 
             // --- Search text box ---
@@ -293,12 +502,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     Theme = Theme,
                     PlaceholderText = "Search...",
                     Visible = false,
-                    TabStop = true
+                    TabStop = true,
+                    Enabled = true  // Explicitly enable for mouse events
                 };
 
                 _inlineQSText.TextChanged += InlineQSText_TextChanged;
                 _inlineQSText.KeyDown += InlineQSText_KeyDown;
+                _inlineQSText.LostFocus += InlineQSControl_LostFocus;
                 Controls.Add(_inlineQSText);
+                
+                System.Diagnostics.Debug.WriteLine("Text box created and added to Controls");
             }
         }
 
@@ -379,6 +592,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         /// <summary>
+        /// Handles LostFocus for inline quick search controls.
+        /// Only hides controls if focus leaves BOTH the combo and textbox.
+        /// </summary>
+        private void InlineQSControl_LostFocus(object? sender, System.EventArgs e)
+        {
+            // Don't hide - the HandleMouseDown click-outside logic handles hiding.
+            // LostFocus was killing the combo when clicking from textbox to combo
+            // because the deferred check ran after the combo's popup stole focus.
+        }
+
+        /// <summary>
         /// Applies the current combo + text value as a quick filter on the grid.
         /// </summary>
         private void ApplyInlineQuickSearchFilter()
@@ -408,6 +632,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (_inlineQSCombo != null)
             {
                 _inlineQSCombo.SelectedItemChanged -= InlineQSCombo_SelectedItemChanged;
+                _inlineQSCombo.LostFocus -= InlineQSControl_LostFocus;
                 if (!_inlineQSCombo.IsDisposed)
                     _inlineQSCombo.Dispose();
                 _inlineQSCombo = null;
@@ -417,6 +642,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 _inlineQSText.TextChanged -= InlineQSText_TextChanged;
                 _inlineQSText.KeyDown -= InlineQSText_KeyDown;
+                _inlineQSText.LostFocus -= InlineQSControl_LostFocus;
                 if (!_inlineQSText.IsDisposed)
                     _inlineQSText.Dispose();
                 _inlineQSText = null;

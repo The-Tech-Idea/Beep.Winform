@@ -3,7 +3,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         public string FontName { get; set; } = "Segoe UI";
-        public float FontSize { get; set; } = 10f;
+        public float FontSize { get; set; } = 8f;
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 16f,
+            FontSize = 14f,
             FontWeight = FontWeight.Regular,
             FontStyle = System.Drawing.FontStyle.Italic,
             LineHeight = 1.3f,
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             LineHeight = 1.4f,
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 9f,
+            FontSize = 8f,
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Italic,
             LineHeight = 1.2f,
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Regular,
             LineHeight = 1.2f,
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             FontStyle = System.Drawing.FontStyle.Underline,
             LineHeight = 1.2f,

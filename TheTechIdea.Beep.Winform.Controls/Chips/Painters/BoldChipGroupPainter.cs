@@ -246,8 +246,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private (Color bg, Color fg, Color accent) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
-            Color primary = theme?.PrimaryColor ?? Color.FromArgb(63, 81, 181);
+            Color primary = theme?.ButtonBorderColor ?? Color.FromArgb(63, 81, 181);
 
+            // Override for semantic colors
             primary = state.Color switch
             {
                 ChipColor.Success => Color.FromArgb(76, 175, 80),
@@ -261,11 +262,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             if (state.IsSelected)
             {
-                return (primary, Color.White, primary);
+                Color bg = theme?.ButtonSelectedBackColor ?? primary;
+                Color fg = theme?.ButtonSelectedForeColor ?? Color.White;
+                return (bg, fg, bg);
+            }
+            else if (state.IsHovered)
+            {
+                Color bg = theme?.ButtonHoverBackColor ?? primary;
+                Color fg = theme?.ButtonHoverForeColor ?? primary;
+                return (bg, fg, primary);
             }
             else
             {
-                return (primary, primary, primary);
+                Color bg = theme?.ButtonBackColor ?? primary;
+                Color fg = theme?.ButtonForeColor ?? primary;
+                return (bg, fg, primary);
             }
         }
 

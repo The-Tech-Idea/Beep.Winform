@@ -230,6 +230,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void DrawScrollBars(Graphics g)
         {
+            IBeepTheme currenttheme = BeepThemesManager.CurrentTheme;
+            _scrollbarTrackColor = currenttheme.ScrollBarTrackColor;
+            _scrollbarThumbColor = currenttheme.ScrollBarThumbColor;
+            _scrollbarThumbPressedColor = currenttheme.ScrollBarActiveThumbColor;
+            _scrollbarThumbHoverColor = currenttheme.ScrollBarHoverThumbColor;
             // Draw vertical scrollbar
             if (!_verticalScrollBarRect.IsEmpty)
             {
@@ -240,6 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 // Draw thumb
+               
                 Color thumbColor = _scrollbarThumbColor;
                 if (_isVerticalThumbDragging)
                     thumbColor = _scrollbarThumbPressedColor;
@@ -643,6 +649,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _grid.SafeInvalidate();
                 }
             }
+        }
+
+        internal void ApplyTheme(string theme)
+        {
+           
+
+
         }
     }
 }

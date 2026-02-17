@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Note: Ensure 'Roboto' font family is available. If unavailable, 'Arial' is a fallback.
         public string FontName { get; set; } = "Roboto"; // Default font for theme
-        public float FontSize { get; set; } = 12f; // Default font size in points
+        public float FontSize { get; set; } = 8f; // Default font size in points
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 18f,
+            FontSize = 20f,
             FontWeight = FontWeight.Bold,
             TextColor = Color.FromArgb(26, 188, 156), // Neon turquoise
             LineHeight = 1.4f,
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(236, 240, 241), // Light gray
             LineHeight = 1.2f,
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(100, 100, 120), // Muted gray-blue
             LineHeight = 1.1f,
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.SemiBold,
             TextColor = Color.FromArgb(30, 30, 50), // Dark for contrast
             LineHeight = 1.2f,
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 12f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(155, 89, 182), // Neon purple
             LineHeight = 1.2f,
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle OverlineStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto", // Fallback: Arial
-            FontSize = 10f,
+            FontSize = 8f,
             FontWeight = FontWeight.Regular,
             TextColor = Color.FromArgb(100, 100, 120), // Muted gray-blue
             LineHeight = 1.1f,

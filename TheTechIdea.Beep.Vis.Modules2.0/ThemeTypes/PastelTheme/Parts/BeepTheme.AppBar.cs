@@ -21,9 +21,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color AppBarCloseButtonColor { get; set; } = Color.FromArgb(255, 150, 150);
         public Color AppBarMaxButtonColor { get; set; } = Color.FromArgb(150, 255, 150);
         public Color AppBarMinButtonColor { get; set; } = Color.FromArgb(150, 150, 255);
-        public TypographyStyle AppBarTitleStyle { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.White };
-        public TypographyStyle AppBarSubTitleStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(240, 240, 240) };
-        public TypographyStyle AppBarTextStyle { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.White };
+        public TypographyStyle AppBarTitleStyle { get; set; } = new TypographyStyle() { FontSize = 12f, FontWeight = FontWeight.Bold, TextColor = Color.White };
+        public TypographyStyle AppBarSubTitleStyle { get; set; } = new TypographyStyle() { FontSize = 10f, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(240, 240, 240) };
+        public TypographyStyle AppBarTextStyle { get; set; } = new TypographyStyle() { FontSize = 8f, FontWeight = FontWeight.Regular, TextColor = Color.White };
         public Color AppBarGradiantStartColor { get; set; } = Color.FromArgb(237, 181, 201);
         public Color AppBarGradiantEndColor { get; set; } = Color.FromArgb(247, 221, 229);
         public Color AppBarGradiantMiddleColor { get; set; } = Color.FromArgb(242, 201, 215);

@@ -106,6 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _valueField;
             set => SetProperty(ref _valueField, value, nameof(ValueField));
         }
+        //------------- Properties for Conditional Value retrieval based on Parent Item's value
+        // Create an event for ParentValueChanged so that when the ParentValue changes, the Conditional Value is retrieved
+        public event EventHandler ParentValueChanged;
+        protected virtual void OnParentValueChanged(EventArgs e)
+        {
+            ParentValueChanged?.Invoke(this, e);
+        }
         
         private string _parentvalue = string.Empty; // used for to store the name of field that has value to store
         public string ParentValue
@@ -113,15 +120,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _parentvalue;
             set => SetProperty(ref _parentvalue, value, nameof(ParentValue));
         }
-        
+        private LOVComputeType _lovcomputeType = LOVComputeType.None;
+        //public enum LOVComputeType --  find in enums file
+        //{
+        //    None,
+        //    Query,
+        //    Compute,
+        //    Expression
+        //}
+        public LOVComputeType LOVType    
+        {
+            get => _lovcomputeType;
+            set => SetProperty(ref _lovcomputeType, value, nameof(LOVType));
+        }
+        private string _expressionquerystring= string.Empty;
+        public string ExpressionQueryString
+        {
+            get => _expressionquerystring;
+            set => SetProperty(ref _expressionquerystring, value, nameof(ExpressionQueryString));
+        }
+        private string _datasourcenameforquery = string.Empty;
+        public string DatasourceNameForQuery // use this datasource to run the query to get the values for this item when LOVType is Query or Compute
+        {
+            get => _datasourcenameforquery;
+            set => SetProperty(ref _datasourcenameforquery, value, nameof(DatasourceNameForQuery));
+        }
         [NonSerialized]
         private SimpleItem _parentItem; // used for to store the parent item
+        // Also we want tpo capture from _parentItem's ParentValueChanged event so that when the ParentValue changes, 
+        // the Conditional Value is retrieved we have to add a property to capture the ParentValueChanged event in setter of ParentItem
+        private void CaptureParentValueChanged(object sender, EventArgs e)
+        {
+            OnParentValueChanged(e);
+             RetrieveConditionalValue();
+            
+        
+        
+        }
+        private void RetrieveConditionalValue()
+        {
+           switch (LOVType)
+           {
+            case LOVComputeType.Query: // Query is a datasource name and we have to retrieve the values from the datasource
+                // Retrieve the Conditional Value based on the ParentValue
+                // Retrieve the values from the datasource
+                // Use the datasource name to retrieve the values
+                // Use the ParentValue to filter the values
+                // Set the Value of this item with the retrieved values
+                break;
+            case LOVComputeType.Compute: // Compute is a expression and we have to evaluate the expression to get the value
+                // Retrieve the Conditional Value based on the ParentValue
+                // Evaluate the expression to get the value
+                // Set the Value of this item with the evaluated value
+                break;
+                // Retrieve the Conditional Value based on the ParentValue
+                // Evaluate the expression to get the value
+                // Set the Value of this item with the evaluated value
+                break;
+            default:
+                break;
+        }
+        }
         public SimpleItem ParentItem
         {
             get => _parentItem;
-            set => SetProperty(ref _parentItem, value, nameof(ParentItem));
+            set {
+                SetProperty(ref _parentItem, value, nameof(ParentItem));
+                // Capture the ParentValueChanged event from the ParentItem
+                _parentItem.ParentValueChanged += CaptureParentValueChanged;
+            }
         }
-        
+        //--------------------------------------------------------------
         [NonSerialized]
         private object _value; // used for to store the Value item
         public object Value

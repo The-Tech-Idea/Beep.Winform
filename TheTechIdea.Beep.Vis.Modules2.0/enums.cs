@@ -7,6 +7,13 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+    public enum LOVComputeType
+    {
+        None,
+        Query,
+        Compute,
+        Expression
+    }
     public enum BeepDialogButtons
     {
         Ok,

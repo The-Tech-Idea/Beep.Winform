@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
@@ -108,6 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
         public void PaintStepIndicators(Graphics g, Rectangle bounds, int currentIndex, int totalSteps, IList<WizardStep> steps)
         {
             if (steps == null || steps.Count == 0) return;
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -202,22 +204,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 {
                     // Draw step number
                     var numText = (i + 1).ToString();
-                    using (var brush = new SolidBrush(innerColor))
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                    {
-                        g.DrawString(numText, _titleFont, brush, circleRect, sf);
-                    }
+                    TextUtils.DrawText(g, numText, _titleFont, circleRect, innerColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                 }
 
                 // Draw step title below
                 var labelRect = new Rectangle(x - 60, centerY + circleSize / 2 + 8, 120, 24);
                 var labelColor = i == currentIndex ? _textColor : _subtextColor;
-                using (var brush = new SolidBrush(labelColor))
-                using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
-                {
-                    var font = i == currentIndex ? _titleFont : _labelFont;
-                    g.DrawString(step.Title ?? $"Step {i + 1}", font, brush, labelRect, sf);
-                }
+                var font = i == currentIndex ? _titleFont : _labelFont;
+                TextUtils.DrawText(g, step.Title ?? $"Step {i + 1}", font, labelRect, labelColor,
+                    TextFormatFlags.HorizontalCenter);
             }
         }
 

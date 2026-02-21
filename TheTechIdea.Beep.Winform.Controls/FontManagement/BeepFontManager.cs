@@ -207,12 +207,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (control == null || !control.IsHandleCreated)
                 return GetFont(fontName, sizeInPoints, style);
 
-            float dpiScale = control.DeviceDpi / 96.0f;
-            float scaledSize = Math.Max(sizeInPoints * dpiScale, 6.0f);
+            // Correct formula: pixels = points × (DPI ÷ 72)
+            // Previous code used / 96f which produced a pixel size ~25% too small
+            // (e.g. 8pt at 96 DPI = 8×96/72 ≈ 10.67px, not 8×96/96 = 8px)
+            float scaledSize = Math.Max(sizeInPoints * (control.DeviceDpi / 72.0f), 6.0f);
             
             try
             {
-                // Create Pixel-unit font for manual scaling in painters
+                // Create Pixel-unit font for custom painters using Graphics.DrawString
                 return new Font(fontName, scaledSize, style, GraphicsUnit.Pixel);
             }
             catch

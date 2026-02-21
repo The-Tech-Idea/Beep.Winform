@@ -19,20 +19,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.UpdateDrawingRect();
 
             Rectangle contentArea;
-            if (PainterKind == BaseControlPainterKind.Material)
-            {
-                contentArea = GetMaterialContentRectangle();
+            // if (PainterKind == BaseControlPainterKind.Material)
+            // {
+            //     contentArea = GetMaterialContentRectangle();
 
-                if (contentArea.Width <= 0 || contentArea.Height <= 0)
-                {
-                    contentArea = DrawingRect;
-                }
-            }
-            else
-            {
-                contentArea = DrawingRect;
-            }
-
+            //     if (contentArea.Width <= 0 || contentArea.Height <= 0)
+            //     {
+            //         contentArea = DrawingRect;
+            //     }
+            // }
+            // else
+            // {
+            //     contentArea = DrawingRect;
+            // }
+            contentArea = DrawingRect;
             _textRect = contentArea;
 
             int borderOffset = Math.Max(0, _borderWidth);

@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Dates;
 using static TheTechIdea.Beep.Winform.Controls.BeepControl;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -99,6 +100,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     _editorControl.LostFocus -= OnEditorLostFocus;
                     if (_currenteditorUIcomponent is BeepComboBox oldCb)
                         oldCb.PopupClosed -= OnComboPopupClosed;
+                    if (_currenteditorUIcomponent is BeepDateDropDown oldDdd)
+                        oldDdd.DropDownClosed -= OnDateDropDownClosed;
                     
                     // Remove from its current parent (grid-local hosting for stable repaint behavior)
                     _editorControl.Parent?.Controls.Remove(_editorControl);
@@ -170,6 +173,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 listBox.BorderStyle = BorderStyle.FixedSingle;
             }
            
+            else if (_currenteditorUIcomponent is BeepDateDropDown dddEditor)
+            {
+                dddEditor.GridMode = true;
+                dddEditor.BackColor = Color.White;
+                dddEditor.ForeColor = Color.Black;
+                dddEditor.BorderStyle = BorderStyle.FixedSingle;
+                dddEditor.DropDownClosed += OnDateDropDownClosed;
+            }
             else if (_currenteditorUIcomponent is BeepTextBox st)
             {
                // st.ShowAllBorders = false;
@@ -280,6 +291,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         {
                            // try { cb.IsPopupOpen = true; } catch { }
                         }
+                        
+                        // For BeepDateDropDown: seed value and open calendar popup immediately
+                        if (_currenteditorUIcomponent is BeepDateDropDown ddd)
+                        {
+                            // Seed the current cell value before opening popup
+                            var seedVal = _originalValue;
+                            if (seedVal is DateTime dtSeed)
+                                ddd.SelectedDateTime = dtSeed;
+                            else if (seedVal is string sSeed && DateTime.TryParse(sSeed, out var parsedSeed))
+                                ddd.SelectedDateTime = parsedSeed;
+                            
+                            // Open calendar popup on first click
+                            try { ddd.ShowPopup(); } catch { }
+                        }
                     } 
                     catch (Exception ex)
                     {
@@ -292,6 +317,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }));
 
             _grid.SafeInvalidate();
+        }
+
+        private void OnDateDropDownClosed(object sender, EventArgs e)
+        {
+            if (!_isEndingEdit && _currenteditorUIcomponent is BeepDateDropDown ddd)
+            {
+                if (_grid != null && !_grid.IsDisposed && _grid.IsHandleCreated)
+                {
+                    try
+                    {
+                        _grid.BeginInvoke(new Action(() =>
+                        {
+                            if (!_isEndingEdit && ddd != null && !ddd.IsDisposed)
+                                EndEdit(true);
+                        }));
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        if (!_isEndingEdit && ddd != null && !ddd.IsDisposed)
+                            EndEdit(true);
+                    }
+                }
+                else
+                {
+                    if (!_isEndingEdit && ddd != null && !ddd.IsDisposed)
+                        EndEdit(true);
+                }
+            }
         }
 
         private void OnComboPopupClosed(object sender, EventArgs e)
@@ -447,6 +500,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     combo.PopupClosed -= OnComboPopupClosed;
                    // try { combo.IsPopupOpen = false; } catch { }
                 }
+                if (_currenteditorUIcomponent is BeepDateDropDown dddDetach)
+                    dddDetach.DropDownClosed -= OnDateDropDownClosed;
 
                 // Detach grid event handlers
                 _grid.Paint -= OnGridPaintReposition;
@@ -506,7 +561,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 BeepColumnType.CheckBoxChar => new BeepCheckBoxChar { IsChild = true, GridMode = true },
                 BeepColumnType.CheckBoxString => new BeepCheckBoxString { IsChild = true, GridMode = true },
                 BeepColumnType.ComboBox => new BeepComboBox { IsChild = true, GridMode = false },
-                BeepColumnType.DateTime => new BeepDatePicker { IsChild = true, GridMode = true },
+                BeepColumnType.DateTime => new BeepDateDropDown { IsChild = true, GridMode = true },
                 BeepColumnType.Image => new BeepImage { IsChild = true },
                 BeepColumnType.Button => new BeepButton { IsChild = true },
                 BeepColumnType.ProgressBar => new BeepProgressBar { IsChild = true },
@@ -525,7 +580,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_suppressLostFocus || _isEndingEdit) return;
             
             // For ComboBox, don't end edit if popup is open
-            if (sender is BeepComboBox combo )
+            if (sender is BeepComboBox combo)
+                return;
+
+            // For BeepDateDropDown, don't end edit while calendar popup is open
+            if (sender is BeepDateDropDown ddd && ddd._isPopupOpen)
                 return;
                 
             EndEdit(true);

@@ -51,11 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _typedUow = value as IUnitofWork;
                     _uowWrapper = value as IUnitOfWorkWrapper;
 
-                    // Accept runtime UnitofWork<T> instances by wrapping them once.
-                    if (_typedUow == null && _uowWrapper == null && value != null)
-                    {
-                        try { _uowWrapper = new UnitOfWorkWrapper(value); } catch { _uowWrapper = null; }
-                    }
+                  
 
                     Navigator.SetUnitOfWork(_typedUow, _uowWrapper);
                     _uowBinder?.Attach(_typedUow, _uowWrapper);

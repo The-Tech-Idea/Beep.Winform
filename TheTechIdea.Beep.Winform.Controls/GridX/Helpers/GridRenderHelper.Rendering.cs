@@ -492,6 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int i = 0; i < firstVisibleRowIndex && i < _grid.Data.Rows.Count; i++)
             {
                 var row = _grid.Data.Rows[i];
+                if (!row.IsVisible) continue;  // skip filtered-out rows
                 totalRowsHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
             }
             
@@ -518,6 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
             {
                 var row = _grid.Data.Rows[r];
+                if (!row.IsVisible) continue;  // skip filtered-out rows
                 int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
                 
                 if (drawY + rowHeight > rowsRect.Top && drawY < rowsRect.Bottom)
@@ -597,6 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
                 {
                     var row = _grid.Data.Rows[r];
+                    if (!row.IsVisible) continue;  // skip filtered-out rows
                     int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
                     
                     if (drawY + rowHeight > rowsRect.Top && drawY < rowsRect.Bottom)

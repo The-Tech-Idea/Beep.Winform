@@ -82,6 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 for (int i = 0; i < startRow; i++)
                 {
                     var row = rows[i];
+                    if (!row.IsVisible) continue;  // skip filtered-out rows
                     totalOffsetToFirstRow += row.Height > 0 ? row.Height : _grid.RowHeight;
                 }
                 
@@ -95,6 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 for (int i = startRow + 1; i < rows.Count && usedHeight < availableHeight; i++)
                 {
                     var row = rows[i];
+                    if (!row.IsVisible) continue;  // skip filtered-out rows
                     int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
                     
                     if (usedHeight + rowHeight > availableHeight)

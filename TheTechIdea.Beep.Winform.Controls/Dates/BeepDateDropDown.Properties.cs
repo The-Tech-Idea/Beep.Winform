@@ -102,6 +102,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
         }
 
+        /// <summary>
+        /// Returns the selected DateTime value for use by the grid editor.
+        /// Overrides BeepTextBox.GetValue() which would return the text string.
+        /// </summary>
+        public override object GetValue() => _selectedDateTime;
+
+        /// <summary>
+        /// Sets the date value from the grid editor (accepts DateTime, DateTime?, or parseable string).
+        /// </summary>
+        public override void SetValue(object value)
+        {
+            if (value is DateTime dt)
+                SelectedDateTime = dt;
+            else if (value != null && DateTime.TryParse(value.ToString(), out var parsed))
+                SelectedDateTime = parsed;
+            else
+                SelectedDateTime = null;
+        }
+
         [Browsable(true)]
         [Category("Date")]
         [Description("Start date for range mode.")]

@@ -40,14 +40,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 // Use DPI-aware font from BeepFontManager
-                var themeFont = BeepFontManager.ToFont(_currentTheme.LabelSmall);
+                // Use TextBoxFont (usually BodyMedium size) instead of LabelSmall which is too small
+                var themeFont = BeepFontManager.ToFont(_currentTheme.TextBoxFont);
+                
+                // Fallback if TextBoxFont is not defined in theme
+                if (themeFont == null)
+                {
+                    themeFont = BeepFontManager.ToFont(_currentTheme.BodyMedium);
+                }
+                
+                // Final fallback
+                if (themeFont == null)
+                {
+                     themeFont = BeepFontManager.ToFont(_currentTheme.LabelMedium);
+                }
+
                 if (themeFont != null)
                 {
-                    // Get DPI-scaled version for this control
-                    _textFont = BeepFontManager.GetFontForPainter(
+                    // Use Point-based font so TextRenderer renders at the same visual size
+                    // as other controls (e.g. BeepButton). Point fonts scale with DPI automatically.
+                    // GetFontForPainter produces a Pixel-unit font that renders ~25% smaller
+                    // because 8px != 8pt (8pt = ~10.67px at 96 DPI).
+                    _textFont = BeepFontManager.GetFont(
                         themeFont.Name,
                         themeFont.SizeInPoints,
-                        this,
                         themeFont.Style);
                 }
                 
@@ -56,6 +72,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _characterCountFont = null;
                 _lineNumberFont?.Dispose();
                 _lineNumberFont = null;
+                
+                // Recompute min-height for the new font size
+                RecomputeMinHeight();
             }
             
             if (_beepImage != null)

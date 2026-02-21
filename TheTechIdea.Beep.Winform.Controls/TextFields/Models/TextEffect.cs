@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Models
 {
@@ -348,11 +349,11 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Models
         {
             try
             {
-                return new Font(FontFamily, FontSize, FontStyle.Regular);
+                return BeepFontManager.GetFont(FontFamily, FontSize, FontStyle.Regular);
             }
             catch
             {
-                return new Font("Consolas", FontSize, FontStyle.Regular);
+                return BeepFontManager.GetFont("Consolas", FontSize, FontStyle.Regular);
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
@@ -101,6 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
         public void PaintStepTimeline(Graphics g, Rectangle bounds, int currentIndex, IList<WizardStep> steps)
         {
             if (steps == null || steps.Count == 0) return;
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -117,11 +119,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             int topMargin = 40;
             int itemHeight = Math.Min(80, (bounds.Height - topMargin * 2) / stepCount);
 
-            // Draw title (using cached _titleFont to avoid allocations)
-            using (var brush = new SolidBrush(_textColor))
-            {
-                g.DrawString(_instance?.Config?.Title ?? "Wizard", _titleFont, brush, leftMargin, 15);
-            }
+            // Draw title
+            TextUtils.DrawText(g, _instance?.Config?.Title ?? "Wizard", _titleFont,
+                new Point(leftMargin, 15), _textColor);
 
             // Draw connecting lines first
             for (int i = 0; i < stepCount - 1; i++)
@@ -207,11 +207,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 else
                 {
                     var numText = (i + 1).ToString();
-                    using (var brush = new SolidBrush(innerColor))
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                    {
-                        g.DrawString(numText, _numberFont, brush, circleRect, sf);
-                    }
+                    TextUtils.DrawText(g, numText, _numberFont, circleRect, innerColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                 }
 
                 // Draw title and description
@@ -221,19 +218,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 var titleColor = i == currentIndex ? _textColor : _subtextColor;
                 var titleAlpha = i == currentIndex ? 255 : 180;
 
-                using (var brush = new SolidBrush(Color.FromArgb(titleAlpha, titleColor)))
-                {
-                    var font = i == currentIndex ? _titleFont : _descFont;
-                    g.DrawString(step.Title ?? $"Step {i + 1}", font, brush, textX, y + 4);
-                }
+                var font = i == currentIndex ? _titleFont : _descFont;
+                TextUtils.DrawText(g, step.Title ?? $"Step {i + 1}", font,
+                    new Point(textX, y + 4), Color.FromArgb(titleAlpha, titleColor));
 
                 if (!string.IsNullOrEmpty(step.Description) && i == currentIndex)
                 {
-                    using (var brush = new SolidBrush(_subtextColor))
-                    {
-                        var descRect = new Rectangle(textX, y + 24, textWidth, 20);
-                        g.DrawString(step.Description, _descFont, brush, descRect);
-                    }
+                    var descRect = new Rectangle(textX, y + 24, textWidth, 20);
+                    TextUtils.DrawText(g, step.Description, _descFont, descRect, _subtextColor);
                 }
             }
         }

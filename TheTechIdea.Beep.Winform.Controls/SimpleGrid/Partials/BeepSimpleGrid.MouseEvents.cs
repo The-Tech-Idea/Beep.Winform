@@ -445,20 +445,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
     }
 
-    /// <summary>
-    /// Event arguments for row selection events
-    /// </summary>
-    public class BeepRowSelectedEventArgs : EventArgs
-    {
-        public int RowIndex { get; }
-        public BeepRowConfig Row { get; }
+    ///// <summary>
+    ///// Event arguments for row selection events
+    ///// </summary>
+    //public class BeepRowSelectedEventArgs : EventArgs
+    //{
+    //    public int RowIndex { get; }
+    //    public BeepRowConfig Row { get; }
 
-        public BeepRowSelectedEventArgs(int rowIndex, BeepRowConfig row)
-        {
-            RowIndex = rowIndex;
-            Row = row;
-        }
-    }
+    //    public BeepRowSelectedEventArgs(int rowIndex, BeepRowConfig row)
+    //    {
+    //        RowIndex = rowIndex;
+    //        Row = row;
+    //    }
+    //}
 
     /// <summary>
     /// Hit test result for navigation and interactive elements

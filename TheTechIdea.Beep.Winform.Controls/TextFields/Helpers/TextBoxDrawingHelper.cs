@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -182,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             string displayText = GetActualText();
             if (string.IsNullOrEmpty(displayText)) return;
             
-            Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             Color textColor = GetTextColor();
             
             // Apply text formatting flags
@@ -355,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             if (string.IsNullOrEmpty(_textBox.PlaceholderText)) return;
             
-            Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             Color placeholderColor = _textBox.PlaceholderTextColor;
             
             // Use actual text rectangle (account for image space and alignment area)
@@ -382,7 +383,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             string text = GetActualText();
             if (string.IsNullOrEmpty(text)) return;
             
-            Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             
             // Get the actual text rectangle considering image layout
             Rectangle actualTextRect = GetActualTextRect(g, textRect);
@@ -451,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             string text = GetActualText();
             int caretPosition = _textBox.SelectionStart;
             
-            Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             
             // Get the actual text rectangle considering image layout
             Rectangle actualTextRect = GetActualTextRect(g, textRect);
@@ -558,7 +559,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             
             // Draw line numbers
             var lines = _textBox.GetLines();
-            Font lineFont = _textBox.LineNumberFont ?? _textBox.TextFont ?? new Font("Consolas", 8f);
+            Font lineFont = _textBox.LineNumberFont ?? _textBox.TextFont ?? BeepFontManager.GetFont("Consolas", 8f);
             
             for (int i = 0; i < lines.Count; i++)
             {
@@ -647,7 +648,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             string displayText = ShouldDrawPlaceholder() ? _textBox.PlaceholderText : GetActualText();
             if (string.IsNullOrEmpty(displayText)) return Size.Empty;
             
-            Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             SizeF sizeF = TextUtils.MeasureText(g, displayText, font);
             return new Size((int)sizeF.Width, (int)sizeF.Height);
         }

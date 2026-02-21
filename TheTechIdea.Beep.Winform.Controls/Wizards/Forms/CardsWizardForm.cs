@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
@@ -81,19 +82,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
             _instance.BindFormHost(this);
 
-            InitializeForm();
-            InitializeControls();
-            LayoutControls();
-            SetupEventHandlers();
-
-            // Apply Config.Theme if configured, otherwise use default
+            // Apply Config.Theme and initialize colors BEFORE building controls (colors needed during init)
             if (_instance.Config.Theme != null)
             {
                 CurrentTheme = _instance.Config.Theme;
             }
             InitializeColors(CurrentTheme);
-            ApplyTheme();
+
+            InitializeForm();
+            InitializeControls();
+            LayoutControls();
+            SetupEventHandlers();
+
             UpdateUI();
+            ApplyTheme();
         }
 
         #endregion
@@ -121,8 +123,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _cardBgColor = Color.FromArgb(245, 245, 250);
             }
 
+            _cardTitleFont?.Dispose();
             _cardTitleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 10f, FontStyle.Bold);
+            _cardDescFont?.Dispose();
             _cardDescFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 8.5f, FontStyle.Regular);
+            _cardNumberFont?.Dispose();
             _cardNumberFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 12f, FontStyle.Bold);
         }
 
@@ -417,9 +422,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             else
             {
                 // Step number
-                using var brush = new SolidBrush(innerColor);
-                var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString((stepIndex + 1).ToString(), _cardNumberFont, brush, circleRect, sf);
+                TextUtils.DrawText(g, (stepIndex + 1).ToString(), _cardNumberFont, circleRect, innerColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
             }
 
             // Step title and description
@@ -427,27 +431,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             int textWidth = bounds.Width - textX - 10;
 
             var titleColor = isCurrent ? _textColor : _subtextColor;
-            using (var titleBrush = new SolidBrush(titleColor))
             {
                 var titleFont = isCurrent ? _cardTitleFont : _cardDescFont;
-                g.DrawString(step.Title ?? $"Step {stepIndex + 1}", titleFont, titleBrush,
-                    new Rectangle(textX, circleY, textWidth, 18));
+                TextUtils.DrawText(g, step.Title ?? $"Step {stepIndex + 1}", titleFont,
+                    new Rectangle(textX, circleY, textWidth, 18), titleColor);
             }
 
             if (!string.IsNullOrEmpty(step.Description))
             {
-                using var descBrush = new SolidBrush(_subtextColor);
-                g.DrawString(step.Description, _cardDescFont, descBrush,
-                    new Rectangle(textX, circleY + 20, textWidth, 16));
+                TextUtils.DrawText(g, step.Description, _cardDescFont,
+                    new Rectangle(textX, circleY + 20, textWidth, 16), _subtextColor);
             }
 
             // Optional badge
             if (step.IsOptional && !isCompleted)
             {
-                using var optBrush = new SolidBrush(Color.FromArgb(60, _pendingColor));
                 using var optFont = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.CaptionStyle, 7f, FontStyle.Italic);
-                g.DrawString("Optional", optFont, optBrush,
-                    new Rectangle(textX, circleY + 36, textWidth, 14));
+                TextUtils.DrawText(g, "Optional", optFont,
+                    new Rectangle(textX, circleY + 36, textWidth, 14), Color.FromArgb(60, _pendingColor));
             }
         }
 
@@ -677,6 +678,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         public override void ApplyTheme()
         {
+            // Guard: base ctor triggers ApplyTheme before any wizard fields are initialized
+            if (_instance == null || _contentPanel == null || _buttonPanel == null || _cardPanel == null)
+                return;
             base.ApplyTheme();
 
             if (CurrentTheme != null)

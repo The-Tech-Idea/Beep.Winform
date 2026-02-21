@@ -87,8 +87,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             {
                 CurrentTheme = _instance.Config.Theme;
             }
-            ApplyTheme();
             UpdateUI();
+            ApplyTheme();
         }
 
         #endregion
@@ -491,6 +491,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         public override void ApplyTheme()
         {
+            // Guard: base ctor triggers ApplyTheme before any wizard fields are initialized
+            if (_instance == null || _contentPanel == null || _buttonPanel == null || _stepIndicatorPanel == null)
+                return;
             base.ApplyTheme();
 
             if (CurrentTheme != null)

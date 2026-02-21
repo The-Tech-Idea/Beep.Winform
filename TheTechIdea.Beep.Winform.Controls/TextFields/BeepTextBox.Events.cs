@@ -187,13 +187,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region "Paint Override"
         
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        //    e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             
-            base.OnPaint(e);
-        }
+        //    base.OnPaint(e);
+        //}
         
         protected override void DrawContent(Graphics g)
         {

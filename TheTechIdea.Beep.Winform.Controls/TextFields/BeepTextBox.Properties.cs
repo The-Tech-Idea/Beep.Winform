@@ -216,10 +216,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_characterCountFont == null && _textFont != null)
             {
                 float smallerSize = _textFont.SizeInPoints * 0.8f;
-                _characterCountFont = BeepFontManager.GetFontForPainter(
-                    _textFont.Name, 
-                    smallerSize, 
-                    this, 
+                _characterCountFont = BeepFontManager.GetFont(
+                    _textFont.Name,
+                    smallerSize,
                     _textFont.Style);
             }
             return _characterCountFont ?? _textFont;

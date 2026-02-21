@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Collections.Generic;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
@@ -373,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 text = new string(_textBox.PasswordChar, text.Length);
             }
             
-            Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
+            Font font = _textBox.TextFont ?? BeepFontManager.GetFont("Segoe UI", 9f);
             
             // Actual text bounds (account for image)
             Rectangle actualTextRect = GetActualTextRect(g, textRect);

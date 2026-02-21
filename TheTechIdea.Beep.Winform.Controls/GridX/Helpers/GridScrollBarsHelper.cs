@@ -565,10 +565,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.Data.Rows == null || _grid.Data.Rows.Count == 0)
                 return 0;
 
-            // Sum up all individual row heights
+            // Sum only visible row heights (invisible rows are filtered out)
             int totalHeight = 0;
             foreach (var row in _grid.Data.Rows)
             {
+                if (!row.IsVisible) continue;  // skip filtered-out rows
                 totalHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
             }
             return totalHeight;
@@ -592,6 +593,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int i = 0; i < _grid.Data.Rows.Count; i++)
             {
                 var row = _grid.Data.Rows[i];
+                if (!row.IsVisible) continue;  // skip filtered-out rows
                 int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
                 
                 if (currentOffset + rowHeight > pixelOffset)
@@ -600,7 +602,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 currentOffset += rowHeight;
             }
 
-            return Math.Max(0, _grid.Data.Rows.Count - 1);
+            // Return last visible row index
+            for (int i = _grid.Data.Rows.Count - 1; i >= 0; i--)
+            {
+                if (_grid.Data.Rows[i].IsVisible) return i;
+            }
+            return 0;
         }
 
         private int CalculatePixelOffsetForRowIndex(int rowIndex)
@@ -614,6 +621,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int i = 0; i < maxIndex; i++)
             {
                 var row = _grid.Data.Rows[i];
+                if (!row.IsVisible) continue;  // skip filtered-out rows
                 pixelOffset += row.Height > 0 ? row.Height : _grid.RowHeight;
             }
 

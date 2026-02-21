@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public bool IsDirty { get; set; }
         public bool IsReadOnly { get; set; }
         public bool IsEditable { get; set; }
-        public bool IsVisible { get; set; }
+        public bool IsVisible { get; set; } = true;
         public bool IsAggregation { get; set; } = false;
         public int UpperX { get; set; } // Updated dynamically
         public int UpperY { get; set; } // Updated dynamically

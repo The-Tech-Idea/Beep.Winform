@@ -18,7 +18,7 @@
     <Product>TheTechIdea.Beep.Winform.Controls</Product>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
 	  <GenerateResourceWarnOnBinaryFormatterUse>false</GenerateResourceWarnOnBinaryFormatterUse>
-    <Version>1.0.192</Version>
+    <Version>1.0.197</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  
   </PropertyGroup>
@@ -215,6 +215,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Svg" Version="3.4.7" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.129" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />

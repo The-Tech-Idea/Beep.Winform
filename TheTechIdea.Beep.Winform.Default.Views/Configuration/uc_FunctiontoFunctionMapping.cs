@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.MVVM.ViewModels;
+using TheTechIdea.Beep.Services;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 

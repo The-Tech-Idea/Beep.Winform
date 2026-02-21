@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
@@ -93,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
         public void PaintMinimalProgress(Graphics g, Rectangle bounds, int currentIndex, int totalSteps, IList<WizardStep> steps)
         {
             if (steps == null || steps.Count == 0) return;
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -144,17 +146,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             var titleText = currentStep?.Title ?? $"Step {currentIndex + 1}";
             var countText = $"Step {currentIndex + 1} of {totalSteps}";
 
-            using (var brush = new SolidBrush(_textColor))
-            using (var sf = new StringFormat { Alignment = StringAlignment.Center })
-            {
-                g.DrawString(titleText, _titleFont, brush, bounds.Left + bounds.Width / 2, centerY + 15, sf);
-            }
+            TextUtils.DrawText(g, titleText, _titleFont,
+                new Rectangle(bounds.Left, centerY + 15, bounds.Width, 25), _textColor, TextFormatFlags.HorizontalCenter);
 
-            using (var brush = new SolidBrush(_subtextColor))
-            using (var sf = new StringFormat { Alignment = StringAlignment.Far })
-            {
-                g.DrawString(countText, _stepFont, brush, bounds.Right - 20, centerY - 5, sf);
-            }
+            TextUtils.DrawText(g, countText, _stepFont,
+                new Rectangle(bounds.Left, centerY - 5, bounds.Width - 20, 20), _subtextColor, TextFormatFlags.Right);
         }
 
         #endregion

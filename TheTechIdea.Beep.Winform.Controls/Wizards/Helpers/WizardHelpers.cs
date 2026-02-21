@@ -16,10 +16,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
         public static Font GetFont(IBeepTheme? theme, TypographyStyle? style, float fallbackSize, FontStyle fallbackStyle)
         {
             if (style != null)
-                return BeepThemesManager.ToFont(style);
+                return BeepThemesManager.ToFont(style)
+                    ?? BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
 
             if (theme?.BodyStyle != null && fallbackStyle == FontStyle.Regular)
-                return BeepThemesManager.ToFont(theme.BodyStyle);
+                return BeepThemesManager.ToFont(theme.BodyStyle)
+                    ?? BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
 
             return BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
         }

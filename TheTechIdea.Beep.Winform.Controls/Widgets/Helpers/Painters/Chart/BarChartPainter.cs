@@ -81,11 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
         
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            if (ctx.ShowLegend && (ctx.Labels?.Any() == true) && (ctx.Colors?.Any() == true))
+            if (ctx.ShowLegend && (ctx.Labels?.Any() == true))
             {
-                int minCount = Math.Min(ctx.Labels.Count, ctx.Colors.Count);
-                var labels = ctx.Labels.Take(minCount).ToList();
-                var colors = ctx.Colors.Take(minCount).ToList();
+                var labels = ctx.Labels.ToList();
+                var colors = ctx.Colors?.Any() == true ? ctx.Colors.ToList() : new List<Color> { ctx.AccentColor };
                 DrawSimpleLegend(g, ctx.LegendRect, labels, colors);
             }
         }
@@ -94,16 +93,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
         {
             if (!labels.Any() || !colors.Any()) return;
             
-            int itemWidth = rect.Width / Math.Min(labels.Count, 4);
+            // Limit to at most 4 items for layout reasons
+            int countToDraw = Math.Min(labels.Count, 4);
+            int itemWidth = rect.Width / countToDraw;
             using var legendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f);
             
-            for (int i = 0; i < Math.Min(Math.Min(labels.Count, colors.Count), 4); i++)
+            for (int i = 0; i < countToDraw; i++)
             {
                 int x = rect.X + i * itemWidth;
                 var colorRect = new Rectangle(x, rect.Y + 6, 12, 8);
                 var textRect = new Rectangle(x + 16, rect.Y, itemWidth - 16, rect.Height);
                 
-                using var colorBrush = new SolidBrush(colors[i]);
+                Color c = colors[i % colors.Count];
+                using var colorBrush = new SolidBrush(c);
                 using var textBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 
                 g.FillRectangle(colorBrush, colorRect);

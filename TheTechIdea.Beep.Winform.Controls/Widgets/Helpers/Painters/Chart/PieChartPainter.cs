@@ -56,10 +56,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                 if (total > 0)
                 {
                     float currentAngle = 0;
-                    for (int i = 0; i < values.Count && i < ctx.Colors.Count; i++)
+                    for (int i = 0; i < values.Count; i++)
                     {
                         float sweepAngle = (float)(values[i] / total * 360);
-                        Color color = i < ctx.Colors.Count ? ctx.Colors[i] : ctx.AccentColor;
+                        Color color = ctx.Colors != null && ctx.Colors.Count > 0 
+                            ? ctx.Colors[i % ctx.Colors.Count] 
+                            : ctx.AccentColor;
                         
                         WidgetRenderingHelpers.DrawPieSlice(g, ctx.ChartRect, currentAngle, sweepAngle, color);
                         currentAngle += sweepAngle;

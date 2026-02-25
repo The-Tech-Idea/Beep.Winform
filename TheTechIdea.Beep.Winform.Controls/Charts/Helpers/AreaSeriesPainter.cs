@@ -63,22 +63,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     {
                         y = totals[i] > 0 ? y / totals[i] : 0f;
                     }
+                    float xRange = xMax - xMin;
+                    float yRange = yMax - yMin;
+
                     if (stack)
                     {
                         float prev = cumul[i];
                         float newCumul = prev + y;
-                        float yScreenTop = plotRect.Bottom - (newCumul - yMin) / (yMax - yMin) * plotRect.Height;
-                        float yScreenPrev = plotRect.Bottom - (prev - yMin) / (yMax - yMin) * plotRect.Height;
-                        float sx = plotRect.Left + (x - xMin) / (xMax - xMin) * plotRect.Width;
+                        float yScreenTop = yRange > 0
+                            ? plotRect.Bottom - (newCumul - yMin) / yRange * plotRect.Height
+                            : plotRect.Top + plotRect.Height * 0.5f;
+                        float yScreenPrev = yRange > 0
+                            ? plotRect.Bottom - (prev - yMin) / yRange * plotRect.Height
+                            : plotRect.Top + plotRect.Height * 0.5f;
+                        float sx = xRange > 0
+                            ? plotRect.Left + (x - xMin) / xRange * plotRect.Width
+                            : plotRect.Left + plotRect.Width * 0.5f;
                         yScreenTop = yScreenPrev - (yScreenPrev - yScreenTop) * anim; // animate
+                        sx = Math.Clamp(sx, -1e6f, 1e6f);
+                        yScreenTop = Math.Clamp(yScreenTop, -1e6f, 1e6f);
                         pts.Add(new PointF(sx, yScreenTop));
                         cumul[i] = newCumul;
                     }
                     else
                     {
                         y = yMin + (y - yMin) * anim;
-                        float sx = plotRect.Left + (x - xMin) / (xMax - xMin) * plotRect.Width;
-                        float sy = plotRect.Bottom - (y - yMin) / (yMax - yMin) * plotRect.Height;
+                        float sx = xRange > 0
+                            ? plotRect.Left + (x - xMin) / xRange * plotRect.Width
+                            : plotRect.Left + plotRect.Width * 0.5f;
+                        float sy = yRange > 0
+                            ? plotRect.Bottom - (y - yMin) / yRange * plotRect.Height
+                            : plotRect.Top + plotRect.Height * 0.5f;
+                        sx = Math.Clamp(sx, -1e6f, 1e6f);
+                        sy = Math.Clamp(sy, -1e6f, 1e6f);
                         pts.Add(new PointF(sx, sy));
                     }
                 }

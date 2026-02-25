@@ -63,8 +63,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                         cumul[i] = yVal;
                     }
                     yVal = yMin + (yVal - yMin) * anim;
-                    float sx = plotRect.Left + (x - xMin) / (xMax - xMin) * plotRect.Width;
-                    float sy = plotRect.Bottom - (yVal - yMin) / (yMax - yMin) * plotRect.Height;
+                    float xRange = xMax - xMin;
+                    float yRange = yMax - yMin;
+                    float sx = xRange > 0
+                        ? plotRect.Left + (x - xMin) / xRange * plotRect.Width
+                        : plotRect.Left + plotRect.Width * 0.5f;
+                    float sy = yRange > 0
+                        ? plotRect.Bottom - (yVal - yMin) / yRange * plotRect.Height
+                        : plotRect.Top + plotRect.Height * 0.5f;
+
+                    // Clamp to prevent GDI+ overflow on extreme values
+                    sx = Math.Clamp(sx, -1e6f, 1e6f);
+                    sy = Math.Clamp(sy, -1e6f, 1e6f);
                     pts.Add(new PointF(sx, sy));
                 }
 

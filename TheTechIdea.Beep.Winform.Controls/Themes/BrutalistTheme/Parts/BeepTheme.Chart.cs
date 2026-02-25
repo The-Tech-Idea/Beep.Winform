@@ -10,17 +10,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyChart()
         {
-            this.ChartBackColor = SurfaceColor;
-            this.ChartLineColor = SurfaceColor;
-            this.ChartFillColor = SurfaceColor;
-            this.ChartAxisColor = SurfaceColor;
-            this.ChartTitleColor = ForeColor;
-            this.ChartTextColor = ForeColor;
-            this.ChartLegendBackColor = SurfaceColor;
-            this.ChartLegendTextColor = ForeColor;
-            this.ChartLegendShapeColor = SurfaceColor;
-            this.ChartGridLineColor = SurfaceColor;
-            this.ChartDefaultSeriesColors = new System.Collections.Generic.List<Color> { PrimaryColor, AccentColor, SecondaryColor, PrimaryColor };
+            this.ChartBackColor         = SurfaceColor;                              // near-white card background
+            this.ChartLineColor         = PrimaryColor;                              // black — series line
+            this.ChartFillColor         = Color.FromArgb(40, 0, 0, 0);              // subtle dark fill
+            this.ChartAxisColor         = ForeColor;                                 // black axes
+            this.ChartTitleColor        = ForeColor;                                 // black title
+            this.ChartTextColor         = ForeColor;                                 // black labels
+            this.ChartLegendBackColor   = SurfaceColor;                              // near-white legend bg
+            this.ChartLegendTextColor   = ForeColor;                                 // black legend text
+            this.ChartLegendShapeColor  = ForeColor;                                 // black legend swatch border
+            this.ChartGridLineColor     = Color.FromArgb(210, 210, 210);             // subtle light gray grid
+            this.ChartDefaultSeriesColors = new System.Collections.Generic.List<Color>
+            {
+                AccentColor,                                                          // yellow
+                PrimaryColor,                                                         // black
+                Color.FromArgb(80, 80, 80),                                          // dark gray
+                SuccessColor,                                                         // green
+                ErrorColor,                                                           // red
+                WarningColor                                                          // orange
+            };
         }
     }
 }

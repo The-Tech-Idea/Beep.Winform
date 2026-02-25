@@ -4,31 +4,11 @@
 			"path": "."
 		},
 		{
-			"path": "../Beep.Winform.Sample/WinFormsApp.UI.Test"
-		},
-		{
-			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
-		},
-		{
-			"path": "../Beep.Shell"
-		},
-		{
-			"path": "../BeepDM"
+			"path": "H:/dev/iconPacks/imgs"
 		},
 		{
 			"path": "../Beep.Sample"
-		},
-		{
-			"path": "../BeepDataSources/DataSourcesPlugins/RDBMSDataSource"
-		},
-		{
-			"path": "../BeepDataSources/DataSourcesPluginsCore/SqliteDatasourceCore"
-		},
-		{
-			"path": "../Beep.Containers/Beep.Container"
 		}
 	],
-	"settings": {
-		"powershell.cwd": "Beep.Winform"
-	}
+	"settings": {}
 }

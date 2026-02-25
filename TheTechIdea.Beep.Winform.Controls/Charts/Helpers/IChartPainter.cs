@@ -20,5 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public Rectangle PlotRect;
         public int Radius;
         public Color AccentColor;
+        /// <summary>Y coordinate (absolute) where the title section ends. Set by Paint() after DrawTitleSection.</summary>
+        public int TitleBottom;
     }
 }

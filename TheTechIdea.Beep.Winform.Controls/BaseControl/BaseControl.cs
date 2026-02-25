@@ -658,9 +658,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             //// If we have painter, notify it of scale change
             //try
             //{
-            //    if (_painter != null && IsHandleCreated && !IsDisposed)
+            //    if (_chartpainter != null && IsHandleCreated && !IsDisposed)
             //    {
-            //        _painter.UpdateLayout(this);
+            //        _chartpainter.UpdateLayout(this);
             //    }
             //}
             //catch (Exception ex)

@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
     public partial class BeepChart
     {
         #region Fields
-        private IChartPainter _painter;
+        private IChartPainter _chartpainter;
         private IChartAxisPainter _axisPainter;
         private IChartSeriesPainter _seriesPainter;
         private IChartLegendPainter _legendPainter = new RightSideLegendPainter();
@@ -52,16 +52,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         public string ChartSubtitle { get; set; } = "Subtitle or Description";
 
         [Browsable(true)]
-        public Font ChartTitleFont { get; set; } = new Font("Arial", 12, FontStyle.Bold);
+        public Font ChartTitleFont { get; set; }
 
         [Browsable(true)]
-        public Font ChartValueFont { get; set; } = new Font("Arial", 20, FontStyle.Bold);
+        public Font ChartValueFont { get; set; }
 
         [Browsable(true)]
-        public Font ChartSubtitleFont { get; set; } = new Font("Arial", 9, FontStyle.Regular);
+        public Font ChartSubtitleFont { get; set; }
 
         [Browsable(true)]
-        public Color ChartTitleForeColor { get; set; } = Color.Black;
+        public Color ChartTitleForeColor { get; set; }
         #endregion
 
         #region Data Properties
@@ -75,11 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             set
             {
                 _dataSeries = value ?? new List<ChartDataSeries>();
-                if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
-                {
-                    BeepChartDataHelper.DetectAxisTypes(this);
-                    BeepChartViewportHelper.AutoScaleViewport(this);
-                }
+                BeepChartDataHelper.DetectAxisTypes(this);
+                BeepChartViewportHelper.AutoScaleViewport(this);
             }
         }
 
@@ -87,18 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         public List<string> LegendLabels { get; set; } = new List<string>();
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public List<Color> ChartDefaultSeriesColors { get; set; } = new List<Color>
-        {
-            Color.Blue, Color.Red, Color.Green, Color.Purple, Color.Orange,
-            Color.Yellow, Color.Cyan, Color.Magenta, Color.Brown, Color.Pink
-        };
+        public List<Color> ChartDefaultSeriesColors { get; set; } = new List<Color>();
         #endregion
 
         #region Axis Properties
         public AxisType BottomAxisType { get; set; } = AxisType.Numeric;
         public AxisType LeftAxisType { get; set; } = AxisType.Numeric;
-        public string XAxisTitle { get; set; } = "X Title";
-        public string YAxisTitle { get; set; } = "Y Title";
+        public string XAxisTitle { get; set; } = "";
+        public string YAxisTitle { get; set; } = "";
         public float XLabelAngle { get; set; } = 0f;
         public float YLabelAngle { get; set; } = 0f;
         public TimeTickGranularity XTimeGranularity { get; set; } = TimeTickGranularity.Auto;
@@ -125,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         public bool CustomDraw { get; set; }
         public bool ShowLegend { get; set; } = true;
         public ChartType ChartType { get; set; } = ChartType.Line;
-        public LegendPlacement LegendPlacement { get; set; } = LegendPlacement.Right;
+        public LegendPlacement LegendPlacement { get; set; } = LegendPlacement.InsideTopRight;
 
         [Category("Appearance")]
         public ChartSurfaceStyle SurfaceStyle
@@ -171,16 +164,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         #endregion
 
         #region Theme Properties
-        public Color ChartBackColor { get; set; } = Color.White;
-        public Color ChartLineColor { get; set; } = Color.Black;
-        public Color ChartFillColor { get; set; } = Color.LightGray;
-        public Color ChartAxisColor { get; set; } = Color.Black;
-        public Color ChartTitleColor { get; set; } = Color.Black;
-        public Color ChartTextColor { get; set; } = Color.Black;
-        public Color ChartLegendBackColor { get; set; } = Color.White;
-        public Color ChartLegendTextColor { get; set; } = Color.Black;
-        public Color ChartLegendShapeColor { get; set; } = Color.Black;
-        public Color ChartGridLineColor { get; set; } = Color.LightGray;
+        public Color ChartBackColor { get; set; }
+        public Color ChartLineColor { get; set; }
+        public Color ChartFillColor { get; set; }
+        public Color ChartAxisColor { get; set; }
+        public Color ChartTitleColor { get; set; }
+        public Color ChartTextColor { get; set; }
+        public Color ChartLegendBackColor { get; set; }
+        public Color ChartLegendTextColor { get; set; }
+        public Color ChartLegendShapeColor { get; set; }
+        public Color ChartGridLineColor { get; set; }
         #endregion
 
         #region Internal Properties for Helpers

@@ -57,7 +57,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     float sx = stacked ? baseX + (categoryWidth - barWidth) / 2f
                                        : baseX + visibleIndex * barWidth;
 
-                    float sy = plotRect.Bottom - (yVal - yMin) / (yMax - yMin) * plotRect.Height;
+                    float yRange = yMax - yMin;
+                    float sy = yRange > 0
+                        ? plotRect.Bottom - (yVal - yMin) / yRange * plotRect.Height
+                        : plotRect.Top + plotRect.Height * 0.5f;
+                    sy = Math.Clamp(sy, -1e6f, 1e6f);
                     float height = plotRect.Bottom - sy;
 
                     if (stacked)
@@ -69,7 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                         }
                         // convert cumulative base to screen pixels
                         float prevYVal = yMin + prevHeight;
-                        float prevSy = plotRect.Bottom - (prevYVal - yMin) / (yMax - yMin) * plotRect.Height;
+                        float prevSy = yRange > 0
+                            ? plotRect.Bottom - (prevYVal - yMin) / yRange * plotRect.Height
+                            : plotRect.Top + plotRect.Height * 0.5f;
+                        prevSy = Math.Clamp(prevSy, -1e6f, 1e6f);
                         float stackedHeight = plotRect.Bottom - sy;
                         sy = prevSy - stackedHeight;
                         height = stackedHeight;

@@ -44,17 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            try
-            {
-                base.OnPaint(e);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.WriteLine($"OnPaint Error: {ex.Message}");
-            }
-        }
+  
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {

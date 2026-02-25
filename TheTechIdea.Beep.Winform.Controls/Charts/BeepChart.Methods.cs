@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
@@ -69,16 +70,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
             {
                 _dataPointToolTip = new ToolTip();
-                BeepChartViewportHelper.UpdateChartDrawingRectBase(this);
-                BeepChartViewportHelper.AutoScaleViewport(this);
             }
+            BeepChartViewportHelper.UpdateChartDrawingRectBase(this);
+            BeepChartViewportHelper.AutoScaleViewport(this);
+            var t = BeepThemesManager.CurrentTheme;
+            ChartBackColor         = t.ChartBackColor;
+            ChartLineColor         = t.ChartLineColor;
+            ChartFillColor         = t.ChartFillColor;
+            ChartAxisColor         = t.ChartAxisColor;
+            ChartTitleColor        = t.ChartTitleColor;
+            ChartTitleForeColor    = t.ChartTitleColor;
+            ChartTextColor         = t.ChartTextColor;
+            ChartLegendBackColor   = t.ChartLegendBackColor;
+            ChartLegendTextColor   = t.ChartLegendTextColor;
+            ChartLegendShapeColor  = t.ChartLegendShapeColor;
+            ChartGridLineColor     = t.ChartGridLineColor;
+            ChartDefaultSeriesColors = new List<Color>(t.ChartDefaultSeriesColors);
+            ChartTitleFont    = BeepThemesManager.ToFont(t.ChartTitleFont   ?? t.TitleStyle) ?? SystemFonts.DefaultFont;
+            ChartValueFont    = BeepThemesManager.ToFont(t.ChartSubTitleFont ?? t.GetBlockHeaderFont()) ?? SystemFonts.DefaultFont;
+            ChartSubtitleFont = BeepThemesManager.ToFont(t.GetBlockTextFont()) ?? SystemFonts.DefaultFont;
         }
 
         private void InitializeDesignTimeSampleData()
         {
-            if (DesignMode)
+            // DesignMode property is always false inside a constructor,
+            // so use LicenseManager.UsageMode which works at construction time.
+            bool isDesignTime = LicenseManager.UsageMode == LicenseUsageMode.Designtime
+                                || DesignMode
+                                || (Site != null && Site.DesignMode);
+            if (isDesignTime)
             {
-                DataSeries = new List<ChartDataSeries>
+                _dataSeries = new List<ChartDataSeries>
                 {
                     new ChartDataSeries
                     {
@@ -86,6 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                         ChartType = ChartType.Line,
                         ShowLine = true,
                         ShowPoint = true,
+                        Visible = true,
                         Points = new List<ChartDataPoint>
                         {
                             new ChartDataPoint("1", "5", 10f, "A", Color.Red),
@@ -94,6 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                         }
                     }
                 };
+                BeepChartDataHelper.DetectAxisTypes(this);
                 BeepChartViewportHelper.UpdateChartDrawingRectBase(this);
                 BeepChartViewportHelper.AutoScaleViewport(this);
             }
@@ -104,20 +128,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             switch (_surfaceStyle)
             {
                 case ChartSurfaceStyle.Card:
-                    _painter = new CardChartPainter();
+                    _chartpainter = new CardChartPainter();
                     break;
                 case ChartSurfaceStyle.Outline:
-                    _painter = new OutlineChartPainter();
+                    _chartpainter = new OutlineChartPainter();
                     break;
                 case ChartSurfaceStyle.Glass:
-                    _painter = new GlassChartPainter2();
+                    _chartpainter = new GlassChartPainter2();
                     break;
                 case ChartSurfaceStyle.Classic:
                 default:
-                    _painter = new CardChartPainter();
+                    _chartpainter = new CardChartPainter();
                     break;
             }
-            _painter?.Initialize(this, _currentTheme);
+            _chartpainter?.Initialize(this, _currentTheme);
 
             _axisPainter = new CartesianAxisPainter();
 

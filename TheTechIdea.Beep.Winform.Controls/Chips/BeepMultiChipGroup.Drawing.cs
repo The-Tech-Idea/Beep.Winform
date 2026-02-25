@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
             var availableRect = DrawingRect;
 
-         //   _painter?.RenderGroupBackground(g, availableRect, _renderOptions);
+         //   _chartpainter?.RenderGroupBackground(g, availableRect, _renderOptions);
             if (UseThemeColors && _currentTheme != null)
             {
                 _painter?.RenderGroupBackground(g, availableRect, _renderOptions);

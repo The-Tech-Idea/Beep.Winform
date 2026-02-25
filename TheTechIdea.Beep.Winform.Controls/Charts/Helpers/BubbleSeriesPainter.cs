@@ -35,8 +35,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     float xv = toX(p) is float xf ? xf : 0f;
                     float yv = toY(p) is float yf ? yf : 0f;
                     yv = yMin + (yv - yMin) * anim;
-                    float sx = plotRect.Left + (xv - xMin) / (xMax - xMin) * plotRect.Width;
-                    float sy = plotRect.Bottom - (yv - yMin) / (yMax - yMin) * plotRect.Height;
+                    float xRange = xMax - xMin;
+                    float yRange = yMax - yMin;
+                    float sx = xRange > 0
+                        ? plotRect.Left + (xv - xMin) / xRange * plotRect.Width
+                        : plotRect.Left + plotRect.Width * 0.5f;
+                    float sy = yRange > 0
+                        ? plotRect.Bottom - (yv - yMin) / yRange * plotRect.Height
+                        : plotRect.Top + plotRect.Height * 0.5f;
+                    sx = Math.Clamp(sx, -1e6f, 1e6f);
+                    sy = Math.Clamp(sy, -1e6f, 1e6f);
 
                     float bubbleSize = maxValue > 0 ? p.Value / maxValue * maxBubbleSize : minBubbleSize;
                     bubbleSize = Math.Max(bubbleSize * anim, minBubbleSize);

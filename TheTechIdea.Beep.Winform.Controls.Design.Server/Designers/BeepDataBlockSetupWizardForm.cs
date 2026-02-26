@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
@@ -36,8 +37,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly Button _cancelButton = new();
         private readonly Button _selectAllFieldsButton = new();
         private readonly Button _clearFieldsButton = new();
+        private readonly ComboBox _fieldEditorTypeCombo = new();
+        private readonly ComboBox _fieldTemplateCombo = new();
+        private readonly Label _fieldEditorLabel = new();
+        private readonly Label _fieldTemplateLabel = new();
+        private readonly Label _fieldSelectionHintLabel = new();
 
         private int _currentStepIndex;
+        private readonly Dictionary<string, string> _selectedEditorTypeByField = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _selectedTemplateByField = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DbFieldCategory> _fieldCategoryByFieldName = new(StringComparer.OrdinalIgnoreCase);
+        private string _lastSelectedFieldName = string.Empty;
+        private bool _isUpdatingFieldSelectorUi;
 
         public string SelectedConnectionName => _connectionCombo.Text?.Trim() ?? string.Empty;
         public string SelectedEntityName => _entityCombo.Text?.Trim() ?? string.Empty;
@@ -50,6 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public DataBlockViewMode SelectedViewMode =>
             _gridRadio.Checked ? DataBlockViewMode.BeepGridPro : DataBlockViewMode.RecordControls;
+
+        public IReadOnlyDictionary<string, string> SelectedFieldEditorTypeByField => _selectedEditorTypeByField;
+        public IReadOnlyDictionary<string, string> SelectedTemplateByField => _selectedTemplateByField;
 
         public BeepDataBlockSetupWizardForm(BeepDataBlock dataBlock)
         {
@@ -168,8 +182,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             };
 
             _fieldsList.Location = new Point(20, 52);
-            _fieldsList.Size = new Size(660, 270);
+            _fieldsList.Size = new Size(420, 270);
             _fieldsList.CheckOnClick = true;
+            _fieldsList.SelectedIndexChanged += (_, _) =>
+            {
+                SaveFieldEditorSelection(_lastSelectedFieldName);
+                SaveFieldTemplateSelection(_lastSelectedFieldName);
+                SyncFieldEditorSelectorsFromFieldSelection();
+            };
+
+            _fieldSelectionHintLabel.Text = "Per-field editor/template";
+            _fieldSelectionHintLabel.Location = new Point(458, 52);
+            _fieldSelectionHintLabel.Size = new Size(220, 24);
+
+            _fieldEditorLabel.Text = "Editor Type:";
+            _fieldEditorLabel.Location = new Point(458, 86);
+            _fieldEditorLabel.Size = new Size(220, 22);
+            _fieldEditorTypeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+            _fieldEditorTypeCombo.Location = new Point(458, 110);
+            _fieldEditorTypeCombo.Size = new Size(220, 28);
+            _fieldEditorTypeCombo.SelectedIndexChanged += (_, _) => SaveCurrentFieldEditorSelection();
+
+            _fieldTemplateLabel.Text = "Template:";
+            _fieldTemplateLabel.Location = new Point(458, 150);
+            _fieldTemplateLabel.Size = new Size(220, 22);
+            _fieldTemplateCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+            _fieldTemplateCombo.Location = new Point(458, 174);
+            _fieldTemplateCombo.Size = new Size(220, 28);
+            _fieldTemplateCombo.SelectedIndexChanged += (_, _) => SaveCurrentFieldTemplateSelection();
 
             _selectAllFieldsButton.Text = "Select All";
             _selectAllFieldsButton.Location = new Point(20, 334);
@@ -195,6 +235,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             _stepFieldsPanel.Controls.Add(label);
             _stepFieldsPanel.Controls.Add(_fieldsList);
+            _stepFieldsPanel.Controls.Add(_fieldSelectionHintLabel);
+            _stepFieldsPanel.Controls.Add(_fieldEditorLabel);
+            _stepFieldsPanel.Controls.Add(_fieldEditorTypeCombo);
+            _stepFieldsPanel.Controls.Add(_fieldTemplateLabel);
+            _stepFieldsPanel.Controls.Add(_fieldTemplateCombo);
             _stepFieldsPanel.Controls.Add(_selectAllFieldsButton);
             _stepFieldsPanel.Controls.Add(_clearFieldsButton);
         }
@@ -229,6 +274,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void LoadInitialValues()
         {
+            ResetFieldSelectionOptions();
+
             var connections = GetAvailableConnections();
             _connectionCombo.Items.Clear();
             _connectionCombo.Items.AddRange(connections.Cast<object>().ToArray());
@@ -269,6 +316,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
         }
 
+        private void ResetFieldSelectionOptions()
+        {
+            _isUpdatingFieldSelectorUi = true;
+            _fieldEditorTypeCombo.Items.Clear();
+            _fieldEditorTypeCombo.Items.Add("<Default>");
+            _fieldEditorTypeCombo.SelectedIndex = 0;
+            _fieldTemplateCombo.Items.Clear();
+            _fieldTemplateCombo.Items.Add("<None>");
+            _fieldTemplateCombo.SelectedIndex = 0;
+            _isUpdatingFieldSelectorUi = false;
+        }
+
+        private void LoadEditorTypeOptions(DbFieldCategory? category, string selectedValue)
+        {
+            _isUpdatingFieldSelectorUi = true;
+            _fieldEditorTypeCombo.Items.Clear();
+            _fieldEditorTypeCombo.Items.Add("<Default>");
+
+            var availableEditorTypes = category.HasValue
+                ? _dataBlock.GetKnownRecordEditorTypes(category.Value)
+                : _dataBlock.GetKnownRecordEditorTypes();
+
+            foreach (var type in availableEditorTypes)
+            {
+                if (!string.IsNullOrWhiteSpace(type.FullName))
+                {
+                    _fieldEditorTypeCombo.Items.Add(type.FullName);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedValue) &&
+                !string.Equals(selectedValue, "<Default>", StringComparison.OrdinalIgnoreCase) &&
+                !_fieldEditorTypeCombo.Items.Contains(selectedValue))
+            {
+                _fieldEditorTypeCombo.Items.Add(selectedValue);
+            }
+
+            _fieldEditorTypeCombo.SelectedItem = _fieldEditorTypeCombo.Items.Contains(selectedValue)
+                ? selectedValue
+                : "<Default>";
+            _isUpdatingFieldSelectorUi = false;
+        }
+
+        private void LoadTemplateOptions(DbFieldCategory? category, string selectedValue)
+        {
+            _isUpdatingFieldSelectorUi = true;
+            _fieldTemplateCombo.Items.Clear();
+            _fieldTemplateCombo.Items.Add("<None>");
+
+            var templates = category.HasValue
+                ? _dataBlock.GetEditorTemplates(category.Value)
+                : _dataBlock.EditorTemplates.ToList();
+
+            foreach (var template in templates)
+            {
+                if (!string.IsNullOrWhiteSpace(template.TemplateId))
+                {
+                    _fieldTemplateCombo.Items.Add(template.TemplateId);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedValue) &&
+                !string.Equals(selectedValue, "<None>", StringComparison.OrdinalIgnoreCase) &&
+                !_fieldTemplateCombo.Items.Contains(selectedValue))
+            {
+                _fieldTemplateCombo.Items.Add(selectedValue);
+            }
+
+            _fieldTemplateCombo.SelectedItem = _fieldTemplateCombo.Items.Contains(selectedValue)
+                ? selectedValue
+                : "<None>";
+            _isUpdatingFieldSelectorUi = false;
+        }
+
         private List<string> GetAvailableConnections()
         {
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -278,7 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 foreach (var dataConnection in container.Components.OfType<BeepDataConnection>())
                 {
-                    foreach (var connection in dataConnection.ReloadConnections())
+                    foreach (var connection in dataConnection.GetConnectionsSnapshot(includeRepository: false))
                     {
                         if (!string.IsNullOrWhiteSpace(connection.ConnectionName))
                         {
@@ -369,6 +490,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private void LoadFields(string connectionName, string entityName)
         {
             _fieldsList.Items.Clear();
+            _lastSelectedFieldName = string.Empty;
+            _fieldCategoryByFieldName.Clear();
+            ResetFieldSelectionOptions();
 
             if (string.IsNullOrWhiteSpace(connectionName) || string.IsNullOrWhiteSpace(entityName))
             {
@@ -384,14 +508,123 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             var includeMap = _dataBlock.FieldSelections
                 .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
                 .ToDictionary(x => x.FieldName, x => x.IncludeInView, StringComparer.OrdinalIgnoreCase);
+            var knownFieldNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var field in fields)
             {
+                knownFieldNames.Add(field.FieldName);
+                _fieldCategoryByFieldName[field.FieldName] = field.FieldCategory;
                 var isChecked = includeMap.TryGetValue(field.FieldName, out var include)
                     ? include
                     : true;
                 _fieldsList.Items.Add(field.FieldName, isChecked);
+
+                var selection = _dataBlock.FieldSelections.FirstOrDefault(x =>
+                    string.Equals(x.FieldName, field.FieldName, StringComparison.OrdinalIgnoreCase));
+                if (selection != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(selection.EditorTypeOverrideFullName))
+                    {
+                        _selectedEditorTypeByField[field.FieldName] = selection.EditorTypeOverrideFullName;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(selection.TemplateId))
+                    {
+                        _selectedTemplateByField[field.FieldName] = selection.TemplateId;
+                    }
+                }
             }
+
+            RemoveStaleSelections(_selectedEditorTypeByField, knownFieldNames);
+            RemoveStaleSelections(_selectedTemplateByField, knownFieldNames);
+
+            if (_fieldsList.Items.Count > 0)
+            {
+                _fieldsList.SelectedIndex = 0;
+            }
+        }
+
+        private string GetSelectedFieldName()
+        {
+            return _fieldsList.SelectedItem?.ToString() ?? string.Empty;
+        }
+
+        private void SyncFieldEditorSelectorsFromFieldSelection()
+        {
+            var fieldName = GetSelectedFieldName();
+            if (string.IsNullOrWhiteSpace(fieldName))
+            {
+                _lastSelectedFieldName = string.Empty;
+                ResetFieldSelectionOptions();
+                return;
+            }
+
+            _selectedEditorTypeByField.TryGetValue(fieldName, out var editorTypeName);
+            _selectedTemplateByField.TryGetValue(fieldName, out var templateId);
+            var hasCategory = _fieldCategoryByFieldName.TryGetValue(fieldName, out var category);
+
+            var editorSelection = string.IsNullOrWhiteSpace(editorTypeName) ? "<Default>" : editorTypeName;
+            var templateSelection = string.IsNullOrWhiteSpace(templateId) ? "<None>" : templateId;
+            LoadEditorTypeOptions(hasCategory ? category : (DbFieldCategory?)null, editorSelection);
+            LoadTemplateOptions(hasCategory ? category : (DbFieldCategory?)null, templateSelection);
+
+            _lastSelectedFieldName = fieldName;
+        }
+
+        private void SaveCurrentFieldEditorSelection()
+        {
+            var fieldName = GetSelectedFieldName();
+            SaveFieldEditorSelection(fieldName);
+        }
+
+        private void SaveFieldEditorSelection(string fieldName)
+        {
+            if (_isUpdatingFieldSelectorUi)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(fieldName))
+            {
+                return;
+            }
+
+            var value = _fieldEditorTypeCombo.SelectedItem?.ToString() ?? "<Default>";
+            if (string.Equals(value, "<Default>", StringComparison.OrdinalIgnoreCase))
+            {
+                _selectedEditorTypeByField.Remove(fieldName);
+                return;
+            }
+
+            _selectedEditorTypeByField[fieldName] = value;
+        }
+
+        private void SaveCurrentFieldTemplateSelection()
+        {
+            var fieldName = GetSelectedFieldName();
+            SaveFieldTemplateSelection(fieldName);
+        }
+
+        private void SaveFieldTemplateSelection(string fieldName)
+        {
+            if (_isUpdatingFieldSelectorUi)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(fieldName))
+            {
+                return;
+            }
+
+            var value = _fieldTemplateCombo.SelectedItem?.ToString() ?? "<None>";
+            if (string.Equals(value, "<None>", StringComparison.OrdinalIgnoreCase))
+            {
+                _selectedTemplateByField.Remove(fieldName);
+                return;
+            }
+
+            _selectedTemplateByField[fieldName] = value;
         }
 
         private List<EntityField> GetEntityFields(string connectionName, string entityName)
@@ -489,6 +722,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return false;
             }
 
+            if (_currentStepIndex == 2)
+            {
+                SaveFieldEditorSelection(_lastSelectedFieldName);
+                SaveFieldTemplateSelection(_lastSelectedFieldName);
+                if (!ValidateFieldSelections())
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -526,11 +769,140 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void UpdateSummary()
         {
+            var selected = SelectedFieldNames;
+            var editorOverrideCount = _selectedEditorTypeByField.Keys.Count(selected.Contains);
+            var templateCount = _selectedTemplateByField.Keys.Count(selected.Contains);
+            var warningCount = GetSelectionWarningCount();
+            var modeLabel = SelectedViewMode == DataBlockViewMode.BeepGridPro
+                ? "Table (BeepGridPro)"
+                : "Record Controls";
+
             _summaryLabel.Text =
                 $"Connection: {SelectedConnectionName}\n" +
                 $"Entity: {SelectedEntityName}\n" +
-                $"Selected Fields: {SelectedFieldNames.Count}\n" +
-                $"View Mode: {SelectedViewMode}";
+                $"Selected Fields: {selected.Count}\n" +
+                $"Editor Overrides: {editorOverrideCount}\n" +
+                $"Template Assignments: {templateCount}\n" +
+                $"Selection Warnings: {warningCount}\n" +
+                $"View Mode: {modeLabel}";
+        }
+
+        private int GetSelectionWarningCount()
+        {
+            var warningCount = 0;
+            foreach (var pair in _selectedEditorTypeByField)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Value))
+                {
+                    continue;
+                }
+
+                if (!_fieldCategoryByFieldName.TryGetValue(pair.Key, out var category))
+                {
+                    continue;
+                }
+
+                var allowedTypes = _dataBlock.GetKnownRecordEditorTypes(category);
+                var isAllowed = allowedTypes.Any(type =>
+                    string.Equals(type.FullName, pair.Value, StringComparison.OrdinalIgnoreCase));
+                if (!isAllowed)
+                {
+                    warningCount++;
+                }
+            }
+
+            foreach (var pair in _selectedTemplateByField)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Value))
+                {
+                    continue;
+                }
+
+                if (!_fieldCategoryByFieldName.TryGetValue(pair.Key, out var category))
+                {
+                    continue;
+                }
+
+                var template = _dataBlock.EditorTemplates.FirstOrDefault(x =>
+                    string.Equals(x.TemplateId, pair.Value, StringComparison.OrdinalIgnoreCase));
+                if (template == null || !template.SupportsCategory(category.ToString()))
+                {
+                    warningCount++;
+                }
+            }
+
+            return warningCount;
+        }
+
+        private bool ValidateFieldSelections()
+        {
+            var warnings = new List<string>();
+            foreach (var pair in _selectedEditorTypeByField)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Value))
+                {
+                    continue;
+                }
+
+                if (!_fieldCategoryByFieldName.TryGetValue(pair.Key, out var category))
+                {
+                    continue;
+                }
+
+                var allowedTypes = _dataBlock.GetKnownRecordEditorTypes(category);
+                var isAllowed = allowedTypes.Any(type =>
+                    string.Equals(type.FullName, pair.Value, StringComparison.OrdinalIgnoreCase));
+                if (!isAllowed)
+                {
+                    warnings.Add($"Field '{pair.Key}' override '{pair.Value}' is unresolved or outside the current category filter.");
+                }
+            }
+
+            foreach (var pair in _selectedTemplateByField)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Value))
+                {
+                    continue;
+                }
+
+                if (!_fieldCategoryByFieldName.TryGetValue(pair.Key, out var category))
+                {
+                    continue;
+                }
+
+                var template = _dataBlock.EditorTemplates.FirstOrDefault(x =>
+                    string.Equals(x.TemplateId, pair.Value, StringComparison.OrdinalIgnoreCase));
+                if (template == null)
+                {
+                    warnings.Add($"Field '{pair.Key}' keeps missing template '{pair.Value}'.");
+                    continue;
+                }
+
+                if (!template.SupportsCategory(category.ToString()))
+                {
+                    warnings.Add($"Field '{pair.Key}' template '{pair.Value}' is outside category '{category}'.");
+                }
+            }
+
+            if (warnings.Count > 0)
+            {
+                _fieldSelectionHintLabel.Text = $"Per-field editor/template ({warnings.Count} warning(s))";
+            }
+            else
+            {
+                _fieldSelectionHintLabel.Text = "Per-field editor/template";
+            }
+
+            return true;
+        }
+
+        private static void RemoveStaleSelections(Dictionary<string, string> map, HashSet<string> knownFieldNames)
+        {
+            var stale = map.Keys.Where(x => !knownFieldNames.Contains(x)).ToList();
+            foreach (var key in stale)
+            {
+                map.Remove(key);
+            }
         }
     }
 }

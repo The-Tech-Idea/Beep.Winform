@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -7,6 +8,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Workflow;
@@ -18,8 +20,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     public partial class uc_Import_MapFields : TemplateUserControl, IWizardStepContent
     {
         private readonly BindingList<ImportFieldMapRow> _rows = new();
-        private readonly Label _summaryLabel;
-        private readonly Button _autoMapButton;
+        private readonly BeepLabel _summaryLabel;
+        private readonly BeepLabel _statusLabel;
+        private readonly BeepButton _autoMapButton;
         private readonly DataGridView _mappingGrid;
         private ImportSelectionContext? _selection;
         private EntityStructure? _sourceStructure;
@@ -30,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             InitializeComponent();
 
-            _summaryLabel = new Label
+            _summaryLabel = new BeepLabel
             {
                 Dock = DockStyle.Top,
                 Height = 44,
@@ -38,13 +41,22 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 Padding = new Padding(4, 0, 0, 0)
             };
 
-            _autoMapButton = new Button
+            _autoMapButton = new BeepButton
             {
                 Dock = DockStyle.Top,
                 Height = 32,
                 Text = "Auto map by field name"
             };
             _autoMapButton.Click += AutoMapButton_Click;
+
+            _statusLabel = new BeepLabel
+            {
+                Dock = DockStyle.Top,
+                Height = 28,
+                TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
+                Padding = new Padding(4, 0, 0, 0),
+                Text = "Select mappings to continue."
+            };
 
             _mappingGrid = new DataGridView
             {
@@ -100,6 +112,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 Padding = new Padding(8)
             };
             panel.Controls.Add(_mappingGrid);
+            panel.Controls.Add(_statusLabel);
             panel.Controls.Add(_autoMapButton);
             panel.Controls.Add(_summaryLabel);
             Controls.Add(panel);
@@ -193,6 +206,48 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             if (selectedMappings == 0)
             {
                 return WizardValidationResult.Error("Select at least one valid field mapping.");
+            }
+
+            var duplicateDestinations = _rows
+                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
+                .GroupBy(row => row.DestinationField, System.StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
+                .ToList();
+            if (duplicateDestinations.Count > 0)
+            {
+                return WizardValidationResult.Error(
+                    $"Duplicate destination mappings detected: {string.Join(", ", duplicateDestinations)}");
+            }
+
+            var requiredFields = _destinationStructure.Fields
+                .Where(field => field.AllowDBNull == false)
+                .Select(field => field.FieldName)
+                .ToHashSet(System.StringComparer.OrdinalIgnoreCase);
+            var mappedDestinations = _rows
+                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
+                .Select(row => row.DestinationField)
+                .ToHashSet(System.StringComparer.OrdinalIgnoreCase);
+            var missingRequired = requiredFields
+                .Where(field => !mappedDestinations.Contains(field))
+                .Take(5)
+                .ToList();
+            if (missingRequired.Count > 0)
+            {
+                return WizardValidationResult.Error(
+                    $"Required destination fields are not mapped: {string.Join(", ", missingRequired)}");
+            }
+
+            var incompatibleRows = _rows
+                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
+                .Where(row => !AreTypesCompatible(row.SourceType, LookupDestinationType(row.DestinationField)))
+                .Take(3)
+                .Select(row => $"{row.SourceField} -> {row.DestinationField}")
+                .ToList();
+            if (incompatibleRows.Count > 0)
+            {
+                return WizardValidationResult.Error(
+                    $"Potential type mismatch for mappings: {string.Join(", ", incompatibleRows)}");
             }
 
             return WizardValidationResult.Success();
@@ -435,7 +490,30 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private void RaiseValidationState()
         {
             var result = ValidateStep();
+            _statusLabel.Text = result.IsValid
+                ? "Mapping is valid. Continue to review."
+                : result.ErrorMessage ?? "Mapping is incomplete.";
             ValidationStateChanged?.Invoke(this, new StepValidationEventArgs(result.IsValid, result.ErrorMessage));
+        }
+
+        private static bool AreTypesCompatible(string sourceType, string destinationType)
+        {
+            if (string.IsNullOrWhiteSpace(sourceType) || string.IsNullOrWhiteSpace(destinationType))
+            {
+                return true;
+            }
+
+            if (sourceType.Equals(destinationType, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var numericAliases = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase)
+            {
+                "int", "int16", "int32", "int64", "short", "long", "double", "decimal", "float", "single"
+            };
+
+            return numericAliases.Contains(sourceType) && numericAliases.Contains(destinationType);
         }
     }
 }

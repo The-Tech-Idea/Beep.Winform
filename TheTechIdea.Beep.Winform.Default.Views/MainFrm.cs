@@ -1,10 +1,11 @@
-﻿
+
 using Microsoft.Extensions.DependencyInjection;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Integrated.NuggetsManage;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -41,6 +42,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
 
+            if (beepService?.DMEEditor != null)
+            {
+                NuggetsStartupBootstrapper.TryRestore(beepService.DMEEditor);
+            }
 
         }
 

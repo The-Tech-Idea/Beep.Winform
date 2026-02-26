@@ -1,13 +1,12 @@
-using System.Threading;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Editor.Importing;
-using TheTechIdea.Beep.Editor.Importing.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Workflow.Mapping;
@@ -18,15 +17,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     public class uc_ImportExportWizardLauncher : TemplateUserControl
     {
         private readonly IServiceProvider _services;
-        private readonly Button _launchWizardButton;
-        private readonly TextBox _logTextBox;
+        private readonly BeepButton _launchWizardButton;
+        private readonly BeepTextBox _logTextBox;
 
         public uc_ImportExportWizardLauncher(IServiceProvider services) : base(services)
         {
             _services = services;
             Details.AddinName = "Import / Export Wizard";
 
-            _launchWizardButton = new Button
+            _launchWizardButton = new BeepButton
             {
                 Dock = DockStyle.Top,
                 Height = 34,
@@ -34,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             };
             _launchWizardButton.Click += LaunchWizardButton_Click;
 
-            _logTextBox = new TextBox
+            _logTextBox = new BeepTextBox
             {
                 Dock = DockStyle.Fill,
                 Multiline = true,
@@ -138,6 +137,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             var mapping =
                 context.GetValue<EntityDataMap?>(ImportExportParameterKeys.Mapping, null) ??
                 ImportExportContextStore.GetMapping();
+            var options = ImportExportContextStore.GetOptions();
+            options.RunImportOnFinish = runImport;
+            options.RunMigrationPreflight = context.GetValue(ImportExportParameterKeys.RunMigrationPreflight, options.RunMigrationPreflight);
+            options.AddMissingColumns = context.GetValue(ImportExportParameterKeys.AddMissingColumns, options.AddMissingColumns);
+            options.CreateSyncProfileDraft = context.GetValue(ImportExportParameterKeys.CreateSyncProfileDraft, options.CreateSyncProfileDraft);
 
             if (selection == null || !selection.IsValid)
             {
@@ -159,9 +163,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             try
             {
-                using var importManager = new DataImportManager(Editor);
-                var importConfig = BuildImportConfiguration(importManager, selection, mapping);
-
+                using var orchestrator = new ImportExportOrchestrator(Editor);
+                var request = new ImportExecutionRequest
+                {
+                    Selection = selection,
+                    Mapping = mapping,
+                    Options = options
+                };
                 IProgress<IPassedArgs> progress = new Progress<IPassedArgs>(args =>
                 {
                     var message = args?.Messege;
@@ -170,20 +178,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                         AppendLog(message);
                     }
                 });
+                var result = Task.Run(async () => await orchestrator.ExecuteAsync(request, progress, AppendLog))
+                    .GetAwaiter().GetResult().ImportResult;
 
-                var result = Task.Run(async () =>
-                        await importManager.RunImportAsync(importConfig, progress, CancellationToken.None))
-                    .GetAwaiter()
-                    .GetResult();
-
-                AppendLog(result.Message);
-                if (result.Flag == Errors.Ok)
+                AppendLog(result?.Message ?? "Import run completed.");
+                if (result?.Flag == Errors.Ok)
                 {
                     MessageBox.Show("Import completed successfully.", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show($"Import failed: {result.Message}", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Import failed: {result?.Message}", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
@@ -191,24 +196,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 AppendLog($"Import failed: {ex.Message}");
                 MessageBox.Show($"Import failed: {ex.Message}", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private static DataImportConfiguration BuildImportConfiguration(
-            DataImportManager importManager,
-            ImportSelectionContext selection,
-            EntityDataMap? mapping)
-        {
-            var config = importManager.CreateImportConfiguration(
-                selection.SourceEntityName,
-                selection.SourceDataSourceName,
-                selection.DestinationEntityName,
-                selection.DestinationDataSourceName);
-
-            config.CreateDestinationIfNotExists = selection.CreateDestinationIfNotExists;
-            config.Mapping = mapping;
-            config.BatchSize = 100;
-            config.ApplyDefaults = true;
-            return config;
         }
 
         private void AppendLog(string message)
@@ -224,9 +211,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 return;
             }
 
-            _logTextBox.AppendText($"{DateTime.Now:HH:mm:ss} - {message}{Environment.NewLine}");
-            _logTextBox.SelectionStart = _logTextBox.TextLength;
-            _logTextBox.ScrollToCaret();
+            var line = $"{DateTime.Now:HH:mm:ss} - {message}";
+            _logTextBox.Text = string.IsNullOrWhiteSpace(_logTextBox.Text)
+                ? line
+                : $"{_logTextBox.Text}{Environment.NewLine}{line}";
         }
     }
 }

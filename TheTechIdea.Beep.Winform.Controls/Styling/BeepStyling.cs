@@ -333,7 +333,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         public static int GetPadding(BeepControlStyle style)
         {
-            return 0;
             return StyleSpacing.GetPadding(style);
         }
         public static Color GetBackgroundColor(BeepControlStyle style)

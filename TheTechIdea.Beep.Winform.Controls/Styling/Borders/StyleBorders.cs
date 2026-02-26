@@ -67,6 +67,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Terminal => 0,
                 BeepControlStyle.Tokyo => 8,
                 BeepControlStyle.Ubuntu => 7,
+                BeepControlStyle.Apple => 12,                   // Apple continuous curves
+                BeepControlStyle.Fluent => 4,                   // Fluent standard
+                BeepControlStyle.Material => 4,                 // Material standard
+                BeepControlStyle.WebFramework => 4,             // WebFramework standard
+                BeepControlStyle.Effect => 4,                   // Effect standard
+                BeepControlStyle.Retro => 0,                    // Retro sharp edges
+                BeepControlStyle.NeonGlow => 12,                // NeonGlow rounded for glow
+                BeepControlStyle.Shadcn => 6,                   // Shadcn modern radius
+                BeepControlStyle.RadixUI => 6,                  // RadixUI modern radius
+                BeepControlStyle.NextJS => 8,                   // NextJS smooth radius
+                BeepControlStyle.Linear => 8,                   // Linear smooth radius
                 _ => 4
             };
         }
@@ -171,6 +182,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Terminal => 2.0f,
                 BeepControlStyle.Tokyo => 2.0f,
                 BeepControlStyle.Ubuntu => 1.0f,
+                BeepControlStyle.Apple => 0.5f,                 // Apple thin refined border
+                BeepControlStyle.Fluent => 1.0f,                // Fluent standard
+                BeepControlStyle.Material => 1.0f,              // Material standard
+                BeepControlStyle.WebFramework => 1.0f,          // WebFramework standard
+                BeepControlStyle.Effect => 0.0f,                // Effect no border (effect-driven)
+                BeepControlStyle.Retro => 2.0f,                 // Retro thick borders
+                BeepControlStyle.NeonGlow => 2.0f,              // NeonGlow thick for glow
+                BeepControlStyle.Shadcn => 1.0f,                // Shadcn standard
+                BeepControlStyle.RadixUI => 1.0f,               // RadixUI standard
+                BeepControlStyle.NextJS => 1.0f,                // NextJS standard
+                BeepControlStyle.Linear => 1.0f,                // Linear standard
                 _ => 1.0f
             };
         }
@@ -233,6 +255,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Terminal => true,
                 BeepControlStyle.Tokyo => true,
                 BeepControlStyle.Ubuntu => true,
+                BeepControlStyle.Apple => true,                 // Apple filled surfaces
+                BeepControlStyle.Fluent => true,                // Fluent filled
+                BeepControlStyle.Material => true,              // Material filled
+                BeepControlStyle.WebFramework => false,         // WebFramework outlined
+                BeepControlStyle.Effect => true,                // Effect filled
+                BeepControlStyle.Retro => true,                 // Retro filled
+                BeepControlStyle.NeonGlow => true,              // NeonGlow filled with glow
+                BeepControlStyle.Shadcn => false,               // Shadcn outlined
+                BeepControlStyle.RadixUI => false,              // RadixUI outlined
+                BeepControlStyle.NextJS => false,               // NextJS outlined
+                BeepControlStyle.Linear => false,               // Linear outlined
                 _ => false
             };
         }

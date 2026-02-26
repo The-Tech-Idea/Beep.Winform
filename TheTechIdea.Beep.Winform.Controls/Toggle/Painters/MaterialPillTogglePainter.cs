@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             }
 
             // State overlay
-            if (state == ControlState.Hover)
+            if (state == ControlState.Hovered)
             {
                 using (var hoverBrush = new SolidBrush(Color.FromArgb(20, Color.Black)))
                 {

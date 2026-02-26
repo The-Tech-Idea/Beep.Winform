@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
@@ -102,12 +103,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Display Controls
             RegisterControl(typeof(BeepMarquee), typeof(BeepMarqueeDesigner));
 
-            // Selection Controls
-            RegisterControl(typeof(BeepRadioGroup), typeof(BeepRadioGroupDesigner));
-
-            // Table Controls
-            RegisterControl(typeof(BeepVerticalTable), typeof(BeepVerticalTableDesigner));
-
             // Widget Controls
             RegisterControl(typeof(BeepMetricWidget), typeof(BeepMetricWidgetDesigner));
             RegisterControl(typeof(BeepChartWidget), typeof(BeepChartWidgetDesigner));
@@ -130,6 +125,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private static void RegisterControl(Type controlType, Type designerType)
         {
+            var existing = TypeDescriptor.GetAttributes(controlType).OfType<DesignerAttribute>();
+            var designerFullName = designerType.FullName ?? designerType.Name;
+            if (existing.Any(attribute =>
+                    !string.IsNullOrWhiteSpace(attribute.DesignerTypeName) &&
+                    attribute.DesignerTypeName.Contains(designerFullName, StringComparison.Ordinal)))
+            {
+                return;
+            }
+
             TypeDescriptor.AddAttributes(controlType, new DesignerAttribute(designerType));
         }
 

@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 // === STYLED PAINTING ===
                 // Use the master PaintControl method which handles Shadow, Background, and Border 
                 // using the shape specific to the style.
-                BeepStyling.PaintControl(g, owner.BorderPath, owner.ControlStyle, owner._currentTheme, false, GetEffectiveState(owner), owner.IsTransparentBackground, true);
+                BeepStyling.PaintControl(g, owner.BorderPath, owner.ControlStyle, owner._currentTheme, true, GetEffectiveState(owner), owner.IsTransparentBackground, true);
             }
             else
             {
@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         {
             if (!owner.Enabled) return ControlState.Disabled;
             if (owner.IsPressed && owner.CanBePressed) return ControlState.Pressed;
-            if (owner.IsHovered && owner.CanBeHovered) return ControlState.Hover;
+            if (owner.IsHovered && owner.CanBeHovered) return ControlState.Hovered;
             if (owner.Focused && owner.CanBeFocused) return ControlState.Focused;
             if (owner.IsSelected && owner.CanBeSelected) return ControlState.Selected;
             return ControlState.Normal;

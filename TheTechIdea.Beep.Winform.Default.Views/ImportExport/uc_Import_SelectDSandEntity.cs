@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
@@ -18,10 +19,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     [AddinAttribute(Caption = "Select Datasource and Entity", Name = "uc_Import_SelectDSandEntity", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
     public partial class uc_Import_SelectDSandEntity : TemplateUserControl, IWizardStepContent
     {
-        private readonly ComboBox _sourceEntityCombo;
-        private readonly ComboBox _destinationEntityCombo;
-        private readonly Label _sourceEntityLabel;
-        private readonly Label _destinationEntityLabel;
+        private readonly BeepComboBox _sourceEntityCombo;
+        private readonly BeepComboBox _destinationEntityCombo;
+        private readonly BeepLabel _sourceEntityLabel;
+        private readonly BeepLabel _destinationEntityLabel;
+        private readonly BeepLabel _statusLabel;
         private bool _isInitializing;
 
         public uc_Import_SelectDSandEntity(IServiceProvider services) : base(services)
@@ -30,16 +32,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             _sourceEntityLabel = CreateEntityLabel("Source Entity", new System.Drawing.Point(35, 337));
             _sourceEntityCombo = CreateEntityCombo(new System.Drawing.Point(232, 335));
-            _sourceEntityCombo.SelectedIndexChanged += EntityCombo_SelectedIndexChanged;
+            _sourceEntityCombo.SelectedItemChanged += EntityCombo_SelectedIndexChanged;
 
             _destinationEntityLabel = CreateEntityLabel("Destination Entity", new System.Drawing.Point(35, 369));
             _destinationEntityCombo = CreateEntityCombo(new System.Drawing.Point(232, 367));
-            _destinationEntityCombo.SelectedIndexChanged += EntityCombo_SelectedIndexChanged;
+            _destinationEntityCombo.SelectedItemChanged += EntityCombo_SelectedIndexChanged;
+
+            _statusLabel = new BeepLabel
+            {
+                AutoSize = false,
+                Text = "Select source and destination entities.",
+                Location = new System.Drawing.Point(35, 400),
+                Size = new System.Drawing.Size(560, 23),
+                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+            };
 
             Controls.Add(_sourceEntityLabel);
             Controls.Add(_sourceEntityCombo);
             Controls.Add(_destinationEntityLabel);
             Controls.Add(_destinationEntityCombo);
+            Controls.Add(_statusLabel);
 
             SourcebeepComboBox.SelectedItemChanged += SourcebeepComboBox_SelectedItemChanged;
             beepComboBox1.SelectedItemChanged += DestinationbeepComboBox_SelectedItemChanged;
@@ -138,9 +150,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             return Task.FromResult(ValidateStep());
         }
 
-        private static Label CreateEntityLabel(string text, System.Drawing.Point location)
+        private static BeepLabel CreateEntityLabel(string text, System.Drawing.Point location)
         {
-            return new Label
+            return new BeepLabel
             {
                 AutoSize = false,
                 Text = text,
@@ -150,13 +162,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             };
         }
 
-        private static ComboBox CreateEntityCombo(System.Drawing.Point location)
+        private static BeepComboBox CreateEntityCombo(System.Drawing.Point location)
         {
-            return new ComboBox
+            return new BeepComboBox
             {
-                DropDownStyle = ComboBoxStyle.DropDownList,
                 Location = location,
-                Size = new System.Drawing.Size(194, 23),
+                Size = new System.Drawing.Size(194, 27),
                 Anchor = AnchorStyles.None
             };
         }
@@ -189,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             RaiseValidationState();
         }
 
-        private void EntityCombo_SelectedIndexChanged(object? sender, EventArgs e)
+        private void EntityCombo_SelectedIndexChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             if (_isInitializing)
             {
@@ -239,23 +250,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             PopulateEntityCombo(_destinationEntityCombo, destinationDataSourceName);
         }
 
-        private void PopulateEntityCombo(ComboBox combo, string dataSourceName)
+        private void PopulateEntityCombo(BeepComboBox combo, string dataSourceName)
         {
-            var currentSelection = combo.SelectedItem?.ToString() ?? string.Empty;
-            combo.Items.Clear();
+            var currentSelection = combo.SelectedItem?.Text ?? string.Empty;
+            var items = GetEntityNames(dataSourceName)
+                .Select(entityName => new SimpleItem { Text = entityName, Item = entityName })
+                .ToList();
+            combo.ListItems = new BindingList<SimpleItem>(items);
 
-            foreach (var entityName in GetEntityNames(dataSourceName))
+            if (!string.IsNullOrWhiteSpace(currentSelection))
             {
-                combo.Items.Add(entityName);
+                combo.SelectItemByText(currentSelection);
             }
-
-            if (!string.IsNullOrWhiteSpace(currentSelection) && combo.Items.Contains(currentSelection))
+            else if (items.Count > 0)
             {
-                combo.SelectedItem = currentSelection;
-            }
-            else if (combo.Items.Count > 0)
-            {
-                combo.SelectedIndex = 0;
+                combo.SelectItemByText(items[0].Text);
             }
         }
 
@@ -326,18 +335,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             }
         }
 
-        private static void SelectComboItem(ComboBox combo, string value)
+        private static void SelectComboItem(BeepComboBox combo, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
 
-            var index = combo.Items.IndexOf(value);
-            if (index >= 0)
-            {
-                combo.SelectedIndex = index;
-            }
+            combo.SelectItemByText(value);
         }
 
         private ImportSelectionContext BuildSelectionFromUi()
@@ -345,9 +350,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             return new ImportSelectionContext
             {
                 SourceDataSourceName = SourcebeepComboBox.SelectedItem?.Text ?? string.Empty,
-                SourceEntityName = _sourceEntityCombo.SelectedItem?.ToString() ?? string.Empty,
+                SourceEntityName = _sourceEntityCombo.SelectedItem?.Text ?? string.Empty,
                 DestinationDataSourceName = beepComboBox1.SelectedItem?.Text ?? string.Empty,
-                DestinationEntityName = _destinationEntityCombo.SelectedItem?.ToString() ?? string.Empty,
+                DestinationEntityName = _destinationEntityCombo.SelectedItem?.Text ?? string.Empty,
                 CreateDestinationIfNotExists = beepCheckBoxBool1.CurrentValue
             };
         }
@@ -355,6 +360,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private void RaiseValidationState()
         {
             var result = ValidateStep();
+            _statusLabel.Text = result.IsValid
+                ? "Selection is valid. Continue to mapping."
+                : result.ErrorMessage ?? "Selection is incomplete.";
             ValidationStateChanged?.Invoke(this, new StepValidationEventArgs(result.IsValid, result.ErrorMessage));
         }
     }

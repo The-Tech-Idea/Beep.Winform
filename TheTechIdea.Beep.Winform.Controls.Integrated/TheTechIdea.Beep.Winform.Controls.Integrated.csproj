@@ -66,7 +66,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.3" />
 		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.74" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.75" />
 		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.129" />
 	</ItemGroup>
 
@@ -91,6 +91,5 @@
 
 	<ItemGroup>
 	  <Folder Include="docs\" />
-	  <Folder Include="NuggetsManage\" />
 	</ItemGroup>
 </Project>

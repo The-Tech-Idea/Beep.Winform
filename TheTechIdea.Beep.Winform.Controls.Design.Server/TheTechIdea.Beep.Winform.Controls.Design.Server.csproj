@@ -46,10 +46,13 @@
   
   <Target Name="CopyToDesignTools" AfterTargets="Build">
     <PropertyGroup>
-      <DesignToolsPath>$(ProjectDir)..\TheTechIdea.Beep.Winform.Controls\bin\$(Configuration)\$(TargetFramework)\.designtools\</DesignToolsPath>
+      <DesignToolsPathControls>$(ProjectDir)..\TheTechIdea.Beep.Winform.Controls\bin\$(Configuration)\$(TargetFramework)\.designtools\</DesignToolsPathControls>
+      <DesignToolsPathIntegrated>$(ProjectDir)..\TheTechIdea.Beep.Winform.Controls.Integrated\bin\$(Configuration)\$(TargetFramework)\.designtools\</DesignToolsPathIntegrated>
     </PropertyGroup>
-    <MakeDir Directories="$(DesignToolsPath)" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DesignToolsPath)" SkipUnchangedFiles="true" />
+    <MakeDir Directories="$(DesignToolsPathControls)" />
+    <MakeDir Directories="$(DesignToolsPathIntegrated)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DesignToolsPathControls)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DesignToolsPathIntegrated)" SkipUnchangedFiles="true" />
   </Target>
 	<ItemGroup>
 		<None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">

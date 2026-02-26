@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             }
 
             // Highlight on hover/press
-            if (state == ControlState.Hover || state == ControlState.Pressed)
+            if (state == ControlState.Hovered || state == ControlState.Pressed)
             {
                 int glowAlpha = state == ControlState.Pressed ? 60 : 30;
                 using (var glowBrush = new SolidBrush(Color.FromArgb(glowAlpha, Color.White)))

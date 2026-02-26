@@ -13,28 +13,25 @@ namespace TheTechIdea.Beep.Winform.Controls
     public sealed class BeepConnectionRepository
     {
         private readonly IBeepService _beepService;
+        private readonly IConnectionStorageProvider _storageProvider;
         private readonly object _syncRoot = new();
 
         public event EventHandler? ConnectionsChanged;
+        public ConnectionStorageScope ActiveScope { get; set; } = ConnectionStorageScope.Project;
+        public string ActiveProfileName { get; set; } = "Default";
+        public bool UseScopePrecedence { get; set; } = true;
 
-        public BeepConnectionRepository(IBeepService beepService)
+        public BeepConnectionRepository(IBeepService beepService, IConnectionStorageProvider? storageProvider = null)
         {
             _beepService = beepService ?? throw new ArgumentNullException(nameof(beepService));
+            _storageProvider = storageProvider ?? new JsonConnectionStorageProvider(_beepService);
         }
 
         public IReadOnlyList<ConnectionProperties> LoadConnections()
         {
             lock (_syncRoot)
             {
-                var configEditor = _beepService.Config_editor;
-                if (configEditor == null)
-                {
-                    return Array.Empty<ConnectionProperties>();
-                }
-
-                var connections = configEditor.LoadDataConnectionsValues() ?? new List<ConnectionProperties>();
-                configEditor.DataConnections = connections;
-                return new List<ConnectionProperties>(connections);
+                return _storageProvider.LoadConnections(ActiveScope, ActiveProfileName, UseScopePrecedence);
             }
         }
 
@@ -47,41 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             lock (_syncRoot)
             {
-                var configEditor = _beepService.Config_editor;
-                if (configEditor == null)
-                {
-                    return false;
-                }
-
                 EnsureConnectionDefaults(connection);
-
-                var existing = FindExisting(configEditor.DataConnections, connection);
-                bool changed;
-
-                if (existing == null)
-                {
-                    changed = configEditor.AddDataConnection(connection);
-                }
-                else if (!string.IsNullOrWhiteSpace(existing.GuidID))
-                {
-                    changed = configEditor.UpdateDataConnection(connection, existing.GuidID);
-                }
-                else
-                {
-                    // Fallback path for older entries with empty GuidID.
-                    configEditor.RemoveConnByName(existing.ConnectionName);
-                    changed = configEditor.AddDataConnection(connection);
-                }
+                var changed = _storageProvider.AddOrUpdate(ActiveScope, ActiveProfileName, connection, persist);
 
                 if (!changed)
                 {
                     return false;
-                }
-
-                if (persist)
-                {
-                    configEditor.SaveDataconnectionsValues();
-                    configEditor.LoadDataConnectionsValues();
                 }
 
                 ConnectionsChanged?.Invoke(this, EventArgs.Empty);
@@ -98,22 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             lock (_syncRoot)
             {
-                var configEditor = _beepService.Config_editor;
-                if (configEditor == null)
-                {
-                    return false;
-                }
-
-                var removed = configEditor.RemoveDataConnection(connectionName);
+                var removed = _storageProvider.Remove(ActiveScope, ActiveProfileName, connectionName, persist);
                 if (!removed)
                 {
                     return false;
-                }
-
-                if (persist)
-                {
-                    configEditor.SaveDataconnectionsValues();
-                    configEditor.LoadDataConnectionsValues();
                 }
 
                 ConnectionsChanged?.Invoke(this, EventArgs.Empty);
@@ -125,42 +81,55 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             lock (_syncRoot)
             {
-                var configEditor = _beepService.Config_editor;
-                if (configEditor == null)
+                var saved = _storageProvider.SaveConnections(ActiveScope, ActiveProfileName, connections ?? new List<ConnectionProperties>());
+                if (!saved)
                 {
                     return false;
                 }
-
-                configEditor.DataConnections = connections ?? new List<ConnectionProperties>();
-                configEditor.SaveDataconnectionsValues();
-                configEditor.LoadDataConnectionsValues();
 
                 ConnectionsChanged?.Invoke(this, EventArgs.Empty);
                 return true;
             }
         }
 
-        private static ConnectionProperties? FindExisting(IEnumerable<ConnectionProperties>? connections, ConnectionProperties candidate)
+        public bool Promote(ConnectionStorageScope targetScope, ConnectionConflictPolicy conflictPolicy, out string message)
         {
-            if (connections == null)
+            lock (_syncRoot)
             {
-                return null;
-            }
-
-            if (!string.IsNullOrWhiteSpace(candidate.GuidID))
-            {
-                var byGuid = connections.FirstOrDefault(c =>
-                    !string.IsNullOrWhiteSpace(c.GuidID) &&
-                    string.Equals(c.GuidID, candidate.GuidID, StringComparison.OrdinalIgnoreCase));
-                if (byGuid != null)
+                var ok = _storageProvider.Promote(ActiveScope, targetScope, ActiveProfileName, conflictPolicy, out message);
+                if (ok)
                 {
-                    return byGuid;
+                    ConnectionsChanged?.Invoke(this, EventArgs.Empty);
                 }
-            }
 
-            return connections.FirstOrDefault(c =>
-                !string.IsNullOrWhiteSpace(c.ConnectionName) &&
-                string.Equals(c.ConnectionName, candidate.ConnectionName, StringComparison.OrdinalIgnoreCase));
+                return ok;
+            }
+        }
+
+        public bool ExportPackage(string packagePath, bool includeEncryptedSecretsOnly, out string message)
+        {
+            lock (_syncRoot)
+            {
+                return _storageProvider.ExportPackage(ActiveScope, ActiveProfileName, packagePath, includeEncryptedSecretsOnly, out message);
+            }
+        }
+
+        public bool ImportPackage(
+            string packagePath,
+            ConnectionConflictPolicy conflictPolicy,
+            bool importWhenEmptyOnly,
+            out string message)
+        {
+            lock (_syncRoot)
+            {
+                var ok = _storageProvider.ImportPackage(ActiveScope, ActiveProfileName, packagePath, conflictPolicy, importWhenEmptyOnly, out message);
+                if (ok)
+                {
+                    ConnectionsChanged?.Invoke(this, EventArgs.Empty);
+                }
+
+                return ok;
+            }
         }
 
         private static void EnsureConnectionDefaults(ConnectionProperties connection)

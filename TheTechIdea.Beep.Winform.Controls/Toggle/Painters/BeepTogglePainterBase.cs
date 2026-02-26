@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
             return state switch
             {
-                ControlState.Hover => LightenColor(baseColor, 0.1f),
+                ControlState.Hovered => LightenColor(baseColor, 0.1f),
                 ControlState.Pressed => DarkenColor(baseColor, 0.1f),
                 ControlState.Disabled => Color.FromArgb(180, baseColor),
                 _ => baseColor
@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
             return state switch
             {
-                ControlState.Hover => LightenColor(baseColor, 0.05f),
+                ControlState.Hovered => LightenColor(baseColor, 0.05f),
                 ControlState.Pressed => DarkenColor(baseColor, 0.05f),
                 ControlState.Disabled => Color.FromArgb(180, baseColor),
                 _ => baseColor

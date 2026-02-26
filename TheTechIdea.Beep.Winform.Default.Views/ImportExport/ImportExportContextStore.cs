@@ -39,6 +39,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         public const string CreateDestinationIfNotExists = "CreateDestinationIfNotExists";
         public const string RunImportOnFinish = "RunImportOnFinish";
         public const string Mapping = "Mapping";
+        public const string RunMigrationPreflight = "RunMigrationPreflight";
+        public const string AddMissingColumns = "AddMissingColumns";
+        public const string CreateSyncProfileDraft = "CreateSyncProfileDraft";
+        public const string SyncDraftSchema = "SyncDraftSchema";
+        public const string LastRunSucceeded = "LastRunSucceeded";
     }
 
     internal static class ImportExportContextStore
@@ -46,6 +51,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private static readonly object Sync = new();
         private static ImportSelectionContext? _selection;
         private static EntityDataMap? _mapping;
+        private static ImportExecutionOptions? _options;
 
         public static void Reset()
         {
@@ -53,6 +59,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             {
                 _selection = null;
                 _mapping = null;
+                _options = null;
             }
         }
 
@@ -90,6 +97,27 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lock (Sync)
             {
                 return _mapping;
+            }
+        }
+
+        public static void SaveOptions(ImportExecutionOptions options)
+        {
+            if (options == null)
+            {
+                return;
+            }
+
+            lock (Sync)
+            {
+                _options = CloneOptions(options);
+            }
+        }
+
+        public static ImportExecutionOptions GetOptions()
+        {
+            lock (Sync)
+            {
+                return _options == null ? new ImportExecutionOptions() : CloneOptions(_options);
             }
         }
 
@@ -199,6 +227,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 DestinationDataSourceName = selection.DestinationDataSourceName,
                 DestinationEntityName = selection.DestinationEntityName,
                 CreateDestinationIfNotExists = selection.CreateDestinationIfNotExists
+            };
+        }
+
+        private static ImportExecutionOptions CloneOptions(ImportExecutionOptions options)
+        {
+            return new ImportExecutionOptions
+            {
+                RunMigrationPreflight = options.RunMigrationPreflight,
+                AddMissingColumns = options.AddMissingColumns,
+                CreateSyncProfileDraft = options.CreateSyncProfileDraft,
+                RunImportOnFinish = options.RunImportOnFinish,
+                BatchSize = options.BatchSize
             };
         }
     }

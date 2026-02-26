@@ -100,7 +100,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         protected GraphicsPath GetRoundedRect(RectangleF rect, int radius)
         {
             GraphicsPath path = new GraphicsPath();
-            int diameter = radius * 2;
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
+            int maxRadius = (int)Math.Min(rect.Width / 2f, rect.Height / 2f);
+            int safeRadius = Math.Max(0, Math.Min(radius, maxRadius));
+            if (safeRadius < 1)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
+            int diameter = safeRadius * 2;
             RectangleF arc = new RectangleF(rect.Location, new SizeF(diameter, diameter));
             path.AddArc(arc, 180, 90);
             arc.X = rect.Right - diameter;

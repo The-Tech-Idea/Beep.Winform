@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Globalization;
 using TheTechIdea.Beep.Vis.Modules;
@@ -25,8 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
             if (context?.Container == null || context.Instance is not BeepDataBlock currentBlock)
                 return new StandardValuesCollection(Array.Empty<string>());
 
-            // Get all components in the container
-            var designerHost = context.Container as IDesignerHost;
+            if (context.Container is not IDesignerHost designerHost)
+                return new StandardValuesCollection(Array.Empty<string>());
+
             var allBlocks = designerHost.Container.Components
                 .OfType<BeepDataBlock>()
                 .Where(block => block != currentBlock && !IsChildBlock(currentBlock, block))

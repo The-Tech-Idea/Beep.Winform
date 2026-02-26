@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../Beep.Sample"
+		},
+		{
+			"path": "../Beep.Shell"
 		}
 	],
 	"settings": {}

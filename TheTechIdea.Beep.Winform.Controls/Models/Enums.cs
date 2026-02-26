@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,8 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         Pressed,
         Selected,
         Disabled,
-        Focused,
-        Hover
+        Focused
     }
 
     /// <summary>

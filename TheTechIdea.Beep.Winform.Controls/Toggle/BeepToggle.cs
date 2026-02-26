@@ -370,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
             else if (IsPressed)
                 state = ControlState.Pressed;
             else if (IsHovered)
-                state = ControlState.Hover;
+                state = ControlState.Hovered;
 
             // Paint the toggle using the current painter
             _painter.Paint(g, bounds, state);

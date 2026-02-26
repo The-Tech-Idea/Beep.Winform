@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Data Block")]
     [Description("A data block control that displays and manages data.")]
+    [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepDataBlockDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
    
     public partial class BeepDataBlock : BaseControl, IDisposable, IBeepDataBlock
     {
@@ -132,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DisplayName("Fields")]
         [Description("Select which entity fields are visible in this block.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Editor(typeof(CollectionEditor), typeof(UITypeEditor))]
+        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.FieldSelectionsEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(UITypeEditor))]
         public BindingList<BeepDataBlockFieldSelection> FieldSelections => _fieldSelections;
 
         [Browsable(true)]
@@ -263,6 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Components = new BindingList<BeepComponents>();
             Components.ListChanged += Components_ListChanged;
             _fieldSelections.ListChanged += FieldSelections_ListChanged;
+            EnsureDefaultEditorTemplates();
              
             // Initialize services (critical fix for beepService null reference)
             InitializeServices();
@@ -595,467 +597,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Block Management"
         #region "Data Source Design-Time Helpers"
-
-        internal IReadOnlyList<string> GetAvailableConnectionNames()
-        {
-            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            var container = Site?.Container;
-            if (container != null)
-            {
-                foreach (var dataConnection in container.Components.OfType<BeepDataConnection>())
-                {
-                    foreach (var connection in dataConnection.ReloadConnections())
-                    {
-                        if (!string.IsNullOrWhiteSpace(connection.ConnectionName))
-                        {
-                            names.Add(connection.ConnectionName);
-                        }
-                    }
-                }
-            }
-
-            var editor = ResolveEditorForMetadata();
-            var configConnections = editor?.ConfigEditor?.LoadDataConnectionsValues() ?? editor?.ConfigEditor?.DataConnections;
-            if (configConnections != null)
-            {
-                foreach (var connection in configConnections)
-                {
-                    if (!string.IsNullOrWhiteSpace(connection.ConnectionName))
-                    {
-                        names.Add(connection.ConnectionName);
-                    }
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(_connectionName))
-            {
-                names.Add(_connectionName);
-            }
-
-            if (!string.IsNullOrWhiteSpace(QueryDataSourceName))
-            {
-                names.Add(QueryDataSourceName);
-            }
-
-            return names.OrderBy(x => x).ToList();
-        }
-
-        internal IReadOnlyList<string> GetAvailableEntityNames()
-        {
-            var entityNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var connectionName = GetEffectiveConnectionName();
-
-            if (string.IsNullOrWhiteSpace(connectionName))
-            {
-                return Array.Empty<string>();
-            }
-
-            var editor = ResolveEditorForMetadata();
-            if (editor == null)
-            {
-                return Array.Empty<string>();
-            }
-
-            try
-            {
-                editor.OpenDataSource(connectionName);
-                var dataSource = editor.GetDataSource(connectionName);
-                if (dataSource == null)
-                {
-                    return Array.Empty<string>();
-                }
-
-                var discovered = dataSource.GetEntitesList();
-                if (discovered != null)
-                {
-                    foreach (var name in discovered)
-                    {
-                        if (!string.IsNullOrWhiteSpace(name))
-                        {
-                            entityNames.Add(name);
-                        }
-                    }
-                }
-
-                if (entityNames.Count == 0 && dataSource.Entities != null)
-                {
-                    foreach (var entity in dataSource.Entities)
-                    {
-                        if (!string.IsNullOrWhiteSpace(entity.EntityName))
-                        {
-                            entityNames.Add(entity.EntityName);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Design-time metadata calls should fail silently.
-            }
-
-            return entityNames.OrderBy(x => x).ToList();
-        }
-
-        public bool RefreshEntityMetadata()
-        {
-            if (!TryResolveEntityStructureFromDataSource(refreshMetadata: true))
-            {
-                return false;
-            }
-
-            InitializeEntityRelationships();
-            SyncFieldSelectionsWithEntityStructure();
-            ApplyFieldSelectionsToComponents();
-            return true;
-        }
-
-        private void OnConnectionChanged()
-        {
-            if (!string.IsNullOrWhiteSpace(_entityName))
-            {
-                RefreshEntityMetadata();
-            }
-        }
-
-        private void OnEntitySelectionChanged()
-        {
-            if (string.IsNullOrWhiteSpace(_entityName))
-            {
-                return;
-            }
-
-            if (TryResolveEntityStructureFromDataSource(refreshMetadata: true))
-            {
-                InitializeEntityRelationships();
-                SyncFieldSelectionsWithEntityStructure();
-                ApplyFieldSelectionsToComponents();
-            }
-        }
-
-        private bool TryResolveEntityStructureFromDataSource(bool refreshMetadata)
-        {
-            var connectionName = GetEffectiveConnectionName();
-            if (string.IsNullOrWhiteSpace(connectionName) || string.IsNullOrWhiteSpace(_entityName))
-            {
-                return false;
-            }
-
-            var editor = ResolveEditorForMetadata();
-            if (editor == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                editor.OpenDataSource(connectionName);
-                var dataSource = editor.GetDataSource(connectionName);
-                if (dataSource == null)
-                {
-                    return false;
-                }
-
-                var entity = dataSource.GetEntityStructure(_entityName, refreshMetadata);
-                if (entity == null && refreshMetadata)
-                {
-                    entity = dataSource.GetEntityStructure(_entityName, false);
-                }
-
-                if (entity == null)
-                {
-                    return false;
-                }
-
-                EntityStructure = entity;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private IDMEEditor? ResolveEditorForMetadata()
-        {
-            if (_dmeEditor != null)
-            {
-                return _dmeEditor;
-            }
-
-            if (beepService?.DMEEditor != null)
-            {
-                _dmeEditor = beepService.DMEEditor;
-                return _dmeEditor;
-            }
-
-            try
-            {
-                FindServicesInParentChain();
-                if (_dmeEditor != null)
-                {
-                    return _dmeEditor;
-                }
-
-                if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
-                {
-                    beepService ??= new BeepService();
-                    _dmeEditor = beepService.DMEEditor;
-                }
-            }
-            catch
-            {
-                // Design-time service initialization is best effort.
-            }
-
-            return _dmeEditor;
-        }
-
-        private string GetEffectiveConnectionName()
-        {
-            if (!string.IsNullOrWhiteSpace(_connectionName))
-            {
-                return _connectionName;
-            }
-
-            return QueryDataSourceName ?? string.Empty;
-        }
-
-        private void FieldSelections_ListChanged(object? sender, ListChangedEventArgs e)
-        {
-            if (_isSynchronizingFieldSelections)
-            {
-                return;
-            }
-
-            ApplyFieldSelectionsToComponents();
-        }
-
-        private void SyncFieldSelectionsWithEntityStructure()
-        {
-            var fields = EntityStructure?.Fields;
-            if (fields == null)
-            {
-                _isSynchronizingFieldSelections = true;
-                try
-                {
-                    _fieldSelections.Clear();
-                }
-                finally
-                {
-                    _isSynchronizingFieldSelections = false;
-                }
-
-                return;
-            }
-
-            var existing = _fieldSelections
-                .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
-                .ToDictionary(x => x.FieldName, x => x, StringComparer.OrdinalIgnoreCase);
-
-            _isSynchronizingFieldSelections = true;
-            try
-            {
-                _fieldSelections.Clear();
-
-                foreach (var field in fields)
-                {
-                    if (existing.TryGetValue(field.FieldName, out var selection))
-                    {
-                        if (string.IsNullOrWhiteSpace(selection.ControlTypeFullName))
-                        {
-                            selection.ControlType = ControlExtensions.GetDefaultControlType(field.FieldCategory);
-                        }
-
-                        _fieldSelections.Add(selection);
-                        continue;
-                    }
-
-                    _fieldSelections.Add(new BeepDataBlockFieldSelection
-                    {
-                        FieldName = field.FieldName,
-                        IncludeInView = true,
-                        ControlType = ControlExtensions.GetDefaultControlType(field.FieldCategory)
-                    });
-                }
-            }
-            finally
-            {
-                _isSynchronizingFieldSelections = false;
-            }
-        }
-
-        private IEnumerable<EntityField> GetFieldsForRendering()
-        {
-            var fields = EntityStructure?.Fields;
-            if (fields == null)
-            {
-                return Enumerable.Empty<EntityField>();
-            }
-
-            var configuredFields = _fieldSelections
-                .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
-                .Select(x => x.FieldName)
-                .ToList();
-
-            if (configuredFields.Count == 0)
-            {
-                return fields;
-            }
-
-            var included = _fieldSelections
-                .Where(x => x.IncludeInView && !string.IsNullOrWhiteSpace(x.FieldName))
-                .Select(x => x.FieldName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            return fields.Where(f => included.Contains(f.FieldName));
-        }
-
-        private void ApplyFieldSelectionsToComponents()
-        {
-            var fields = EntityStructure?.Fields;
-            if (fields == null)
-            {
-                return;
-            }
-
-            var configuredFields = _fieldSelections
-                .Where(x => !string.IsNullOrWhiteSpace(x.FieldName))
-                .Select(x => x.FieldName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            var includedFields = _fieldSelections
-                .Where(x => x.IncludeInView && !string.IsNullOrWhiteSpace(x.FieldName))
-                .Select(x => x.FieldName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            for (int i = Components.Count - 1; i >= 0; i--)
-            {
-                var component = Components[i];
-                var boundName = string.IsNullOrWhiteSpace(component.BoundProperty) ? component.Name : component.BoundProperty;
-
-                if (configuredFields.Count > 0 && !includedFields.Contains(boundName))
-                {
-                    Components.RemoveAt(i);
-                }
-            }
-
-            foreach (var field in fields)
-            {
-                if (configuredFields.Count > 0 && !includedFields.Contains(field.FieldName))
-                {
-                    continue;
-                }
-
-                var selection = _fieldSelections.FirstOrDefault(x => string.Equals(x.FieldName, field.FieldName, StringComparison.OrdinalIgnoreCase));
-                var selectedType = selection?.ControlType ?? ControlExtensions.GetDefaultControlType(field.FieldCategory);
-                var selectedTypeFullName = selectedType?.FullName ?? string.Empty;
-
-                var component = Components.FirstOrDefault(x =>
-                    string.Equals(x.BoundProperty, field.FieldName, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(x.Name, field.FieldName, StringComparison.OrdinalIgnoreCase));
-
-                if (component == null)
-                {
-                    Components.Add(new BeepComponents
-                    {
-                        Name = field.FieldName,
-                        Type = selectedType,
-                        TypeFullName = selectedTypeFullName,
-                        GUID = Guid.NewGuid().ToString(),
-                        Left = 10,
-                        Top = 10 + Components.Count * 30,
-                        Width = 200,
-                        Height = 25,
-                        Category = field.FieldCategory,
-                        BoundProperty = field.FieldName,
-                        DataSourceProperty = field.FieldName,
-                        LinkedProperty = string.Empty
-                    });
-                }
-                else
-                {
-                    component.Type = selectedType;
-                    component.TypeFullName = selectedTypeFullName;
-                    component.Category = field.FieldCategory;
-                    component.BoundProperty = field.FieldName;
-                    component.DataSourceProperty = field.FieldName;
-                }
-            }
-
-            ClearAllComponentControls();
-            InitializeControls();
-            ApplyViewMode();
-        }
-
-        private void EnsureGridControl()
-        {
-            if (_gridView != null)
-            {
-                return;
-            }
-
-            _gridView = Controls.OfType<BeepGridPro>().FirstOrDefault();
-            if (_gridView != null)
-            {
-                return;
-            }
-
-            _gridView = new BeepGridPro
-            {
-                Name = string.IsNullOrWhiteSpace(Name) ? "DataBlockGrid" : $"{Name}_Grid",
-                Dock = DockStyle.Fill,
-                Visible = false
-            };
-
-            Controls.Add(_gridView);
-        }
-
-        private void UpdateGridDataBinding()
-        {
-            if (_gridView == null)
-            {
-                return;
-            }
-
-            try
-            {
-                _gridView.DataSource = Data?.Units;
-            }
-            catch
-            {
-                // Ignore grid binding errors in design-time.
-            }
-        }
-
-        private void ApplyViewMode()
-        {
-            bool showGrid = _viewMode == DataBlockViewMode.BeepGridPro;
-
-            if (showGrid)
-            {
-                EnsureGridControl();
-                UpdateGridDataBinding();
-            }
-
-            if (_gridView != null)
-            {
-                _gridView.Visible = showGrid;
-                if (showGrid)
-                {
-                    _gridView.BringToFront();
-                }
-            }
-
-            foreach (var component in UIComponents.Values)
-            {
-                if (component is Control winFormsControl)
-                {
-                    winFormsControl.Visible = !showGrid;
-                }
-            }
-        }
-
+        // Extracted into:
+        // - BeepDataBlock.DesignTime.cs
+        // - BeepDataBlock.ViewMode.cs
         #endregion "Data Source Design-Time Helpers"
         #region "Beep UI Components Methods"
         private void InitializeControls()
@@ -1136,11 +680,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             lock (_uiComponentsLock)
             {
-                // Check if the component already exists in the dictionary
-                var existingComponent = UIComponents.Values.FirstOrDefault(c => c.GetType() == type);
-                if (existingComponent != null)
-                    return existingComponent;
-
                 // Ensure the type implements IBeepUIComponent and derives from Control
                 if (!typeof(IBeepUIComponent).IsAssignableFrom(type))
                 {
@@ -1190,10 +729,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         this.Controls.Add(winFormsControl);
                     }
 
-                    // Add to UIComponents dictionary
-                    UIComponents[componentInstance.GuidID] = componentInstance;
-
-                   // Console.WriteLine("Component {ComponentName} of type {TypeName} instantiated and added to UIComponents.", componentInstance.ComponentName, type.FullName);
+                   // Console.WriteLine("Component {ComponentName} of type {TypeName} instantiated.", componentInstance.ComponentName, type.FullName);
                 }
 
                 return componentInstance;
@@ -1383,6 +919,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     UIComponents.Remove(control.GuidID);
                 }
             }
+
+            foreach (var label in _recordFieldLabels.Values.ToList())
+            {
+                Controls.Remove(label);
+                label.Dispose();
+            }
+            _recordFieldLabels.Clear();
         }
         private void Components_ListChanged(object sender, ListChangedEventArgs e)
         {
@@ -1632,6 +1175,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Dispose"
 
         #region "Service Initialization"
+
+        /// <summary>
+        /// Replaces the control service context with a shared host-managed service.
+        /// Intended for design-time lease injection from the designer host.
+        /// </summary>
+        public void AttachSharedBeepService(IBeepService service)
+        {
+            if (service == null)
+            {
+                throw new ArgumentNullException(nameof(service));
+            }
+
+            beepService = service;
+            _dmeEditor = service.DMEEditor;
+        }
         
         /// <summary>
         /// Initialize beepService and DMEEditor

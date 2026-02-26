@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             }
 
             // Apply hover/press effects
-            if (state == ControlState.Hover && !isActive)
+            if (state == ControlState.Hovered && !isActive)
             {
                 bgColor = Color.FromArgb(230, 230, 230);
             }

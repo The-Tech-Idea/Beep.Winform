@@ -93,7 +93,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// </summary>
         public static Color GetThemeColor(string themeColorKey)
         {
-            if (CurrentTheme == null || string.IsNullOrEmpty(themeColorKey))
+            return GetThemeColor(CurrentTheme, themeColorKey);
+        }
+
+        /// <summary>
+        /// Get color from a specific theme by property name/key.
+        /// </summary>
+        public static Color GetThemeColor(IBeepTheme theme, string themeColorKey)
+        {
+            if (theme == null || string.IsNullOrEmpty(themeColorKey))
                 return Color.Empty;
 
             // Use reflection to get the color property from the theme
@@ -102,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             {
                 try
                 {
-                    var value = property.GetValue(CurrentTheme);
+                    var value = property.GetValue(theme);
                     if (value is Color color)
                         return color;
                 }
@@ -116,25 +124,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             switch (themeColorKey.ToLowerInvariant())
             {
                 case "foreground":
-                    return CurrentTheme.ForeColor;
+                    return theme.ForeColor;
                 case "background":
-                    return CurrentTheme.BackColor;
+                    return theme.BackColor;
                 case "secondary":
-                    return CurrentTheme.SecondaryColor;
+                    return theme.SecondaryColor;
                 case "primary":
-                    return CurrentTheme.PrimaryColor;
+                    return theme.PrimaryColor;
                 case "border":
-                    return CurrentTheme.BorderColor;
+                    return theme.BorderColor;
                 case "accent":
-                    return CurrentTheme.AccentColor;
+                    return theme.AccentColor;
                 case "surface":
-                    return CurrentTheme.SurfaceColor;
+                    return theme.SurfaceColor;
                 case "error":
-                    return CurrentTheme.ErrorColor;
+                    return theme.ErrorColor;
                 case "warning":
-                    return CurrentTheme.WarningColor;
+                    return theme.WarningColor;
                 case "success":
-                    return CurrentTheme.SuccessColor;
+                    return theme.SuccessColor;
                 default:
                     // Try direct property name match
                     property = typeof(IBeepTheme).GetProperty(themeColorKey);
@@ -142,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     {
                         try
                         {
-                            var value = property.GetValue(CurrentTheme);
+                            var value = property.GetValue(theme);
                             if (value is Color color)
                                 return color;
                         }
@@ -355,7 +363,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             if (path == null) return;
 
             int radius = StyleBorders.GetRadius(style);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+        //    g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Draw shadow first (behind background)
             if (StyleShadows.HasShadow(style))
@@ -500,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         {
             if (path == null) return;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+         //   g.SmoothingMode = SmoothingMode.AntiAlias;
             // If configured border width is zero, do not attempt to paint border for this style
             if (StyleBorders.GetBorderWidth(style) <= 0f) return;
 
@@ -585,7 +593,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         {
             if (upButtonPath == null || downButtonPath == null) return;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+        //    g.SmoothingMode = SmoothingMode.AntiAlias;
 
             RectangleF upBoundsF = upButtonPath.GetBounds();
             RectangleF downBoundsF = downButtonPath.GetBounds();
@@ -921,175 +929,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case BeepControlStyle.Neumorphism:
                     path = PathPainterHelpers.CreateNeumorphismPath(bounds, radius);
                     break;
-
                 case BeepControlStyle.Gaming:
                     path = PathPainterHelpers.CreateGamingPath(bounds);
                     break;
-
                 case BeepControlStyle.Retro:
                     path = PathPainterHelpers.CreateRetroPath(bounds);
                     break;
                 case BeepControlStyle.PillRail:
                     path = PathPainterHelpers.CreatePillPath(bounds);
                     break;
-
-                case BeepControlStyle.NeoBrutalist:
-                    // Neo-brutalist uses sharp edges, minimal radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(0, radius - 4));
-                    break;
-
-                case BeepControlStyle.HighContrast:
-                    // High contrast uses sharp, clear edges
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 2));
-                    break;
-
-
                 case BeepControlStyle.NeonGlow:
-                    // Neon styles use slightly irregular edges for glow effect
-                    path = PathPainterHelpers.CreateCyberpunkPath(bounds);
-                    break;
-
-                case BeepControlStyle.FigmaCard:
-                    // Figma cards use modern rounded corners
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
-                    break;
-
-                case BeepControlStyle.DiscordStyle:
-                    // Discord uses slightly angular but rounded corners
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
-                    break;
-
-                case BeepControlStyle.Material3:
-                    // Material 3 uses specific radius values
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
-                    break;
-
-                case BeepControlStyle.iOS15:
-                    // iOS 15 uses larger radius for modern look
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 16));
-                    break;
-
-                case BeepControlStyle.MacOSBigSur:
-                    // macOS Big Sur uses continuous corner radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 10));
-                    break;
-
-                case BeepControlStyle.Windows11Mica:
-                    // Windows 11 uses subtle radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
-                    break;
-
-                case BeepControlStyle.GlassAcrylic:
-                    // Glass effects use smooth, continuous curves
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
-                    break;
-
-                case BeepControlStyle.GradientModern:
-                    // Gradient modern uses flowing curves
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 14));
-                    break;
-
-                case BeepControlStyle.ChakraUI:
-                    // Chakra UI uses consistent, modern radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
-                    break;
-
-                case BeepControlStyle.TailwindCard:
-                    // Tailwind uses utility-based radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
-                    break;
-
-                case BeepControlStyle.Bootstrap:
-                    // Bootstrap uses specific radius values
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 4));
-                    break;
-
-                case BeepControlStyle.AntDesign:
-                    // Ant Design uses consistent radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
-                    break;
-
-                case BeepControlStyle.Fluent2:
-                    // Fluent 2 uses Windows-style radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
-                    break;
-
-                case BeepControlStyle.MaterialYou:
-                    // Material You uses adaptive radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 16));
-                    break;
-
-                case BeepControlStyle.Minimal:
-                    // Minimal uses very subtle radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 2));
-                    break;
-
-                case BeepControlStyle.NotionMinimal:
-                    // Notion uses clean, minimal radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 3));
-                    break;
-
-                case BeepControlStyle.VercelClean:
-                    // Vercel uses sharp, clean edges
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 4));
-                    break;
-
-                case BeepControlStyle.StripeDashboard:
-                    // Stripe uses professional, subtle radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
-                    break;
-
                 case BeepControlStyle.DarkGlow:
-                    // Dark glow uses neon-style edges
                     path = PathPainterHelpers.CreateCyberpunkPath(bounds);
                     break;
-
-                case BeepControlStyle.Terminal:
-                    // Terminal uses sharp, console-style edges
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
-                    break;
-
-                case BeepControlStyle.Metro:
-                    // Metro uses sharp edges
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, 0);
-                    break;
-
-                case BeepControlStyle.Office:
-                    // Office uses subtle radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Min(radius, 3));
-                    break;
-
-                case BeepControlStyle.Gnome:
-                    // GNOME uses standard radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
-                    break;
-
-                case BeepControlStyle.Kde:
-                    // KDE uses smooth radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 5));
-                    break;
-
-                case BeepControlStyle.Cinnamon:
-                    // Cinnamon uses larger radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 8));
-                    break;
-
-                case BeepControlStyle.Elementary:
-                    // Elementary uses clean radius
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 6));
-                    break;
-
-                case BeepControlStyle.Apple:
-                    // Apple design uses continuous curves
-                    path = PathPainterHelpers.CreateRoundedRectangle(bounds, Math.Max(radius, 12));
-                    break;
-
-                case BeepControlStyle.Fluent:
-                case BeepControlStyle.Material:
-                case BeepControlStyle.WebFramework:
-                case BeepControlStyle.Effect:
                 default:
-                    // Standard rounded rectangle path for all other styles
                     path = PathPainterHelpers.CreateRoundedRectangle(bounds, radius);
                     break;
             }
@@ -1219,8 +1072,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             if (controlPath == null)
                 return null;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        //    g.SmoothingMode = SmoothingMode.AntiAlias;
+          //  g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
             int radius = StyleBorders.GetRadius(style);
             GraphicsPath currentPath = (GraphicsPath)controlPath.Clone();
@@ -1239,6 +1092,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             GraphicsPath pathAfterShadow = contentPath;
             if (StyleShadows.HasShadow(style) && state != ControlState.Disabled)
             {
+                ShadowPainterFactory.CurrentUseThemeColors = useThemeColors;
+                ShadowPainterFactory.CurrentState = state;
                 var shadowPainter = ShadowPainterFactory.CreatePainter(style);
                 if (shadowPainter != null)
                 {
@@ -1249,6 +1104,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
             // === STEP 2: Paint Background (fills the area between border and final content) ===
+            float configuredBorderWidth = StyleBorders.GetBorderWidth(style);
+            bool suppressDecorativeEdgeStrokes = showborders && configuredBorderWidth > 0f;
+            bool previousSuppressEdgeStrokes = BackgroundPainterHelpers.SuppressEdgeStrokes;
+            BackgroundPainterHelpers.SuppressEdgeStrokes = suppressDecorativeEdgeStrokes;
             if (!IsTransparentBackground)
             {
                 var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
@@ -1257,13 +1116,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     backgroundPainter.Paint(g, pathAfterShadow, style, theme, useThemeColors, state);
                 }
             }
+            BackgroundPainterHelpers.SuppressEdgeStrokes = previousSuppressEdgeStrokes;
 
             // === STEP 3: Paint Border LAST (uses shadow path, returns smaller path after border) ===
             // NOTE: Border should ALWAYS be painted regardless of IsTransparentBackground
             // The transparent flag only affects background fill, not borders
             GraphicsPath pathAfterBorder = pathAfterShadow;
             var borderPainter = BorderPainterFactory.CreatePainter(style);
-            float configuredBorderWidth = StyleBorders.GetBorderWidth(style);
             if (borderPainter != null && configuredBorderWidth > 0f && showborders)
             {
                 bool isFocused = (state == ControlState.Focused);
@@ -1422,7 +1281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             if (controlPath == null)
                 return 0;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+         //   g.SmoothingMode = SmoothingMode.AntiAlias;
             int radius = StyleBorders.GetRadius(style);
 
             int shadowDepth = 0;
@@ -1482,7 +1341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         {
             if (controlPath == null) return;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+         //   g.SmoothingMode = SmoothingMode.AntiAlias;
             var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
             backgroundPainter?.Paint(g, controlPath, style, theme, useThemeColors, state);
         }
@@ -1500,7 +1359,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         {
             if (controlPath == null) return;
 
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+         //   g.SmoothingMode = SmoothingMode.AntiAlias;
             var borderPainter = BorderPainterFactory.CreatePainter(style);
             float configuredBorderWidth = StyleBorders.GetBorderWidth(style);
             if (borderPainter != null && configuredBorderWidth > 0f)

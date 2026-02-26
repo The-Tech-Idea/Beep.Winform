@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             BorderPainterHelpers.PaintGlowBorder(g, path, BorderPainterHelpers.WithAlpha(neon, 120), 6f);
             BorderPainterHelpers.PaintSimpleBorder(g, path, neon, width, state);
-            return path.CreateInsetPath(width + 2f);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, width, 2f);
         }
     }
 }

@@ -38,9 +38,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
                 BackgroundPainterHelpers.StateIntensity.Normal);
 
-            // Tailwind subtle ring/outline effect
-            var ringPen = PaintersFactory.GetPen(Color.FromArgb(8, 0, 0, 0), 1f);
-            g.DrawPath(ringPen, path);
+            if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
+            {
+                // Tailwind subtle ring/outline effect
+                var ringPen = PaintersFactory.GetPen(Color.FromArgb(8, 0, 0, 0), 1f);
+                g.DrawPath(ringPen, path);
+            }
         }
         
         /// <summary>
@@ -85,10 +88,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BackgroundPainterHelpers.PaintSolidBackground(g, path, bgColor, state,
                 BackgroundPainterHelpers.StateIntensity.Strong);
 
-            // Figma subtle border for definition
-            Color borderColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
-            var borderPen = PaintersFactory.GetPen(borderColor, 0.5f);
-            g.DrawPath(borderPen, path);
+            if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
+            {
+                // Figma subtle border for definition
+                Color borderColor = BackgroundPainterHelpers.GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
+                var borderPen = PaintersFactory.GetPen(borderColor, 0.5f);
+                g.DrawPath(borderPen, path);
+            }
         }
         
         /// <summary>

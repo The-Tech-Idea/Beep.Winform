@@ -33,12 +33,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 outerWidth = Math.Max(outerWidth, 4f);
                 outerColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Accent", Color.FromArgb(40, 40, 40));
             }
+            outerColor = BorderPainterHelpers.EnsureVisibleBorderColor(outerColor, theme, state);
 
-            // Brutalist: Sharp edges, no anti-aliasing for crisp geometric look
             var oldMode = g.SmoothingMode;
+            var oldPixel = g.PixelOffsetMode;
             g.SmoothingMode = SmoothingMode.None;
+            g.PixelOffsetMode = PixelOffsetMode.None;
 
-            // Create NEW pen (not cached) so we can modify Alignment property
             using (var pen = new Pen(outerColor, outerWidth))
             {
                 pen.Alignment = PenAlignment.Inset;
@@ -46,9 +47,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             g.SmoothingMode = oldMode;
+            g.PixelOffsetMode = oldPixel;
 
             // Return inset path accounting for the thick border
-            return path.CreateInsetPath(outerWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, outerWidth);
         }
     }
 }

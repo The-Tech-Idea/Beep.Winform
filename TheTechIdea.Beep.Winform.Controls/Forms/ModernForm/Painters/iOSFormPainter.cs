@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.iOS, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.iOS, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-             using var path = owner.BorderShape;
+             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // iOS: Thin or borderless with ultra smooth edges
             using var pen = new Pen(Color.FromArgb(40, metrics.BorderColor), 1);
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -398,19 +398,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.SearchBoxRect = Rectangle.Empty;
             }
             
-            // Icon positioning (after traffic lights)
-            int iconX = leftX + 8;
-            int iconY = (captionHeight - metrics.IconSize) / 2;
+            // Icon positioning (after traffic lights), guarded by corner safe-area
+            var cornerRadius = GetCornerRadius(owner);
+            int iconY      = (captionHeight - metrics.IconSize) / 2;
+            int safeIconX  = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadius.TopLeft, iconY + metrics.IconSize / 2, metrics.IconSize / 2) + 2;
+            int iconX      = Math.Max(leftX + 8, safeIconX);
+
             layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
             if (owner.ShowIcon && owner.Icon != null)
             {
                 owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
             }
             
-            // Title area: between icon and right-side buttons (centered for iOS Style)
-            int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = rightX - titleX - metrics.ButtonSpacing;
+            // Title area: between icon and right-side buttons (centered for iOS style)
+            int titleX     = layout.IconRect.Right + metrics.TitleLeftPadding;
+            int titleWidth = Math.Max(0, rightX - titleX - metrics.ButtonSpacing);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
+
+            // Content rectangle and corner-safe insets
+            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
+            int bottomRadius = Math.Max(cornerRadius.BottomLeft, cornerRadius.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomLeft,  layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomRadius
+            );
             
             owner.CurrentLayout = layout;
         }

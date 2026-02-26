@@ -171,5 +171,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public Rectangle ProfileButtonRect { get; set; }
         public Rectangle MailButtonRect { get; set; }
         public Rectangle SearchBoxRect { get; set; }
+
+        /// <summary>
+        /// Safe insets within <see cref="ContentRect"/> to avoid the rounded corner clip area.
+        /// Painters that use a non-zero corner radius populate this so callers know which
+        /// margins to respect when placing child controls near the form edges.
+        /// Left/Right represent the horizontal safe offset near the bottom corners;
+        /// Bottom represents the vertical safe offset above the bottom edge.
+        /// </summary>
+        public System.Windows.Forms.Padding SafeContentInsets { get; set; }
     }
 }

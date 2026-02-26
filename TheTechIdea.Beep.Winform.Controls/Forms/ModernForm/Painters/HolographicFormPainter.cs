@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Holographic, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Holographic, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // Holographic: rainbow iridescent border
             using (var rainbowBrush = new LinearGradientBrush(
                 owner.ClientRectangle,
@@ -527,17 +527,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.SearchBoxRect = Rectangle.Empty;
             }
             
-            int iconX = metrics.IconLeftPadding;
-            int iconY = (captionHeight - metrics.IconSize) / 2;
+            var cornerRadius = GetCornerRadius(owner);
+            int iconY   = (captionHeight - metrics.IconSize) / 2;
+            int safeX   = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadius.TopLeft, iconY + metrics.IconSize / 2, metrics.IconSize / 2) + 2;
+            int iconX   = Math.Max(metrics.IconLeftPadding, safeX);
+
             layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
             if (owner.ShowIcon && owner.Icon != null)
             {
                 owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
             }
             
-            int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
+            int titleX     = layout.IconRect.Right + metrics.TitleLeftPadding;
+            int titleWidth = Math.Max(0, buttonX - titleX - metrics.ButtonSpacing);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
+
+            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
+            int bottomRadius = Math.Max(cornerRadius.BottomLeft, cornerRadius.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomLeft,  layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomRadius
+            );
             
             owner.CurrentLayout = layout;
         }

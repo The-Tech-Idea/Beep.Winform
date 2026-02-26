@@ -37,18 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 50);
                     break;
             }
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
 
             // Ensure minimum pen width of 1.0f for proper rendering
             float effectiveBorderWidth = Math.Max(1.0f, borderWidth);
-            
-            // Create a NEW pen (not cached) so we can modify Alignment property
-            // PaintersFactory.GetPen returns cached pens that cannot be modified
-            using (var pen = new Pen(borderColor, effectiveBorderWidth))
-            {
-                pen.Alignment = PenAlignment.Inset;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.DrawPath(pen, path);
-            }
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, effectiveBorderWidth, state);
 
             if (isFocused)
             {
@@ -57,8 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Return the area inside the border using shape-aware inset by half width
-            float effectiveInset = Math.Max(1.0f, borderWidth) / 2f;
-            return path.CreateInsetPath(effectiveInset);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, effectiveBorderWidth);
         }
     }
 }

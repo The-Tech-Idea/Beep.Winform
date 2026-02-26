@@ -40,15 +40,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,
                 BackgroundPainterHelpers.StateIntensity.Subtle);
 
-            // Add very subtle border highlight for depth
+            // Add very subtle border highlight for depth when no border pass will follow
             var bounds = path.GetBounds();
             if (bounds.Width > 0 && bounds.Height > 0)
             {
-                var borderBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, Color.Black));
-                using (var pen = new Pen(borderBrush, 1f))
+                if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
                 {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.DrawPath(pen, path);
+                    var borderBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, Color.Black));
+                    using (var pen = new Pen(borderBrush, 1f))
+                    {
+                        g.SmoothingMode = SmoothingMode.AntiAlias;
+                        g.DrawPath(pen, path);
+                    }
                 }
 
                 // Shadcn could add subtle radial highlights for depth

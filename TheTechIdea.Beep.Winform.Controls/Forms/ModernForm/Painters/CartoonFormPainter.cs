@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Cartoon, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Cartoon, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-           using var path = owner.BorderShape;
+           var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
             pen.Alignment = PenAlignment.Center;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -431,16 +431,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.SearchBoxRect = Rectangle.Empty;
             }
             
-            // Icon and title areas (left side of caption, cartoon Style)
-            var iconSize = 16;
-            var iconPadding = 10; // Fun padding for cartoon
-            layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
+            // Icon and title areas (left side of caption, cartoon style)
+            var iconSize    = 16;
+            var cornerRadius = GetCornerRadius(owner);
+            int iconY       = (captionHeight - iconSize) / 2;
+            // Cartoon radius is 20; ensure icon is clear of the top-left arc
+            int safeIconX   = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadius.TopLeft, iconY + iconSize / 2, iconSize / 2) + 2;
+            var iconPadding = Math.Max(10, safeIconX); // Fun padding for cartoon, at least 10px
+
+            layout.IconRect = new Rectangle(iconPadding, iconY, iconSize, iconSize);
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             
-            var titleX = iconPadding + iconSize + iconPadding;
-            var titleWidth = buttonX - titleX - iconPadding;
+            var titleX     = iconPadding + iconSize + iconPadding;
+            var titleWidth = Math.Max(0, buttonX - titleX - iconPadding);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
+
+            // Expose safe corner insets for child controls
+            int bottomRadius = Math.Max(cornerRadius.BottomLeft, cornerRadius.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomLeft,  layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomRadius
+            );
             
             owner.CurrentLayout = layout;
         }

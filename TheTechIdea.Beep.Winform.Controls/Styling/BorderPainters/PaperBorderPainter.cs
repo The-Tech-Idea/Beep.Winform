@@ -18,13 +18,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float width = StyleBorders.GetBorderWidth(style);
             if (width <= 0f) return path;
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(220, 220, 220));
+            float effectiveWidth = width;
+
+            if (!isFocused && state == ControlState.Normal)
+            {
+                // Idle parity baseline: keep paper subtle but clearly readable.
+                effectiveWidth = Math.Max(effectiveWidth, 1.15f);
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 170));
+            }
+
             if (isFocused)
             {
                 borderColor = BorderPainterHelpers.Lighten(borderColor, 0.1f);
             }
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
 
-            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, width, state);
-            return path.CreateInsetPath(width);
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, effectiveWidth, state);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, effectiveWidth);
         }
     }
 }

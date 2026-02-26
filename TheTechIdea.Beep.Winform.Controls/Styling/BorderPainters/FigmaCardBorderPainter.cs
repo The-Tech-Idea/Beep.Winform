@@ -46,6 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 showRing = true;
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             float borderWidth = StyleBorders.GetBorderWidth(style);
             if (borderWidth <= 0f) return path;
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
@@ -58,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             // Return the area inside the border
                 // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

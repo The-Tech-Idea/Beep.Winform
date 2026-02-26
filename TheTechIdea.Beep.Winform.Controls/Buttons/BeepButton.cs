@@ -641,8 +641,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LongPress?.Invoke(this, EventArgs.Empty);
             };
 
-            // Enable modern styling by default for professional appearance
-            BorderRadius = 8;
+            // BorderRadius comes from BaseControl default (8) or from ControlStyle via StyleBorders.GetRadius
             CanBeHovered = true;
             CanBePressed = true;
             CanBeFocused = true;
@@ -782,8 +781,7 @@ namespace TheTechIdea.Beep.Winform.Controls
      
         public override void ApplyTheme()
         {
-            // CRITICAL: Call base.ApplyTheme() first to ensure proper DPI scaling handling
-           // base.ApplyTheme();
+            base.ApplyTheme();
 
             // Store whether colors should be from theme for later restoration
             _isColorFromTheme = true;
@@ -1003,6 +1001,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private GraphicsPath GetButtonClipPath(Rectangle rect)
         {
+            // Keep clip geometry in lock-step with border/background painters when available.
+            // This avoids visual shape mismatch between content, splash and border.
+            if (BorderPath != null && BorderPath.PointCount > 0)
+            {
+                return (GraphicsPath)BorderPath.Clone();
+            }
+
             // If a shape override is active, create a matching clip path
             if (ShapeType != BeepButtonShapeType.Default)
             {

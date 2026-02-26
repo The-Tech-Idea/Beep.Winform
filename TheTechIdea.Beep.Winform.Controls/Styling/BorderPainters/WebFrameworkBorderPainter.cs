@@ -53,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 showRing = true;
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             if (showRing)
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             // Return the area inside the border
                 // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
         
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
@@ -94,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }

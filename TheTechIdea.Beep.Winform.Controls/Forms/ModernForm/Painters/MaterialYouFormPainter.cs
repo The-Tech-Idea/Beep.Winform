@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.MaterialYou, owner);
+            return FormPainterMetrics.DefaultForCached(FormStyle.MaterialYou, owner);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -286,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             g.Clip = new Region(path);
             g.Clip = originalClip;
 
@@ -423,9 +423,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             
             var titleX = iconPadding + iconSize + iconPadding;
-            var titleWidth = buttonX - titleX - iconPadding;
+            var titleWidth = Math.Max(0, buttonX - titleX - iconPadding);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
+
+            // Expose safe corner insets for child controls
+            var cornerRadius = GetCornerRadius(owner);
+            int bottomRadius = Math.Max(cornerRadius.BottomLeft, cornerRadius.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomLeft,  layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomRadius
+            );
             
             owner.CurrentLayout = layout;
         }

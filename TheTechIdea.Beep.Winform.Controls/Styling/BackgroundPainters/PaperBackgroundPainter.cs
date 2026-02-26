@@ -45,9 +45,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     g.FillRectangle(noiseBrush, x, y, 1, 1);
                 }
 
-                // Subtle top edge highlight (paper fold effect)
-                var pen = PaintersFactory.GetPen(Color.FromArgb(30, Color.White), 1f);
-                g.DrawLine(pen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
+                // Subtle top fold highlight only for larger paper surfaces.
+                // On compact controls (buttons/inputs) this reads as a border defect.
+                if (bounds.Width >= 160 && bounds.Height >= 56 &&
+                    BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
+                {
+                    var pen = PaintersFactory.GetPen(Color.FromArgb(30, Color.White), 1f);
+                    g.DrawLine(pen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
+                }
             }
         }
     }

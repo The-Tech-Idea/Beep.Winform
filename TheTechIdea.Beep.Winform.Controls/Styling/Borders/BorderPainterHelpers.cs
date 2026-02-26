@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
@@ -22,9 +23,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             if (borderWidth > 0 && stateAdjustedColor.A > 0)
             {
-                var pen = PaintersFactory.GetPen(stateAdjustedColor, borderWidth);
+                float effectiveWidth = Math.Max(1f, borderWidth);
+                var pen = PaintersFactory.GetPen(stateAdjustedColor, effectiveWidth);
+                pen.LineJoin = LineJoin.Round;
+                pen.Alignment = PenAlignment.Inset;
+
+                var savedPixelMode = g.PixelOffsetMode;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
+                // PixelOffsetMode.Half shifts all rendering left/up by 0.5px.
+                // For a 1px border at x=0, this makes pixel column 0 receive only 50% coverage —
+                // making thin left/top borders appear nearly invisible.
+                // PixelOffsetMode.None aligns strokes exactly to pixel columns so x=0 → full coverage.
+                g.PixelOffsetMode = PixelOffsetMode.None;
                 g.DrawPath(pen, path);
+                g.PixelOffsetMode = savedPixelMode;
             }
         }
 
@@ -195,13 +207,88 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         /// </summary>
         public static Color GetColorFromStyleOrTheme(IBeepTheme theme, bool useThemeColors, string themeColorKey, Color fallbackColor)
         {
+            Color resolvedColor = fallbackColor;
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
-                    return themeColor;
+                    resolvedColor = themeColor;
             }
-            return fallbackColor;
+
+            // Border visibility guard: ensure normal-state edge color stays readable.
+            if (string.Equals(themeColorKey, "Border", System.StringComparison.OrdinalIgnoreCase))
+            {
+                resolvedColor = EnsureVisibleBorderColor(resolvedColor, theme, ControlState.Normal);
+            }
+            return resolvedColor;
+        }
+
+        /// <summary>
+        /// Normalizes border visibility so idle borders remain readable against the background.
+        /// Focus/selected states still get stronger emphasis, but normal state should never disappear.
+        /// </summary>
+        public static Color EnsureVisibleBorderColor(Color borderColor, IBeepTheme theme, ControlState state = ControlState.Normal)
+        {
+            if (borderColor == Color.Empty)
+                return borderColor;
+
+            int minAlpha = state switch
+            {
+                ControlState.Disabled => 70,
+                ControlState.Focused => 200,
+                ControlState.Selected => 180,
+                ControlState.Pressed => 160,
+                ControlState.Hovered => 140,
+                _ => 120
+            };
+
+            int targetAlpha = Math.Max(minAlpha, borderColor.A);
+            Color candidate = Color.FromArgb(255, borderColor.R, borderColor.G, borderColor.B);
+
+            if (theme != null)
+            {
+                Color back = theme.BackColor;
+                float targetContrast = state switch
+                {
+                    ControlState.Focused => 1.8f,
+                    ControlState.Selected => 1.7f,
+                    _ => 1.6f
+                };
+
+                float contrast = ColorAccessibilityHelper.CalculateContrastRatio(candidate, back);
+                bool backgroundIsDark = ColorAccessibilityHelper.CalculateRelativeLuminance(back) < 0.5;
+
+                int guard = 0;
+                while (contrast < targetContrast && guard < 8)
+                {
+                    candidate = backgroundIsDark ? Lighten(candidate, 0.12f) : Darken(candidate, 0.12f);
+                    contrast = ColorAccessibilityHelper.CalculateContrastRatio(candidate, back);
+                    guard++;
+                }
+            }
+
+            return Color.FromArgb(targetAlpha, candidate.R, candidate.G, candidate.B);
+        }
+
+        /// <summary>
+        /// Creates a standardized inner path for centered border strokes.
+        /// Uses half the stroke width as the default inset so the visible border
+        /// remains aligned and consistent across style painters.
+        /// </summary>
+        public static GraphicsPath CreateStrokeInsetPath(GraphicsPath path, float strokeWidth, float extraInset = 0f)
+        {
+            if (path == null)
+                return null;
+
+            float safeWidth = Math.Max(0f, strokeWidth);
+            float safeExtra = Math.Max(0f, extraInset);
+            float inset = safeWidth + safeExtra;
+
+            if (inset <= 0f)
+                return path;
+
+            int detectedRadius = (int)GraphicsExtensions.DetectRadiusFromRoundedRectPath(path);
+            return path.CreateInsetPath(inset, detectedRadius);
         }
 
         #region Enhanced Focus Indicators

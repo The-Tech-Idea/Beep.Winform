@@ -20,9 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             if (width <= 0f) return path;
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(136, 192, 208));
             borderColor = BorderPainterHelpers.WithAlpha(borderColor, isFocused ? 220 : 160);
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
 
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, width, state);
-            return path.CreateInsetPath(width);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, width);
         }
     }
 }

@@ -32,17 +32,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Arc signature: green accent glow from top
-            float glowHeight = bounds.Height / 5f;
-            if (glowHeight > 2)
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
             {
-                var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, glowHeight);
-                var grad = PaintersFactory.GetLinearGradientBrush(
-                    topRect, 
-                    Color.FromArgb(25, accent), 
-                    Color.Transparent, 
-                    LinearGradientMode.Vertical);
-                g.FillRectangle(grad, topRect);
+                // Arc signature: green accent glow from top
+                float glowHeight = bounds.Height / 5f;
+                if (glowHeight > 2)
+                {
+                    var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, glowHeight);
+                    var grad = PaintersFactory.GetLinearGradientBrush(
+                        topRect,
+                        Color.FromArgb(25, accent),
+                        Color.Transparent,
+                        LinearGradientMode.Vertical);
+                    g.FillRectangle(grad, topRect);
+                }
             }
         }
     }

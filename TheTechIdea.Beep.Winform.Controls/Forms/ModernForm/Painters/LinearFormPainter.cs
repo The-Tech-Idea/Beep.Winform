@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Linear, owner);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Linear, owner);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -260,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             
             // Very thin border (0.5-1px)
             Color borderColor = Color.FromArgb(230, 230, 230);
@@ -310,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             g.Clip = new Region(path);
             g.Clip = originalClip;
 

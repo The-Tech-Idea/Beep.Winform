@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Return the area inside the border
-            return path.CreateInsetPath(borderWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

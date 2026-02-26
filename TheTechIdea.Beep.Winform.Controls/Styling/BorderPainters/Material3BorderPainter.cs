@@ -26,6 +26,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             {
                 return path;
             }
+            if (!isFocused && state == ControlState.Normal)
+            {
+                // Idle parity baseline: slightly stronger outlined edge.
+                borderWidth = Math.Max(borderWidth, 1.15f);
+                borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, Math.Max((int)baseBorderColor.A, 170));
+            }
 
             switch (state)
             {
@@ -51,11 +57,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 borderWidth = 2.0f;
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Return the area inside the border
                 // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

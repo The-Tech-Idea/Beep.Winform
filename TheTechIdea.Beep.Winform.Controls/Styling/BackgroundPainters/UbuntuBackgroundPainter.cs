@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Ubuntu accent stripe on left edge (Yaru signature)
             BackgroundPainterHelpers.PaintAccentStripe(g, Rectangle.Round(bounds),
-                Color.FromArgb(120, accentColor), BackgroundPainterHelpers.StripeSide.Left, 3);
+                Color.FromArgb(120, accentColor), BackgroundPainterHelpers.StripeSide.Left, 3, path);
         }
     }
 }

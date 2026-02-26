@@ -28,6 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
             if (borderWidth <= 0f) return path;
+            if (!isFocused && state == ControlState.Normal)
+            {
+                // Keep Apple subtle, but align idle clarity with other core styles.
+                borderWidth = Math.Max(borderWidth, 1.15f);
+                borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, Math.Max((int)baseBorderColor.A, 165));
+            }
 
             // Apple UX: Minimal, refined state changes (very subtle)
             switch (state)
@@ -53,6 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     break;
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Apple: Add subtle focus rings (Apple blue)
@@ -62,14 +69,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
 
-            return path;
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }

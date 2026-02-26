@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Ubuntu, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Ubuntu, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -83,13 +83,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
             }
 
+            // Paint icon before title text so title rendering order is correct
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
-
-            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Ubuntu pill buttons
-            // Only paint the icon
-            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -301,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-          using var path = owner.BorderShape; 
+          var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro 
             // Thin border with subtle Ubuntu orange tint
             var borderColor = Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 50), 
                 Math.Min(255, metrics.BorderColor.R + 20),
@@ -484,17 +483,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.SearchBoxRect = Rectangle.Empty;
             }
             
-            int iconX = metrics.IconLeftPadding;
-            int iconY = (captionHeight - metrics.IconSize) / 2;
+            // Apply safe-area offset so the icon/title start away from the left corner arc
+            var cornerRadius = GetCornerRadius(owner);
+            int iconY       = (captionHeight - metrics.IconSize) / 2;
+            int safeLeftX   = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadius.TopLeft, iconY + metrics.IconSize / 2, metrics.IconSize / 2) + 2;
+            int iconX = Math.Max(metrics.IconLeftPadding, safeLeftX);
+
             layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
             if (owner.ShowIcon && owner.Icon != null)
             {
                 owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
             }
             
-            int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
+            int titleX     = layout.IconRect.Right + metrics.TitleLeftPadding;
+            int titleWidth = Math.Max(0, buttonX - titleX - metrics.ButtonSpacing);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
+
+            // Content rectangle with corner-safe insets for child controls
+            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
+            int bottomRadius = Math.Max(cornerRadius.BottomLeft, cornerRadius.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomLeft, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomRadius
+            );
             
             owner.CurrentLayout = layout;
         }

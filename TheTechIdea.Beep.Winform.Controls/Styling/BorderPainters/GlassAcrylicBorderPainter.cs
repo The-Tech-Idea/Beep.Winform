@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 
             // Return the area inside the border
                 // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

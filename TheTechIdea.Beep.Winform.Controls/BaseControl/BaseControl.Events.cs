@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -96,11 +97,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 BackColor = Parent.BackColor;
                 ParentBackColor = Parent.BackColor;
-
             }
-            if(IsTransparentBackground )
+
+            if (IsTransparentBackground)
             {
-                // Paint parent background for transparency/rounded corners
                 PaintParentBackground(e.Graphics);
                 return;
             }
@@ -235,23 +235,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (g == null)
                 return;
 
-            // Respect derived control's preference to not clear (e.g., grids handle their own rendering)
             if (!AllowBaseControlClear)
                 return;
 
-            // If the control is not transparent and not rounded, we can safely clear with BackColor
-            // This ensures a clean slate for drawing and prevents artifacts
             if (!IsTransparentBackground)
             {
-                // If we have child controls, exclude them from the clear operation
                 if (IsContainerControl || Controls.Count > 0)
                 {
                     ExcludeChildControlsFromClip(g);
                 }
                 g.Clear(BackColor);
             }
-            // For rounded or transparent controls, we rely on OnPaintBackground to paint the parent background
-            // clearing here would overwrite the parent background and destroy the transparency/rounded corner effect
         }
 
         private void SafePaintInnerShape(Graphics g)
@@ -326,17 +320,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             try
             {
-                // Ensure painter shapes are up to date
                 _painter?.UpdateLayout(this);
 
                 Region controlRegion;
                 if (BorderPath != null)
                 {
-                     controlRegion = new Region(BorderPath);
+                    controlRegion = new Region(BorderPath);
                 }
                 else
                 {
-                     controlRegion = new Region(new Rectangle(0, 0, Width, Height));
+                    controlRegion = new Region(new Rectangle(0, 0, Width, Height));
                 }
 
                 // Include badge area if present

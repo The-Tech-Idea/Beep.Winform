@@ -600,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }

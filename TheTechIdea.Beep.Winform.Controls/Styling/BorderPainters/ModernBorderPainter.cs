@@ -38,17 +38,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             {
                 borderColor = BorderPainterHelpers.Lighten(borderColor, 0.2f);
             }
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
 
-            // Create NEW pen (not cached) so we can modify LineJoin property
-            using (var pen = new Pen(borderColor, width))
-            {
-                pen.LineJoin = LineJoin.Round; // smooth corners for wider borders
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.DrawPath(pen, path);
-            }
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, width, state);
 
             // Return inner content area inset by half the border width
-            return path.CreateInsetPath(width / 2f);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, width);
         }
     }
 }

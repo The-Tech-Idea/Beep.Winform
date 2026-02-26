@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BeepControlStyle.MacOSBigSur => new MacOSBigSurBorderPainterWrapper(),
                 BeepControlStyle.ChakraUI => new ChakraUIBorderPainterWrapper(),
                 BeepControlStyle.TailwindCard => new TailwindCardBorderPainterWrapper(),
+                BeepControlStyle.FinSet => new FinSetBorderPainterWrapper(),
                 BeepControlStyle.NotionMinimal => new NotionMinimalBorderPainterWrapper(),
                 BeepControlStyle.Minimal => new MinimalBorderPainterWrapper(),
                 BeepControlStyle.VercelClean => new VercelCleanBorderPainterWrapper(),
@@ -57,6 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BeepControlStyle.Elementary => new ElementaryBorderPainterWrapper(),
                 BeepControlStyle.Gaming => new GamingBorderPainterWrapper(),
                 BeepControlStyle.Neon => new NeonBorderPainterWrapper(),
+                BeepControlStyle.NeonGlow => new NeonGlowBorderPainterWrapper(),
+                BeepControlStyle.Retro => new RetroBorderPainterWrapper(),
                 BeepControlStyle.ArcLinux => new ArcLinuxBorderPainterWrapper(),
                 BeepControlStyle.Brutalist => new BrutalistBorderPainterWrapper(),
                 BeepControlStyle.Cartoon => new CartoonBorderPainterWrapper(),
@@ -222,6 +225,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
+            return TailwindCardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class FinSetBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public FinSetBorderPainterWrapper() : base(BeepControlStyle.FinSet) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            // FinSet reuses Tailwind geometry with its own style token context.
             return TailwindCardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
@@ -492,6 +506,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
+            return NeonBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NeonGlowBorderPainterWrapper : BorderPainterWrapperBase
+    {
+        public NeonGlowBorderPainterWrapper() : base(BeepControlStyle.NeonGlow) { }
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            // NeonGlow shares renderer with Neon but keeps distinct style enum for token lookup.
             return NeonBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }

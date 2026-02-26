@@ -51,20 +51,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 borderColor = primaryColor;
             }
 
-            var pen = PaintersFactory.GetPen(borderColor, borderWidth);
-           
-                g.DrawPath(pen, path);
-            
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Return the area inside the border using shape-aware inset by half width
-            return path.CreateInsetPath(borderWidth / 2f);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }

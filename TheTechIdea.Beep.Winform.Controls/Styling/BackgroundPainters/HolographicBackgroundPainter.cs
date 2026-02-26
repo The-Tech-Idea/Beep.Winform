@@ -51,11 +51,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             
             g.FillPath(gradient, path);
 
-            // Holographic shine line
-            var shinePen = PaintersFactory.GetPen(Color.FromArgb(35, Color.White), 2f);
-            g.DrawLine(shinePen, 
-                bounds.Left, bounds.Top + bounds.Height / 3f, 
-                bounds.Right, bounds.Top);
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
+            {
+                // Holographic shine line
+                var shinePen = PaintersFactory.GetPen(Color.FromArgb(35, Color.White), 2f);
+                g.DrawLine(shinePen,
+                    bounds.Left, bounds.Top + bounds.Height / 3f,
+                    bounds.Right, bounds.Top);
+            }
         }
     }
 }

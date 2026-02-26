@@ -29,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.MacOSBigSur => new MacOSBigSurBackgroundPainterWrapper(),
                 BeepControlStyle.ChakraUI => new ChakraUIBackgroundPainterWrapper(),
                 BeepControlStyle.TailwindCard => new TailwindCardBackgroundPainterWrapper(),
+                BeepControlStyle.FinSet => new FinSetBackgroundPainterWrapper(),
                 BeepControlStyle.NotionMinimal => new NotionMinimalBackgroundPainterWrapper(),
                 BeepControlStyle.Minimal => new MinimalBackgroundPainterWrapper(),
                 BeepControlStyle.VercelClean => new VercelCleanBackgroundPainterWrapper(),
@@ -56,6 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Elementary => new ElementaryBackgroundPainterWrapper(),
                 BeepControlStyle.Gaming => new GamingBackgroundPainterWrapper(),
                 BeepControlStyle.Neon => new NeonBackgroundPainterWrapper(),
+                BeepControlStyle.NeonGlow => new NeonGlowBackgroundPainterWrapper(),
                 BeepControlStyle.Terminal => new TerminalBackgroundPainterWrapper(),
                 BeepControlStyle.ArcLinux => new ArcLinuxBackgroundPainterWrapper(),
                 BeepControlStyle.Brutalist => new BrutalistBackgroundPainterWrapper(),
@@ -214,6 +216,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public TailwindCardBackgroundPainterWrapper() : base(BeepControlStyle.TailwindCard) { }
         protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
+            TailwindCardBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class FinSetBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public FinSetBackgroundPainterWrapper() : base(BeepControlStyle.FinSet) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            // FinSet aligns with TailwindCard background semantics while preserving FinSet style context.
             TailwindCardBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
         }
     }
@@ -457,6 +469,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         public NeonBackgroundPainterWrapper() : base(BeepControlStyle.Neon) { }
         protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
+            NeonBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NeonGlowBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public NeonGlowBackgroundPainterWrapper() : base(BeepControlStyle.NeonGlow) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            // NeonGlow reuses Neon background renderer with distinct style lookup.
             NeonBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
         }
     }

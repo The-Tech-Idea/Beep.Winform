@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.MacOS, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.MacOS, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -76,7 +76,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 LinearGradientMode.Vertical);
 
             // Draw refined traffic light buttons with 3D effects
-            DrawTrafficLights(g, captionRect, owner);
+            // Reads positions directly from CurrentLayout to stay in sync with hit areas
+            DrawTrafficLights(g, owner);
 
             // Paint search box if visible (using FormRegion for consistency)
             if (owner.ShowSearchBox && owner.CurrentLayout.SearchBoxRect.Width > 0)
@@ -84,21 +85,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
             }
 
-            // Draw title text with macOS typography
+            // Built-in caption elements (icon/theme/Style/custom buttons) - drawn before title text
+            // so icon is painted first and title text sits next to it, not under it
+            owner.PaintBuiltInCaptionElements(g);
+
+            // Draw title text with macOS typography - after icon so rendering order is correct
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect,
-         metrics.CaptionTextColor,
+                metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
-
-            // Built-in caption elements (icon/title/theme/Style/custom/system buttons)
-            owner.PaintBuiltInCaptionElements(g);
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
@@ -236,28 +238,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         }
 
         /// <summary>
-        /// Draws macOS-Style traffic light buttons with 3D effects
+        /// Draws macOS-style traffic light buttons with 3D effects.
+        /// Uses positions from CurrentLayout to stay consistent with registered hit areas.
         /// </summary>
-        private void DrawTrafficLights(Graphics g, Rectangle captionRect, BeepiFormPro owner)
+        private void DrawTrafficLights(Graphics g, BeepiFormPro owner)
         {
-            var buttonSize = 12;
-            var spacing = 8;
-            var topOffset = (captionRect.Height - buttonSize) / 2;
-            var leftOffset = 12;
+            var layout = owner.CurrentLayout;
 
             // Traffic light colors
-            var red = Color.FromArgb(255, 95, 87);
+            var red    = Color.FromArgb(255, 95, 87);
             var yellow = Color.FromArgb(255, 189, 46);
-            var green = Color.FromArgb(39, 201, 63);
+            var green  = Color.FromArgb(39, 201, 63);
 
-            // Draw each button with 3D effect - check hover
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
-            
-            DrawTrafficLightButton(g, captionRect.Left + leftOffset, captionRect.Top + topOffset, buttonSize, red, closeHovered, "close");
-            DrawTrafficLightButton(g, captionRect.Left + leftOffset + spacing + buttonSize, captionRect.Top + topOffset, buttonSize, yellow, minHovered, "minimize");
-            DrawTrafficLightButton(g, captionRect.Left + leftOffset + (spacing + buttonSize) * 2, captionRect.Top + topOffset, buttonSize, green, maxHovered, "maximize");
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close"))    ?? false;
+            bool minHovered   = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool maxHovered   = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+
+            // Draw each traffic light centered within its registered hit-area rect
+            DrawTrafficLightInRect(g, layout.CloseButtonRect,    red,    closeHovered, "close");
+            DrawTrafficLightInRect(g, layout.MinimizeButtonRect, yellow, minHovered,   "minimize");
+            DrawTrafficLightInRect(g, layout.MaximizeButtonRect, green,  maxHovered,   "maximize");
+        }
+
+        /// <summary>
+        /// Draws a single traffic light circle centered within the given hit-area rectangle.
+        /// </summary>
+        private void DrawTrafficLightInRect(Graphics g, Rectangle hitRect, Color color, bool isHovered, string buttonType)
+        {
+            if (hitRect.IsEmpty) return;
+
+            // Use the registered button size; center the circle inside the hit rect
+            int size = Math.Min(hitRect.Width, hitRect.Height);
+            int x = hitRect.X + (hitRect.Width  - size) / 2;
+            int y = hitRect.Y + (hitRect.Height - size) / 2;
+
+            DrawTrafficLightButton(g, x, y, size, color, isHovered, buttonType);
         }
 
         /// <summary>
@@ -343,10 +358,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
             
             // macOS: Traffic light buttons positioned on the LEFT
-            var buttonSize = 12; // macOS traffic lights are small circles
-            var buttonY = (captionHeight - buttonSize) / 2;
+            var buttonSize   = 12; // macOS traffic lights are small circles
+            var buttonHalf   = buttonSize / 2;
+            var buttonY      = (captionHeight - buttonSize) / 2;
             var buttonSpacing = 8;
-            var leftX = 12; // Start from left edge with padding
+
+            // Compute safe left start to avoid the rounded corner arc (radius=10 for macOS)
+            var cornerRadius = GetCornerRadius(owner);
+            int safeLeftX = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadius.TopLeft, buttonY + buttonHalf, buttonHalf) + 2; // +2 visual gap
+            safeLeftX = Math.Max(safeLeftX, 12); // Minimum 12px from edge
+
+            var leftX = safeLeftX;
             
             // Close button (red, leftmost)
             if (owner.ShowCloseButton)
@@ -368,9 +391,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 leftX += buttonSize + buttonSpacing;
             }
             
-            // RIGHT side: Theme/Style buttons (standard Windows-Style placement)
+            // RIGHT side: Theme/Style buttons (standard Windows-style placement)
+            // Also keep right-side elements away from the top-right corner arc
+            int safeRightX = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadius.TopRight, captionHeight / 2, captionHeight / 2) + 2;
             var rightButtonWidth = 32;
-            var rightX = owner.ClientSize.Width - rightButtonWidth;
+            var rightX = owner.ClientSize.Width - rightButtonWidth - safeRightX;
             
             // Style button (if shown)
             if (owner.ShowStyleButton)
@@ -393,12 +419,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 layout.CustomActionButtonRect = new Rectangle(rightX, 0, rightButtonWidth, captionHeight);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
-              
                 rightX -= rightButtonWidth;
             }
             
             // Search box (between title and right-side buttons)
-            int searchBoxWidth = 200;
+            int searchBoxWidth   = 200;
             int searchBoxPadding = 8;
             if (owner.ShowSearchBox)
             {
@@ -413,24 +438,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Icon and title areas: start after traffic lights, end before right-side buttons
-            var iconSize = 16;
+            var iconSize    = 16;
             var iconPadding = 8;
-            var titleStartX = leftX + 16; // After last traffic light with padding
+            var iconStartX  = leftX + 4; // Small gap after last traffic light
 
-            var iconX = titleStartX;
-            layout.IconRect = new Rectangle(iconX, (captionHeight - iconSize) / 2, iconSize, iconSize);
+            layout.IconRect = new Rectangle(iconStartX, (captionHeight - iconSize) / 2, iconSize, iconSize);
             if (owner.ShowIcon && owner.Icon != null)
             {
                 owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             }
 
-            var titleX = iconX + iconSize + iconPadding;
+            var titleX     = layout.IconRect.Right + iconPadding;
             var titleWidth = Math.Max(0, rightX - titleX - 8);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
             
-            // Set content rectangle (below caption)
+            // Content rectangle (below caption), with corner-safe insets for the bottom corners
             layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
+
+            // Expose safe insets so child controls can avoid being clipped by rounded corners
+            int bottomCornerRadius = Math.Max(cornerRadius.BottomLeft, cornerRadius.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomCornerRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomLeft, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomCornerRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadius.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomCornerRadius
+            );
             
             owner.CurrentLayout = layout;
         }

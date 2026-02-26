@@ -41,7 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             };
 
             // Also apply frosted glass effect for additional realism
-            BackgroundPainterHelpers.PaintFrostedGlassBackground(g, path, baseColor, baseAlpha, state);
+            BackgroundPainterHelpers.PaintFrostedGlassBackground(
+                g,
+                path,
+                baseColor,
+                baseAlpha,
+                state,
+                BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style));
 
             RectangleF bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;

@@ -52,18 +52,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float configuredWidth = StyleBorders.GetBorderWidth(style);
             if (configuredWidth <= 0f) return path;
             // Paint NeoBrutalist SIGNATURE 6px THICK black border (0px radius - sharp!)
-            float borderWidth = configuredWidth; // 6.0f THICK!
+            float borderWidth = configuredWidth;
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
 
-            // Create NEW pen (not cached) so we can modify LineJoin and Alignment properties
+            var savedPixel = g.PixelOffsetMode;
+            g.PixelOffsetMode = PixelOffsetMode.None;
             using (var pen = new Pen(borderColor, borderWidth))
             {
-                pen.LineJoin = LineJoin.Miter; // Sharp corners (brutalist!)
-                pen.Alignment = PenAlignment.Center; // Center border on path edge (half in, half out for visibility with shadow)
+                pen.LineJoin = LineJoin.Miter;
+                pen.Alignment = PenAlignment.Inset;
                 g.DrawPath(pen, path);
             }
+            g.PixelOffsetMode = savedPixel;
 
             // Return the area inside the THICK border
-            return path.CreateInsetPath(borderWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

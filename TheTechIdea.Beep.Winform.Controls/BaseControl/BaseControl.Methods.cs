@@ -748,7 +748,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-            if (EnableHighQualityRendering)
+         /*    if (EnableHighQualityRendering)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -761,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 g.InterpolationMode = InterpolationMode.NearestNeighbor;
                 g.PixelOffsetMode = PixelOffsetMode.Default;
                 g.TextRenderingHint = TextRenderingHint.SystemDefault;
-            }
+            } */
             UpdateDrawingRect();
                 
 

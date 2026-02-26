@@ -104,11 +104,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         /// <summary>
         /// Marks the layout as dirty, forcing recalculation on next paint.
+        /// Also clears the cached BorderShape path so it is rebuilt with the new size/style.
         /// Call this when properties that affect layout change.
         /// </summary>
         public void InvalidateLayout()
         {
             _layoutDirty = true;
+            // Force the BorderShape cache to regenerate on the next access
+            _cachedBorderShapeSize  = Size.Empty;
+            _cachedBorderShapeStyle = (FormStyle)(-1);
         }
         #endregion
 
@@ -714,7 +718,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// current style instead of a stale closure captured at construction time.
         /// </summary>
         private FormPainterMetrics GetCurrentMetrics()
-            => FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+            => FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
 
         private void InitializeBuiltInRegions()
         {
@@ -903,7 +907,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     if (!_showSearchBox || r.Width <= 0 || r.Height <= 0) return;
                     
                     var isHovered = _interact?.IsHovered(_hits?.GetHitArea("search")) ?? false;
-                    var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
                     
                     // Background with rounded corners
                     int radius = 4;

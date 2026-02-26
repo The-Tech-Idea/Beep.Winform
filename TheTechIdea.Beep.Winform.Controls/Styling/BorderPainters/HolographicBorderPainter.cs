@@ -34,14 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     Positions = new[] { 0f, 0.25f, 0.5f, 0.75f, 1f }
                 };
 
+                var savedPixel = g.PixelOffsetMode;
                 using (var pen = new Pen(gradient, width))
                 {
+                    pen.LineJoin = LineJoin.Round;
+                    pen.Alignment = PenAlignment.Inset;
                     g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.PixelOffsetMode = PixelOffsetMode.None;
                     g.DrawPath(pen, path);
                 }
+                g.PixelOffsetMode = savedPixel;
             }
 
-            return path.CreateInsetPath(width);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, width);
         }
     }
 }

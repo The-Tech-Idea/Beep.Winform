@@ -31,9 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     BackgroundPainterHelpers.StateIntensity.Strong);
             }
 
-            // Neo-Brutalist signature: subtle inner outline hint
-            var pen = PaintersFactory.GetPen(Color.FromArgb(20, 0, 0, 0), 1f);
-            g.DrawPath(pen, path);
+            if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
+            {
+                // Neo-Brutalist signature: subtle inner outline hint
+                var pen = PaintersFactory.GetPen(Color.FromArgb(20, 0, 0, 0), 1f);
+                g.DrawPath(pen, path);
+            }
         }
     }
 }

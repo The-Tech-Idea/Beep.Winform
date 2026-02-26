@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -14,6 +16,116 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     /// </summary>
     public sealed class FormPainterMetrics
     {
+        #region Static Metrics Cache
+        // Key: (FormStyle, themeHashCode, useThemeColors)
+        private static readonly Dictionary<(FormStyle, int, bool), FormPainterMetrics> _metricsCache
+            = new Dictionary<(FormStyle, int, bool), FormPainterMetrics>();
+        private static readonly object _cacheLock = new object();
+
+        /// <summary>
+        /// Returns cached metrics for the given style+theme combination.
+        /// Creates and caches a new instance on first call.
+        /// Call <see cref="InvalidateCache"/> when the global theme changes.
+        /// </summary>
+        public static FormPainterMetrics DefaultForCached(FormStyle style, IBeepTheme theme, bool useThemeColors = false)
+        {
+            int themeKey = theme?.GetHashCode() ?? 0;
+            var key = (style, themeKey, useThemeColors);
+            lock (_cacheLock)
+            {
+                if (!_metricsCache.TryGetValue(key, out var cached))
+                {
+                    cached = DefaultFor(style, theme, useThemeColors);
+                    _metricsCache[key] = cached;
+                }
+                return cached;
+            }
+        }
+
+        /// <summary>
+        /// Returns DPI-aware cached metrics. Includes DPI scale in the cache key via rounded int.
+        /// </summary>
+        public static FormPainterMetrics DefaultForCached(FormStyle style, IBeepTheme theme, float dpiScaleFactor, bool useThemeColors = false)
+        {
+            // For non-standard DPI, fall through to uncached DPI-scaled version to keep cache small
+            if (DpiScalingHelper.AreScaleFactorsEqual(dpiScaleFactor, 1.0f))
+                return DefaultForCached(style, theme, useThemeColors);
+
+            int themeKey = theme?.GetHashCode() ?? 0;
+            // Encode DPI as 1/100th increments for the key
+            int dpiKey = (int)(dpiScaleFactor * 100);
+            var key = (style, themeKey ^ (dpiKey << 16), useThemeColors);
+            lock (_cacheLock)
+            {
+                if (!_metricsCache.TryGetValue(key, out var cached))
+                {
+                    cached = DefaultFor(style, theme, dpiScaleFactor, useThemeColors);
+                    _metricsCache[key] = cached;
+                }
+                return cached;
+            }
+        }
+
+        /// <summary>
+        /// Returns cached metrics using the full DPI-aware owner overload, with caching.
+        /// This is the recommended method for painters to call from GetMetrics().
+        /// </summary>
+        public static FormPainterMetrics DefaultForCached(FormStyle style, BeepiFormPro owner)
+        {
+            if (owner == null || !owner.IsHandleCreated)
+                return DefaultForCached(style, (IBeepTheme)null);
+
+            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(owner);
+            return DefaultForCached(style, owner.CurrentTheme, dpiScale, owner.UseThemeColors);
+        }
+
+        /// <summary>
+        /// Clears the metrics cache. Call when a theme is changed globally.
+        /// </summary>
+        public static void InvalidateCache()
+        {
+            lock (_cacheLock)
+            {
+                _metricsCache.Clear();
+            }
+        }
+        #endregion
+
+        #region Corner Safe-Area Helper
+        /// <summary>
+        /// For a rounded-rectangle corner with the given <paramref name="radius"/>, returns
+        /// the minimum safe X offset at the horizontal centre of an element whose centre Y
+        /// is <paramref name="elementCenterY"/> and whose half-height is
+        /// <paramref name="elementHalfHeight"/>.
+        /// <para>
+        /// Use this in <c>CalculateLayoutAndHitAreas</c> to ensure caption elements do not
+        /// overlap the visually clipped corner arc.
+        /// </para>
+        /// </summary>
+        /// <param name="radius">Corner arc radius in pixels.</param>
+        /// <param name="elementCenterY">Y coordinate of the element's centre, relative to the top of the form.</param>
+        /// <param name="elementHalfHeight">Half the element's height in pixels.</param>
+        /// <returns>Minimum left X such that the element is fully inside the rounded corner.</returns>
+        public static int GetCaptionLeftSafeX(int radius, int elementCenterY, int elementHalfHeight)
+        {
+            if (radius <= 0) return 0;
+
+            // The arc occupies y in [0, radius] from the top-left corner.
+            // For a row at y, the clip edge is at x = radius - sqrt(radius^2 - (radius-y)^2).
+            // We take the worst-case row within the element's vertical span.
+            int topRow    = Math.Max(0, elementCenterY - elementHalfHeight);
+            int bottomRow = elementCenterY + elementHalfHeight;
+
+            int maxClipX = 0;
+            for (int row = topRow; row <= Math.Min(bottomRow, radius); row++)
+            {
+                int dy = radius - row;
+                double clipX = radius - Math.Sqrt((double)radius * radius - (double)dy * dy);
+                maxClipX = Math.Max(maxClipX, (int)Math.Ceiling(clipX));
+            }
+            return maxClipX;
+        }
+        #endregion
 
         public bool UseThemeColors { get; set; } = false;
         public IBeepTheme beepTheme { get; set; }

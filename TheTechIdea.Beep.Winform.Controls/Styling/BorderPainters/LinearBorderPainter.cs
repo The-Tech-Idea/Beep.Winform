@@ -28,12 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 borderWidth = 1f;
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             if (borderWidth > 0)
             {
                 BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
             }
             
-            return path.CreateInsetPath(borderWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

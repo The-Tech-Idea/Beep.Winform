@@ -62,11 +62,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 borderWidth = 2.0f; // Ant Design spec: 2px focus border
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Return the area inside the border
                 // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

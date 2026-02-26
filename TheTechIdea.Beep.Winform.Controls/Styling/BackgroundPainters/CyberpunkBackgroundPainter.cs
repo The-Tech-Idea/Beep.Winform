@@ -32,22 +32,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Pink gradient glow from left edge
-            float glowWidth = Math.Min(100f, bounds.Width * 0.4f);
-            if (glowWidth > 5)
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
             {
-                var leftRect = new RectangleF(bounds.Left, bounds.Top, glowWidth, bounds.Height);
-                var leftGrad = PaintersFactory.GetLinearGradientBrush(
-                    leftRect, 
-                    Color.FromArgb(50, 255, 0, 150), 
-                    Color.Transparent, 
-                    LinearGradientMode.Horizontal);
-                g.FillRectangle(leftGrad, leftRect);
-            }
+                // Pink gradient glow from left edge
+                float glowWidth = Math.Min(100f, bounds.Width * 0.4f);
+                if (glowWidth > 5)
+                {
+                    var leftRect = new RectangleF(bounds.Left, bounds.Top, glowWidth, bounds.Height);
+                    var leftGrad = PaintersFactory.GetLinearGradientBrush(
+                        leftRect,
+                        Color.FromArgb(50, 255, 0, 150),
+                        Color.Transparent,
+                        LinearGradientMode.Horizontal);
+                    g.FillRectangle(leftGrad, leftRect);
+                }
 
-            // Neon accent outline
-            var pen = PaintersFactory.GetPen(Color.FromArgb(100, neon), 1.5f);
-            g.DrawPath(pen, path);
+                if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
+                {
+                    // Neon accent outline
+                    var pen = PaintersFactory.GetPen(Color.FromArgb(100, neon), 1.5f);
+                    g.DrawPath(pen, path);
+                }
+            }
         }
     }
 }

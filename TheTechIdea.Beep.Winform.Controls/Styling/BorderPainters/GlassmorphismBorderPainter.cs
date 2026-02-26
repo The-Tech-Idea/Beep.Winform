@@ -19,17 +19,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float borderWidth = StyleBorders.GetBorderWidth(style);
             if (borderWidth <= 0f) return path;
             Color outer = BorderPainterHelpers.WithAlpha(Color.White, 50);
-            Color inner = BorderPainterHelpers.WithAlpha(Color.White, isFocused ? 80 : 60);
+            if (isFocused)
+            {
+                outer = BorderPainterHelpers.WithAlpha(Color.White, 80);
+            }
+            outer = BorderPainterHelpers.EnsureVisibleBorderColor(outer, theme, state);
 
             // Match GlassFormPainter: single border with proper alignment
-            var pen = PaintersFactory.GetPen(outer, borderWidth);
-            
-             
-                g.DrawPath(pen, path);
-            
+            BorderPainterHelpers.PaintSimpleBorder(g, path, outer, borderWidth, state);
 
             // Return content area inset by half border width
-            return path.CreateInsetPath(borderWidth / 2f);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

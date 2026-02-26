@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Dracula, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Dracula, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-             using var path = owner.BorderShape;
+             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Dracula purple glow effect (3 layers: blur 12, blur 6, solid)

@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, ControlState.Normal);
-            return path.CreateInsetPath(borderWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

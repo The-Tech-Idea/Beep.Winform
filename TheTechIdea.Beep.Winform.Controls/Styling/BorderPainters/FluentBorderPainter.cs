@@ -52,12 +52,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 showAccentBar = true;
             }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             if (!StyleBorders.IsFilled(style))
             {
-                var pen = PaintersFactory.GetPen(borderColor, borderWidth);
-                
-                    g.DrawPath(pen, path);
-                
+                BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
             }
 
             if (showAccentBar)
@@ -73,14 +71,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Return the area inside the border using shape-aware inset by half width
-            return path.CreateInsetPath(borderWidth / 2f);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }

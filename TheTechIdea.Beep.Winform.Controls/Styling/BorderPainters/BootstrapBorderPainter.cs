@@ -53,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             // Paint border
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
             // Bootstrap: Add focus ring and accent bar
@@ -76,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
                 // Return the area inside the border using shape-aware inset
-                return path.CreateInsetPath(borderWidth);
+                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

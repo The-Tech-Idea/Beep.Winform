@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Material, owner);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Material, owner);
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
             g.DrawPath(pen, path);
         }
@@ -383,7 +383,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
             var layout = new PainterLayoutInfo();
-            FormPainterMetrics metrics = FormPainterMetrics.DefaultFor(FormStyle.Material, owner.UseThemeColors ? owner.CurrentTheme : null);
+            FormPainterMetrics metrics = FormPainterMetrics.DefaultForCached(FormStyle.Material, owner.UseThemeColors ? owner.CurrentTheme : null);
             
             // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
             

@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.MacOSBigSur => true,           // macOS subtle shadow
                 BeepControlStyle.ChakraUI => true,              // Chakra shadow
                 BeepControlStyle.TailwindCard => true,          // Card shadow
+                BeepControlStyle.FinSet => true,                // FinSet uses modern card elevation
                 BeepControlStyle.NotionMinimal => false,        // Flat
                 BeepControlStyle.VercelClean => false,          // Clean flat
                 BeepControlStyle.StripeDashboard => true,       // Stripe elevation
@@ -52,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Gaming => true,                // Gaming dramatic glow
                 BeepControlStyle.HighContrast => false,         // High contrast flat (no shadow)
                 BeepControlStyle.Neon => true,                  // Neon strong glow
+                BeepControlStyle.NeonGlow => true,              // NeonGlow strong glow
                 BeepControlStyle.ArcLinux => true,
                 BeepControlStyle.Brutalist => true,
                 BeepControlStyle.Cartoon => true,
@@ -73,6 +75,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Tokyo => true,
                 BeepControlStyle.Ubuntu => true,
                 BeepControlStyle.Retro => true,                  // Retro classic offset shadow
+                BeepControlStyle.Shadcn => true,                 // Modern web subtle elevation
+                BeepControlStyle.RadixUI => true,                // Modern web subtle elevation
+                BeepControlStyle.NextJS => true,                 // Modern web subtle elevation
+                BeepControlStyle.Linear => true,                 // Modern web subtle elevation
               
                 _ => false
             };

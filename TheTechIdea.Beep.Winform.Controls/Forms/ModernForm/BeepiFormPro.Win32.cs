@@ -422,7 +422,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     else
                     {
                         // Fallback: draw border using the form's shape
-                        var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+                        var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
                         using (var borderPen = new Pen(metrics.BorderColor, bt))
                         {
                             using (var shapePath = CreateRoundedRectanglePath(formRect, radius))
@@ -658,7 +658,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         // Helpers: effective metrics-driven values with safe fallbacks
         private int GetEffectiveResizeMarginDpi()
         {
-            var m = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+            var m = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
             int raw = m?.ResizeBorderWidth ?? 0;
             if (raw <= 0) raw = m?.BorderWidth ?? 0; // fall back to border width
             if (raw <= 0) raw = _resizeMarginWin32;   // legacy default
@@ -668,7 +668,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private int GetEffectiveBorderThicknessDpi()
         {
-            var m = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+            var m = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
             int raw = m?.BorderWidth ?? 0;
             if (raw <= 0) raw = _customBorderThickness; // fallback to property if set
             if (raw <= 0) raw = 1;                      // final fallback

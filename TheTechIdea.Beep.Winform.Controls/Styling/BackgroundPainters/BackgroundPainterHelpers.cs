@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -14,6 +15,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class BackgroundPainterHelpers
     {
+        /// <summary>
+        /// Runtime pipeline guard set by BeepStyling during full control painting.
+        /// When true, background painters should avoid border-like edge strokes.
+        /// </summary>
+        internal static bool SuppressEdgeStrokes { get; set; } = false;
+
+        /// <summary>
+        /// Determines whether decorative edge strokes should be painted by background painters.
+        /// </summary>
+        public static bool ShouldPaintDecorativeEdgeStroke(BeepControlStyle style)
+        {
+            if (!SuppressEdgeStrokes)
+                return true;
+
+            // If a style effectively has no border, allow background edge accents.
+            return StyleBorders.GetBorderWidth(style) <= 0f;
+        }
+
         #region Enums
 
         /// <summary>
@@ -49,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }
@@ -64,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             if (useThemeColors && theme != null)
             {
-                var themeColor = BeepStyling.GetThemeColor(themeColorKey);
+                var themeColor = BeepStyling.GetThemeColor(theme, themeColorKey);
                 if (themeColor != Color.Empty)
                     return themeColor;
             }
@@ -288,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// Best for: Glassmorphism, Acrylic, Mica styles
         /// </summary>
         public static void PaintFrostedGlassBackground(Graphics g, GraphicsPath path,
-            Color baseColor, int baseAlpha, ControlState state)
+            Color baseColor, int baseAlpha, ControlState state, bool includeEdgeHighlight = true)
         {
             if (g == null || path == null) return;
 
@@ -349,6 +368,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 g.FillRectangle(highlight, topRect);
             }
+
+            if (!includeEdgeHighlight)
+                return;
 
             // Add subtle border highlight for glass edge
             using (var borderPath = (GraphicsPath)path.Clone())
@@ -422,17 +444,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// Paint scanline overlay (Terminal/Retro effect)
         /// </summary>
         public static void PaintScanlineOverlay(Graphics g, Rectangle bounds, 
-            Color lineColor, int spacing = 2)
+            Color lineColor, int spacing = 2, GraphicsPath clipPath = null)
         {
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             var prevMode = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.None;
 
-            var pen = PaintersFactory.GetPen(lineColor, 1f);
-            for (int y = bounds.Top; y < bounds.Bottom; y += spacing)
+            using (var clip = new ClipScope(g, clipPath))
             {
-                g.DrawLine(pen, bounds.Left, y, bounds.Right, y);
+                var pen = PaintersFactory.GetPen(lineColor, 1f);
+                for (int y = bounds.Top; y < bounds.Bottom; y += spacing)
+                {
+                    g.DrawLine(pen, bounds.Left, y, bounds.Right, y);
+                }
             }
 
             g.SmoothingMode = prevMode;
@@ -442,25 +467,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// Paint grid overlay (Terminal/Tech effect)
         /// </summary>
         public static void PaintGridOverlay(Graphics g, Rectangle bounds,
-            Color lineColor, int gridSize = 20)
+            Color lineColor, int gridSize = 20, GraphicsPath clipPath = null)
         {
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
             var prevMode = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.None;
 
-            var pen = PaintersFactory.GetPen(lineColor, 1f);
-            
-            // Vertical lines
-            for (int x = bounds.Left; x < bounds.Right; x += gridSize)
+            using (var clip = new ClipScope(g, clipPath))
             {
-                g.DrawLine(pen, x, bounds.Top, x, bounds.Bottom);
-            }
-            
-            // Horizontal lines
-            for (int y = bounds.Top; y < bounds.Bottom; y += gridSize)
-            {
-                g.DrawLine(pen, bounds.Left, y, bounds.Right, y);
+                var pen = PaintersFactory.GetPen(lineColor, 1f);
+
+                for (int x = bounds.Left; x < bounds.Right; x += gridSize)
+                {
+                    g.DrawLine(pen, x, bounds.Top, x, bounds.Bottom);
+                }
+
+                for (int y = bounds.Top; y < bounds.Bottom; y += gridSize)
+                {
+                    g.DrawLine(pen, bounds.Left, y, bounds.Right, y);
+                }
             }
 
             g.SmoothingMode = prevMode;
@@ -470,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// Paint accent stripe on edge (Ubuntu/branded designs)
         /// </summary>
         public static void PaintAccentStripe(Graphics g, Rectangle bounds,
-            Color accentColor, StripeSide side, int width = 4)
+            Color accentColor, StripeSide side, int width = 4, GraphicsPath clipPath = null)
         {
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0) return;
 
@@ -490,8 +516,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             if (stripeRect.Width > 0 && stripeRect.Height > 0)
             {
-                var brush = PaintersFactory.GetSolidBrush(accentColor);
-                g.FillRectangle(brush, stripeRect);
+                using (var clip = new ClipScope(g, clipPath))
+                {
+                    var brush = PaintersFactory.GetSolidBrush(accentColor);
+                    g.FillRectangle(brush, stripeRect);
+                }
             }
         }
 
@@ -529,17 +558,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         {
             private readonly Graphics _graphics;
             private readonly GraphicsState _state;
+            private readonly bool _active;
 
             public ClipScope(Graphics graphics, GraphicsPath clipPath)
             {
                 _graphics = graphics;
-                _state = graphics.Save();
-                graphics.SetClip(clipPath, CombineMode.Intersect);
+                if (clipPath != null && clipPath.PointCount > 0)
+                {
+                    _state = graphics.Save();
+                    graphics.SetClip(clipPath, CombineMode.Intersect);
+                    _active = true;
+                }
+                else
+                {
+                    _state = null;
+                    _active = false;
+                }
             }
 
             public void Dispose()
             {
-                _graphics.Restore(_state);
+                if (_active && _graphics != null)
+                {
+                    _graphics.Restore(_state);
+                }
             }
         }
 

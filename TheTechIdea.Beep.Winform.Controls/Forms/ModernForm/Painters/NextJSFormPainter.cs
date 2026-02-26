@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.NextJS, owner);
+            return FormPainterMetrics.DefaultForCached(FormStyle.NextJS, owner);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // Thin border with subtle gradient accent
             using var pen = new Pen(Color.FromArgb(220, 220, 220), 1f);
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = owner.BorderShape;
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             g.Clip = new Region(path);
             g.Clip = originalClip;
 
@@ -404,15 +404,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 layout.SearchBoxRect = Rectangle.Empty;
             }
             
-            int iconSize = DpiScalingHelper.ScaleValue(16, dpiScale);
+            int iconSize    = DpiScalingHelper.ScaleValue(16, dpiScale);
             int iconPadding = DpiScalingHelper.ScaleValue(8, dpiScale);
-            layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
+            int iconY       = (captionHeight - iconSize) / 2;
+            var cornerRadiusNJS = GetCornerRadius(owner);
+            int safeIconXNJS = FormPainterMetrics.GetCaptionLeftSafeX(
+                cornerRadiusNJS.TopLeft, iconY + iconSize / 2, iconSize / 2) + 2;
+            int adjustedIconPadding = Math.Max(iconPadding, safeIconXNJS);
+
+            layout.IconRect = new Rectangle(adjustedIconPadding, iconY, iconSize, iconSize);
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             
-            var titleX = iconPadding + iconSize + iconPadding;
-            var titleWidth = buttonX - titleX - iconPadding;
+            var titleX     = adjustedIconPadding + iconSize + iconPadding;
+            var titleWidth = Math.Max(0, buttonX - titleX - iconPadding);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
+
+            // Expose safe corner insets for child controls
+            int bottomRadius = Math.Max(cornerRadiusNJS.BottomLeft, cornerRadiusNJS.BottomRight);
+            layout.SafeContentInsets = new System.Windows.Forms.Padding(
+                left:   bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadiusNJS.BottomLeft,  layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                top:    0,
+                right:  bottomRadius > 0 ? FormPainterMetrics.GetCaptionLeftSafeX(cornerRadiusNJS.BottomRight, layout.ContentRect.Height, layout.ContentRect.Height / 2) : 0,
+                bottom: bottomRadius
+            );
             
             owner.CurrentLayout = layout;
         }

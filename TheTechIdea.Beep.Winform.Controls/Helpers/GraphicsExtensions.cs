@@ -163,7 +163,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 // Strategy 2: Rounded Rectangle (typically 8+ points with arcs)
                 if (pointCount >= 8 && HasArcs(originalPath) && IsRoundedRectangle(originalPath))
                 {
-                    float newRadius = Math.Max(0f, radius - inset);
+                    int effectiveRadius = radius;
+                    if (effectiveRadius == 0)
+                    {
+                        effectiveRadius = (int)DetectRadiusFromRoundedRectPath(originalPath, bounds);
+                    }
+                    float newRadius = Math.Max(0f, effectiveRadius - inset);
                     RectangleF innerRectF = RectangleF.Inflate(bounds, -inset, -inset);
                     Rectangle innerRect = Rectangle.Round(innerRectF);
                     if (innerRect.Width > 0 && innerRect.Height > 0)
@@ -391,6 +396,78 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
             // Check for arc segments in the path data
             return HasArcs(path);
+        }
+
+        /// <summary>
+        /// Detects the corner radius from a GDI+ rounded rectangle path.
+        /// Standard rounded rect paths start with a 180-270 arc at top-left;
+        /// the first point sits at (bounds.X, bounds.Y + radius).
+        /// Falls back to examining Bezier control-point span when the simple
+        /// heuristic cannot determine the radius.
+        /// </summary>
+        internal static float DetectRadiusFromRoundedRectPath(GraphicsPath path, RectangleF bounds = default)
+        {
+            if (path == null || path.PointCount < 8)
+                return 0f;
+
+            try
+            {
+                var points = path.PathPoints;
+                if (bounds == default)
+                    bounds = path.GetBounds();
+
+                if (bounds.Width <= 0 || bounds.Height <= 0)
+                    return 0f;
+
+                float radiusFromY = points[0].Y - bounds.Y;
+                if (radiusFromY > 0.5f && radiusFromY <= Math.Min(bounds.Width, bounds.Height) / 2f)
+                    return radiusFromY;
+
+                float radiusFromX = points[0].X - bounds.X;
+                if (radiusFromX > 0.5f && radiusFromX <= Math.Min(bounds.Width, bounds.Height) / 2f)
+                    return radiusFromX;
+
+                var types = path.PathTypes;
+                int firstBezierStart = -1;
+                int firstBezierEnd = -1;
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if ((types[i] & 0x07) == 3)
+                    {
+                        if (firstBezierStart < 0)
+                            firstBezierStart = Math.Max(0, i - 1);
+                        firstBezierEnd = i;
+                    }
+                    else if (firstBezierEnd > 0)
+                    {
+                        break;
+                    }
+                }
+
+                if (firstBezierStart >= 0 && firstBezierEnd > firstBezierStart)
+                {
+                    float minX = float.MaxValue, maxX = float.MinValue;
+                    float minY = float.MaxValue, maxY = float.MinValue;
+                    for (int i = firstBezierStart; i <= firstBezierEnd; i++)
+                    {
+                        minX = Math.Min(minX, points[i].X);
+                        maxX = Math.Max(maxX, points[i].X);
+                        minY = Math.Min(minY, points[i].Y);
+                        maxY = Math.Max(maxY, points[i].Y);
+                    }
+                    float spanX = maxX - minX;
+                    float spanY = maxY - minY;
+                    float estimatedRadius = Math.Max(spanX, spanY);
+                    float maxAllowed = Math.Min(bounds.Width, bounds.Height) / 2f;
+                    if (estimatedRadius > 0.5f && estimatedRadius <= maxAllowed)
+                        return estimatedRadius;
+                }
+            }
+            catch
+            {
+                // Swallow and return 0
+            }
+            return 0f;
         }
 
         /// <summary>

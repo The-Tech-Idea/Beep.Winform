@@ -32,22 +32,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Cel-shading inspired top highlight
-            float highlightHeight = bounds.Height / 4f;
-            if (highlightHeight > 2)
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
             {
-                var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, highlightHeight);
-                var topGrad = PaintersFactory.GetLinearGradientBrush(
-                    topRect, 
-                    Color.FromArgb(35, Color.White), 
-                    Color.Transparent, 
-                    LinearGradientMode.Vertical);
-                g.FillRectangle(topGrad, topRect);
-            }
+                // Cel-shading inspired top highlight
+                float highlightHeight = bounds.Height / 4f;
+                if (highlightHeight > 2)
+                {
+                    var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, highlightHeight);
+                    var topGrad = PaintersFactory.GetLinearGradientBrush(
+                        topRect,
+                        Color.FromArgb(35, Color.White),
+                        Color.Transparent,
+                        LinearGradientMode.Vertical);
+                    g.FillRectangle(topGrad, topRect);
+                }
 
-            // Cartoon outline hint (characteristic of cel-shading)
-            var pen = PaintersFactory.GetPen(Color.FromArgb(25, accent), 1f);
-            g.DrawPath(pen, path);
+                if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style))
+                {
+                    // Cartoon outline hint (characteristic of cel-shading)
+                    var pen = PaintersFactory.GetPen(Color.FromArgb(25, accent), 1f);
+                    g.DrawPath(pen, path);
+                }
+            }
         }
     }
 }

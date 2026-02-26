@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BorderPainterHelpers.PaintGlowBorder(g, path, neonColor, glowWidth, glowIntensity);
 
             // Return area inside border so content paths are inset correctly
-            return path.CreateInsetPath(borderWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

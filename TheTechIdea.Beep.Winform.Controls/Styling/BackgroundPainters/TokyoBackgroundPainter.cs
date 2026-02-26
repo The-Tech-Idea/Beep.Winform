@@ -34,20 +34,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Top glow effect (neon ambient light)
             int glowHeight = Math.Min(80, (int)(bounds.Height * 0.4f));
-            if (glowHeight > 5)
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
             {
-                var glowRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, glowHeight);
-                var glow = PaintersFactory.GetLinearGradientBrush(
-                    glowRect, 
-                    Color.FromArgb(25, accent), 
-                    Color.Transparent, 
-                    LinearGradientMode.Vertical);
-                g.FillRectangle(glow, glowRect);
-            }
+                if (glowHeight > 5)
+                {
+                    var glowRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, glowHeight);
+                    var glow = PaintersFactory.GetLinearGradientBrush(
+                        glowRect,
+                        Color.FromArgb(25, accent),
+                        Color.Transparent,
+                        LinearGradientMode.Vertical);
+                    g.FillRectangle(glow, glowRect);
+                }
 
-            // Neon accent line at top
-            var neonPen = PaintersFactory.GetPen(Color.FromArgb(60, accent), 1.5f);
-            g.DrawLine(neonPen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
+                // Neon accent line at top
+                var neonPen = PaintersFactory.GetPen(Color.FromArgb(60, accent), 1.5f);
+                g.DrawLine(neonPen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
+            }
 
             // Subtle scanlines (cyberpunk feel)
             var rectBounds = Rectangle.Round(bounds);

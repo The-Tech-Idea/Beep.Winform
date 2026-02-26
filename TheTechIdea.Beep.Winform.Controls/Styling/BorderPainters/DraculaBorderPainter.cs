@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float bw = StyleBorders.GetBorderWidth(style);
             if (bw <= 0f) return path;
             BorderPainterHelpers.PaintSimpleBorder(g, path, outline, bw, state);
-            return path.CreateInsetPath(bw + 2f);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, bw, 2f);
         }
     }
 }

@@ -244,20 +244,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ApplyThemeToChilds = true;
             CancelbeepButton.AutoDrawHitListComponents = true;
             CancelbeepButton.AutoSizeContent = false;
-            CancelbeepButton.BackColor = Color.FromArgb(255, 244, 229);
+            CancelbeepButton.BackColor = SystemColors.Control;
             CancelbeepButton.BadgeBackColor = Color.Red;
             CancelbeepButton.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             CancelbeepButton.BadgeForeColor = Color.White;
             CancelbeepButton.BadgeShape = BadgeShape.Circle;
             CancelbeepButton.BadgeText = "";
             CancelbeepButton.BlockID = null;
-            CancelbeepButton.BorderColor = Color.FromArgb(210, 180, 140);
+            CancelbeepButton.BorderColor = Color.FromArgb(121, 116, 126);
             CancelbeepButton.BorderDashStyle = DashStyle.Solid;
-            CancelbeepButton.BorderPainter = BeepControlStyle.None;
+            CancelbeepButton.BorderPainter = BeepControlStyle.MaterialYou;
             graphicsPath1.FillMode = FillMode.Alternate;
             CancelbeepButton.BorderPath = graphicsPath1;
-            CancelbeepButton.BorderRadius = 8;
-            CancelbeepButton.BorderRect = new Rectangle(0, 0, 133, 45);
+            CancelbeepButton.BorderRadius = 4;
+            CancelbeepButton.BorderRect = new Rectangle(12, 12, 109, 21);
             CancelbeepButton.BorderSize = 1;
             CancelbeepButton.BorderStyle = BorderStyle.FixedSingle;
             CancelbeepButton.BorderThickness = 0;
@@ -278,13 +278,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath2.FillMode = FillMode.Alternate;
             CancelbeepButton.ContentShape = graphicsPath2;
+            CancelbeepButton.ControlStyle = BeepControlStyle.MaterialYou;
             CancelbeepButton.CustomPadding = new Padding(0);
             CancelbeepButton.DataContext = null;
             CancelbeepButton.DataSourceProperty = null;
             CancelbeepButton.DisabledBackColor = Color.FromArgb(210, 180, 140, 140);
             CancelbeepButton.DisabledBorderColor = Color.Gray;
             CancelbeepButton.DisabledForeColor = Color.FromArgb(169, 169, 169);
-            CancelbeepButton.DrawingRect = new Rectangle(0, 0, 133, 45);
+            CancelbeepButton.DrawingRect = new Rectangle(12, 12, 109, 21);
             CancelbeepButton.Easing = EasingType.Linear;
             CancelbeepButton.EnableHighQualityRendering = true;
             CancelbeepButton.EnableMaterialStyle = false;
@@ -300,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.FocusBorderColor = Color.RoyalBlue;
             CancelbeepButton.FocusForeColor = Color.FromArgb(60, 30, 10);
             CancelbeepButton.FocusIndicatorColor = Color.RoyalBlue;
-            CancelbeepButton.Font = new Font("Arial", 12.5F);
+            CancelbeepButton.Font = new Font("Segoe UI", 14F);
             CancelbeepButton.ForeColor = Color.FromArgb(101, 67, 33);
             CancelbeepButton.Form = null;
             CancelbeepButton.GlassmorphismBlur = 10F;
@@ -334,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.IsAcceptButton = false;
             CancelbeepButton.IsBorderAffectedByTheme = true;
             CancelbeepButton.IsCancelButton = false;
-            CancelbeepButton.IsChild = false;
+            CancelbeepButton.IsChild = true;
             CancelbeepButton.IsColorFromTheme = true;
             CancelbeepButton.IsCustomeBorder = false;
             CancelbeepButton.IsDefault = false;
@@ -367,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.LeadingImagePath = "";
             CancelbeepButton.LeftoffsetForDrawingRect = 0;
             CancelbeepButton.LinkedProperty = null;
-            CancelbeepButton.Location = new Point(110, 287);
+            CancelbeepButton.Location = new Point(110, 285);
             CancelbeepButton.Margin = new Padding(0);
             CancelbeepButton.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             CancelbeepButton.MaxHitListDrawPerFrame = 0;
@@ -377,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.OuterShape = null;
             CancelbeepButton.OverrideFontSize = TypeStyleFontSize.None;
             CancelbeepButton.PainterKind = BaseControlPainterKind.Classic;
-            CancelbeepButton.ParentBackColor = Color.Empty;
+            CancelbeepButton.ParentBackColor = SystemColors.Control;
             CancelbeepButton.ParentControl = null;
             CancelbeepButton.PopPosition = BeepPopupFormPosition.Bottom;
             CancelbeepButton.PopupListForm = null;
@@ -418,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.TempBackColor = Color.LightGray;
             CancelbeepButton.Text = "Cancel";
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
-            CancelbeepButton.TextFont = new Font("Segoe UI", 14F);
+            CancelbeepButton.TextFont = new Font("Segoe UI", 8F);
             CancelbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
             CancelbeepButton.Theme = "DesertTheme";
             CancelbeepButton.TooltipFont = null;
@@ -500,7 +501,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.FocusBorderColor = Color.RoyalBlue;
             SavebeepButton.FocusForeColor = Color.FromArgb(60, 30, 10);
             SavebeepButton.FocusIndicatorColor = Color.RoyalBlue;
-            SavebeepButton.Font = new Font("Arial", 12.5F);
+            SavebeepButton.Font = new Font("Segoe UI", 14F);
             SavebeepButton.ForeColor = Color.FromArgb(101, 67, 33);
             SavebeepButton.Form = null;
             SavebeepButton.GlassmorphismBlur = 10F;
@@ -618,7 +619,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.TempBackColor = Color.LightGray;
             SavebeepButton.Text = "Save";
             SavebeepButton.TextAlign = ContentAlignment.MiddleCenter;
-            SavebeepButton.TextFont = new Font("Segoe UI", 14F);
+            SavebeepButton.TextFont = new Font("Segoe UI", 8F);
             SavebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
             SavebeepButton.Theme = "DesertTheme";
             SavebeepButton.TooltipFont = null;
@@ -655,7 +656,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             // 
             SystemFolderbeepComboBox.BeepContextMenu.BorderColor = Color.FromArgb(210, 180, 140);
-            SystemFolderbeepComboBox.BeepContextMenu.ClientSize = new Size(194, 0);
+            SystemFolderbeepComboBox.BeepContextMenu.ClientSize = new Size(218, 23);
             SystemFolderbeepComboBox.BeepContextMenu.ContextMenuType = FormStyle.Modern;
             cornerRadius1.BottomLeft = 8;
             cornerRadius1.BottomRight = 8;
@@ -726,7 +727,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.BackgroundColor = Color.FromArgb(252, 243, 221);
             desertTheme1.BadgeBackColor = Color.FromArgb(210, 180, 140);
             typographyStyle4.FontFamily = "Segoe UI";
-            typographyStyle4.FontSize = 10F;
+            typographyStyle4.FontSize = 8F;
             typographyStyle4.FontStyle = FontStyle.Regular;
             typographyStyle4.FontWeight = FontWeight.Bold;
             typographyStyle4.IsStrikeout = false;
@@ -737,7 +738,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.BadgeFont = typographyStyle4;
             desertTheme1.BadgeForeColor = Color.FromArgb(60, 30, 10);
             typographyStyle5.FontFamily = "Segoe UI Italic";
-            typographyStyle5.FontSize = 14F;
+            typographyStyle5.FontSize = 10F;
             typographyStyle5.FontStyle = FontStyle.Italic;
             typographyStyle5.FontWeight = FontWeight.Light;
             typographyStyle5.IsStrikeout = false;
@@ -750,7 +751,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.BlockquoteBorderWidth = 3F;
             desertTheme1.BlockquotePadding = 10F;
             typographyStyle6.FontFamily = "Segoe UI";
-            typographyStyle6.FontSize = 16F;
+            typographyStyle6.FontSize = 12F;
             typographyStyle6.FontStyle = FontStyle.Regular;
             typographyStyle6.FontWeight = FontWeight.Normal;
             typographyStyle6.IsStrikeout = false;
@@ -760,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle6.TextColor = Color.FromArgb(111, 85, 60);
             desertTheme1.BodyLarge = typographyStyle6;
             typographyStyle7.FontFamily = "Segoe UI";
-            typographyStyle7.FontSize = 14F;
+            typographyStyle7.FontSize = 10F;
             typographyStyle7.FontStyle = FontStyle.Regular;
             typographyStyle7.FontWeight = FontWeight.Normal;
             typographyStyle7.IsStrikeout = false;
@@ -770,7 +771,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle7.TextColor = Color.FromArgb(120, 90, 60);
             desertTheme1.BodyMedium = typographyStyle7;
             typographyStyle8.FontFamily = "Segoe UI";
-            typographyStyle8.FontSize = 12F;
+            typographyStyle8.FontSize = 8F;
             typographyStyle8.FontStyle = FontStyle.Regular;
             typographyStyle8.FontWeight = FontWeight.Light;
             typographyStyle8.IsStrikeout = false;
@@ -780,7 +781,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle8.TextColor = Color.FromArgb(140, 105, 75);
             desertTheme1.BodySmall = typographyStyle8;
             typographyStyle9.FontFamily = "Segoe UI";
-            typographyStyle9.FontSize = 14F;
+            typographyStyle9.FontSize = 8F;
             typographyStyle9.FontStyle = FontStyle.Regular;
             typographyStyle9.FontWeight = FontWeight.Normal;
             typographyStyle9.IsStrikeout = false;
@@ -798,7 +799,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ButtonErrorBorderColor = Color.FromArgb(139, 0, 0);
             desertTheme1.ButtonErrorForeColor = Color.White;
             typographyStyle10.FontFamily = "Segoe UI";
-            typographyStyle10.FontSize = 10F;
+            typographyStyle10.FontSize = 8F;
             typographyStyle10.FontStyle = FontStyle.Regular;
             typographyStyle10.FontWeight = FontWeight.Normal;
             typographyStyle10.IsStrikeout = false;
@@ -811,7 +812,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ButtonHoverBackColor = Color.FromArgb(222, 184, 135);
             desertTheme1.ButtonHoverBorderColor = Color.FromArgb(184, 134, 11);
             typographyStyle11.FontFamily = "Segoe UI";
-            typographyStyle11.FontSize = 10F;
+            typographyStyle11.FontSize = 8F;
             typographyStyle11.FontStyle = FontStyle.Regular;
             typographyStyle11.FontWeight = FontWeight.Bold;
             typographyStyle11.IsStrikeout = false;
@@ -827,7 +828,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ButtonSelectedBackColor = Color.FromArgb(244, 164, 96);
             desertTheme1.ButtonSelectedBorderColor = Color.FromArgb(210, 105, 30);
             typographyStyle12.FontFamily = "Segoe UI";
-            typographyStyle12.FontSize = 10F;
+            typographyStyle12.FontSize = 8F;
             typographyStyle12.FontStyle = FontStyle.Regular;
             typographyStyle12.FontWeight = FontWeight.Bold;
             typographyStyle12.IsStrikeout = false;
@@ -841,7 +842,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ButtonSelectedHoverBorderColor = Color.FromArgb(139, 69, 19);
             desertTheme1.ButtonSelectedHoverForeColor = Color.FromArgb(60, 30, 10);
             typographyStyle13.FontFamily = "Segoe UI";
-            typographyStyle13.FontSize = 14F;
+            typographyStyle13.FontSize = 8F;
             typographyStyle13.FontStyle = FontStyle.Regular;
             typographyStyle13.FontWeight = FontWeight.SemiBold;
             typographyStyle13.IsStrikeout = false;
@@ -860,7 +861,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CalendarSelectedDateBackColor = Color.FromArgb(244, 164, 96);
             desertTheme1.CalendarSelectedDateForColor = Color.FromArgb(60, 30, 10);
             typographyStyle14.FontFamily = "Segoe UI";
-            typographyStyle14.FontSize = 10F;
+            typographyStyle14.FontSize = 8F;
             typographyStyle14.FontStyle = FontStyle.Regular;
             typographyStyle14.FontWeight = FontWeight.Bold;
             typographyStyle14.IsStrikeout = false;
@@ -882,7 +883,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CalendarTitleForColor = Color.FromArgb(139, 69, 19);
             desertTheme1.CalendarTodayForeColor = Color.FromArgb(160, 82, 45);
             typographyStyle16.FontFamily = "Segoe UI";
-            typographyStyle16.FontSize = 10F;
+            typographyStyle16.FontSize = 8F;
             typographyStyle16.FontStyle = FontStyle.Regular;
             typographyStyle16.FontWeight = FontWeight.Normal;
             typographyStyle16.IsStrikeout = false;
@@ -892,7 +893,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle16.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.CalendarUnSelectedFont = typographyStyle16;
             typographyStyle17.FontFamily = "Segoe UI";
-            typographyStyle17.FontSize = 12F;
+            typographyStyle17.FontSize = 8F;
             typographyStyle17.FontStyle = FontStyle.Italic;
             typographyStyle17.FontWeight = FontWeight.Light;
             typographyStyle17.IsStrikeout = false;
@@ -949,7 +950,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CardSubTitleStyle = typographyStyle21;
             desertTheme1.CardTextForeColor = Color.FromArgb(92, 64, 51);
             typographyStyle22.FontFamily = "Segoe UI Semibold";
-            typographyStyle22.FontSize = 16F;
+            typographyStyle22.FontSize = 14F;
             typographyStyle22.FontStyle = FontStyle.Regular;
             typographyStyle22.FontWeight = FontWeight.Bold;
             typographyStyle22.IsStrikeout = false;
@@ -969,7 +970,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ChartLegendTextColor = Color.FromArgb(133, 94, 66);
             desertTheme1.ChartLineColor = Color.FromArgb(150, 75, 0);
             typographyStyle23.FontFamily = "Segoe UI";
-            typographyStyle23.FontSize = 14F;
+            typographyStyle23.FontSize = 12F;
             typographyStyle23.FontStyle = FontStyle.Regular;
             typographyStyle23.FontWeight = FontWeight.Normal;
             typographyStyle23.IsStrikeout = false;
@@ -981,7 +982,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ChartTextColor = Color.FromArgb(92, 64, 51);
             desertTheme1.ChartTitleColor = Color.FromArgb(111, 78, 55);
             typographyStyle24.FontFamily = "Segoe UI Semibold";
-            typographyStyle24.FontSize = 18F;
+            typographyStyle24.FontSize = 14F;
             typographyStyle24.FontStyle = FontStyle.Regular;
             typographyStyle24.FontWeight = FontWeight.Bold;
             typographyStyle24.IsStrikeout = false;
@@ -995,7 +996,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CheckBoxCheckedBackColor = Color.FromArgb(210, 180, 140);
             desertTheme1.CheckBoxCheckedBorderColor = Color.FromArgb(160, 82, 45);
             typographyStyle25.FontFamily = "Segoe UI";
-            typographyStyle25.FontSize = 10F;
+            typographyStyle25.FontSize = 8F;
             typographyStyle25.FontStyle = FontStyle.Regular;
             typographyStyle25.FontWeight = FontWeight.Bold;
             typographyStyle25.IsStrikeout = false;
@@ -1006,7 +1007,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CheckBoxCheckedFont = typographyStyle25;
             desertTheme1.CheckBoxCheckedForeColor = Color.FromArgb(111, 78, 55);
             typographyStyle26.FontFamily = "Segoe UI";
-            typographyStyle26.FontSize = 10F;
+            typographyStyle26.FontSize = 8F;
             typographyStyle26.FontStyle = FontStyle.Regular;
             typographyStyle26.FontWeight = FontWeight.Normal;
             typographyStyle26.IsStrikeout = false;
@@ -1022,7 +1023,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CheckBoxSelectedBackColor = Color.FromArgb(201, 144, 66);
             desertTheme1.CheckBoxSelectedForeColor = Color.White;
             typographyStyle27.FontFamily = "Consolas";
-            typographyStyle27.FontSize = 13F;
+            typographyStyle27.FontSize = 8F;
             typographyStyle27.FontStyle = FontStyle.Regular;
             typographyStyle27.FontWeight = FontWeight.Normal;
             typographyStyle27.IsStrikeout = false;
@@ -1044,7 +1045,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ComboBoxHoverBorderColor = Color.FromArgb(201, 144, 66);
             desertTheme1.ComboBoxHoverForeColor = Color.FromArgb(56, 44, 21);
             typographyStyle28.FontFamily = "Segoe UI";
-            typographyStyle28.FontSize = 10F;
+            typographyStyle28.FontSize = 8F;
             typographyStyle28.FontStyle = FontStyle.Regular;
             typographyStyle28.FontWeight = FontWeight.Normal;
             typographyStyle28.IsStrikeout = false;
@@ -1054,7 +1055,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle28.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.ComboBoxItemFont = typographyStyle28;
             typographyStyle29.FontFamily = "Segoe UI";
-            typographyStyle29.FontSize = 10F;
+            typographyStyle29.FontSize = 8F;
             typographyStyle29.FontStyle = FontStyle.Regular;
             typographyStyle29.FontWeight = FontWeight.Normal;
             typographyStyle29.IsStrikeout = false;
@@ -1068,7 +1069,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ComboBoxSelectedForeColor = Color.White;
             desertTheme1.CompanyButtonBackgroundColor = Color.FromArgb(191, 140, 75);
             typographyStyle30.FontFamily = "Segoe UI";
-            typographyStyle30.FontSize = 11F;
+            typographyStyle30.FontSize = 8F;
             typographyStyle30.FontStyle = FontStyle.Regular;
             typographyStyle30.FontWeight = FontWeight.Bold;
             typographyStyle30.IsStrikeout = false;
@@ -1080,7 +1081,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CompanyButtonTextColor = Color.White;
             desertTheme1.CompanyDescriptionColor = Color.FromArgb(135, 108, 78);
             typographyStyle31.FontFamily = "Segoe UI";
-            typographyStyle31.FontSize = 10F;
+            typographyStyle31.FontSize = 8F;
             typographyStyle31.FontStyle = FontStyle.Regular;
             typographyStyle31.FontWeight = FontWeight.Normal;
             typographyStyle31.IsStrikeout = false;
@@ -1093,7 +1094,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CompanyDropdownTextColor = Color.FromArgb(92, 60, 22);
             desertTheme1.CompanyLinkColor = Color.FromArgb(178, 117, 61);
             typographyStyle32.FontFamily = "Segoe UI";
-            typographyStyle32.FontSize = 10F;
+            typographyStyle32.FontSize = 8F;
             typographyStyle32.FontStyle = FontStyle.Regular;
             typographyStyle32.FontWeight = FontWeight.Normal;
             typographyStyle32.IsStrikeout = false;
@@ -1117,7 +1118,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.CompanySubTitleFont = typographyStyle33;
             desertTheme1.CompanyTitleColor = Color.FromArgb(92, 60, 22);
             typographyStyle34.FontFamily = "Segoe UI";
-            typographyStyle34.FontSize = 16F;
+            typographyStyle34.FontSize = 14F;
             typographyStyle34.FontStyle = FontStyle.Regular;
             typographyStyle34.FontWeight = FontWeight.Bold;
             typographyStyle34.IsStrikeout = false;
@@ -1135,7 +1136,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DashboardGradiantStartColor = Color.FromArgb(255, 248, 220);
             desertTheme1.DashboardSubTitleBackColor = Color.FromArgb(210, 180, 140);
             typographyStyle35.FontFamily = "Segoe UI";
-            typographyStyle35.FontSize = 14F;
+            typographyStyle35.FontSize = 12F;
             typographyStyle35.FontStyle = FontStyle.Regular;
             typographyStyle35.FontWeight = FontWeight.Normal;
             typographyStyle35.IsStrikeout = false;
@@ -1157,7 +1158,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DashboardSubTitleStyle = typographyStyle36;
             desertTheme1.DashboardTitleBackColor = Color.FromArgb(210, 180, 140);
             typographyStyle37.FontFamily = "Segoe UI Semibold";
-            typographyStyle37.FontSize = 20F;
+            typographyStyle37.FontSize = 14F;
             typographyStyle37.FontStyle = FontStyle.Regular;
             typographyStyle37.FontWeight = FontWeight.Bold;
             typographyStyle37.IsStrikeout = false;
@@ -1178,7 +1179,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle38.TextColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DashboardTitleStyle = typographyStyle38;
             typographyStyle39.FontFamily = "Segoe UI";
-            typographyStyle39.FontSize = 10F;
+            typographyStyle39.FontSize = 8F;
             typographyStyle39.FontStyle = FontStyle.Regular;
             typographyStyle39.FontWeight = FontWeight.Normal;
             typographyStyle39.IsStrikeout = false;
@@ -1188,7 +1189,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle39.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.DateFont = typographyStyle39;
             typographyStyle40.FontFamily = "Segoe UI";
-            typographyStyle40.FontSize = 10F;
+            typographyStyle40.FontSize = 8F;
             typographyStyle40.FontStyle = FontStyle.Regular;
             typographyStyle40.FontWeight = FontWeight.Normal;
             typographyStyle40.IsStrikeout = false;
@@ -1198,7 +1199,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle40.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.DaysFont = typographyStyle40;
             typographyStyle41.FontFamily = "Segoe UI";
-            typographyStyle41.FontSize = 10F;
+            typographyStyle41.FontSize = 8F;
             typographyStyle41.FontStyle = FontStyle.Regular;
             typographyStyle41.FontWeight = FontWeight.Bold;
             typographyStyle41.IsStrikeout = false;
@@ -1208,7 +1209,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle41.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.DaysHeaderFont = typographyStyle41;
             typographyStyle42.FontFamily = "Segoe UI";
-            typographyStyle42.FontSize = 10F;
+            typographyStyle42.FontSize = 8F;
             typographyStyle42.FontStyle = FontStyle.Regular;
             typographyStyle42.FontWeight = FontWeight.Bold;
             typographyStyle42.IsStrikeout = false;
@@ -1220,7 +1221,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogBackColor = Color.FromArgb(255, 250, 240);
             desertTheme1.DialogCancelButtonBackColor = Color.FromArgb(205, 133, 63);
             typographyStyle43.FontFamily = "Segoe UI";
-            typographyStyle43.FontSize = 10F;
+            typographyStyle43.FontSize = 8F;
             typographyStyle43.FontStyle = FontStyle.Regular;
             typographyStyle43.FontWeight = FontWeight.Bold;
             typographyStyle43.IsStrikeout = false;
@@ -1235,7 +1236,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogCancelButtonHoverForeColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DialogCloseButtonBackColor = Color.FromArgb(188, 143, 143);
             typographyStyle44.FontFamily = "Segoe UI";
-            typographyStyle44.FontSize = 10F;
+            typographyStyle44.FontSize = 8F;
             typographyStyle44.FontStyle = FontStyle.Regular;
             typographyStyle44.FontWeight = FontWeight.Bold;
             typographyStyle44.IsStrikeout = false;
@@ -1250,7 +1251,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogCloseButtonHoverForeColor = Color.White;
             desertTheme1.DialogErrorButtonBackColor = Color.FromArgb(178, 34, 34);
             typographyStyle45.FontFamily = "Segoe UI";
-            typographyStyle45.FontSize = 10F;
+            typographyStyle45.FontSize = 8F;
             typographyStyle45.FontStyle = FontStyle.Regular;
             typographyStyle45.FontWeight = FontWeight.Bold;
             typographyStyle45.IsStrikeout = false;
@@ -1266,7 +1267,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogForeColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DialogHelpButtonBackColor = Color.FromArgb(244, 208, 132);
             typographyStyle46.FontFamily = "Segoe UI";
-            typographyStyle46.FontSize = 10F;
+            typographyStyle46.FontSize = 8F;
             typographyStyle46.FontStyle = FontStyle.Regular;
             typographyStyle46.FontWeight = FontWeight.Bold;
             typographyStyle46.IsStrikeout = false;
@@ -1277,7 +1278,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogHelpButtonFont = typographyStyle46;
             desertTheme1.DialogInformationButtonBackColor = Color.FromArgb(70, 130, 180);
             typographyStyle47.FontFamily = "Segoe UI";
-            typographyStyle47.FontSize = 10F;
+            typographyStyle47.FontSize = 8F;
             typographyStyle47.FontStyle = FontStyle.Regular;
             typographyStyle47.FontWeight = FontWeight.Bold;
             typographyStyle47.IsStrikeout = false;
@@ -1292,7 +1293,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogInformationButtonHoverForeColor = Color.White;
             desertTheme1.DialogNoButtonBackColor = Color.FromArgb(210, 180, 140);
             typographyStyle48.FontFamily = "Segoe UI";
-            typographyStyle48.FontSize = 10F;
+            typographyStyle48.FontSize = 8F;
             typographyStyle48.FontStyle = FontStyle.Regular;
             typographyStyle48.FontWeight = FontWeight.Bold;
             typographyStyle48.IsStrikeout = false;
@@ -1305,7 +1306,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogNoButtonHoverBackColor = Color.FromArgb(238, 214, 175);
             desertTheme1.DialogNoButtonHoverBorderColor = Color.FromArgb(184, 134, 11);
             typographyStyle49.FontFamily = "Segoe UI";
-            typographyStyle49.FontSize = 11F;
+            typographyStyle49.FontSize = 8F;
             typographyStyle49.FontStyle = FontStyle.Italic;
             typographyStyle49.FontWeight = FontWeight.Normal;
             typographyStyle49.IsStrikeout = false;
@@ -1317,7 +1318,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogNoButtonHoverForeColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DialogOkButtonBackColor = Color.FromArgb(222, 184, 135);
             typographyStyle50.FontFamily = "Segoe UI";
-            typographyStyle50.FontSize = 10F;
+            typographyStyle50.FontSize = 8F;
             typographyStyle50.FontStyle = FontStyle.Regular;
             typographyStyle50.FontWeight = FontWeight.Bold;
             typographyStyle50.IsStrikeout = false;
@@ -1330,7 +1331,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogOkButtonHoverBackColor = Color.FromArgb(255, 228, 181);
             desertTheme1.DialogOkButtonHoverBorderColor = Color.FromArgb(184, 134, 11);
             typographyStyle51.FontFamily = "Segoe UI";
-            typographyStyle51.FontSize = 11F;
+            typographyStyle51.FontSize = 8F;
             typographyStyle51.FontStyle = FontStyle.Italic;
             typographyStyle51.FontWeight = FontWeight.Normal;
             typographyStyle51.IsStrikeout = false;
@@ -1342,7 +1343,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogOkButtonHoverForeColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DialogQuestionButtonBackColor = Color.FromArgb(244, 208, 132);
             typographyStyle52.FontFamily = "Segoe UI";
-            typographyStyle52.FontSize = 10F;
+            typographyStyle52.FontSize = 8F;
             typographyStyle52.FontStyle = FontStyle.Regular;
             typographyStyle52.FontWeight = FontWeight.Bold;
             typographyStyle52.IsStrikeout = false;
@@ -1357,7 +1358,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogQuestionButtonHoverForeColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DialogWarningButtonBackColor = Color.FromArgb(255, 222, 173);
             typographyStyle53.FontFamily = "Segoe UI";
-            typographyStyle53.FontSize = 10F;
+            typographyStyle53.FontSize = 8F;
             typographyStyle53.FontStyle = FontStyle.Regular;
             typographyStyle53.FontWeight = FontWeight.Bold;
             typographyStyle53.IsStrikeout = false;
@@ -1372,7 +1373,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogWarningButtonHoverForeColor = Color.FromArgb(101, 67, 33);
             desertTheme1.DialogYesButtonBackColor = Color.FromArgb(210, 180, 140);
             typographyStyle54.FontFamily = "Segoe UI";
-            typographyStyle54.FontSize = 10F;
+            typographyStyle54.FontSize = 8F;
             typographyStyle54.FontStyle = FontStyle.Regular;
             typographyStyle54.FontWeight = FontWeight.Bold;
             typographyStyle54.IsStrikeout = false;
@@ -1385,7 +1386,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DialogYesButtonHoverBackColor = Color.FromArgb(244, 208, 132);
             desertTheme1.DialogYesButtonHoverBorderColor = Color.FromArgb(184, 134, 11);
             typographyStyle55.FontFamily = "Segoe UI";
-            typographyStyle55.FontSize = 11F;
+            typographyStyle55.FontSize = 8F;
             typographyStyle55.FontStyle = FontStyle.Italic;
             typographyStyle55.FontWeight = FontWeight.Normal;
             typographyStyle55.IsStrikeout = false;
@@ -1399,7 +1400,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.DisabledBorderColor = Color.FromArgb(205, 192, 176);
             desertTheme1.DisabledForeColor = Color.FromArgb(169, 169, 169);
             typographyStyle56.FontFamily = "Segoe UI";
-            typographyStyle56.FontSize = 40F;
+            typographyStyle56.FontSize = 44F;
             typographyStyle56.FontStyle = FontStyle.Regular;
             typographyStyle56.FontWeight = FontWeight.Bold;
             typographyStyle56.IsStrikeout = false;
@@ -1409,7 +1410,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle56.TextColor = Color.FromArgb(94, 57, 34);
             desertTheme1.DisplayLarge = typographyStyle56;
             typographyStyle57.FontFamily = "Segoe UI";
-            typographyStyle57.FontSize = 32F;
+            typographyStyle57.FontSize = 34F;
             typographyStyle57.FontStyle = FontStyle.Regular;
             typographyStyle57.FontWeight = FontWeight.Bold;
             typographyStyle57.IsStrikeout = false;
@@ -1419,7 +1420,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle57.TextColor = Color.FromArgb(112, 73, 42);
             desertTheme1.DisplayMedium = typographyStyle57;
             typographyStyle58.FontFamily = "Segoe UI";
-            typographyStyle58.FontSize = 24F;
+            typographyStyle58.FontSize = 26F;
             typographyStyle58.FontStyle = FontStyle.Regular;
             typographyStyle58.FontWeight = FontWeight.Bold;
             typographyStyle58.IsStrikeout = false;
@@ -1429,7 +1430,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle58.TextColor = Color.FromArgb(129, 89, 52);
             desertTheme1.DisplaySmall = typographyStyle58;
             typographyStyle59.FontFamily = "Segoe UI Italic";
-            typographyStyle59.FontSize = 14F;
+            typographyStyle59.FontSize = 8F;
             typographyStyle59.FontStyle = FontStyle.Italic;
             typographyStyle59.FontWeight = FontWeight.Normal;
             typographyStyle59.IsStrikeout = false;
@@ -1442,7 +1443,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.FocusIndicatorColor = Color.FromArgb(210, 105, 30);
             desertTheme1.FontFamily = "Segoe UI";
             desertTheme1.FontName = "Segoe UI";
-            desertTheme1.FontSize = 14F;
+            desertTheme1.FontSize = 8F;
             desertTheme1.FontSizeAnswer = 14F;
             desertTheme1.FontSizeBlockHeader = 24F;
             desertTheme1.FontSizeBlockText = 14F;
@@ -1453,7 +1454,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.FontStyleItalic = FontStyle.Italic;
             desertTheme1.FontStyleRegular = FontStyle.Regular;
             typographyStyle60.FontFamily = "Segoe UI";
-            typographyStyle60.FontSize = 10F;
+            typographyStyle60.FontSize = 8F;
             typographyStyle60.FontStyle = FontStyle.Italic;
             typographyStyle60.FontWeight = FontWeight.Normal;
             typographyStyle60.IsStrikeout = false;
@@ -1468,7 +1469,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.GradientStartColor = Color.FromArgb(250, 214, 165);
             desertTheme1.GridBackColor = Color.FromArgb(255, 244, 229);
             typographyStyle61.FontFamily = "Segoe UI";
-            typographyStyle61.FontSize = 10F;
+            typographyStyle61.FontSize = 8F;
             typographyStyle61.FontStyle = FontStyle.Italic;
             typographyStyle61.FontWeight = FontWeight.Normal;
             typographyStyle61.IsStrikeout = false;
@@ -1478,7 +1479,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle61.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.GridCellErrorFont = typographyStyle61;
             typographyStyle62.FontFamily = "Segoe UI";
-            typographyStyle62.FontSize = 10F;
+            typographyStyle62.FontSize = 8F;
             typographyStyle62.FontStyle = FontStyle.Regular;
             typographyStyle62.FontWeight = FontWeight.Normal;
             typographyStyle62.IsStrikeout = false;
@@ -1488,7 +1489,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle62.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.GridCellFont = typographyStyle62;
             typographyStyle63.FontFamily = "Segoe UI";
-            typographyStyle63.FontSize = 10F;
+            typographyStyle63.FontSize = 8F;
             typographyStyle63.FontStyle = FontStyle.Regular;
             typographyStyle63.FontWeight = FontWeight.Normal;
             typographyStyle63.IsStrikeout = false;
@@ -1498,7 +1499,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle63.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.GridCellHoverFont = typographyStyle63;
             typographyStyle64.FontFamily = "Segoe UI";
-            typographyStyle64.FontSize = 10F;
+            typographyStyle64.FontSize = 8F;
             typographyStyle64.FontStyle = FontStyle.Regular;
             typographyStyle64.FontWeight = FontWeight.Bold;
             typographyStyle64.IsStrikeout = false;
@@ -1508,7 +1509,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle64.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.GridCellSelectedFont = typographyStyle64;
             typographyStyle65.FontFamily = "Segoe UI";
-            typographyStyle65.FontSize = 11F;
+            typographyStyle65.FontSize = 8F;
             typographyStyle65.FontStyle = FontStyle.Regular;
             typographyStyle65.FontWeight = FontWeight.Bold;
             typographyStyle65.IsStrikeout = false;
@@ -1521,7 +1522,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.GridHeaderBackColor = Color.FromArgb(210, 180, 140);
             desertTheme1.GridHeaderBorderColor = Color.FromArgb(176, 141, 90);
             typographyStyle66.FontFamily = "Segoe UI";
-            typographyStyle66.FontSize = 11F;
+            typographyStyle66.FontSize = 8F;
             typographyStyle66.FontStyle = FontStyle.Regular;
             typographyStyle66.FontWeight = FontWeight.Bold;
             typographyStyle66.IsStrikeout = false;
@@ -1539,7 +1540,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.GridHeaderSelectedForeColor = Color.White;
             desertTheme1.GridLineColor = Color.FromArgb(210, 180, 140);
             typographyStyle67.FontFamily = "Segoe UI";
-            typographyStyle67.FontSize = 10F;
+            typographyStyle67.FontSize = 8F;
             typographyStyle67.FontStyle = FontStyle.Regular;
             typographyStyle67.FontWeight = FontWeight.Normal;
             typographyStyle67.IsStrikeout = false;
@@ -1555,7 +1556,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.GridRowSelectedBorderColor = Color.FromArgb(198, 134, 66);
             desertTheme1.GridRowSelectedForeColor = Color.White;
             typographyStyle68.FontFamily = "Segoe UI";
-            typographyStyle68.FontSize = 12F;
+            typographyStyle68.FontSize = 8F;
             typographyStyle68.FontStyle = FontStyle.Regular;
             typographyStyle68.FontWeight = FontWeight.Bold;
             typographyStyle68.IsStrikeout = false;
@@ -1565,7 +1566,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle68.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.HeaderFont = typographyStyle68;
             typographyStyle69.FontFamily = "Segoe UI";
-            typographyStyle69.FontSize = 32F;
+            typographyStyle69.FontSize = 22F;
             typographyStyle69.FontStyle = FontStyle.Regular;
             typographyStyle69.FontWeight = FontWeight.Bold;
             typographyStyle69.IsStrikeout = false;
@@ -1575,7 +1576,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle69.TextColor = Color.FromArgb(94, 57, 34);
             desertTheme1.Heading1 = typographyStyle69;
             typographyStyle70.FontFamily = "Segoe UI";
-            typographyStyle70.FontSize = 28F;
+            typographyStyle70.FontSize = 20F;
             typographyStyle70.FontStyle = FontStyle.Regular;
             typographyStyle70.FontWeight = FontWeight.Bold;
             typographyStyle70.IsStrikeout = false;
@@ -1585,7 +1586,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle70.TextColor = Color.FromArgb(112, 73, 42);
             desertTheme1.Heading2 = typographyStyle70;
             typographyStyle71.FontFamily = "Segoe UI";
-            typographyStyle71.FontSize = 24F;
+            typographyStyle71.FontSize = 18F;
             typographyStyle71.FontStyle = FontStyle.Regular;
             typographyStyle71.FontWeight = FontWeight.SemiBold;
             typographyStyle71.IsStrikeout = false;
@@ -1595,7 +1596,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle71.TextColor = Color.FromArgb(129, 89, 52);
             desertTheme1.Heading3 = typographyStyle71;
             typographyStyle72.FontFamily = "Segoe UI";
-            typographyStyle72.FontSize = 20F;
+            typographyStyle72.FontSize = 16F;
             typographyStyle72.FontStyle = FontStyle.Regular;
             typographyStyle72.FontWeight = FontWeight.Medium;
             typographyStyle72.IsStrikeout = false;
@@ -1605,7 +1606,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle72.TextColor = Color.FromArgb(147, 105, 62);
             desertTheme1.Heading4 = typographyStyle72;
             typographyStyle73.FontFamily = "Segoe UI";
-            typographyStyle73.FontSize = 18F;
+            typographyStyle73.FontSize = 14F;
             typographyStyle73.FontStyle = FontStyle.Regular;
             typographyStyle73.FontWeight = FontWeight.Medium;
             typographyStyle73.IsStrikeout = false;
@@ -1615,7 +1616,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle73.TextColor = Color.FromArgb(160, 114, 68);
             desertTheme1.Heading5 = typographyStyle73;
             typographyStyle74.FontFamily = "Segoe UI";
-            typographyStyle74.FontSize = 16F;
+            typographyStyle74.FontSize = 12F;
             typographyStyle74.FontStyle = FontStyle.Regular;
             typographyStyle74.FontWeight = FontWeight.Medium;
             typographyStyle74.IsStrikeout = false;
@@ -1625,7 +1626,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle74.TextColor = Color.FromArgb(173, 124, 74);
             desertTheme1.Heading6 = typographyStyle74;
             typographyStyle75.FontFamily = "Segoe UI";
-            typographyStyle75.FontSize = 20F;
+            typographyStyle75.FontSize = 22F;
             typographyStyle75.FontStyle = FontStyle.Regular;
             typographyStyle75.FontWeight = FontWeight.SemiBold;
             typographyStyle75.IsStrikeout = false;
@@ -1635,7 +1636,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle75.TextColor = Color.FromArgb(147, 105, 62);
             desertTheme1.HeadlineLarge = typographyStyle75;
             typographyStyle76.FontFamily = "Segoe UI";
-            typographyStyle76.FontSize = 18F;
+            typographyStyle76.FontSize = 20F;
             typographyStyle76.FontStyle = FontStyle.Regular;
             typographyStyle76.FontWeight = FontWeight.Medium;
             typographyStyle76.IsStrikeout = false;
@@ -1645,7 +1646,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle76.TextColor = Color.FromArgb(160, 114, 68);
             desertTheme1.HeadlineMedium = typographyStyle76;
             typographyStyle77.FontFamily = "Segoe UI";
-            typographyStyle77.FontSize = 16F;
+            typographyStyle77.FontSize = 18F;
             typographyStyle77.FontStyle = FontStyle.Regular;
             typographyStyle77.FontWeight = FontWeight.Medium;
             typographyStyle77.IsStrikeout = false;
@@ -1662,7 +1663,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.InactiveTabBackColor = Color.FromArgb(222, 184, 135);
             desertTheme1.InactiveTabForeColor = Color.FromArgb(160, 82, 45);
             typographyStyle78.FontFamily = "Consolas";
-            typographyStyle78.FontSize = 13F;
+            typographyStyle78.FontSize = 8F;
             typographyStyle78.FontStyle = FontStyle.Regular;
             typographyStyle78.FontWeight = FontWeight.Normal;
             typographyStyle78.IsStrikeout = false;
@@ -1680,7 +1681,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LabelDisabledBorderColor = Color.FromArgb(210, 180, 140);
             desertTheme1.LabelDisabledForeColor = Color.FromArgb(180, 160, 140);
             typographyStyle79.FontFamily = "Segoe UI";
-            typographyStyle79.FontSize = 11F;
+            typographyStyle79.FontSize = 8F;
             typographyStyle79.FontStyle = FontStyle.Regular;
             typographyStyle79.FontWeight = FontWeight.Normal;
             typographyStyle79.IsStrikeout = false;
@@ -1694,7 +1695,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LabelHoverBorderColor = Color.FromArgb(198, 134, 66);
             desertTheme1.LabelHoverForeColor = Color.FromArgb(102, 71, 49);
             typographyStyle80.FontFamily = "Segoe UI";
-            typographyStyle80.FontSize = 14F;
+            typographyStyle80.FontSize = 12F;
             typographyStyle80.FontStyle = FontStyle.Regular;
             typographyStyle80.FontWeight = FontWeight.Bold;
             typographyStyle80.IsStrikeout = false;
@@ -1704,7 +1705,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle80.TextColor = Color.FromArgb(94, 57, 34);
             desertTheme1.LabelLarge = typographyStyle80;
             typographyStyle81.FontFamily = "Segoe UI";
-            typographyStyle81.FontSize = 12F;
+            typographyStyle81.FontSize = 10F;
             typographyStyle81.FontStyle = FontStyle.Regular;
             typographyStyle81.FontWeight = FontWeight.Medium;
             typographyStyle81.IsStrikeout = false;
@@ -1717,7 +1718,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LabelSelectedBorderColor = Color.FromArgb(153, 102, 51);
             desertTheme1.LabelSelectedForeColor = Color.White;
             typographyStyle82.FontFamily = "Segoe UI";
-            typographyStyle82.FontSize = 10F;
+            typographyStyle82.FontSize = 8F;
             typographyStyle82.FontStyle = FontStyle.Regular;
             typographyStyle82.FontWeight = FontWeight.Medium;
             typographyStyle82.IsStrikeout = false;
@@ -1727,7 +1728,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle82.TextColor = Color.FromArgb(130, 100, 70);
             desertTheme1.LabelSmall = typographyStyle82;
             typographyStyle83.FontFamily = "Segoe UI";
-            typographyStyle83.FontSize = 14F;
+            typographyStyle83.FontSize = 8F;
             typographyStyle83.FontStyle = FontStyle.Regular;
             typographyStyle83.FontWeight = FontWeight.Normal;
             typographyStyle83.IsStrikeout = false;
@@ -1740,7 +1741,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LinkHoverColor = Color.FromArgb(210, 180, 140);
             desertTheme1.LinkIsUnderline = true;
             typographyStyle84.FontFamily = "Segoe UI";
-            typographyStyle84.FontSize = 14F;
+            typographyStyle84.FontSize = 8F;
             typographyStyle84.FontStyle = FontStyle.Underline;
             typographyStyle84.FontWeight = FontWeight.Normal;
             typographyStyle84.IsStrikeout = false;
@@ -1763,7 +1764,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ListItemSelectedForeColor = Color.FromArgb(244, 164, 96);
             desertTheme1.ListItemSpacing = 6F;
             typographyStyle85.FontFamily = "Segoe UI";
-            typographyStyle85.FontSize = 12F;
+            typographyStyle85.FontSize = 8F;
             typographyStyle85.FontStyle = FontStyle.Regular;
             typographyStyle85.FontWeight = FontWeight.Bold;
             typographyStyle85.IsStrikeout = false;
@@ -1783,7 +1784,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle86.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.ListTitleFont = typographyStyle86;
             typographyStyle87.FontFamily = "Segoe UI";
-            typographyStyle87.FontSize = 12F;
+            typographyStyle87.FontSize = 8F;
             typographyStyle87.FontStyle = FontStyle.Regular;
             typographyStyle87.FontWeight = FontWeight.Normal;
             typographyStyle87.IsStrikeout = false;
@@ -1794,7 +1795,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ListUnSelectedFont = typographyStyle87;
             desertTheme1.LoginButtonBackgroundColor = Color.FromArgb(222, 184, 135);
             typographyStyle88.FontFamily = "Segoe UI";
-            typographyStyle88.FontSize = 14F;
+            typographyStyle88.FontSize = 8F;
             typographyStyle88.FontStyle = FontStyle.Regular;
             typographyStyle88.FontWeight = FontWeight.Bold;
             typographyStyle88.IsStrikeout = false;
@@ -1806,7 +1807,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LoginButtonTextColor = Color.FromArgb(101, 67, 33);
             desertTheme1.LoginDescriptionColor = Color.FromArgb(139, 69, 19);
             typographyStyle89.FontFamily = "Segoe UI";
-            typographyStyle89.FontSize = 12F;
+            typographyStyle89.FontSize = 8F;
             typographyStyle89.FontStyle = FontStyle.Italic;
             typographyStyle89.FontWeight = FontWeight.Normal;
             typographyStyle89.IsStrikeout = false;
@@ -1819,7 +1820,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LoginDropdownTextColor = Color.FromArgb(101, 67, 33);
             desertTheme1.LoginLinkColor = Color.FromArgb(210, 105, 30);
             typographyStyle90.FontFamily = "Segoe UI";
-            typographyStyle90.FontSize = 12F;
+            typographyStyle90.FontSize = 8F;
             typographyStyle90.FontStyle = FontStyle.Regular;
             typographyStyle90.FontWeight = FontWeight.Normal;
             typographyStyle90.IsStrikeout = false;
@@ -1832,7 +1833,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LoginPopoverBackgroundColor = Color.FromArgb(255, 248, 220);
             desertTheme1.LoginSubtitleColor = Color.FromArgb(160, 82, 45);
             typographyStyle91.FontFamily = "Segoe UI";
-            typographyStyle91.FontSize = 14F;
+            typographyStyle91.FontSize = 12F;
             typographyStyle91.FontStyle = FontStyle.Regular;
             typographyStyle91.FontWeight = FontWeight.Normal;
             typographyStyle91.IsStrikeout = false;
@@ -1843,7 +1844,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.LoginSubtitleFont = typographyStyle91;
             desertTheme1.LoginTitleColor = Color.FromArgb(101, 67, 33);
             typographyStyle92.FontFamily = "Segoe UI";
-            typographyStyle92.FontSize = 18F;
+            typographyStyle92.FontSize = 14F;
             typographyStyle92.FontStyle = FontStyle.Regular;
             typographyStyle92.FontWeight = FontWeight.Bold;
             typographyStyle92.IsStrikeout = false;
@@ -1864,7 +1865,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.MenuItemHoverForeColor = Color.FromArgb(160, 82, 45);
             desertTheme1.MenuItemSelectedBackColor = Color.FromArgb(210, 105, 30);
             typographyStyle93.FontFamily = "Segoe UI";
-            typographyStyle93.FontSize = 14F;
+            typographyStyle93.FontSize = 8F;
             typographyStyle93.FontStyle = FontStyle.Regular;
             typographyStyle93.FontWeight = FontWeight.Bold;
             typographyStyle93.IsStrikeout = false;
@@ -1875,7 +1876,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.MenuItemSelectedFont = typographyStyle93;
             desertTheme1.MenuItemSelectedForeColor = Color.White;
             typographyStyle94.FontFamily = "Segoe UI";
-            typographyStyle94.FontSize = 14F;
+            typographyStyle94.FontSize = 8F;
             typographyStyle94.FontStyle = FontStyle.Regular;
             typographyStyle94.FontWeight = FontWeight.Normal;
             typographyStyle94.IsStrikeout = false;
@@ -1890,7 +1891,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.MenuMainItemSelectedBackColor = Color.FromArgb(210, 105, 30);
             desertTheme1.MenuMainItemSelectedForeColor = Color.White;
             typographyStyle95.FontFamily = "Segoe UI";
-            typographyStyle95.FontSize = 16F;
+            typographyStyle95.FontSize = 14F;
             typographyStyle95.FontStyle = FontStyle.Regular;
             typographyStyle95.FontWeight = FontWeight.Bold;
             typographyStyle95.IsStrikeout = false;
@@ -1900,7 +1901,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle95.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.MenuTitleFont = typographyStyle95;
             typographyStyle96.FontFamily = "Segoe UI";
-            typographyStyle96.FontSize = 10F;
+            typographyStyle96.FontSize = 8F;
             typographyStyle96.FontStyle = FontStyle.Regular;
             typographyStyle96.FontWeight = FontWeight.Normal;
             typographyStyle96.IsStrikeout = false;
@@ -1915,7 +1916,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.NavigationHoverForeColor = Color.FromArgb(60, 42, 20);
             desertTheme1.NavigationSelectedBackColor = Color.FromArgb(210, 105, 30);
             typographyStyle97.FontFamily = "Segoe UI";
-            typographyStyle97.FontSize = 14F;
+            typographyStyle97.FontSize = 8F;
             typographyStyle97.FontStyle = FontStyle.Regular;
             typographyStyle97.FontWeight = FontWeight.Bold;
             typographyStyle97.IsStrikeout = false;
@@ -1926,7 +1927,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.NavigationSelectedFont = typographyStyle97;
             desertTheme1.NavigationSelectedForeColor = Color.White;
             typographyStyle98.FontFamily = "Segoe UI";
-            typographyStyle98.FontSize = 16F;
+            typographyStyle98.FontSize = 14F;
             typographyStyle98.FontStyle = FontStyle.Regular;
             typographyStyle98.FontWeight = FontWeight.Bold;
             typographyStyle98.IsStrikeout = false;
@@ -1936,7 +1937,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle98.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.NavigationTitleFont = typographyStyle98;
             typographyStyle99.FontFamily = "Segoe UI";
-            typographyStyle99.FontSize = 14F;
+            typographyStyle99.FontSize = 8F;
             typographyStyle99.FontStyle = FontStyle.Regular;
             typographyStyle99.FontWeight = FontWeight.Normal;
             typographyStyle99.IsStrikeout = false;
@@ -1948,7 +1949,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.OnBackgroundColor = Color.FromArgb(101, 67, 33);
             desertTheme1.OnPrimaryColor = Color.FromArgb(56, 44, 21);
             typographyStyle100.FontFamily = "Segoe UI";
-            typographyStyle100.FontSize = 14F;
+            typographyStyle100.FontSize = 8F;
             typographyStyle100.FontStyle = FontStyle.Regular;
             typographyStyle100.FontWeight = FontWeight.Normal;
             typographyStyle100.IsStrikeout = false;
@@ -1958,7 +1959,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle100.TextColor = Color.FromArgb(111, 85, 60);
             desertTheme1.OrderedList = typographyStyle100;
             typographyStyle101.FontFamily = "Segoe UI";
-            typographyStyle101.FontSize = 10F;
+            typographyStyle101.FontSize = 8F;
             typographyStyle101.FontStyle = FontStyle.Regular;
             typographyStyle101.FontWeight = FontWeight.Light;
             typographyStyle101.IsStrikeout = false;
@@ -1976,7 +1977,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.PanelGradiantMiddleColor = Color.FromArgb(238, 214, 175);
             desertTheme1.PanelGradiantStartColor = Color.FromArgb(255, 248, 220);
             typographyStyle102.FontFamily = "Segoe UI";
-            typographyStyle102.FontSize = 14F;
+            typographyStyle102.FontSize = 8F;
             typographyStyle102.FontStyle = FontStyle.Regular;
             typographyStyle102.FontWeight = FontWeight.Normal;
             typographyStyle102.IsStrikeout = false;
@@ -1992,7 +1993,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ProgressBarChunkColor = Color.FromArgb(244, 164, 96);
             desertTheme1.ProgressBarErrorColor = Color.FromArgb(178, 34, 34);
             typographyStyle103.FontFamily = "Segoe UI";
-            typographyStyle103.FontSize = 10F;
+            typographyStyle103.FontSize = 8F;
             typographyStyle103.FontStyle = FontStyle.Regular;
             typographyStyle103.FontWeight = FontWeight.Bold;
             typographyStyle103.IsStrikeout = false;
@@ -2013,7 +2014,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.RadioButtonCheckedBackColor = Color.FromArgb(244, 164, 96);
             desertTheme1.RadioButtonCheckedBorderColor = Color.FromArgb(160, 82, 45);
             typographyStyle104.FontFamily = "Segoe UI";
-            typographyStyle104.FontSize = 10F;
+            typographyStyle104.FontSize = 8F;
             typographyStyle104.FontStyle = FontStyle.Regular;
             typographyStyle104.FontWeight = FontWeight.Bold;
             typographyStyle104.IsStrikeout = false;
@@ -2024,7 +2025,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.RadioButtonCheckedFont = typographyStyle104;
             desertTheme1.RadioButtonCheckedForeColor = Color.White;
             typographyStyle105.FontFamily = "Segoe UI";
-            typographyStyle105.FontSize = 10F;
+            typographyStyle105.FontSize = 8F;
             typographyStyle105.FontStyle = FontStyle.Regular;
             typographyStyle105.FontWeight = FontWeight.Normal;
             typographyStyle105.IsStrikeout = false;
@@ -2051,7 +2052,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ScrollListBorderColor = Color.FromArgb(210, 180, 140);
             desertTheme1.ScrollListForeColor = Color.FromArgb(101, 67, 33);
             typographyStyle106.FontFamily = "Segoe UI";
-            typographyStyle106.FontSize = 12F;
+            typographyStyle106.FontSize = 8F;
             typographyStyle106.FontStyle = FontStyle.Regular;
             typographyStyle106.FontWeight = FontWeight.Normal;
             typographyStyle106.IsStrikeout = false;
@@ -2068,7 +2069,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ScrollListItemSelectedBackColor = Color.FromArgb(210, 180, 140);
             desertTheme1.ScrollListItemSelectedBorderColor = Color.FromArgb(139, 69, 19);
             typographyStyle107.FontFamily = "Segoe UI";
-            typographyStyle107.FontSize = 12F;
+            typographyStyle107.FontSize = 8F;
             typographyStyle107.FontStyle = FontStyle.Regular;
             typographyStyle107.FontWeight = FontWeight.Bold;
             typographyStyle107.IsStrikeout = false;
@@ -2079,7 +2080,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.ScrollListItemSelectedFont = typographyStyle107;
             desertTheme1.ScrollListItemSelectedForeColor = Color.FromArgb(255, 255, 240);
             typographyStyle108.FontFamily = "Segoe UI";
-            typographyStyle108.FontSize = 12F;
+            typographyStyle108.FontSize = 8F;
             typographyStyle108.FontStyle = FontStyle.Regular;
             typographyStyle108.FontWeight = FontWeight.Bold;
             typographyStyle108.IsStrikeout = false;
@@ -2099,7 +2100,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle109.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.ScrollListTitleFont = typographyStyle109;
             typographyStyle110.FontFamily = "Segoe UI";
-            typographyStyle110.FontSize = 12F;
+            typographyStyle110.FontSize = 8F;
             typographyStyle110.FontStyle = FontStyle.Regular;
             typographyStyle110.FontWeight = FontWeight.Normal;
             typographyStyle110.IsStrikeout = false;
@@ -2111,7 +2112,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.SecondaryColor = Color.FromArgb(244, 214, 162);
             desertTheme1.SecondaryTextColor = Color.FromArgb(147, 121, 88);
             typographyStyle111.FontFamily = "Segoe UI";
-            typographyStyle111.FontSize = 10F;
+            typographyStyle111.FontSize = 8F;
             typographyStyle111.FontStyle = FontStyle.Regular;
             typographyStyle111.FontWeight = FontWeight.Bold;
             typographyStyle111.IsStrikeout = false;
@@ -2158,7 +2159,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.SideMenuSubTitleStyle = typographyStyle113;
             desertTheme1.SideMenuSubTitleTextColor = Color.FromArgb(139, 115, 85);
             typographyStyle114.FontFamily = "Segoe UI";
-            typographyStyle114.FontSize = 14F;
+            typographyStyle114.FontSize = 8F;
             typographyStyle114.FontStyle = FontStyle.Regular;
             typographyStyle114.FontWeight = FontWeight.Normal;
             typographyStyle114.IsStrikeout = false;
@@ -2169,7 +2170,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.SideMenuTextFont = typographyStyle114;
             desertTheme1.SideMenuTitleBackColor = Color.FromArgb(250, 235, 215);
             typographyStyle115.FontFamily = "Segoe UI";
-            typographyStyle115.FontSize = 16F;
+            typographyStyle115.FontSize = 14F;
             typographyStyle115.FontStyle = FontStyle.Regular;
             typographyStyle115.FontWeight = FontWeight.Bold;
             typographyStyle115.IsStrikeout = false;
@@ -2190,7 +2191,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.SideMenuTitleStyle = typographyStyle116;
             desertTheme1.SideMenuTitleTextColor = Color.FromArgb(92, 64, 51);
             typographyStyle117.FontFamily = "Segoe UI";
-            typographyStyle117.FontSize = 11F;
+            typographyStyle117.FontSize = 8F;
             typographyStyle117.FontStyle = FontStyle.Regular;
             typographyStyle117.FontWeight = FontWeight.Normal;
             typographyStyle117.IsStrikeout = false;
@@ -2210,7 +2211,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.StarRatingSelectedBorderColor = Color.FromArgb(255, 140, 0);
             desertTheme1.StarRatingSelectedForeColor = Color.FromArgb(255, 165, 0);
             typographyStyle118.FontFamily = "Segoe UI";
-            typographyStyle118.FontSize = 12F;
+            typographyStyle118.FontSize = 8F;
             typographyStyle118.FontStyle = FontStyle.Regular;
             typographyStyle118.FontWeight = FontWeight.Bold;
             typographyStyle118.IsStrikeout = false;
@@ -2242,7 +2243,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.StarTitleFont = typographyStyle120;
             desertTheme1.StarTitleForeColor = Color.FromArgb(101, 67, 33);
             typographyStyle121.FontFamily = "Segoe UI";
-            typographyStyle121.FontSize = 12F;
+            typographyStyle121.FontSize = 8F;
             typographyStyle121.FontStyle = FontStyle.Regular;
             typographyStyle121.FontWeight = FontWeight.Normal;
             typographyStyle121.IsStrikeout = false;
@@ -2276,7 +2277,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.StatsCardValueHoverForeColor = Color.FromArgb(255, 215, 0);
             desertTheme1.StatsCardValueStyle = null;
             typographyStyle122.FontFamily = "Segoe UI";
-            typographyStyle122.FontSize = 14F;
+            typographyStyle122.FontSize = 8F;
             typographyStyle122.FontStyle = FontStyle.Regular;
             typographyStyle122.FontWeight = FontWeight.Bold;
             typographyStyle122.IsStrikeout = false;
@@ -2286,7 +2287,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle122.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.StatsSelectedFont = typographyStyle122;
             typographyStyle123.FontFamily = "Segoe UI";
-            typographyStyle123.FontSize = 16F;
+            typographyStyle123.FontSize = 14F;
             typographyStyle123.FontStyle = FontStyle.Regular;
             typographyStyle123.FontWeight = FontWeight.Bold;
             typographyStyle123.IsStrikeout = false;
@@ -2296,7 +2297,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle123.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.StatsTitleFont = typographyStyle123;
             typographyStyle124.FontFamily = "Segoe UI";
-            typographyStyle124.FontSize = 14F;
+            typographyStyle124.FontSize = 8F;
             typographyStyle124.FontStyle = FontStyle.Regular;
             typographyStyle124.FontWeight = FontWeight.Normal;
             typographyStyle124.IsStrikeout = false;
@@ -2319,7 +2320,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.StepperItemCheckedBoxBorderColor = Color.FromArgb(160, 82, 45);
             desertTheme1.StepperItemCheckedBoxForeColor = Color.FromArgb(139, 69, 19);
             typographyStyle125.FontFamily = "Segoe UI";
-            typographyStyle125.FontSize = 12F;
+            typographyStyle125.FontSize = 8F;
             typographyStyle125.FontStyle = FontStyle.Regular;
             typographyStyle125.FontWeight = FontWeight.Normal;
             typographyStyle125.IsStrikeout = false;
@@ -2336,7 +2337,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.StepperItemSelectedBorderColor = Color.FromArgb(205, 133, 63);
             desertTheme1.StepperItemSelectedForeColor = Color.FromArgb(255, 140, 0);
             typographyStyle126.FontFamily = "Segoe UI";
-            typographyStyle126.FontSize = 14F;
+            typographyStyle126.FontSize = 8F;
             typographyStyle126.FontStyle = FontStyle.Regular;
             typographyStyle126.FontWeight = FontWeight.Bold;
             typographyStyle126.IsStrikeout = false;
@@ -2346,7 +2347,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle126.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.StepperSelectedFont = typographyStyle126;
             typographyStyle127.FontFamily = "Segoe UI";
-            typographyStyle127.FontSize = 10F;
+            typographyStyle127.FontSize = 12F;
             typographyStyle127.FontStyle = FontStyle.Italic;
             typographyStyle127.FontWeight = FontWeight.Normal;
             typographyStyle127.IsStrikeout = false;
@@ -2356,7 +2357,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle127.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.StepperSubTitleFont = typographyStyle127;
             typographyStyle128.FontFamily = "Segoe UI";
-            typographyStyle128.FontSize = 16F;
+            typographyStyle128.FontSize = 14F;
             typographyStyle128.FontStyle = FontStyle.Regular;
             typographyStyle128.FontWeight = FontWeight.Bold;
             typographyStyle128.IsStrikeout = false;
@@ -2366,7 +2367,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle128.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.StepperTitleFont = typographyStyle128;
             typographyStyle129.FontFamily = "Segoe UI";
-            typographyStyle129.FontSize = 14F;
+            typographyStyle129.FontSize = 8F;
             typographyStyle129.FontStyle = FontStyle.Regular;
             typographyStyle129.FontWeight = FontWeight.Normal;
             typographyStyle129.IsStrikeout = false;
@@ -2376,7 +2377,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle129.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.StepperUnSelectedFont = typographyStyle129;
             typographyStyle130.FontFamily = "Segoe UI";
-            typographyStyle130.FontSize = 14F;
+            typographyStyle130.FontSize = 8F;
             typographyStyle130.FontStyle = FontStyle.Regular;
             typographyStyle130.FontWeight = FontWeight.Bold;
             typographyStyle130.IsStrikeout = false;
@@ -2387,7 +2388,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.StrongText = typographyStyle130;
             desertTheme1.SubLabelBackColor = Color.FromArgb(255, 245, 230);
             typographyStyle131.FontFamily = "Segoe UI";
-            typographyStyle131.FontSize = 9F;
+            typographyStyle131.FontSize = 8F;
             typographyStyle131.FontStyle = FontStyle.Italic;
             typographyStyle131.FontWeight = FontWeight.Normal;
             typographyStyle131.IsStrikeout = false;
@@ -2400,7 +2401,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.SubLabelHoverBackColor = Color.FromArgb(255, 250, 240);
             desertTheme1.SubLabelHoverForeColor = Color.FromArgb(102, 71, 49);
             typographyStyle132.FontFamily = "Segoe UI";
-            typographyStyle132.FontSize = 18F;
+            typographyStyle132.FontSize = 14F;
             typographyStyle132.FontStyle = FontStyle.Italic;
             typographyStyle132.FontWeight = FontWeight.SemiBold;
             typographyStyle132.IsStrikeout = false;
@@ -2420,7 +2421,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.SwitchSelectedBackColor = Color.FromArgb(255, 228, 181);
             desertTheme1.SwitchSelectedBorderColor = Color.FromArgb(205, 133, 63);
             typographyStyle133.FontFamily = "Segoe UI";
-            typographyStyle133.FontSize = 12F;
+            typographyStyle133.FontSize = 8F;
             typographyStyle133.FontStyle = FontStyle.Regular;
             typographyStyle133.FontWeight = FontWeight.Bold;
             typographyStyle133.IsStrikeout = false;
@@ -2441,7 +2442,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle134.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.SwitchTitleFont = typographyStyle134;
             typographyStyle135.FontFamily = "Segoe UI";
-            typographyStyle135.FontSize = 12F;
+            typographyStyle135.FontSize = 8F;
             typographyStyle135.FontStyle = FontStyle.Regular;
             typographyStyle135.FontWeight = FontWeight.Normal;
             typographyStyle135.IsStrikeout = false;
@@ -2453,7 +2454,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TabBackColor = Color.FromArgb(245, 222, 179);
             desertTheme1.TabBorderColor = Color.FromArgb(210, 180, 140);
             typographyStyle136.FontFamily = "Segoe UI";
-            typographyStyle136.FontSize = 12F;
+            typographyStyle136.FontSize = 8F;
             typographyStyle136.FontStyle = FontStyle.Regular;
             typographyStyle136.FontWeight = FontWeight.Normal;
             typographyStyle136.IsStrikeout = false;
@@ -2466,7 +2467,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TabHoverBackColor = Color.FromArgb(255, 218, 185);
             desertTheme1.TabHoverBorderColor = Color.FromArgb(210, 180, 140);
             typographyStyle137.FontFamily = "Segoe UI";
-            typographyStyle137.FontSize = 12F;
+            typographyStyle137.FontSize = 8F;
             typographyStyle137.FontStyle = FontStyle.Regular;
             typographyStyle137.FontWeight = FontWeight.Bold;
             typographyStyle137.IsStrikeout = false;
@@ -2479,7 +2480,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TabSelectedBackColor = Color.FromArgb(244, 164, 96);
             desertTheme1.TabSelectedBorderColor = Color.FromArgb(205, 133, 63);
             typographyStyle138.FontFamily = "Segoe UI";
-            typographyStyle138.FontSize = 12F;
+            typographyStyle138.FontSize = 8F;
             typographyStyle138.FontStyle = FontStyle.Regular;
             typographyStyle138.FontWeight = FontWeight.Bold;
             typographyStyle138.IsStrikeout = false;
@@ -2522,7 +2523,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle140.TextColor = Color.White;
             desertTheme1.TaskCardProgressValueStyle = typographyStyle140;
             typographyStyle141.FontFamily = "Segoe UI";
-            typographyStyle141.FontSize = 12F;
+            typographyStyle141.FontSize = 8F;
             typographyStyle141.FontStyle = FontStyle.Regular;
             typographyStyle141.FontWeight = FontWeight.Bold;
             typographyStyle141.IsStrikeout = false;
@@ -2566,7 +2567,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle144.TextColor = Color.FromArgb(139, 69, 19);
             desertTheme1.TaskCardTitleStyle = typographyStyle144;
             typographyStyle145.FontFamily = "Segoe UI";
-            typographyStyle145.FontSize = 12F;
+            typographyStyle145.FontSize = 8F;
             typographyStyle145.FontStyle = FontStyle.Regular;
             typographyStyle145.FontWeight = FontWeight.Normal;
             typographyStyle145.IsStrikeout = false;
@@ -2583,7 +2584,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TestimonialStatusColor = Color.FromArgb(85, 107, 47);
             desertTheme1.TestimonialTextColor = Color.FromArgb(102, 51, 0);
             typographyStyle146.FontFamily = "Segoe UI";
-            typographyStyle146.FontSize = 12F;
+            typographyStyle146.FontSize = 8F;
             typographyStyle146.FontStyle = FontStyle.Regular;
             typographyStyle146.FontWeight = FontWeight.Bold;
             typographyStyle146.IsStrikeout = false;
@@ -2603,7 +2604,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle147.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.TestimoniaTitleFont = typographyStyle147;
             typographyStyle148.FontFamily = "Segoe UI";
-            typographyStyle148.FontSize = 12F;
+            typographyStyle148.FontSize = 8F;
             typographyStyle148.FontStyle = FontStyle.Regular;
             typographyStyle148.FontWeight = FontWeight.Normal;
             typographyStyle148.IsStrikeout = false;
@@ -2623,7 +2624,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TextBoxErrorTextBoxHoverColor = Color.FromArgb(255, 220, 220);
             desertTheme1.TextBoxErrorTextColor = Color.FromArgb(178, 34, 34);
             typographyStyle149.FontFamily = "Segoe UI";
-            typographyStyle149.FontSize = 12F;
+            typographyStyle149.FontSize = 8F;
             typographyStyle149.FontStyle = FontStyle.Regular;
             typographyStyle149.FontWeight = FontWeight.Normal;
             typographyStyle149.IsStrikeout = false;
@@ -2636,7 +2637,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TextBoxHoverBackColor = Color.FromArgb(255, 250, 240);
             desertTheme1.TextBoxHoverBorderColor = Color.FromArgb(244, 164, 96);
             typographyStyle150.FontFamily = "Segoe UI";
-            typographyStyle150.FontSize = 12F;
+            typographyStyle150.FontSize = 8F;
             typographyStyle150.FontStyle = FontStyle.Regular;
             typographyStyle150.FontWeight = FontWeight.Normal;
             typographyStyle150.IsStrikeout = false;
@@ -2650,7 +2651,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TextBoxSelectedBackColor = Color.FromArgb(255, 240, 220);
             desertTheme1.TextBoxSelectedBorderColor = Color.FromArgb(205, 133, 63);
             typographyStyle151.FontFamily = "Segoe UI";
-            typographyStyle151.FontSize = 12F;
+            typographyStyle151.FontSize = 8F;
             typographyStyle151.FontStyle = FontStyle.Regular;
             typographyStyle151.FontWeight = FontWeight.Bold;
             typographyStyle151.IsStrikeout = false;
@@ -2660,9 +2661,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle151.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.TextBoxSelectedFont = typographyStyle151;
             desertTheme1.TextBoxSelectedForeColor = Color.FromArgb(102, 51, 0);
-            desertTheme1.ThemeGuid = "68fc161d-9466-4657-a027-0c977546b480";
+            desertTheme1.ThemeGuid = "3fbb7462-1164-49ab-a119-ac7d799163ed";
             typographyStyle152.FontFamily = "Segoe UI";
-            typographyStyle152.FontSize = 18F;
+            typographyStyle152.FontSize = 16F;
             typographyStyle152.FontStyle = FontStyle.Regular;
             typographyStyle152.FontWeight = FontWeight.Bold;
             typographyStyle152.IsStrikeout = false;
@@ -2672,7 +2673,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle152.TextColor = Color.FromArgb(160, 114, 68);
             desertTheme1.TitleLarge = typographyStyle152;
             typographyStyle153.FontFamily = "Segoe UI";
-            typographyStyle153.FontSize = 16F;
+            typographyStyle153.FontSize = 14F;
             typographyStyle153.FontStyle = FontStyle.Regular;
             typographyStyle153.FontWeight = FontWeight.SemiBold;
             typographyStyle153.IsStrikeout = false;
@@ -2682,7 +2683,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle153.TextColor = Color.FromArgb(173, 124, 74);
             desertTheme1.TitleMedium = typographyStyle153;
             typographyStyle154.FontFamily = "Segoe UI";
-            typographyStyle154.FontSize = 14F;
+            typographyStyle154.FontSize = 12F;
             typographyStyle154.FontStyle = FontStyle.Regular;
             typographyStyle154.FontWeight = FontWeight.Medium;
             typographyStyle154.IsStrikeout = false;
@@ -2692,7 +2693,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle154.TextColor = Color.FromArgb(183, 133, 89);
             desertTheme1.TitleSmall = typographyStyle154;
             typographyStyle155.FontFamily = "Segoe UI";
-            typographyStyle155.FontSize = 22F;
+            typographyStyle155.FontSize = 20F;
             typographyStyle155.FontStyle = FontStyle.Regular;
             typographyStyle155.FontWeight = FontWeight.Bold;
             typographyStyle155.IsStrikeout = false;
@@ -2720,7 +2721,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TreeNodeHoverForeColor = Color.FromArgb(139, 69, 19);
             desertTheme1.TreeNodeSelectedBackColor = Color.FromArgb(210, 180, 140);
             typographyStyle156.FontFamily = "Segoe UI";
-            typographyStyle156.FontSize = 12F;
+            typographyStyle156.FontSize = 8F;
             typographyStyle156.FontStyle = FontStyle.Regular;
             typographyStyle156.FontWeight = FontWeight.Bold;
             typographyStyle156.IsStrikeout = false;
@@ -2731,7 +2732,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.TreeNodeSelectedFont = typographyStyle156;
             desertTheme1.TreeNodeSelectedForeColor = Color.FromArgb(255, 255, 255);
             typographyStyle157.FontFamily = "Segoe UI";
-            typographyStyle157.FontSize = 12F;
+            typographyStyle157.FontSize = 8F;
             typographyStyle157.FontStyle = FontStyle.Regular;
             typographyStyle157.FontWeight = FontWeight.Normal;
             typographyStyle157.IsStrikeout = false;
@@ -2751,7 +2752,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             typographyStyle158.TextColor = Color.FromArgb(236, 240, 241);
             desertTheme1.TreeTitleFont = typographyStyle158;
             typographyStyle159.FontFamily = "Segoe UI";
-            typographyStyle159.FontSize = 14F;
+            typographyStyle159.FontSize = 8F;
             typographyStyle159.FontStyle = FontStyle.Regular;
             typographyStyle159.FontWeight = FontWeight.Normal;
             typographyStyle159.IsStrikeout = false;
@@ -2763,7 +2764,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.VisitedLinkColor = Color.FromArgb(153, 102, 51);
             desertTheme1.WarningColor = Color.FromArgb(255, 165, 0);
             typographyStyle160.FontFamily = "Segoe UI";
-            typographyStyle160.FontSize = 10F;
+            typographyStyle160.FontSize = 8F;
             typographyStyle160.FontStyle = FontStyle.Regular;
             typographyStyle160.FontWeight = FontWeight.Normal;
             typographyStyle160.IsStrikeout = false;
@@ -2774,10 +2775,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             desertTheme1.YearFont = typographyStyle160;
             SystemFolderbeepComboBox.BeepContextMenu.CurrentTheme = desertTheme1;
             SystemFolderbeepComboBox.BeepContextMenu.FormStyle = FormStyle.Modern;
-            SystemFolderbeepComboBox.BeepContextMenu.ImageSize = 19;
+            SystemFolderbeepComboBox.BeepContextMenu.ImageSize = 16;
             SystemFolderbeepComboBox.BeepContextMenu.Location = new Point(147, 147);
             SystemFolderbeepComboBox.BeepContextMenu.MaxHeight = 200;
-            SystemFolderbeepComboBox.BeepContextMenu.MenuItemHeight = 29;
             SystemFolderbeepComboBox.BeepContextMenu.MinimumSize = new Size(50, 20);
             SystemFolderbeepComboBox.BeepContextMenu.Name = "";
             SystemFolderbeepComboBox.BeepContextMenu.Owner = null;
@@ -2790,8 +2790,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             shadowEffect1.OffsetY = 2;
             shadowEffect1.Spread = 0;
             SystemFolderbeepComboBox.BeepContextMenu.ShadowEffect = shadowEffect1;
-            SystemFolderbeepComboBox.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 10F);
-            SystemFolderbeepComboBox.BeepContextMenu.TextFont = new Font("Segoe UI", 10F);
+            SystemFolderbeepComboBox.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            SystemFolderbeepComboBox.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             SystemFolderbeepComboBox.BeepContextMenu.Theme = "DesertTheme";
             SystemFolderbeepComboBox.BeepContextMenu.Visible = false;
             SystemFolderbeepComboBox.BlockID = null;
@@ -2942,7 +2942,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.Tag = this;
             SystemFolderbeepComboBox.TempBackColor = Color.LightGray;
             SystemFolderbeepComboBox.Text = "beepComboBox1";
-            SystemFolderbeepComboBox.TextFont = new Font("Segoe UI", 10F);
+            SystemFolderbeepComboBox.TextFont = new Font("Segoe UI", 8F);
             SystemFolderbeepComboBox.Theme = "DesertTheme";
             SystemFolderbeepComboBox.TooltipFont = null;
             SystemFolderbeepComboBox.TooltipMaxSize = null;
@@ -3084,7 +3084,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.LeadingImagePath = "";
             databaseTextBox.LeftoffsetForDrawingRect = 0;
             databaseTextBox.LineNumberBackColor = Color.FromArgb(248, 248, 248);
-            databaseTextBox.LineNumberFont = new Font("Arial", 11F);
+            databaseTextBox.LineNumberFont = new Font("Segoe UI", 8F);
             databaseTextBox.LineNumberForeColor = Color.Gray;
             databaseTextBox.LinkedProperty = null;
             databaseTextBox.Location = new Point(57, 58);
@@ -3147,7 +3147,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.Tag = this;
             databaseTextBox.TempBackColor = Color.LightGray;
             databaseTextBox.TextAlignment = HorizontalAlignment.Left;
-            databaseTextBox.TextFont = new Font("Segoe UI", 10F);
+            databaseTextBox.TextFont = new Font("Segoe UI", 8F);
             databaseTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
             databaseTextBox.Theme = "DesertTheme";
             databaseTextBox.TimeFormat = "HH:mm:ss";
@@ -3293,7 +3293,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.LeadingImagePath = "";
             PasswordbeepTextBox.LeftoffsetForDrawingRect = 0;
             PasswordbeepTextBox.LineNumberBackColor = Color.FromArgb(248, 248, 248);
-            PasswordbeepTextBox.LineNumberFont = new Font("Arial", 11F);
+            PasswordbeepTextBox.LineNumberFont = new Font("Segoe UI", 8F);
             PasswordbeepTextBox.LineNumberForeColor = Color.Gray;
             PasswordbeepTextBox.LinkedProperty = null;
             PasswordbeepTextBox.Location = new Point(57, 198);
@@ -3356,7 +3356,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.Tag = this;
             PasswordbeepTextBox.TempBackColor = Color.LightGray;
             PasswordbeepTextBox.TextAlignment = HorizontalAlignment.Left;
-            PasswordbeepTextBox.TextFont = new Font("Segoe UI", 10F);
+            PasswordbeepTextBox.TextFont = new Font("Segoe UI", 8F);
             PasswordbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
             PasswordbeepTextBox.Theme = "DesertTheme";
             PasswordbeepTextBox.TimeFormat = "HH:mm:ss";
@@ -3502,7 +3502,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.LeadingImagePath = "";
             OtherFolderbeepTextBox.LeftoffsetForDrawingRect = 0;
             OtherFolderbeepTextBox.LineNumberBackColor = Color.FromArgb(248, 248, 248);
-            OtherFolderbeepTextBox.LineNumberFont = new Font("Arial", 11F);
+            OtherFolderbeepTextBox.LineNumberFont = new Font("Segoe UI", 8F);
             OtherFolderbeepTextBox.LineNumberForeColor = Color.Gray;
             OtherFolderbeepTextBox.LinkedProperty = null;
             OtherFolderbeepTextBox.Location = new Point(57, 162);
@@ -3565,7 +3565,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.Tag = this;
             OtherFolderbeepTextBox.TempBackColor = Color.LightGray;
             OtherFolderbeepTextBox.TextAlignment = HorizontalAlignment.Left;
-            OtherFolderbeepTextBox.TextFont = new Font("Segoe UI", 10F);
+            OtherFolderbeepTextBox.TextFont = new Font("Segoe UI", 8F);
             OtherFolderbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
             OtherFolderbeepTextBox.Theme = "DesertTheme";
             OtherFolderbeepTextBox.TimeFormat = "HH:mm:ss";
@@ -3604,7 +3604,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             // 
             LocalDbTypebeepComboBox.BeepContextMenu.BorderColor = Color.FromArgb(210, 180, 140);
-            LocalDbTypebeepComboBox.BeepContextMenu.ClientSize = new Size(194, 0);
+            LocalDbTypebeepComboBox.BeepContextMenu.ClientSize = new Size(218, 23);
             LocalDbTypebeepComboBox.BeepContextMenu.ContextMenuType = FormStyle.Modern;
             cornerRadius2.BottomLeft = 8;
             cornerRadius2.BottomRight = 8;
@@ -3613,10 +3613,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.BeepContextMenu.CornerRadius = cornerRadius2;
             LocalDbTypebeepComboBox.BeepContextMenu.CurrentTheme = desertTheme1;
             LocalDbTypebeepComboBox.BeepContextMenu.FormStyle = FormStyle.Modern;
-            LocalDbTypebeepComboBox.BeepContextMenu.ImageSize = 19;
+            LocalDbTypebeepComboBox.BeepContextMenu.ImageSize = 16;
             LocalDbTypebeepComboBox.BeepContextMenu.Location = new Point(196, 196);
             LocalDbTypebeepComboBox.BeepContextMenu.MaxHeight = 200;
-            LocalDbTypebeepComboBox.BeepContextMenu.MenuItemHeight = 29;
             LocalDbTypebeepComboBox.BeepContextMenu.MinimumSize = new Size(50, 20);
             LocalDbTypebeepComboBox.BeepContextMenu.Name = "";
             LocalDbTypebeepComboBox.BeepContextMenu.Owner = null;
@@ -3629,8 +3628,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             shadowEffect2.OffsetY = 2;
             shadowEffect2.Spread = 0;
             LocalDbTypebeepComboBox.BeepContextMenu.ShadowEffect = shadowEffect2;
-            LocalDbTypebeepComboBox.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 10F);
-            LocalDbTypebeepComboBox.BeepContextMenu.TextFont = new Font("Segoe UI", 10F);
+            LocalDbTypebeepComboBox.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            LocalDbTypebeepComboBox.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             LocalDbTypebeepComboBox.BeepContextMenu.Theme = "DesertTheme";
             LocalDbTypebeepComboBox.BeepContextMenu.Visible = false;
             LocalDbTypebeepComboBox.BlockID = null;
@@ -3781,7 +3780,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.Tag = this;
             LocalDbTypebeepComboBox.TempBackColor = Color.White;
             LocalDbTypebeepComboBox.Text = "beepComboBox1";
-            LocalDbTypebeepComboBox.TextFont = new Font("Segoe UI", 10F);
+            LocalDbTypebeepComboBox.TextFont = new Font("Segoe UI", 8F);
             LocalDbTypebeepComboBox.Theme = "DesertTheme";
             LocalDbTypebeepComboBox.TooltipFont = null;
             LocalDbTypebeepComboBox.TooltipMaxSize = null;
@@ -3861,7 +3860,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.FocusBorderColor = Color.RoyalBlue;
             beepButton1.FocusForeColor = Color.FromArgb(60, 30, 10);
             beepButton1.FocusIndicatorColor = Color.RoyalBlue;
-            beepButton1.Font = new Font("Arial", 12.5F);
+            beepButton1.Font = new Font("Segoe UI", 14F);
             beepButton1.ForeColor = Color.FromArgb(101, 67, 33);
             beepButton1.Form = null;
             beepButton1.GlassmorphismBlur = 10F;
@@ -3978,7 +3977,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Tag = this;
             beepButton1.TempBackColor = Color.Empty;
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
-            beepButton1.TextFont = new Font("Segoe UI", 14F);
+            beepButton1.TextFont = new Font("Segoe UI", 8F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
             beepButton1.Theme = "DesertTheme";
             beepButton1.TooltipFont = null;

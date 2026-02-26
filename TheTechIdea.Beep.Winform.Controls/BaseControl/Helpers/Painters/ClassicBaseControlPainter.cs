@@ -84,12 +84,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 shadow = owner.ShowShadow ? owner.ShadowOffset : 0;
             }
             
-            // 3. Calculate Border Rect (Outer bounds - Shadow)
-            // Ensure positive dimensions
+            // 3. Calculate Border Rect (Outer bounds - Shadow only)
+            // Border stroke insetting is handled by CreateStrokeInsetPath during painting,
+            // so we must NOT inset borderRect for stroke width here -- doing so clips the
+            // Region at (totalInset, totalInset) and cuts off the rounded corners.
             int width = Math.Max(1, owner.Width);
             int height = Math.Max(1, owner.Height);
-            
-            // Allow space for shadow
+
             Rectangle borderRect = new Rectangle(
                 shadow,
                 shadow,

@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
 using static TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters.ShadowPainterHelpers;
+using static TheTechIdea.Beep.Winform.Controls.Styling.Shadows.ShadowPainterFactory;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
 {
@@ -12,6 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     /// </summary>
     public static class ShadowPainterFactory
     {
+        // Carries current state/theme usage into legacy IShadowPainter wrapper signatures.
+        internal static bool CurrentUseThemeColors { get; set; } = true;
+        internal static ControlState CurrentState { get; set; } = ControlState.Normal;
+
         /// <summary>
         /// Creates a shadow painter instance for the specified Style
         /// </summary>
@@ -44,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.MacOSBigSur => new CardShadowPainterWrapper(CardShadowStyle.Small),
                 BeepControlStyle.ChakraUI => new CardShadowPainterWrapper(CardShadowStyle.Medium),
                 BeepControlStyle.TailwindCard => new CardShadowPainterWrapper(CardShadowStyle.Large),
+                BeepControlStyle.FinSet => new FinSetShadowPainterWrapper(),
                 BeepControlStyle.NotionMinimal => new CardShadowPainterWrapper(CardShadowStyle.Small),
                 BeepControlStyle.Minimal => new CardShadowPainterWrapper(CardShadowStyle.Small),
                 BeepControlStyle.VercelClean => new CardShadowPainterWrapper(CardShadowStyle.Medium),
@@ -71,6 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Elementary => new CardShadowPainterWrapper(CardShadowStyle.Small), // Elementary: Subtle
                 BeepControlStyle.Gaming => new NeonGlowPainterWrapper(Color.FromArgb(0, 255, 127), 1.0f, 16), // Gaming: Green glow
                 BeepControlStyle.Neon => new NeonGlowPainterWrapper(Color.FromArgb(0, 255, 255), 1.0f, 24), // Neon: Cyan glow
+                BeepControlStyle.NeonGlow => new NeonGlowStyleShadowPainterWrapper(),
+                BeepControlStyle.Retro => new RetroShadowPainterWrapper(),
                 BeepControlStyle.ArcLinux => new ArcLinuxShadowPainterWrapper(),
                 BeepControlStyle.Brutalist => new BrutalistShadowPainterWrapper(),
                 BeepControlStyle.Cartoon => new CartoonShadowPainterWrapper(),
@@ -183,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         {
             _offsetX = offsetX;
             _offsetY = offsetY;
-            _shadowColor = shadowColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
+            _shadowColor = shadowColor ?? Color.Black;
             _opacity = opacity;
             _layers = layers;
         }
@@ -416,7 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         public DoubleShadowPainterWrapper(Color? color1 = null, Color? color2 = null, 
             int offset1X = 2, int offset1Y = 2, int offset2X = 4, int offset2Y = 4)
         {
-            var baseShadow = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
+            var baseShadow = Color.Black;
             _color1 = color1 ?? Color.FromArgb(100, baseShadow);
             _color2 = color2 ?? Color.FromArgb(60, baseShadow);
             _offset1X = offset1X;
@@ -525,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
             var (offsetX, offsetY, blur, opacity) = ShadowPainterHelpers.CalculateAdaptiveShadow(bounds, _intensity);
-            var baseShadow = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black;
+            var baseShadow = theme?.ShadowColor ?? Color.Black;
             return ShadowPainterHelpers.PaintDropShadow(g, bounds, radius, offsetX, offsetY, blur, baseShadow, opacity);
         }
     }
@@ -537,7 +545,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return AppleShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Apple, theme, true, ControlState.Normal);
+            return AppleShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Apple, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -548,7 +556,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return FluentShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Fluent, theme, true, ControlState.Normal);
+            return FluentShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Fluent, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -559,7 +567,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return MaterialShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Material, theme, true, MaterialElevation.Level2, ControlState.Normal);
+            return MaterialShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Material, theme, CurrentUseThemeColors, MaterialElevation.Level2, CurrentState);
         }
     }
 
@@ -570,7 +578,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return WebFrameworkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.WebFramework, theme, true, ControlState.Normal);
+            return WebFrameworkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.WebFramework, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -581,7 +589,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return EffectShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Effect, theme, true, ControlState.Normal);
+            return EffectShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Effect, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -589,7 +597,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return ArcLinuxShadowPainter.Paint(g, bounds, radius, BeepControlStyle.ArcLinux, theme, true, ControlState.Normal);
+            return ArcLinuxShadowPainter.Paint(g, bounds, radius, BeepControlStyle.ArcLinux, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -597,7 +605,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return BrutalistShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Brutalist, theme, true, ControlState.Normal);
+            return BrutalistShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Brutalist, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -605,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return CartoonShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Cartoon, theme, true, ControlState.Normal);
+            return CartoonShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Cartoon, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -613,7 +621,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return ChatBubbleShadowPainter.Paint(g, bounds, radius, BeepControlStyle.ChatBubble, theme, true, ControlState.Normal);
+            return ChatBubbleShadowPainter.Paint(g, bounds, radius, BeepControlStyle.ChatBubble, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -621,7 +629,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return CyberpunkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Cyberpunk, theme, true, ControlState.Normal);
+            return CyberpunkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Cyberpunk, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -629,7 +637,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return DraculaShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Dracula, theme, true, ControlState.Normal);
+            return DraculaShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Dracula, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -637,7 +645,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return GlassmorphismShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Glassmorphism, theme, true, ControlState.Normal);
+            return GlassmorphismShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Glassmorphism, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -645,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return HolographicShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Holographic, theme, true, ControlState.Normal);
+            return HolographicShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Holographic, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -653,7 +661,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return GruvBoxShadowPainter.Paint(g, bounds, radius, BeepControlStyle.GruvBox, theme, true, ControlState.Normal);
+            return GruvBoxShadowPainter.Paint(g, bounds, radius, BeepControlStyle.GruvBox, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -661,7 +669,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return Metro2ShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Metro2, theme, true, ControlState.Normal);
+            return Metro2ShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Metro2, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -669,7 +677,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return NeoBrutalistShadowPainter.Paint(g, bounds, radius, BeepControlStyle.NeoBrutalist, theme, true, MaterialElevation.Level0, ControlState.Normal);
+            return NeoBrutalistShadowPainter.Paint(g, bounds, radius, BeepControlStyle.NeoBrutalist, theme, CurrentUseThemeColors, MaterialElevation.Level0, CurrentState);
         }
     }
 
@@ -677,7 +685,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return ModernShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Modern, theme, true, ControlState.Normal);
+            return ModernShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Modern, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -685,7 +693,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return NordShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Nord, theme, true, ControlState.Normal);
+            return NordShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Nord, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -693,7 +701,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return NordicShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Nordic, theme, true, ControlState.Normal);
+            return NordicShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Nordic, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -701,7 +709,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return OneDarkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.OneDark, theme, true, ControlState.Normal);
+            return OneDarkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.OneDark, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -709,7 +717,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return PaperShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Paper, theme, true, ControlState.Normal);
+            return PaperShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Paper, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -717,7 +725,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return RetroShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Retro, theme, true, ControlState.Normal);
+            return RetroShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Retro, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -725,7 +733,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return SolarizedShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Solarized, theme, true, ControlState.Normal);
+            return SolarizedShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Solarized, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -733,7 +741,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return TerminalShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Terminal, theme, true, ControlState.Normal);
+            return TerminalShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Terminal, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -741,7 +749,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return TokyoShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Tokyo, theme, true, ControlState.Normal);
+            return TokyoShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Tokyo, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -749,7 +757,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return UbuntuShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Ubuntu, theme, true, ControlState.Normal);
+            return UbuntuShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Ubuntu, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -757,7 +765,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return ShadcnShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Shadcn, theme, true, ControlState.Normal);
+            return ShadcnShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Shadcn, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -765,7 +773,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return RadixUIShadowPainter.Paint(g, bounds, radius, BeepControlStyle.RadixUI, theme, true, ControlState.Normal);
+            return RadixUIShadowPainter.Paint(g, bounds, radius, BeepControlStyle.RadixUI, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -773,7 +781,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return NextJSShadowPainter.Paint(g, bounds, radius, BeepControlStyle.NextJS, theme, true, ControlState.Normal);
+            return NextJSShadowPainter.Paint(g, bounds, radius, BeepControlStyle.NextJS, theme, CurrentUseThemeColors, CurrentState);
+        }
+    }
+
+    public class FinSetShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            // FinSet follows Tailwind/modern card elevation profile.
+            return TailwindCardShadowPainter.Paint(
+                g, bounds, radius, BeepControlStyle.FinSet, theme, CurrentUseThemeColors,
+                MaterialElevation.Level1, CurrentState);
+        }
+    }
+
+    public class NeonGlowStyleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            // NeonGlow style reuses neon glow renderer while preserving its style enum.
+            return NeonShadowPainter.Paint(g, bounds, radius, BeepControlStyle.NeonGlow, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 
@@ -781,7 +809,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
     {
         public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
         {
-            return LinearShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Linear, theme, true, ControlState.Normal);
+            return LinearShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Linear, theme, CurrentUseThemeColors, CurrentState);
         }
     }
 

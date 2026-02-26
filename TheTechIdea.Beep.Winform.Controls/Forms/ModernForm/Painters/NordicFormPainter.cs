@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Nordic, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.Nordic, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -267,7 +267,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-           using var path = owner.BorderShape;  
+           var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro  
             // Nordic: Thin, clean border - minimalist
             using var pen = new Pen(metrics.BorderColor, 1);
             g.SmoothingMode = SmoothingMode.AntiAlias;

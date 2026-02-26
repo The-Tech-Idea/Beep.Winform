@@ -28,7 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             
             // Also apply frosted glass effect for additional realism
             int baseAlpha = state == ControlState.Disabled ? 120 : 200;
-            BackgroundPainterHelpers.PaintFrostedGlassBackground(g, path, baseColor, baseAlpha, state);
+            BackgroundPainterHelpers.PaintFrostedGlassBackground(
+                g,
+                path,
+                baseColor,
+                baseAlpha,
+                state,
+                BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style));
 
             // Radial gradients enhance glass effect - add subtle radial highlight
             var bounds = path.GetBounds();

@@ -22,7 +22,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 : Color.FromArgb(220, 245, 245, 245);
 
             // Use frosted glass helper for consistent glass effect
-            BackgroundPainterHelpers.PaintFrostedGlassBackground(g, path, glassColor,220,state);
+            BackgroundPainterHelpers.PaintFrostedGlassBackground(
+                g,
+                path,
+                glassColor,
+                220,
+                state,
+                BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style));
         }
     }
 }

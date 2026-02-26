@@ -26,9 +26,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     Color.FromArgb(59, 130, 246)); // Shadcn blue
                 borderWidth = 2f;
             }
+            else if (state == ControlState.Normal)
+            {
+                // Idle parity baseline for web-style controls.
+                borderWidth = 1.2f;
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 180));
+            }
 
+            borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
-            return path.CreateInsetPath(borderWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

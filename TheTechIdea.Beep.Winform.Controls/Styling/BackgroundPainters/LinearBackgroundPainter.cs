@@ -40,9 +40,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             BackgroundPainterHelpers.PaintSolidBackground(g, path, baseColor, state,
                 BackgroundPainterHelpers.StateIntensity.Subtle);
 
-            // Linear style: very subtle inner border for definition
+            // Linear style: very subtle inner border for definition when border pass is suppressed
             var bounds = path.GetBounds();
-            if (bounds.Width > 2 && bounds.Height > 2)
+            if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style) && bounds.Width > 2 && bounds.Height > 2)
             {
                 using (var insetPath = path.CreateInsetPath(1))
                 {

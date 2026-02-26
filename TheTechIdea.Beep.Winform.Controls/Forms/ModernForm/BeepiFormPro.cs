@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_formpaintermaterics == null)
                 {
                     // Lazy load metrics based on current Style and theme
-                    _formpaintermaterics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null);
+                    _formpaintermaterics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null);
                 }
                 return _formpaintermaterics;
             }
@@ -45,6 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
         private readonly SolidBrush _bgBrush; // Cache brush
         private DateTime _lastInvalidate = DateTime.MinValue;
+
+        // Cached BorderShape path - recreated only when size or style changes
+        private GraphicsPath _cachedBorderShape;
+        private Size       _cachedBorderShapeSize;
+        private FormStyle  _cachedBorderShapeStyle;
         private void DebouncedInvalidate(Rectangle? rect = null, bool invalidateChildren = false)
         {
             if ((DateTime.Now - _lastInvalidate).TotalMilliseconds < 16) //60 FPS max
@@ -107,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             this.HandleCreated += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
 
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
-            BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
+            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor; _bgBrush = new SolidBrush(BackColor); // Initialize in constructor
             FormBorderStyle = FormBorderStyle.None;
             
             // CRITICAL: Design-time support - hook child control events for auto-refresh
@@ -174,8 +179,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             ctrl.GotFocus += OnChildControlFocusChanged;
             ctrl.LostFocus += OnChildControlFocusChanged;
             
-            // Hook paint event to ensure form repaints when child repaints
-            ctrl.Paint += OnChildControlPaint;
+            // Hook Paint only in design mode - at runtime this causes unnecessary form repaints
+            // every time any child control paints (which can be very frequent for animated controls)
+            if (InDesignModeSafe)
+            {
+                ctrl.Paint += OnChildControlPaint;
+            }
         }
 
         private void UnhookChildEvents(Control ctrl)
@@ -190,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             ctrl.ForeColorChanged -= OnChildControlChanged;
             ctrl.GotFocus -= OnChildControlFocusChanged;
             ctrl.LostFocus -= OnChildControlFocusChanged;
-            ctrl.Paint -= OnChildControlPaint;
+            ctrl.Paint -= OnChildControlPaint; // Safe to call even if not hooked
         }
 
         private void OnChildControlChanged(object sender, EventArgs e)
@@ -406,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 PerformLayout();
             }
-            BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
+            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
             ApplyStyletoChildControls();
             
             // CRITICAL: Update window region to match new Style's corner radius
@@ -446,7 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 int borderWidth = 0;
                 if (ActivePainter != null)
                 {
-                    var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null);
+                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null);
                     borderWidth = metrics?.BorderWidth ?? 1;
                 }
 
@@ -470,10 +479,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         /// <summary>
         /// Gets the GraphicsPath for the form's border shape.
-        /// This path is used by painters to draw borders with the correct shape (rounded, etc.).
-        /// IMPORTANT: The path is INSET by half the border width because DrawPath centers the pen
-        /// on the path line. This ensures the entire border is visible inside the client area.
-        /// Uses GraphicsExtensions methods exclusively - NO rectangles!
+        /// The path is inset by half the border width so the pen draws entirely inside the client area.
+        /// The result is cached and only recreated when the form size or style changes.
+        /// IMPORTANT: Callers must NOT dispose this path — it is owned and managed by BeepiFormPro.
         /// </summary>
         [System.ComponentModel.Browsable(false)]
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
@@ -481,48 +489,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             get
             {
-                // Always create fresh path based on current size and painter
+                // Return cached path when nothing relevant has changed
+                if (_cachedBorderShape != null
+                    && _cachedBorderShapeSize  == ClientSize
+                    && _cachedBorderShapeStyle == FormStyle)
+                {
+                    return _cachedBorderShape;
+                }
+
+                // Dispose old cached path before creating a new one
+                _cachedBorderShape?.Dispose();
+                _cachedBorderShape = null;
+
                 if (ActivePainter != null)
                 {
-                    // Get the corner radius from the active painter
                     var radius = ActivePainter.GetCornerRadius(this);
-
-                    // Get border width from metrics
-                    var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null);
+                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null);
                     int borderWidth = metrics?.BorderWidth ?? 1;
 
-                    // Create the outer path using GraphicsExtensions
                     GraphicsPath outerPath;
                     if (radius.TopLeft == radius.TopRight &&
-                    radius.TopLeft == radius.BottomLeft &&
-                    radius.TopLeft == radius.BottomRight)
+                        radius.TopLeft == radius.BottomLeft &&
+                        radius.TopLeft == radius.BottomRight)
                     {
-                        // Uniform radius - use simple method
                         outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle, radius.TopLeft);
                     }
                     else
                     {
-                        // Different radii per corner - use full method
                         outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle,
-                        radius.TopLeft, radius.TopRight, radius.BottomLeft, radius.BottomRight);
+                            radius.TopLeft, radius.TopRight, radius.BottomLeft, radius.BottomRight);
                     }
 
-                    // CRITICAL: Inset the path by HALF the border width using GraphicsExtensions
-                    // This ensures the pen draws centered and the entire border is visible
                     float inset = borderWidth / 2f;
-                    var insetPath = outerPath.CreateInsetPath(inset, radius.TopLeft);
-
-                    outerPath.Dispose(); // Clean up the temporary outer path
-                    return insetPath;
+                    _cachedBorderShape = outerPath.CreateInsetPath(inset, radius.TopLeft);
+                    outerPath.Dispose();
                 }
                 else
                 {
-                    // Fallback: create simple path and inset it
                     var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle, 0);
-                    var insetPath = outerPath.CreateInsetPath(0.5f, 0); // Inset by0.5 for1px border
+                    _cachedBorderShape = outerPath.CreateInsetPath(0.5f, 0);
                     outerPath.Dispose();
-                    return insetPath;
                 }
+
+                _cachedBorderShapeSize  = ClientSize;
+                _cachedBorderShapeStyle = FormStyle;
+                return _cachedBorderShape;
             }
         }
     }

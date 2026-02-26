@@ -31,18 +31,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            // Frost glow from top (aurora effect)
-            var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height / 3f);
-            var frostBrush = PaintersFactory.GetLinearGradientBrush(
-                topRect, 
-                Color.FromArgb(10, frost), 
-                Color.FromArgb(0, frost), 
-                LinearGradientMode.Vertical);
-            g.FillRectangle(frostBrush, topRect);
+            using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
+            {
+                // Frost glow from top (aurora effect)
+                var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height / 3f);
+                var frostBrush = PaintersFactory.GetLinearGradientBrush(
+                    topRect,
+                    Color.FromArgb(10, frost),
+                    Color.FromArgb(0, frost),
+                    LinearGradientMode.Vertical);
+                g.FillRectangle(frostBrush, topRect);
 
-            // Subtle frost accent line at top
-            var pen = PaintersFactory.GetPen(Color.FromArgb(30, frost), 1f);
-            g.DrawLine(pen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
+                // Subtle frost accent line at top
+                var pen = PaintersFactory.GetPen(Color.FromArgb(30, frost), 1f);
+                g.DrawLine(pen, bounds.Left, bounds.Top + 0.5f, bounds.Right, bounds.Top + 0.5f);
+            }
         }
     }
 }

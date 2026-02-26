@@ -63,9 +63,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Add very subtle top border for Next.js card style
             if (bounds.Width > 0 && bounds.Height > 0)
             {
-                var topBorderRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, 1);
-                var borderBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, Color.Black));
-                g.FillRectangle(borderBrush, topBorderRect);
+                // Avoid decorative edge overlays when a dedicated border painter is active.
+                if (BackgroundPainterHelpers.ShouldPaintDecorativeEdgeStroke(style) && bounds.Width >= 160 && bounds.Height >= 56)
+                {
+                    using (var clip = new BackgroundPainterHelpers.ClipScope(g, path))
+                    {
+                        var topBorderRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, 1);
+                        var borderBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(15, Color.Black));
+                        g.FillRectangle(borderBrush, topBorderRect);
+                    }
+                }
             }
         }
     }

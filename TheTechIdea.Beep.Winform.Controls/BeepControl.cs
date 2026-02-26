@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -1645,7 +1645,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0)
                 return;
 
-            // First update the region for the control shape (rounded or square)
             int border = BorderThickness;
             int shadow = ShowShadow ? shadowOffset : 0;
 
@@ -1656,7 +1655,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Height
             );
 
-            // Create the basic region for the control
             Region controlRegion;
 
             if (IsRounded)

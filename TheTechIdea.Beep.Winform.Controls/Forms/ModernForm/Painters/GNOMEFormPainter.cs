@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            var metrics = FormPainterMetrics.DefaultFor(FormStyle.GNOME, owner.UseThemeColors ? owner.CurrentTheme : null);
+            var metrics = FormPainterMetrics.DefaultForCached(FormStyle.GNOME, owner.UseThemeColors ? owner.CurrentTheme : null);
             // GNOME prefers subtle rounded corners
             return metrics;
         }
@@ -285,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 Alignment = PenAlignment.Inset
             };
             
-             using var path = owner.BorderShape;
+             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);

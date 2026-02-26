@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.GruvBox, owner.UseThemeColors ? owner.CurrentTheme : null);
+            return FormPainterMetrics.DefaultForCached(FormStyle.GruvBox, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
@@ -263,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = owner.BorderShape; 
+            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro 
             // GruvBox: muted border (GruvBox border color #504945) with subtle orange tint
             // Thicker for retro feel
             using var pen = new Pen(Color.FromArgb(100, 254, 128, 25), 2); // Semi-transparent orange over border

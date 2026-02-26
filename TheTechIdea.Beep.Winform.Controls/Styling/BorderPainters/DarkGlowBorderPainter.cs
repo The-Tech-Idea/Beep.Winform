@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BorderPainterHelpers.PaintGlowBorder(g, path, glowColor, glowWidth, glowIntensity);
 
             // Return the area inside the border using shape-aware inset
-            return path.CreateInsetPath(glowWidth);
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, glowWidth, glowWidth * 0.5f);
         }
     }
 }

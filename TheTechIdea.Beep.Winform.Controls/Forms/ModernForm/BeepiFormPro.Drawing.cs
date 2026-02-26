@@ -223,28 +223,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// Handles micro-interactions for modern UI feel
+        /// Handles micro-interactions for modern UI feel.
+        /// Uses targeted rectangle invalidation to avoid repainting the entire form
+        /// when only a caption button changes its hover state.
         /// </summary>
         private void HandleMicroInteractions(string regionName, bool isHover)
         {
             if (!EnableMicroInteractions) return;
 
-            // Trigger subtle animations based on interaction
             switch (regionName)
             {
                 case "region:system:minimize":
                 case "region:system:maximize":
                 case "region:system:close":
-                    // Button hover effects could trigger here
                     if (isHover && EnableAnimations)
                     {
-                        // In a full implementation, this would start smooth color transitions
-                        Invalidate();
+                        // Invalidate only the caption bar rather than the entire form.
+                        // This avoids expensive full-form repaints for simple hover colour changes.
+                        if (CurrentLayout != null && !CurrentLayout.CaptionRect.IsEmpty)
+                            Invalidate(CurrentLayout.CaptionRect, false);
+                        else
+                            Invalidate(false);
                     }
                     break;
 
                 case "region:system:caption":
-                    // Caption hover for drag operations
+                    // Caption hover for drag operations — no repaint needed
                     break;
             }
         }

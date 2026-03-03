@@ -275,6 +275,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             return await Task.Run(() => ShowPresetDialog(config));
         }
 
+        public static DialogReturn Login(string title = "Sign in", string message = "Enter your credentials")
+        {
+            return ShowPresetDialog(DialogConfig.CreateLogin(title, message));
+        }
+
+        public static DialogReturn Feedback(string title = "Feedback", string message = "Share your feedback")
+        {
+            return ShowPresetDialog(DialogConfig.CreateFeedback(title, message));
+        }
+
+        public static DialogReturn Rate(string title = "Rate this app", string message = "How was your experience?")
+        {
+            return ShowPresetDialog(DialogConfig.CreateRate(title, message));
+        }
+
+        public static DialogReturn Update(string title = "Update available", string message = "Install latest update now?")
+        {
+            return ShowPresetDialog(DialogConfig.CreateUpdate(title, message));
+        }
+
+        public static DialogReturn Cookie(string title = "Cookie notice", string message = "Manage cookie preferences")
+        {
+            return ShowPresetDialog(DialogConfig.CreateCookie(title, message));
+        }
+
+        public static DialogReturn Search(string title = "Search", string message = "Type to search")
+        {
+            return ShowPresetDialog(DialogConfig.CreateSearch(title, message));
+        }
+
         #endregion
 
         #region Enums

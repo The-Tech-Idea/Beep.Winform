@@ -435,7 +435,7 @@ navigationMenu.ItemClick += (sender, e) =>
 // Handle toggle events
 navigationMenu.ToggleClicked += (sender, e) =>
 {
-    Console.WriteLine($"Menu toggled: {(bool)e.Item}");
+  //  Console.WriteLine($"Menu toggled: {(bool)e.Item}");
 };
 
 this.Controls.Add(navigationMenu);</code></pre>
@@ -630,7 +630,7 @@ this.Controls.Add(hierarchicalMenu);</code></pre>
 accordionMenu.ItemClick += (sender, e) =>
 {
     var clickedItem = e.Item as SimpleItem;
-    Console.WriteLine($"Menu item clicked: {e.ItemText}");
+  //  Console.WriteLine($"Menu item clicked: {e.ItemText}");
     
     // Handle navigation based on the clicked item
     HandleNavigation(clickedItem);
@@ -643,7 +643,7 @@ accordionMenu.ItemClick += (sender, e) =>
 accordionMenu.ToggleClicked += (sender, e) =>
 {
     bool isCollapsed = (bool)e.Item;
-    Console.WriteLine($"Menu toggled. Collapsed: {isCollapsed}");
+  //  Console.WriteLine($"Menu toggled. Collapsed: {isCollapsed}");
     
     // Adjust layout for other controls
     AdjustLayoutForMenuState(isCollapsed);
@@ -657,7 +657,7 @@ accordionMenu.ToggleClicked += (sender, e) =>
 accordionMenu.HeaderExpandedChanged += (sender, e) =>
 {
     var headerItem = e.Item as SimpleItem;
-    Console.WriteLine($"Header '{e.ItemText}' expansion changed");
+  //  Console.WriteLine($"Header '{e.ItemText}' expansion changed");
     
     // Save expansion state for persistence
     SaveMenuExpansionState(headerItem);

@@ -379,6 +379,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         // Social widget properties
         public bool ShowAvatar { get; set; } = true;
 
+        // ---------------------------------------------------------------
+        // SCROLL STATE  (set by painter in AdjustLayout; persisted across paints)
+        // ---------------------------------------------------------------
+        /// <summary>Vertical scroll offset in logical pixels. 0 = top of content.</summary>
+        public int ScrollOffsetY { get; set; } = 0;
+
+        /// <summary>Horizontal scroll offset in logical pixels. 0 = left of content.</summary>
+        public int ScrollOffsetX { get; set; } = 0;
+
+        /// <summary>Total virtual content height computed by the painter in AdjustLayout.</summary>
+        public int TotalContentHeight { get; set; } = 0;
+
+        /// <summary>Total virtual content width computed by the painter in AdjustLayout.</summary>
+        public int TotalContentWidth  { get; set; } = 0;
+
         // Note: We don't need ClickableAreas here because BaseControl handles hit areas
         // through its AddHitArea(), ClearHitList(), HitTest(), etc. methods
         // Painters will use owner.AddHitArea() in UpdateHitAreas() method

@@ -204,12 +204,12 @@ header.AddActionButton("Login",
 // Handle events
 header.TabSelected += (s, e) =>
 {
-    Console.WriteLine($"Tab selected: {e.TabText}");
+  //  Console.WriteLine($"Tab selected: {e.TabText}");
 };
 
 header.ActionButtonClicked += (s, e) =>
 {
-    Console.WriteLine($"Button clicked: {e.ButtonText}");
+  //  Console.WriteLine($"Button clicked: {e.ButtonText}");
 };
 
 Controls.Add(header);

@@ -45,15 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 _ => baseSize
             };
 
-            // Scale the font size for DPI
-            float scaledSize = DpiScalingHelper.ScaleValue(chipFontSize, dpiScale);
-
             FontStyle fontStyle = FontStyle.Regular;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
+            // Use BeepThemesManager.ToFont as the single scaling authority to avoid double-DPI scaling.
+            return BeepThemesManager.ToFont(primaryFont, Math.Max(6f, chipFontSize), FontWeight.Normal, fontStyle);
         }
 
         /// <summary>
@@ -82,15 +80,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float titleSize = baseSize * 1.2f; // 20% larger
             
-            // Scale the font size for DPI
-            float scaledSize = DpiScalingHelper.ScaleValue(titleSize, dpiScale);
-
             FontStyle fontStyle = FontStyle.Bold;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
+            // Use BeepThemesManager.ToFont as the single scaling authority to avoid double-DPI scaling.
+            return BeepThemesManager.ToFont(primaryFont, Math.Max(6f, titleSize), FontWeight.Bold, fontStyle);
         }
 
         /// <summary>
@@ -128,15 +124,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 _ => baseSize * 0.8f
             };
 
-            // Scale the font size for DPI
-            float scaledSize = DpiScalingHelper.ScaleValue(iconFontSize, dpiScale);
-
             FontStyle fontStyle = FontStyle.Regular;
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, scaledSize, fontStyle);
+            // Use BeepThemesManager.ToFont as the single scaling authority to avoid double-DPI scaling.
+            return BeepThemesManager.ToFont(primaryFont, Math.Max(6f, iconFontSize), FontWeight.Normal, fontStyle);
         }
 
         /// <summary>

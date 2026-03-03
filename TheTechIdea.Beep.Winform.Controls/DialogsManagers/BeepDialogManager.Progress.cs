@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Handle for managing progress dialogs
         /// </summary>
-        public interface IProgressHandle : IDisposable
+        public interface IProgressDialogHandle : IDisposable
         {
             /// <summary>
             /// Updates the progress percentage and optional status message
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a progress dialog with determinate progress
         /// </summary>
-        public IProgressHandle ShowProgress(string title, string? message = null, bool cancellable = false)
+        public IProgressDialogHandle ShowProgress(string title, string? message = null, bool cancellable = false)
         {
             var handle = new ProgressHandle(this, title, message, cancellable, false);
             handle.Show();
@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows an indeterminate progress dialog
         /// </summary>
-        public IProgressHandle ShowIndeterminate(string title, string? message = null, bool cancellable = false)
+        public IProgressDialogHandle ShowIndeterminate(string title, string? message = null, bool cancellable = false)
         {
             var handle = new ProgressHandle(this, title, message, cancellable, true);
             handle.Show();
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Runs an async operation with progress dialog
         /// </summary>
-        public async Task<T> RunWithProgressAsync<T>(string title, string message, Func<IProgressHandle, Task<T>> operation, bool cancellable = false)
+        public async Task<T> RunWithProgressAsync<T>(string title, string message, Func<IProgressDialogHandle, Task<T>> operation, bool cancellable = false)
         {
             using var progress = ShowProgress(title, message, cancellable);
             try
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Runs an async operation with progress dialog (no return value)
         /// </summary>
-        public async Task RunWithProgressAsync(string title, string message, Func<IProgressHandle, Task> operation, bool cancellable = false)
+        public async Task RunWithProgressAsync(string title, string message, Func<IProgressDialogHandle, Task> operation, bool cancellable = false)
         {
             using var progress = ShowProgress(title, message, cancellable);
             try
@@ -162,37 +162,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region IDialogManager Implementation (Progress)
 
-        int IDialogManager.ShowProgress(string title, string? message)
+        Task<TheTechIdea.Beep.Vis.Modules.IProgressHandle> IDialogManager.ShowProgressAsync(string title, string? message, CancellationToken cancellationToken)
         {
-            int token = ++_progressTokenCounter;
+            cancellationToken.ThrowIfCancellationRequested();
             var handle = new ProgressHandle(this, title, message, false, false);
             handle.Show();
-            _progressDialogs[token] = handle;
-            return token;
-        }
-
-        void IDialogManager.UpdateProgress(int token, int percent, string? status)
-        {
-            if (_progressDialogs.TryGetValue(token, out var handle))
-            {
-                handle.UpdateProgress(percent, status);
-            }
-        }
-
-        void IDialogManager.CloseProgress(int token)
-        {
-            if (_progressDialogs.TryGetValue(token, out var handle))
-            {
-                handle.Dispose();
-                _progressDialogs.Remove(token);
-            }
+            return Task.FromResult<TheTechIdea.Beep.Vis.Modules.IProgressHandle>(handle);
         }
 
         #endregion
 
         #region Progress Handle Implementation
 
-        private class ProgressHandle : IProgressHandle
+        private class ProgressHandle : IProgressDialogHandle, TheTechIdea.Beep.Vis.Modules.IProgressHandle, IAsyncDisposable
         {
             private readonly BeepDialogManager _manager;
             private readonly string _title;
@@ -397,6 +379,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _dialog = null;
             }
 
+            void TheTechIdea.Beep.Vis.Modules.IProgressHandle.Update(int percent, string? status)
+            {
+                UpdateProgress(percent, status);
+            }
+
+            void TheTechIdea.Beep.Vis.Modules.IProgressHandle.Complete(string? finalMessage)
+            {
+                Complete(finalMessage);
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                Dispose();
+                return ValueTask.CompletedTask;
+            }
+
             private Form CreateProgressDialog()
             {
                 var theme = _manager._defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
@@ -416,7 +414,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 var titleLabel = new Label
                 {
                     Text = _title,
-                    Font = new Font("Segoe UI", 11, FontStyle.Bold),
                     ForeColor = theme?.ForeColor ?? Color.Black,
                     Location = new Point(20, 16),
                     Size = new Size(360, 24),
@@ -428,7 +425,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _messageLabel = new Label
                 {
                     Text = _initialMessage ?? "Please wait...",
-                    Font = new Font("Segoe UI", 9, FontStyle.Regular),
                     ForeColor = Color.FromArgb(100, theme?.ForeColor ?? Color.Black),
                     Location = new Point(20, 44),
                     Size = new Size(320, 20),
@@ -440,7 +436,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _percentLabel = new Label
                 {
                     Text = _indeterminate ? "" : "0%",
-                    Font = new Font("Segoe UI", 9, FontStyle.Regular),
                     ForeColor = theme?.ForeColor ?? Color.Black,
                     Location = new Point(340, 44),
                     Size = new Size(40, 20),
@@ -465,7 +460,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     _cancelButton = new Button
                     {
                         Text = "Cancel",
-                        Font = new Font("Segoe UI", 9, FontStyle.Regular),
                         Location = new Point(290, 100),
                         Size = new Size(90, 32),
                         FlatStyle = FlatStyle.Flat,
@@ -530,7 +524,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     var messageLabel = new Label
                     {
                         Text = message,
-                        Font = new Font("Segoe UI", 11, FontStyle.Regular),
                         ForeColor = Color.White,
                         TextAlign = ContentAlignment.MiddleCenter,
                         Size = new Size(300, 30),

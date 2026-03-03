@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -44,29 +45,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _channelFont?.Dispose(); } catch { }
-            try { _statsFont?.Dispose(); } catch { }
-            try { _durationFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _channelFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _statsFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _durationFont = new Font(fontFamily, 9f, FontStyle.Bold);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_titleFont = titleFont;
+            _channelFont = bodyFont;
+            _statsFont = captionFont;
+            _durationFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int playButtonSize = DpiScalingHelper.ScaleValue(PlayButtonSize, _owner);
+            int durationWidth = DpiScalingHelper.ScaleValue(DurationWidth, _owner);
+            int durationHeight = DpiScalingHelper.ScaleValue(DurationHeight, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int channelHeight = DpiScalingHelper.ScaleValue(ChannelHeight, _owner);
+            int statsHeight = DpiScalingHelper.ScaleValue(StatsHeight, _owner);
+            int channelAvatarSize = DpiScalingHelper.ScaleValue(ChannelAvatarSize, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Video thumbnail (16:9 aspect ratio)
             int thumbnailHeight = Math.Min(
@@ -81,32 +84,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             
             // Play button (centered on thumbnail)
             ctx.ButtonRect = new Rectangle(
-                ctx.ImageRect.Left + (ctx.ImageRect.Width - PlayButtonSize) / 2,
-                ctx.ImageRect.Top + (ctx.ImageRect.Height - PlayButtonSize) / 2,
-                PlayButtonSize,
-                PlayButtonSize);
+                ctx.ImageRect.Left + (ctx.ImageRect.Width - playButtonSize) / 2,
+                ctx.ImageRect.Top + (ctx.ImageRect.Height - playButtonSize) / 2,
+                playButtonSize,
+                playButtonSize);
             
             // Duration badge (bottom-right of thumbnail)
             ctx.RatingRect = new Rectangle(
-                ctx.ImageRect.Right - Padding - DurationWidth,
-                ctx.ImageRect.Bottom - Padding - DurationHeight,
-                DurationWidth,
-                DurationHeight);
+                ctx.ImageRect.Right - padding - durationWidth,
+                ctx.ImageRect.Bottom - padding - durationHeight,
+                durationWidth,
+                durationHeight);
             
             // Quality/Live badge (top-right of thumbnail)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    ctx.ImageRect.Right - Padding - BadgeWidth,
-                    ctx.ImageRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    ctx.ImageRect.Right - padding - badgeWidth,
+                    ctx.ImageRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Content area below thumbnail
-            int contentTop = ctx.ImageRect.Bottom + Padding;
-            int contentLeft = drawingRect.Left + Padding;
-            int contentWidth = drawingRect.Width - Padding * 2;
+            int contentTop = ctx.ImageRect.Bottom + padding;
+            int contentLeft = drawingRect.Left + padding;
+            int contentWidth = drawingRect.Width - padding * 2;
             
             // Channel avatar (optional)
             if (ctx.ShowStatus)
@@ -114,10 +117,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 ctx.StatusRect = new Rectangle(
                     contentLeft,
                     contentTop,
-                    ChannelAvatarSize,
-                    ChannelAvatarSize);
-                contentLeft = ctx.StatusRect.Right + ElementGap;
-                contentWidth -= ChannelAvatarSize + ElementGap;
+                    channelAvatarSize,
+                    channelAvatarSize);
+                contentLeft = ctx.StatusRect.Right + elementGap;
+                contentWidth -= channelAvatarSize + elementGap;
             }
             
             // Video title (2 lines)
@@ -125,21 +128,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 contentLeft,
                 contentTop,
                 contentWidth,
-                TitleHeight);
+                titleHeight);
             
             // Channel name
             ctx.SubtitleRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                ctx.HeaderRect.Bottom + elementGap / 2,
                 contentWidth,
-                ChannelHeight);
+                channelHeight);
             
             // View count and upload date
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
                 ctx.SubtitleRect.Bottom + 2,
                 contentWidth,
-                StatsHeight);
+                statsHeight);
             
             ctx.ShowButton = true; // Play button
             ctx.ShowSecondaryButton = false;
@@ -277,14 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _channelFont?.Dispose();
-            _statsFont?.Dispose();
-            _durationFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

@@ -95,18 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void InitializePainter()
         {
-            _painter = NotificationPainterFactory.CreatePainter(_notificationData?.Layout ?? NotificationLayout.Standard);
-            if (_painter is NotificationPainterBase basePainter)
-            {
-                basePainter.OwnerControl = this;
-                if (IsHandleCreated)
-                {
-                    var theme = BeepThemesManager.CurrentTheme;
-                    basePainter.TextFont = theme != null
-                        ? TheTechIdea.Beep.Winform.Controls.FontManagement.BeepFontManager.ToFont(theme.BodyMedium)
-                        : SystemFonts.DefaultFont;
-                }
-            }
+            // Use new factory overload: routes on Layout + VisualStyle, wires owner, pushes theme fonts.
+            _painter = NotificationPainterFactory.CreatePainter(
+                _notificationData?.Layout ?? NotificationLayout.Standard,
+                _notificationData?.VisualStyle ?? NotificationVisualStyle.Material3,
+                this,
+                IsHandleCreated ? BeepThemesManager.CurrentTheme : null);
         }
         #endregion
 
@@ -281,20 +275,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public event EventHandler<NotificationEventArgs> NotificationClicked;
         #endregion
 
+        #region ApplyTheme
+
+        /// <summary>
+        /// Applies the current theme: refreshes painter fonts and recalculates layout.
+        /// All fonts are sourced via BeepFontManager.ToFont – no inline new Font().
+        /// </summary>
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme == null) return;
+
+            // Push theme fonts into painter (TitleFont, MessageFont, ButtonFont, CaptionFont)
+            _painter?.RefreshFonts(theme);
+
+            // Re-layout with the new font measurements so text fits correctly
+            RecalculateLayout();
+            Invalidate();
+        }
+
+        #endregion
+
         #region DPI Scaling
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             MinimumSize = DpiScalingHelper.ScaleSize(new Size(280, 60), this);
             MaximumSize = DpiScalingHelper.ScaleSize(new Size(420, 300), this);
-            Size = DpiScalingHelper.ScaleSize(new Size(350, 80), this);
-            if (_painter is NotificationPainterBase basePainter)
-            {
-                var theme = BeepThemesManager.CurrentTheme;
-                basePainter.TextFont = theme != null
-                    ? TheTechIdea.Beep.Winform.Controls.FontManagement.BeepFontManager.ToFont(theme.BodyMedium)
-                    : SystemFonts.DefaultFont;
-            }
+            Size        = DpiScalingHelper.ScaleSize(new Size(350, 80), this);
+
+            // Push theme fonts into the painter now that the handle exists.
+            var theme = BeepThemesManager.CurrentTheme;
+            if (theme != null && _painter != null)
+                _painter.RefreshFonts(theme);
         }
         #endregion
     }

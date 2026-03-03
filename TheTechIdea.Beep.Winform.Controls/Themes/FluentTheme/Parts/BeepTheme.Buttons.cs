@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using System.ComponentModel;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
@@ -10,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
     {
         private void ApplyButtons()
         {
-            this.ButtonBackColor = Color.FromArgb(230, 236, 245);
+            this.ButtonBackColor = BackgroundColor;
             this.ButtonForeColor = ForeColor;
             this.ButtonBorderColor = BorderColor;
 

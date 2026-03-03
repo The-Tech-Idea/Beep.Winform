@@ -19,6 +19,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         Full
     }
 
+    /// <summary>
+    /// Validation state that drives border colour and status icon.
+    /// </summary>
+    public enum BeepComboBoxValidationState
+    {
+        None,
+        Error,
+        Warning,
+        Success
+    }
+
+    /// <summary>
+    /// Predefined height tokens that mirror design-system size scales.
+    /// </summary>
+    public enum BeepComboBoxSize
+    {
+        Small,
+        Medium,
+        Large
+    }
+
     public partial class BeepComboBox
     {
         #region List and Selection Properties
@@ -78,6 +99,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 
                 OnSelectedItemChanged(_selectedItem);
+                // ENH-12: keep AccessibleObject.Value in sync with current text
+                AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.ValueChange, -1);
                 Invalidate();
             }
         }
@@ -142,7 +165,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
-        [Description("Text Font displayed in the control.")]
+        /// <summary>
+        /// The raw text the user has typed into the inline editor.
+        /// Exposed so painters and the helper can read it.
+        /// </summary>
+        internal string InputText => _inputText;
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Font TextFont
         {
@@ -151,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_textFont != value)
                 {
-                    _textFont = value ?? new Font("Segoe UI", 9f);
+                    _textFont = value;
                     UseThemeFont = false;
                     InvalidateLayout();
                 }
@@ -490,7 +517,160 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         private Padding _innerPadding = DefaultInnerPaddingLogical;
-        
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Predefined height variant: Small (24 px), Medium (32 px), Large (40 px).")]
+        [DefaultValue(BeepComboBoxSize.Medium)]
+        public BeepComboBoxSize SizeVariant
+        {
+            get => _sizeVariant;
+            set
+            {
+                if (_sizeVariant == value) return;
+                _sizeVariant = value;
+                _layoutDefaultsInitialized = false;
+                ApplyLayoutDefaultsFromPainter(force: true, applyHeight: true);
+                InvalidateLayout();
+            }
+        }
+        private BeepComboBoxSize _sizeVariant = BeepComboBoxSize.Medium;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show a × button inside the control when a value is selected.")]
+        [DefaultValue(false)]
+        public bool ShowClearButton
+        {
+            get => _showClearButton;
+            set
+            {
+                if (_showClearButton == value) return;
+                _showClearButton = value;
+                Invalidate();
+            }
+        }
+        private bool _showClearButton = false;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Validation state that controls border colour and status icon (None, Error, Warning, Success).")]
+        [DefaultValue(BeepComboBoxValidationState.None)]
+        public BeepComboBoxValidationState ValidationState
+        {
+            get => _validationState;
+            set
+            {
+                if (_validationState == value) return;
+                _validationState = value;
+                Invalidate();
+            }
+        }
+        private BeepComboBoxValidationState _validationState = BeepComboBoxValidationState.None;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Animate the chevron icon when the dropdown opens / closes.")]
+        [DefaultValue(true)]
+        public bool AnimateChevron { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Skip all timer-driven animations (chevron, spinner) and snap to final state immediately.")]
+        [DefaultValue(false)]
+        public bool ReduceMotion { get; set; } = false;
+
+        // ── ENH-07 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Text shown as a disabled placeholder row when the dropdown list is empty or all items are filtered out.")]
+        [DefaultValue("No options")]
+        public string EmptyStateText { get; set; } = "No options";
+
+        // ── ENH-08 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When true, the dropdown renders the ImagePath icon for each SimpleItem row.")]
+        [DefaultValue(false)]
+        public bool ShowStatusIcons { get; set; } = false;
+
+        // ── ENH-11 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, the dropdown opens upward if there is insufficient space below the control.")]
+        [DefaultValue(true)]
+        public bool AutoFlip { get; set; } = true;
+
+        // ── ENH-13 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Minimum width (in pixels) of the dropdown popup. 0 means the popup matches the control width.")]
+        [DefaultValue(0)]
+        public int MinDropdownWidth { get; set; } = 0;
+
+        // ── ENH-18 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true and AllowMultipleSelection is enabled, a 'Select all / Clear all' row is pinned at the top of the dropdown.")]
+        [DefaultValue(true)]
+        public bool ShowSelectAll { get; set; } = true;
+
+        // ── ENH-16 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When true, the dropdown renders each item's SubText (description) as a second line below the label. Rows expand automatically to fit.")]
+        [DefaultValue(true)]
+        public bool ShowOptionDescription { get; set; } = true;
+
+        // ── ENH-22 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, typing a token delimiter in the editable input converts the current token into a chip (multi-select).")]
+        [DefaultValue(false)]
+        public bool AllowFreeText { get; set; } = false;
+
+        [Browsable(false)] // char[] isn't designer-serialisable
+        [Description("Characters that trigger tokenization when AllowFreeText is enabled. Defaults to ',' and ';'.")]
+        public char[] TokenDelimiters { get; set; } = new[] { ',', ';' };
+
+        // ── ENH-23 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When true, renders an animated shimmer skeleton instead of content while data is loading.")]
+        [DefaultValue(false)]
+        public bool ShowSkeleton
+        {
+            get => _showSkeleton;
+            set
+            {
+                if (_showSkeleton == value) return;
+                _showSkeleton = value;
+                if (_showSkeleton)
+                    StartSkeletonAnimation();
+                else
+                    StopSkeletonAnimation();
+                Invalidate();
+            }
+        }
+        private bool _showSkeleton = false;
+
+        // ── ENH-24 ──────────────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("When true, the control layout mirrors horizontally: dropdown button on the left, text right-aligned, chips flow right-to-left.")]
+        [DefaultValue(false)]
+        public bool IsRtl
+        {
+            get => _isRtl;
+            set
+            {
+                if (_isRtl == value) return;
+                _isRtl = value;
+                Invalidate();
+            }
+        }
+        private bool _isRtl = false;
+
         #endregion
     }
 }

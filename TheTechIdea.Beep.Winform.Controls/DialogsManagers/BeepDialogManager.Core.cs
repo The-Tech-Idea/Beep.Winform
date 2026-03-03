@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Wizard;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Sheets;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Panels;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Popovers;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms;
 using DialogShowAnimation = TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models.DialogShowAnimation;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -49,16 +56,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         private Form? _hostForm;
         private Panel? _backdropOverlay;
+        private DialogBackdropForm? _backdropForm;
         private IBeepTheme? _defaultTheme;
         private BeepControlStyle _defaultStyle = BeepControlStyle.Material3;
         private DialogShowAnimation _defaultAnimation = DialogShowAnimation.FadeIn;
         private int _animationDuration = 200;
-        private readonly Dictionary<int, IProgressHandle> _progressDialogs = new();
+        private DialogManagerOptions _options = new DialogManagerOptions();
+        private readonly Dictionary<int, TheTechIdea.Beep.Vis.Modules.IProgressHandle> _progressDialogs = new();
         private int _progressTokenCounter = 0;
         private readonly Queue<DialogRequest> _dialogQueue = new();
         private bool _isShowingDialog = false;
         private readonly List<Form> _activeToasts = new();
         private readonly object _toastLock = new object();
+        private readonly Dictionary<string, Rectangle> _dialogRectState = new();
+        private readonly Dictionary<string, Queue<string>> _recentInputMemory = new();
+        private BeepDialogModal? _activeModalDialog;
+        private DialogConfig? _activeDialogConfig;
+
+        public event EventHandler<DialogConfig>? DialogOpened;
+        public event EventHandler<DialogReturn>? DialogConfirmed;
+        public event EventHandler<DialogReturn>? DialogCancelled;
+        public event EventHandler<DialogConfig>? DialogDismissedByBackdrop;
 
         #endregion
 
@@ -108,6 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         public BeepDialogManager SetDefaultStyle(BeepControlStyle style)
         {
             _defaultStyle = style;
+            _options.DefaultStyle = style;
             return this;
         }
 
@@ -118,6 +137,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             _defaultAnimation = animation;
             _animationDuration = durationMs;
+            _options.DefaultAnimation = animation;
+            return this;
+        }
+
+        public BeepDialogManager Configure(Action<DialogManagerOptions> configure)
+        {
+            configure?.Invoke(_options);
+            _defaultStyle = _options.DefaultStyle;
+            _defaultAnimation = _options.DefaultAnimation;
             return this;
         }
 
@@ -157,6 +185,91 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             set => _defaultAnimation = value;
         }
 
+        public DialogManagerOptions Options => _options;
+
+        #endregion
+
+        #region Advanced Dialog Types
+
+        public System.Windows.Forms.DialogResult ShowWizard(BeepWizardDialog wizard)
+        {
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            return owner != null ? wizard.ShowDialog(owner) : wizard.ShowDialog();
+        }
+
+        public void ShowModeless(Control content, DialogConfig config)
+        {
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var dialog = new BeepModelessDialog { Text = config.Title };
+            if (content != null)
+            {
+                content.Dock = DockStyle.Fill;
+                dialog.Controls.Add(content);
+            }
+            if (owner != null)
+            {
+                dialog.PositionRelativeToOwner(owner, config.Position);
+                dialog.Show(owner);
+            }
+            else
+            {
+                dialog.Show();
+            }
+        }
+
+        public void ShowBottomSheet(Control content, DialogConfig config)
+        {
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            if (owner == null) return;
+            var sheet = new BeepBottomSheet { Text = config.Title };
+            if (content != null)
+            {
+                content.Dock = DockStyle.Fill;
+                sheet.Controls.Add(content);
+            }
+            sheet.AttachToOwner(owner);
+            sheet.Show(owner);
+        }
+
+        public void ShowSidePanel(Control content, DialogConfig config, bool openFromLeft = false)
+        {
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            if (owner == null) return;
+            var panel = new BeepSidePanel { Text = config.Title, OpenFromLeft = openFromLeft };
+            if (content != null)
+            {
+                content.Dock = DockStyle.Fill;
+                panel.Controls.Add(content);
+            }
+            panel.AttachToOwner(owner);
+            panel.Show(owner);
+        }
+
+        public void ShowPopover(Control anchor, Control content)
+        {
+            var pop = new BeepPopover();
+            if (content != null)
+            {
+                content.Dock = DockStyle.Fill;
+                pop.Controls.Add(content);
+            }
+            pop.Attach(anchor);
+            pop.Show();
+        }
+
+        public System.Windows.Forms.DialogResult ShowCommandPalette(IEnumerable<CommandAction> actions)
+        {
+            using var palette = new BeepCommandPaletteDialog();
+            palette.SetActions(actions);
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            return owner != null ? palette.ShowDialog(owner) : palette.ShowDialog();
+        }
+
+        public System.Windows.Forms.DialogResult ShowQuickActions(IEnumerable<CommandAction> actions)
+        {
+            return ShowCommandPalette(actions);
+        }
+
         #endregion
 
         #region Core Show Methods (Async)
@@ -170,9 +283,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 throw new ArgumentNullException(nameof(config));
 
             // Apply defaults if not specified
-            config.Style = config.Style == default ? _defaultStyle : config.Style;
+            config.Style = config.Style == default ? _options.DefaultStyle : config.Style;
             config.Animation = config.Animation == default ? _defaultAnimation : config.Animation;
             config.AnimationDuration = config.AnimationDuration == 0 ? _animationDuration : config.AnimationDuration;
+            config.ReducedMotion = config.ReducedMotion || _options.ReducedMotion;
 
             var tcs = new TaskCompletionSource<DialogReturn>();
 
@@ -215,15 +329,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a dialog with full configuration (sync)
         /// </summary>
+        [Obsolete("Use ShowAsync for async-first dialog flow.")]
         public DialogReturn Show(DialogConfig config)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
 
             // Apply defaults if not specified
-            config.Style = config.Style == default ? _defaultStyle : config.Style;
+            config.Style = config.Style == default ? _options.DefaultStyle : config.Style;
             config.Animation = config.Animation == default ? _defaultAnimation : config.Animation;
             config.AnimationDuration = config.AnimationDuration == 0 ? _animationDuration : config.AnimationDuration;
+            config.ReducedMotion = config.ReducedMotion || _options.ReducedMotion;
 
             return ShowDialogInternal(config);
         }
@@ -236,12 +352,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             // Show backdrop if configured
             if (config.ShowBackdrop && _hostForm != null)
             {
-                ShowBackdrop(config.BackdropOpacity);
+                ShowBackdrop(config);
             }
+            DialogOpened?.Invoke(this, config);
 
             try
             {
                 using var dialog = CreateDialog(config);
+                _activeModalDialog = dialog;
+                _activeDialogConfig = config;
 
                 // Apply animation
                 if (config.Animation != DialogShowAnimation.None)
@@ -252,13 +371,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 // Set owner
                 var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
 
+                if (config.RememberSizeAndPosition &&
+                    !string.IsNullOrWhiteSpace(config.DialogKey) &&
+                    _dialogRectState.TryGetValue(config.DialogKey, out var previous))
+                {
+                    dialog.StartPosition = FormStartPosition.Manual;
+                    dialog.Location = previous.Location;
+                    dialog.Size = previous.Size;
+                }
+
                 // Show dialog
                 var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-
-                return CreateDialogReturn(dialog, result);
+                var dialogReturn = CreateDialogReturn(dialog, result);
+                if (dialogReturn.Submit) DialogConfirmed?.Invoke(this, dialogReturn);
+                else DialogCancelled?.Invoke(this, dialogReturn);
+                if (config.RememberSizeAndPosition && !string.IsNullOrWhiteSpace(config.DialogKey))
+                {
+                    _dialogRectState[config.DialogKey] = new Rectangle(dialog.Location, dialog.Size);
+                }
+                return dialogReturn;
             }
             finally
             {
+                _activeModalDialog = null;
+                _activeDialogConfig = null;
                 HideBackdrop();
             }
         }
@@ -328,13 +464,84 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 Value = dialog.ReturnValue ?? string.Empty,
                 Tag = dialog.ReturnItem,
                 Cancel = result == System.Windows.Forms.DialogResult.Cancel || result == System.Windows.Forms.DialogResult.No,
-                Submit = result == System.Windows.Forms.DialogResult.OK || result == System.Windows.Forms.DialogResult.Yes
+                Submit = result == System.Windows.Forms.DialogResult.OK || result == System.Windows.Forms.DialogResult.Yes,
+                UserAction = result switch
+                {
+                    System.Windows.Forms.DialogResult.Yes => BeepDialogButtons.Yes,
+                    System.Windows.Forms.DialogResult.No => BeepDialogButtons.No,
+                    System.Windows.Forms.DialogResult.Cancel => BeepDialogButtons.Cancel,
+                    System.Windows.Forms.DialogResult.Abort => BeepDialogButtons.Abort,
+                    System.Windows.Forms.DialogResult.Retry => BeepDialogButtons.Retry,
+                    System.Windows.Forms.DialogResult.Ignore => BeepDialogButtons.Ignore,
+                    _ => BeepDialogButtons.Ok
+                }
             };
         }
 
         #endregion
 
         #region Quick Semantic Dialogs (Async)
+
+        async Task IDialogManager.MsgBoxAsync(string title, string promptText, CancellationToken cancellationToken)
+        {
+            await ShowAsync(DialogConfig.CreateInformation(title, promptText), cancellationToken);
+        }
+
+        Task<DialogReturn> IDialogManager.ShowAlertAsync(string title, string message, string icon, CancellationToken cancellationToken)
+        {
+            var config = new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = icon?.ToLowerInvariant() switch
+                {
+                    "warning" => BeepDialogIcon.Warning,
+                    "error" => BeepDialogIcon.Error,
+                    "success" => BeepDialogIcon.Success,
+                    _ => BeepDialogIcon.Information
+                },
+                Buttons = new[] { BeepDialogButtons.Ok }
+            };
+            return ShowAsync(config, cancellationToken);
+        }
+
+        async Task IDialogManager.ShowMessegeAsync(string title, string message, string icon, CancellationToken cancellationToken)
+        {
+            await ((IDialogManager)this).ShowAlertAsync(title, message, icon, cancellationToken);
+        }
+
+        async Task IDialogManager.ShowExceptionAsync(string title, Exception ex, CancellationToken cancellationToken)
+        {
+            var config = new DialogConfig
+            {
+                Title = string.IsNullOrWhiteSpace(title) ? "Error" : title,
+                Message = ex.Message,
+                Details = ex.StackTrace ?? string.Empty,
+                IconType = BeepDialogIcon.Error,
+                Preset = DialogPreset.Danger,
+                Buttons = new[] { BeepDialogButtons.Ok }
+            };
+            await ShowAsync(config, cancellationToken);
+        }
+
+        Task<DialogReturn> IDialogManager.ConfirmAsync(string title, string message, BeepDialogButtons[] buttons, BeepDialogIcon icon, CancellationToken cancellationToken)
+        {
+            return ((IDialogManager)this).ConfirmAsync(title, message, buttons, icon, null, cancellationToken);
+        }
+
+        Task<DialogReturn> IDialogManager.ConfirmAsync(string title, string message, BeepDialogButtons[] buttons, BeepDialogIcon icon, BeepDialogButtons? defaultButton, CancellationToken cancellationToken)
+        {
+            var config = new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = icon,
+                Buttons = buttons,
+                DefaultButton = defaultButton,
+                Preset = DialogPreset.Question
+            };
+            return ShowAsync(config, cancellationToken);
+        }
 
         /// <summary>
         /// Shows a success dialog
@@ -347,6 +554,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a success dialog (sync)
         /// </summary>
+        [Obsolete("Use Success(...) or ShowAsync(...) for async-first dialog flow.")]
         public DialogReturn ShowSuccess(string title, string message)
         {
             return Show(DialogConfig.CreateSuccess(title, message));
@@ -363,6 +571,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a warning dialog (sync)
         /// </summary>
+        [Obsolete("Use Warning(...) or ShowAsync(...) for async-first dialog flow.")]
         public DialogReturn ShowWarning(string title, string message)
         {
             return Show(DialogConfig.CreateWarning(title, message));
@@ -379,6 +588,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows an error dialog (sync)
         /// </summary>
+        [Obsolete("Use Error(...) or ShowAsync(...) for async-first dialog flow.")]
         public DialogReturn ShowError(string title, string message)
         {
             return Show(DialogConfig.CreateDanger(title, message));
@@ -395,6 +605,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows an information dialog (sync)
         /// </summary>
+        [Obsolete("Use Info(...) or ShowAsync(...) for async-first dialog flow.")]
         public DialogReturn ShowInfo(string title, string message)
         {
             return Show(DialogConfig.CreateInformation(title, message));
@@ -411,6 +622,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a question dialog (sync)
         /// </summary>
+        [Obsolete("Use Question(...) or ShowAsync(...) for async-first dialog flow.")]
         public DialogReturn ShowQuestion(string title, string message)
         {
             return Show(DialogConfig.CreateQuestion(title, message));
@@ -438,31 +650,84 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region Backdrop Management
 
-        private void ShowBackdrop(float opacity)
+        private void ShowBackdrop(DialogConfig config)
         {
-            if (_hostForm == null) return;
-
-            if (_backdropOverlay == null)
+            if (_hostForm == null)
             {
-                _backdropOverlay = new Panel
+                return;
+            }
+            float opacity = config.BackdropOpacity;
+
+            if (_backdropForm == null || _backdropForm.IsDisposed)
+            {
+                _backdropForm = new DialogBackdropForm
                 {
-                    BackColor = Color.FromArgb((int)(opacity * 255), 0, 0, 0),
-                    Dock = DockStyle.Fill,
-                    Visible = false
+                    Opacity = 0
                 };
-                _hostForm.Controls.Add(_backdropOverlay);
+                _backdropForm.SetBounds(
+                    Screen.FromControl(_hostForm).Bounds.X,
+                    Screen.FromControl(_hostForm).Bounds.Y,
+                    Screen.FromControl(_hostForm).Bounds.Width,
+                    Screen.FromControl(_hostForm).Bounds.Height);
+                _backdropForm.Click += HandleBackdropClicked;
+                _backdropForm.Show(_hostForm);
             }
 
-            _backdropOverlay.BackColor = Color.FromArgb((int)(opacity * 255), 0, 0, 0);
-            _backdropOverlay.BringToFront();
-            _backdropOverlay.Visible = true;
+            _backdropForm.BackdropStyle = config.BackdropStyle;
+            _backdropForm.TargetOpacity = opacity;
+            _backdropForm.BringToFront();
+            DialogMotionEngine.AnimateOpacity(
+                _backdropForm,
+                0,
+                opacity,
+                Math.Max(120, _animationDuration),
+                config.BackdropTransitionStyle == DialogBackdropTransitionStyle.CrossDissolve
+                    ? DialogAnimationEasing.EaseInOutQuad
+                    : DialogAnimationEasing.EaseOutCubic,
+                animationKey: "backdrop-opacity");
+            _backdropForm.Invalidate();
         }
 
         private void HideBackdrop()
         {
+            if (_backdropForm != null && !_backdropForm.IsDisposed)
+            {
+                var backdrop = _backdropForm;
+                DialogMotionEngine.AnimateOpacity(backdrop, backdrop.Opacity, 0, Math.Max(100, _animationDuration / 2), DialogAnimationEasing.EaseInOutQuad, () =>
+                {
+                    if (!backdrop.IsDisposed)
+                    {
+                        backdrop.Hide();
+                        backdrop.Dispose();
+                    }
+                }, animationKey: "backdrop-opacity");
+                _backdropForm = null;
+            }
             if (_backdropOverlay != null)
             {
                 _backdropOverlay.Visible = false;
+            }
+        }
+
+        private void HandleBackdropClicked(object? sender, EventArgs e)
+        {
+            DialogDismissedByBackdrop?.Invoke(this, _activeDialogConfig ?? new DialogConfig { Title = "Backdrop" });
+            if (_activeDialogConfig == null || _activeModalDialog == null || _activeModalDialog.IsDisposed)
+            {
+                return;
+            }
+
+            switch (_activeDialogConfig.BackdropClickPolicy)
+            {
+                case DialogBackdropClickPolicy.CancelDialog:
+                    _activeModalDialog.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                    _activeModalDialog.Close();
+                    break;
+                case DialogBackdropClickPolicy.CloseDialog:
+                    _activeModalDialog.Close();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -474,6 +739,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             if (form == null || animation == DialogShowAnimation.None)
                 return;
+
+            if (_options.ReducedMotion)
+            {
+                DialogMotionEngine.AnimateOpacity(form, 0, 1, Math.Min(120, durationMs), DialogAnimationEasing.EaseOutCubic);
+                return;
+            }
 
             switch (animation)
             {
@@ -502,24 +773,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         private void AnimateFadeIn(Form form, int durationMs)
         {
-            form.Opacity = 0;
-            int steps = 10;
-            int interval = durationMs / steps;
-            int step = 0;
-
-            var timer = new System.Windows.Forms.Timer { Interval = Math.Max(1, interval) };
-            timer.Tick += (s, e) =>
-            {
-                step++;
-                form.Opacity = (double)step / steps;
-                if (step >= steps)
-                {
-                    timer.Stop();
-                    timer.Dispose();
-                    form.Opacity = 1;
-                }
-            };
-            timer.Start();
+            DialogMotionEngine.AnimateOpacity(form, 0, 1, durationMs, DialogAnimationEasing.EaseOutCubic, animationKey: $"dialog-opacity-{form.Handle}");
         }
 
         private void AnimateSlideIn(Form form, int durationMs, SlideDirection direction)
@@ -536,31 +790,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _ => finalLocation
             };
 
-            form.Opacity = 0;
-            int steps = 10;
-            int interval = durationMs / steps;
-            int step = 0;
-
-            var timer = new System.Windows.Forms.Timer { Interval = Math.Max(1, interval) };
-            timer.Tick += (s, e) =>
-            {
-                step++;
-                double progress = (double)step / steps;
-                form.Opacity = progress;
-
-                int currentX = (int)(form.Location.X + (finalLocation.X - form.Location.X) * progress);
-                int currentY = (int)(form.Location.Y + (finalLocation.Y - form.Location.Y) * progress);
-                form.Location = new Point(currentX, currentY);
-
-                if (step >= steps)
-                {
-                    timer.Stop();
-                    timer.Dispose();
-                    form.Opacity = 1;
-                    form.Location = finalLocation;
-                }
-            };
-            timer.Start();
+            DialogMotionEngine.AnimateOpacity(form, 0, 1, durationMs, DialogAnimationEasing.EaseOutCubic, animationKey: $"dialog-opacity-{form.Handle}");
+            DialogMotionEngine.AnimateTranslate(form, form.Location, finalLocation, durationMs, DialogAnimationEasing.EaseOutBack, animationKey: $"dialog-translate-{form.Handle}");
         }
 
         private void AnimateZoomIn(Form form, int durationMs)
@@ -604,6 +835,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 }
             };
             timer.Start();
+        }
+
+        private void AnimateFadeOut(Form form, int durationMs, Action? completed = null)
+        {
+            DialogMotionEngine.AnimateOpacity(form, form.Opacity, 0, durationMs, DialogAnimationEasing.EaseInOutQuad, completed);
+        }
+
+        private void AnimateSlideOut(Form form, int durationMs, SlideDirection direction, Action? completed = null)
+        {
+            var from = form.Location;
+            var distance = 40;
+            var to = direction switch
+            {
+                SlideDirection.Top => new Point(from.X, from.Y - distance),
+                SlideDirection.Bottom => new Point(from.X, from.Y + distance),
+                SlideDirection.Left => new Point(from.X - distance, from.Y),
+                _ => new Point(from.X + distance, from.Y)
+            };
+            DialogMotionEngine.AnimateOpacity(form, form.Opacity, 0, durationMs, DialogAnimationEasing.EaseInOutQuad);
+            DialogMotionEngine.AnimateTranslate(form, from, to, durationMs, DialogAnimationEasing.EaseInOutQuad, completed);
         }
 
         #endregion
@@ -686,6 +937,46 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 if (!found) return false;
             }
             return true;
+        }
+
+        internal void StoreRecentInput(DialogConfig config, string value)
+        {
+            if (!config.EnableRecentInputMemory || string.IsNullOrWhiteSpace(config.DialogKey) || string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            if (!_recentInputMemory.TryGetValue(config.DialogKey, out var queue))
+            {
+                queue = new Queue<string>();
+                _recentInputMemory[config.DialogKey] = queue;
+            }
+
+            if (queue.Count >= Math.Max(1, config.RecentInputCapacity))
+            {
+                queue.Dequeue();
+            }
+            queue.Enqueue(value);
+        }
+
+        public IReadOnlyCollection<string> GetRecentInputs(string dialogKey)
+        {
+            if (string.IsNullOrWhiteSpace(dialogKey) || !_recentInputMemory.TryGetValue(dialogKey, out var queue))
+            {
+                return Array.Empty<string>();
+            }
+            return queue.ToArray();
+        }
+
+        public async Task<bool> ConfirmDestructiveWithUndoAsync(string title, string message, Action undoAction)
+        {
+            var result = await ShowAsync(DialogConfig.CreateDanger(title, message));
+            if (result.Submit)
+            {
+                SnackbarUndo("Action completed", undoAction, 4000);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

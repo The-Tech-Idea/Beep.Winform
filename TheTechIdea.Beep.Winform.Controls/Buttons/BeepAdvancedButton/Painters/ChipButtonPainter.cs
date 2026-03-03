@@ -57,14 +57,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw loading spinner or content
             if (context.IsLoading)
             {
-                DrawLoadingSpinner(g, buttonBounds, GetForegroundColor(context));
+                DrawLoadingSpinner(g, context, buttonBounds, GetForegroundColor(context));
             }
             else
             {
                 // Draw left icon (if present)
-                if (!string.IsNullOrEmpty(context.ImagePainter?.ImagePath) && !iconBounds.IsEmpty)
+                if (HasPrimaryIcon(context) && !iconBounds.IsEmpty)
                 {
-                    DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                    DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
                 }
 
                 // Draw text (hashtag, label, count)
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 // Draw badge indicator (if badge style)
                 if (isBadge && !string.IsNullOrEmpty(context.BadgeText))
                 {
-                    DrawBadgeIndicator(g, buttonBounds, context.BadgeText, context.BadgeColor, context.Font);
+                    DrawBadgeIndicator(g, buttonBounds, context.BadgeText, context.BadgeColor, context.TextFont);
                 }
             }
         }
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             int closeIconSize = 16;
             int gap = 6;
 
-            bool hasIcon = !string.IsNullOrEmpty(context.ImagePainter?.ImagePath);
+            bool hasIcon = HasPrimaryIcon(context);
             
             int currentX = bounds.X + padding;
 
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 format.LineAlignment = StringAlignment.Center;
                 format.Trimming = StringTrimming.EllipsisCharacter;
 
-                g.DrawString(context.Text, context.Font, textBrush, textBounds, format);
+                g.DrawString(context.Text, context.TextFont, textBrush, textBounds, format);
             }
         }
 
@@ -253,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 using (Brush textBrush = new SolidBrush(Color.White))
                 using (StringFormat format = new StringFormat())
-                using (Font badgeFont = new Font(baseFont.FontFamily, 8, FontStyle.Bold))
+                using (Font badgeFont = GetDerivedTextFont(baseFont, styleOverride: FontStyle.Bold, sizeDelta: 8f - baseFont.Size))
                 {
                     format.Alignment = StringAlignment.Center;
                     format.LineAlignment = StringAlignment.Center;

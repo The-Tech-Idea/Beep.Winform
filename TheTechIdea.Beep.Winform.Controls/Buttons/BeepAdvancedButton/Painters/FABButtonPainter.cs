@@ -56,9 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             
             if (context.IsLoading)
             {
-                DrawLoadingSpinner(g, circleBounds, iconColor);
+                DrawLoadingSpinner(g, context, circleBounds, iconColor);
             }
-            else if (!string.IsNullOrEmpty(context.ImagePainter?.ImagePath))
+            else if (HasPrimaryIcon(context))
             {
                 int iconSize = size / 2;
                 Rectangle iconBounds = new Rectangle(
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     iconSize,
                     iconSize
                 );
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
         }
 

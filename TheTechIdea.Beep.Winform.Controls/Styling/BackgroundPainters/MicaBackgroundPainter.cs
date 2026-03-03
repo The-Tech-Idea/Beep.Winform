@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Subtle depth gradient overlay
             RectangleF fBounds = path.GetBounds();
-            var gradient = PaintersFactory.GetLinearGradientBrush(
+            using var gradient = PaintersFactory.CreateLinearGradientBrush(
                 fBounds,
                 Color.FromArgb(6, 255, 255, 255),
                 Color.FromArgb(3, 0, 0, 0),

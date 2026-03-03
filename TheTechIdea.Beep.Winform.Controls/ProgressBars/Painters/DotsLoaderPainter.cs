@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             int dots = GetInt(p, "Dots", 8);
-            float pct = Math.Max(0f, Math.Min(1f, owner.Value / (float)owner.Maximum));
+            float pct = owner.DisplayProgressPercentageAccessor;
             int active = (int)(pct * dots + 0.5f);
             int pad = 6;
             int dotSize = Math.Max(6, Math.Min(bounds.Height - pad*2, 12));
@@ -23,7 +23,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int y = bounds.Y + (bounds.Height - dotSize)/2;
             int x = bounds.X + pad;
             var on = theme.PrimaryColor.IsEmpty ? Color.DodgerBlue : theme.PrimaryColor;
-            var off = Color.FromArgb(120, theme.CardTextForeColor);
+            if (!owner.Enabled)
+            {
+                on = Color.FromArgb(120, on);
+            }
+            var off = Color.FromArgb(owner.Enabled ? 120 : 80, theme.CardTextForeColor);
             for (int i = 0; i < dots; i++)
             {
                 using var b = new SolidBrush(i < active ? on : off);

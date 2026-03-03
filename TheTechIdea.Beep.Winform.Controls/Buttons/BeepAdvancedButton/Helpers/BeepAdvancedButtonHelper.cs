@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 
@@ -153,17 +154,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers
 
         #region "Private Helper Methods"
 
-        private int MeasureTextWidth(string text, Font font)
+        public static int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
 
-            using (var bmp = new Bitmap(1, 1))
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                SizeF size = g.MeasureString(text, font);
-                return (int)Math.Ceiling(size.Width);
-            }
+            var safeFont = font ?? SystemFonts.DefaultFont;
+            var measured = TextRenderer.MeasureText(
+                text,
+                safeFont,
+                Size.Empty,
+                TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+
+            return measured.Width;
         }
 
         private bool IsPointInRoundedCorner(Point point, Rectangle bounds, int radius)

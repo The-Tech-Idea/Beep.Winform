@@ -99,7 +99,7 @@ if (result != null)
 var results = ContextMenuManager.ShowMultiSelect(items, Cursor.Position, this);
 foreach (var item in results)
 {
-    Console.WriteLine(item.DisplayField);
+  //  Console.WriteLine(item.DisplayField);
 }
 ```
 

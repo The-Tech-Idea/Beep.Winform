@@ -78,6 +78,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (!_hoverAnimationTimer.Enabled) _hoverAnimationTimer.Start();
                 }
             }
+
+            // Delegate any active drag tracking to the Drag partial
+            HandleDragMove(e);
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -149,9 +152,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (info.RowRect.Contains(e.Location))
                     {
                         HandleItemClick(info.Item, e, info.RowRect);
-                        break;
+                        return;
                     }
                 }
+            }
+
+            // InfiniteScroll: check if user clicked the "Load more" sentinel row
+            if (_listBoxType == ListBoxType.InfiniteScroll && Tag is Rectangle sentinelRect
+                && sentinelRect.Contains(e.Location))
+            {
+                OnLoadMoreRequested();
             }
         }
 
@@ -235,222 +245,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Keyboard Events
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-
-            if (_listItems == null || _listItems.Count == 0) return;
-
-            var visibleItems = _helper.GetVisibleItems();
-            if (visibleItems.Count == 0) return;
-
-            bool shift = e.Shift;
-            switch (e.KeyCode)
-            {
-                case Keys.Up:
-                    MoveSelectionUp(visibleItems, shift);
-                    e.Handled = true;
-                    break;
-
-                case Keys.Down:
-                    MoveSelectionDown(visibleItems, shift);
-                    e.Handled = true;
-                    break;
-                case Keys.PageUp:
-                {
-                    if (visibleItems.Count == 0) break;
-                    int itemHeight = _listBoxPainter.GetPreferredItemHeight();
-                    Rectangle clientArea = GetClientArea();
-                    int page = Math.Max(1, clientArea.Height / itemHeight) - 1;
-                    int currentIndex = _selectedItem == null ? 0 : visibleItems.IndexOf(_selectedItem);
-                    int newIndex = Math.Max(0, currentIndex - page);
-                    if (newIndex >= 0 && newIndex < visibleItems.Count)
-                    {
-                        if (shift && (SelectionMode == SelectionModeEnum.MultiExtended))
-                        {
-                            int anchorIdx = visibleItems.IndexOf(_anchorItem);
-                            SelectRange(visibleItems, anchorIdx < 0 ? newIndex : anchorIdx, newIndex);
-                        }
-                        else if (shift && _showCheckBox)
-                        {
-                            RangeCheck(visibleItems, newIndex);
-                        }
-                        SelectedItem = visibleItems[newIndex];
-                        if (!shift) _anchorItem = SelectedItem;
-                        EnsureItemVisible(SelectedItem);
-                    }
-                    e.Handled = true;
-                }
-                break;
-
-                case Keys.PageDown:
-                {
-                    if (visibleItems.Count == 0) break;
-                    int itemHeight = _listBoxPainter.GetPreferredItemHeight();
-                    Rectangle clientArea = GetClientArea();
-                    int page = Math.Max(1, clientArea.Height / itemHeight) - 1;
-                    int currentIndex = _selectedItem == null ? 0 : visibleItems.IndexOf(_selectedItem);
-                    int newIndex = Math.Min(visibleItems.Count - 1, currentIndex + page);
-                    if (newIndex >= 0 && newIndex < visibleItems.Count)
-                    {
-                        if (shift && (SelectionMode == SelectionModeEnum.MultiExtended))
-                        {
-                            int anchorIdx = visibleItems.IndexOf(_anchorItem);
-                            SelectRange(visibleItems, anchorIdx < 0 ? newIndex : anchorIdx, newIndex);
-                        }
-                        else if (shift && _showCheckBox)
-                        {
-                            RangeCheck(visibleItems, newIndex);
-                        }
-                        SelectedItem = visibleItems[newIndex];
-                        if (!shift) _anchorItem = SelectedItem;
-                        EnsureItemVisible(SelectedItem);
-                    }
-                    e.Handled = true;
-                }
-                break;
-
-                case Keys.Home:
-                    if (shift && (SelectionMode == SelectionModeEnum.MultiExtended) && visibleItems.Count > 0)
-                    {
-                        int target = 0;
-                        int anchorIdx = visibleItems.IndexOf(_anchorItem);
-                        SelectRange(visibleItems, anchorIdx < 0 ? 0 : anchorIdx, target);
-                        SelectedItem = visibleItems[target];
-                    }
-                    else
-                    {
-                        SelectedItem = visibleItems[0];
-                        // Update anchor for non-shift selection
-                        _anchorItem = SelectedItem;
-                    }
-                    e.Handled = true;
-                    break;
-
-                case Keys.End:
-                    if (shift && (SelectionMode == SelectionModeEnum.MultiExtended) && visibleItems.Count > 0)
-                    {
-                        int target = visibleItems.Count - 1;
-                        int anchorIdx = visibleItems.IndexOf(_anchorItem);
-                        SelectRange(visibleItems, anchorIdx < 0 ? target : anchorIdx, target);
-                        SelectedItem = visibleItems[target];
-                    }
-                    else
-                    {
-                        SelectedItem = visibleItems[visibleItems.Count - 1];
-                        _anchorItem = SelectedItem;
-                    }
-                    e.Handled = true;
-                    break;
-
-                case Keys.Space:
-                    if (_showCheckBox && _selectedItem != null)
-                    {
-                        ToggleItemCheckbox(_selectedItem);
-                        e.Handled = true;
-                        break;
-                    }
-                    // Space toggles selection membership if MultiSelect mode is active and there is a selected item
-                    if ((SelectionMode == SelectionModeEnum.MultiExtended) && _selectedItem != null)
-                    {
-                        ToggleSelection(_selectedItem);
-                        e.Handled = true;
-                    }
-                    break;
-
-                case Keys.Enter:
-                    if (_selectedItem != null)
-                    {
-                        _input?.OnClick();
-                        OnItemClicked(_selectedItem);
-                        var hostForm = FindForm() as BeepPopupForm;
-                        if (hostForm != null)
-                        {
-                            hostForm.NotifySelectedItemChanged(_selectedItem);
-                            hostForm.DialogResult = DialogResult.OK;
-                        }
-                        e.Handled = true;
-                    }
-                    break;
-
-                case Keys.A:
-                    if ((Control.ModifierKeys & Keys.Control) == Keys.Control && (SelectionMode == SelectionModeEnum.MultiExtended || SelectionMode == SelectionModeEnum.MultiSimple))
-                    {
-                        SelectAll();
-                        e.Handled = true;
-                    }
-                    break;
-            }
-        }
-
-        private void MoveSelectionUp(System.Collections.Generic.List<SimpleItem> visibleItems, bool shift)
-        {
-            if (_selectedItem == null)
-            {
-                SelectedItem = visibleItems[visibleItems.Count - 1];
-            }
-            else
-            {
-                int currentIndex = visibleItems.IndexOf(_selectedItem);
-                if (currentIndex > 0)
-                {
-                    int newIndex = currentIndex - 1;
-                    if (shift)
-                    {
-                        if (SelectionMode == SelectionModeEnum.MultiExtended)
-                        {
-                            int anchorIdx = visibleItems.IndexOf(_anchorItem);
-                            SelectRange(visibleItems, anchorIdx < 0 ? newIndex : anchorIdx, newIndex);
-                        }
-                        else if (_showCheckBox)
-                        {
-                            RangeCheck(visibleItems, newIndex);
-                        }
-                    }
-                    SelectedItem = visibleItems[newIndex];
-                    if (!shift)
-                    {
-                        _anchorItem = SelectedItem;
-                    }
-                    EnsureItemVisible(SelectedItem);
-                }
-            }
-        }
-
-        private void MoveSelectionDown(System.Collections.Generic.List<SimpleItem> visibleItems, bool shift)
-        {
-            if (_selectedItem == null)
-            {
-                SelectedItem = visibleItems[0];
-            }
-            else
-            {
-                int currentIndex = visibleItems.IndexOf(_selectedItem);
-                if (currentIndex < visibleItems.Count - 1)
-                {
-                    int newIndex = currentIndex + 1;
-                    if (shift)
-                    {
-                        if (SelectionMode == SelectionModeEnum.MultiExtended)
-                        {
-                            int anchorIdx = visibleItems.IndexOf(_anchorItem);
-                            SelectRange(visibleItems, anchorIdx < 0 ? newIndex : anchorIdx, newIndex);
-                        }
-                        else if (_showCheckBox)
-                        {
-                            RangeCheck(visibleItems, newIndex);
-                        }
-                    }
-                    SelectedItem = visibleItems[newIndex];
-                    if (!shift)
-                    {
-                        _anchorItem = SelectedItem;
-                    }
-                    EnsureItemVisible(SelectedItem);
-                }
-            }
-        }
 
         private void RangeCheck(System.Collections.Generic.List<SimpleItem> visibleItems, int newIndex)
         {
@@ -546,6 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
+            NotifyA11yFocused(_focusedIndex);
             Invalidate(); // Redraw to show focus indicator
         }
 

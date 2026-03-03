@@ -48,7 +48,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             }
             else
             {
-                using var pen = new Pen(theme.PrimaryColor, 2) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+                var markerColor = theme.PrimaryColor.IsEmpty ? owner.ProgressColor : theme.PrimaryColor;
+                if (!owner.Enabled)
+                {
+                    markerColor = Color.FromArgb(120, markerColor);
+                }
+                using var pen = new Pen(markerColor, 2) { StartCap = LineCap.Round, EndCap = LineCap.Round };
                 g.DrawLine(pen, cx, rect.Top - 8, cx, rect.Bottom + 8);
             }
         }

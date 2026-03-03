@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepCompletedColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return Color.FromArgb(34, 197, 94); // Green
+            return SystemColors.Highlight;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepActiveColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return Color.FromArgb(59, 130, 246); // Blue
+            return SystemColors.HotTrack;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepPendingColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return Color.FromArgb(156, 163, 175); // Gray
+            return SystemColors.ControlDark;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepErrorColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return Color.FromArgb(239, 68, 68); // Red
+            return Color.Red;
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepWarningColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return Color.FromArgb(245, 158, 11); // Orange
+            return Color.Goldenrod;
         }
 
         #endregion
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetConnectorLineColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -158,9 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return state == StepState.Completed
-                ? Color.FromArgb(34, 197, 94) // Green
-                : Color.FromArgb(156, 163, 175); // Gray
+            return state == StepState.Completed ? SystemColors.Highlight : SystemColors.ControlDark;
         }
 
         #endregion
@@ -172,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepTextColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -198,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             // Default fallback - white for active/completed, gray for pending
             return state == StepState.Active || state == StepState.Completed
                 ? Color.White
-                : Color.FromArgb(107, 114, 128); // Gray
+                : SystemColors.ControlText;
         }
 
         /// <summary>
@@ -206,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepLabelColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -242,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepBackgroundColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)
@@ -265,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
         /// </summary>
         public static Color GetStepBorderColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
         {
-            if (customColor.HasValue)
+            if (customColor.HasValue && customColor.Value != Color.Empty)
                 return customColor.Value;
 
             if (useThemeColors && theme != null)

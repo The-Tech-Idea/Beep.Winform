@@ -62,7 +62,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
         {
             if(isLogOn)
             {
-                Console.WriteLine(message);
+              //  Console.WriteLine(message);
                 Debug.WriteLine(message);
                 //  ////MiscFunctions.SendLog(message);
             }

@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -51,27 +52,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the month/year header")]
-        public Font HeaderFont { get; set; } = FontListHelper.GetFont("Segoe UI", 14, FontStyle.Bold);
+        public Font HeaderFont { get; set; } = SystemFonts.DefaultFont;
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the days of week header")]
-        public Font DaysHeaderFont { get; set; } = FontListHelper.GetFontWithFallback("Segoe UI", "Arial",11, FontStyle.Regular);
+        public Font DaysHeaderFont { get; set; } = SystemFonts.DefaultFont;
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the date numbers")]
-        public Font DateFont { get; set; } = FontListHelper.GetFont("Segoe UI", 12, FontStyle.Regular);
+        public Font DateFont { get; set; } = SystemFonts.DefaultFont;
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for the selected date display")]
-        public Font SelectedDateFont { get; set; } = FontListHelper.GetFont("Segoe UI", 11, FontStyle.Bold);
+        public Font SelectedDateFont { get; set; } = SystemFonts.DefaultFont;
 
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Font used for footer link buttons")]
-        public Font ButtonFont { get; set; } = FontListHelper.GetFont("Segoe UI", 11, FontStyle.Bold);
+        public Font ButtonFont { get; set; } = SystemFonts.DefaultFont;
         #endregion
 
         [Browsable(true)]
@@ -592,25 +593,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Draw texts
                     string dateText = _selectedDateTime.Value.ToString("dd.MM.yyyy");
                     string timeText = _selectedDateTime.Value.ToString("HH:mm");
-                    Color sel = Color.White;
-                    TextRenderer.DrawText(g, dateText, SelectedDateFont, dateRect, sel,
+                    // Use CalendarSelectedDateForColor token — never hardcode Color.White (SKILL Rule 2)
+                    Color selTextColor = (_currentTheme?.CalendarSelectedDateForColor != null && _currentTheme.CalendarSelectedDateForColor != Color.Empty)
+                        ? _currentTheme.CalendarSelectedDateForColor : Color.White;
+                    TextRenderer.DrawText(g, dateText, SelectedDateFont, dateRect, selTextColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
-                    TextRenderer.DrawText(g, timeText, SelectedDateFont, timeRect, sel,
+                    TextRenderer.DrawText(g, timeText, SelectedDateFont, timeRect, selTextColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
                     // Draw spinner chevrons
-                    DrawUpDownGlyphs(g, _timeUpRect, _timeDownRect, Color.White);
+                    DrawUpDownGlyphs(g, _timeUpRect, _timeDownRect, selTextColor);
                 }
                 else
                 {
                     string selectedText = _selectedDateTime.Value.ToString("dd.MM.yyyy");
-                    TextRenderer.DrawText(g, selectedText, SelectedDateFont, _selectedDateDisplayRect, Color.White,
+                    // Use CalendarSelectedDateForColor token — never hardcode Color.White (SKILL Rule 2)
+                    Color selTextColor2 = (_currentTheme?.CalendarSelectedDateForColor != null && _currentTheme.CalendarSelectedDateForColor != Color.Empty)
+                        ? _currentTheme.CalendarSelectedDateForColor : Color.White;
+                    TextRenderer.DrawText(g, selectedText, SelectedDateFont, _selectedDateDisplayRect, selTextColor2,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                 }
             }
             else
             {
-                TextRenderer.DrawText(g, "Select a date", SelectedDateFont, _selectedDateDisplayRect, Color.Gray,
+                TextRenderer.DrawText(g, "Select a date", SelectedDateFont, _selectedDateDisplayRect,
+                    Color.FromArgb(128, _currentTheme?.CalendarForeColor ?? ForeColor),
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
             }
         }
@@ -824,23 +831,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.CalendarForeColor;
             BorderColor = _currentTheme.CalendarBorderColor;
 
-            // Apply fonts if they exist in the theme
+            // Apply fonts from theme tokens — SKILL Rule 2: never use this.Font or inline new Font()
             if (UseThemeFont)
             {
-                if (_currentTheme.CalendarTitleFont != null)
-                    HeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarTitleFont);
-                if (_currentTheme.DaysHeaderFont != null)
-                    DaysHeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.DaysHeaderFont);
-                if (_currentTheme.DateFont != null)
-                    DateFont = FontListHelper.CreateFontFromTypography(_currentTheme.DateFont);
-                if (_currentTheme.CalendarSelectedFont != null)
-                    SelectedDateFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarSelectedFont);
-                if (_currentTheme.FooterFont != null)
-                    ButtonFont = FontListHelper.CreateFontFromTypography(_currentTheme.FooterFont);
+                HeaderFont       = BeepThemesManager.ToFont(_currentTheme.CalendarTitleFont)   ?? SystemFonts.DefaultFont;
+                DaysHeaderFont   = BeepThemesManager.ToFont(_currentTheme.DaysHeaderFont)      ?? SystemFonts.DefaultFont;
+                DateFont         = BeepThemesManager.ToFont(_currentTheme.DateFont)            ?? SystemFonts.DefaultFont;
+                SelectedDateFont = BeepThemesManager.ToFont(_currentTheme.CalendarSelectedFont)?? SystemFonts.DefaultFont;
+                ButtonFont       = BeepThemesManager.ToFont(_currentTheme.FooterFont)          ?? SystemFonts.DefaultFont;
             }
 
             UpdateModernLayout();
-            Invalidate();
+            InvalidateOnce(); // batched repaint — SKILL Rule 2.6
         }
 
         protected override void Dispose(bool disposing)

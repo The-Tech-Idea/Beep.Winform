@@ -1,9 +1,13 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 {
@@ -101,23 +105,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             float rippleRadius = maxDistance * context.RippleProgress;
             
             // Calculate alpha based on progress (fade out as it expands)
-            int alpha = (int)(50 * (1 - context.RippleProgress));
+            int alpha = (int)(Math.Clamp(1f - context.RippleProgress, 0f, 1f) * 80);
+            Color rippleColor = context.RippleColor == Color.Empty ? Color.White : context.RippleColor;
             
-            using (GraphicsPath clipPath = GetRoundedRectanglePath(context.Bounds, context.BorderRadius))
+            GraphicsState state = g.Save();
+            try
             {
-                g.SetClip(clipPath);
-                
-                using (Brush rippleBrush = new SolidBrush(Color.FromArgb(alpha, Color.White)))
-                {
-                    g.FillEllipse(rippleBrush,
-                        context.RippleCenter.X - rippleRadius,
-                        context.RippleCenter.Y - rippleRadius,
-                        rippleRadius * 2,
-                        rippleRadius * 2
-                    );
-                }
-                
-                g.ResetClip();
+                using GraphicsPath clipPath = GetRoundedRectanglePath(context.Bounds, context.BorderRadius);
+                g.SetClip(clipPath, CombineMode.Intersect);
+
+                using Brush rippleBrush = new SolidBrush(Color.FromArgb(alpha, rippleColor));
+                g.FillEllipse(rippleBrush,
+                    context.RippleCenter.X - rippleRadius,
+                    context.RippleCenter.Y - rippleRadius,
+                    rippleRadius * 2,
+                    rippleRadius * 2
+                );
+            }
+            finally
+            {
+                g.Restore(state);
             }
         }
 
@@ -125,25 +132,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         {
             if (string.IsNullOrEmpty(iconPath)) return;
 
-            var imagePainter = context.ImagePainter;
-            if (imagePainter != null)
+            using (GraphicsPath iconPathGeometry = iconBounds.ToGraphicsPath())
             {
-                // Set up the painter for this icon
-                imagePainter.ImagePath = iconPath;
-                imagePainter.ScaleMode = ImageScaleMode.KeepAspectRatio;
-                imagePainter.Alignment = System.Drawing.ContentAlignment.MiddleCenter;
-                
-                // Apply theme colors if needed
-                if (imagePainter.ApplyThemeOnImage)
-                {
-                    imagePainter.FillColor = context.SolidForeground;
-                    imagePainter.StrokeColor = context.SolidForeground;
-                    imagePainter.ApplyThemeToSvg();
-                }
-                
-                // Draw the image
-                imagePainter.DrawImage(g, iconBounds);
+                StyledImagePainter.PaintWithTint(g, iconPathGeometry, iconPath, GetForegroundColor(context));
             }
+        }
+
+        protected static bool HasPrimaryIcon(AdvancedButtonPaintContext context)
+        {
+            return !string.IsNullOrWhiteSpace(GetPrimaryIconPath(context));
+        }
+
+        protected static string GetPrimaryIconPath(AdvancedButtonPaintContext context)
+        {
+            if (!string.IsNullOrWhiteSpace(context.ImagePath))
+            {
+                return context.ImagePath;
+            }
+
+            return context.ImagePainter?.ImagePath ?? string.Empty;
+        }
+
+        protected int MeasureContextTextWidth(AdvancedButtonPaintContext context, string? text = null)
+        {
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text ?? context.Text ?? string.Empty, context.TextFont);
+        }
+
+        protected Font GetDerivedTextFont(AdvancedButtonPaintContext context, float sizeScale = 1f, FontStyle? styleOverride = null, float sizeDelta = 0f)
+        {
+            return GetDerivedTextFont(context.TextFont, sizeScale, styleOverride, sizeDelta);
+        }
+
+        protected static Font GetDerivedTextFont(Font baseFont, float sizeScale = 1f, FontStyle? styleOverride = null, float sizeDelta = 0f)
+        {
+            var source = baseFont ?? SystemFonts.DefaultFont;
+            FontStyle style = styleOverride ?? source.Style;
+            float targetSize = Math.Max(6f, (source.Size * sizeScale) + sizeDelta);
+
+            var typography = new TypographyStyle
+            {
+                FontFamily = source.FontFamily.Name,
+                FontSize = targetSize,
+                FontStyle = style,
+                FontWeight = style.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Regular,
+                IsUnderlined = style.HasFlag(FontStyle.Underline),
+                IsStrikeout = style.HasFlag(FontStyle.Strikeout)
+            };
+
+            // Base font is already resolved for control DPI in most cases, avoid double scaling here.
+            return BeepThemesManager.ToFont(typography, applyDpiScaling: false);
         }
 
         protected void DrawText(Graphics g, AdvancedButtonPaintContext context, Rectangle textBounds, Color textColor)
@@ -159,12 +196,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                 using (Brush textBrush = new SolidBrush(textColor))
                 {
-                    g.DrawString(context.Text, context.Font, textBrush, textBounds, sf);
+                    g.DrawString(context.Text, context.TextFont, textBrush, textBounds, sf);
                 }
             }
         }
 
+        protected void DrawLoadingSpinner(Graphics g, AdvancedButtonPaintContext context, Rectangle bounds, Color color)
+        {
+            DrawLoadingSpinner(g, bounds, color, context.ReduceMotion ? 0f : context.LoadingRotationAngle);
+        }
+
         protected void DrawLoadingSpinner(Graphics g, Rectangle bounds, Color color)
+        {
+            DrawLoadingSpinner(g, bounds, color, 0f);
+        }
+
+        private static void DrawLoadingSpinner(Graphics g, Rectangle bounds, Color color, float startAngle)
         {
             // Simple rotating spinner
             int spinnerSize = Math.Min(bounds.Width, bounds.Height) / 2;
@@ -180,16 +227,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 spinnerPen.StartCap = LineCap.Round;
                 spinnerPen.EndCap = LineCap.Round;
                 
-                // Draw arc (animated in actual implementation)
-                g.DrawArc(spinnerPen, spinnerBounds, 0, 270);
+                g.DrawArc(spinnerPen, spinnerBounds, startAngle, 270);
             }
         }
 
         protected Color GetBackgroundColor(AdvancedButtonPaintContext context)
         {
+            if (context.State == AdvancedButtonState.Disabled)
+            {
+                return context.DisabledBackground;
+            }
+
+            // Unified transition pipeline: pressed takes precedence over hover.
+            if (context.PressProgress > 0f)
+            {
+                return Blend(context.SolidBackground, context.PressedBackground, context.PressProgress);
+            }
+
+            if (context.HoverProgress > 0f)
+            {
+                return Blend(context.SolidBackground, context.HoverBackground, context.HoverProgress);
+            }
+
             return context.State switch
             {
-                AdvancedButtonState.Disabled => context.DisabledBackground,
                 AdvancedButtonState.Pressed => context.PressedBackground,
                 AdvancedButtonState.Hover => context.HoverBackground,
                 _ => context.SolidBackground
@@ -198,9 +259,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
         protected Color GetForegroundColor(AdvancedButtonPaintContext context)
         {
+            if (context.State == AdvancedButtonState.Disabled)
+            {
+                return context.DisabledForeground;
+            }
+
+            if (context.PressProgress > 0f)
+            {
+                return Blend(context.SolidForeground, context.SolidForeground, context.PressProgress);
+            }
+
+            if (context.HoverProgress > 0f)
+            {
+                return Blend(context.SolidForeground, context.HoverForeground, context.HoverProgress);
+            }
+
             return context.State switch
             {
-                AdvancedButtonState.Disabled => context.DisabledForeground,
                 AdvancedButtonState.Pressed => context.SolidForeground,
                 AdvancedButtonState.Hover => context.HoverForeground,
                 _ => context.SolidForeground
@@ -210,6 +285,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         protected AdvancedButtonMetrics GetMetrics(AdvancedButtonPaintContext context)
         {
             return AdvancedButtonMetrics.GetMetrics(context.ButtonSize);
+        }
+
+        private static Color Blend(Color from, Color to, float amount)
+        {
+            float t = Math.Clamp(amount, 0f, 1f);
+            int a = (int)(from.A + (to.A - from.A) * t);
+            int r = (int)(from.R + (to.R - from.R) * t);
+            int g = (int)(from.G + (to.G - from.G) * t);
+            int b = (int)(from.B + (to.B - from.B) * t);
+            return Color.FromArgb(a, r, g, b);
         }
 
         #endregion

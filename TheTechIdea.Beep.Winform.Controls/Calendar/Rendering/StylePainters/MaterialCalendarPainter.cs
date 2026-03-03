@@ -192,6 +192,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
                 var textRect = state.IsToday ? dayRect : new Rectangle(bounds.X + 8, bounds.Y + 6, bounds.Width - 12, 20);
                 g.DrawString(date.Day.ToString(), ctx.DayFont, brush, textRect, format);
             }
+
+            // Keep a persistent today marker even when selected/hovered.
+            if (state.IsToday)
+            {
+                var markerRect = new Rectangle(bounds.Right - 9, bounds.Y + 5, 4, 4);
+                using (var markerBrush = new SolidBrush(ctx.PrimaryColor))
+                {
+                    g.FillEllipse(markerBrush, markerRect);
+                }
+            }
+
+            if (state.IsFocused)
+            {
+                using (var focusPen = new Pen(ctx.PrimaryColor, 2f))
+                {
+                    var focusBounds = Rectangle.Inflate(bounds, -2, -2);
+                    g.DrawRectangle(focusPen, focusBounds);
+                }
+            }
         }
 
         public void PaintDayHeader(Graphics g, Rectangle bounds, string dayName, bool isToday, CalendarPainterContext ctx)
@@ -332,60 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
         public void PaintListViewEvent(Graphics g, Rectangle bounds, CalendarEvent evt, bool isSelected, bool isHovered, CalendarPainterContext ctx)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-
-            Color eventColor = ctx.GetCategoryColor(evt.CategoryId);
-            Color bgColor = isSelected ? Color.FromArgb(20, ctx.PrimaryColor) :
-                           isHovered ? Color.FromArgb(10, ctx.ForegroundColor) :
-                           ctx.BackgroundColor;
-
-            // Card background
-            using (var path = CreateRoundedRect(bounds, 12))
-            {
-                using (var brush = new SolidBrush(bgColor))
-                {
-                    g.FillPath(brush, path);
-                }
-
-                // Subtle border
-                using (var pen = new Pen(Color.FromArgb(30, ctx.BorderColor), 1))
-                {
-                    g.DrawPath(pen, path);
-                }
-            }
-
-            // Color indicator bar
-            var indicatorRect = new Rectangle(bounds.X + 4, bounds.Y + 8, 4, bounds.Height - 16);
-            using (var indicatorPath = CreateRoundedRect(indicatorRect, 2))
-            using (var brush = new SolidBrush(eventColor))
-            {
-                g.FillPath(brush, indicatorPath);
-            }
-
-            // Event content
-            var contentRect = new Rectangle(bounds.X + 16, bounds.Y + 8, bounds.Width - 24, bounds.Height - 16);
-            using (var brush = new SolidBrush(ctx.ForegroundColor))
-            {
-                string title = evt.Title;
-                string time = $"{evt.StartTime:MMM dd, yyyy HH:mm} - {evt.EndTime:HH:mm}";
-                
-                using (var titleFont = new Font(ctx.EventFont.FontFamily, ctx.EventFont.Size + 1, FontStyle.Bold))
-                {
-                    g.DrawString(title, titleFont, brush, contentRect.X, contentRect.Y);
-                }
-                
-                using (var timeBrush = new SolidBrush(Color.FromArgb(150, ctx.ForegroundColor)))
-                {
-                    g.DrawString(time, ctx.EventFont, timeBrush, contentRect.X, contentRect.Y + 20);
-                }
-                
-                if (!string.IsNullOrEmpty(evt.Description))
-                {
-                    using (var descBrush = new SolidBrush(Color.FromArgb(120, ctx.ForegroundColor)))
-                    {
-                        g.DrawString(evt.Description, ctx.EventFont, descBrush, contentRect.X, contentRect.Y + 38);
-                    }
-                }
-            }
+            CommonDrawing.DrawEventCard(g, ctx, evt, bounds, isSelected, includeDescription: true, includeActions: true);
         }
 
         #endregion
@@ -451,90 +417,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
         public void PaintMiniCalendar(Graphics g, Rectangle bounds, DateTime displayMonth, DateTime selectedDate, CalendarPainterContext ctx)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-
-            // Card background
-            using (var path = CreateRoundedRect(bounds, 12))
-            using (var brush = new SolidBrush(Color.White))
-            {
-                g.FillPath(brush, path);
-            }
-
-            // Card border
-            using (var path = CreateRoundedRect(bounds, 12))
-            using (var pen = new Pen(Color.FromArgb(30, ctx.BorderColor), 1))
-            {
-                g.DrawPath(pen, path);
-            }
-
-            // Month title
-            var titleRect = new Rectangle(bounds.X + 8, bounds.Y + 8, bounds.Width - 16, 24);
-            using (var brush = new SolidBrush(ctx.ForegroundColor))
-            using (var font = new Font(ctx.DayFont.FontFamily, 11, FontStyle.Bold))
-            {
-                var format = new StringFormat { Alignment = StringAlignment.Center };
-                g.DrawString(displayMonth.ToString("MMMM yyyy"), font, brush, titleRect, format);
-            }
-
-            // Mini calendar grid
-            int cellSize = Math.Min(24, (bounds.Width - 16) / 7);
-            int startY = bounds.Y + 40;
-            
-            // Day headers
-            string[] days = { "S", "M", "T", "W", "T", "F", "S" };
-            for (int i = 0; i < 7; i++)
-            {
-                var dayRect = new Rectangle(bounds.X + 8 + i * cellSize, startY, cellSize, 16);
-                using (var brush = new SolidBrush(Color.FromArgb(120, ctx.ForegroundColor)))
-                using (var font = new Font(ctx.EventFont.FontFamily, 8))
-                {
-                    var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(days[i], font, brush, dayRect, format);
-                }
-            }
-
-            // Days
-            var firstDay = new DateTime(displayMonth.Year, displayMonth.Month, 1);
-            var firstCalendarDay = firstDay.AddDays(-(int)firstDay.DayOfWeek);
-            
-            for (int week = 0; week < 6; week++)
-            {
-                for (int day = 0; day < 7; day++)
-                {
-                    var cellDate = firstCalendarDay.AddDays(week * 7 + day);
-                    var cellRect = new Rectangle(bounds.X + 8 + day * cellSize, startY + 20 + week * cellSize, cellSize, cellSize);
-                    
-                    bool isCurrentMonth = cellDate.Month == displayMonth.Month;
-                    bool isToday = cellDate.Date == DateTime.Today;
-                    bool isSelected = cellDate.Date == selectedDate.Date;
-                    
-                    if (isSelected)
-                    {
-                        using (var brush = new SolidBrush(ctx.PrimaryColor))
-                        {
-                            g.FillEllipse(brush, cellRect.X + 2, cellRect.Y + 2, cellRect.Width - 4, cellRect.Height - 4);
-                        }
-                    }
-                    else if (isToday)
-                    {
-                        using (var pen = new Pen(ctx.PrimaryColor, 1))
-                        {
-                            g.DrawEllipse(pen, cellRect.X + 2, cellRect.Y + 2, cellRect.Width - 4, cellRect.Height - 4);
-                        }
-                    }
-                    
-                    Color textColor = isSelected ? Color.White :
-                                     isToday ? ctx.PrimaryColor :
-                                     isCurrentMonth ? ctx.ForegroundColor :
-                                     Color.FromArgb(100, ctx.ForegroundColor);
-                    
-                    using (var brush = new SolidBrush(textColor))
-                    using (var font = new Font(ctx.EventFont.FontFamily, 8))
-                    {
-                        var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                        g.DrawString(cellDate.Day.ToString(), font, brush, cellRect, format);
-                    }
-                }
-            }
+            CommonDrawing.DrawMiniCalendarCard(g, ctx, bounds, displayMonth, selectedDate);
         }
 
         #endregion
@@ -544,83 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
         public void PaintEventDetails(Graphics g, Rectangle bounds, CalendarEvent evt, CalendarPainterContext ctx)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-
-            if (evt == null) return;
-
-            // Card background
-            using (var path = CreateRoundedRect(bounds, 12))
-            using (var brush = new SolidBrush(Color.White))
-            {
-                g.FillPath(brush, path);
-            }
-
-            // Card border
-            using (var path = CreateRoundedRect(bounds, 12))
-            using (var pen = new Pen(Color.FromArgb(30, ctx.BorderColor), 1))
-            {
-                g.DrawPath(pen, path);
-            }
-
-            // Category color header
-            Color eventColor = ctx.GetCategoryColor(evt.CategoryId);
-            var headerRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, 8);
-            using (var path = CreateRoundedRect(headerRect, 12, true, true, false, false))
-            using (var brush = new SolidBrush(eventColor))
-            {
-                g.FillPath(brush, path);
-            }
-
-            // Content
-            int contentY = bounds.Y + 16;
-            int contentX = bounds.X + 12;
-            int contentWidth = bounds.Width - 24;
-
-            // Title
-            using (var brush = new SolidBrush(ctx.ForegroundColor))
-            using (var font = new Font(ctx.DayFont.FontFamily, 12, FontStyle.Bold))
-            {
-                g.DrawString(evt.Title, font, brush, contentX, contentY);
-            }
-            contentY += 28;
-
-            // Date & Time
-            using (var brush = new SolidBrush(Color.FromArgb(150, ctx.ForegroundColor)))
-            {
-                string dateText = evt.IsAllDay ? 
-                    evt.StartTime.ToString("dddd, MMMM dd, yyyy") :
-                    $"{evt.StartTime:dddd, MMMM dd, yyyy}\n{evt.StartTime:HH:mm} - {evt.EndTime:HH:mm}";
-                g.DrawString(dateText, ctx.EventFont, brush, contentX, contentY);
-            }
-            contentY += evt.IsAllDay ? 20 : 36;
-
-            // Category
-            var category = ctx.Categories?.Find(c => c.Id == evt.CategoryId);
-            if (category != null)
-            {
-                // Category chip
-                var chipRect = new Rectangle(contentX, contentY, 80, 20);
-                using (var path = CreatePillPath(chipRect))
-                using (var brush = new SolidBrush(Color.FromArgb(30, eventColor)))
-                {
-                    g.FillPath(brush, path);
-                }
-                using (var brush = new SolidBrush(eventColor))
-                {
-                    var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(category.Name, ctx.EventFont, brush, chipRect, format);
-                }
-                contentY += 28;
-            }
-
-            // Description
-            if (!string.IsNullOrEmpty(evt.Description))
-            {
-                using (var brush = new SolidBrush(Color.FromArgb(120, ctx.ForegroundColor)))
-                {
-                    var descRect = new Rectangle(contentX, contentY, contentWidth, bounds.Bottom - contentY - 12);
-                    g.DrawString(evt.Description, ctx.EventFont, brush, descRect);
-                }
-            }
+            CommonDrawing.DrawEventInsightsCard(g, ctx, bounds, evt);
         }
 
         #endregion

@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
-using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Icons;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -14,48 +16,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
     /// </summary>
     internal sealed class TabContainerPainter : WidgetPainterBase, IDisposable
     {
-        private BaseImage.ImagePainter _imagePainter;
+        private Font? _tabFont;
 
-        public TabContainerPainter()
+        protected override void RebuildFonts()
         {
-            _imagePainter = new BaseImage.ImagePainter();
+            _tabFont?.Dispose();
+            _tabFont = BeepThemesManager.ToFont(Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f }, true);
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 4;
+            int pad = Dp(4);
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -2, -2);
-            
-            // Tab area
             ctx.ContentRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
                 ctx.DrawingRect.Top + pad,
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Height - pad * 2
             );
-            
             return ctx;
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            // Tab container background
-            using var bgBrush = new SolidBrush(Color.FromArgb(245, 245, 245));
-            using var bgPath = CreateRoundedPath(ctx.DrawingRect, 4);
+            var bgBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(245, 245, 245));
+            using var bgPath = CreateRoundedPath(ctx.DrawingRect, Dp(4));
             g.FillPath(bgBrush, bgPath);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Configure ImagePainter with theme
-            _imagePainter.CurrentTheme = Theme;
-            _imagePainter.ApplyThemeOnImage = true;
-
             var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleTabs();
             int currentIndex = ctx.CurrentIndex >= 0 ? ctx.CurrentIndex : 0;
-            
+
             if (!items.Any()) return;
-            
+
             DrawModernTabs(g, ctx, items, currentIndex);
         }
 
@@ -71,105 +66,99 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawModernTabs(Graphics g, WidgetContext ctx, List<NavigationItem> items, int currentIndex)
         {
-            int tabWidth = ctx.ContentRect.Width / items.Count;
-            var primaryColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
-            
-            using var tabFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var activeTabBrush = new SolidBrush(Color.White);
-            using var inactiveTabBrush = new SolidBrush(Color.FromArgb(248, 249, 250));
-            using var activeTextBrush = new SolidBrush(primaryColor);
-            using var inactiveTextBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-            
+            int tabWidth       = ctx.ContentRect.Width / items.Count;
+            var primaryColor   = ctx.AccentColor != Color.Empty ? ctx.AccentColor
+                : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
+            var font           = _tabFont ?? SystemFonts.DefaultFont;
+            var activeTabBrush = PaintersFactory.GetSolidBrush(Color.White);
+            var inactiveTabBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(248, 249, 250));
+            var activeTextBrush  = PaintersFactory.GetSolidBrush(primaryColor);
+            var inactiveTextBrush= PaintersFactory.GetSolidBrush(Color.FromArgb(120, Color.Black));
+            int iconSz = Dp(16);
+
             for (int i = 0; i < items.Count; i++)
             {
-                var item = items[i];
+                var item    = items[i];
                 bool isActive = i == currentIndex;
-                
+
                 var tabRect = new Rectangle(
                     ctx.ContentRect.X + i * tabWidth,
                     ctx.ContentRect.Y,
                     tabWidth,
                     ctx.ContentRect.Height
                 );
-                
-                // Modern tab styling with subtle elevation
+
                 if (isActive)
                 {
                     // Active tab shadow
                     var shadowRect = new Rectangle(tabRect.X + 1, tabRect.Y + 1, tabRect.Width, tabRect.Height);
-                    using var shadowBrush = new SolidBrush(Color.FromArgb(10, Color.Black));
-                    using var shadowPath = CreateRoundedPath(shadowRect, 6);
+                    var shadowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(10, Color.Black));
+                    using var shadowPath = CreateRoundedPath(shadowRect, Dp(6));
                     g.FillPath(shadowBrush, shadowPath);
-                    
-                    // Active tab background
-                    using var tabPath = CreateRoundedPath(tabRect, 6);
+
+                    using var tabPath = CreateRoundedPath(tabRect, Dp(6));
                     g.FillPath(activeTabBrush, tabPath);
-                    
-                    // Active accent border
-                    using var accentPen = new Pen(primaryColor, 2);
+
+                    var accentPen = PaintersFactory.GetPen(primaryColor, 2f);
                     g.DrawPath(accentPen, tabPath);
                 }
                 else
                 {
-                    // Inactive tab background
-                    using var tabPath = CreateRoundedPath(tabRect, 6);
+                    using var tabPath = CreateRoundedPath(tabRect, Dp(6));
                     g.FillPath(inactiveTabBrush, tabPath);
                 }
-                
-                // Tab icon (optional)
-                var iconName = GetTabIcon(item.Text, i);
-                if (!string.IsNullOrEmpty(iconName))
+
+                // Tab icon
+                var iconSvg = GetTabIconSvg(item.Text, i);
+                bool hasIcon = iconSvg != null;
+                if (hasIcon)
                 {
-                    var iconRect = new Rectangle(tabRect.X + 8, tabRect.Y + (tabRect.Height - 16) / 2, 16, 16);
-                    _imagePainter.ImagePath = iconName;
-                    _imagePainter.DrawImage(g, iconRect);
+                    var iconRect = new Rectangle(tabRect.X + Dp(8), tabRect.Y + (tabRect.Height - iconSz) / 2, iconSz, iconSz);
+                    using var iconPath = CreateRoundedPath(iconRect, 0);
+                    StyledImagePainter.PaintWithTint(g, iconPath, iconSvg!, isActive ? primaryColor : (Theme?.ForeColor ?? Color.Gray), 0.8f);
                 }
-                
+
                 // Tab text
                 var textBrush = isActive ? activeTextBrush : inactiveTextBrush;
-                var textRect = new Rectangle(tabRect.X + (string.IsNullOrEmpty(GetTabIcon(item.Text, i)) ? 0 : 24), 
-                    tabRect.Y, tabRect.Width - (string.IsNullOrEmpty(GetTabIcon(item.Text, i)) ? 0 : 24), tabRect.Height);
+                int textOffsetX = hasIcon ? Dp(24) : 0;
+                var textRect = new Rectangle(tabRect.X + textOffsetX, tabRect.Y,
+                    tabRect.Width - textOffsetX, tabRect.Height);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(item.Text, tabFont, textBrush, textRect, format);
+                g.DrawString(item.Text, font, textBrush, textRect, format);
             }
         }
 
-        private string GetTabIcon(string tabText, int index)
+        private string? GetTabIconSvg(string tabText, int index)
         {
-            // Map common tab names to icons
             if (string.IsNullOrEmpty(tabText)) return null;
-            
             var text = tabText.ToLower();
-            if (text.Contains("overview") || text.Contains("dashboard")) return "home";
-            if (text.Contains("detail") || text.Contains("info")) return "info";
-            if (text.Contains("setting") || text.Contains("config")) return "settings";
-            if (text.Contains("chart") || text.Contains("analytic")) return "bar-chart-2";
-            if (text.Contains("user") || text.Contains("profile")) return "user";
-            
-            return null; // No icon for unrecognized tabs
+            if (text.Contains("overview") || text.Contains("dashboard")) return SvgsUI.Home;
+            if (text.Contains("detail")   || text.Contains("info"))      return SvgsUI.Info;
+            if (text.Contains("setting")  || text.Contains("config"))    return SvgsUI.Settings;
+            if (text.Contains("chart")    || text.Contains("analytic"))   return SvgsUI.BarChart2;
+            if (text.Contains("user")     || text.Contains("profile"))    return SvgsUI.User;
+            return null;
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Optional: Draw tab separators for better visual separation
             if (ctx.ShowTabSeparators)
             {
                 var items = ctx.NavigationItems?.OfType<NavigationItem>().ToList() ?? CreateSampleTabs();
-                
                 int tabWidth = ctx.ContentRect.Width / items.Count;
-                using var separatorPen = new Pen(Color.FromArgb(30, Color.Gray), 1);
-                
+                var separatorPen = PaintersFactory.GetPen(Color.FromArgb(30, Color.Gray), 1f);
+
                 for (int i = 1; i < items.Count; i++)
                 {
                     int x = ctx.ContentRect.X + i * tabWidth;
-                    g.DrawLine(separatorPen, x, ctx.ContentRect.Y + 8, x, ctx.ContentRect.Bottom - 8);
+                    g.DrawLine(separatorPen, x, ctx.ContentRect.Y + Dp(8), x, ctx.ContentRect.Bottom - Dp(8));
                 }
             }
         }
 
         public void Dispose()
         {
-            _imagePainter?.Dispose();
+            _tabFont?.Dispose();
         }
     }
 }

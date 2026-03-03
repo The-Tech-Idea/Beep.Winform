@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -563,6 +565,303 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 2 — Grouping & rich item support
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Grouping
+
+        /// <summary>Group items by their Category property.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Group list items by their Category field.")]
+        [DefaultValue(false)]
+        public bool ShowGroups
+        {
+            get => _showGroups;
+            set
+            {
+                if (_showGroups != value)
+                {
+                    _showGroups = value;
+                    InvalidateLayoutCache();
+                }
+            }
+        }
+        private bool _showGroups;
+
+        /// <summary>Allow groups to be collapsed / expanded by clicking the header.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow group headers to be collapsed/expanded.")]
+        [DefaultValue(true)]
+        public bool CollapsibleGroups { get; set; } = true;
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 4 — Loading / skeleton state
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Loading state
+
+        /// <summary>
+        /// When true the list renders animated skeleton rows instead of real items.
+        /// Set to true before starting an async data load; set back to false when done.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show skeleton placeholder rows during data loading.")]
+        [DefaultValue(false)]
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    if (value) StartSkeletonAnimation();
+                    else StopSkeletonAnimation();
+                    Invalidate();
+                }
+            }
+        }
+        private bool _isLoading;
+
+        /// <summary>Number of skeleton rows shown while IsLoading = true.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Number of skeleton placeholder rows to show while loading.")]
+        [DefaultValue(5)]
+        public int SkeletonRowCount { get; set; } = 5;
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 6 — Density mode
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Density
+
+        /// <summary>Row height density — maps to ListBoxTokens.ItemHeight* constants.</summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Row height density: Comfortable (52 px), Compact (40 px), Dense (28 px).")]
+        [DefaultValue(ListDensityMode.Comfortable)]
+        public ListDensityMode Density
+        {
+            get => _density;
+            set
+            {
+                if (_density != value)
+                {
+                    _density = value;
+                    // Sync MenuItemHeight with the token value so painters don't need extra logic
+                    _menuItemHeight = DensityToPixels(value);
+                    InvalidateLayoutCache();
+                }
+            }
+        }
+        private ListDensityMode _density = ListDensityMode.Comfortable;
+
+        /// <summary>Converts a density enum to the corresponding logical-pixel height.</summary>
+        private int DensityToPixels(ListDensityMode d) => d switch
+        {
+            ListDensityMode.Dense   => ListBoxTokens.ItemHeightDense,
+            ListDensityMode.Compact => ListBoxTokens.ItemHeightCompact,
+            _                       => ListBoxTokens.ItemHeightComfortable
+        };
+
+        /// <summary>Whether items may have non-uniform heights (painters call GetItemHeight).</summary>
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Allow painters to return variable row heights per item.")]
+        [DefaultValue(false)]
+        public bool AutoItemHeight
+        {
+            get => _autoItemHeight;
+            set
+            {
+                if (_autoItemHeight != value)
+                {
+                    _autoItemHeight = value;
+                    InvalidateLayoutCache();
+                }
+            }
+        }
+        private bool _autoItemHeight;
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 6 — Data binding (DataSource / DisplayMember / ValueMember)
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Data Binding
+
+        /// <summary>
+        /// Gets or sets the data source. Accepts IList / IBindingList / IEnumerable.
+        /// When set, ListItems is auto-populated from the source.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("Binding list source. Accepts IList or IBindingList.")]
+        [DefaultValue(null)]
+        public object? DataSource
+        {
+            get => _dataSource;
+            set
+            {
+                if (_dataSource != value)
+                {
+                    _dataSource = value;
+                    ApplyDataSource();
+                }
+            }
+        }
+        private object? _dataSource;
+
+        /// <summary>Property name on the data source object used as the display text.</summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("Property name used as display text when DataSource is set.")]
+        [DefaultValue("")]
+        public string DisplayMember
+        {
+            get => _displayMember;
+            set { _displayMember = value ?? ""; if (_dataSource != null) ApplyDataSource(); }
+        }
+        private string _displayMember = "";
+
+        /// <summary>Property name on the data source object used as the underlying value.</summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("Property name used as value when DataSource is set.")]
+        [DefaultValue("")]
+        public string ValueMember
+        {
+            get => _valueMember;
+            set { _valueMember = value ?? ""; if (_dataSource != null) ApplyDataSource(); }
+        }
+        private string _valueMember = "";
+
+        /// <summary>Gets the underlying value of the currently selected item.</summary>
+        [Browsable(false)]
+        public object? SelectedValue
+        {
+            get
+            {
+                if (_selectedItem == null || string.IsNullOrEmpty(_valueMember)) return null;
+                var prop = _selectedItem.GetType().GetProperty(_valueMember);
+                return prop?.GetValue(_selectedItem);
+            }
+        }
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 3 — Interaction features
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Interaction features
+
+        /// <summary>Allow items to be reordered by drag-and-drop.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow items to be reordered by dragging.")]
+        [DefaultValue(false)]
+        public bool AllowItemReorder { get; set; }
+
+        /// <summary>Show a default context menu (Select / Copy / Edit / Delete) on right-click.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show a context menu on right-click.")]
+        [DefaultValue(true)]
+        public bool ShowContextMenu { get; set; } = true;
+
+        /// <summary>Optional consumer-provided context menu used instead of the default one.</summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public System.Windows.Forms.ContextMenuStrip? ItemContextMenu { get; set; }
+
+        /// <summary>Allow inline edit of item text via F2 or double-click.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow inline item text editing with F2 or double-click.")]
+        [DefaultValue(false)]
+        public bool AllowInlineEdit { get; set; }
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 6 — New events
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region New events (Sprint 6)
+
+        /// <summary>Raised when an item is activated (Enter, double-click).</summary>
+        public event EventHandler<ListBoxItemEventArgs>? ItemActivated;
+
+        /// <summary>Raised when the Delete key is pressed over a selected item.</summary>
+        public event EventHandler<ListBoxItemEventArgs>? ItemDeleteRequested;
+
+        /// <summary>Raised after an inline-edit (F2) is committed by the user.</summary>
+        public event EventHandler<ListBoxItemTextChangedEventArgs>? ItemTextChanged;
+
+        /// <summary>Raised after a drag-reorder completes.</summary>
+        public event EventHandler<ListBoxReorderEventArgs>? ItemReordered;
+
+        /// <summary>Raised before the context menu is shown. Set Cancel = true to suppress.</summary>
+        public event EventHandler<ListBoxContextMenuEventArgs>? ContextMenuOpening;
+
+        /// <summary>Raised when the infinite-scroll sentinel is reached.</summary>
+        public event EventHandler? LoadMoreRequested;
+
+        /// <summary>Raised when a group header is collapsed.</summary>
+        public event EventHandler<ListBoxGroupEventArgs>? GroupCollapsed;
+
+        /// <summary>Raised when a group header is expanded.</summary>
+        public event EventHandler<ListBoxGroupEventArgs>? GroupExpanded;
+
+        /// <summary>Raised on every SearchText change; includes match count.</summary>
+        public event EventHandler<ListBoxSearchEventArgs>? SearchChanged;
+
+        // Protected raise helpers
+
+        protected virtual void OnItemActivated(int index, SimpleItem item)
+            => ItemActivated?.Invoke(this, new ListBoxItemEventArgs(index, item));
+
+        protected virtual void OnItemDeleteRequested(int index, SimpleItem item)
+            => ItemDeleteRequested?.Invoke(this, new ListBoxItemEventArgs(index, item));
+
+        protected virtual void OnItemTextChanged(SimpleItem item, string oldText, string newText)
+            => ItemTextChanged?.Invoke(this, new ListBoxItemTextChangedEventArgs(item, oldText, newText));
+
+        protected virtual void OnItemReordered(int oldIdx, int newIdx, SimpleItem item)
+            => ItemReordered?.Invoke(this, new ListBoxReorderEventArgs(oldIdx, newIdx, item));
+
+        protected virtual bool OnContextMenuOpening(int index, SimpleItem? item, System.Windows.Forms.ContextMenuStrip menu)
+        {
+            var args = new ListBoxContextMenuEventArgs(index, item, menu);
+            ContextMenuOpening?.Invoke(this, args);
+            return !args.Cancel;
+        }
+
+        protected virtual void OnLoadMoreRequested()
+            => LoadMoreRequested?.Invoke(this, EventArgs.Empty);
+
+        protected virtual void OnGroupCollapsed(string groupKey)
+            => GroupCollapsed?.Invoke(this, new ListBoxGroupEventArgs(groupKey, true));
+
+        protected virtual void OnGroupExpanded(string groupKey)
+            => GroupExpanded?.Invoke(this, new ListBoxGroupEventArgs(groupKey, false));
+
+        protected virtual void OnSearchChanged(string query, int matchCount)
+            => SearchChanged?.Invoke(this, new ListBoxSearchEventArgs(query, matchCount));
+
         #endregion
     }
 }

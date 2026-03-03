@@ -43,7 +43,7 @@ Centralized event management for painter interactions.
 // Register custom event handler
 grid.PainterEvents.RegisterEvent("ClickedSortIcon", (sender, args) =>
 {
-    Console.WriteLine($"Sort clicked on column {args.ColumnIndex}");
+  //  Console.WriteLine($"Sort clicked on column {args.ColumnIndex}");
 });
 
 // Trigger event from custom painter

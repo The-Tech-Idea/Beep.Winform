@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -42,87 +43,88 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _nameFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _priceFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _nameFont = new Font(fontFamily, 12f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _priceFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_nameFont = titleFont;
+            _descFont = bodyFont;
+            _priceFont = titleFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int nameHeight = DpiScalingHelper.ScaleValue(NameHeight, _owner);
+            int descHeight = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int ratingHeight = DpiScalingHelper.ScaleValue(RatingHeight, _owner);
+            int priceWidth = DpiScalingHelper.ScaleValue(PriceWidth, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Product image - 50% of card height
             int imageHeight = Math.Min(
-                drawingRect.Width - Padding * 2,
+                drawingRect.Width - padding * 2,
                 Math.Max(80, (int)(drawingRect.Height * ImageHeightPercent / 100f)));
             
             ctx.ImageRect = new Rectangle(
-                drawingRect.Left + Padding,
-                drawingRect.Top + Padding,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Left + padding,
+                drawingRect.Top + padding,
+                drawingRect.Width - padding * 2,
                 imageHeight);
             
             // Sale/discount badge on image
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    ctx.ImageRect.Left + ElementGap,
-                    ctx.ImageRect.Top + ElementGap,
-                    BadgeWidth,
-                    BadgeHeight);
+                    ctx.ImageRect.Left + elementGap,
+                    ctx.ImageRect.Top + elementGap,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Content area below image
-            int contentTop = ctx.ImageRect.Bottom + Padding;
-            int contentWidth = drawingRect.Width - Padding * 2;
+            int contentTop = ctx.ImageRect.Bottom + padding;
+            int contentWidth = drawingRect.Width - padding * 2;
             
             // Product name
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
                 contentWidth,
-                NameHeight);
+                nameHeight);
             
             // Rating stars and price on same row
             ctx.RatingRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.HeaderRect.Bottom + ElementGap,
-                contentWidth - PriceWidth - ElementGap,
-                RatingHeight);
+                ctx.HeaderRect.Bottom + elementGap,
+                contentWidth - priceWidth - elementGap,
+                ratingHeight);
             
             // Price at right
             ctx.ParagraphRect = new Rectangle(
-                ctx.HeaderRect.Right - PriceWidth,
+                ctx.HeaderRect.Right - priceWidth,
                 ctx.RatingRect.Top,
-                PriceWidth,
-                RatingHeight + 4);
+                priceWidth,
+                ratingHeight + DpiScalingHelper.ScaleValue(4, _owner));
             
             // Description below rating
             ctx.SubtitleRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.RatingRect.Bottom + ElementGap,
+                ctx.RatingRect.Bottom + elementGap,
                 contentWidth,
-                DescHeight);
+                descHeight);
             
             // Add to Cart button at bottom
             ctx.ButtonRect = new Rectangle(
-                drawingRect.Left + Padding,
-                drawingRect.Bottom - Padding - ButtonHeight,
+                drawingRect.Left + padding,
+                drawingRect.Bottom - padding - buttonHeight,
                 contentWidth,
-                ButtonHeight);
+                buttonHeight);
             
             ctx.ShowSecondaryButton = false;
             
@@ -184,13 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _nameFont?.Dispose();
-            _descFont?.Dispose();
-            _priceFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

@@ -170,7 +170,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.SelectedForeColor = Color.White;
             _beepListBox.SelectedIndex = -1;
             _beepListBox.SelectedItem = null;
-            _beepListBox.SelectedValue = null;
             _beepListBox.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             _beepListBox.ShadowOffset = 0;
             _beepListBox.ShadowOpacity = 0.25F;

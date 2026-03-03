@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                     Dock = DockStyle.Top,
                     Height = _searchBoxHeight,
                     Padding = new Padding(_spacing),
-                    BackColor = Color.Transparent
+                  
                 };
 
                 // Create search box
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                     Dock = DockStyle.Top,
                     Height = _radioAreaHeight,
                     Padding = new Padding(_spacing, 0, _spacing, _spacing),
-                    BackColor = Color.Transparent
+                   
                 };
 
                 // Create radio group (compact, horizontal by default)
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                 {
                     Dock = DockStyle.Fill,
                     Padding = new Padding(_spacing),
-                    BackColor = Color.Transparent
+                   
                 };
 
                 // Create list box (detailed view)

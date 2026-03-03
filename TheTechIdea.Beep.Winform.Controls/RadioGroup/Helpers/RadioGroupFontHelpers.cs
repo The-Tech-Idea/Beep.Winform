@@ -1,7 +1,8 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
 {
@@ -17,50 +18,75 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// </summary>
         public static Font GetItemFont(
             BeepControlStyle controlStyle,
-            bool isSelected = false)
+            bool isSelected = false,
+            IBeepTheme theme = null)
         {
-            float baseSize = StyleTypography.GetFontSize(controlStyle);
-            
-            // Selected items can be slightly larger or bold
-            float itemSize = isSelected ? baseSize : baseSize;
-            FontStyle fontStyle = isSelected ? FontStyle.Regular : FontStyle.Regular;
+            var textTypography = theme?.BodyMedium ?? theme?.LabelMedium;
+            if (textTypography != null)
+            {
+                return BeepThemesManager.ToFont(
+                    textTypography.FontFamily,
+                    textTypography.FontSize,
+                    isSelected ? FontWeight.Medium : FontWeight.Regular,
+                    FontStyle.Regular);
+            }
 
+            float baseSize = StyleTypography.GetFontSize(controlStyle);
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
-
-            return BeepFontManager.GetFont(primaryFont, itemSize, fontStyle);
+            return BeepThemesManager.ToFont(
+                primaryFont,
+                baseSize,
+                isSelected ? FontWeight.Medium : FontWeight.Regular,
+                FontStyle.Regular);
         }
 
         /// <summary>
         /// Gets the font for subtext/description
         /// </summary>
         public static Font GetSubtextFont(
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            IBeepTheme theme = null)
         {
+            var subTypography = theme?.BodySmall ?? theme?.LabelSmall;
+            if (subTypography != null)
+            {
+                return BeepThemesManager.ToFont(
+                    subTypography.FontFamily,
+                    subTypography.FontSize,
+                    FontWeight.Regular,
+                    FontStyle.Regular);
+            }
+
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float subtextSize = Math.Max(8f, baseSize - 2f); // Smaller for subtext
-            FontStyle fontStyle = FontStyle.Regular;
-
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
-
-            return BeepFontManager.GetFont(primaryFont, subtextSize, fontStyle);
+            return BeepThemesManager.ToFont(primaryFont, subtextSize, FontWeight.Regular, FontStyle.Regular);
         }
 
         /// <summary>
         /// Gets the font for group label/header
         /// </summary>
         public static Font GetLabelFont(
-            BeepControlStyle controlStyle)
+            BeepControlStyle controlStyle,
+            IBeepTheme theme = null)
         {
+            var labelTypography = theme?.LabelLarge ?? theme?.TitleSmall;
+            if (labelTypography != null)
+            {
+                return BeepThemesManager.ToFont(
+                    labelTypography.FontFamily,
+                    labelTypography.FontSize,
+                    FontWeight.Bold,
+                    FontStyle.Bold);
+            }
+
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float labelSize = baseSize + 1f; // Slightly larger for labels
-            FontStyle fontStyle = FontStyle.Bold;
-
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
-
-            return BeepFontManager.GetFont(primaryFont, labelSize, fontStyle);
+            return BeepThemesManager.ToFont(primaryFont, labelSize, FontWeight.Bold, FontStyle.Bold);
         }
 
         /// <summary>
@@ -68,10 +94,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// Updates the control's Font property based on ControlStyle
         /// </summary>
         public static void ApplyFontTheme(
-            BeepControlStyle controlStyle)
+            BeepRadioGroup radioGroup,
+            BeepControlStyle controlStyle,
+            IBeepTheme theme = null)
         {
-            // This is a helper for getting fonts, not for setting control font
-            // The control should use these helpers when painting
+            if (radioGroup == null)
+            {
+                return;
+            }
+
+            var itemFont = GetItemFont(controlStyle, isSelected: false, theme);
+            if (itemFont != null)
+            {
+                radioGroup.TextFont = itemFont;
+            }
         }
     }
 }

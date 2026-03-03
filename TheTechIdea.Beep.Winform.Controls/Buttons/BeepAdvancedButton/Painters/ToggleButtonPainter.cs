@@ -55,8 +55,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Color leftBg = context.IsToggled ? context.SolidBackground : GetInactiveSideColor(context);
             Color rightBg = !context.IsToggled ? context.SolidBackground : GetInactiveSideColor(context);
 
-            Color leftFg = context.IsToggled ? context.SolidForeground : context.Theme.ButtonForeColor;
-            Color rightFg = !context.IsToggled ? context.SolidForeground : context.Theme.ButtonForeColor;
+            Color inactiveForeground = context.TextColor.IsEmpty ? context.SolidForeground : context.TextColor;
+            Color leftFg = context.IsToggled ? context.SolidForeground : inactiveForeground;
+            Color rightFg = !context.IsToggled ? context.SolidForeground : inactiveForeground;
 
             // Apply hover effect from BaseControl's input helper area tracking
             if (context.LeftAreaHovered && !context.LeftAreaPressed)
@@ -170,12 +171,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 using (SolidBrush textBrush = new SolidBrush(leftColor))
                 {
-                    g.DrawString(leftText, context.Font, textBrush, leftArea, sf);
+                    g.DrawString(leftText, context.TextFont, textBrush, leftArea, sf);
                 }
 
                 using (SolidBrush textBrush = new SolidBrush(rightColor))
                 {
-                    g.DrawString(rightText, context.Font, textBrush, rightArea, sf);
+                    g.DrawString(rightText, context.TextFont, textBrush, rightArea, sf);
                 }
             }
 
@@ -264,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw content
             if (context.IsLoading)
             {
-                DrawLoadingSpinner(g, buttonBounds, fgColor);
+                DrawLoadingSpinner(g, context, buttonBounds, fgColor);
             }
             else
             {
@@ -276,12 +277,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             AdvancedButtonMetrics metrics, Color color)
         {
             Rectangle bounds = context.Bounds;
-            bool hasIcon = context.ImagePainter != null && !string.IsNullOrEmpty(context.ImagePainter.ImagePath);
+            bool hasIcon = HasPrimaryIcon(context);
             bool hasText = !string.IsNullOrEmpty(context.Text);
 
             if (hasIcon && hasText)
             {
-                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureTextWidth(context);
+                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
                 int startX = bounds.X + (bounds.Width - totalWidth) / 2;
 
                 Rectangle iconBounds = new Rectangle(
@@ -290,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     metrics.IconSize,
                     metrics.IconSize
                 );
-                DrawIcon(g, context, iconBounds, context.ImagePainter!.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
 
                 Rectangle textBounds = new Rectangle(
                     startX + metrics.IconSize + metrics.IconTextGap,
@@ -308,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     metrics.IconSize,
                     metrics.IconSize
                 );
-                DrawIcon(g, context, iconBounds, context.ImagePainter!.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
             else
             {
@@ -316,13 +317,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
         }
 
-        private int MeasureTextWidth(AdvancedButtonPaintContext context)
-        {
-            if (string.IsNullOrEmpty(context.Text)) return 0;
-            using (Graphics g = Graphics.FromImage(new Bitmap(1, 1)))
-            {
-                return (int)g.MeasureString(context.Text, context.Font).Width;
-            }
-        }
     }
 }

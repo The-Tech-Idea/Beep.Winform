@@ -470,7 +470,7 @@ this.Controls.Add(appBar);</code></pre>
             break;
         case "Theme":
             // Theme switching is handled automatically
-            Console.WriteLine("Theme changed");
+          //  Console.WriteLine("Theme changed");
             break;
         case "Logo":
             ShowAboutDialog();
@@ -486,7 +486,7 @@ private void AppBar_OnSearchBoxSelected(object sender, BeepAppBarEventsArgs e)
 
 private void AppBar_Clicked(object sender, BeepMouseEventArgs e)
 {
-    Console.WriteLine($"Clicked on: {e.Name}");
+  //  Console.WriteLine($"Clicked on: {e.Name}");
 }</code></pre>
                     </div>
 
@@ -743,16 +743,16 @@ public class BeepAppBarEventsArgs : EventArgs
 // Example usage
 private void AppBar_OnButtonClicked(object sender, BeepAppBarEventsArgs e)
 {
-    Console.WriteLine($"Button: {e.Name}");
+  //  Console.WriteLine($"Button: {e.Name}");
     
     if (e.SelectedItem != null)
     {
-        Console.WriteLine($"Selected: {e.SelectedItem.Text}");
+      //  Console.WriteLine($"Selected: {e.SelectedItem.Text}");
     }
     
     if (!string.IsNullOrEmpty(e.Selectedstring))
     {
-        Console.WriteLine($"Text: {e.Selectedstring}");
+      //  Console.WriteLine($"Text: {e.Selectedstring}");
     }
 }</code></pre>
                     </div>

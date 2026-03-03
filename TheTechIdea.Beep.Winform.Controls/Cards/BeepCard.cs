@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Cards.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -130,6 +132,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Hover tracking
         private string _hoveredArea = null;
+        private readonly CardInteractionManager _interactionManager;
+        private readonly Timer _expandCollapseTimer;
+        private readonly Timer _loadingTimer;
+        private DateTime _expandAnimationStart = DateTime.MinValue;
+        private int _expandAnimationStartHeight;
+        private int _expandAnimationTargetHeight;
+        private int _rememberedExpandedHeight;
+        private float _loadingShimmerPhase;
+        private Rectangle _selectionRect = Rectangle.Empty;
+        private Rectangle _contextMenuRect = Rectangle.Empty;
+        private Rectangle _collapseRect = Rectangle.Empty;
+        private bool _isExpanded = true;
+        private bool _isLoading;
+        private bool _isSelected;
+        private bool _showSelectionCheckbox;
+        private bool _isCollapsible;
+        private int _accentBarHeight;
+        private string _contextMenuIcon = SvgsUI.MoreVertical;
 
         // Enhanced properties for new styles
         private string _badgeText1 = string.Empty; // Primary badge (e.g., PRO, FREE)
@@ -146,6 +166,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color _statusColor = Color.Green;
         private bool _showStatus = false;
         private string _priceText = string.Empty; // For product cards
+        private Font _titleFont = SystemFonts.DefaultFont;
+        private Font _bodyFont = SystemFonts.DefaultFont;
+        private Font _captionFont = SystemFonts.DefaultFont;
+        private Font _headerFont = SystemFonts.DefaultFont;
+        private Font _paragraphFont = SystemFonts.DefaultFont;
 
         // Events - using BaseControl's built-in event system
         public event EventHandler<BeepEventDataArgs> ImageClicked;
@@ -154,6 +179,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> ButtonClicked;
         public event EventHandler<BeepEventDataArgs> BadgeClicked;
         public event EventHandler<BeepEventDataArgs> RatingClicked;
+        public event EventHandler SelectionChanged;
+        public event EventHandler ContextMenuRequested;
         #endregion
        
         // Constructor
@@ -176,6 +203,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Enable keyboard navigation
             SetStyle(ControlStyles.Selectable, true);
             TabStop = true;
+
+            _interactionManager = new CardInteractionManager(this, () => Invalidate());
+            _expandCollapseTimer = new Timer { Interval = 16 };
+            _expandCollapseTimer.Tick += ExpandCollapseTimer_Tick;
+            _loadingTimer = new Timer { Interval = 33 };
+            _loadingTimer.Tick += LoadingTimer_Tick;
+            _rememberedExpandedHeight = Height;
             
             InitializePainter();
             ApplyDesignTimeData(); // Add dummy data in designer
@@ -271,7 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => new BlankCardPainter()
             };
             
-            _painter?.Initialize(this, _currentTheme);
+            _painter?.Initialize(this, _currentTheme, _titleFont, _bodyFont, _captionFont);
         }
 
 
@@ -292,13 +326,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _layoutContext = BuildLayoutContext();
                 
                 // Let painter adjust layout
-                _painter?.Initialize(this, _currentTheme);
+                _painter?.Initialize(this, _currentTheme, _titleFont, _bodyFont, _captionFont);
                 _layoutContext = _painter?.AdjustLayout(DrawingRect, _layoutContext) ?? _layoutContext;
                 
                 // Cache the layout
                 _layoutCacheValid = true;
                 _cachedDrawingRect = DrawingRect;
             }
+
+            UpdateAuxiliaryHitAreas(_layoutContext);
 
             // Draw background
             if (UseThemeColors && _currentTheme != null)
@@ -310,67 +346,80 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
 
-            // Paint image using StyledImagePainter
-            if (_layoutContext.ShowImage && _layoutContext.ImageRect != Rectangle.Empty)
+            DrawAccentBar(g);
+
+            if (IsLoading)
             {
-                string pathToPaint = GetImagePath();
-                if (!string.IsNullOrEmpty(pathToPaint))
+                DrawLoadingSkeleton(g);
+            }
+            else
+            {
+                // Paint image using StyledImagePainter
+                if (_layoutContext.ShowImage && _layoutContext.ImageRect != Rectangle.Empty)
                 {
-                    try
+                    string pathToPaint = GetImagePath();
+                    if (!string.IsNullOrEmpty(pathToPaint))
                     {
-                        if (Enabled)
+                        try
                         {
-                            StyledImagePainter.Paint(g, _layoutContext.ImageRect, pathToPaint);
+                            if (Enabled)
+                            {
+                                StyledImagePainter.Paint(g, _layoutContext.ImageRect, pathToPaint);
+                            }
+                            else
+                            {
+                                StyledImagePainter.PaintDisabled(g, _layoutContext.ImageRect, pathToPaint, BackColor);
+                            }
                         }
-                        else
+                        catch
                         {
-                            StyledImagePainter.PaintDisabled(g, _layoutContext.ImageRect, pathToPaint, BackColor);
+                            // Swallow painting errors to prevent designer crashes
                         }
-                    }
-                    catch
-                    {
-                        // Swallow painting errors to prevent designer crashes
                     }
                 }
+
+                // Paint header text using TextRenderer
+                if (!string.IsNullOrEmpty(headerText) && _layoutContext.HeaderRect != Rectangle.Empty)
+                {
+                    var headerColor = _currentTheme?.CardHeaderStyle.TextColor ?? ForeColor;
+                    var headerFont = _headerFont ?? _titleFont ?? _bodyFont ?? SystemFonts.DefaultFont;
+
+                    TextRenderer.DrawText(g, headerText, headerFont, _layoutContext.HeaderRect,
+                        headerColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
+                }
+
+                // Paint paragraph text using TextRenderer
+                if (!string.IsNullOrEmpty(paragraphText) && _layoutContext.ParagraphRect != Rectangle.Empty)
+                {
+                    var paragraphColor = _currentTheme?.CardTextForeColor ?? ForeColor;
+                    var paragraphFont = _paragraphFont ?? _bodyFont ?? _captionFont ?? SystemFonts.DefaultFont;
+
+                    TextRenderer.DrawText(g, paragraphText, paragraphFont, _layoutContext.ParagraphRect,
+                        paragraphColor, TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak);
+                }
+
+                // Paint primary button
+                if (_layoutContext.ShowButton && _layoutContext.ButtonRect != Rectangle.Empty)
+                {
+                    bool isHovered = IsButtonHovered(_layoutContext.ButtonRect);
+                    PaintButton(g, _layoutContext.ButtonRect, buttonText, _accentColor, isHovered);
+                }
+
+                // Paint secondary button
+                if (_layoutContext.ShowSecondaryButton && _layoutContext.SecondaryButtonRect != Rectangle.Empty)
+                {
+                    bool isHovered = IsButtonHovered(_layoutContext.SecondaryButtonRect);
+                    var secondaryColor = _currentTheme?.CardBackColor ?? Color.Gray;
+                    PaintButton(g, _layoutContext.SecondaryButtonRect, secondaryButtonText, secondaryColor, isHovered);
+                }
+
+                // Draw foreground accents (badges, ratings, etc.)
+                _painter?.DrawForegroundAccents(g, _layoutContext);
             }
 
-            // Paint header text using TextRenderer
-            if (!string.IsNullOrEmpty(headerText) && _layoutContext.HeaderRect != Rectangle.Empty)
-            {
-                var headerColor = _currentTheme?.CardHeaderStyle.TextColor ?? ForeColor;
-                var headerFont = _currentTheme != null ? BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle) : Font;
-                
-                TextRenderer.DrawText(g, headerText, headerFont, _layoutContext.HeaderRect, 
-                    headerColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
-            }
-
-            // Paint paragraph text using TextRenderer
-            if (!string.IsNullOrEmpty(paragraphText) && _layoutContext.ParagraphRect != Rectangle.Empty)
-            {
-                var paragraphColor = _currentTheme?.CardTextForeColor ?? ForeColor;
-                var paragraphFont = _currentTheme != null ? BeepThemesManager.ToFont(_currentTheme.Paragraph) : Font;
-                
-                TextRenderer.DrawText(g, paragraphText, paragraphFont, _layoutContext.ParagraphRect,
-                    paragraphColor, TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak);
-            }
-
-            // Paint primary button
-            if (_layoutContext.ShowButton && _layoutContext.ButtonRect != Rectangle.Empty)
-            {
-                bool isHovered = IsButtonHovered(_layoutContext.ButtonRect);
-                PaintButton(g, _layoutContext.ButtonRect, buttonText, _accentColor, isHovered);
-            }
-
-            // Paint secondary button
-            if (_layoutContext.ShowSecondaryButton && _layoutContext.SecondaryButtonRect != Rectangle.Empty)
-            {
-                bool isHovered = IsButtonHovered(_layoutContext.SecondaryButtonRect);
-                var secondaryColor = _currentTheme?.CardBackColor ?? Color.Gray;
-                PaintButton(g, _layoutContext.SecondaryButtonRect, secondaryButtonText, secondaryColor, isHovered);
-            }
-
-            // Draw foreground accents (badges, ratings, etc.)
-            _painter?.DrawForegroundAccents(g, _layoutContext);
+            DrawAuxiliaryIcons(g);
+            DrawRippleOverlay(g);
+            DrawFocusRing(g);
 
             // Register hit areas for interaction
             RefreshHitAreas(_layoutContext);
@@ -395,6 +444,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void RefreshHitAreas(LayoutContext ctx)
         {
             ClearHitList();
+
+            if (_isLoading)
+            {
+                if (_showSelectionCheckbox && !_selectionRect.IsEmpty)
+                {
+                    AddHitArea("SelectionCheckbox", _selectionRect, null, () => IsSelected = !IsSelected);
+                }
+
+                if (!string.IsNullOrWhiteSpace(_contextMenuIcon) && !_contextMenuRect.IsEmpty)
+                {
+                    AddHitArea("ContextMenu", _contextMenuRect, null, () => ContextMenuRequested?.Invoke(this, EventArgs.Empty));
+                }
+
+                if (_isCollapsible && !_collapseRect.IsEmpty)
+                {
+                    AddHitArea("CollapseChevron", _collapseRect, null, () => ToggleExpandedState());
+                }
+
+                return;
+            }
 
             // Image hit area
             if (ctx.ShowImage && ctx.ImageRect != Rectangle.Empty)
@@ -440,6 +509,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ButtonClicked?.Invoke(this, new BeepEventDataArgs("SecondaryButtonClicked", this));
                 });
             }
+
+            if (_showSelectionCheckbox && !_selectionRect.IsEmpty)
+            {
+                AddHitArea("SelectionCheckbox", _selectionRect, null, () =>
+                {
+                    IsSelected = !IsSelected;
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(_contextMenuIcon) && !_contextMenuRect.IsEmpty)
+            {
+                AddHitArea("ContextMenu", _contextMenuRect, null, () =>
+                {
+                    ContextMenuRequested?.Invoke(this, EventArgs.Empty);
+                });
+            }
+
+            if (_isCollapsible && !_collapseRect.IsEmpty)
+            {
+                AddHitArea("CollapseChevron", _collapseRect, null, () =>
+                {
+                    ToggleExpandedState();
+                });
+            }
         }
 
         public override void ApplyTheme()
@@ -447,6 +540,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null) return;
             base.ApplyTheme();
             BackColor = _currentTheme.CardBackColor;
+            _titleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            _bodyFont = BeepThemesManager.ToFont(_currentTheme.BodyMedium);
+            _captionFont = BeepThemesManager.ToFont(_currentTheme.CaptionStyle);
+            _headerFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+            _paragraphFont = BeepThemesManager.ToFont(_currentTheme.Paragraph);
            
             InitializePainter();
             Invalidate();
@@ -485,7 +583,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StatusColor = _statusColor,
                 ShowStatus = _showStatus,
                 Rating = _rating,
-                ShowRating = _showRating
+                ShowRating = _showRating,
+                IsHovered = _interactionManager?.HoverProgress > 0.001f,
+                IsPressed = _interactionManager?.PressProgress > 0.001f,
+                IsSelected = _isSelected,
+                IsLoading = _isLoading,
+                HoverProgress = _interactionManager?.HoverProgress ?? 0f,
+                PressProgress = _interactionManager?.PressProgress ?? 0f,
+                IsFocused = Focused,
+                RipplePoint = _interactionManager?.RippleCenter ?? Point.Empty
             };
         }
 
@@ -547,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Draw button text
             var textColor = _currentTheme?.CardTitleForeColor ?? Color.White;
-            var textFont = _currentTheme != null ? BeepThemesManager.ToFont(_currentTheme.ButtonStyle) : Font;
+            var textFont = _bodyFont ?? _captionFont ?? _headerFont ?? SystemFonts.DefaultFont;
             TextRenderer.DrawText(g, text, textFont, rect, textColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
@@ -582,6 +688,142 @@ namespace TheTechIdea.Beep.Winform.Controls
             return path;
         }
 
+        private int Scale(int value) => DpiScalingHelper.ScaleValue(value, this);
+
+        private void DrawAccentBar(Graphics g)
+        {
+            if (_accentBarHeight <= 0) return;
+            int stripHeight = Scale(_accentBarHeight);
+            if (stripHeight <= 0) return;
+
+            var accentRect = new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, Math.Min(stripHeight, DrawingRect.Height));
+            using var brush = new SolidBrush(_accentColor);
+            g.FillRectangle(brush, accentRect);
+        }
+
+        private void DrawFocusRing(Graphics g)
+        {
+            if (!Focused) return;
+
+            float thickness = DpiScalingHelper.ScaleValue(2f, this);
+            Color ringColor = Color.FromArgb(160, _currentTheme?.AccentColor ?? _accentColor);
+            CardRenderingHelpers.DrawFocusRing(g, DrawingRect, BorderRadius, ringColor, thickness);
+        }
+
+        private void DrawRippleOverlay(Graphics g)
+        {
+            if (_interactionManager == null || _interactionManager.RippleAlpha <= 0 || _interactionManager.RippleRadius <= 0f)
+            {
+                return;
+            }
+
+            Color rippleColor = _currentTheme?.AccentColor ?? _accentColor;
+            CardRenderingHelpers.DrawRippleOverlay(
+                g,
+                DrawingRect,
+                BorderRadius,
+                _interactionManager.RippleCenter,
+                _interactionManager.RippleRadius,
+                _interactionManager.RippleAlpha,
+                rippleColor);
+        }
+
+        private void DrawLoadingSkeleton(Graphics g)
+        {
+            var surface = _currentTheme?.CardBackColor ?? BackColor;
+            var shimmerTint = _currentTheme?.CardTitleForeColor ?? ForeColor;
+            var baseColor = Color.FromArgb(60, surface);
+            var shimmerColor = Color.FromArgb(130, shimmerTint);
+
+            CardRenderingHelpers.DrawShimmerSkeleton(g, DrawingRect, BorderRadius, _loadingShimmerPhase, baseColor, shimmerColor);
+
+            int pad = Scale(16);
+            int lineHeight = Scale(12);
+            int lineGap = Scale(8);
+            int iconSize = Scale(48);
+
+            Rectangle iconRect = new Rectangle(DrawingRect.X + pad, DrawingRect.Y + pad, iconSize, iconSize);
+            Rectangle titleRect = new Rectangle(iconRect.Right + pad, DrawingRect.Y + pad, Math.Max(60, DrawingRect.Width - iconSize - (pad * 3)), lineHeight + Scale(2));
+            Rectangle line1Rect = new Rectangle(DrawingRect.X + pad, titleRect.Bottom + lineGap, Math.Max(60, DrawingRect.Width - (pad * 2)), lineHeight);
+            Rectangle line2Rect = new Rectangle(DrawingRect.X + pad, line1Rect.Bottom + lineGap, Math.Max(40, (int)(DrawingRect.Width * 0.65f)), lineHeight);
+            Rectangle btnRect = new Rectangle(DrawingRect.X + pad, DrawingRect.Bottom - pad - Scale(30), Scale(92), Scale(24));
+
+            using var placeholderBrush = new SolidBrush(Color.FromArgb(85, shimmerTint));
+            using var smallRadiusPath = CardRenderingHelpers.CreateRoundedPath(titleRect, Scale(4));
+            using var line1Path = CardRenderingHelpers.CreateRoundedPath(line1Rect, Scale(4));
+            using var line2Path = CardRenderingHelpers.CreateRoundedPath(line2Rect, Scale(4));
+            using var btnPath = CardRenderingHelpers.CreateRoundedPath(btnRect, Scale(6));
+            g.FillEllipse(placeholderBrush, iconRect);
+            g.FillPath(placeholderBrush, smallRadiusPath);
+            g.FillPath(placeholderBrush, line1Path);
+            g.FillPath(placeholderBrush, line2Path);
+            g.FillPath(placeholderBrush, btnPath);
+        }
+
+        private void DrawAuxiliaryIcons(Graphics g)
+        {
+            Color iconTint = _currentTheme?.CardTitleForeColor ?? ForeColor;
+
+            if (_showSelectionCheckbox && !_selectionRect.IsEmpty)
+            {
+                float opacity = _isSelected ? 1f : 0.55f;
+                StyledImagePainter.PaintWithTint(g, _selectionRect, SvgsUI.CheckCircle, iconTint, opacity, Scale(4));
+            }
+
+            if (!string.IsNullOrWhiteSpace(_contextMenuIcon) && !_contextMenuRect.IsEmpty)
+            {
+                StyledImagePainter.PaintWithTint(g, _contextMenuRect, _contextMenuIcon, iconTint, 0.85f, Scale(4));
+            }
+
+            if (_isCollapsible && !_collapseRect.IsEmpty)
+            {
+                string chevron = _isExpanded ? SvgsUI.ChevronUp : SvgsUI.ChevronDown;
+                StyledImagePainter.PaintWithTint(g, _collapseRect, chevron, iconTint, 0.85f, Scale(4));
+            }
+        }
+
+        private void UpdateAuxiliaryHitAreas(LayoutContext ctx)
+        {
+            int margin = Scale(8);
+            int iconSize = Scale(18);
+
+            _selectionRect = Rectangle.Empty;
+            _contextMenuRect = Rectangle.Empty;
+            _collapseRect = Rectangle.Empty;
+
+            if (ctx == null || ctx.DrawingRect == Rectangle.Empty)
+            {
+                return;
+            }
+
+            if (_showSelectionCheckbox)
+            {
+                _selectionRect = new Rectangle(
+                    ctx.DrawingRect.X + margin,
+                    ctx.DrawingRect.Y + margin,
+                    iconSize,
+                    iconSize);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_contextMenuIcon))
+            {
+                _contextMenuRect = new Rectangle(
+                    ctx.DrawingRect.Right - margin - iconSize,
+                    ctx.DrawingRect.Y + margin,
+                    iconSize,
+                    iconSize);
+            }
+
+            if (_isCollapsible)
+            {
+                _collapseRect = new Rectangle(
+                    ctx.DrawingRect.Right - margin - iconSize,
+                    ctx.DrawingRect.Bottom - margin - iconSize,
+                    iconSize,
+                    iconSize);
+            }
+        }
+
         // Check if a button is hovered
         private bool IsButtonHovered(Rectangle buttonRect)
         {
@@ -592,24 +834,89 @@ namespace TheTechIdea.Beep.Winform.Controls
                    _hoveredArea == "SecondaryButton" && buttonRect == _layoutContext.SecondaryButtonRect;
         }
 
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            _interactionManager?.NotifyMouseEnter();
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            _interactionManager?.NotifyMouseLeave();
+            if (_hoveredArea != null)
+            {
+                _hoveredArea = null;
+                Invalidate();
+            }
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            _interactionManager?.NotifyMouseDown(e.Button, e.Location);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            _interactionManager?.NotifyMouseUp(e.Button, e.Location);
+        }
+
         // Override mouse move to track hover state
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            _interactionManager?.NotifyMouseMove(e.Location);
 
             string newHoveredArea = null;
+            Cursor desiredCursor = Cursors.Default;
 
-            // Check which area is hovered
-            if (_layoutContext.ButtonRect.Contains(e.Location))
-                newHoveredArea = "Button";
-            else if (_layoutContext.SecondaryButtonRect.Contains(e.Location))
-                newHoveredArea = "SecondaryButton";
-            else if (_layoutContext.ImageRect.Contains(e.Location))
-                newHoveredArea = "Image";
-            else if (_layoutContext.HeaderRect.Contains(e.Location))
-                newHoveredArea = "Header";
-            else if (_layoutContext.ParagraphRect.Contains(e.Location))
-                newHoveredArea = "Paragraph";
+            if (_showSelectionCheckbox && !_selectionRect.IsEmpty && _selectionRect.Contains(e.Location))
+            {
+                newHoveredArea = "SelectionCheckbox";
+                desiredCursor = Cursors.Hand;
+            }
+            else if (!string.IsNullOrWhiteSpace(_contextMenuIcon) && !_contextMenuRect.IsEmpty && _contextMenuRect.Contains(e.Location))
+            {
+                newHoveredArea = "ContextMenu";
+                desiredCursor = Cursors.Hand;
+            }
+            else if (_isCollapsible && !_collapseRect.IsEmpty && _collapseRect.Contains(e.Location))
+            {
+                newHoveredArea = "CollapseChevron";
+                desiredCursor = Cursors.Hand;
+            }
+            else if (_layoutContext != null)
+            {
+                // Check which area is hovered
+                if (_layoutContext.ButtonRect.Contains(e.Location))
+                {
+                    newHoveredArea = "Button";
+                    desiredCursor = Cursors.Hand;
+                }
+                else if (_layoutContext.SecondaryButtonRect.Contains(e.Location))
+                {
+                    newHoveredArea = "SecondaryButton";
+                    desiredCursor = Cursors.Hand;
+                }
+                else if (_layoutContext.ImageRect.Contains(e.Location))
+                {
+                    newHoveredArea = "Image";
+                    desiredCursor = Cursors.Hand;
+                }
+                else if (_layoutContext.HeaderRect.Contains(e.Location))
+                {
+                    newHoveredArea = "Header";
+                    desiredCursor = Cursors.Hand;
+                }
+                else if (_layoutContext.ParagraphRect.Contains(e.Location))
+                {
+                    newHoveredArea = "Paragraph";
+                }
+            }
+
+            Cursor = desiredCursor;
 
             // Trigger repaint if hover state changed
             if (newHoveredArea != _hoveredArea)
@@ -651,6 +958,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
+            _interactionManager?.NotifyFocusChanged(true);
             Invalidate(); // Redraw to show focus indicator
         }
 
@@ -660,6 +968,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
+            _interactionManager?.NotifyFocusChanged(false);
             Invalidate(); // Redraw to remove focus indicator
         }
 
@@ -669,7 +978,84 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            if (_isExpanded && !_expandCollapseTimer.Enabled)
+            {
+                _rememberedExpandedHeight = Height;
+            }
             InvalidateLayoutCache();
+        }
+
+        private void ToggleExpandedState()
+        {
+            IsExpanded = !IsExpanded;
+        }
+
+        private int GetCollapsedHeight()
+        {
+            int minCollapsed = Scale(72) + Math.Max(0, Scale(_accentBarHeight));
+            if (_layoutContext != null && !_layoutContext.HeaderRect.IsEmpty)
+            {
+                int headerBased = (_layoutContext.HeaderRect.Bottom - DrawingRect.Top) + Scale(12);
+                return Math.Max(minCollapsed, headerBased);
+            }
+
+            return minCollapsed;
+        }
+
+        private void StartExpandCollapseAnimation(bool expanding)
+        {
+            _expandAnimationStart = DateTime.UtcNow;
+            _expandAnimationStartHeight = Height;
+            _expandAnimationTargetHeight = expanding
+                ? Math.Max(GetCollapsedHeight(), _rememberedExpandedHeight)
+                : GetCollapsedHeight();
+
+            if (expanding && _rememberedExpandedHeight < _expandAnimationStartHeight)
+            {
+                _rememberedExpandedHeight = _expandAnimationStartHeight;
+                _expandAnimationTargetHeight = _rememberedExpandedHeight;
+            }
+
+            if (!_expandCollapseTimer.Enabled)
+            {
+                _expandCollapseTimer.Start();
+            }
+        }
+
+        private void ExpandCollapseTimer_Tick(object sender, EventArgs e)
+        {
+            const double durationMs = 180d;
+            double elapsed = (DateTime.UtcNow - _expandAnimationStart).TotalMilliseconds;
+            double t = Math.Max(0d, Math.Min(1d, elapsed / durationMs));
+            double eased = 1d - Math.Pow(1d - t, 3d);
+
+            int newHeight = (int)Math.Round(_expandAnimationStartHeight + ((_expandAnimationTargetHeight - _expandAnimationStartHeight) * eased));
+            if (newHeight != Height)
+            {
+                Height = newHeight;
+            }
+
+            InvalidateLayoutCache();
+            Invalidate();
+
+            if (t >= 1d)
+            {
+                _expandCollapseTimer.Stop();
+                Height = _expandAnimationTargetHeight;
+                InvalidateLayoutCache();
+                Invalidate();
+            }
+        }
+
+        private void LoadingTimer_Tick(object sender, EventArgs e)
+        {
+            _loadingShimmerPhase += 0.03f;
+            if (_loadingShimmerPhase > 1f)
+            {
+                _loadingShimmerPhase -= 1f;
+            }
+
+            Invalidate();
         }
 
         #endregion
@@ -1382,6 +1768,133 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _accentColor = value; Invalidate(); }
         }
 
+        [Category("Behavior")]
+        [Description("Indicates whether the card is selected.")]
+        [DefaultValue(false)]
+        public new bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                SelectionChanged?.Invoke(this, EventArgs.Empty);
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Shows a selectable checkbox indicator in the top-left corner.")]
+        [DefaultValue(false)]
+        public bool ShowSelectionCheckbox
+        {
+            get => _showSelectionCheckbox;
+            set
+            {
+                if (_showSelectionCheckbox == value) return;
+                _showSelectionCheckbox = value;
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Shows loading skeleton placeholders and shimmer animation.")]
+        [DefaultValue(false)]
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading == value) return;
+                _isLoading = value;
+                if (_isLoading)
+                {
+                    _loadingShimmerPhase = 0f;
+                    _loadingTimer.Start();
+                }
+                else
+                {
+                    _loadingTimer.Stop();
+                }
+
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Height of the accent strip at top of the card.")]
+        [DefaultValue(0)]
+        public int AccentBarHeight
+        {
+            get => _accentBarHeight;
+            set
+            {
+                int normalized = Math.Max(0, value);
+                if (_accentBarHeight == normalized) return;
+                _accentBarHeight = normalized;
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Icon path used for the overflow context menu button.")]
+        public string ContextMenuIcon
+        {
+            get => _contextMenuIcon;
+            set
+            {
+                _contextMenuIcon = string.IsNullOrWhiteSpace(value) ? SvgsUI.MoreVertical : value;
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Enables collapse/expand affordance in card footer.")]
+        [DefaultValue(false)]
+        public bool IsCollapsible
+        {
+            get => _isCollapsible;
+            set
+            {
+                if (_isCollapsible == value) return;
+                _isCollapsible = value;
+                if (!_isCollapsible && !_isExpanded)
+                {
+                    _isExpanded = true;
+                    StartExpandCollapseAnimation(true);
+                }
+
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Current expanded/collapsed state when collapse is enabled.")]
+        [DefaultValue(true)]
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded == value) return;
+
+                if (!value && _isExpanded)
+                {
+                    _rememberedExpandedHeight = Math.Max(Height, _rememberedExpandedHeight);
+                }
+
+                _isExpanded = value;
+                if (_isCollapsible)
+                {
+                    StartExpandCollapseAnimation(_isExpanded);
+                }
+                else
+                {
+                    Invalidate();
+                }
+            }
+        }
+
         [Category("Content")]
         [Description("Subtitle text displayed below the header.")]
         public string SubtitleText
@@ -1605,6 +2118,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
+                _loadingTimer?.Stop();
+                _loadingTimer?.Dispose();
+                _expandCollapseTimer?.Stop();
+                _expandCollapseTimer?.Dispose();
+                _interactionManager?.Dispose();
                 _painter = null;
             }
             base.Dispose(disposing);

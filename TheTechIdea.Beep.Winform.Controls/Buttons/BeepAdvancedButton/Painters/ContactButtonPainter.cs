@@ -110,10 +110,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         /// </summary>
         private ContactButtonLayout DetermineLayout(AdvancedButtonPaintContext context)
         {
-            // Check for custom layout hint
-            if (context.ContactLayout != null )
+            if (context.ContactVariant != ContactVariant.Auto)
             {
-                return context.ContactLayout;
+                return MapVariant(context.ContactVariant);
+            }
+
+            // Check for custom layout hint
+            if (context.ContactLayout.HasValue)
+            {
+                return context.ContactLayout.Value;
             }
 
             // Auto-detect based on properties
@@ -141,6 +146,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
 
             return ContactButtonLayout.Standard;
+        }
+
+        private static ContactButtonLayout MapVariant(ContactVariant variant)
+        {
+            return variant switch
+            {
+                ContactVariant.IconCircleLeft1 => ContactButtonLayout.IconCircleLeft1,
+                ContactVariant.IconSquareLeft2 => ContactButtonLayout.IconSquareLeft2,
+                ContactVariant.IconCirclesLeftPill3 => ContactButtonLayout.IconCirclesLeftPill3,
+                ContactVariant.IconCircleRightPill4 => ContactButtonLayout.IconCircleRightPill4,
+                ContactVariant.IconDiagonalLeft5 => ContactButtonLayout.IconDiagonalLeft5,
+                ContactVariant.IconSquareLeft6 => ContactButtonLayout.IconSquareLeft6,
+                ContactVariant.IconArrowLeftPill7 => ContactButtonLayout.IconArrowLeftPill7,
+                ContactVariant.IconInsidePillBorder8 => ContactButtonLayout.IconInsidePillBorder8,
+                ContactVariant.Standard => ContactButtonLayout.Standard,
+                ContactVariant.IconLeftSplit => ContactButtonLayout.IconLeftSplit,
+                ContactVariant.IconRightSplit => ContactButtonLayout.IconRightSplit,
+                ContactVariant.IconLeftCircle => ContactButtonLayout.IconLeftCircle,
+                ContactVariant.IconRightCircle => ContactButtonLayout.IconRightCircle,
+                ContactVariant.IconLeftAngled => ContactButtonLayout.IconLeftAngled,
+                ContactVariant.IconLeftArrow => ContactButtonLayout.IconLeftArrow,
+                ContactVariant.Outlined => ContactButtonLayout.Outlined,
+                _ => ContactButtonLayout.Standard
+            };
         }
 
         #region "Layout Renderers"
@@ -510,9 +539,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             CalculateStandardLayout(context, metrics, bounds, out Rectangle iconBounds, out Rectangle textBounds);
 
             // Draw icon
-            if (!string.IsNullOrEmpty(context.ImagePainter?.ImagePath) && !iconBounds.IsEmpty)
+            if (HasPrimaryIcon(context) && !iconBounds.IsEmpty)
             {
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
 
             // Draw text
@@ -535,9 +564,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             CalculateStandardLayout(context, metrics, bounds, out Rectangle iconBounds, out Rectangle textBounds);
 
             // Draw icon
-            if (!string.IsNullOrEmpty(context.ImagePainter?.ImagePath) && !iconBounds.IsEmpty)
+            if (HasPrimaryIcon(context) && !iconBounds.IsEmpty)
             {
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
 
             // Draw text
@@ -554,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void CalculateStandardLayout(AdvancedButtonPaintContext context, AdvancedButtonMetrics metrics,
             Rectangle bounds, out Rectangle iconBounds, out Rectangle textBounds)
         {
-            bool hasIcon = !string.IsNullOrEmpty(context.ImagePainter?.ImagePath);
+            bool hasIcon = HasPrimaryIcon(context);
             bool hasText = !string.IsNullOrEmpty(context.Text);
 
             if (hasIcon && hasText)

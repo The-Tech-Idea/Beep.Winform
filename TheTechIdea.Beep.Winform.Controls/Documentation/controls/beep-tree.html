@@ -287,25 +287,25 @@ tree.Nodes = new List<SimpleItem> { rootNode };</code></pre>
 tree.NodeSelected += (sender, e) => {
     if (tree.SelectedNode != null)
     {
-        Console.WriteLine($"Selected: {tree.SelectedNode.Text}");
+      //  Console.WriteLine($"Selected: {tree.SelectedNode.Text}");
     }
 };
 
 // Handle node expansion
 tree.NodeExpanded += (sender, e) => {
-    Console.WriteLine($"Expanded node");
+  //  Console.WriteLine($"Expanded node");
 };
 
 // Handle node checking
 tree.NodeChecked += (sender, e) => {
-    Console.WriteLine($"Node checked");
+  //  Console.WriteLine($"Node checked");
 };
 
 // Handle double-click
 tree.NodeDoubleClicked += (sender, e) => {
     if (tree.SelectedNode != null)
     {
-        Console.WriteLine($"Double-clicked: {tree.SelectedNode.Text}");
+      //  Console.WriteLine($"Double-clicked: {tree.SelectedNode.Text}");
         EditNode(tree.SelectedNode);
     }
 };
@@ -617,7 +617,7 @@ tree.EnsureVisible(importantNode);</code></pre>
 
 // Selection events
 tree.SelectedItemChanged += (sender, e) => {
-    Console.WriteLine($"Selection changed to: {e.SelectedItem?.Text}");
+  //  Console.WriteLine($"Selection changed to: {e.SelectedItem?.Text}");
     UpdateStatusBar(e.SelectedItem);
 };
 

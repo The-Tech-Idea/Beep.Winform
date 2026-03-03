@@ -108,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                     Dock = DockStyle.Top,
                     Height = _searchBoxHeight,
                     Padding = new Padding(_spacing),
-                    BackColor = Color.Transparent
+                  
                 };
 
                 // Create search icon
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                     ImagePath = SvgsUI.Search,
                     ApplyThemeOnImage = true,
                     IsChild = true,
-                    BackColor = Color.Transparent
+                   
                 };
 
                 // Create search box
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                     Dock = DockStyle.Top,
                     Height = _chipAreaHeight,
                     Padding = new Padding(_spacing, 0, _spacing, _spacing),
-                    BackColor = Color.Transparent,
+                   
                     AutoScroll = true
                 };
 
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
                 {
                     Dock = DockStyle.Fill,
                     Padding = new Padding(_spacing),
-                    BackColor = Color.Transparent
+                 
                 };
 
                 // Create list box

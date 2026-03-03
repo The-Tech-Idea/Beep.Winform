@@ -85,13 +85,13 @@ grid.ShowAdvancedFilterDialog();
 // Handle filter applied event
 grid.FilterApplied += (s, e) =>
 {
-    Console.WriteLine($"Filter applied: {e.MatchingRowCount} rows match");
+  //  Console.WriteLine($"Filter applied: {e.MatchingRowCount} rows match");
 };
 
 // Handle filter cleared event
 grid.FilterCleared += (s, e) =>
 {
-    Console.WriteLine("Filter cleared");
+  //  Console.WriteLine("Filter cleared");
 };
 ```
 
@@ -130,7 +130,7 @@ grid.ActiveFilter = config;
 // Check if filtered
 if (grid.IsFiltered)
 {
-    Console.WriteLine($"Showing {grid.FilteredRowCount} of {grid.Data.Rows.Count} rows");
+  //  Console.WriteLine($"Showing {grid.FilteredRowCount} of {grid.Data.Rows.Count} rows");
 }
 ```
 
@@ -147,7 +147,7 @@ grid.LoadFilterConfiguration("my_filter.json");
 var configs = grid.GetSavedFilterConfigurations("filters/");
 foreach (var config in configs)
 {
-    Console.WriteLine($"Found filter: {config.Name}");
+  //  Console.WriteLine($"Found filter: {config.Name}");
 }
 ```
 
@@ -353,14 +353,14 @@ Excel-like quick filter bar:
 // Filter applied
 grid.FilterApplied += (s, e) =>
 {
-    Console.WriteLine($"Filter: {e.FilterConfiguration.Name}");
-    Console.WriteLine($"Matches: {e.MatchingRowCount} rows");
+  //  Console.WriteLine($"Filter: {e.FilterConfiguration.Name}");
+  //  Console.WriteLine($"Matches: {e.MatchingRowCount} rows");
 };
 
 // Filter cleared
 grid.FilterCleared += (s, e) =>
 {
-    Console.WriteLine("All filters cleared");
+  //  Console.WriteLine("All filters cleared");
 };
 ```
 

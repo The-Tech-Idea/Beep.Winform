@@ -17,9 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 ? _theme?.PrimaryColor ?? Color.Blue
                 : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Gray));
             
-            var pen = PaintersFactory.GetPen(borderColor,1f);
+           // var pen = PaintersFactory.GetPen(borderColor,1f);
             // Draw simple rectangular border
-            g.DrawRectangle(pen, rect.X, rect.Y, rect.Width -1, rect.Height -1);
+            //g.DrawRectangle(pen, rect.X, rect.Y, rect.Width -1, rect.Height -1);
         }
         
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     : (_theme?.SecondaryColor ?? Color.Gray);
             }
 
-            DrawDropdownArrow(g, buttonRect, arrowColor);
+            DrawDropdownArrow(g, buttonRect, arrowColor, _owner.IsDropdownOpen);
         }
 
         public override int GetPreferredButtonWidth()
@@ -105,27 +105,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             return new Padding(10, 6, 8, 6);
         }
 
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            if (radius <= 0)
-            {
-                path.AddRectangle(rect);
-                return path;
-            }
-
-            int diameter = radius * 2;
-            var arc = new Rectangle(rect.Location, new Size(diameter, diameter));
-
-            path.AddArc(arc, 180, 90);
-            arc.X = rect.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = rect.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = rect.Left;
-            path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
     }
 }

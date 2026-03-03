@@ -46,7 +46,7 @@ responsiveManager.AddColumnRule("LastModified", ScreenSize.Large, priority: 2);
 // Handle screen size changes
 responsiveManager.ScreenSizeChanged += (s, e) =>
 {
-    Console.WriteLine($"Screen size changed: {e.OldSize} → {e.NewSize}");
+  //  Console.WriteLine($"Screen size changed: {e.OldSize} → {e.NewSize}");
 };
 ```
 
@@ -252,7 +252,7 @@ masterDetail.SetDetailControl(rowIndex: 5, detailPanel, height: 150);
 // Handle events
 masterDetail.DetailExpanded += (s, e) =>
 {
-    Console.WriteLine($"Row {e.RowIndex} expanded");
+  //  Console.WriteLine($"Row {e.RowIndex} expanded");
     LoadDetailData(e.RowIndex);
 };
 

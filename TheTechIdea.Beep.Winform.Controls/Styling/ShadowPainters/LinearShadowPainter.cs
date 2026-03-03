@@ -18,13 +18,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (g == null || path == null) return path;
             
             // Linear style: very minimal shadows, almost flat design
-            // Only show shadow on hover/focus for subtle depth
+            // Normal: very faint shadow; hover/focus: slightly more pronounced
             if (state == ControlState.Hovered || state == ControlState.Focused)
             {
-                return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 1, alpha: 8);
+                return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 1, alpha: 45);
             }
 
-            return path; // No shadow for normal state
+            // Normal state: subtle but visible shadow
+            return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 1, alpha: 25);
         }
     }
 }

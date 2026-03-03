@@ -78,11 +78,26 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         private CheckBoxState _state = CheckBoxState.Unchecked;
         private T _checkedValue;
         private T _uncheckedValue;
+        private T _checkedStateValue;
+        private T _uncheckedStateValue;
+        private T _indeterminateStateValue;
         private T _currentValue;
+        private bool _hasCheckedStateValue;
+        private bool _hasUncheckedStateValue;
+        private bool _hasIndeterminateStateValue;
+        private bool _mapStateValuesToLegacy = true;
+        private bool _useUncheckedValueForIndeterminate = true;
         private BeepImage _beepImage;
+        private string _checkIconPath;
+        private string _indeterminateIconPath;
+        private Rectangle _lastCheckBoxRect = Rectangle.Empty;
+        private Rectangle _lastTextRect = Rectangle.Empty;
+        private bool _keyboardFocusVisible;
+        private int _minimumHitTargetSize = 32;
         private bool _hideText = false;
         private Font _textFont = new Font("Arial", 10);
         private int checkboxsize = 15;
+        private int _spacing = 5;
         private TextAlignment _textAlignRelativeToCheckBox = TextAlignment.Right;
 
         // Painter system
@@ -124,8 +139,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             
             // Re-apply theme to update fonts with new DPI
             ApplyTheme();
-            
-            Invalidate();
+            ClearGraphicsCaches();
+            if (AutoSize)
+            {
+                Size = GetPreferredSize(Size.Empty);
+            }
+            RequestVisualRefresh(includeText: true);
         }
         #endregion
 
@@ -143,7 +162,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _textFont = value;
                 SafeApplyFont(_textFont);
                 UseThemeFont = false;
-                Invalidate();
+                ClearGraphicsCaches();
+                RequestVisualRefresh(includeText: true);
             }
         }
 
@@ -156,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 {
                     base.Text = value;
                     _stateChanged = true;
-                    Invalidate();
+                    RequestVisualRefresh(includeText: true);
                 }
             }
         }
@@ -171,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             set
             {
                 _textAlignRelativeToCheckBox = value;
-                Invalidate();
+                RequestVisualRefresh(includeText: true);
             }
         }
 
@@ -190,7 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 {
                     _checkBoxStyle = value;
                     _painter = CheckBoxPainterFactory.GetPainter(_checkBoxStyle);
-                    Invalidate();
+                    ClearGraphicsCaches();
+                    RequestVisualRefresh(includeText: true);
                 }
             }
         }
@@ -207,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                     _state = value;
                     _stateChanged = true;
                     UpdateCurrentValue();
-                    Invalidate();
+                    RequestVisualRefresh(includeText: true);
                     RaiseSubmitChanges();
                 }
             }
@@ -221,6 +242,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             set
             {
                 _checkedValue = value;
+                if (!_hasCheckedStateValue)
+                {
+                    _checkedStateValue = value;
+                }
                 UpdateCurrentValue();
             }
         }
@@ -233,6 +258,97 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             set
             {
                 _uncheckedValue = value;
+                if (!_hasUncheckedStateValue)
+                {
+                    _uncheckedStateValue = value;
+                }
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Optional explicit value mapped to Checked state. When enabled, it can be synchronized to legacy CheckedValue.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public T CheckedStateValue
+        {
+            get => _checkedStateValue;
+            set
+            {
+                _checkedStateValue = value;
+                _hasCheckedStateValue = true;
+                if (_mapStateValuesToLegacy)
+                {
+                    _checkedValue = value;
+                }
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Optional explicit value mapped to Unchecked state. When enabled, it can be synchronized to legacy UncheckedValue.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public T UncheckedStateValue
+        {
+            get => _uncheckedStateValue;
+            set
+            {
+                _uncheckedStateValue = value;
+                _hasUncheckedStateValue = true;
+                if (_mapStateValuesToLegacy)
+                {
+                    _uncheckedValue = value;
+                }
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Optional explicit value mapped to Indeterminate state.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public T IndeterminateStateValue
+        {
+            get => _indeterminateStateValue;
+            set
+            {
+                _indeterminateStateValue = value;
+                _hasIndeterminateStateValue = true;
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("When true, CheckedStateValue/UncheckedStateValue are synchronized to legacy CheckedValue/UncheckedValue for backward compatibility.")]
+        public bool MapStateValuesToLegacy
+        {
+            get => _mapStateValuesToLegacy;
+            set
+            {
+                _mapStateValuesToLegacy = value;
+                if (_mapStateValuesToLegacy)
+                {
+                    if (_hasCheckedStateValue)
+                    {
+                        _checkedValue = _checkedStateValue;
+                    }
+                    if (_hasUncheckedStateValue)
+                    {
+                        _uncheckedValue = _uncheckedStateValue;
+                    }
+                }
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("When IndeterminateStateValue is not set, map indeterminate state to UncheckedValue (true) or CheckedValue (false).")]
+        public bool UseUncheckedValueForIndeterminate
+        {
+            get => _useUncheckedValueForIndeterminate;
+            set
+            {
+                _useUncheckedValueForIndeterminate = value;
                 UpdateCurrentValue();
             }
         }
@@ -256,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             set
             {
                 _hideText = value;
-                Invalidate();
+                RequestVisualRefresh(includeText: true);
             }
         }
 
@@ -275,7 +391,48 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 }
                 _beepImage.ApplyTheme();
                 ApplyTheme();
-                Invalidate();
+                RequestVisualRefresh(includeText: false);
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Icon path used for checked glyph rendering. When empty, icon resolves from IconsManagement defaults.")]
+        public string CheckIconPath
+        {
+            get => string.IsNullOrWhiteSpace(_checkIconPath) ? CheckBoxIconHelpers.GetCheckIconPath() : _checkIconPath;
+            set
+            {
+                _checkIconPath = value;
+                RequestVisualRefresh(includeText: false);
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Icon path used for indeterminate glyph rendering. When empty, icon resolves from IconsManagement defaults.")]
+        public string IndeterminateIconPath
+        {
+            get => string.IsNullOrWhiteSpace(_indeterminateIconPath) ? CheckBoxIconHelpers.GetIndeterminateIconPath() : _indeterminateIconPath;
+            set
+            {
+                _indeterminateIconPath = value;
+                RequestVisualRefresh(includeText: false);
+            }
+        }
+
+        [Category("Layout")]
+        [Description("Minimum clickable target size for checkbox interactions.")]
+        [DefaultValue(32)]
+        public int MinimumHitTargetSize
+        {
+            get => _minimumHitTargetSize;
+            set
+            {
+                _minimumHitTargetSize = Math.Max(24, value);
+                if (AutoSize)
+                {
+                    Size = GetPreferredSize(Size.Empty);
+                }
+                RequestVisualRefresh(includeText: true);
             }
         }
 
@@ -287,10 +444,30 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         public int CheckBoxSize
         {
             get { return checkboxsize; }
-            set { checkboxsize = value; }
+            set
+            {
+                checkboxsize = Math.Max(12, value);
+                if (AutoSize)
+                {
+                    Size = GetPreferredSize(Size.Empty);
+                }
+                RequestVisualRefresh(includeText: true);
+            }
         }
 
-        public int Spacing { get; set; } = 5;
+        public int Spacing
+        {
+            get => _spacing;
+            set
+            {
+                _spacing = Math.Max(2, value);
+                if (AutoSize)
+                {
+                    Size = GetPreferredSize(Size.Empty);
+                }
+                RequestVisualRefresh(includeText: true);
+            }
+        }
 
         [Category("Behavior")]
         [Description("Indicates whether the control can be navigated to using the Tab key.")]
@@ -315,7 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 {
                     this.Size = GetPreferredSize(Size.Empty);
                 }
-                Invalidate();
+                RequestVisualRefresh(includeText: true);
             }
         }
         #endregion
@@ -324,10 +501,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         {
             base.ApplyTheme();
             
-            float dpiScale = DpiScalingHelper.GetDpiScaleFactor(this);
-            
             // Apply font theme based on ControlStyle
-            CheckBoxFontHelpers.ApplyFontTheme(this, ControlStyle, dpiScale);
+            _textFont = CheckBoxFontHelpers.GetCheckBoxFont(_currentTheme, ControlStyle, this);
+            SafeApplyFont(_textFont);
+            ClearGraphicsCaches();
 
             if (_currentTheme != null)
             {
@@ -336,7 +513,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _beepImage.ApplyTheme();
             }
 
-            Invalidate();
+            RequestVisualRefresh(includeText: true);
         }
 
         #region Events

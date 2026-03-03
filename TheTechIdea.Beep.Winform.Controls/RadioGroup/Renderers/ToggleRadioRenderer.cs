@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -20,8 +20,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private IBeepTheme _theme;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
+        private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
         private BeepControlStyle _controlStyle = BeepControlStyle.iOS15;
         private bool _useThemeColors = true;
+        private const int HorizontalPadding = 12;
+        private const int VerticalPadding = 6;
+        private const int ComponentSpacing = 8;
+        private const int TrackWidth = 40;
+        private const int TrackHeight = 20;
 
         public string StyleName => "Toggle";
         public string DisplayName => "Toggle Switch Style";
@@ -45,12 +51,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner;
             _theme = theme;
-            _textFont = new Font("Segoe UI", 11f);
+            _textFont = RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
 
         public void RenderItem(Graphics g, SimpleItem item, Rectangle rect, RadioItemState state)
@@ -62,54 +69,101 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var content = GetContentArea(rect);
             var toggle = GetSelectorArea(rect);
 
-            // Text
-            if (!string.IsNullOrEmpty(item.Text))
+            int reserveRight = toggle.Width + ComponentSpacing;
+            int availableRight = Math.Max(content.X, content.Right - reserveRight);
+            int currentX = content.X;
+
+            if (!string.IsNullOrEmpty(item.ImagePath) && currentX < availableRight)
             {
-                using var br = new SolidBrush(colors.Text);
+                int sz = Math.Min(IconSize, Math.Max(10, content.Height - 4));
+                sz = Math.Min(sz, Math.Max(0, availableRight - currentX));
+                if (sz > 0)
+                {
+                    var iconRect = new Rectangle(currentX, content.Y + (content.Height - sz) / 2, sz, sz);
+                    var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                    var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                    RadioGroupIconHelpers.PaintIcon(g, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
+                    currentX += sz + ComponentSpacing;
+                }
+            }
+
+            // Text
+            if (!string.IsNullOrEmpty(item.Text) && currentX < availableRight)
+            {
+                using var br = new SolidBrush(state.IsEnabled ? colors.Text : colors.DisabledText);
                 var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-                g.DrawString(item.Text, _textFont, br, new Rectangle(content.X, content.Y, content.Width - toggle.Width - 8, content.Height), fmt);
+                g.DrawString(item.Text, _textFont, br, new Rectangle(currentX, content.Y, availableRight - currentX, content.Height), fmt);
             }
 
             // Toggle track
-            int trackH = 20;
-            var trackRect = new Rectangle(toggle.X, toggle.Y + (toggle.Height - trackH) / 2, 40, trackH);
-            int radius = trackH / 2;
+            int actualTrackWidth = Math.Max(8, Math.Min(TrackWidth, Math.Max(0, toggle.Width)));
+            int actualTrackHeight = Math.Max(8, Math.Min(TrackHeight, Math.Max(0, toggle.Height)));
+            var trackRect = new Rectangle(toggle.Right - actualTrackWidth, toggle.Y + (toggle.Height - actualTrackHeight) / 2, actualTrackWidth, actualTrackHeight);
+            int radius = actualTrackHeight / 2;
+            var trackColor = !state.IsEnabled
+                ? colors.DisabledTrack
+                : (state.IsSelected ? colors.PrimaryLite : (state.IsHovered ? colors.HoverTrack : colors.Track));
+
             using (var path = RoundedRect(trackRect, radius))
-            using (var trackBr = new SolidBrush(state.IsSelected ? colors.PrimaryLite : colors.Track))
+            using (var trackBr = new SolidBrush(trackColor))
             {
                 g.FillPath(trackBr, path);
             }
 
             // Thumb
-            int thumb = trackH - 4;
+            int thumb = Math.Max(4, actualTrackHeight - 4);
             int cx = state.IsSelected ? trackRect.Right - (thumb / 2) - 2 : trackRect.Left + (thumb / 2) + 2;
             var thumbRect = new Rectangle(cx - thumb / 2, trackRect.Y + 2, thumb, thumb);
-            using var thumbBr = new SolidBrush(colors.Thumb);
+            using var thumbBr = new SolidBrush(state.IsEnabled ? colors.Thumb : colors.DisabledThumb);
             g.FillEllipse(thumbBr, thumbRect);
+
+            if (state.IsFocused)
+            {
+                using var focusPen = new Pen(colors.FocusBorder, 2f);
+                var focusRect = Rectangle.Inflate(trackRect, 2, 2);
+                using var focusPath = RoundedRect(focusRect, radius + 2);
+                g.DrawPath(focusPen, focusPath);
+            }
         }
 
         public Size MeasureItem(SimpleItem item, Graphics g)
         {
-            int h = 28;
-            int w = 100;
+            int h = Math.Max(36, TrackHeight + VerticalPadding * 2);
+            int w = HorizontalPadding * 2 + TrackWidth;
+
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                w += IconSize + ComponentSpacing;
+                h = Math.Max(h, IconSize + VerticalPadding * 2);
+            }
+
             if (!string.IsNullOrEmpty(item.Text))
             {
                 var s = TextUtils.MeasureText(g,item.Text, _textFont);
-                w = (int)s.Width + 70;
-                h = Math.Max(h, (int)s.Height + 8);
+                w += (int)Math.Ceiling(s.Width) + ComponentSpacing;
+                h = Math.Max(h, (int)Math.Ceiling(s.Height) + VerticalPadding * 2);
             }
             return new Size(w, h);
         }
 
         public Rectangle GetContentArea(Rectangle itemRectangle)
         {
-            return new Rectangle(itemRectangle.X + 8, itemRectangle.Y + 4, itemRectangle.Width - 16, itemRectangle.Height - 8);
+            return new Rectangle(
+                itemRectangle.X + HorizontalPadding,
+                itemRectangle.Y + VerticalPadding,
+                Math.Max(0, itemRectangle.Width - (HorizontalPadding * 2)),
+                Math.Max(0, itemRectangle.Height - (VerticalPadding * 2)));
         }
 
         public Rectangle GetSelectorArea(Rectangle itemRectangle)
         {
             var content = GetContentArea(itemRectangle);
-            return new Rectangle(content.Right - 50, content.Y, 50, content.Height);
+            int selectorWidth = TrackWidth + HorizontalPadding;
+            return new Rectangle(
+                Math.Max(content.X, content.Right - selectorWidth),
+                content.Y,
+                Math.Min(selectorWidth, content.Width),
+                content.Height);
         }
 
         public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
@@ -128,11 +182,41 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return path;
         }
 
-        private (Color Primary, Color PrimaryLite, Color Text, Color Track, Color Thumb) GetColors()
+        private (Color Primary, Color PrimaryLite, Color Text, Color DisabledText, Color Track, Color HoverTrack, Color DisabledTrack, Color Thumb, Color DisabledThumb, Color FocusBorder) GetColors()
         {
-            if (_theme == null)
-                return (Color.FromArgb(59, 130, 246), Color.FromArgb(199, 230, 255), Color.FromArgb(17, 24, 39), Color.FromArgb(229, 231, 235), Color.White);
-            return (_theme.PrimaryColor, Color.FromArgb(200, _theme.PrimaryColor), _theme.ForeColor, _theme.BorderColor, _theme.ButtonForeColor);
+            if (!_useThemeColors || _theme == null)
+            {
+                var primary = StyleColors.GetPrimary(_controlStyle);
+                var foreground = StyleColors.GetForeground(_controlStyle);
+                var border = StyleColors.GetBorder(_controlStyle);
+                var hover = StyleColors.GetHover(_controlStyle);
+                var selection = StyleColors.GetSelection(_controlStyle);
+                var background = StyleColors.GetBackground(_controlStyle);
+
+                return (
+                    primary,
+                    selection,
+                    foreground,
+                    Color.FromArgb(150, foreground),
+                    border,
+                    hover,
+                    Color.FromArgb(120, background),
+                    Color.White,
+                    Color.FromArgb(150, border),
+                    primary);
+            }
+
+            return (
+                _theme.PrimaryColor,
+                Color.FromArgb(200, _theme.PrimaryColor),
+                _theme.ForeColor,
+                _theme.DisabledForeColor,
+                _theme.BorderColor,
+                _theme.ButtonHoverBackColor,
+                _theme.DisabledBackColor,
+                _theme.ButtonForeColor,
+                _theme.DisabledBorderColor,
+                _theme.PrimaryColor);
         }
     }
 }

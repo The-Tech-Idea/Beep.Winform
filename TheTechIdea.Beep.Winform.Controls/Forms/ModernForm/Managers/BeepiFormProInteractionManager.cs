@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             public void OnMouseDown(Point p)
             {
                 _hits.HitTest(p, out _pressed);
-                Debug.Print($"MouseDown at {p}, hit area: {_pressed?.Name ?? "none"}");
+                //Debug.Print($"MouseDown at {p}, hit area: {_pressed?.Name ?? "none"}");
                 // Invalidate only the pressed region
                 if (_pressed != null)
                 {
@@ -55,18 +55,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             public void OnMouseUp(Point p)
             {
                 _hits.HitTest(p, out var released);
-                Debug.Print($"MouseUp at {p}, pressed: {_pressed?.Name ?? "null"}, released: {released?.Name ?? "null"}");
+                //Debug.Print($"MouseUp at {p}, pressed: {_pressed?.Name ?? "null"}, released: {released?.Name ?? "null"}");
 
                 // Compare by name to be resilient to hit-list re-registration between down/up
                 if (_pressed != null && released != null && string.Equals(_pressed.Name, released.Name))
                 {
-                    Debug.Print($"Click confirmed on {_pressed.Name}");
+                    //Debug.Print($"Click confirmed on {_pressed.Name}");
                     // Raise event hook (future extension) or command
                     _owner.OnRegionClicked(released);
                 }
                 else
                 {
-                    Debug.Print("Click NOT confirmed - pressed/released mismatch or null");
+                    //Debug.Print("Click NOT confirmed - pressed/released mismatch or null");
                 }
 
                 // Invalidate only the released region

@@ -17,26 +17,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
-            Color borderColor = _owner.Focused 
+            Color borderColor = _owner.Focused
                 ? _theme?.PrimaryColor ?? Color.Empty
                 : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Empty));
-            
+
             float borderWidth = _owner.Focused ? 2f : 1f;
-            
-            var basePen = PaintersFactory.GetPen(borderColor, borderWidth);
+
             using (var path = GetRoundedRectPath(rect, _owner.ScaleLogicalX(BorderRadiusLogical)))
             {
-                // Clone when modifying pen properties (Alignment)
-                var pen = (System.Drawing.Pen)basePen.Clone();
-                try
-                {
-                    pen.Alignment = PenAlignment.Inset;
-                    g.DrawPath(pen, path);
-                }
-                finally
-                {
-                    pen.Dispose();
-                }
+                // Use Center alignment (PenAlignment.Inset is unreliable for GraphicsPath in GDI+)
+                var pen = PaintersFactory.GetPen(borderColor, borderWidth);
+                pen.Alignment = PenAlignment.Center;
+                g.DrawPath(pen, path);
             }
         }
         
@@ -75,22 +67,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 buttonRect.Left, buttonRect.Top + margin, 
                 buttonRect.Left, buttonRect.Bottom - margin);
             
-            // Draw arrow with state-aware coloring
-            DrawDropdownArrow(g, buttonRect, GetArrowColor());
-        }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
+            // Draw arrow with state-aware coloring; flip when dropdown is open
+            DrawDropdownArrow(g, buttonRect, GetArrowColor(), _owner.IsDropdownOpen);
         }
         
         public override Padding GetPreferredPadding()

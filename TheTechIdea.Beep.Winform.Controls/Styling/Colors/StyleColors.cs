@@ -73,6 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(255, 255, 255),         // Material white
                 BeepControlStyle.WebFramework => Color.FromArgb(250, 250, 250),     // Web light
                 BeepControlStyle.Effect => Color.FromArgb(28, 28, 35),              // Effect dark
+                BeepControlStyle.Shadcn => Color.FromArgb(255, 255, 255),           // Shadcn white
+                BeepControlStyle.RadixUI => Color.FromArgb(255, 255, 255),          // Radix UI white
+                BeepControlStyle.NextJS => Color.FromArgb(255, 255, 255),           // Next.js white
+                BeepControlStyle.Linear => Color.FromArgb(250, 250, 255),           // Linear near-white
                 _ => Color.FromArgb(250, 250, 250)
             };
         }
@@ -141,6 +145,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(98, 0, 238),            // Material purple
                 BeepControlStyle.WebFramework => Color.FromArgb(59, 130, 246),      // Web blue
                 BeepControlStyle.Effect => Color.FromArgb(139, 92, 246),            // Effect purple
+                BeepControlStyle.Shadcn => Color.FromArgb(17, 24, 39),             // Shadcn near-black
+                BeepControlStyle.RadixUI => Color.FromArgb(99, 102, 241),           // Radix indigo
+                BeepControlStyle.NextJS => Color.FromArgb(17, 24, 39),              // Next.js near-black
+                BeepControlStyle.Linear => Color.FromArgb(99, 102, 241),            // Linear indigo
                 _ => Color.FromArgb(0, 120, 215)
             };
         }
@@ -209,6 +217,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(187, 134, 252),         // Material secondary
                 BeepControlStyle.WebFramework => Color.FromArgb(243, 244, 246),     // Web secondary
                 BeepControlStyle.Effect => Color.FromArgb(45, 45, 55),              // Effect secondary
+                BeepControlStyle.Shadcn => Color.FromArgb(241, 245, 249),           // Shadcn slate 100
+                BeepControlStyle.RadixUI => Color.FromArgb(241, 240, 239),          // Radix sand 100
+                BeepControlStyle.NextJS => Color.FromArgb(243, 244, 246),           // Next.js gray 100
+                BeepControlStyle.Linear => Color.FromArgb(238, 238, 252),           // Linear lavender tint
                 _ => Color.FromArgb(240, 240, 240)
             };
         }
@@ -277,6 +289,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(33, 33, 33),            // Material dark text
                 BeepControlStyle.WebFramework => Color.FromArgb(17, 24, 39),        // Web dark text
                 BeepControlStyle.Effect => Color.FromArgb(255, 255, 255),           // Effect white text
+                BeepControlStyle.Shadcn => Color.FromArgb(15, 23, 42),              // Shadcn slate 900
+                BeepControlStyle.RadixUI => Color.FromArgb(28, 27, 26),             // Radix dark text
+                BeepControlStyle.NextJS => Color.FromArgb(17, 24, 39),              // Next.js gray 900
+                BeepControlStyle.Linear => Color.FromArgb(30, 30, 40),              // Linear near-black
                 _ => Color.FromArgb(50, 50, 50)
             };
         }
@@ -345,6 +361,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(189, 189, 189),         // Material border
                 BeepControlStyle.WebFramework => Color.FromArgb(229, 231, 235),     // Web border
                 BeepControlStyle.Effect => Color.FromArgb(80, 80, 100),             // Effect border
+                BeepControlStyle.Shadcn => Color.FromArgb(226, 232, 240),           // Shadcn slate 200
+                BeepControlStyle.RadixUI => Color.FromArgb(214, 211, 209),          // Radix sand border
+                BeepControlStyle.NextJS => Color.FromArgb(229, 231, 235),           // Next.js gray 200
+                BeepControlStyle.Linear => Color.FromArgb(235, 235, 245),           // Linear subtle border
                 _ => Color.FromArgb(200, 200, 200)
             };
         }
@@ -413,6 +433,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(245, 245, 245),         // Material hover
                 BeepControlStyle.WebFramework => Color.FromArgb(243, 244, 246),     // Web hover
                 BeepControlStyle.Effect => Color.FromArgb(40, 40, 50),              // Effect hover
+                BeepControlStyle.Shadcn => Color.FromArgb(248, 250, 252),           // Shadcn slate 50
+                BeepControlStyle.RadixUI => Color.FromArgb(249, 248, 247),          // Radix sand 50
+                BeepControlStyle.NextJS => Color.FromArgb(249, 250, 251),           // Next.js gray 50
+                BeepControlStyle.Linear => Color.FromArgb(245, 244, 255),           // Linear lavender hover
                 _ => Color.FromArgb(240, 240, 240)
             };
         }
@@ -481,6 +505,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(98, 0, 238),            // Material selection
                 BeepControlStyle.WebFramework => Color.FromArgb(59, 130, 246),      // Web selection
                 BeepControlStyle.Effect => Color.FromArgb(139, 92, 246),            // Effect selection
+                BeepControlStyle.Shadcn => Color.FromArgb(226, 232, 240),           // Shadcn selection
+                BeepControlStyle.RadixUI => Color.FromArgb(220, 215, 254),          // Radix indigo tinted selection
+                BeepControlStyle.NextJS => Color.FromArgb(219, 234, 254),           // Next.js blue 100
+                BeepControlStyle.Linear => Color.FromArgb(199, 210, 254),           // Linear indigo 200
                 _ => Color.FromArgb(220, 220, 220)
             };
         }
@@ -546,6 +574,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Material => Color.FromArgb(80, 0, 200),            // Material pressed
                 BeepControlStyle.WebFramework => Color.FromArgb(40, 100, 200),      // Web pressed
                 BeepControlStyle.Effect => Color.FromArgb(100, 60, 200),            // Effect pressed
+                BeepControlStyle.Shadcn => Color.FromArgb(14, 17, 31),              // Shadcn pressed near-black
+                BeepControlStyle.RadixUI => Color.FromArgb(79, 70, 229),            // Radix indigo pressed
+                BeepControlStyle.NextJS => Color.FromArgb(10, 17, 31),              // Next.js near-black pressed
+                BeepControlStyle.Linear => Color.FromArgb(67, 56, 202),             // Linear indigo pressed
                 _ => Color.FromArgb(220, 220, 220)
             };
         }
@@ -609,6 +641,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Gaming => Color.FromArgb(20, 20, 20),              // Gaming surface
                 BeepControlStyle.HighContrast => Color.FromArgb(255, 255, 255),     // HighContrast surface
                 BeepControlStyle.Neon => Color.FromArgb(15, 15, 25),                // Neon surface
+                BeepControlStyle.Shadcn => Color.FromArgb(255, 255, 255),           // Shadcn surface
+                BeepControlStyle.RadixUI => Color.FromArgb(255, 255, 255),          // Radix surface
+                BeepControlStyle.NextJS => Color.FromArgb(255, 255, 255),           // Next.js surface
+                BeepControlStyle.Linear => Color.FromArgb(252, 252, 255),           // Linear surface
                 _ => Color.FromArgb(250, 250, 250)
             };
         }

@@ -333,8 +333,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             // Mark layout as dirty - will be recalculated on next paint or hit test
                             InvalidateLayout();
                             
-                            // Update window region for new size
+                            // Update Win32 window region for new size (clips rounded corners)
                             UpdateWindowRegion();
+                            
+                            // CRITICAL: Also update the managed Form.Region (GDI+ clipping).
+                            // Without this call the managed Region stays at the pre-resize size,
+                            // causing clipping artifacts visible as blank strips along new edges.
+                            UpdateFormRegion();
                             
                             // Invalidate the entire form (client + non-client) to repaint everything
                             Invalidate(true);

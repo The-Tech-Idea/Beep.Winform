@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw badge text
             using (Brush badgeTextBrush = new SolidBrush(Color.White))
-            using (Font badgeFont = new Font(context.Font.FontFamily, context.Font.Size + 2, FontStyle.Bold))
+            using (Font badgeFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold, sizeDelta: 2f))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             );
 
             using (Brush textBrush = new SolidBrush(Color.Black))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Near;
@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             }
 
             using (Brush liveTextBrush = new SolidBrush(Color.White))
-            using (Font liveFont = new Font(context.Font.FontFamily, context.Font.Size * 0.7f, FontStyle.Bold))
+            using (Font liveFont = GetDerivedTextFont(context, sizeScale: 0.7f, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;

@@ -337,7 +337,7 @@ var verticalScrollBar = new BeepScrollBar
 verticalScrollBar.ValueChanged += (sender, e) =>
 {
     var scrollBar = sender as BeepScrollBar;
-    Console.WriteLine($"ScrollBar value: {scrollBar.Value}");
+  //  Console.WriteLine($"ScrollBar value: {scrollBar.Value}");
     
     // Update content position based on scrollbar value
     UpdateContentPosition(scrollBar.Value);

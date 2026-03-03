@@ -208,7 +208,7 @@ beepFormUIManager1.IsRounded = true;</code></pre>
     private void UiManager_OnThemeChanged(string newTheme)
     {
         // Handle theme changes
-        Console.WriteLine($"Theme changed to: {newTheme}");
+      //  Console.WriteLine($"Theme changed to: {newTheme}");
         
         // Perform any custom theme-specific logic
         UpdateCustomControls(newTheme);
@@ -784,7 +784,7 @@ private void SetControlProperty(Control control, string propertyName, object val
     catch (Exception ex)
     {
         // Log error but continue processing
-        Console.WriteLine($"Failed to set {propertyName} on {control.Name}: {ex.Message}");
+      //  Console.WriteLine($"Failed to set {propertyName} on {control.Name}: {ex.Message}");
     }
 }</code></pre>
                     </div>
@@ -1005,7 +1005,7 @@ public partial class DataEntryForm : BeepiForm
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to load theme plugin {file}: {ex.Message}");
+              //  Console.WriteLine($"Failed to load theme plugin {file}: {ex.Message}");
             }
         }
     }

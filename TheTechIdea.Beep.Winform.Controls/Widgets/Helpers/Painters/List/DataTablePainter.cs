@@ -4,6 +4,8 @@ using System.Linq;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -23,28 +25,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private Rectangle _pagerPrevRect;
         private Rectangle _pagerNextRect;
 
+        // ── Cached fonts (never new Font() inside draw) ──────────────────
+        private Font? _headerFont;
+        private Font? _cellFont;
+        private Font? _emptyFont;
+        private Font? _pagerFont;
+
+        protected override void RebuildFonts()
+        {
+            _headerFont?.Dispose();
+            _cellFont?.Dispose();
+            _emptyFont?.Dispose();
+            _pagerFont?.Dispose();
+            var hStyle = Theme?.GridHeaderFont   ?? new TypographyStyle { FontSize = 9f, FontWeight = FontWeight.Bold };
+            var cStyle = Theme?.GridCellFont     ?? new TypographyStyle { FontSize = 8f };
+            var eStyle = Theme?.LabelSmall       ?? new TypographyStyle { FontSize = 9f };
+            var pStyle = Theme?.LabelSmall       ?? new TypographyStyle { FontSize = 9f, FontWeight = FontWeight.Bold };
+            _headerFont = BeepThemesManager.ToFont(hStyle, applyDpiScaling: true);
+            _cellFont   = BeepThemesManager.ToFont(cStyle, applyDpiScaling: true);
+            _emptyFont  = BeepThemesManager.ToFont(eStyle, applyDpiScaling: true);
+            _pagerFont  = BeepThemesManager.ToFont(pStyle, applyDpiScaling: true);
+        }
+
+        // Layout constants (logical dp)
+        private const int PadDp       = 16;
+        private const int HeaderHDp   = 28;
+        private const int RowHeightDp = 24;
+        private const int PagerHDp    = 18;
+        private const int PagerWDp    = 22;
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 16;
+            int pad = Dp(PadDp);
             var baseRect = Owner?.DrawingRect ?? drawingRect;
             ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
-            
+
             // Header row
             ctx.HeaderRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
+                ctx.DrawingRect.Top  + pad,
                 ctx.DrawingRect.Width - pad * 2,
-                28
-            );
-            
-            // Data rows
+                Dp(HeaderHDp));
+
+            // Data rows area
             ctx.ContentRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
-                ctx.HeaderRect.Bottom + 2,
+                ctx.HeaderRect.Bottom + Dp(2),
                 ctx.DrawingRect.Width - pad * 2,
-                ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3
-            );
-            
+                ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
+
             _headerRectCache = ctx.HeaderRect;
 
             // Build per-column header rects if labels are available
@@ -72,10 +101,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 bool hasPaging = pageSize < items.Count;
                 if (hasPaging)
                 {
-                    int btnW = 22; int btnH = 18; int gap = 6;
+                    int btnW = Dp(PagerWDp); int btnH = Dp(PagerHDp); int gap = Dp(6);
                     int y = ctx.ContentRect.Bottom - btnH;
                     _pagerPrevRect = new Rectangle(ctx.ContentRect.Right - (btnW * 2 + gap), y, btnW, btnH);
-                    _pagerNextRect = new Rectangle(ctx.ContentRect.Right - btnW, y, btnW, btnH);
+                    _pagerNextRect = new Rectangle(ctx.ContentRect.Right - btnW,              y, btnW, btnH);
                 }
             }
             return ctx;
@@ -169,70 +198,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawPagerButton(Graphics g, Rectangle rect, string glyph, bool hovered)
         {
-            using var bg = new SolidBrush(Color.FromArgb(hovered ? 24 : 12, Theme?.PrimaryColor ?? Color.Blue));
+            using var bg     = new SolidBrush(Color.FromArgb(hovered ? 24 : 12, Theme?.PrimaryColor ?? Color.Blue));
             using var border = new Pen(Color.FromArgb(60, Theme?.BorderColor ?? Color.Gray));
-            using var f = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
             var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.FillRoundedRectangle(bg, rect, 3);
-            g.DrawRoundedRectangle(border, rect, 3);
-            using var fg = new SolidBrush(Theme?.ForeColor ?? Color.Black);
-            g.DrawString(glyph, f, fg, rect, fmt);
+            g.FillRoundedRectangle(bg, rect, Dp(3));
+            g.DrawRoundedRectangle(border, rect, Dp(3));
+            var fgBrush = PaintersFactory.GetSolidBrush(Theme?.ForeColor ?? Color.Black);
+            if (_pagerFont != null)
+                g.DrawString(glyph, _pagerFont, fgBrush, rect, fmt);
         }
 
         private void DrawEmptyState(Graphics g, Rectangle rect, WidgetContext ctx)
         {
-            using var txt = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
-            using var f = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Italic);
+            var txt = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
             var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(ctx.EmptyText ?? "No data to display", f, txt, rect, fmt);
+            if (_emptyFont != null)
+                g.DrawString(ctx.EmptyText ?? "No data to display", _emptyFont, txt, rect, fmt);
         }
 
         private void DrawTableHeader(Graphics g, Rectangle rect, List<string> columns, int sortedCol, string sortDir)
         {
-            // Header background
             using var headerBrush = new SolidBrush(Color.FromArgb(20, Theme?.BorderColor ?? Color.Gray));
             g.FillRectangle(headerBrush, rect);
-            
-            // Column headers
-            using var headerFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
-            using var headerTextBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
-            using var sortedTextBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
+
+            var headerTextBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
+            var sortedTextBrush = PaintersFactory.GetSolidBrush(Theme?.ForeColor ?? Color.Black);
             int colWidth = rect.Width / Math.Max(columns.Count, 1);
             for (int i = 0; i < columns.Count; i++)
             {
                 var colRect = new Rectangle(rect.X + i * colWidth, rect.Y, colWidth - 1, rect.Height);
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                var format  = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
 
-                bool hovered = IsAreaHovered($"DataTable_HeaderCol_{i}");
-                if (hovered)
+                if (IsAreaHovered($"DataTable_HeaderCol_{i}"))
                 {
                     using var h = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
                     g.FillRectangle(h, colRect);
                 }
 
-                // Draw column name and optional sort glyph
                 bool isSorted = i == sortedCol;
                 var brush = isSorted ? sortedTextBrush : headerTextBrush;
-                string title = columns[i];
-                g.DrawString(title, headerFont, brush, colRect, format);
+                if (_headerFont != null)
+                    g.DrawString(columns[i], _headerFont, brush, colRect, format);
 
                 if (isSorted)
                 {
-                    // Simple arrow indicator
-                    int cx = colRect.Right - 12;
-                    int cy = colRect.Y + colRect.Height / 2;
+                    int cx  = colRect.Right - Dp(12);
+                    int cy  = colRect.Y + colRect.Height / 2;
+                    int dx  = Dp(5); int dy = Dp(4);
                     Point[] tri = sortDir == "desc"
-                        ? new[] { new Point(cx - 5, cy - 3), new Point(cx + 5, cy - 3), new Point(cx, cy + 4) }
-                        : new[] { new Point(cx - 5, cy + 3), new Point(cx + 5, cy + 3), new Point(cx, cy - 4) };
+                        ? new[] { new Point(cx - dx, cy - dy), new Point(cx + dx, cy - dy), new Point(cx, cy + dy) }
+                        : new[] { new Point(cx - dx, cy + dy), new Point(cx + dx, cy + dy), new Point(cx, cy - dy) };
                     using var triBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                     g.FillPolygon(triBrush, tri);
                 }
-                
-                // Column separator
+
                 if (i < columns.Count - 1)
                 {
-                    using var separatorPen = new Pen(Color.FromArgb(50, Theme?.BorderColor ?? Color.Gray), 1);
-                    g.DrawLine(separatorPen, colRect.Right, rect.Top, colRect.Right, rect.Bottom);
+                    using var sep = new Pen(Color.FromArgb(50, Theme?.BorderColor ?? Color.Gray), 1);
+                    g.DrawLine(sep, colRect.Right, rect.Top, colRect.Right, rect.Bottom);
                 }
             }
         }
@@ -263,41 +286,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void DrawTableRows(Graphics g, Rectangle rect, List<ListItem> items, List<string> columns)
         {
             if (!items.Any() || !columns.Any()) return;
-            
-            int rowHeight = Math.Min(24, rect.Height / Math.Max(items.Count, 1));
+
+            int rowHeight = Dp(RowHeightDp);
             int colWidth = rect.Width / columns.Count;
-            
-            using var cellFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f);
-            using var cellBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
-            
+            var cellBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
+
             for (int row = 0; row < items.Count; row++)
             {
                 var item = items[row];
                 int y = rect.Y + row * rowHeight;
-                
-                // Alternate row background
+
                 if (row % 2 == 1)
                 {
                     using var altRowBrush = new SolidBrush(Color.FromArgb(10, Theme?.BorderColor ?? Color.Gray));
                     g.FillRectangle(altRowBrush, rect.X, y, rect.Width, rowHeight);
                 }
-                
-                // Cell data
+
                 for (int col = 0; col < columns.Count; col++)
                 {
-                    var cellRect = new Rectangle(rect.X + col * colWidth + 4, y, colWidth - 8, rowHeight);
-                    string key = columns[col];
+                    var cellRect  = new Rectangle(rect.X + col * colWidth + Dp(4), y, colWidth - Dp(8), rowHeight);
+                    string key    = columns[col];
                     string cellValue = GetListItemProperty(item, key);
-
-                    // Align numbers to the right, others to the near
-                    var fmt = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-                    if (decimal.TryParse(cellValue, out _))
-                        fmt.Alignment = StringAlignment.Far;
-                    
-                    g.DrawString(cellValue, cellFont, cellBrush, cellRect, fmt);
+                    var fmt       = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                    if (decimal.TryParse(cellValue, out _)) fmt.Alignment = StringAlignment.Far;
+                    if (_cellFont != null)
+                        g.DrawString(cellValue, _cellFont, cellBrush, cellRect, fmt);
                 }
-                
-                // Row separator
+
                 using var rowPen = new Pen(Color.FromArgb(30, Theme?.BorderColor ?? Color.Gray), 1);
                 g.DrawLine(rowPen, rect.X, y + rowHeight - 1, rect.Right, y + rowHeight - 1);
             }
@@ -414,15 +429,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (items == null || items.Count == 0) return result;
 
             int pageIndex = Math.Max(0, ctx.PageIndex);
-            int pageSize = Math.Max(1, ctx.PageSize);
-            int start = pageIndex * pageSize;
-            int visible = start < items.Count ? Math.Min(pageSize, items.Count - start) : 0;
+            int pageSize  = Math.Max(1, ctx.PageSize);
+            int start     = pageIndex * pageSize;
+            int visible   = start < items.Count ? Math.Min(pageSize, items.Count - start) : 0;
 
-            int rowHeight = visible > 0 ? Math.Min(24, ctx.ContentRect.Height / Math.Max(visible, 1)) : 24;
+            int rowHeight = Dp(RowHeightDp);
             for (int i = 0; i < visible; i++)
-            {
                 result.Add(new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + i * rowHeight, ctx.ContentRect.Width, rowHeight));
-            }
             return result;
         }
     }

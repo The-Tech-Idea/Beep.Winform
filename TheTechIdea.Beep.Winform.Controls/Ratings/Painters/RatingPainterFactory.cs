@@ -17,16 +17,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
         {
             return style switch
             {
-                RatingStyle.ClassicStar => new ClassicStarPainter(),
-                RatingStyle.ModernStar => new ModernStarPainter(),
-                RatingStyle.Heart => new HeartRatingPainter(),
-                RatingStyle.Thumb => new ThumbRatingPainter(),
-                RatingStyle.Circle => new CircleRatingPainter(),
-                RatingStyle.Emoji => new EmojiRatingPainter(),
-                RatingStyle.Bar => new BarRatingPainter(),
-                RatingStyle.GradientStar => new GradientStarPainter(),
-                RatingStyle.Minimal => new MinimalRatingPainter(),
-                _ => new ClassicStarPainter()
+                RatingStyle.ClassicStar    => new ClassicStarPainter(),
+                RatingStyle.ModernStar     => new ModernStarPainter(),
+                RatingStyle.Heart          => new HeartRatingPainter(),
+                RatingStyle.Thumb          => new ThumbRatingPainter(),
+                RatingStyle.Circle         => new CircleRatingPainter(),
+                RatingStyle.Emoji          => new EmojiRatingPainter(),
+                RatingStyle.Bar            => new BarRatingPainter(),
+                RatingStyle.GradientStar   => new GradientStarPainter(),
+                RatingStyle.Minimal        => new MinimalRatingPainter(),
+                // ── Sprint 4 additions ───────────────────────────────────────────
+                RatingStyle.Diamond        => new DiamondRatingPainter(),
+                RatingStyle.Flag           => new FlagRatingPainter(),
+                RatingStyle.NumericScale   => new NumericScalePainter(),
+                RatingStyle.Slider         => new SliderRatingPainter(),
+                RatingStyle.CompactInline  => new CompactInlinePainter(),
+                _                          => new ClassicStarPainter()
             };
         }
 

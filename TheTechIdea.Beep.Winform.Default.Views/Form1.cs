@@ -16,5 +16,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

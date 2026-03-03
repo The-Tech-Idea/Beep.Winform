@@ -59,6 +59,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             set => _isTransparent = value;
         }
 
+        /// <summary>
+        /// Border radius of the owning container.  Used to shape the outer corners of the
+        /// first and last visible tabs so they follow the container's rounded outline.
+        /// Set to 0 when the container is not rounded.
+        /// </summary>
+        public int ContainerBorderRadius { get; set; } = 0;
+
         public IBeepTheme Theme
         {
             get => _theme;
@@ -66,11 +73,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         }
 
         /// <summary>
-        /// Draws a professional tab with rounded corners, gradients, and theme colors
+        /// Draws a professional tab with rounded corners, gradients, and theme colors.
         /// </summary>
-        public void DrawProfessionalTab(Graphics g, Rectangle bounds, string title, Font font, 
-            bool isActive, bool isHovered, bool showCloseButton, bool isCloseHovered, 
-            float animationProgress = 0f)
+        /// <param name="isFirst">True when this is the first visible tab — outer corner follows ContainerBorderRadius.</param>
+        /// <param name="isLast">True when this is the last visible tab — outer corner follows ContainerBorderRadius.</param>
+        /// <param name="tabPosition">Position of the tab strip so outer-corner direction can be determined.</param>
+        public void DrawProfessionalTab(Graphics g, Rectangle bounds, string title, Font font,
+            bool isActive, bool isHovered, bool showCloseButton, bool isCloseHovered,
+            float animationProgress = 0f,
+            bool isFirst = false, bool isLast = false,
+            TabPosition tabPosition = TabPosition.Top)
         {
             // Validate input parameters
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0 || font == null)
@@ -92,10 +104,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 switch (_tabStyle)
                 {
                     case TabStyle.Classic:
-                        DrawTabBackground(g, bounds, colors, isActive, isHovered);
+                        DrawTabBackground(g, bounds, colors, isActive, isHovered, isFirst, isLast, tabPosition);
                         break;
                     case TabStyle.Capsule:
-                        DrawCapsuleBackground(g, bounds, colors, isActive, isHovered);
+                        DrawCapsuleBackground(g, bounds, colors, isActive, isHovered, isFirst, isLast, tabPosition);
                         break;
                     case TabStyle.Underline:
                         // Underline has no background; we'll draw underline separately later
@@ -104,15 +116,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                         // Minimal draws no background
                         break;
                     case TabStyle.Segmented:
-                        DrawSegmentBackground(g, bounds, colors, isActive, isHovered);
+                        DrawSegmentBackground(g, bounds, colors, isActive, isHovered, isFirst, isLast, tabPosition);
                         break;
                     default:
-                        DrawTabBackground(g, bounds, colors, isActive, isHovered);
+                        DrawTabBackground(g, bounds, colors, isActive, isHovered, isFirst, isLast, tabPosition);
                         break;
                 }
                 
                 // Draw tab border
                 DrawTabBorder(g, bounds, colors.BorderColor, isActive);
+
+                // Active indicator line — drawn for styles that don't already rely solely
+                // on background fill to indicate selection.
+                if (isActive)
+                {
+                    switch (_tabStyle)
+                    {
+                        case TabStyle.Classic:
+                        case TabStyle.Card:
+                        case TabStyle.Segmented:
+                        case TabStyle.Button:
+                            DrawActiveIndicator(g, bounds, tabPosition);
+                            break;
+                    }
+                }
                 
                 // Calculate text bounds with proper margins
                 var textBounds = showCloseButton ? 
@@ -136,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // If style is underline or minimal and active, draw underline accent
                 if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && isActive)
                 {
-                    DrawUnderline(g, bounds, colors);
+                    DrawUnderline(g, bounds, colors, tabPosition);
                 }
             }
             catch
@@ -169,43 +196,157 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             }
         }
 
-        private void DrawUnderline(Graphics g, Rectangle bounds, TabColors colors)
+        private void DrawUnderline(Graphics g, Rectangle bounds, TabColors colors, TabPosition tabPosition = TabPosition.Top)
         {
-            // Draw a thin accent underline centered under the tab title region
+            // Draw a thin accent line on the content-facing edge of the tab.
             int thickness = Math.Max(2, bounds.Height / 8);
-            var r = new Rectangle(bounds.X + 8, bounds.Bottom - thickness - 2, Math.Max(10, bounds.Width - 16), thickness);
-            using (var brush = new SolidBrush(colors.TextColor))
+            Rectangle r;
+            switch (tabPosition)
             {
+                case TabPosition.Bottom:
+                    r = new Rectangle(bounds.X + 8, bounds.Y + 2, Math.Max(10, bounds.Width - 16), thickness);
+                    break;
+                case TabPosition.Left:
+                    r = new Rectangle(bounds.Right - thickness - 2, bounds.Y + 8, thickness, Math.Max(10, bounds.Height - 16));
+                    break;
+                case TabPosition.Right:
+                    r = new Rectangle(bounds.X + 2, bounds.Y + 8, thickness, Math.Max(10, bounds.Height - 16));
+                    break;
+                default: // Top
+                    r = new Rectangle(bounds.X + 8, bounds.Bottom - thickness - 2, Math.Max(10, bounds.Width - 16), thickness);
+                    break;
+            }
+            using (var brush = new SolidBrush(IndicatorColor()))
                 g.FillRectangle(brush, r);
-            }
         }
 
-        private void DrawCapsuleBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered)
+        /// <summary>
+        /// Draws the active-tab accent indicator line — a short colored bar on the
+        /// content-facing edge of the tab, styled after modern browser/IDE tab strips.
+        /// Thickness: 3 px (DPI-scaled when an <see cref="OwnerControl"/> is set).
+        /// Color: <c>theme.ActiveBorderColor</c> → <c>theme.TabSelectedBorderColor</c> → border fallback.
+        /// </summary>
+        private void DrawActiveIndicator(Graphics g, Rectangle bounds, TabPosition tabPosition)
         {
-            // Draw rounded capsule background
-            int radius = Math.Max(6, bounds.Height / 2);
-            var path = CreateRoundedPath(bounds, radius);
-            using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(240, colors.BackgroundColor)))
+            int thickness = DpiScalingHelper.ScaleValue(3, OwnerControl);
+            thickness = Math.Max(2, thickness);
+
+            Color color = IndicatorColor();
+
+            // Inset the bar slightly from the tab edges so it sits within the tab bounds.
+            int inset = Math.Max(0, DpiScalingHelper.ScaleValue(4, OwnerControl));
+
+            Rectangle bar;
+            switch (tabPosition)
             {
-                g.FillPath(brush, path);
+                case TabPosition.Bottom:
+                    // Tab strip is below content — indicator is at the top edge of the tab.
+                    bar = new Rectangle(
+                        bounds.X + inset,
+                        bounds.Y,
+                        Math.Max(4, bounds.Width - inset * 2),
+                        thickness);
+                    break;
+                case TabPosition.Left:
+                    // Tab strip is to the left — indicator is on the right edge of the tab.
+                    bar = new Rectangle(
+                        bounds.Right - thickness,
+                        bounds.Y + inset,
+                        thickness,
+                        Math.Max(4, bounds.Height - inset * 2));
+                    break;
+                case TabPosition.Right:
+                    // Tab strip is to the right — indicator is on the left edge of the tab.
+                    bar = new Rectangle(
+                        bounds.X,
+                        bounds.Y + inset,
+                        thickness,
+                        Math.Max(4, bounds.Height - inset * 2));
+                    break;
+                default: // Top (most common)
+                    // Tab strip is above content — indicator is at the bottom edge of the tab.
+                    bar = new Rectangle(
+                        bounds.X + inset,
+                        bounds.Bottom - thickness,
+                        Math.Max(4, bounds.Width - inset * 2),
+                        thickness);
+                    break;
             }
-            DrawTabBorder(g, bounds, colors.BorderColor, isActive);
-            path.Dispose();
+
+            // Round the indicator bar ends for a pill-shaped look.
+            int barRadius = thickness / 2;
+            if (barRadius >= 1 && bar.Width > barRadius * 2 && bar.Height > barRadius * 2)
+            {
+                using (var path = CreateRoundedPath(bar, barRadius))
+                using (var brush = new SolidBrush(color))
+                    g.FillPath(brush, path);
+            }
+            else
+            {
+                using (var brush = new SolidBrush(color))
+                    g.FillRectangle(brush, bar);
+            }
         }
 
-        private void DrawSegmentBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered)
+        /// <summary>
+        /// Returns the best available accent colour from the current theme to use as the
+        /// active-tab indicator.  Preference order:
+        /// <list type="number">
+        ///   <item><c>ActiveBorderColor</c></item>
+        ///   <item><c>TabSelectedBorderColor</c></item>
+        ///   <item><c>TabSelectedForeColor</c></item>
+        ///   <item>DodgerBlue (hard fallback)</item>
+        /// </list>
+        /// </summary>
+        private Color IndicatorColor()
         {
-            // Segmented style uses a subtle border and a selected fill
-            using (var path = CreateRoundedPath(bounds, 6))
+            var c = _theme?.ActiveBorderColor ?? Color.Empty;
+            if (c == Color.Empty || c.A == 0) c = _theme?.TabSelectedBorderColor ?? Color.Empty;
+            if (c == Color.Empty || c.A == 0) c = _theme?.TabSelectedForeColor ?? Color.Empty;
+            if (c == Color.Empty || c.A == 0) c = Color.DodgerBlue;
+            return c;
+        }
+
+        private void DrawCapsuleBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
+            bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
+        {
+            // Normal capsule radius (half-height)
+            int radius = Math.Max(6, bounds.Height / 2);
+
+            // For the outer corners of first/last tabs use the container radius so they
+            // align with the container's overall rounded outline.
+            if (ContainerBorderRadius > 0)
+            {
+                var path = CreateTabCornerPath(bounds, radius, ContainerBorderRadius, isFirst, isLast, tabPosition);
+                using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(240, colors.BackgroundColor)))
+                    g.FillPath(brush, path);
+                DrawTabBorder(g, bounds, colors.BorderColor, isActive);
+                path.Dispose();
+            }
+            else
+            {
+                var path = CreateRoundedPath(bounds, radius);
+                using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(240, colors.BackgroundColor)))
+                    g.FillPath(brush, path);
+                DrawTabBorder(g, bounds, colors.BorderColor, isActive);
+                path.Dispose();
+            }
+        }
+
+        private void DrawSegmentBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
+            bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
+        {
+            int radius = ContainerBorderRadius > 0 ? 0 : 6; // Segmented style uses minimal rounding
+            GraphicsPath path = ContainerBorderRadius > 0
+                ? CreateTabCornerPath(bounds, 6, ContainerBorderRadius, isFirst, isLast, tabPosition)
+                : CreateRoundedPath(bounds, 6);
+
+            using (path)
             {
                 using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(245, 245, 245)))
-                {
                     g.FillPath(brush, path);
-                }
-                using(var pen = new Pen(colors.BorderColor, 1f))
-                {
+                using (var pen = new Pen(colors.BorderColor, 1f))
                     g.DrawPath(pen, path);
-                }
             }
         }
 
@@ -252,7 +393,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             };
         }
 
-        private void DrawTabBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered)
+        private void DrawTabBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
+            bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
         {
             // In transparent mode, skip background painting entirely - let parent show through
             if (_isTransparent)
@@ -322,7 +464,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 {
                     try
                     {
-                        textFont = new Font(font.FontFamily, font.Size, FontStyle.Bold, font.Unit);
+                        textFont =FontListHelper.GetFont(font.FontFamily.Name, font.Size, FontStyle.Bold);
                     }
                     catch
                     {
@@ -399,6 +541,65 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 g.DrawLine(pen, centerX - size, centerY - size, centerX + size, centerY + size);
                 g.DrawLine(pen, centerX + size, centerY - size, centerX - size, centerY + size);
             }
+        }
+
+        /// <summary>
+        /// Creates a rounded path for a tab where outer corners (touching the container's
+        /// rounded outline) use <paramref name="containerRadius"/> and inner/inner-edge
+        /// corners use the normal <paramref name="tabRadius"/>.
+        /// </summary>
+        private GraphicsPath CreateTabCornerPath(Rectangle bounds, int tabRadius, int containerRadius,
+            bool isFirst, bool isLast, TabPosition tabPosition)
+        {
+            // Determine which two corners are "outer" (touching the container wall)
+            // vs "inner" (touching the tab-strip interior / other tabs).
+            bool tl, tr, bl, br; // true = use containerRadius
+            switch (tabPosition)
+            {
+                case TabPosition.Top:
+                    tl = isFirst; tr = isLast; bl = false; br = false;
+                    break;
+                case TabPosition.Bottom:
+                    tl = false; tr = false; bl = isFirst; br = isLast;
+                    break;
+                case TabPosition.Left:
+                    tl = isFirst; tr = false; bl = isLast; br = false;
+                    break;
+                case TabPosition.Right:
+                    tl = false; tr = isFirst; bl = false; br = isLast;
+                    break;
+                default:
+                    tl = isFirst; tr = isLast; bl = false; br = false;
+                    break;
+            }
+
+            // Build path: the four arcs use either containerRadius or tabRadius.
+            var path = new GraphicsPath();
+            if (bounds.Width <= 0 || bounds.Height <= 0) return path;
+
+            int rTL = Math.Min(tl ? containerRadius : tabRadius, Math.Min(bounds.Width / 2, bounds.Height / 2));
+            int rTR = Math.Min(tr ? containerRadius : tabRadius, Math.Min(bounds.Width / 2, bounds.Height / 2));
+            int rBL = Math.Min(bl ? containerRadius : tabRadius, Math.Min(bounds.Width / 2, bounds.Height / 2));
+            int rBR = Math.Min(br ? containerRadius : tabRadius, Math.Min(bounds.Width / 2, bounds.Height / 2));
+
+            try
+            {
+                if (rTL > 0) path.AddArc(bounds.X, bounds.Y, rTL * 2, rTL * 2, 180, 90);
+                path.AddLine(bounds.X + (rTL > 0 ? rTL : 0), bounds.Y, bounds.Right - (rTR > 0 ? rTR : 0), bounds.Y);
+                if (rTR > 0) path.AddArc(bounds.Right - rTR * 2, bounds.Y, rTR * 2, rTR * 2, 270, 90);
+                path.AddLine(bounds.Right, bounds.Y + (rTR > 0 ? rTR : 0), bounds.Right, bounds.Bottom - (rBR > 0 ? rBR : 0));
+                if (rBR > 0) path.AddArc(bounds.Right - rBR * 2, bounds.Bottom - rBR * 2, rBR * 2, rBR * 2, 0, 90);
+                path.AddLine(bounds.Right - (rBR > 0 ? rBR : 0), bounds.Bottom, bounds.X + (rBL > 0 ? rBL : 0), bounds.Bottom);
+                if (rBL > 0) path.AddArc(bounds.X, bounds.Bottom - rBL * 2, rBL * 2, rBL * 2, 90, 90);
+                path.AddLine(bounds.X, bounds.Bottom - (rBL > 0 ? rBL : 0), bounds.X, bounds.Y + (rTL > 0 ? rTL : 0));
+                path.CloseFigure();
+            }
+            catch
+            {
+                path.Reset();
+                path.AddRectangle(bounds);
+            }
+            return path;
         }
 
         private GraphicsPath CreateRoundedPath(Rectangle rect, int radius)

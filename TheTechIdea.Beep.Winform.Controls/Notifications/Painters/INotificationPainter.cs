@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
@@ -9,39 +10,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
     /// </summary>
     public interface INotificationPainter
     {
+        /// <summary>Owner control – used for DPI scaling inside the painter.</summary>
+        Control OwnerControl { get; set; }
+
         /// <summary>
-        /// Paints the notification background
+        /// Called by BeepNotification.ApplyTheme() to push theme-sourced fonts
+        /// into the painter. Must use BeepFontManager.ToFont only.
         /// </summary>
+        void RefreshFonts(IBeepTheme theme);
+
         void PaintBackground(Graphics g, Rectangle bounds, NotificationData data);
-
-        /// <summary>
-        /// Paints the notification icon
-        /// </summary>
         void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data);
-
-        /// <summary>
-        /// Paints the notification title
-        /// </summary>
         void PaintTitle(Graphics g, Rectangle titleRect, string title, NotificationData data);
-
-        /// <summary>
-        /// Paints the notification message
-        /// </summary>
         void PaintMessage(Graphics g, Rectangle messageRect, string message, NotificationData data);
-
-        /// <summary>
-        /// Paints action buttons
-        /// </summary>
         void PaintActions(Graphics g, Rectangle actionsRect, NotificationAction[] actions, NotificationData data);
-
-        /// <summary>
-        /// Paints the close button
-        /// </summary>
         void PaintCloseButton(Graphics g, Rectangle closeButtonRect, bool isHovered, NotificationData data);
-
-        /// <summary>
-        /// Paints the progress bar
-        /// </summary>
         void PaintProgressBar(Graphics g, Rectangle progressBarRect, float progress, NotificationData data);
     }
 
@@ -63,17 +46,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
     {
         public NotificationType Type { get; set; }
         public NotificationLayout Layout { get; set; }
+        public NotificationVisualStyle VisualStyle { get; set; }
         public NotificationPriority Priority { get; set; }
         public Color? CustomBackColor { get; set; }
         public Color? CustomForeColor { get; set; }
         public Color? CustomBorderColor { get; set; }
         public Color? CustomIconColor { get; set; }
+        public Color? AccentStripeColor { get; set; }
+        public bool ShowAccentStripe { get; set; }
         public int BorderRadius { get; set; }
         public int Padding { get; set; }
         public int Spacing { get; set; }
         public int IconSize { get; set; }
-        public Font TitleFont { get; set; }
-        public Font MessageFont { get; set; }
         public bool ShowCloseButton { get; set; }
         public bool ShowProgressBar { get; set; }
         public float ProgressPercentage { get; set; }

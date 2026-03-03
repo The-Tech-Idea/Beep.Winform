@@ -164,7 +164,7 @@ toggle.DataBindings.Add("Value", dataSource, "Status");
 ```csharp
 toggle.ValueChanged += (sender, e) =>
 {
-    Console.WriteLine($"Value changed to: {toggle.Value}");
+  //  Console.WriteLine($"Value changed to: {toggle.Value}");
     
     // Get typed value
     if (toggle.ValueType == BeepToggle.ToggleValueType.Boolean)
@@ -176,7 +176,7 @@ toggle.ValueChanged += (sender, e) =>
 
 toggle.IsOnChanged += (sender, e) =>
 {
-    Console.WriteLine($"IsOn changed to: {toggle.IsOn}");
+  //  Console.WriteLine($"IsOn changed to: {toggle.IsOn}");
 };
 ```
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
@@ -81,35 +82,76 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
     /// </summary>
     public class ListBoxCheckedChangedEventArgs : EventArgs
     {
-        /// <summary>
-        /// The item whose checkbox state changed
-        /// </summary>
         public SimpleItem Item { get; }
-        
-        /// <summary>
-        /// The new checked state
-        /// </summary>
         public bool IsChecked { get; }
-        
-        /// <summary>
-        /// All currently checked items
-        /// </summary>
         public IReadOnlyList<SimpleItem> CheckedItems { get; }
-        
-        /// <summary>
-        /// Gets the count of checked items
-        /// </summary>
         public int CheckedCount => CheckedItems?.Count ?? 0;
 
         public ListBoxCheckedChangedEventArgs(
-            SimpleItem item,
-            bool isChecked,
-            IReadOnlyList<SimpleItem> checkedItems)
+            SimpleItem item, bool isChecked, IReadOnlyList<SimpleItem> checkedItems)
         {
             Item = item;
             IsChecked = isChecked;
             CheckedItems = checkedItems ?? new List<SimpleItem>();
         }
+    }
+
+    // ── New event args added in Sprint 6 ──────────────────────────────────────────
+
+    /// <summary>Raised when an item is activated (Enter key or double-click).</summary>
+    public class ListBoxItemEventArgs : EventArgs
+    {
+        public int Index { get; }
+        public SimpleItem Item { get; }
+        public ListBoxItemEventArgs(int index, SimpleItem item) { Index = index; Item = item; }
+    }
+
+    /// <summary>Raised after a drag-reorder completes.</summary>
+    public class ListBoxReorderEventArgs : EventArgs
+    {
+        public int OldIndex { get; }
+        public int NewIndex { get; }
+        public SimpleItem Item { get; }
+        public ListBoxReorderEventArgs(int oldIndex, int newIndex, SimpleItem item)
+        { OldIndex = oldIndex; NewIndex = newIndex; Item = item; }
+    }
+
+    /// <summary>Raised before a context menu is shown — set Cancel = true to suppress.</summary>
+    public class ListBoxContextMenuEventArgs : EventArgs
+    {
+        public int Index { get; }
+        public SimpleItem? Item { get; }
+        public ContextMenuStrip Menu { get; }
+        public bool Cancel { get; set; }
+        public ListBoxContextMenuEventArgs(int index, SimpleItem? item, ContextMenuStrip menu)
+        { Index = index; Item = item; Menu = menu; }
+    }
+
+    /// <summary>Raised when a group header is collapsed or expanded.</summary>
+    public class ListBoxGroupEventArgs : EventArgs
+    {
+        public string GroupKey { get; }
+        public bool IsCollapsed { get; }
+        public ListBoxGroupEventArgs(string groupKey, bool isCollapsed)
+        { GroupKey = groupKey; IsCollapsed = isCollapsed; }
+    }
+
+    /// <summary>Raised when SearchText changes; includes match count.</summary>
+    public class ListBoxSearchEventArgs : EventArgs
+    {
+        public string Query { get; }
+        public int MatchCount { get; }
+        public ListBoxSearchEventArgs(string query, int matchCount) { Query = query; MatchCount = matchCount; }
+    }
+
+    /// <summary>Raised after an inline-edit (F2) is committed.</summary>
+    public class ListBoxItemTextChangedEventArgs : EventArgs
+    {
+        public SimpleItem Item { get; }
+        public string OldText { get; }
+        public string NewText { get; }
+        public ListBoxItemTextChangedEventArgs(SimpleItem item, string oldText, string newText)
+        { Item = item; OldText = oldText; NewText = newText; }
     }
 }
 

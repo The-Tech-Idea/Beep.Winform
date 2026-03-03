@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
         private BeepControlStyle _controlStyle = BeepControlStyle.Material3;
@@ -61,26 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            // Prefer owner's current font for consistency with control
-            if (_owner != null && _owner.Font != null)
-            {
-                _textFont = _owner.Font;
-            }
-            else if (_theme != null && _theme.BodyMedium != null)
-            {
-                _textFont = new Font(_theme.BodyMedium.FontFamily, _theme.BodyMedium.FontSize);
-            }
-            else
-            {
-                _textFont = new Font("Segoe UI", 12f);
-            }
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
 
             // Note: BeepImage theme will be handled when drawing
         }
@@ -98,9 +84,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var colors = GetStateColors(state);
 
             // Draw state layer (hover/focus background)
-            if (state.IsHovered || state.IsFocused)
+            if (state.IsEnabled && (state.IsHovered || state.IsFocused))
             {
-                DrawStateLayer(graphics, rectangle, colors);
+                DrawStateLayer(graphics, rectangle, colors, state.IsFocused);
             }
 
             // Calculate layout areas
@@ -114,15 +100,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             DrawContent(graphics, item, contentArea, radioArea, state, colors);
 
             // Draw ripple effect if pressed
-            if (state.IsPressed)
+            if (state.IsEnabled && state.IsPressed)
             {
                 DrawRippleEffect(graphics, rectangle, colors);
             }
+
+            if (state.IsFocused)
+            {
+                DrawFocusIndicator(graphics, rectangle, colors);
+            }
         }
 
-        private void DrawStateLayer(Graphics graphics, Rectangle rectangle, MaterialColors colors)
+        private void DrawStateLayer(Graphics graphics, Rectangle rectangle, MaterialColors colors, bool isFocused)
         {
-            Color stateColor = Color.FromArgb(12, colors.Primary); // 12% opacity
+            Color stateColor = Color.FromArgb(isFocused ? 20 : 12, colors.Primary);
             
             using (var brush = new SolidBrush(stateColor))
             {
@@ -162,7 +153,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             int innerRadius = outerRadius - 2;
 
             // Outer circle
-            using (var pen = new Pen(state.IsSelected ? colors.Primary : colors.Outline, 2f))
+            Color borderColor = state.IsEnabled
+                ? (state.IsSelected ? colors.Primary : colors.Outline)
+                : colors.Disabled;
+
+            using (var pen = new Pen(borderColor, 2f))
             {
                 var outerRect = new Rectangle(
                     center.X - outerRadius,
@@ -176,7 +171,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             // Inner filled circle (when selected)
             if (state.IsSelected)
             {
-                using (var brush = new SolidBrush(colors.Primary))
+                var fillColor = state.IsEnabled ? colors.Primary : colors.Disabled;
+                using (var brush = new SolidBrush(fillColor))
                 {
                     int fillRadius = innerRadius - 4;
                     var innerRect = new Rectangle(
@@ -202,7 +198,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             if (state.IsSelected)
             {
                 // Filled checkbox with Material Design styling
-                using (var brush = new SolidBrush(colors.Primary))
+                var fillColor = state.IsEnabled ? colors.Primary : colors.Disabled;
+                using (var brush = new SolidBrush(fillColor))
                 {
                     graphics.FillRectangle(brush, checkboxRect);
                 }
@@ -253,9 +250,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     sz,
                     sz
                 );
-
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 currentX += sz + ComponentSpacing;
             }
 
@@ -269,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     contentArea.Height
                 );
 
-                var textColor = state.IsEnabled ? colors.OnSurface : colors.OnSurfaceVariant;
+                var textColor = state.IsEnabled ? colors.OnSurface : colors.Disabled;
                 using (var brush = new SolidBrush(textColor))
                 {
                     var stringFormat = new StringFormat
@@ -292,6 +289,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             using (var path = CreateRoundedRectanglePath(rectangle, StateLayerSize))
             {
                 graphics.FillPath(brush, path);
+            }
+        }
+
+        private void DrawFocusIndicator(Graphics graphics, Rectangle rectangle, MaterialColors colors)
+        {
+            var focusRect = Rectangle.Inflate(rectangle, -1, -1);
+            using (var path = CreateRoundedRectanglePath(focusRect, 6))
+            using (var pen = new Pen(colors.Primary, 2f))
+            {
+                graphics.DrawPath(pen, path);
             }
         }
         #endregion

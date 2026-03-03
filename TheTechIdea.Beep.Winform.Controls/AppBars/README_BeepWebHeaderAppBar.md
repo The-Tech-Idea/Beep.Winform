@@ -144,9 +144,9 @@ Fired when a tab is selected by the user.
 ```csharp
 header.TabSelected += (s, e) => 
 {
-    Console.WriteLine($"Selected tab index: {e.TabIndex}");
-    Console.WriteLine($"Tab text: {e.TabText}");
-    Console.WriteLine($"Tab ID: {e.TabId}");
+  //  Console.WriteLine($"Selected tab index: {e.TabIndex}");
+  //  Console.WriteLine($"Tab text: {e.TabText}");
+  //  Console.WriteLine($"Tab ID: {e.TabId}");
 };
 ```
 
@@ -156,9 +156,9 @@ Fired when an action button is clicked.
 ```csharp
 header.ActionButtonClicked += (s, e) =>
 {
-    Console.WriteLine($"Button index: {e.ButtonIndex}");
-    Console.WriteLine($"Button text: {e.ButtonText}");
-    Console.WriteLine($"Button ID: {e.ButtonId}");
+  //  Console.WriteLine($"Button index: {e.ButtonIndex}");
+  //  Console.WriteLine($"Button text: {e.ButtonText}");
+  //  Console.WriteLine($"Button ID: {e.ButtonId}");
 };
 ```
 
@@ -168,7 +168,7 @@ Fired when search text changes (if search box is integrated).
 ```csharp
 header.SearchBoxChanged += (s, e) =>
 {
-    Console.WriteLine($"Search text: {e.SearchText}");
+  //  Console.WriteLine($"Search text: {e.SearchText}");
 };
 ```
 

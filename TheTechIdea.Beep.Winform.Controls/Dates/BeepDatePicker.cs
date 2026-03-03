@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using System.Threading.Tasks;
 
@@ -32,11 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _inputText = string.Empty;
         private bool _isEditing = false;
         private bool _isPopupOpen = false;
-        private Font _textFont;
+        private Font _textFont = SystemFonts.DefaultFont;
         private BeepImage calendarIcon;
-        // Constants - framework handles DPI scaling
-        private int _buttonWidth => 24;
-        private int _padding => 3;
+        // Layout constants
+        private const int ButtonWidth = 24;
+        private const int Padding = 3;
 
         // Business application features
         private DateTime? _minDate = null;
@@ -135,7 +136,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _inputText = value;
                     _selectedDateTime = DateTime.MinValue;
                 }
-                UpdateMinimumSize();
                 Invalidate();
             }
         }
@@ -151,7 +151,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _dateFormatStyle = value;
                 _inputText = SelectedDate;
-                UpdateMinimumSize(); // Recalculate size when format changes
                 
             
                 
@@ -177,7 +176,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_dateFormatStyle == DateFormatStyle.Custom)
                 {
                     _inputText = SelectedDate;
-                    UpdateMinimumSize(); // Recalculate size when custom format changes
                     
                    
                     if (_autoSize)
@@ -200,7 +198,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _culture = value ?? CultureInfo.CurrentCulture;
                 _inputText = SelectedDate;
-                UpdateMinimumSize(); // Recalculate size when culture changes
                 
                
                 if (_autoSize)
@@ -241,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Whether to show the calendar dropdown button.")]
         [DefaultValue(true)]
-        public bool ShowDropDown { get => _showDropDown; set { _showDropDown = value; UpdateMinimumSize(); Invalidate(); } }
+        public bool ShowDropDown { get => _showDropDown; set { _showDropDown = value; Invalidate(); } }
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -347,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             DoubleBuffered = true;
           
-            _textFont = this.Font;
+            _textFont = SystemFonts.DefaultFont;
 
           
             calendarIcon = new BeepImage
@@ -367,7 +364,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure default date is visible immediately
             if (_selectedDateTime == DateTime.MinValue)
                 _selectedDateTime = DateTime.Now;
-            UpdateMinimumSize();
             ApplyTheme();
         }
         #endregion
@@ -503,38 +499,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateMinimumSize();
-            // Enforce minimum
-            if (Width < MinimumSize.Width) Width = MinimumSize.Width;
-            if (Height < MinimumSize.Height) Height = MinimumSize.Height;
             Invalidate();
         }
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
-            _textFont = this.Font;
-           
-            UpdateMinimumSize();
             Invalidate();
         }
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
-            UpdateMinimumSize();
             Invalidate();
         }
         protected override void OnMaterialPropertyChanged()
         {
             base.OnMaterialPropertyChanged();
-            UpdateMinimumSize();
             Invalidate();
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
             if (_readOnly) return;
-            var contentRect = GetContentRectForDrawing();
-            var buttonRect = GetButtonRectFromContent(contentRect);
+            var buttonRect = GetButtonRectFromContent(DrawingRect);
             if (_showDropDown && buttonRect.Contains(e.Location))
             {
                 TogglePopup();
@@ -602,143 +588,108 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Rendering
-        // Use material helper content rect if available; fallback to DrawingRect
-        private Rectangle GetContentRectForDrawing()
-        {
-            // For styled painting, use the content rect that accounts for borders/shadows/padding
-            if (UseFormStylePaint && ControlStyle != BeepControlStyle.None)
-            {
-                UpdateDrawingRect();
-                var contentRect = GetContentRect();
-                if (contentRect.Width > 0 && contentRect.Height > 0)
-                    return contentRect;
-            }
-            
-            // Fallback to material content rect
-            if (PainterKind == BaseControlPainterKind.Material)
-            {
-                var r = GetContentRect();
-                if (r.Width > 0 && r.Height > 0) return r;
-            }
-            
-            // Final fallback to drawing rect
-            UpdateDrawingRect();
-            return DrawingRect;
-        }
-
         private Rectangle GetButtonRectFromContent(Rectangle contentRect)
         {
-            int x = contentRect.Right - _buttonWidth - _padding;
-            int y = contentRect.Y + _padding;
-            int h = Math.Max(0, contentRect.Height - (2 * _padding));
-            return new Rectangle(x, y, _buttonWidth, h);
+            int bw = ButtonWidth; int pd = Padding;
+            int x = contentRect.Right - bw - pd;
+            int y = contentRect.Y + pd;
+            int h = Math.Max(0, contentRect.Height - (2 * pd));
+            return new Rectangle(x, y, bw, h);
         }
 
         private Rectangle GetTextRect(Rectangle workingRect)
         {
-            int rightPadding = _showDropDown ? (_buttonWidth + (_padding * 3)) : _padding;
-            return new Rectangle(workingRect.X + _padding, workingRect.Y, Math.Max(0, workingRect.Width - rightPadding - _padding), workingRect.Height);
+            int bw = ButtonWidth; int pd = Padding;
+            int rightPadding = _showDropDown ? (bw + (pd * 3)) : pd;
+            return new Rectangle(workingRect.X + pd, workingRect.Y, Math.Max(0, workingRect.Width - rightPadding - pd), workingRect.Height);
         }
 
         private Rectangle GetButtonRect() => GetButtonRect(new Rectangle(0, 0, Width, Height));
         private Rectangle GetButtonRect(Rectangle hostRect)
         {
-            int x = hostRect.Right - _buttonWidth - _padding - (ShowAllBorders || BorderThickness > 0 ? BorderThickness : 0);
-            int y = hostRect.Y + _padding + (ShowAllBorders || BorderThickness > 0 ? BorderThickness : 0);
-            int h = Math.Max(0, hostRect.Height - (2 * _padding) - (ShowAllBorders || BorderThickness > 0 ? BorderThickness * 2 : 0));
-            return new Rectangle(x, y, _buttonWidth, h);
+            int bw = ButtonWidth; int pd = Padding;
+            int x = hostRect.Right - bw - pd - (ShowAllBorders || BorderThickness > 0 ? BorderThickness : 0);
+            int y = hostRect.Y + pd + (ShowAllBorders || BorderThickness > 0 ? BorderThickness : 0);
+            int h = Math.Max(0, hostRect.Height - (2 * pd) - (ShowAllBorders || BorderThickness > 0 ? BorderThickness * 2 : 0));
+            return new Rectangle(x, y, bw, h);
         }
 
         /// <summary>
-        /// DrawContent override - called by BaseControl
+        /// DrawContent override - called by BaseControl. Simple pattern: base first, then DrawingRect directly.
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            Paint(g, DrawingRect);
+            base.DrawContent(g);
+            UpdateDrawingRect();
+            if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0) return;
+            if (_currentTheme == null) return;
+            PaintCore(g, DrawingRect);
         }
 
         /// <summary>
-        /// Draw override - called by BeepGridPro and containers
+        /// Draw override - called by BeepGridPro and containers.
         /// </summary>
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            Paint(graphics, rectangle);
+            if (_currentTheme == null) return;
+            PaintCore(graphics, rectangle);
         }
 
         /// <summary>
-        /// Main paint function - centralized painting logic
+        /// Core paint — receives the exact rect to draw into, no content-rect resolution.
         /// </summary>
-        private void Paint(Graphics g, Rectangle bounds)
+        private void PaintCore(Graphics g, Rectangle bounds)
         {
-            if (_currentTheme == null) return;
+            // Resolve colours via UseThemeColors guard (SKILL Rule 2)
+            Color foreColor = (UseThemeColors && _currentTheme.CalendarForeColor != Color.Empty)
+                ? _currentTheme.CalendarForeColor : ForeColor;
+            Color borderColor = (UseThemeColors && _currentTheme.CalendarBorderColor != Color.Empty)
+                ? _currentTheme.CalendarBorderColor : BorderColor;
+            Color placeholderColor = Color.FromArgb(128, foreColor);
 
-            Rectangle contentRect = GetContentRectForDrawing();
+            int pd = Padding;
+            Font safeFont = _textFont ?? SystemFonts.DefaultFont;
 
             // Text
-            string textToDraw = _isEditing ? _inputText : (_selectedDateTime != DateTime.MinValue ? FormatDate(_selectedDateTime) : string.Empty);
+            string textToDraw = _isEditing ? _inputText
+                : (_selectedDateTime != DateTime.MinValue ? FormatDate(_selectedDateTime) : string.Empty);
+            Rectangle textRect = GetTextRect(bounds);
             if (!string.IsNullOrEmpty(textToDraw))
-            {
-                Rectangle textRect = GetTextRect(contentRect);
-                TextRenderer.DrawText(g, textToDraw, _textFont, textRect,
-                    _currentTheme.ComboBoxForeColor != Color.Empty ? _currentTheme.ComboBoxForeColor : ForeColor,
+                TextRenderer.DrawText(g, textToDraw, safeFont, textRect, foreColor,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-            }
             else
-            {
-                string placeholder = GetPlaceholderText();
-                Rectangle placeholderRect = GetTextRect(contentRect);
-                Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty ? _currentTheme.TextBoxPlaceholderColor : BeepStyling.CurrentTheme?.TextBoxPlaceholderColor ?? Color.Empty;
-                TextRenderer.DrawText(g, placeholder, _textFont, placeholderRect, placeholderColor,
+                TextRenderer.DrawText(g, GetPlaceholderText(), safeFont, textRect, placeholderColor,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-            }
 
-            // Dropdown divider and arrow (no extra background fill to mimic BeepComboBox/BeepButton Style)
+            // Dropdown button: divider + icon
             if (_showDropDown)
             {
-                Rectangle buttonRect = GetButtonRectFromContent(contentRect);
-                int dividerX = buttonRect.Left - _padding;
-                using (Pen dividerPen = new Pen(Color.FromArgb(60, _currentTheme.ComboBoxBorderColor != Color.Empty ? _currentTheme.ComboBoxBorderColor : BorderColor), 1))
-                {
-                    g.DrawLine(dividerPen, new Point(dividerX, contentRect.Y + _padding), new Point(dividerX, contentRect.Bottom - _padding));
-                }
+                Rectangle buttonRect = GetButtonRectFromContent(bounds);
+                int dividerX = buttonRect.Left - pd;
+                using (Pen dividerPen = new Pen(Color.FromArgb(60, borderColor), 1))
+                    g.DrawLine(dividerPen, new Point(dividerX, bounds.Y + pd), new Point(dividerX, bounds.Bottom - pd));
                 DrawCalendarIcon(g, buttonRect);
             }
         }
 
         private void DrawCalendarIcon(Graphics g, Rectangle buttonRect)
         {
-            // Keep a small inner padding for the icon
-            int pad = Math.Max(1, _padding);
-            var iconRect = new Rectangle(buttonRect.X + pad, buttonRect.Y + pad, Math.Max(8, buttonRect.Width - (2 * pad)), Math.Max(8, buttonRect.Height - (2 * pad)));
             string imagePath = calendarIcon?.ImagePath;
-            if (!string.IsNullOrEmpty(imagePath))
-            {
-                try
-                {
-                    Color iconColor = _currentTheme?.CalendarTitleForColor != Color.Empty ? _currentTheme.CalendarTitleForColor : ForeColor;
-                    int cornerRadius = Math.Max(0, BorderRadius);
-                    StyledImagePainter.PaintWithTint(g, iconRect, imagePath, iconColor, 1f, cornerRadius);
-                    return;
-                }
-                catch { /* fallback */ }
-            }
+            if (string.IsNullOrEmpty(imagePath)) { DrawDropdownArrow(g, buttonRect); return; }
 
-            if (calendarIcon == null)
-            {
-                DrawDropdownArrow(g, buttonRect);
-                return;
-            }
+            // Icon: proportional square at ~70% of the control height, centred in buttonRect
+            int iconSize = Math.Max(12, (int)(DrawingRect.Height * 0.65f));
+            iconSize = Math.Min(iconSize, Math.Min(buttonRect.Width, buttonRect.Height) - 2);
+            int iconX = buttonRect.X + (buttonRect.Width  - iconSize) / 2;
+            int iconY = buttonRect.Y + (buttonRect.Height - iconSize) / 2;
+            var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
 
-            try
-            {
-                // Render the BeepImage into the provided rectangle
-                calendarIcon.Draw(g, iconRect);
-            }
-            catch
-            {
-                // Fallback to arrow if icon draw fails
-                DrawDropdownArrow(g, buttonRect);
-            }
+            // Resolve icon colour via UseThemeColors guard (SKILL Rule 2)
+            Color iconColor = (UseThemeColors && _currentTheme != null && _currentTheme.CalendarTitleForColor != Color.Empty)
+                ? _currentTheme.CalendarTitleForColor
+                : ForeColor;
+
+            StyledImagePainter.PaintWithTint(g, iconRect, imagePath, iconColor, 1f, 0);
         }
 
         private Color ModifyLightness(Color c, float factor)
@@ -751,8 +702,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawDropdownArrow(Graphics g, Rectangle workingRect)
         {
-            // Framework handles DPI scaling
-            int arrowVisualSize = Math.Min(12, Math.Min(_buttonWidth - (_padding * 2), workingRect.Height - (_padding * 2)));
+            int bw = ButtonWidth; int pd = Padding;
+            int arrowVisualSize = Math.Min(12, Math.Min(bw - (pd * 2), workingRect.Height - (pd * 2)));
             int arrowX = workingRect.Left + (workingRect.Width - arrowVisualSize) / 2;
             int arrowY = workingRect.Top + (workingRect.Height - arrowVisualSize) / 2;
             Rectangle arrowRect = new Rectangle(arrowX, arrowY, arrowVisualSize, arrowVisualSize);
@@ -762,7 +713,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 new Point(arrowRect.Left + arrowVisualSize / 2, arrowRect.Top + (2 * arrowVisualSize) / 3),
                 new Point(arrowRect.Left + (3 * arrowVisualSize) / 4, arrowRect.Top + arrowVisualSize / 3)
             };
-            using (SolidBrush arrowBrush = new SolidBrush(ForeColor))
+            // Use CalendarTitleForColor from theme — never raw ForeColor (SKILL Rule 2)
+            Color arrowColor = (UseThemeColors && _currentTheme != null && _currentTheme.CalendarTitleForColor != Color.Empty)
+                ? _currentTheme.CalendarTitleForColor
+                : ForeColor;
+            using (SolidBrush arrowBrush = new SolidBrush(arrowColor))
             {
                 g.FillPolygon(arrowBrush, arrowPoints);
             }
@@ -897,16 +852,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 calendarIcon.ApplyThemeOnImage = true;
             }
 
-            // Map calendar-related theme properties to control appearance where available
+            // Map calendar tokens to control appearance (SKILL Rule 2)
             if (_currentTheme != null)
             {
-                if (_currentTheme.CalendarBackColor != Color.Empty) BackColor = _currentTheme.CalendarBackColor;
-                if (_currentTheme.CalendarForeColor != Color.Empty) ForeColor = _currentTheme.CalendarForeColor;
+                if (_currentTheme.CalendarBackColor   != Color.Empty) BackColor   = _currentTheme.CalendarBackColor;
+                if (_currentTheme.CalendarForeColor   != Color.Empty) ForeColor   = _currentTheme.CalendarForeColor;
                 if (_currentTheme.CalendarBorderColor != Color.Empty) BorderColor = _currentTheme.CalendarBorderColor;
 
-                try { _textFont = BeepThemesManager.ToFont(_currentTheme.DateFont); } catch { _textFont = this.Font; }
+                // Font: safe fallback chain — never use this.Font (SKILL Rule 2.3)
+                _textFont = BeepThemesManager.ToFont(_currentTheme.DateFont)
+                         ?? BeepThemesManager.ToFont(_currentTheme.BodyMedium)
+                         ?? SystemFonts.DefaultFont;
+                // Hard guard — ensure _textFont is never null regardless of theme state
+                _textFont ??= SystemFonts.DefaultFont;
 
-                // Invalidate and pre-render calendar icon tinted variants in background
+                // Pre-render icon tint variants in background
                 try
                 {
                     if (!string.IsNullOrEmpty(calendarIcon?.ImagePath))
@@ -927,8 +887,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 catch { }
             }
 
-            _textFont = BeepThemesManager.ToFont(_currentTheme.DateFont);
-            Invalidate();
+            // Propagate theme to popup calendar view
+            if (_calendarView != null)
+            {
+                _calendarView._currentTheme = _currentTheme;
+                _calendarView.Theme = Theme;
+                _calendarView.ApplyTheme();
+            }
+
+            InvalidateOnce(); // batched repaint — avoid cascade redraws
         }
 
         public override void SetValue(object value)
@@ -942,8 +909,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void Clear() { if (_allowEmpty) { SelectedDateTime = DateTime.MinValue; _inputText = ""; ClearValidationError(); } }
         #endregion
 
-        #region Minimum Size Calculation
-        private void UpdateMinimumSize()
+        #region Size
+        public override Size GetPreferredSize(Size proposedSize) => base.GetPreferredSize(proposedSize);
+        private void UpdateMinimumSize_DELETED()
         {
             try
             {
@@ -951,7 +919,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 string currentFormat = GetCurrentFormat();
                 
                 // Create a representative sample text that shows the maximum width needed
-                string sample = GetSampleTextForFormat(currentFormat);
+                string sample = GetSampleTextForFormat_DELETED(currentFormat);
                 
                 Size textSize;
                 using (var g = CreateGraphics())
@@ -963,10 +931,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Calculate minimum dimensions based on content
                 int textPrefH = Math.Max(TextUtils.GetFontHeightSafe(_textFont, this) + 6, 16);
-                int buttonWidth = _showDropDown ? Math.Max(_buttonWidth, Math.Max(16, textPrefH)) : 0;
+                int buttonWidth = _showDropDown ? Math.Max(ButtonWidth, Math.Max(16, textPrefH)) : 0;
                 
                 // Add padding for comfortable text display
-                int horizontalPadding = (_padding * 4); // Extra padding for comfortable reading
+                int horizontalPadding = (Padding * 4); // Extra padding for comfortable reading
                 int baseContentW = textSize.Width + buttonWidth + horizontalPadding;
                 int baseContentH = textPrefH;
 
@@ -1021,7 +989,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="format">The date format string</param>
         /// <returns>Sample text for width calculation</returns>
-        private string GetSampleTextForFormat(string format)
+        private string GetSampleTextForFormat_DELETED(string format)
         {
             // Create a sample date that will likely be the widest possible
             DateTime sampleDate = new DateTime(2023, 12, 28, 23, 59, 59); // Wide date with long month/day names

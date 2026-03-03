@@ -517,7 +517,7 @@ grid.SetConfig(dmeEditor, logger, utilities, args, passedArgs, errorInfo);
 var result = grid.ResetData(customerData, customerEntityStructure);
 if (result.Flag == Errors.Ok)
 {
-    Console.WriteLine("Grid reset successfully");
+  //  Console.WriteLine("Grid reset successfully");
 }
 
 // Create columns from entity structure
@@ -588,7 +588,7 @@ grid.CellDoubleClick += (s, e) => {
     if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
     {
         var value = grid[e.ColumnIndex, e.RowIndex].Value;
-        Console.WriteLine($"Double-clicked: {value}");
+      //  Console.WriteLine($"Double-clicked: {value}");
         
         // Open edit dialog
         EditRecord(e.RowIndex);
@@ -853,7 +853,7 @@ grid.Sort(grid.Columns["Salary"], ListSortDirection.Descending);
 
 // Handle sort events
 grid.GridView.Sorted += (s, e) => {
-    Console.WriteLine("Grid sorted");
+  //  Console.WriteLine("Grid sorted");
     UpdateTotalCalculations();
 };</code></pre>
                     </div>
@@ -871,7 +871,7 @@ foreach (var config in grid.ColumnsConfigurations)
 {
     if (config.HasTotal && config.IsTotalOn)
     {
-        Console.WriteLine($"{config.ColumnName}: {config.Total}");
+      //  Console.WriteLine($"{config.ColumnName}: {config.Total}");
     }
 }</code></pre>
                     </div>

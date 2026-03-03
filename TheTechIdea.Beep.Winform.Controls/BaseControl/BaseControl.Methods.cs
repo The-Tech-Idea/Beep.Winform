@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             try
             {
+              //  Console.WriteLine($"Ensuring painter for kind: {PainterKind}");
                 var desired = PainterKind;
                 
                 // None means NO painter - return early
@@ -36,10 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     _painter = null;
                     return;
                 }
-                
+              //  Console.WriteLine($"Current painter: {_painter?.GetType().Name ?? "null"}");
                 bool needsNew = _painter == null;
                 if (!needsNew)
                 {
+                  //  Console.WriteLine($"Painter exists, checking type for desired kind: {desired}");
                     // Check type mismatch
                     needsNew = desired switch
                     {
@@ -47,9 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         _ => _painter is null
                     };
                 }
-
+              //  Console.WriteLine($"Painter needs update: {needsNew}");
                 if (needsNew)
                 {
+                  //  Console.WriteLine($"Updating painter to match kind: {desired}");
                     _painter = desired switch
                     {
                         BaseControlPainterKind.Classic => new ClassicBaseControlPainter(),
@@ -96,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
 
             // Trigger a repaint if the border style changed
-            Invalidate();
+            InvalidateOnce();
         }
 
         /// <summary>
@@ -149,7 +152,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 DisabledForeColor= _currentTheme.DisabledForeColor;
                 DisabledBackColor= _currentTheme.DisabledBackColor;
                 DisabledBorderColor= _currentTheme.DisabledBorderColor;
-     
+                BorderColor= _currentTheme.BorderColor;
+                ShadowColor= _currentTheme.ShadowColor;
                 // Respect IsChild same as base BeepControl
                 if (IsChild)
                 {
@@ -168,6 +172,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
                 // Update tooltip with new theme colors
                 UpdateTooltipTheme();
+
+                // Safeguard: update _textFont from theme so derived controls always have a valid font
+                // Use BodyMedium as the base text style; fall back to existing _textFont or system default
+                _textFont = BeepThemesManager.ToFont(_currentTheme.BodyMedium)
+                         ?? _textFont
+                         ?? SystemFonts.DefaultFont;
+                _textFont ??= SystemFonts.DefaultFont;
 
                 //if (ApplyThemeToChilds)
                 //{
@@ -328,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// Clears all external drawing handlers for a specific child control.
         /// </summary>
         public void ClearChildExternalDrawing(Control child) =>
-            _externalDrawing.ClearChildExternalDrawing(child);
+            _externalDrawing?.ClearChildExternalDrawing(child);
 
         /// <summary>
         /// Clears all external drawing handlers for all child controls.
@@ -748,68 +759,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-         /*    if (EnableHighQualityRendering)
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            }
-            else
-            {
-                g.SmoothingMode = SmoothingMode.None;
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = PixelOffsetMode.Default;
-                g.TextRenderingHint = TextRenderingHint.SystemDefault;
-            } */
+            /*    if (EnableHighQualityRendering)
+               {
+                   g.SmoothingMode = SmoothingMode.AntiAlias;
+                   g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                   g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                   g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+               }
+               else
+               {
+                   g.SmoothingMode = SmoothingMode.None;
+                   g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                   g.PixelOffsetMode = PixelOffsetMode.Default;
+                   g.TextRenderingHint = TextRenderingHint.SystemDefault;
+               } */
+          //  Console.WriteLine("BaseControl.DrawContent called"  );
+            if (Parent != null && (Parent.IsDisposed || Parent.Disposing)) return;
+          //  Console.WriteLine("BaseControl.DrawContent after parent check"  );  
             UpdateDrawingRect();
-                
-
-                try
-                {
-                    if (IsChild)
-                    {
-                        ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
-                        BackColor = ParentBackColor;
-                    }
-                    else
-                    {
-                        if (_currentTheme != null)
-                            BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
-                        else
-                            BackColor = SystemColors.Control;
-                    }
-                    
-                    // Background is now painted in OnPaintBackground, not here
-                    // This prevents double-painting which caused darkening on hover
-                }
-                catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
-                {
-                    // Silently fail on color operations
-                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
-                }
-            
-
-           
-
+          //  Console.WriteLine("BaseControl.DrawContent after UpdateDrawingRect"  ); 
             // Always rely on painter if available
             EnsurePainter();
-            
+          //  Console.WriteLine("BaseControl.DrawContent after EnsurePainter"  );
             // When PainterKind is None, painter is null - derived controls handle their own drawing
             if (_painter != null)
             {
+              //  Console.WriteLine("BaseControl.DrawContent using painter");
                 _painter.UpdateLayout(this);
-
+              //  Console.WriteLine("BaseControl.DrawContent after painter UpdateLayout");
                 // Expose painter inner rect to derived controls via BaseControl.DrawingRect
                 try { this.DrawingRect = _painter.DrawingRect; } catch { }
-
+              //  Console.WriteLine("BaseControl.DrawContent after setting DrawingRect");
                 _painter.Paint(g, this);
-
+              //  Console.WriteLine("BaseControl.DrawContent after painter Paint");
                 // Let painter register hit areas; wire actions when available
                 _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, null, action));
+              //  Console.WriteLine("BaseControl.DrawContent after painter UpdateHitAreas");
             }
 
-           
+
         }
 
         /// <summary>
@@ -863,14 +851,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Badge Methods (from BeepControl)
         public void UpdateRegionForBadge()
         {
-           
-            if (Parent is IExternalDrawingProvider externalDrawingProvider && Parent is Control parentControl)
+            if (IsDisposed || Disposing) return;
+
+            if (Parent is IExternalDrawingProvider externalDrawingProvider &&
+               
+                !Parent.IsDisposed &&
+                !Parent.Disposing)
             {
                 const int badgeSize = 22;
                 int badgeX = Bounds.Right - badgeSize / 2;
                 int badgeY = Bounds.Top - badgeSize / 2;
                 Rectangle badgeAreaOnParent = new Rectangle(badgeX, badgeY, badgeSize, badgeSize);
-                parentControl.Invalidate(badgeAreaOnParent);
+                Parent.Invalidate(badgeAreaOnParent);
             }
             UpdateControlRegion();
         }
@@ -907,10 +899,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
+            if (e?.Control != null)
+            {
+                // Keep child lifecycle safe in the WinForms designer.
+                e.Control.Disposed -= ChildControl_Disposed;
+                e.Control.Disposed += ChildControl_Disposed;
+            }
             if (ApplyThemeToChilds && !string.IsNullOrEmpty(Theme))
             {
                 ApplyThemeToControl(e.Control);
             }
+        }
+
+        protected override void OnControlRemoved(ControlEventArgs e)
+        {
+            base.OnControlRemoved(e);
+            CleanupRemovedChildControl(e?.Control);
+        }
+
+        private void ChildControl_Disposed(object sender, EventArgs e)
+        {
+            if (sender is Control control)
+            {
+                CleanupRemovedChildControl(control);
+            }
+        }
+
+        private void CleanupRemovedChildControl(Control control)
+        {
+            if (control == null) return;
+
+            try { control.Disposed -= ChildControl_Disposed; } catch { }
+
+            try { _hitTest?.RemoveHitTestsForControl(control); } catch { }
+            try { _externalDrawing?.ClearChildExternalDrawing(control); } catch { }
+
+            try
+            {
+                if (!IsDisposed && !Disposing)
+                {
+                    Invalidate();
+                }
+            }
+            catch { }
         }
         #endregion
 

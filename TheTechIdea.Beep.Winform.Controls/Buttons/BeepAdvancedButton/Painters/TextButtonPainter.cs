@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
             else
             {
-                DrawLoadingSpinner(g, buttonBounds, textColor);
+                DrawLoadingSpinner(g, context, buttonBounds, textColor);
             }
         }
     }

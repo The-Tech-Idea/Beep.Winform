@@ -40,14 +40,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw loading spinner or icon and text
             if (context.IsLoading)
             {
-                DrawLoadingSpinner(g, buttonBounds, GetForegroundColor(context));
+                DrawLoadingSpinner(g, context, buttonBounds, GetForegroundColor(context));
             }
             else
             {
                 // Draw icon
-                if (!string.IsNullOrEmpty(context.ImagePainter?.ImagePath))
+                if (HasPrimaryIcon(context))
                 {
-                    DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                    DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
                 }
 
                 // Draw text
@@ -60,13 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             out Rectangle iconBounds, out Rectangle textBounds)
         {
             Rectangle bounds = context.Bounds;
-            bool hasIcon = !string.IsNullOrEmpty(context.ImagePainter?.ImagePath);
+            bool hasIcon = HasPrimaryIcon(context);
             bool hasText = !string.IsNullOrEmpty(context.Text);
 
             if (hasIcon && hasText)
             {
                 // Both icon and text
-                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureTextWidth(context);
+                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
                 int startX = bounds.X + (bounds.Width - totalWidth) / 2;
 
                 iconBounds = new Rectangle(
@@ -107,15 +107,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
         }
 
-        private int MeasureTextWidth(AdvancedButtonPaintContext context)
-        {
-            if (string.IsNullOrEmpty(context.Text)) return 0;
-
-            using (Graphics g = Graphics.FromImage(new Bitmap(1, 1)))
-            {
-                SizeF textSize = g.MeasureString(context.Text, context.Font);
-                return (int)textSize.Width;
-            }
-        }
     }
 }

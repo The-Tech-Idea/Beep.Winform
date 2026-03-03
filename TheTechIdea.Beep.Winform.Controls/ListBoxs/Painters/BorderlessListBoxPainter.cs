@@ -104,5 +104,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             return 36; // Default item height
         }
+
+        /// <inheritdoc/>
+        public int GetItemHeight(BeepListBox owner, object item)
+            => GetPreferredItemHeight();
+
+        /// <inheritdoc/>
+        public void DrawGroupHeader(
+            Graphics g, BeepListBox owner, Rectangle headerRect,
+            string groupKey, bool isCollapsed, int itemCount)
+        {
+            if (g == null || headerRect.IsEmpty) return;
+            using var brush = new SolidBrush(Color.FromArgb(20, Color.Gray));
+            g.FillRectangle(brush, headerRect);
+            var sf = new StringFormat { LineAlignment = StringAlignment.Center };
+            using var fb = new SolidBrush(Color.Gray);
+            using var fn = new Font(owner.Font, System.Drawing.FontStyle.Bold);
+            g.DrawString($"{groupKey} ({itemCount})", fn, fb, headerRect, sf);
+        }
     }
 }

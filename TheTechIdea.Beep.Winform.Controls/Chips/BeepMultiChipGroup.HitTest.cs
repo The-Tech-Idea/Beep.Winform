@@ -10,23 +10,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         private bool _showUtilityRow = true;
         private Rectangle _selectAllRect;
         private Rectangle _clearAllRect;
+        private Point _lastInteractionPoint;
 
         private void SetupChipHitAreas()
         {
             ClearHitList();
 
-            int y = DrawingRect.Y + _titleHeight;
-            int x = DrawingRect.X;
+            int titleAreaHeight = _titleHeight > 0 ? _titleHeight + _titleBottomSpacing : 0;
+            int y = DrawingRect.Y + titleAreaHeight;
+            // align utility row to the same horizontal inset as the chip grid
+            int x = DrawingRect.X + _chipPadding;
 
             if (_showUtilityRow)
             {
+                int utilityHeight = GetUtilityRowHeight();
                 Size sa = TextRenderer.MeasureText("Select All", Font);
-                _selectAllRect = new Rectangle(x, y - 26, sa.Width + 16, 22);
+                _selectAllRect = new Rectangle(x, y, sa.Width + 16, utilityHeight);
                 AddHitArea("Chip_SelectAll", _selectAllRect, null, () => { SelectAllUtility(); });
 
                 Size ca = TextRenderer.MeasureText("Clear All", Font);
-                _clearAllRect = new Rectangle(_selectAllRect.Right + 8, y - 26, ca.Width + 16, 22);
+                _clearAllRect = new Rectangle(_selectAllRect.Right + 8, y, ca.Width + 16, utilityHeight);
                 AddHitArea("Chip_ClearAll", _clearAllRect, null, () => { ClearAllUtility(); });
+                y += utilityHeight + DpiScalingHelper.ScaleValue(6, _renderOptions.DpiScale);
+            }
+            else
+            {
+                _selectAllRect = Rectangle.Empty;
+                _clearAllRect = Rectangle.Empty;
             }
 
             for (int i = 0; i < _chips.Count; i++)
@@ -35,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 if (chip.Bounds.Width > 0 && chip.Bounds.Height > 0)
                 {
                     int chipIndex = i;
-                    AddHitArea($"Chip_{chipIndex}_{chip.Item.GuidId}", chip.Bounds, null, () => HandleChipClick(chip));
+                    AddHitArea($"Chip_{chipIndex}_{chip.Item.GuidId}", chip.Bounds, null, () => HandleChipClick(chip, _lastInteractionPoint, false));
                 }
             }
         }
@@ -69,15 +79,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             Invalidate();
         }
 
-        private void HandleChipClick(ChipItem chip)
+        private void HandleChipClick(ChipItem chip, Point clickLocation, bool keyboardAction)
         {
             if (chip?.Item == null) return;
 
             var idx = _chips.IndexOf(chip);
-            if (idx >= 0 && _closeRects.TryGetValue(idx, out var closeRect))
+            if (!keyboardAction && idx >= 0 && _closeRects.TryGetValue(idx, out var closeRect))
             {
-                var mouse = PointToClient(MousePosition);
-                if (closeRect.Contains(mouse))
+                if (closeRect.Contains(clickLocation))
                 {
                     chip.IsSelected = false;
                     _selectedItems.Remove(chip.Item);
@@ -131,6 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            _lastInteractionPoint = e.Location;
             bool clickedOnChip = _chips.Any(chip => chip.Bounds.Contains(e.Location));
             if (!clickedOnChip)
             {
@@ -140,6 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            _lastInteractionPoint = e.Location;
             base.OnMouseMove(e);
             UpdateHoverStates(e.Location);
         }
@@ -190,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 case Keys.Enter:
                     if (_focusedIndex >= 0 && _focusedIndex < _chips.Count)
                     {
-                        HandleChipClick(_chips[_focusedIndex]);
+                        HandleChipClick(_chips[_focusedIndex], Point.Empty, true);
                         handled = true;
                     }
                     break;

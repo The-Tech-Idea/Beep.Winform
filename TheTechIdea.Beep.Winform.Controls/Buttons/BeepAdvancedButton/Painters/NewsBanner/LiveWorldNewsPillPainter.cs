@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             // Draw label text (small)
             if (!string.IsNullOrEmpty(labelText))
             {
-                using (Font smallFont = new Font(context.Font.FontFamily, context.Font.Size * 0.7f))
+                using (Font smallFont = GetDerivedTextFont(context, sizeScale: 0.7f))
                 using (Brush labelTextBrush = new SolidBrush(Color.White))
                 using (StringFormat format = new StringFormat())
                 {
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             );
 
             using (Brush textBrush = new SolidBrush(Color.White))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;

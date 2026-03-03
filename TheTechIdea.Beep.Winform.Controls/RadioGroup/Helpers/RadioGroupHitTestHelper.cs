@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
     /// <summary>
     /// Helper class for managing mouse interactions and hit testing for BeepRadioGroupAdvanced
     /// </summary>
-    internal class RadioGroupHitTestHelper
+    internal class RadioGroupHitTestHelper : IDisposable
     {
         private readonly BaseControl _owner;
         private readonly ControlHitTestHelper _hitTestHelper;
@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private List<Rectangle> _itemRectangles = new List<Rectangle>();
         private int _hoveredIndex = -1;
         private int _focusedIndex = -1;
+        public Func<int, bool> IsItemInteractive { get; set; }
 
         public RadioGroupHitTestHelper(BaseControl owner)
         {
@@ -80,6 +81,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             _items = items ?? new List<SimpleItem>();
             _itemRectangles = rectangles ?? new List<Rectangle>();
+
+            if (_focusedIndex >= _items.Count)
+            {
+                FocusedIndex = -1;
+            }
+            if (_hoveredIndex >= _items.Count)
+            {
+                HoveredIndex = -1;
+            }
             
             // Clear existing hit areas
             _hitTestHelper.ClearHitList();
@@ -110,6 +120,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             HoveredIndex = -1;
             FocusedIndex = -1;
         }
+
+        public void ResetInteractionState(bool notifyHoverLeave = true)
+        {
+            if (notifyHoverLeave && _hoveredIndex >= 0 && _hoveredIndex < _items.Count)
+            {
+                var leaveItem = _items[_hoveredIndex];
+                if (leaveItem != null)
+                {
+                    ItemHoverLeave?.Invoke(this, new ItemHoverEventArgs(_hoveredIndex, leaveItem));
+                }
+            }
+
+            HoveredIndex = -1;
+            FocusedIndex = -1;
+        }
         #endregion
 
         #region Mouse Handling
@@ -119,6 +144,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public void HandleMouseMove(Point location)
         {
             int newHoverIndex = FindItemAt(location);
+            if (newHoverIndex >= 0 && IsItemInteractive != null && !IsItemInteractive(newHoverIndex))
+            {
+                newHoverIndex = -1;
+            }
             
             if (newHoverIndex != _hoveredIndex)
             {
@@ -145,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     }
                 }
                 
-                _owner.Invalidate(); // Request redraw for hover effects
+                RedrawOwner(); // Request redraw for hover effects
             }
         }
 
@@ -164,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
             
             HoveredIndex = -1;
-            _owner.Invalidate();
+            RedrawOwner();
         }
 
         /// <summary>
@@ -173,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public void HandleMouseClick(Point location, MouseButtons button)
         {
             int clickedIndex = FindItemAt(location);
-            if (clickedIndex >= 0)
+            if (clickedIndex >= 0 && (IsItemInteractive == null || IsItemInteractive(clickedIndex)))
             {
                 HandleItemClick(clickedIndex, button);
             }
@@ -185,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public void HandleMouseDoubleClick(Point location, MouseButtons button)
         {
             int clickedIndex = FindItemAt(location);
-            if (clickedIndex >= 0 && clickedIndex < _items.Count)
+            if (clickedIndex >= 0 && clickedIndex < _items.Count && (IsItemInteractive == null || IsItemInteractive(clickedIndex)))
             {
                 var item = _items[clickedIndex];
                 ItemDoubleClicked?.Invoke(this, new ItemClickEventArgs(clickedIndex, item, button));
@@ -196,6 +225,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             if (index >= 0 && index < _items.Count)
             {
+                if (IsItemInteractive != null && !IsItemInteractive(index))
+                {
+                    return;
+                }
+
                 var item = _items[index];
                 
                 // Update focus
@@ -204,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 // Raise click event
                 ItemClicked?.Invoke(this, new ItemClickEventArgs(index, item, button));
                 
-                _owner.Invalidate();
+                RedrawOwner();
             }
         }
         #endregion
@@ -217,56 +251,52 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             if (_items.Count == 0) return false;
 
-            int newFocusIndex = _focusedIndex;
+            int currentFocus = _focusedIndex >= 0 ? _focusedIndex : FindFirstInteractiveIndex();
+            int newFocusIndex = currentFocus;
 
             switch (keyCode)
             {
                 case Keys.Up:
                     if (orientation == RadioGroupOrientation.Vertical || orientation == RadioGroupOrientation.Grid)
                     {
-                        newFocusIndex = Math.Max(0, _focusedIndex - 1);
-                    }
-                    else if (orientation == RadioGroupOrientation.Grid)
-                    {
-                        // Handle grid navigation - move up one row
-                        // This would need column count information
+                        newFocusIndex = FindNextInteractiveIndex(currentFocus, -1);
                     }
                     break;
 
                 case Keys.Down:
                     if (orientation == RadioGroupOrientation.Vertical || orientation == RadioGroupOrientation.Grid)
                     {
-                        newFocusIndex = Math.Min(_items.Count - 1, _focusedIndex + 1);
+                        newFocusIndex = FindNextInteractiveIndex(currentFocus, 1);
                     }
                     break;
 
                 case Keys.Left:
                     if (orientation == RadioGroupOrientation.Horizontal || orientation == RadioGroupOrientation.Flow)
                     {
-                        newFocusIndex = Math.Max(0, _focusedIndex - 1);
+                        newFocusIndex = FindNextInteractiveIndex(currentFocus, -1);
                     }
                     break;
 
                 case Keys.Right:
                     if (orientation == RadioGroupOrientation.Horizontal || orientation == RadioGroupOrientation.Flow)
                     {
-                        newFocusIndex = Math.Min(_items.Count - 1, _focusedIndex + 1);
+                        newFocusIndex = FindNextInteractiveIndex(currentFocus, 1);
                     }
                     break;
 
                 case Keys.Home:
-                    newFocusIndex = 0;
+                    newFocusIndex = FindFirstInteractiveIndex();
                     break;
 
                 case Keys.End:
-                    newFocusIndex = _items.Count - 1;
+                    newFocusIndex = FindLastInteractiveIndex();
                     break;
 
                 case Keys.Space:
                 case Keys.Enter:
-                    if (_focusedIndex >= 0)
+                    if (currentFocus >= 0 && (IsItemInteractive == null || IsItemInteractive(currentFocus)))
                     {
-                        HandleItemClick(_focusedIndex, MouseButtons.Left);
+                        HandleItemClick(currentFocus, MouseButtons.Left);
                         return true;
                     }
                     break;
@@ -275,10 +305,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     return false;
             }
 
-            if (newFocusIndex != _focusedIndex)
+            if (newFocusIndex >= 0 && newFocusIndex != _focusedIndex)
             {
                 FocusedIndex = newFocusIndex;
-                _owner.Invalidate();
+                RedrawOwner();
                 return true;
             }
 
@@ -291,11 +321,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public bool MoveFocusNext()
         {
             if (_items.Count == 0) return false;
-            
-            int newIndex = (_focusedIndex + 1) % _items.Count;
+
+            int start = _focusedIndex >= 0 ? _focusedIndex : -1;
+            int newIndex = FindNextInteractiveIndex(start, 1, wrap: true);
             if (newIndex != _focusedIndex)
             {
                 FocusedIndex = newIndex;
+                RedrawOwner();
                 return true;
             }
             return false;
@@ -307,11 +339,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public bool MoveFocusPrevious()
         {
             if (_items.Count == 0) return false;
-            
-            int newIndex = _focusedIndex <= 0 ? _items.Count - 1 : _focusedIndex - 1;
+
+            int start = _focusedIndex >= 0 ? _focusedIndex : _items.Count;
+            int newIndex = FindNextInteractiveIndex(start, -1, wrap: true);
             if (newIndex != _focusedIndex)
             {
                 FocusedIndex = newIndex;
+                RedrawOwner();
                 return true;
             }
             return false;
@@ -332,6 +366,62 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
             }
             return -1;
+        }
+
+        private int FindFirstInteractiveIndex()
+        {
+            for (int i = 0; i < _items.Count; i++)
+            {
+                if (IsItemInteractive == null || IsItemInteractive(i))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private int FindLastInteractiveIndex()
+        {
+            for (int i = _items.Count - 1; i >= 0; i--)
+            {
+                if (IsItemInteractive == null || IsItemInteractive(i))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private int FindNextInteractiveIndex(int startIndex, int step, bool wrap = false)
+        {
+            if (_items.Count == 0 || step == 0) return -1;
+
+            int attempts = 0;
+            int index = startIndex;
+            while (attempts < _items.Count)
+            {
+                index += step;
+                if (index < 0 || index >= _items.Count)
+                {
+                    if (!wrap)
+                    {
+                        return startIndex;
+                    }
+
+                    index = index < 0 ? _items.Count - 1 : 0;
+                }
+
+                if (IsItemInteractive == null || IsItemInteractive(index))
+                {
+                    return index;
+                }
+
+                attempts++;
+            }
+
+            return startIndex;
         }
 
         /// <summary>
@@ -370,6 +460,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             {
                 // Item is not visible, request scroll
                 // This would need to be handled by the parent control
+                RedrawOwner();
+            }
+        }
+
+        private void RedrawOwner()
+        {
+            if (_owner is BeepRadioGroup radioGroup)
+            {
+                radioGroup.RequestVisualRefresh();
+            }
+            else
+            {
                 _owner.Invalidate();
             }
         }
@@ -378,6 +480,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             // Handle hit test detection if needed
             // The action is already executed by the hit test helper
+        }
+
+        public void Dispose()
+        {
+            _hitTestHelper.HitDetected -= OnHitDetected;
+            Clear();
+            IsItemInteractive = null;
+            HoveredIndexChanged = null;
+            FocusedIndexChanged = null;
+            ItemClicked = null;
+            ItemDoubleClicked = null;
+            ItemHoverEnter = null;
+            ItemHoverLeave = null;
         }
         #endregion
     }

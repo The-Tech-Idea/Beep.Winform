@@ -18,8 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Shadcn uses very subtle shadows
-            return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 1, alpha: 10);
+            // Shadcn uses very subtle shadows - alpha 40 for visibility on white backgrounds
+            return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 1, alpha: 40);
         }
     }
 }

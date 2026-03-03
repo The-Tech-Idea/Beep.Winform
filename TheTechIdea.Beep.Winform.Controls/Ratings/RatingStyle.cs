@@ -48,7 +48,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings
         /// <summary>
         /// Minimal, clean design
         /// </summary>
-        Minimal
+        Minimal,
+
+        /// <summary>
+        /// Diamond / rotated-square shapes (luxury/premium aesthetics)
+        /// </summary>
+        Diamond,
+
+        /// <summary>
+        /// Flag / bookmark shapes
+        /// </summary>
+        Flag,
+
+        /// <summary>
+        /// Numeric scale buttons (1–10 NPS style)
+        /// </summary>
+        NumericScale,
+
+        /// <summary>
+        /// Continuous slider / track control
+        /// </summary>
+        Slider,
+
+        /// <summary>
+        /// Compact inline mini stars (read-only, useful in lists)
+        /// </summary>
+        CompactInline
     }
 }
 

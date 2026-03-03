@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
 {
-    internal class BottomBarHitTestHelper
+    internal class BottomBarHitTestHelper : IDisposable
     {
         private readonly TheTechIdea.Beep.Winform.Controls.Base.BaseControl _owner;
         private readonly ControlHitTestHelper _hitTestHelper;
@@ -37,6 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         {
             _items = items ?? new List<SimpleItem>();
             _itemRectangles = rectangles ?? new List<Rectangle>();
+            if (_focusedIndex >= _items.Count) _focusedIndex = -1;
+            if (_hoveredIndex >= _items.Count) _hoveredIndex = -1;
             _hitTestHelper.ClearHitList();
             for (int i = 0; i < Math.Min(_items.Count, _itemRectangles.Count); i++)
             {
@@ -53,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
                 var item = _items[index];
                 _focusedIndex = index;
                 ItemClicked?.Invoke(this, new ItemClickEventArgs(index, item, button));
-                _owner.Invalidate();
+                InvalidateItem(index);
             }
         }
 
@@ -71,21 +73,32 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             _focusedIndex = -1;
         }
 
+        public void Dispose()
+        {
+            _hitTestHelper.HitDetected -= OnHitDetected;
+            Clear();
+            IndexChanged = null;
+            ItemClicked = null;
+        }
+
         public void HandleMouseMove(Point location)
         {
             int newHoverIndex = FindItemAt(location);
             if (newHoverIndex != _hoveredIndex)
             {
+                int oldHoverIndex = _hoveredIndex;
                 _hoveredIndex = newHoverIndex;
                 IndexChanged?.Invoke(this, EventArgs.Empty);
-                _owner.Invalidate();
+                InvalidateItem(oldHoverIndex);
+                InvalidateItem(newHoverIndex);
             }
         }
 
         public void HandleMouseLeave()
         {
+            int oldHoverIndex = _hoveredIndex;
             _hoveredIndex = -1;
-            _owner.Invalidate();
+            InvalidateItem(oldHoverIndex);
         }
 
         public void HandleMouseClick(Point location, MouseButtons button) => _hitTestHelper.HandleClick(location);
@@ -99,6 +112,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
                 if (_itemRectangles[i].Contains(location)) return i;
             }
             return -1;
+        }
+
+        private void InvalidateItem(int index)
+        {
+            if (index < 0 || index >= _itemRectangles.Count)
+            {
+                return;
+            }
+
+            var rect = _itemRectangles[index];
+            rect.Inflate(6, 6);
+            _owner.Invalidate(rect);
         }
     }
 

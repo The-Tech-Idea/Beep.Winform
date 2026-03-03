@@ -1,53 +1,274 @@
 # BeepListBox Control
 
 ## Overview
-BeepListBox is a modern, feature-rich list box control that extends `BeepPanel` with advanced styling capabilities, painter methodology, and comprehensive helper architecture. It provides a flexible foundation for displaying and interacting with lists of items with multiple visual styles.
+BeepListBox is a commercial-grade list-box control extending `BeepPanel`.  
+It implements the Painter strategy pattern, a three-helper architecture, and all 7 enhancement sprints described in the [listbox-enhancement-plan.md](../plans/listbox-enhancement-plan.md).
+
+---
 
 ## Architecture
 
 ### Partial Class Structure
-BeepListBox uses partial classes for clean separation of concerns:
-
-- **BeepListBox.cs**: Main class declaration and component registration
-- **BeepListBox.Core.cs**: Core fields, helpers, painters, and initialization
-- **BeepListBox.Properties.cs**: Public properties with change notification
-- **BeepListBox.Events.cs**: Event declarations and handlers
-- **BeepListBox.Methods.cs**: Public API methods
-- **BeepListBox.Drawing.cs**: Paint pipeline and DrawContent override
+| File | Responsibility |
+|---|---|
+| `BeepListBox.cs` | Component registration |
+| `BeepListBox.Core.cs` | Core fields, helpers, constructor, scrollbars |
+| `BeepListBox.Properties.cs` | All public/designable properties + Sprint 2–6 additions |
+| `BeepListBox.Events.cs` | Mouse events, SelectionChanged, InfiniteScroll sentinel click |
+| `BeepListBox.Methods.cs` | Public API: item management, selection, BeginUpdate/EndUpdate, ApplyDataSource |
+| `BeepListBox.Drawing.cs` | Paint pipeline, CreatePainter factory, skeleton/empty-state, drag indicator |
+| `BeepListBox.Keyboard.cs` | *(Sprint 3)* Full ARIA keyboard nav, type-ahead, inline-edit, context menu |
+| `BeepListBox.Drag.cs` | *(Sprint 3)* Drag-to-reorder — ghost window, insertion indicator, `OnItemReordered` |
+| `BeepListBox.Accessibility.cs` | *(Sprint 5)* WCAG 2.2 AA AccessibleObjects + HC colour helpers |
+| `BeepListBox.HighContrast.cs` | *(Sprint 5)* `IsHighContrast`, HC colour API, `UserPreferenceChanged` listener |
 
 ### Helper System
-The control uses three specialized helpers:
+| Helper | Role |
+|---|---|
+| `BeepListBoxHelper` | Item management, search, selection coordination |
+| `BeepListBoxLayoutHelper` | Calculates item rectangles (row, icon, checkbox, text) |
+| `BeepListBoxHitTestHelper` | Maps mouse/touch points → item, hit sub-region |
 
-#### 1. BeepListBoxHelper (`_helper`)
-Main business logic coordinator:
-- Item management (add, remove, select)
-- Search functionality
-- Checkbox state management
-- Event coordination
-- Initialization and configuration
+### Painter System
+All painters live in `Painters/` and implement `IListBoxPainter`.
+The abstract `BaseListBoxPainter` provides default implementations of all interface members.
 
-#### 2. BeepListBoxLayoutHelper (`_layoutHelper`)
-Layout computation and measurements:
-- Calculates item rectangles (row, checkbox, icon, text)
-- Search area positioning
-- Content area boundaries
-- DPI-aware scaling
-- Returns `ListItemInfo` with all computed rectangles
-
-Key Method:
 ```csharp
-public List<ListItemInfo> CalculateItemLayouts(
-    Rectangle contentArea, 
-    List<SimpleItem> items, 
-    int itemHeight, 
-    bool showCheckbox, 
-    bool showImage)
+internal interface IListBoxPainter
+{
+    BeepControlStyle Style { get; set; }
+    void Initialize(BeepListBox owner, IBeepTheme theme);
+    void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect);
+    int  GetPreferredItemHeight();
+    Padding GetPreferredPadding();
+    bool SupportsSearch();
+    bool SupportsCheckboxes();
+    // Sprint 7 additions:
+    int  GetItemHeight(BeepListBox owner, object item);           // variable-height support
+    void DrawGroupHeader(...);                                     // data-driven group headers
+}
 ```
 
-#### 3. BeepListBoxHitTestHelper (`_hitHelper`)
-Hit-testing and interaction:
-- Mouse position to item resolution
-- Checkbox hit detection
+---
+
+## ListBoxType Enum (34 values)
+
+| Value | Type | Description |
+|---|---|---|
+| 0–25 | Existing | Standard → Custom |
+| 26 | Glassmorphism | Frosted-glass effect |
+| 27 | Neumorphic | Soft-UI embossed shadows |
+| 28 | GradientCard | Colorful gradient card items |
+| 29 | ChipStyle | Selectable chip/tag items |
+| 30 | AvatarList | Circular-avatar user list |
+| 31 | Timeline | Activity-log timeline |
+| **32** | **InfiniteScroll** | "Load more…" sentinel at bottom |
+| **33** | **CommandList** | VS Code-style icon + name + kbd shortcut |
+| **34** | **NavigationRail** | Large icon above label (mobile nav) |
+
+---
+
+## Design Tokens (`Tokens/ListBoxTokens.cs`)
+
+All painters MUST reference these constants instead of magic numbers.
+
+| Constant | Value | Purpose |
+|---|---|---|
+| `ItemHeightComfortable` | 52 px | Default density |
+| `ItemHeightCompact` | 40 px | Compact density |
+| `ItemHeightDense` | 28 px | Dense density |
+| `HoverOverlayAlpha` | 18 | 7% hover fill alpha |
+| `ActiveOverlayAlpha` | 38 | 15% pressed fill |
+| `SubTextAlpha` | 140 | Secondary text opacity |
+| `DisabledAlpha` | 100 | Greyed-out opacity |
+| `MinTouchTargetPx` | 44 | WCAG 2.5.5 minimum |
+
+---
+
+## Rich Item Model (`Models/BeepListItem.cs`)
+
+Extends `SimpleItem` with:
+
+| Property | Type | Purpose |
+|---|---|---|
+| `SubText` | `string?` | Second line / metadata |
+| `BadgeText` | `string?` | Short chip label ("3", "New") |
+| `BadgeColor` | `Color` | Pill background (empty = theme) |
+| `Category` | `string?` | Group key for `ShowGroups` |
+| `IsPinned` | `bool` | Floats to top, never virtualised |
+| `IsDisabled` | `bool` | 39% opacity, ignores input |
+| `IsSeparator` | `bool` | Renders as 1 px horizontal rule |
+| `ItemAccentColor` | `Color` | 3 px left-edge accent bar |
+| `Tag` | `object?` | Arbitrary consumer payload |
+
+---
+
+## Key New Properties (Sprints 2–6)
+
+### Grouping
+```csharp
+public bool ShowGroups       { get; set; }   // group by BeepListItem.Category
+public bool CollapsibleGroups { get; set; }  // click header to collapse
+```
+
+### Density
+```csharp
+public ListDensityMode Density { get; set; }  // Comfortable / Compact / Dense
+public bool AutoItemHeight     { get; set; }  // variable row heights via GetItemHeight()
+```
+
+### Loading state
+```csharp
+public bool IsLoading       { get; set; }   // show animated skeleton rows
+public int  SkeletonRowCount { get; set; }  // number of skeleton placeholder rows
+```
+
+### Data binding
+```csharp
+public object? DataSource    { get; set; }   // IList / IBindingList
+public string  DisplayMember { get; set; }
+public string  ValueMember   { get; set; }
+public object? SelectedValue { get; }
+```
+
+### Interaction
+```csharp
+public bool AllowItemReorder { get; set; }   // drag-to-reorder
+public bool AllowInlineEdit  { get; set; }   // F2 / double-click inline edit
+public bool ShowContextMenu  { get; set; }   // right-click menu
+public ContextMenuStrip? ItemContextMenu { get; set; }  // custom menu
+```
+
+---
+
+## New Events (Sprint 6)
+
+| Event | Args | When |
+|---|---|---|
+| `ItemActivated` | `ListBoxItemEventArgs` | Enter or double-click |
+| `ItemDeleteRequested` | `ListBoxItemEventArgs` | Delete key |
+| `ItemTextChanged` | `ListBoxItemTextChangedEventArgs` | Inline-edit committed |
+| `ItemReordered` | `ListBoxReorderEventArgs` | Drag-reorder complete |
+| `ContextMenuOpening` | `ListBoxContextMenuEventArgs` | Before right-click menu |
+| `LoadMoreRequested` | `EventArgs` | Infinite-scroll sentinel hit |
+| `GroupCollapsed` | `ListBoxGroupEventArgs` | Group header collapsed |
+| `GroupExpanded` | `ListBoxGroupEventArgs` | Group header expanded |
+| `SearchChanged` | `ListBoxSearchEventArgs` | SearchText changed (+ match count) |
+
+---
+
+## Batch Update API (Sprint 1)
+
+```csharp
+listBox.BeginUpdate();   // suspend layout & repaint
+for (int i = 0; i < 10_000; i++)
+    listBox.AddItem(new BeepListItem($"Item {i}"));
+listBox.EndUpdate();     // one layout pass + one repaint
+```
+
+---
+
+## Keyboard Navigation (Sprint 3)
+
+| Key | Action |
+|---|---|
+| ↑ / ↓ | Move focus |
+| Home / End | First / last item |
+| Page Up / Page Down | One visible page |
+| Space | Toggle checkbox or select |
+| Enter | Activate item (`ItemActivated`) |
+| Ctrl+A | Select all (multi-select mode) |
+| Ctrl+C | Copy selected text to clipboard |
+| Escape | Clear selection |
+| F2 | Begin inline edit |
+| Delete | Raise `ItemDeleteRequested` |
+| Printable chars | Type-ahead search (800 ms buffer) |
+
+---
+
+## Accessibility (Sprint 5, WCAG 2.2 AA)
+
+- `BeepListBoxAccessible` — control-level AccessibleObject (role = List)
+- `BeepListItemAccessible` — per-item objects with name, state, value, bounds
+- Live-region notifications on selection change, reorder, search filter
+- High-contrast colour helpers: `GetHoverFillColor()`, `GetSelectionFillColor()`, `GetFocusRingColor()`
+- Minimum row height clamped to 44 px touch target (WCAG 2.5.5)
+
+### High-Contrast Mode (`BeepListBox.HighContrast.cs`)
+
+```csharp
+// Check HC state
+bool hcActive = owner.IsHighContrast;
+
+// Painter-facing helpers (invoked inside DrawItem)
+Color bg  = owner.HCItemBackground(isHovered, isSelected); // Empty = not HC
+Color fg  = owner.HCItemForeground(isSelected);
+Color bdr = owner.HCBorderColor;
+Color foc = owner.HCFocusRingColor;
+
+// Draw 3 px focus rect in HC mode
+owner.PaintFocusRectIfHC(g, rowRect);
+```
+
+`UserPreferenceChanged` is automatically subscribed/unsubscribed with the handle lifetime so the control re-paints immediately when the user toggles HC mode.
+
+---
+
+## Sprint 7 — Painter Quality Pass
+
+`BaseListBoxPainter` now provides five shared drawing helpers available to all concrete painters:
+
+| Helper | Purpose |
+|---|---|
+| `DrawAccentBar(g, rowRect, color)` | 3 px left-edge accent bar (`BeepListItem.ItemAccentColor`) |
+| `DrawBadgePill(g, rowRect, text, color)` | Pill badge top-right of row |
+| `DrawSubText(g, subRect, text, color, font)` | Muted secondary line (55 % opacity) |
+| `DrawSeparatorRow(g, rowRect, label?)` | 1 px horizontal rule with optional label |
+| `DrawFocusRing(g, rowRect)` | Theme / HC focus ring; uses `ListBoxTokens.FocusRingThickness` |
+
+`DrawItemBackgroundEx` (base) also now:
+- Applies **`DisabledAlpha` overlay** for `BeepListItem.IsDisabled` items
+- Overrides colours with **`SystemColors.*`** when `owner.IsHighContrast` is `true`
+
+`GetItemHeight` returns the correct taller height for items with `SubText` automatically.
+
+**Upgraded painters (Sprint 7 priority):**
+- `StandardListBoxPainter` — 2-line layout, badge, disabled alpha, focus ring, HC-aware  
+- `CheckboxListPainter` — same, plus scaled-DPI checkbox rect; removed hard `BeepStyling` references
+
+---
+
+## Search Highlight (Sprint 4)
+
+Painters can call `owner.DrawHighlightedText(...)` to render query matches with a coloured pill background (like VS Code search), instead of a plain `DrawString`.
+
+---
+
+## Example Usage
+
+```csharp
+var list = new BeepListBox
+{
+    Density = ListDensityMode.Comfortable,
+    ShowGroups = true,
+    ListBoxType = ListBoxType.AvatarList,
+    ShowSearch = true,
+    AllowInlineEdit = true,
+    AllowItemReorder = true,
+};
+
+list.BeginUpdate();
+list.AddItem(new BeepListItem("Alice", "Engineering", "avatars/alice.png", "Team A") { IsPinned = true });
+list.AddItem(new BeepListItem("Bob",   "Design",      "avatars/bob.png",   "Team B"));
+list.AddItem(BeepListItem.Separator());
+list.AddItem(new BeepListItem("Carol", "Marketing",   null, "Team A") { BadgeText = "New" });
+list.EndUpdate();
+
+list.ItemActivated    += (s, e) => Console.WriteLine($"Activated: {e.Item.Text}");
+list.ItemDeleteRequested += (s, e) => list.RemoveItem(e.Item);
+list.SearchChanged    += (s, e) => Console.WriteLine($"{e.MatchCount} matches for '{e.Query}'");
+```
+
 - Icon/text region identification
 - Integrates with `ControlInputHelper` from BaseControl
 
@@ -184,7 +405,7 @@ listBox.ListItems.Add(new SimpleItem { DisplayField = "Item 2", IDField = "2" })
 // Handle selection
 listBox.SelectedItemChanged += (s, e) => {
     var selected = listBox.SelectedItem;
-    Console.WriteLine($"Selected: {selected?.DisplayField}");
+  //  Console.WriteLine($"Selected: {selected?.DisplayField}");
 };
 ```
 
@@ -197,7 +418,7 @@ listBox.AllowMultipleSelection = true;
 // Handle checkbox changes
 listBox.CheckBoxChanged += (s, e) => {
     var checkedItems = listBox.SelectedItems; // Items with checked boxes
-    Console.WriteLine($"{checkedItems.Count} items checked");
+  //  Console.WriteLine($"{checkedItems.Count} items checked");
 };
 ```
 

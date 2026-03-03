@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw top text
             using (Brush topTextBrush = new SolidBrush(Color.White))
-            using (Font topFont = new Font(context.Font.FontFamily, context.Font.Size * 0.75f, FontStyle.Bold))
+            using (Font topFont = GetDerivedTextFont(context, sizeScale: 0.75f, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             Color textColor = mainColor.GetBrightness() > 0.5f ? Color.Black : Color.White;
             using (Brush textBrush = new SolidBrush(textColor))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Near;
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             }
 
             using (Brush timeTextBrush = new SolidBrush(Color.White))
-            using (Font timeFont = new Font(context.Font.FontFamily, context.Font.Size * 0.65f, FontStyle.Bold))
+            using (Font timeFont = GetDerivedTextFont(context, sizeScale: 0.65f, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;

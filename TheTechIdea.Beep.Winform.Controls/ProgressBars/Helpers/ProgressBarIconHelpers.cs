@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
                 ProgressPainterKind.DotsLoader => SvgsUI.Circle ?? SvgsUI.Loader,
                 ProgressPainterKind.ArrowStripe => SvgsUI.ArrowRight ?? SvgsUI.ChevronRight,
                 ProgressPainterKind.ArrowHeadAnimated => SvgsUI.ArrowRight ?? SvgsUI.Navigation,
-                _ => SvgsUI.Circle // Default fallback
+                _ => SvgsUI.Circle ?? SvgsUI.CheckCircle // Default fallback
             };
         }
 
@@ -313,6 +313,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             catch
             {
                 // Reflection failed, continue with fallback
+            }
+
+            // Try core SVG library fallback
+            try
+            {
+                var svgsType = typeof(Svgs);
+                var property = svgsType.GetProperty(iconPath,
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.Static |
+                    System.Reflection.BindingFlags.IgnoreCase);
+                if (property != null)
+                {
+                    var value = property.GetValue(null) as string;
+                    if (!string.IsNullOrEmpty(value))
+                        return value;
+                }
+            }
+            catch
+            {
+                // Ignore and use painter fallback.
             }
 
             // Fallback to recommended icon for painter kind

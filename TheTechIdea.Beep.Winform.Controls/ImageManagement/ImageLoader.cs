@@ -253,7 +253,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
             catch (Exception ex)
             {
                 // Log or handle as needed
-                Console.WriteLine($"LoadImageFromConfig error: {ex.Message}");
+              //  Console.WriteLine($"LoadImageFromConfig error: {ex.Message}");
                 return null;
             }
         }

@@ -46,7 +46,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 ChipStyle.Default or _ => new DefaultChipGroupPainter(),
             };
 
-            _painter.Initialize(this, _currentTheme);
+            _painter.Initialize(this, GetEffectiveTheme());
+            SyncRenderOptions();
+            UpdateChipBounds();
+            Invalidate();
         }
 
         private int _focusedIndex = -1;

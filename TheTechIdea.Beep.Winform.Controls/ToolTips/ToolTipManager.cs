@@ -821,6 +821,95 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         #endregion
 
+        #region Extended API — Popover, Preview, Tour
+
+        // ── Popovers ──────────────────────────────────────────────────────────
+
+        // Tracks popovers by owning control so they can be dismissed individually.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<Control, string>
+            _popoverKeys = new System.Collections.Concurrent.ConcurrentDictionary<Control, string>();
+
+        /// <summary>
+        /// Show a persistent <see cref="BeepPopover"/> anchored to <paramref name="target"/>.
+        /// Any previously shown popover for the same target is dismissed first.
+        /// </summary>
+        /// <param name="target">The control the popover points at.</param>
+        /// <param name="config">Popover-specific configuration.</param>
+        /// <returns>The unique key for this popover instance.</returns>
+        public async Task<string> ShowPopoverAsync(Control target, PopoverConfig config)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (config  == null) throw new ArgumentNullException(nameof(config));
+
+            // Dismiss existing popover for this target
+            await DismissPopoverAsync(target);
+
+            // Resolve screen position
+            if (config.Position == Point.Empty)
+            {
+                var scrBounds = target.RectangleToScreen(target.ClientRectangle);
+                var resolved  = ToolTips.Helpers.ToolTipPositionResolver.Resolve(
+                    scrBounds, new Size(config.MaxPopoverWidth, 200), config.Placement, config.Offset);
+                config.Position  = resolved.Location;
+                config.Placement = resolved.ActualPlacement;
+            }
+
+            // Popovers never auto-hide
+            config.Duration = 0;
+
+            string key = await ShowTooltipAsync(config);
+            _popoverKeys[target] = key;
+            return key;
+        }
+
+        /// <summary>Dismiss the popover currently shown for <paramref name="target"/>.</summary>
+        public async Task DismissPopoverAsync(Control target)
+        {
+            if (target == null) return;
+            if (_popoverKeys.TryRemove(target, out string key))
+                await HideTooltipAsync(key);
+        }
+
+        /// <summary>Synchronous fire-and-forget dismiss.</summary>
+        public void DismissPopover(Control target) => _ = DismissPopoverAsync(target);
+
+        // ── Preview tooltips ──────────────────────────────────────────────────
+
+        /// <summary>
+        /// Show a hover-card / preview tooltip for <paramref name="target"/>.
+        /// Sets <see cref="ToolTipLayoutVariant.Preview"/> and resolves position automatically.
+        /// </summary>
+        public async Task<string> ShowPreviewAsync(Control target, ToolTipConfig config)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (config  == null) throw new ArgumentNullException(nameof(config));
+
+            config.LayoutVariant = ToolTipLayoutVariant.Preview;
+
+            if (config.Position == Point.Empty)
+            {
+                var scrBounds = target.RectangleToScreen(target.ClientRectangle);
+                var sz        = config.PreviewImageSize.Width > 0
+                                ? new Size(config.PreviewImageSize.Width, config.PreviewImageSize.Height + 80)
+                                : new Size(300, 260);
+                var resolved  = ToolTips.Helpers.ToolTipPositionResolver.Resolve(
+                    scrBounds, sz, config.Placement, config.Offset);
+                config.Position  = resolved.Location;
+                config.Placement = resolved.ActualPlacement;
+            }
+
+            return await ShowTooltipAsync(config);
+        }
+
+        // ── Guided tour ───────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Get a fluent <see cref="BeepTourBuilder"/> to construct and start a guided tour.
+        /// </summary>
+        public BeepTourBuilder CreateTour() => BeepTourManager.Instance.CreateTour();
+
+        #endregion
+
         #region Theme Management
 
         /// <summary>

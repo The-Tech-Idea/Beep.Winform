@@ -413,7 +413,7 @@ this.Controls.Add(toggleSwitch);</code></pre>
 // Primary event - state change
 notificationSwitch.CheckedChanged += (s, e) => {
     var enabled = notificationSwitch.Checked;
-    Console.WriteLine($"Notifications {(enabled ? "enabled" : "disabled")}");
+  //  Console.WriteLine($"Notifications {(enabled ? "enabled" : "disabled")}");
     
     // Update application settings
     Settings.NotificationsEnabled = enabled;
@@ -644,7 +644,7 @@ notificationSwitch.MouseLeave += (s, e) => {
         };
 
         verticalSwitch.CheckedChanged += (s, e) => {
-            Console.WriteLine($"{category}: {(verticalSwitch.Checked ? "Enabled" : "Disabled")}");
+          //  Console.WriteLine($"{category}: {(verticalSwitch.Checked ? "Enabled" : "Disabled")}");
             
             // Update system permission
             UpdateSystemPermission(category, verticalSwitch.Checked);
@@ -694,7 +694,7 @@ notificationSwitch.CheckedChanged += (s, e) => {
     var propInfo = settings.GetType().GetProperty("NotificationsEnabled");
     propInfo?.SetValue(settings, notificationSwitch.Checked);
     
-    Console.WriteLine($"Settings updated: Notifications = {settings.NotificationsEnabled}");
+  //  Console.WriteLine($"Settings updated: Notifications = {settings.NotificationsEnabled}");
 };</code></pre>
                     </div>
 

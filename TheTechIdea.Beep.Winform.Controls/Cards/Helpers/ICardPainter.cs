@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal interface ICardPainter : IDisposable
     {
-        void Initialize(BaseControl owner, IBeepTheme theme);
+        void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont);
         LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx);
         void DrawBackground(Graphics g, LayoutContext ctx);
         void DrawForegroundAccents(Graphics g, LayoutContext ctx);
@@ -43,6 +43,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
         public bool ShowSecondaryButton;
         public bool ShowStatus;
         public bool ShowRating;
+        public bool IsHovered;
+        public bool IsPressed;
+        public bool IsSelected;
+        public bool IsLoading;
+        public float HoverProgress;
+        public float PressProgress;
+        public int ElevationTier;
+        public bool IsFocused;
+        public Point RipplePoint;
         
         // Styling properties
         public int Radius;

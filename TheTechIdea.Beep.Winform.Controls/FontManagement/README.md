@@ -423,3 +423,48 @@ The **FontManagement** system provides a **complete, production-ready solution**
 ✅ **TextPainter ready** for enhanced integration  
 
 **The font system is 100% complete and ready for enhanced TextPainter integration!** 🎨
+
+---
+
+## Multi-Assembly Font Discovery (2026-03-02)
+
+### Problem Solved
+
+Previously the font pipeline only scanned the Controls assembly and two hard-coded namespace roots. Fonts in any other assembly were silently skipped, causing null fonts and invisible text (e.g. iOS theme's SF Pro Text on Windows).
+
+### Three Discovery Mechanisms
+
+**1. Convention-based (zero config)**  
+Embed fonts under a namespace ending in .Fonts — auto-discovered during Initialize().
+
+**2. Explicit registration**
+```csharp
+// Register at app startup (before or after Initialize)
+BeepFontManager.Register(Assembly.GetExecutingAssembly());
+BeepFontManager.Register("MyCompany.MyTheme.Fonts");
+BeepFontManager.RegisterDirectory(@"C:\MyApp\ExtraFonts");
+BeepFontManager.RegisterFromAppDomain();
+```
+
+**3. Override primary assembly**
+```csharp
+BeepFontRegistry.PrimaryAssembly = Assembly.GetExecutingAssembly();
+```
+
+### New File: BeepFontRegistry.cs
+
+| Member | Purpose |
+|---|---|
+| PrimaryAssembly | Override BeepFontPaths.ResourceAssembly |
+| Register(Assembly) | Add assembly + auto-infer namespace from its font resources |
+| Register(string) | Add explicit namespace root |
+| RegisterFromDirectory(string) | Add file-system scan directory |
+| RegisterFromAppDomain() | Scan all AppDomain assemblies by convention |
+| Changed event | Fires on new registration; BeepFontManager subscribes for incremental loads |
+
+### Null-Safe ToFont
+
+All BeepFontManager.ToFont and BeepThemesManager.ToFont overloads now guarantee non-null:
+- Unavailable font families fall back to Arial.
+- Zero/negative font sizes default to 9pt.
+- Final fallback is SystemFonts.DefaultFont.

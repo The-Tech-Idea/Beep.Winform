@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm_Tree));
             beepAppTree1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
-            beepDisplayContainer1 = new BeepDisplayContainer();
+            beepDisplayContainer1 = new BeepDisplayContainer2();
             SuspendLayout();
             // 
             // beepAppTree1
@@ -395,7 +395,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         }
 
         #endregion
-        private BeepDisplayContainer beepDisplayContainer1;
+        private BeepDisplayContainer2 beepDisplayContainer1;
         private Controls.ITrees.BeepTreeView.BeepAppTree beepAppTree1;
     }
 }

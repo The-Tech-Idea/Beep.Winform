@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         {
             if (context.Graphics == null) return;
             // Draw background
-            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.White : context.BarBackColor))
+            using (var b = new SolidBrush(ResolveBarBack(context)))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 }
             }
             catch { }
-            using (var brush = new SolidBrush(Color.FromArgb(40, context.AccentColor)))
+            using (var brush = new SolidBrush(Color.FromArgb(40, ResolveAccent(context))))
             using (var gp = new System.Drawing.Drawing2D.GraphicsPath())
             {
                 int radius = (int)Math.Round(indicator.Height / 2f);
@@ -74,11 +74,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
         protected virtual void PaintMenuItem(Graphics g, SimpleItem item, Rectangle rect, BottomBarPainterContext context)
         {
+            bool isSelected = context.SelectedIndex >= 0 && context.SelectedIndex < context.Items.Count && context.Items[context.SelectedIndex] == item;
+            bool isHovered = context.HoverIndex >= 0 && context.HoverIndex < context.Items.Count && context.Items[context.HoverIndex] == item;
+
             // draw icon
             var iconRect = new Rectangle(rect.Left + (rect.Width - 24) / 2, rect.Top + 4, 24, 24);
             context.ImagePainter.ImagePath = string.IsNullOrEmpty(item?.ImagePath) ? context.DefaultImagePath : item.ImagePath;
             context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
+            var previousFill = context.ImagePainter.FillColor;
+            var previousApplyTheme = context.ImagePainter.ApplyThemeOnImage;
+            context.ImagePainter.ApplyThemeOnImage = false;
+            context.ImagePainter.FillColor = isSelected ? ResolveAccent(context) : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context));
             context.ImagePainter.DrawImage(g, iconRect);
+            context.ImagePainter.ApplyThemeOnImage = previousApplyTheme;
+            context.ImagePainter.FillColor = previousFill;
 
             // draw badge if present
             if (!string.IsNullOrEmpty(item.BadgeText))
@@ -94,7 +103,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     int badgeY = iconRect.Top - badgeH / 2;
 
                     var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                    using (var brush = new SolidBrush(item.BadgeBackColor))
+                    var badgeBack = item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : item.BadgeBackColor;
+                    var badgeFore = item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : item.BadgeForeColor;
+                    using (var brush = new SolidBrush(badgeBack))
                     {
                         if (item.BadgeShape == BadgeShape.Circle)
                         {
@@ -114,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                             g.FillRectangle(brush, badgeRect);
                         }
                     }
-                    using (var brushFore = new SolidBrush(item.BadgeForeColor))
+                    using (var brushFore = new SolidBrush(badgeFore))
                     {
                         var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                         g.DrawString(badgeText, badgeFont, brushFore, badgeRect, sf);
@@ -123,15 +134,34 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
 
             // draw label
-            bool isSelected = context.SelectedIndex >= 0 && context.SelectedIndex < context.Items.Count && context.Items[context.SelectedIndex] == item;
-            bool isHovered = context.HoverIndex >= 0 && context.HoverIndex < context.Items.Count && context.Items[context.HoverIndex] == item;
             using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(isSelected ? context.AccentColor : (isHovered ? context.BarHoverForeColor : context.BarForeColor)))
+            using (var brush = new SolidBrush(isSelected ? ResolveAccent(context) : (isHovered ? ResolveHoverFore(context) : ResolveBarFore(context))))
             {
                 var textRect = new Rectangle(rect.Left + 2, iconRect.Bottom + 2, rect.Width - 4, rect.Height - iconRect.Height - 6);
                 var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(item.Text, font, brush, textRect, sf);
             }
         }
+
+        protected Color ResolveBarBack(BottomBarPainterContext context)
+            => context.BarBackColor != Color.Empty ? context.BarBackColor : Color.White;
+
+        protected Color ResolveBarFore(BottomBarPainterContext context)
+            => context.BarForeColor != Color.Empty ? context.BarForeColor : Color.FromArgb(96, 96, 96);
+
+        protected Color ResolveHoverFore(BottomBarPainterContext context)
+            => context.BarHoverForeColor != Color.Empty ? context.BarHoverForeColor : ResolveBarFore(context);
+
+        protected Color ResolveBadgeBack(BottomBarPainterContext context)
+            => context.BadgeBackColor != Color.Empty ? context.BadgeBackColor : ResolveAccent(context);
+
+        protected Color ResolveBadgeFore(BottomBarPainterContext context)
+            => context.BadgeForeColor != Color.Empty ? context.BadgeForeColor : Color.White;
+
+        protected Color ResolveAccent(BottomBarPainterContext context)
+            => context.AccentColor != Color.Empty ? context.AccentColor : Color.FromArgb(96, 80, 255);
+
+        protected Color ResolveOnAccent(BottomBarPainterContext context)
+            => context.OnAccentColor != Color.Empty ? context.OnAccentColor : Color.White;
     }
 }

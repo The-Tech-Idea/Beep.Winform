@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -47,6 +48,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Icon size in pixels
         /// </summary>
         public int IconSize { get; set; } = 48;
+        public DialogIconSizePreset IconSizePreset { get; set; } = DialogIconSizePreset.Medium;
+        public DialogIconAlignment IconAlignment { get; set; } = DialogIconAlignment.Left;
+        public bool AnimatedIcon { get; set; } = false;
 
         /// <summary>
         /// Whether to show the icon
@@ -78,6 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Button layout (Horizontal, Vertical, Grid)
         /// </summary>
         public DialogButtonLayout ButtonLayout { get; set; } = DialogButtonLayout.Horizontal;
+        public bool SnapToOwnerEdges { get; set; } = false;
 
         #endregion
 
@@ -179,6 +184,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Animation effect when showing dialog
         /// </summary>
         public DialogShowAnimation Animation { get; set; } = DialogShowAnimation.FadeIn;
+        public DialogAnimationEasing AnimationEasing { get; set; } = DialogAnimationEasing.EaseOutCubic;
+        public int StaggerDelay { get; set; } = 0;
+        public DialogMotionProfile? MotionProfile { get; set; }
+        public bool ReducedMotion { get; set; } = false;
 
         /// <summary>
         /// Animation duration in milliseconds
@@ -208,6 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Dialog position relative to parent/screen
         /// </summary>
         public DialogPosition Position { get; set; } = DialogPosition.CenterParent;
+        public DialogPlacementStrategy PlacementStrategy { get; set; } = DialogPlacementStrategy.CenterOwner;
 
         /// <summary>
         /// Custom screen location (only used with Position = Custom)
@@ -222,11 +232,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Whether dialog is modal (blocks parent)
         /// </summary>
         public bool IsModal { get; set; } = true;
+        public bool IsModeless => !IsModal;
 
         /// <summary>
         /// Whether clicking outside closes the dialog
         /// </summary>
         public bool CloseOnClickOutside { get; set; } = false;
+        public DialogBackdropClickPolicy BackdropClickPolicy { get; set; } = DialogBackdropClickPolicy.Ignore;
+        public DialogBackdropStyle BackdropStyle { get; set; } = DialogBackdropStyle.DimOnly;
+        public DialogBackdropTransitionStyle BackdropTransitionStyle { get; set; } = DialogBackdropTransitionStyle.Fade;
 
         /// <summary>
         /// Whether ESC key closes the dialog
@@ -247,6 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Whether dialog can be dragged by title bar
         /// </summary>
         public bool AllowDrag { get; set; } = true;
+        public int SnapThreshold { get; set; } = 16;
 
         #endregion
 
@@ -276,6 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Padding around custom control
         /// </summary>
         public int CustomControlPadding { get; set; } = 12;
+        public int MaxContentHeight { get; set; } = 360;
 
         #endregion
 
@@ -345,6 +361,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Whether to show validation errors in dialog
         /// </summary>
         public bool ShowValidationErrors { get; set; } = true;
+        public Dictionary<string, Func<string, (bool Valid, string Error)>> FieldValidators { get; set; } = new();
+        public Dictionary<string, (bool Valid, string Error)> ValidationState { get; set; } = new();
+        public string DialogKey { get; set; } = string.Empty;
+        public bool RememberSizeAndPosition { get; set; } = false;
+        public bool EnableRecentInputMemory { get; set; } = false;
+        public int RecentInputCapacity { get; set; } = 5;
+        public bool EnableUndoForDestructiveActions { get; set; } = true;
 
         #endregion
 
@@ -486,6 +509,78 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
             };
         }
 
+        public static DialogConfig CreateLogin(string title = "Sign in", string message = "Enter your credentials")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = BeepDialogIcon.Question,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                Preset = DialogPreset.Question
+            };
+        }
+
+        public static DialogConfig CreateFeedback(string title = "Send feedback", string message = "Tell us what you think")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                Preset = DialogPreset.Information
+            };
+        }
+
+        public static DialogConfig CreateRate(string title = "Rate this experience", string message = "Please rate from 1 to 5")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = BeepDialogIcon.Success,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                Preset = DialogPreset.Success
+            };
+        }
+
+        public static DialogConfig CreateUpdate(string title = "Update available", string message = "A new version is ready to install")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                Preset = DialogPreset.Information
+            };
+        }
+
+        public static DialogConfig CreateCookie(string title = "Cookie notice", string message = "Manage your privacy settings")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = BeepDialogIcon.Warning,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                Preset = DialogPreset.Warning
+            };
+        }
+
+        public static DialogConfig CreateSearch(string title = "Search", string message = "Type to search")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                Preset = DialogPreset.None
+            };
+        }
+
         #endregion
 
         #region Obsolete Preset Methods (For Backward Compatibility)
@@ -569,6 +664,67 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         }
 
         #endregion
+
+        #region Fluent Builder
+
+        public sealed class Builder
+        {
+            private readonly DialogConfig _config = new DialogConfig();
+
+            public Builder WithTitle(string title)
+            {
+                _config.Title = title ?? string.Empty;
+                return this;
+            }
+
+            public Builder WithMessage(string message)
+            {
+                _config.Message = message ?? string.Empty;
+                return this;
+            }
+
+            public Builder WithButtons(params Vis.Modules.BeepDialogButtons[] buttons)
+            {
+                if (buttons != null && buttons.Length > 0)
+                {
+                    _config.Buttons = buttons;
+                }
+                return this;
+            }
+
+            public Builder WithAnimation(DialogShowAnimation animation)
+            {
+                _config.Animation = animation;
+                return this;
+            }
+
+            public Builder WithValidation(Func<string, (bool Valid, string Error)> validator, string key = "value")
+            {
+                _config.FieldValidators[key] = validator;
+                return this;
+            }
+
+            public Builder WithPlacement(DialogPlacementStrategy strategy)
+            {
+                _config.PlacementStrategy = strategy;
+                return this;
+            }
+
+            public Builder WithStyle(BeepControlStyle style)
+            {
+                _config.Style = style;
+                return this;
+            }
+
+            public DialogConfig Build()
+            {
+                return _config;
+            }
+        }
+
+        public static Builder Create() => new Builder();
+
+        #endregion
     }
 
     #region Enums
@@ -591,7 +747,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// <summary>
         /// Buttons arranged in grid
         /// </summary>
-        Grid
+        Grid,
+        HorizontalRight,
+        HorizontalCenter,
+        HorizontalLeft,
+        Spread
     }
 
     /// <summary>
@@ -627,7 +787,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// <summary>
         /// Custom location
         /// </summary>
-        Custom
+        Custom,
+        BottomCenter,
+        BottomRight,
+        BottomLeft,
+        LeftCenter,
+        RightCenter
     }
 
     /// <summary>
@@ -668,7 +833,67 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// <summary>
         /// Zoom in from center
         /// </summary>
-        ZoomIn
+        ZoomIn,
+        FadeOut,
+        SlideOutToTop,
+        SlideOutToBottom,
+        SlideOutToLeft,
+        SlideOutToRight,
+        ZoomOut
+    }
+
+    public enum DialogAnimationEasing
+    {
+        Linear,
+        EaseInOutQuad,
+        EaseOutCubic,
+        EaseOutBack,
+        EaseOutElastic,
+        EaseOutSpring
+    }
+
+    public enum DialogBackdropStyle
+    {
+        DimOnly,
+        DimWithNoise,
+        BlurIfSupported
+    }
+
+    public enum DialogBackdropClickPolicy
+    {
+        Ignore,
+        CancelDialog,
+        CloseDialog
+    }
+
+    public enum DialogBackdropTransitionStyle
+    {
+        Fade,
+        FadeScale,
+        CrossDissolve
+    }
+
+    public enum DialogPlacementStrategy
+    {
+        CenterOwner,
+        CenterScreen,
+        SmartNearest,
+        AnchorPreferred
+    }
+
+    public enum DialogIconSizePreset
+    {
+        Small,
+        Medium,
+        Large,
+        ExtraLarge
+    }
+
+    public enum DialogIconAlignment
+    {
+        Left,
+        Top,
+        None
     }
 
     #endregion

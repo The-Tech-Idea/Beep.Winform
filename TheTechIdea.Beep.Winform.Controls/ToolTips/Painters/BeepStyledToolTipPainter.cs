@@ -9,7 +9,6 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
-
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 {
     /// <summary>
@@ -29,6 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         {
             if (config == null || bounds.Width <= 0 || bounds.Height <= 0)
                 return;
+
+            // Store bounds so PaintArrow() can access them
+            _lastPaintBounds = bounds;
 
             // Set high quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -249,39 +251,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         #region Arrow Painting
 
         /// <summary>
-        /// Paint arrow/pointer towards target element
+        /// Paint arrow/pointer towards target element.
+        /// Delegates to <see cref="ToolTipArrowPainter"/> for DPI-aware, style-aware rendering.
         /// </summary>
-        public override void PaintArrow(Graphics g, Point position, ToolTipPlacement placement, 
+        public override void PaintArrow(Graphics g, Point position, ToolTipPlacement placement,
             ToolTipConfig config, IBeepTheme theme)
         {
-            if (!config.ShowArrow)
+            if (!config.ShowArrow || config.ArrowStyle == ToolTipArrowStyle.Hidden)
                 return;
 
-            var colors = ToolTipStyleAdapter.GetColors(config, theme);
-            Color arrowColor = config.BackColor ?? colors.background;
+            var colors    = ToolTipStyleAdapter.GetColors(config, theme);
+            Color fill    = config.BackColor ?? colors.background;
+            Color border  = config.BorderColor ?? colors.border;
 
-            using (var path = CreateArrowPath(position, placement, DefaultArrowSize))
-            {
-                // Fill arrow with background color
-                using (var brush = new SolidBrush(arrowColor))
-                {
-                    g.FillPath(brush, path);
-                }
+            // `position` is the pre-calculated arrow tip point from ToolTipHelpers.
+            // We re-delegate to the bounds-based ToolTipArrowPainter which accounts for
+            // ArrowOffset and ArrowStyle stored on the config, so we derive bounds from position.
+            // Re-use the bounds rect supplied via the new Paint() overload that stores it in
+            // _lastPaintBounds below.  Fall back to estimating from position.
+            var bounds = _lastPaintBounds.IsEmpty
+                ? new Rectangle(position.X - 80, position.Y - 30, 160, 30)
+                : _lastPaintBounds;
 
-                // Draw arrow border to match tooltip border
-                if (config.BorderColor.HasValue || colors.border != Color.Transparent)
-                {
-                    Color borderColor = config.BorderColor ?? colors.border;
-                    var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
-                    int borderWidth = (int)StyleBorders.GetBorderWidth(beepStyle);
-
-                    using (var pen = new Pen(borderColor, borderWidth))
-                    {
-                        g.DrawPath(pen, path);
-                    }
-                }
-            }
+            ToolTipArrowPainter.DrawArrow(
+                g, bounds, placement,
+                config.ArrowStyle,
+                config.ArrowSize > 0 ? config.ArrowSize : DefaultArrowSize,
+                config.ArrowOffset,
+                fill, border);
         }
+
+        // Stores the tooltip bounds so PaintArrow can access them.
+        private Rectangle _lastPaintBounds;
 
         #endregion
 
@@ -350,6 +351,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                     };
 
                     g.DrawString(config.Text, textFont, brush, textRect, format);
+                }
+            }
+
+            // Paint keyboard shortcut badges in the footer
+            if (config.Shortcuts != null && config.Shortcuts.Count > 0)
+            {
+                var badgeSize = ShortcutBadgePainter.MeasureShortcuts(g, config.Shortcuts);
+                if (!badgeSize.IsEmpty)
+                {
+                    // Right-align in the content area
+                    int bx = contentRect.Right - badgeSize.Width;
+                    int by = contentRect.Bottom - badgeSize.Height;
+                    ShortcutBadgePainter.DrawShortcuts(g, config.Shortcuts, new Point(bx, by), theme);
                 }
             }
         }

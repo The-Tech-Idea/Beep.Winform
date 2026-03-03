@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", 
                 Color.FromArgb(226, 232, 240)); // Shadcn default border color
             
-            float borderWidth = 1f;
+            float borderWidth = 1.5f;
 
             if (isFocused)
             {
@@ -26,11 +26,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     Color.FromArgb(59, 130, 246)); // Shadcn blue
                 borderWidth = 2f;
             }
+            else if (state == ControlState.Hovered)
+            {
+                borderWidth = 1.8f;
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 220));
+            }
             else if (state == ControlState.Normal)
             {
-                // Idle parity baseline for web-style controls.
-                borderWidth = 1.2f;
-                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 180));
+                borderWidth = 1.5f;
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 200));
             }
 
             borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);

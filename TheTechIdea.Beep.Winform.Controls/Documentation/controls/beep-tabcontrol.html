@@ -252,7 +252,7 @@ this.Controls.Add(tabControl);</code></pre>
 
 // Handle tab removal
 tabControl.TabRemoved += (sender, e) => {
-    Console.WriteLine($"Tab '{e.TabText}' was removed");
+  //  Console.WriteLine($"Tab '{e.TabText}' was removed");
     
     // Perform cleanup if needed
     CleanupTabResources(e.TabText);
@@ -263,7 +263,7 @@ tabControl.SelectedIndexChanged += (sender, e) => {
     var selectedTab = tabControl.SelectedTab;
     if (selectedTab != null)
     {
-        Console.WriteLine($"Selected tab: {selectedTab.Text}");
+      //  Console.WriteLine($"Selected tab: {selectedTab.Text}");
         LoadTabContent(selectedTab);
     }
 };
@@ -656,7 +656,7 @@ protected override void OnMouseClick(MouseEventArgs e)
 
 // Handle tab removal
 tabControl.TabRemoved += (sender, e) => {
-    Console.WriteLine($"Tab '{e.TabText}' was removed");
+  //  Console.WriteLine($"Tab '{e.TabText}' was removed");
     
     // Perform cleanup
     CleanupTabResources(e.TabText);
@@ -676,7 +676,7 @@ tabControl.SelectedIndexChanged += (sender, e) => {
     var selectedTab = tabControl.SelectedTab;
     if (selectedTab != null)
     {
-        Console.WriteLine($"Selected tab: {selectedTab.Text}");
+      //  Console.WriteLine($"Selected tab: {selectedTab.Text}");
         
         // Update status bar
         UpdateStatusBar($"Viewing: {selectedTab.Text}");

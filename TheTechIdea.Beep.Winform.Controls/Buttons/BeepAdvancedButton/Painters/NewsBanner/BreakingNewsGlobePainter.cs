@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.NewsBanner
 {
@@ -51,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             }
 
             // Measure section widths
-            int section1Width = MeasureTextWidth(g, section1Text, context.Font) + 20;
+            int section1Width = MeasureTextWidth(section1Text, context.TextFont) + 20;
             
             // Draw section 1 (BREAKING) - white
             Rectangle section1Bounds = new Rectangle(
@@ -85,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw section 1 text (BREAKING)
             using (Brush text1Brush = new SolidBrush(Color.Black))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -102,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             );
 
             using (Brush text2Brush = new SolidBrush(Color.White))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Near;
@@ -131,12 +132,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             return new[] { text, "NEWS" };
         }
 
-        private int MeasureTextWidth(Graphics g, string text, Font font)
+        private int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
-            SizeF size = g.MeasureString(text, new Font(font, FontStyle.Bold));
-            return (int)size.Width;
+            using Font boldFont = GetDerivedTextFont(font, styleOverride: FontStyle.Bold);
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text, boldFont);
         }
     }
 }

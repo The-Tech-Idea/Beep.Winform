@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 HitArea best = null;
                 long bestArea = long.MaxValue;
-             //  Debug.Print($"HitTest at {p}");
+             //  //Debug.Print($"HitTest at {p}");
                 foreach (var hit in _hits)
                 {
                     if (!hit.Bounds.Contains(p))
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     long size = (long)hit.Bounds.Width * hit.Bounds.Height;
                     if (size < bestArea)
                     {
-                        Debug.Print($"Hit area '{hit.Name}' with size {size} is a better match than current best area with size {bestArea}");
+                        //Debug.Print($"Hit area '{hit.Name}' with size {size} is a better match than current best area with size {bestArea}");
                         best = hit;
                         bestArea = size;
                     }
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     case "system:close":
                     case "region:system:close":
                         {
-                            Debug.Print($"Checking if close button is enabled: {_owner.ShowCloseButton}");
+                            //Debug.Print($"Checking if close button is enabled: {_owner.ShowCloseButton}");
                             return _owner.ShowCloseButton;
                         }
                        

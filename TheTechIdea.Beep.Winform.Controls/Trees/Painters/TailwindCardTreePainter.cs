@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                         g.FillEllipse(hoverBrush, toggleRect);
                     }
 
-                    var pen = PaintersFactory.GetPen(_theme.TreeForeColor, 2f);
+                    using var pen = (Pen)PaintersFactory.GetPen(_theme.TreeForeColor, 2f).Clone();
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
 
@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Tailwind checkmark
                     if (node.Item.IsChecked)
                     {
-                        var checkPen = PaintersFactory.GetPen(Color.White, 2f);
+                        using var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 2f).Clone();
                         checkPen.StartCap = LineCap.Round;
                         checkPen.EndCap = LineCap.Round;
 
@@ -284,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 g.FillEllipse(hoverBrush, toggleRect);
             }
 
-            var pen = PaintersFactory.GetPen(chevronColor, 2f);
+            using var pen = (Pen)PaintersFactory.GetPen(chevronColor, 2f).Clone();
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             int centerX = toggleRect.Left + toggleRect.Width / 2;

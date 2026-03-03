@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -873,10 +874,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
         public static void RemoveTintedFromCache(string imagePath)
         {
+            string normalizedPath = NormalizeImagePath(imagePath);
             var keys = new List<string>(_tintedCache.Keys);
             foreach (var k in keys)
             {
-                if (k.StartsWith(imagePath + "|", StringComparison.OrdinalIgnoreCase))
+                if (k.StartsWith(normalizedPath + "|", StringComparison.OrdinalIgnoreCase))
                 {
                     try { _tintedCache[k]?.Dispose(); } catch { }
                     _tintedCache.TryRemove(k, out _);
@@ -886,7 +888,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
         private static string GetTintCacheKey(string path, Color tint, float opacity, Size size)
         {
-            return $"{path}|{tint.ToArgb()}|{opacity}|{size.Width}x{size.Height}";
+            string normalizedPath = NormalizeImagePath(path);
+            return $"{normalizedPath}|{tint.ToArgb()}|{opacity}|{size.Width}x{size.Height}";
         }
 
         public static void PaintDisabled(Graphics g, Rectangle bounds, string imagePath, Color disabledBackColor)
@@ -911,17 +914,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
         private static ImagePainter GetOrCreatePainter(string imagePath)
         {
-            if (_painterCache.TryGetValue(imagePath, out var existing)) return existing;
+            string normalizedPath = NormalizeImagePath(imagePath);
+            if (_painterCache.TryGetValue(normalizedPath, out var existing)) return existing;
 
-            var painter = new ImagePainter(imagePath);
+            var painter = new ImagePainter(normalizedPath);
             if (!painter.HasImage)
             {
                 try
                 {
-                    bool looksLikePath = imagePath.Contains("/") || imagePath.Contains("\\") || Path.GetExtension(imagePath).Length > 0;
+                    bool looksLikePath = normalizedPath.Contains("/") || normalizedPath.Contains("\\") || Path.GetExtension(normalizedPath).Length > 0;
                     if (!looksLikePath)
                     {
-                        string mapped = ImageManagement.ImageListHelper.GetImagePathFromName(imagePath);
+                        string mapped = ImageManagement.ImageListHelper.GetImagePathFromName(normalizedPath);
                         if (!string.IsNullOrEmpty(mapped))
                         {
                             painter.ImagePath = mapped;
@@ -933,37 +937,83 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
             if (!painter.HasImage) return null;
 
-            _painterCache.TryAdd(imagePath, painter);
+            _painterCache.TryAdd(normalizedPath, painter);
             return painter;
         }
 
         private static Image LoadImage(string imagePath)
         {
-            if (_imageCache.TryGetValue(imagePath, out var cached)) return cached;
+            string normalizedPath = NormalizeImagePath(imagePath);
+            if (_imageCache.TryGetValue(normalizedPath, out var cached)) return cached;
 
             try
             {
-                if (File.Exists(imagePath))
+                if (File.Exists(normalizedPath))
                 {
-                    Image image = Image.FromFile(imagePath);
-                    _imageCache.TryAdd(imagePath, image);
+                    Image image = Image.FromFile(normalizedPath);
+                    _imageCache.TryAdd(normalizedPath, image);
                     return image;
                 }
 
-                bool looksLikePath = imagePath.Contains("/") || imagePath.Contains("\\") || Path.GetExtension(imagePath).Length > 0;
+                if (LooksLikeEmbeddedResourcePath(normalizedPath))
+                {
+                    var (isSvg, result) = ImageManagement.ImageLoader.LoadFromEmbeddedResource(normalizedPath);
+                    if (isSvg && result is Svg.SvgDocument svg)
+                    {
+                        Image rendered = svg.Draw();
+                        _imageCache.TryAdd(normalizedPath, rendered);
+                        return rendered;
+                    }
+                    if (!isSvg && result is Image embeddedImage)
+                    {
+                        _imageCache.TryAdd(normalizedPath, embeddedImage);
+                        return embeddedImage;
+                    }
+                }
+
+                bool looksLikePath = normalizedPath.Contains("/") || normalizedPath.Contains("\\") || Path.GetExtension(normalizedPath).Length > 0;
                 if (!looksLikePath)
                 {
-                    string mapped = ImageManagement.ImageListHelper.GetImagePathFromName(imagePath);
+                    string mapped = ImageManagement.ImageListHelper.GetImagePathFromName(normalizedPath);
                     if (!string.IsNullOrEmpty(mapped) && File.Exists(mapped))
                     {
                         Image image = Image.FromFile(mapped);
-                        _imageCache.TryAdd(imagePath, image);
+                        _imageCache.TryAdd(normalizedPath, image);
                         return image;
                     }
                 }
             }
             catch { }
             return null;
+        }
+
+        private static string NormalizeImagePath(string imagePath)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath))
+                return imagePath;
+
+            string trimmed = imagePath.Trim();
+
+            // Only normalize embedded resource-style paths.
+            if (trimmed.StartsWith("resource://", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("TheTechIdea.Beep.", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.Contains(".GFX.", StringComparison.OrdinalIgnoreCase))
+            {
+                return SvgResourcePathHelper.Normalize(trimmed);
+            }
+
+            return trimmed;
+        }
+
+        private static bool LooksLikeEmbeddedResourcePath(string imagePath)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath))
+                return false;
+
+            return imagePath.StartsWith("TheTechIdea.Beep.", StringComparison.OrdinalIgnoreCase) ||
+                   imagePath.Contains(".GFX.", StringComparison.OrdinalIgnoreCase) ||
+                   imagePath.Contains(".SVG.", StringComparison.OrdinalIgnoreCase) ||
+                   imagePath.Contains(".Icons.", StringComparison.OrdinalIgnoreCase);
         }
 
         public static void ClearCache()
@@ -985,17 +1035,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
         public static void RemoveFromCache(string imagePath)
         {
-            if (_imageCache.TryRemove(imagePath, out var img))
+            string normalizedPath = NormalizeImagePath(imagePath);
+
+            if (_imageCache.TryRemove(normalizedPath, out var img))
             {
                 try { img?.Dispose(); } catch { }
             }
 
-            if (_painterCache.TryRemove(imagePath, out var painter))
+            if (_painterCache.TryRemove(normalizedPath, out var painter))
             {
                 try { painter?.Dispose(); } catch { }
             }
 
-            RemoveTintedFromCache(imagePath);
+            RemoveTintedFromCache(normalizedPath);
         }
 
         /// <summary>

@@ -545,18 +545,18 @@ BeepTextBox provides several events for tracking user interaction:
 // Text change event
 textBox.TextChanged += (s, e) => 
 {
-    Console.WriteLine($"Text changed: {textBox.Text}");
+  //  Console.WriteLine($"Text changed: {textBox.Text}");
 };
 
 // Typing events (for real-time feedback)
 textBox.TypingStarted += (s, e) => 
 {
-    Console.WriteLine("User started typing");
+  //  Console.WriteLine("User started typing");
 };
 
 textBox.TypingStopped += (s, e) => 
 {
-    Console.WriteLine("User stopped typing");
+  //  Console.WriteLine("User stopped typing");
 };
 
 // Search triggered (when custom search logic is enabled)

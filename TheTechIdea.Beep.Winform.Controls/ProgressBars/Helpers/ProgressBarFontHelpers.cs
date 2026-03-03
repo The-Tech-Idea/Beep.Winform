@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 {
@@ -21,8 +23,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             ProgressBarDisplayMode displayMode,
             BeepControlStyle controlStyle)
         {
+            return GetProgressBarTextFont(progressBar, displayMode, controlStyle, null);
+        }
+
+        public static Font GetProgressBarTextFont(
+            BeepProgressBar progressBar,
+            ProgressBarDisplayMode displayMode,
+            BeepControlStyle controlStyle,
+            IBeepTheme theme)
+        {
             if (progressBar == null)
-                return BeepFontManager.DefaultFont;
+                return Control.DefaultFont;
+
+            if (theme?.ProgressBarFont != null)
+            {
+                return BeepThemesManager.ToFontForControl(theme.ProgressBarFont, progressBar);
+            }
 
             // Base size from ControlStyle
             float baseSize = StyleTypography.GetFontSize(controlStyle);
@@ -58,8 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             // Parse font family string (may contain fallbacks like "Roboto, Segoe UI")
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            // Use BeepFontManager to get the font
-            return BeepFontManager.GetFont(primaryFont, textSize, fontStyle);
+            return BeepThemesManager.ToFont(primaryFont, textSize, FontWeight.Regular, fontStyle);
         }
 
         /// <summary>
@@ -70,8 +85,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepProgressBar progressBar,
             BeepControlStyle controlStyle)
         {
+            return GetProgressBarPercentageFont(progressBar, controlStyle, null);
+        }
+
+        public static Font GetProgressBarPercentageFont(
+            BeepProgressBar progressBar,
+            BeepControlStyle controlStyle,
+            IBeepTheme theme)
+        {
             if (progressBar == null)
-                return BeepFontManager.DefaultFont;
+                return Control.DefaultFont;
+
+            if (theme?.ProgressBarFont != null)
+            {
+                return BeepThemesManager.ToFontForControl(theme.ProgressBarFont, progressBar);
+            }
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float percentageSize = Math.Max(8f, baseSize - 1f);
@@ -82,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, percentageSize, FontStyle.Regular);
+            return BeepThemesManager.ToFont(primaryFont, percentageSize, FontWeight.Regular, FontStyle.Regular);
         }
 
         /// <summary>
@@ -92,8 +120,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepProgressBar progressBar,
             BeepControlStyle controlStyle)
         {
+            return GetProgressBarLabelFont(progressBar, controlStyle, null);
+        }
+
+        public static Font GetProgressBarLabelFont(
+            BeepProgressBar progressBar,
+            BeepControlStyle controlStyle,
+            IBeepTheme theme)
+        {
             if (progressBar == null)
-                return BeepFontManager.DefaultFont;
+                return Control.DefaultFont;
+
+            if (theme?.ProgressBarFont != null)
+            {
+                return BeepThemesManager.ToFontForControl(theme.ProgressBarFont, progressBar);
+            }
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float labelSize = Math.Max(8f, baseSize - 0.5f);
@@ -104,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, labelSize, FontStyle.Regular);
+            return BeepThemesManager.ToFont(primaryFont, labelSize, FontWeight.Regular, FontStyle.Regular);
         }
 
         /// <summary>
@@ -115,8 +156,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepProgressBar progressBar,
             BeepControlStyle controlStyle)
         {
+            return GetProgressBarFont(progressBar, controlStyle, null);
+        }
+
+        public static Font GetProgressBarFont(
+            BeepProgressBar progressBar,
+            BeepControlStyle controlStyle,
+            IBeepTheme theme)
+        {
             if (progressBar == null)
-                return BeepFontManager.DefaultFont;
+                return Control.DefaultFont;
+
+            if (theme?.ProgressBarFont != null)
+            {
+                return BeepThemesManager.ToFontForControl(theme.ProgressBarFont, progressBar);
+            }
 
             // Use ControlStyle-based font
             float fontSize = StyleTypography.GetFontSize(controlStyle);
@@ -127,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             // Adjust for bar size
             fontSize = AdjustSizeForBarSize(fontSize, progressBar.BarSize);
 
-            return BeepFontManager.GetFont(primaryFont, fontSize, fontStyle);
+            return BeepThemesManager.ToFont(primaryFont, fontSize, FontWeight.Regular, fontStyle);
         }
 
         /// <summary>
@@ -139,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepControlStyle controlStyle)
         {
             if (progressBar == null)
-                return BeepFontManager.DefaultFont;
+                return Control.DefaultFont;
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             float compactSize = Math.Max(7f, baseSize - 2f); // Smaller for compact
@@ -147,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, compactSize, FontStyle.Regular);
+            return BeepThemesManager.ToFont(primaryFont, compactSize, FontWeight.Regular, FontStyle.Regular);
         }
 
         /// <summary>
@@ -158,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepControlStyle controlStyle)
         {
             if (progressBar == null)
-                return BeepFontManager.DefaultFont;
+                return Control.DefaultFont;
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
             
@@ -168,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
 
-            return BeepFontManager.GetFont(primaryFont, baseSize, FontStyle.Bold);
+            return BeepThemesManager.ToFont(primaryFont, baseSize, FontWeight.Bold, FontStyle.Bold);
         }
 
         /// <summary>
@@ -244,6 +298,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             BeepProgressBar progressBar,
             BeepControlStyle controlStyle)
         {
+            ApplyFontTheme(progressBar, controlStyle, null);
+        }
+
+        public static void ApplyFontTheme(
+            BeepProgressBar progressBar,
+            BeepControlStyle controlStyle,
+            IBeepTheme theme)
+        {
             if (progressBar == null)
                 return;
 
@@ -251,7 +313,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             Font newFont = GetProgressBarTextFont(
                 progressBar, 
                 progressBar.VisualMode, 
-                controlStyle);
+                controlStyle,
+                theme);
 
             // Update control font if different
             if (progressBar.TextFont != newFont && newFont != null)

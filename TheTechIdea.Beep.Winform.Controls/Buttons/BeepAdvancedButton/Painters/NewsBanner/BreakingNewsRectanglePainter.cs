@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.NewsBanner
 {
@@ -11,13 +12,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
     /// </summary>
     public class BreakingNewsRectanglePainter : BaseButtonPainter
     {
+        private const float BadgePaddingScale = 0.55f;
+
         public override void Paint(AdvancedButtonPaintContext context)
         {
             Graphics g = context.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var metrics = GetMetrics(context);
             Rectangle bounds = context.Bounds;
 
             // Split text
@@ -26,11 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             string mainText = parts[1]; // Description
 
             // Measure badge width
-            int badgeWidth = MeasureTextWidth(g, badgeText, context.Font) + 30;
+            int badgePadding = Math.Max(18, (int)Math.Round(bounds.Height * BadgePaddingScale));
+            int badgeWidth = MeasureTextWidth(badgeText, context.TextFont) + badgePadding;
+            int sectionInset = Math.Max(8, (int)Math.Round(bounds.Height * 0.22f));
 
             // Colors
             Color badgeColor = context.SolidBackground;
-            Color mainColor = context.SecondaryColor != null && context.SecondaryColor != Color.Empty
+            Color mainColor = context.SecondaryColor != Color.Empty
                 ? context.SecondaryColor
                 : Color.White;
 
@@ -55,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw badge text
             using (Brush badgeTextBrush = new SolidBrush(Color.White))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -67,15 +71,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             if (!string.IsNullOrEmpty(mainText))
             {
                 Rectangle textBounds = new Rectangle(
-                    mainBounds.X + metrics.PaddingHorizontal,
+                    mainBounds.X + sectionInset,
                     mainBounds.Y,
-                    mainBounds.Width - metrics.PaddingHorizontal * 2,
+                    mainBounds.Width - (sectionInset * 2),
                     mainBounds.Height
                 );
 
                 Color textColor = mainColor == Color.White ? badgeColor : Color.White;
                 using (Brush textBrush = new SolidBrush(textColor))
-                using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+                using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
                 using (StringFormat format = new StringFormat())
                 {
                     format.Alignment = StringAlignment.Near;
@@ -114,12 +118,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             return new[] { text, "" };
         }
 
-        private int MeasureTextWidth(Graphics g, string text, Font font)
+        private int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
-            SizeF size = g.MeasureString(text, new Font(font, FontStyle.Bold));
-            return (int)size.Width;
+            using Font boldFont = GetDerivedTextFont(font, styleOverride: FontStyle.Bold);
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text, boldFont);
         }
     }
 }

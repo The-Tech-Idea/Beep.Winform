@@ -41,22 +41,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _messageFont?.Dispose(); } catch { }
-            try { _actionFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 13f, FontStyle.Bold);
-            _messageFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _actionFont = new Font(fontFamily, 9f, FontStyle.Bold);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_titleFont = titleFont;
+            _messageFont = bodyFont;
+            _actionFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
@@ -245,13 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _messageFont?.Dispose();
-            _actionFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

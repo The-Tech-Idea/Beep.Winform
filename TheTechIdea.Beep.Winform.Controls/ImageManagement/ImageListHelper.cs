@@ -136,7 +136,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
                     //        }
                     //        else
                     //        {
-                    //            Console.WriteLine($"File not found: {iconPath}");
+                    //          //  Console.WriteLine($"File not found: {iconPath}");
                     //        }
                     //    }
                     //}
@@ -535,7 +535,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error reading .resx: {ex.Message}");
+              //  Console.WriteLine($"Error reading .resx: {ex.Message}");
             }
 
             return results;
@@ -621,7 +621,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
                 catch (Exception ex)
                 {
                     // Log or handle exceptions (e.g., file not found, invalid format, etc.)
-                    Console.WriteLine($"Failed to load or process image for {cfg.Name}: {ex.Message}");
+                  //  Console.WriteLine($"Failed to load or process image for {cfg.Name}: {ex.Message}");
                 }
             }
 
@@ -917,7 +917,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LoadImageFromConfigAsync error: {ex.Message}");
+              //  Console.WriteLine($"LoadImageFromConfigAsync error: {ex.Message}");
                 return null;
             }
         }

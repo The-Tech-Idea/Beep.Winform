@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -189,7 +190,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 var text = owner.TextToDrawAccessor;
                 if (!string.IsNullOrEmpty(text))
                 {
-                    using var font = owner.TextFont ?? new System.Drawing.Font("Segoe UI", 10f, System.Drawing.FontStyle.Regular);
+                    var font = owner.TextFont ?? BeepThemesManager.ToFont(
+                        theme.FontFamily,
+                        10f,
+                        FontWeight.Regular,
+                        System.Drawing.FontStyle.Regular);
                     var sz = TextUtils.MeasureText(g, text, font);
                     if (sz.Width <= rect.Width - 4 && sz.Height <= rect.Height - 2)
                     {
@@ -214,6 +219,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                         
                         using var tb = new SolidBrush(textColor);
                         g.DrawString(text, font, tb, pt);
+                    }
+
+                    if (owner.TextFont == null)
+                    {
+                        font.Dispose();
                     }
                 }
             }

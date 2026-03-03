@@ -636,10 +636,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
          //  ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer")
-        //    Console.WriteLine("Applying theme to BeepDisplayContainer");
+        //  //  Console.WriteLine("Applying theme to BeepDisplayContainer");
          //   base.ApplyTheme();
          //  ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 1");
-          //  Console.WriteLine("Applying theme to BeepDisplayContainer 1");
+          ////  Console.WriteLine("Applying theme to BeepDisplayContainer 1");
 
        //     // Apply theme to single panel addin if present
        //     if (_singlePanelAddin != null)
@@ -656,7 +656,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        //     }
 
        ////    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 2");
-       ////     Console.WriteLine("Applying theme to BeepDisplayContainer 2");
+       ////   //  Console.WriteLine("Applying theme to BeepDisplayContainer 2");
        //     // Apply theme to all addins in _controls
        //     foreach (var entry in _controls)
        //     {
@@ -674,7 +674,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        //     }
 
        //    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 3");
-       //     Console.WriteLine("Applying theme to BeepDisplayContainer 3");
+       //   //  Console.WriteLine("Applying theme to BeepDisplayContainer 3");
             // Set background color for the container
             ContainerPanel.BackColor = _currentTheme.BackgroundColor;
             

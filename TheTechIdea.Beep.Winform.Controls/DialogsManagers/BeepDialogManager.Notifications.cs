@@ -18,6 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
     /// </summary>
     public partial class BeepDialogManager
     {
+        private readonly Dictionary<Form, ToastPosition> _toastPositions = new();
+
         #region Toast Types and Positions
 
         /// <summary>
@@ -186,7 +188,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var iconLabel = new Label
             {
                 Text = GetToastIconChar(type),
-                Font = GetNotificationIconFont(16f),
                 ForeColor = colors.Icon,
                 Location = new Point(16, 18),
                 Size = new Size(24, 24),
@@ -197,7 +198,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var messageLabel = new Label
             {
                 Text = message,
-                Font = GetNotificationBodyFont(),
                 ForeColor = colors.Foreground,
                 Location = new Point(48, 8),
                 Size = new Size(256, 44),
@@ -207,6 +207,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             contentPanel.Controls.Add(iconLabel);
             contentPanel.Controls.Add(messageLabel);
             toast.Controls.Add(contentPanel);
+
+            var timerBar = new Panel
+            {
+                Name = "ToastTimerBar",
+                Dock = DockStyle.Bottom,
+                Height = 3,
+                BackColor = colors.Icon
+            };
+            toast.Controls.Add(timerBar);
 
             // Paint rounded background
             toast.Paint += (s, e) =>
@@ -244,7 +253,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var messageLabel = new Label
             {
                 Text = message,
-                Font = GetNotificationBodyFont(),
                 ForeColor = Color.White,
                 Location = new Point(16, 0),
                 Size = new Size(actionText != null ? 280 : 360, 48),
@@ -258,7 +266,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 var actionButton = new Label
                 {
                     Text = actionText,
-                    Font = GetNotificationActionFont(),
                     ForeColor = Color.FromArgb(100, 180, 255),
                     Location = new Point(300, 0),
                     Size = new Size(80, 48),
@@ -302,7 +309,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var iconLabel = new Label
             {
                 Text = GetToastIconChar(type),
-                Font = GetNotificationIconFont(14f),
                 ForeColor = colors.Icon,
                 Location = new Point(16, 10),
                 Size = new Size(24, 24),
@@ -313,7 +319,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var messageLabel = new Label
             {
                 Text = message,
-                Font = GetNotificationBodyFont(),
                 ForeColor = colors.Foreground,
                 Location = new Point(48, 0),
                 Size = new Size(banner.Width - 100, 44),
@@ -330,7 +335,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 var dismissButton = new Label
                 {
                     Text = "✕",
-                    Font = GetNotificationActionFont(12f, FontStyle.Regular),
                     ForeColor = colors.Foreground,
                     Location = new Point(banner.Width - 40, 10),
                     Size = new Size(24, 24),
@@ -357,7 +361,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             lock (_toastLock)
             {
+                while (_activeToasts.Count >= Math.Max(1, _options.MaxVisibleToasts))
+                {
+                    var oldest = _activeToasts[0];
+                    _activeToasts.RemoveAt(0);
+                    _toastPositions.Remove(oldest);
+                    if (!oldest.IsDisposed)
+                    {
+                        oldest.Close();
+                        oldest.Dispose();
+                    }
+                }
                 _activeToasts.Add(toast);
+                _toastPositions[toast] = position;
             }
 
             toast.Show();
@@ -380,6 +396,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             // Auto-dismiss
             if (durationMs > 0)
             {
+                var timerBar = toast.Controls["ToastTimerBar"];
+                int elapsed = 0;
+                var progressTimer = new Timer { Interval = 30 };
+                progressTimer.Tick += (s, e) =>
+                {
+                    elapsed += progressTimer.Interval;
+                    if (timerBar != null && !toast.IsDisposed)
+                    {
+                        double remaining = Math.Max(0d, 1d - (elapsed / (double)durationMs));
+                        timerBar.Width = (int)Math.Round(toast.ClientSize.Width * remaining);
+                    }
+                    if (elapsed >= durationMs)
+                    {
+                        progressTimer.Stop();
+                        progressTimer.Dispose();
+                    }
+                };
+                progressTimer.Start();
+
                 var dismissTimer = new Timer { Interval = durationMs };
                 dismissTimer.Tick += (s, e) =>
                 {
@@ -410,10 +445,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     lock (_toastLock)
                     {
                         _activeToasts.Remove(toast);
+                        _toastPositions.Remove(toast);
                     }
 
                     toast.Close();
                     toast.Dispose();
+                    RepositionToasts();
                 }
                 else
                 {
@@ -436,7 +473,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             int stackOffset = 0;
             lock (_toastLock)
             {
-                stackOffset = _activeToasts.Count * (toast.Height + 8);
+                int samePositionIndex = 0;
+                foreach (var existing in _activeToasts)
+                {
+                    if (existing == toast)
+                    {
+                        break;
+                    }
+                    if (_toastPositions.TryGetValue(existing, out var existingPosition) && existingPosition == position)
+                    {
+                        samePositionIndex++;
+                    }
+                }
+                stackOffset = samePositionIndex * (toast.Height + 8);
             }
 
             toast.Location = position switch
@@ -449,6 +498,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 ToastPosition.BottomRight => new Point(workingArea.Right - toast.Width - margin, workingArea.Bottom - toast.Height - margin - stackOffset),
                 _ => new Point(workingArea.Right - toast.Width - margin, workingArea.Top + margin + stackOffset)
             };
+        }
+
+        private void RepositionToasts()
+        {
+            lock (_toastLock)
+            {
+                foreach (var toast in _activeToasts)
+                {
+                    if (!toast.IsDisposed && _toastPositions.TryGetValue(toast, out var position))
+                    {
+                        PositionToast(toast, position);
+                    }
+                }
+            }
         }
 
         #endregion
@@ -564,8 +627,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region IDialogManager Implementation (Notifications)
 
-        void IDialogManager.ShowToast(string message, int durationMs, string? icon)
+        async Task IDialogManager.ShowToastAsync(string message, int durationMs, string? icon, System.Threading.CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var type = icon?.ToLower() switch
             {
                 "success" => ToastType.Success,
@@ -574,6 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _ => ToastType.Info
             };
             Toast(message, type, durationMs);
+            await Task.CompletedTask;
         }
 
         #endregion

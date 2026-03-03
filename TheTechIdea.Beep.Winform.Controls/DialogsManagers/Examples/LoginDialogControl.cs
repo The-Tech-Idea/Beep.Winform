@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
@@ -11,12 +13,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
     /// </summary>
     public class LoginDialogControl : UserControl
     {
-        private Label lblUsername;
-        private Label lblPassword;
-        private TextBox txtUsername;
-        private TextBox txtPassword;
-        private CheckBox chkRememberMe;
-        private Label lblError;
+        private BeepLabel lblUsername;
+        private BeepLabel lblPassword;
+        private BeepTextBox txtUsername;
+        private BeepTextBox txtPassword;
+        private BeepCheckBox<Boolean> chkRememberMe;
+        private BeepLabel lblError;
 
         #region Properties
 
@@ -33,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
         /// <summary>
         /// Whether user wants to be remembered
         /// </summary>
-        public bool RememberMe => chkRememberMe.Checked;
+        public bool RememberMe => chkRememberMe.CheckedValue;
 
         #endregion
 
@@ -45,61 +47,61 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
         private void InitializeComponent()
         {
             // Username Label
-            lblUsername = new Label
+            lblUsername = new BeepLabel
             {
                 Text = "Username:",
                 Location = new Point(10, 10),
                 Size = new Size(280, 20),
-                Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+                UseThemeColors = true
             };
 
             // Username TextBox
-            txtUsername = new TextBox
+            txtUsername = new BeepTextBox
             {
                 Location = new Point(10, 35),
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 10F),
-                TabIndex = 0
+                TabIndex = 0,
+                UseThemeColors = true
             };
 
             // Password Label
-            lblPassword = new Label
+            lblPassword = new BeepLabel
             {
                 Text = "Password:",
                 Location = new Point(10, 70),
                 Size = new Size(280, 20),
-                Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+                UseThemeColors = true
             };
 
             // Password TextBox
-            txtPassword = new TextBox
+            txtPassword = new BeepTextBox
             {
                 Location = new Point(10, 95),
                 Size = new Size(280, 24),
                 UseSystemPasswordChar = true,
-                Font = new Font("Segoe UI", 10F),
-                TabIndex = 1
+                TabIndex = 1,
+                UseThemeColors = true
             };
 
             // Remember Me Checkbox
-            chkRememberMe = new CheckBox
+            chkRememberMe = new BeepCheckBox<Boolean>
             {
                 Text = "Remember me",
                 Location = new Point(10, 130),
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 9F),
-                TabIndex = 2
+                TabIndex = 2,
+                UseThemeColors = true
             };
 
             // Error Label
-            lblError = new Label
+            lblError = new BeepLabel
             {
                 Text = "",
                 Location = new Point(10, 160),
                 Size = new Size(280, 40),
-                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
                 ForeColor = Color.FromArgb(220, 53, 69),
-                Visible = false
+                Visible = false,
+                UseThemeColors = true
             };
 
             // Add controls
@@ -175,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
         {
             txtUsername.Clear();
             txtPassword.Clear();
-            chkRememberMe.Checked = false;
+            chkRememberMe.CheckedValue = false;
             HideError();
         }
     }

@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 if (topGlowHeight > 5)
                 {
                     var topGlowRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, topGlowHeight);
-                    var pinkGlow = PaintersFactory.GetLinearGradientBrush(
+                    using var pinkGlow = PaintersFactory.CreateLinearGradientBrush(
                         topGlowRect, 
                         Color.FromArgb(35, 255, 0, 150), 
                         Color.FromArgb(0, 255, 0, 150), 
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 if (leftGlowWidth > 5)
                 {
                     var leftGlowRect = new RectangleF(bounds.Left, bounds.Top, leftGlowWidth, bounds.Height);
-                    var cyanGlow1 = PaintersFactory.GetLinearGradientBrush(
+                    using var cyanGlow1 = PaintersFactory.CreateLinearGradientBrush(
                         leftGlowRect, 
                         Color.FromArgb(25, 0, 255, 255), 
                         Color.FromArgb(0, 0, 255, 255), 

@@ -1,6 +1,8 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.NewsBanner
 {
@@ -26,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             string section2Text = parts[1]; // FAKE NEWS
 
             // Measure section 1 width
-            int section1Width = string.IsNullOrEmpty(section1Text) ? 0 : MeasureTextWidth(g, section1Text, context.Font) + 30;
+            int section1Width = string.IsNullOrEmpty(section1Text) ? 0 : MeasureTextWidth(section1Text, context.TextFont) + 30;
             int chevronWidth = 40;
 
             // Colors
@@ -46,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
                 // Draw section 1 text
                 using (Brush text1Brush = new SolidBrush(Color.White))
-                using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+                using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
                 using (StringFormat format = new StringFormat())
                 {
                     format.Alignment = StringAlignment.Center;
@@ -87,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             Color textColor = section2Color.GetBrightness() > 0.5f ? Color.Black : Color.White;
             using (Brush textBrush = new SolidBrush(textColor))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Near;
@@ -106,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                     (int)(bounds.Height * 0.3)
                 );
 
-                using (Font smallFont = new Font(context.Font.FontFamily, context.Font.Size * 0.65f))
+                using (Font smallFont = GetDerivedTextFont(context, sizeScale: 0.65f))
                 using (Brush labelBrush = new SolidBrush(textColor))
                 using (StringFormat format = new StringFormat())
                 {
@@ -132,12 +134,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             return new[] { "", text, "" };
         }
 
-        private int MeasureTextWidth(Graphics g, string text, Font font)
+        private int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
-            SizeF size = g.MeasureString(text, new Font(font, FontStyle.Bold));
-            return (int)size.Width;
+            using Font boldFont = GetDerivedTextFont(font, styleOverride: FontStyle.Bold);
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text, boldFont);
         }
     }
 }

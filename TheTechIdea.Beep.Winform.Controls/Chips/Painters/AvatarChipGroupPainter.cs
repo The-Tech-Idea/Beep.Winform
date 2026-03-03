@@ -6,9 +6,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 
@@ -22,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private readonly BeepImage _iconRenderer = new BeepImage();
         private readonly StringFormat _centerFormat = new StringFormat
         {
             Alignment = StringAlignment.Center,
@@ -115,11 +111,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 bounds.Top + (bounds.Height - avatarSize) / 2,
                 avatarSize, avatarSize);
 
-            DrawAvatar(g, avatarRect, item, state.IsSelected, scale);
+            bool showLeadingAvatarImage = options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath);
+            DrawAvatar(g, avatarRect, item, state.IsSelected, scale, showLeadingAvatarImage);
             leftOffset += avatarSize + DpiScalingHelper.ScaleValue(6, scale);
 
             // Selection badge on avatar
-            if (state.IsSelected)
+            if (options.ShowSelectionCheck && state.IsSelected)
             {
                 int badgeSize = avatarSize / 3;
                 var badgeRect = new Rectangle(
@@ -162,26 +159,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         #region Private Helpers
 
-        private void DrawAvatar(Graphics g, Rectangle rect, SimpleItem item, bool isSelected, float scale)
+        private void DrawAvatar(Graphics g, Rectangle rect, SimpleItem item, bool isSelected, float scale, bool showLeadingAvatarImage)
         {
-            using var clipPath = new GraphicsPath();
-            clipPath.AddEllipse(rect);
-
             // Check if item has an image
-            bool hasImage = !string.IsNullOrEmpty(item?.ImagePath);
+            bool hasImage = showLeadingAvatarImage;
 
             if (hasImage)
             {
-                try
-                {
-                    // Draw circular avatar image
-                    StyledImagePainter.Paint(g, clipPath, item.ImagePath);
-                }
-                catch
-                {
-                    // Fallback to initials
-                    DrawInitialsAvatar(g, rect, item);
-                }
+                var iconRect = ChipIconHelpers.CalculateChipIconBounds(rect, ChipSize.Large, true);
+                ChipIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    item.ImagePath,
+                    Color.White,
+                    _theme,
+                    false,
+                    ChipVariant.Filled,
+                    ChipColor.Default,
+                    isSelected,
+                    false,
+                    _owner.ControlStyle);
             }
             else
             {

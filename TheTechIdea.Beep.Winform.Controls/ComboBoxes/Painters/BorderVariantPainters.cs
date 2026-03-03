@@ -33,56 +33,68 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 pen.Dispose();
             }
         }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
+
+        protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
         {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            return path;
+            if (buttonRect.IsEmpty) return;
+
+            // Gradient-fade separator for the smooth aesthetic (instead of a hard line)
+            int margin = ScaleY(8);
+            int sepHeight = Math.Max(1, buttonRect.Height - margin * 2);
+            if (sepHeight > 0)
+            {
+                Color sepColor = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.BorderColor ?? Color.Empty, 100);
+                if (sepColor != Color.Empty && sepColor.A > 0)
+                {
+                    using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(
+                        new Rectangle(buttonRect.Left, buttonRect.Top + margin, 1, sepHeight),
+                        Color.Transparent, sepColor,
+                        System.Drawing.Drawing2D.LinearGradientMode.Vertical))
+                    {
+                        g.FillRectangle(brush, buttonRect.Left, buttonRect.Top + margin, 1, sepHeight);
+                    }
+                }
+            }
+
+            DrawDropdownArrow(g, buttonRect, GetArrowColor(), _owner.IsDropdownOpen);
         }
     }
-    
+
     /// <summary>
     /// Dark themed dropdown with prominent borders
     /// </summary>
     internal class DarkBorderPainter : BaseComboBoxPainter
     {
-      
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
             Color borderColor = Color.FromArgb(80, 80, 80);
             var pen = PaintersFactory.GetPen(borderColor, 2f);
             g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
         }
-        
+
         protected override void DrawText(Graphics g, Rectangle textAreaRect)
         {
             if (textAreaRect.IsEmpty) return;
             string displayText = _helper.GetDisplayText();
             if (string.IsNullOrEmpty(displayText)) return;
-            
-            // Use muted color for placeholder text
-            Color textColor;
-            if (_helper.IsShowingPlaceholder())
-            {
-                textColor = Color.FromArgb(128, 200, 200, 200);
-            }
-            else
-            {
-                textColor = Color.White;
-            }
-            System.Windows.Forms.TextRenderer.DrawText(g, displayText, _owner.TextFont, 
-                textAreaRect, textColor, 
-                System.Windows.Forms.TextFormatFlags.Left | 
-                System.Windows.Forms.TextFormatFlags.VerticalCenter);
+
+            Color textColor = _helper.IsShowingPlaceholder()
+                ? Color.FromArgb(128, 200, 200, 200)
+                : (_theme?.ComboBoxForeColor != Color.Empty
+                    ? _theme.ComboBoxForeColor
+                    : Color.FromArgb(230, 230, 230));
+
+            Font textFont = _owner.TextFont
+                ?? BeepThemesManager.ToFont(_theme?.LabelFont)
+                ?? PaintersFactory.GetFont("Segoe UI", 9f, FontStyle.Regular);
+
+            System.Windows.Forms.TextRenderer.DrawText(g, displayText, textFont, textAreaRect, textColor,
+                System.Windows.Forms.TextFormatFlags.Left |
+                System.Windows.Forms.TextFormatFlags.VerticalCenter |
+                System.Windows.Forms.TextFormatFlags.EndEllipsis);
         }
     }
-    
+
     /// <summary>
     /// Pill-shaped dropdown with full rounded corners
     /// </summary>

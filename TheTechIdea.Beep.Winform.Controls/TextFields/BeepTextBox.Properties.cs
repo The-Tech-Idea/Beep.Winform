@@ -790,6 +790,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepImage BeepImage => _beepImage;
         
         private bool _imageVisible = false;

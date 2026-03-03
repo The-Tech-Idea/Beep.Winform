@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Svg;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ImageManagement;
 
@@ -28,6 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
         {
             if (string.IsNullOrWhiteSpace(path))
                 return path;
+
+            // Normalize separators and legacy prefixes (e.g. resource://)
+            path = SvgResourcePathHelper.Normalize(path);
 
             // Option 1: Handle strongly-typed static references from SvgsUI, Svgs, SvgsDatasources
             // These classes expose static readonly strings like "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.key.svg"
@@ -133,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
                 return false;
 
             // Normalize the path by replacing slashes with dots (CASE-INSENSITIVE comparison)
-            string normalizedPath = path.Trim().Replace("\\", ".").Replace("/", ".");
+            string normalizedPath = SvgResourcePathHelper.Normalize(path);
 
             // Check all loaded assemblies for matching embedded resources (CASE-INSENSITIVE)
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -234,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
                 string? matchedResource = null;
 
                 // Normalize resource path (remove starting dots or extra spaces)
-                string normalizedResourcePath = resourcePath.Trim().Replace("\\", ".").Replace("/", ".");
+                string normalizedResourcePath = SvgResourcePathHelper.Normalize(resourcePath);
 
                 // Debug output - list similar resources if not found
                 var allSvgs = new List<string>();

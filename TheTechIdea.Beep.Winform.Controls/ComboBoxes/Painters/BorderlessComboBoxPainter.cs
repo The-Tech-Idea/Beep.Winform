@@ -34,9 +34,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
         {
             if (buttonRect.IsEmpty) return;
-            
-            // No separator - completely borderless -- use state-aware arrow coloring
-            DrawDropdownArrow(g, buttonRect, GetArrowColor());
+
+            // Subtle hover fill (no separator - completely borderless style)
+            if (_owner.IsButtonHovered && _owner.Enabled)
+            {
+                Color hoverFill = PathPainterHelpers.WithAlphaIfNotEmpty(
+                    _theme?.ComboBoxHoverBackColor != Color.Empty
+                        ? _theme.ComboBoxHoverBackColor
+                        : (_theme?.PrimaryColor ?? Color.Empty), 45);
+                if (hoverFill != Color.Empty && hoverFill.A > 0)
+                {
+                    using (var path = GetRoundedRectPath(Rectangle.Inflate(buttonRect, -ScaleX(1), -ScaleY(1)), ScaleX(3)))
+                        g.FillPath(PaintersFactory.GetSolidBrush(hoverFill), path);
+                }
+            }
+
+            DrawDropdownArrow(g, buttonRect, GetArrowColor(), _owner.IsDropdownOpen);
         }
         
         public override System.Windows.Forms.Padding GetPreferredPadding()

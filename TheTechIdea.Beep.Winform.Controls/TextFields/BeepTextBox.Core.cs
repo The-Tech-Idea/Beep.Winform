@@ -273,6 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _incrementalSearchTimer?.Dispose();
                 
                 _helper?.Dispose();
+                _helper = null;
                 
                 // Dispose fonts safely (don't dispose system/cached fonts)
                 if (_textFont != null && !IsSystemOrCachedFont(_textFont))

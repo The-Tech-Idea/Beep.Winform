@@ -14,9 +14,11 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
+            (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
+            int radius = Math.Max(6, bounds.Height / 4);
 
             // Paint background with rounded corners (iOS style - more rounded)
-            using (var path = CreateRoundedPath(bounds, 6))
+            using (var path = CreateRoundedPath(bounds, radius))
             {
                 using (var brush = new SolidBrush(bgColor))
                 {
@@ -28,6 +30,14 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 {
                     g.DrawPath(pen, path);
                 }
+
+                if (!state.IsDisabled)
+                {
+                    Rectangle glossRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, Math.Max(2, bounds.Height / 2));
+                    using var glossPath = CreateRoundedPath(glossRect, radius);
+                    using var glossBrush = new SolidBrush(Color.FromArgb(35, Color.White));
+                    g.FillPath(glossBrush, glossPath);
+                }
             }
 
             // Paint check mark or indeterminate mark
@@ -38,6 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             else if (state.IsIndeterminate)
             {
                 PaintIndeterminateMark(g, bounds, options);
+            }
+
+            if (state.IsFocused && !state.IsDisabled)
+            {
+                PaintFocusRing(g, bounds, options);
             }
         }
 

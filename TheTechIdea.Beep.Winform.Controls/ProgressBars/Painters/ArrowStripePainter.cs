@@ -18,10 +18,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             using var back = new SolidBrush(owner.BackColor);
             g.FillRectangle(back, rect);
 
-            int count = GetInt(p, "ArrowCount", 40);
             int gap = GetInt(p, "ArrowGap", 2);
             int skew = GetInt(p, "ArrowSkew", 8);
             Color baseColor = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
+            if (!owner.Enabled)
+            {
+                baseColor = Color.FromArgb(120, baseColor);
+            }
             var gradient = GetBool(p, "ArrowGradient", true);
 
             float pct = owner.DisplayProgressPercentageAccessor;
@@ -50,7 +53,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 x += skew + gap;
             }
 
-            using var borderPen = new Pen(theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor, 1);
+            var borderColor = theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor;
+            if (!owner.Enabled)
+            {
+                borderColor = Color.FromArgb(120, borderColor);
+            }
+            using var borderPen = new Pen(borderColor, 1);
             g.DrawRectangle(borderPen, rect);
         }
 

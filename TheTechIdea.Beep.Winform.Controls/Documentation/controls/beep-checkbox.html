@@ -445,7 +445,7 @@ checkBox.CheckState = checkBox.CheckState == CheckState.Checked
 
 // Handle checked state changes (boolean only)
 checkBox.CheckedChanged += (sender, e) => {
-    Console.WriteLine($"Checked: {checkBox.Checked}");
+  //  Console.WriteLine($"Checked: {checkBox.Checked}");
     UpdateRelatedControls(checkBox.Checked);
 };
 
@@ -454,20 +454,20 @@ checkBox.CheckStateChanged += (sender, e) => {
     switch (checkBox.CheckState)
     {
         case CheckState.Checked:
-            Console.WriteLine("Fully selected");
+          //  Console.WriteLine("Fully selected");
             break;
         case CheckState.Unchecked:
-            Console.WriteLine("Not selected");
+          //  Console.WriteLine("Not selected");
             break;
         case CheckState.Indeterminate:
-            Console.WriteLine("Partially selected");
+          //  Console.WriteLine("Partially selected");
             break;
     }
 };
 
 // Handle click events for custom logic
 checkBox.Click += (sender, e) => {
-    Console.WriteLine("CheckBox clicked");
+  //  Console.WriteLine("CheckBox clicked");
     // Perform custom validation or logging
 };</code></pre>
                     </div>

@@ -110,7 +110,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public void InvalidateLayout()
         {
             _layoutDirty = true;
-            // Force the BorderShape cache to regenerate on the next access
+            // Dispose the cached border path and force it to regenerate on the next access.
+            // Just clearing the cache keys (size/style) without disposing the old object
+            // leaks a GDI+ GraphicsPath handle every time the style or size changes.
+            if (_cachedBorderShape != null)
+            {
+                _cachedBorderShape.Dispose();
+                _cachedBorderShape = null;
+            }
             _cachedBorderShapeSize  = Size.Empty;
             _cachedBorderShapeStyle = (FormStyle)(-1);
         }
@@ -1029,7 +1036,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // but actions still work with our canonical "region:*" keys.
             string key = area.Name;
             
-            Debug.Print($"OnRegionClicked: {area.Name} -> {key}");
+            //Debug.Print($"OnRegionClicked: {area.Name} -> {key}");
 
             switch (key)
             {
@@ -1053,7 +1060,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "custom:action": key = "region:custom:action"; break;
             }
 
-            Debug.Print($"Normalized key: {key}");
+            //Debug.Print($"Normalized key: {key}");
 
             // Raise event for extensibility with the original name for consumers
             var regionData = area.Data as FormRegion;
@@ -1074,13 +1081,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     break;
 
                 case "region:system:close":
-                    Debug.Print($"Processing Close Action. ShowCloseButton: {ShowCloseButton}");
+                    //Debug.Print($"Processing Close Action. ShowCloseButton: {ShowCloseButton}");
                     if (!ShowCloseButton) return;
                     // Defer close to avoid reentrancy during mouse event processing
-                    Debug.Print("Invoking Close() via BeginInvoke...");
+                    //Debug.Print("Invoking Close() via BeginInvoke...");
                     BeginInvoke(new Action(() => 
                     {
-                        Debug.Print("Executing Close()...");
+                        //Debug.Print("Executing Close()...");
                         // Disable validation to prevent validation failures (e.g. from ComboBox) from blocking close
                         AutoValidate = AutoValidate.Disable;
                         _isForcedClose = true;

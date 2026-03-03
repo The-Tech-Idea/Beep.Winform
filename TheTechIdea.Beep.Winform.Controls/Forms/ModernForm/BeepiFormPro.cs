@@ -131,32 +131,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private void OnControlAddedDesignTime(object sender, ControlEventArgs e)
         {
-            // Hook events for the newly added control
-            HookChildEvents(e.Control);
-            
-            // Invalidate the form to repaint with the new control
-            if (InDesignModeSafe)
+            if (e?.Control == null)
+                return;
+
+            if (e.Control is BaseControl themedCtrl)
             {
-                this.Invalidate();
+                try
+                {
+                    var savedSize = themedCtrl.Size;
+                    themedCtrl.ControlStyle = BeepStyling.GetControlStyle(FormStyle);
+
+                    // Keep designer-authored size stable when style application adjusts chrome.
+                    if (themedCtrl.Size != savedSize)
+                    {
+                        themedCtrl.Size = savedSize;
+                    }
+
+                    themedCtrl.Invalidate();
+                }
+                catch
+                {
+                    // Design-time safe: avoid blocking control add transactions.
+                }
             }
+
+            // Hook events for the newly added control
+            try { HookChildEvents(e.Control); } catch { }
+
+            // Repaint after designer transaction completes
+            SafeInvalidateDesignSurface(includeChildren: true, immediate: false);
         }
 
         private void OnControlRemovedDesignTime(object sender, ControlEventArgs e)
         {
+            if (e?.Control == null)
+                return;
+
             // Unhook events from the removed control
-            UnhookChildEvents(e.Control);
+            try { UnhookChildEvents(e.Control); } catch { }
             
             // Remove from tracking dictionary
-            if (_controlLastBounds.ContainsKey(e.Control))
-            {
-                _controlLastBounds.Remove(e.Control);
-            }
+            _controlLastBounds.Remove(e.Control);
             
-            // Invalidate the form to repaint without the removed control
-            if (InDesignModeSafe)
-            {
-                this.Invalidate();
-            }
+            // Repaint after designer transaction completes
+            SafeInvalidateDesignSurface(includeChildren: true, immediate: false);
         }
 
         private System.Threading.Timer _designModeInvalidateTimer;
@@ -206,26 +224,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             // CRITICAL: When controls are moved/resized in design mode, repaint immediately
             // This ensures the form background is visible under the control as it moves
-            if (InDesignModeSafe && !IsDisposed && IsHandleCreated && sender is Control ctrl)
+            if (!InDesignModeSafe || IsDisposed || !IsHandleCreated || sender is not Control ctrl)
+                return;
+
+            if (ctrl.IsDisposed)
             {
-                // Get the old bounds if we have them
-                Rectangle oldBounds = Rectangle.Empty;
-                if (_controlLastBounds.ContainsKey(ctrl))
-                {
-                    oldBounds = _controlLastBounds[ctrl];
-                }
-                
-                // Get current bounds
-                Rectangle newBounds = ctrl.Bounds;
-                
-                // Update the tracked bounds
-                _controlLastBounds[ctrl] = newBounds;
-                
-                // CRITICAL: In design mode, force a FULL form refresh
-                // Partial invalidation doesn't work reliably in the designer
-                this.Invalidate(true); // Invalidate including children
-                this.Refresh(); // Force immediate synchronous repaint (stronger than Update())
+                _controlLastBounds.Remove(ctrl);
+                return;
             }
+
+            try
+            {
+                _controlLastBounds[ctrl] = ctrl.Bounds;
+            }
+            catch
+            {
+                _controlLastBounds.Remove(ctrl);
+                return;
+            }
+
+            // CRITICAL: In design mode, force a FULL form refresh
+            // Partial invalidation doesn't work reliably in the designer
+            SafeInvalidateDesignSurface(includeChildren: true, immediate: true);
         }
 
         private void OnChildControlFocusChanged(object sender, EventArgs e)
@@ -249,18 +269,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         {
                             BeginInvoke(new Action(() =>
                             {
-                                if (!IsDisposed && IsHandleCreated)
+                                try
                                 {
-                                    this.Invalidate();
-                                    this.Update();
+                                    if (!IsDisposed && IsHandleCreated)
+                                    {
+                                        this.Invalidate();
+                                        this.Update();
+                                    }
+                                }
+                                catch { }
+                                finally
+                                {
                                     _designModeInvalidatePending = false;
                                 }
                             }));
                         }
-                        catch { /* Form may be disposing */ }
+                        catch { _designModeInvalidatePending = false; /* Form may be disposing */ }
                     }
                 }, null, 50, System.Threading.Timeout.Infinite);
             }
+        }
+
+        private void SafeInvalidateDesignSurface(bool includeChildren, bool immediate)
+        {
+            if (!InDesignModeSafe || IsDisposed || !IsHandleCreated)
+                return;
+
+            try
+            {
+                BeginInvoke(new Action(() =>
+                {
+                    if (IsDisposed || !IsHandleCreated)
+                        return;
+
+                    try
+                    {
+                        if (includeChildren)
+                            Invalidate(true);
+                        else
+                            Invalidate();
+
+                        if (immediate)
+                            Update();
+                    }
+                    catch { }
+                }));
+            }
+            catch { }
         }
 
         private void OnChildControlPaint(object sender, PaintEventArgs e)
@@ -373,24 +428,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            Debug.Print($"OnFormClosing started. CloseReason: {e.CloseReason}, Cancel before: {e.Cancel}");
+            //Debug.Print($"OnFormClosing started. CloseReason: {e.CloseReason}, Cancel before: {e.Cancel}");
             
             // If the user explicitly clicked the close button, we force the close
             // overriding any hidden validation failures or previous states
             if (_isForcedClose)
             {
                 e.Cancel = false;
-                Debug.Print("Forced closing enabled. Reset e.Cancel to false.");
+                //Debug.Print("Forced closing enabled. Reset e.Cancel to false.");
             }
 
             // Raise PreClose event to allow consumers to cancel or prepare for close
             PreClose?.Invoke(this, e);
             
-            Debug.Print($"OnFormClosing after PreClose. Cancel: {e.Cancel}");
+            //Debug.Print($"OnFormClosing after PreClose. Cancel: {e.Cancel}");
 
             base.OnFormClosing(e);
 
-            Debug.Print($"OnFormClosing after base.OnFormClosing. Cancel: {e.Cancel}");
+            //Debug.Print($"OnFormClosing after base.OnFormClosing. Cancel: {e.Cancel}");
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
@@ -428,16 +483,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Note: We no longer clear the cache here - painters are reused across style changes
             // Only clear cache when theme changes (handled in Theme setter)
 
-            Invalidate();
+            Invalidate(true);
+            if (InDesignModeSafe)
+            {
+                SafeInvalidateDesignSurface(includeChildren: true, immediate: true);
+            }
         }
         private void ApplyStyletoChildControls()
         {
+            var mappedStyle = BeepStyling.GetControlStyle(FormStyle);
             foreach (Control ctrl in Controls)
             {
                 if (ctrl is BaseControl themedCtrl)
                 {
-
-                    themedCtrl.ControlStyle = BeepStyling.GetControlStyle(FormStyle);
+                    var savedSize = themedCtrl.Size;
+                    themedCtrl.ControlStyle = mappedStyle;
+                    if (themedCtrl.Size != savedSize)
+                    {
+                        themedCtrl.Size = savedSize;
+                    }
+                    themedCtrl.UpdateDrawingRect();
                 }
             }
         }

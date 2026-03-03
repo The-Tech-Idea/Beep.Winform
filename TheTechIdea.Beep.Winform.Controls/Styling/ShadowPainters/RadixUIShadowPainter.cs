@@ -18,8 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (g == null || path == null) return path;
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Radix UI uses subtle shadows for accessibility
-            return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 2, alpha: 25);
+            // Radix UI uses subtle shadows for accessibility - alpha 50 for visibility
+            return ShadowPainterHelpers.PaintSubtleShadow(g, path, radius, offsetY: 2, alpha: 50);
         }
     }
 }

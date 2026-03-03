@@ -478,7 +478,7 @@ progressBar.ValueChanged += (sender, e) => {
     var pb = sender as BeepProgressBar;
     double percentage = (double)pb.Value / pb.Maximum * 100;
     
-    Console.WriteLine($"Progress: {percentage:F1}%");
+  //  Console.WriteLine($"Progress: {percentage:F1}%");
     
     // Update UI based on progress
     if (percentage >= 50)
@@ -504,7 +504,7 @@ progressBar.ProgressCompleted += (sender, e) => {
 
 // Handle start
 progressBar.ProgressStarted += (sender, e) => {
-    Console.WriteLine("Progress started");
+  //  Console.WriteLine("Progress started");
     
     // Disable UI elements during progress
     DisableControls();

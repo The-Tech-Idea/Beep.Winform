@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 Color topColor = ColorAccessibilityHelper.LightenColor(fillColor, 0.02f);
                 Color bottomColor = ColorAccessibilityHelper.DarkenColor(fillColor, 0.02f);
-                var brush = PaintersFactory.GetLinearGradientBrush(
+                using var brush = PaintersFactory.CreateLinearGradientBrush(
                     bounds, topColor, bottomColor, LinearGradientMode.Vertical);
                 g.FillPath(brush, path);
             }

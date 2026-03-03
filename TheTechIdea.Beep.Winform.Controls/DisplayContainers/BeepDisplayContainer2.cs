@@ -69,6 +69,43 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private bool _batchMode = false;
         private int _batchUpdateDepth = 0;
 
+        // When true, tab strip height (or width for vertical) is derived from the
+        // actual font + padding metrics rather than the fixed _tabHeight value.
+        private bool _autoTabHeight = true;
+
+        // Scroll / utility button hover & press tracking.
+        // Values: 0 = none, 1 = scroll-left/up, 2 = scroll-right/down, 3 = new-tab button.
+        private int _hoveredScrollButton = 0;
+        private int _pressedScrollButton = 0;
+
+        // Sliding indicator transition: lerps the active-tab accent bar from the
+        // previously-active tab to the newly-active one over ~INDICATOR_ANIM_STEPS ticks.
+        private Rectangle _indicatorFrom  = Rectangle.Empty;
+        private Rectangle _indicatorTo    = Rectangle.Empty;
+        private float     _indicatorProgress = 1f; // 1 = settled; 0..1 = animating
+
+        // Empty-state placeholder shown when no tabs are open.
+        private string _emptyStateText = "No tabs open.\nClick + to add a new tab.";
+        private string _emptyStateIcon = "tab_placeholder"; // symbolic name — rendered as a simple drawn icon
+        private bool   _showEmptyState = true;
+
+        // ---- Enhancement 4: Keyboard navigation ----
+        private bool _enableKeyboardNav = true;
+
+        // ---- Enhancement 5: Drag-to-reorder tabs ----
+        // Dragging starts after the cursor moves more than _dragThreshold pixels.
+        private AddinTab? _dragTab         = null;
+        private Point     _dragStartPoint  = Point.Empty;
+        private Point     _dragGhostLoc    = Point.Empty;
+        private bool      _isDragging      = false;
+        private int       _dropInsertIndex = -1;
+        private const int _dragThreshold   = 5;
+
+        // ---- Enhancement 6: Gradient tab strip background ----
+        private bool  _useTabStripGradient     = false;
+        // Color.Empty = auto-derive a slightly darker shade from _tabBackColor.
+        private Color _tabStripGradientEndColor = Color.Empty;
+
         private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
 
         /// <summary>
@@ -85,7 +122,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 {
                     UpdateTabStyleFromControlStyle();
                     _lastControlStyle = value;
+                    // Update helpers immediately — do NOT rely on PropertyChanged which fires late.
+                    UpdateTabPainterStyle();
                     ApplyThemeColorsToTabs();
+                    // Propagation happens inside ApplyTheme() (called by the base class after the
+                    // setter) with a fully-refreshed _currentTheme.  Calling it here would push the
+                    // OLD theme to addins because _currentTheme has not been updated yet for the
+                    // new style — that is exactly what caused the double-click-to-update bug.
+                    // PropagateThemeToAddins() is therefore intentionally NOT called here.
+                    Invalidate();
                 }
             }
         }
@@ -143,10 +188,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                      ControlStyles.ResizeRedraw | 
                      ControlStyles.UserPaint | 
                      ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.OptimizedDoubleBuffer, true);
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.Selectable, true);  // P4: allow keyboard focus
             
             DoubleBuffered = true;
             UseExternalBufferedGraphics = true;
+            TabStop = true; // P4: allow Tab-key focus cycling
             
             // Enable high-quality rendering like BaseControl
             EnableHighQualityRendering = true;
@@ -246,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Update layout helper with new style and font for proper tab sizing
             if (_layoutHelper != null)
             {
-                _layoutHelper.UpdateStyle(ControlStyle, Font);
+                _layoutHelper.UpdateStyle(ControlStyle, TextFont);
             }
             
             // Recalculate layout with new metrics
@@ -294,80 +341,148 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         }
 
         /// <summary>
-        /// Applies the current theme to the container and tabs.
-        /// Follows BaseControl pattern for consistent theme application.
+        /// Applies the current theme to the container, tabs, and all hosted addin controls.
+        /// Does NOT call base.ApplyTheme() — the base implementation propagates a stale
+        /// snapshot to child controls before helpers are updated, forcing the double-set
+        /// workaround.  We replicate the needed base assignments here then do our own
+        /// full propagation to hosted addins.
         /// </summary>
         public override void ApplyTheme()
         {
-            // Call base.ApplyTheme() first for proper theme initialization (like BaseControl)
-            // This sets up _currentTheme and applies basic theme properties
-            base.ApplyTheme();
+            // --- 1. Ensure _currentTheme is current ---
+            // _currentTheme is set by the Theme property setter before ApplyTheme() is called,
+            // but guard defensively for direct calls (e.g. from InitializeContainer).
+            if (_currentTheme == null)
+            {
+                try
+                {
+                    _currentTheme = BeepThemesManager.GetTheme(BeepThemesManager.CurrentThemeName)
+                                    ?? BeepThemesManager.GetDefaultTheme();
+                }
+                catch
+                {
+                    _currentTheme = BeepThemesManager.GetDefaultTheme();
+                }
+            }
 
-            // Update tab painter with current theme and style
+            if (_currentTheme == null)
+            {
+                ApplyFallbackColors();
+                Invalidate();
+                return;
+            }
+
+            // --- 2. Replicate base BaseControl.ApplyTheme() property assignments ---
+            // (avoids calling base which propagates old snapshot to child controls)
+            try
+            {
+                ForeColor               = _currentTheme.ForeColor;
+                BorderColor             = _currentTheme.BorderColor;
+                ShadowColor             = _currentTheme.ShadowColor;
+                GradientStartColor      = _currentTheme.GradientStartColor;
+                GradientEndColor        = _currentTheme.GradientEndColor;
+                BadgeForeColor          = _currentTheme.BadgeForeColor;
+                BadgeBackColor          = _currentTheme.BadgeBackColor;
+                DisabledForeColor       = _currentTheme.DisabledForeColor;
+                DisabledBackColor       = _currentTheme.DisabledBackColor;
+                DisabledBorderColor     = _currentTheme.DisabledBorderColor;
+                UpdateTooltipTheme();
+            }
+            catch { /* non-fatal — continue with tab-specific updates */ }
+
+            // --- 3. Update tab helpers with latest theme + style ---
             var controlStyle = ControlStyle;
             if (_paintHelper == null)
             {
-                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground);
+                _paintHelper = new TabPaintHelper(_currentTheme, controlStyle, IsTransparentBackground) { OwnerControl = this };
             }
             else
             {
-                _paintHelper.ControlStyle = controlStyle;
+                _paintHelper.Theme         = _currentTheme;
+                _paintHelper.ControlStyle  = controlStyle;
                 _paintHelper.IsTransparent = IsTransparentBackground;
             }
-            // Ensure paint helper uses the selected tab style
-            _paintHelper.TabStyle = this.TabStyle;
+            _paintHelper.TabStyle = TabStyle;
 
-            if (_currentTheme != null)
+            // --- 4. Apply theme colors to tab strip ---
+            ApplyThemeColorsToTabs();
+
+            // --- 5. Set TextFont from theme.TabFont (authoritative tab typography) ---
+            // Uses the same BeepThemesManager.ToFont converter as DrawTab() so layout
+            // measurements and rendering are always consistent.
+            var tabTypography = _currentTheme.TabFont ?? _currentTheme.LabelFont;
+            if (tabTypography != null)
             {
-                // Apply theme colors to tabs (follows BaseControl pattern)
-                ApplyThemeColorsToTabs();
-
-                // Apply theme font if UseThemeFont is enabled (like BaseControl)
-                if (UseThemeFont && _currentTheme.LabelFont != null)
+                try
                 {
-                    try
-                    {
-                        TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
+                    var tabFont = BeepThemesManager.ToFont(tabTypography);
+                    if (tabFont != null)
+                        TextFont = tabFont;
+                }
+                catch { /* keep existing font on error */ }
+            }
 
-                        // Update layout helper with new font for proper tab sizing
-                        if (_layoutHelper != null)
-                        {
-                            _layoutHelper.UpdateStyle(ControlStyle, Font);
-                        }
+            // --- 6. Sync layout helper + recalculate ---
+            if (_layoutHelper != null)
+                _layoutHelper.UpdateStyle(controlStyle, TextFont);
+            RecalculateLayout();
 
-                        // Recalculate layout with new font metrics
-                        RecalculateLayout();
-                    }
-                    catch
-                    {
-                        // Keep existing font on error
-                    }
-                }
-
-                // Set background color based on theme and transparency setting
-                if (IsTransparentBackground)
-                {
-                    base.BackColor = Color.Transparent;
-                }
-                else if (IsChild && Parent != null)
-                {
-                    // Follow parent background when IsChild is true (like BaseControl)
-                    base.BackColor = Parent.BackColor;
-                }
-                else
-                {
-                    base.BackColor = _contentBackColor;
-                }
+            // --- 7. Set container background ---
+            if (IsTransparentBackground)
+            {
+                base.BackColor = Color.Transparent;
+            }
+            else if (IsChild && Parent != null)
+            {
+                base.BackColor = Parent.BackColor;
             }
             else
             {
-                // Fallback colors with modern defaults
-                ApplyFallbackColors();
+                base.BackColor = _contentBackColor;
             }
 
-            // Invalidate to trigger repaint with new theme
+            // --- 8. Propagate theme to every hosted addin ---
+            // This eliminates the need to set FormStyle/ControlStyle twice.
+            PropagateThemeToAddins();
+
+            // --- 9. Repaint ---
             Invalidate();
         }
+
+        /// <summary>
+        /// Pushes the current theme and control style to all hosted addin controls.
+        /// Called from ApplyTheme() and from ControlStyle setter so that a single
+        /// assignment is always sufficient.
+        /// </summary>
+        private void PropagateThemeToAddins()
+        {
+            if (_currentTheme == null) return;
+            var targetStyle = ControlStyle;
+            foreach (var addin in _addins.Values)
+            {
+                try
+                {
+                    // IBeepUIComponent exposes ApplyTheme(IBeepTheme) directly.
+                    // IMPORTANT: push ControlStyle FIRST so the addin's layout/rendering
+                    // style is updated before colours are applied.  Without this step the
+                    // addin would receive new theme colours but keep the old style, which
+                    // is the root cause of the "have to click twice" issue.
+                    if (addin is IBeepUIComponent uiComponent)
+                    {
+                        if (addin is BaseControl bc && bc.ControlStyle != targetStyle)
+                            bc.ControlStyle = targetStyle;
+
+                        uiComponent.ApplyTheme(_currentTheme);
+                    }
+                    else if (addin is Control ctrl)
+                    {
+                        ctrl.Invalidate(true);
+                    }
+                }
+                catch { /* don't let a single bad addin break the whole update */ }
+            }
+        }
+
         #endregion
 
         protected override void OnHandleCreated(EventArgs e)
@@ -395,11 +510,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
-            // Only handle hover animations, not transitions (to prevent crashes)
             if (_animationHelper != null)
             {
-                // Update hover animations only
+                // Update hover animations for all tabs.
                 _animationHelper.UpdateAnimations(_tabs, _animationSpeed);
+            }
+
+            // Advance the sliding-indicator animation.
+            if (_indicatorProgress < 1f)
+            {
+                // Speed: complete in ~200 ms at 60 FPS = ~12 ticks (step ≈ 0.083)
+                // Use a slightly eased step: faster at start, slower near end.
+                const float baseStep = 0.09f;
+                float remaining = 1f - _indicatorProgress;
+                float step = Math.Max(0.015f, baseStep * remaining / 0.5f + 0.01f);
+                _indicatorProgress = Math.Min(1f, _indicatorProgress + step);
+                // Only invalidate the tab strip area to avoid full redraws.
+                if (!_tabArea.IsEmpty)
+                    Invalidate(_tabArea);
+                else
+                    Invalidate();
             }
         }
         

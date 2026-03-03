@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -47,68 +48,71 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _nameFont?.Dispose(); } catch { }
-            try { _dateFont?.Dispose(); } catch { }
-            try { _reviewFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            try { _helpfulFont?.Dispose(); } catch { }
-            try { _quoteFont?.Dispose(); } catch { }
-            
-            _nameFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _dateFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _reviewFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _helpfulFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _quoteFont = new Font("Georgia", 36f, FontStyle.Bold);
+_nameFont = titleFont;
+            _dateFont = titleFont;
+            _reviewFont = bodyFont;
+            _badgeFont = captionFont;
+            _helpfulFont = bodyFont;
+            _quoteFont = titleFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int avatarSize = DpiScalingHelper.ScaleValue(AvatarSize, _owner);
+            int nameHeight = DpiScalingHelper.ScaleValue(NameHeight, _owner);
+            int dateHeight = DpiScalingHelper.ScaleValue(DateHeight, _owner);
+            int ratingWidth = DpiScalingHelper.ScaleValue(RatingWidth, _owner);
+            int ratingHeight = DpiScalingHelper.ScaleValue(RatingHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int reviewMinHeight = DpiScalingHelper.ScaleValue(ReviewMinHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int buttonWidth = DpiScalingHelper.ScaleValue(ButtonWidth, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // User avatar (top-left)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Top + Padding,
-                    AvatarSize,
-                    AvatarSize);
+                    drawingRect.Left + padding,
+                    drawingRect.Top + padding,
+                    avatarSize,
+                    avatarSize);
             }
             
             // User info area (right of avatar)
-            int infoLeft = drawingRect.Left + Padding + (ctx.ShowImage ? AvatarSize + ContentGap : 0);
-            int infoWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? AvatarSize + ContentGap : 0);
+            int infoLeft = drawingRect.Left + padding + (ctx.ShowImage ? avatarSize + contentGap : 0);
+            int infoWidth = drawingRect.Width - padding * 2 - (ctx.ShowImage ? avatarSize + contentGap : 0);
             
             // User name
             ctx.HeaderRect = new Rectangle(
                 infoLeft,
-                drawingRect.Top + Padding,
-                infoWidth - RatingWidth - ElementGap,
-                NameHeight);
+                drawingRect.Top + padding,
+                infoWidth - ratingWidth - elementGap,
+                nameHeight);
             
             // Review date
             ctx.SubtitleRect = new Rectangle(
                 infoLeft,
                 ctx.HeaderRect.Bottom + 2,
                 infoWidth / 2,
-                DateHeight);
+                dateHeight);
             
             // Star rating (top-right)
             if (ctx.ShowRating)
             {
                 ctx.RatingRect = new Rectangle(
-                    drawingRect.Right - Padding - RatingWidth,
-                    drawingRect.Top + Padding,
-                    RatingWidth,
-                    RatingHeight);
+                    drawingRect.Right - padding - ratingWidth,
+                    drawingRect.Top + padding,
+                    ratingWidth,
+                    ratingHeight);
             }
             
             // Verification badge
@@ -116,44 +120,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             {
                 ctx.BadgeRect = new Rectangle(
                     infoLeft,
-                    ctx.SubtitleRect.Bottom + ElementGap,
-                    BadgeWidth,
-                    BadgeHeight);
+                    ctx.SubtitleRect.Bottom + elementGap,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Review text
             int reviewTop = Math.Max(
                 ctx.ShowImage ? ctx.ImageRect.Bottom : ctx.SubtitleRect.Bottom,
                 ctx.SubtitleRect.Bottom) + 
-                (string.IsNullOrEmpty(ctx.BadgeText1) ? ElementGap * 2 : BadgeHeight + ElementGap * 2);
+                (string.IsNullOrEmpty(ctx.BadgeText1) ? elementGap * 2 : badgeHeight + elementGap * 2);
             
-            int reviewHeight = Math.Max(ReviewMinHeight,
-                drawingRect.Height - (reviewTop - drawingRect.Top) - Padding * 2 - 
-                (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
+            int reviewHeight = Math.Max(reviewMinHeight,
+                drawingRect.Height - (reviewTop - drawingRect.Top) - padding * 2 - 
+                (ctx.ShowButton ? buttonHeight + elementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 reviewTop,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Width - padding * 2,
                 reviewHeight);
             
             // Helpful button and count
             if (ctx.ShowButton)
             {
                 ctx.ButtonRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Bottom - Padding - ButtonHeight,
-                    ButtonWidth,
-                    ButtonHeight);
+                    drawingRect.Left + padding,
+                    drawingRect.Bottom - padding - buttonHeight,
+                    buttonWidth,
+                    buttonHeight);
                 
                 // Helpful count display
                 if (!string.IsNullOrEmpty(ctx.StatusText))
                 {
                     ctx.StatusRect = new Rectangle(
-                        ctx.ButtonRect.Right + ElementGap * 2,
+                        ctx.ButtonRect.Right + elementGap * 2,
                         ctx.ButtonRect.Top,
-                        drawingRect.Right - Padding - ctx.ButtonRect.Right - ElementGap * 2,
-                        ButtonHeight);
+                        drawingRect.Right - padding - ctx.ButtonRect.Right - elementGap * 2,
+                        buttonHeight);
                 }
             }
             
@@ -193,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw avatar border
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
-                using var pen = new Pen(Color.FromArgb(50, ctx.AccentColor), 2);
+                using var pen = new Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawEllipse(pen, ctx.ImageRect);
             }
@@ -229,15 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _nameFont?.Dispose();
-            _dateFont?.Dispose();
-            _reviewFont?.Dispose();
-            _badgeFont?.Dispose();
-            _helpfulFont?.Dispose();
-            _quoteFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

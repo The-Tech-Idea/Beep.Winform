@@ -329,6 +329,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public bool IsClassDistinct { get; set; } = false;
         public string RootContainerGuidID { get; set; }
 
+        // ── ComboBox / Menu display helpers ─────────────────────────────────
+        /// <summary>
+        /// Group label for option-group headers in BeepComboBox.
+        /// Items with the same non-empty GroupName are rendered under one header row.
+        /// </summary>
+        public string GroupName { get; set; }
+
+        /// <summary>
+        /// When true this item renders as a horizontal separator line (non-selectable).
+        /// </summary>
+        public bool IsSeparator { get; set; } = false;
+
         public int RootContainerID { get; set; }
         public bool IsDrawn { get; set; } = false;
         public string ComposedID { get; set; } // this helps to identify the item in the tree , so that RootnodeID.childid.childid.childid and so on

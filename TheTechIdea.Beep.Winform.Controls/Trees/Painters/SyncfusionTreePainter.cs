@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-                    var pen = PaintersFactory.GetPen(arrowColor, 2f);
+                    using var pen = (Pen)PaintersFactory.GetPen(arrowColor, 2f).Clone();
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
 
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Clean checkmark
                     if (node.Item.IsChecked)
                     {
-                        var checkPen = PaintersFactory.GetPen(Color.White, 2f);
+                        using var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 2f).Clone();
                         checkPen.StartCap = LineCap.Round;
                         checkPen.EndCap = LineCap.Round;
 
@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Syncfusion arrow Style
             Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-            var pen = PaintersFactory.GetPen(arrowColor, 2f);
+            using var pen = (Pen)PaintersFactory.GetPen(arrowColor, 2f).Clone();
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
 

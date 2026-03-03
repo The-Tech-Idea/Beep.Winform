@@ -17,14 +17,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int segments = GetInt(p, "Segments", owner.Segments);
             int pad = 6;
             var line = new Rectangle(bounds.X + pad, bounds.Y + bounds.Height/2 - 3, bounds.Width - pad*2, 6);
-            using (var back = new SolidBrush(Color.FromArgb(30, theme.CardTextForeColor))) g.FillRectangle(back, line);
-            float pct = Math.Max(0f, Math.Min(1f, owner.Value / (float)Math.Max(1, owner.Maximum)));
+            using (var back = new SolidBrush(Color.FromArgb(owner.Enabled ? 30 : 18, theme.CardTextForeColor))) g.FillRectangle(back, line);
+            float pct = owner.DisplayProgressPercentageAccessor;
             int filledW = (int)(line.Width * pct);
-            using (var fore = new SolidBrush(theme.PrimaryColor.IsEmpty ? Color.DodgerBlue : theme.PrimaryColor))
+            var activeColor = theme.PrimaryColor.IsEmpty ? Color.DodgerBlue : theme.PrimaryColor;
+            if (!owner.Enabled)
+            {
+                activeColor = Color.FromArgb(120, activeColor);
+            }
+            using (var fore = new SolidBrush(activeColor))
                 g.FillRectangle(fore, new Rectangle(line.X, line.Y, filledW, line.Height));
 
             // segment ticks
-            using var pen = new Pen(Color.FromArgb(120, theme.CardTextForeColor), 1);
+            using var pen = new Pen(Color.FromArgb(owner.Enabled ? 120 : 90, theme.CardTextForeColor), 1);
             for (int i = 1; i < segments; i++)
             {
                 int x = line.X + (line.Width * i) / segments;

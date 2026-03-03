@@ -17,37 +17,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (_notificationData == null)
                 return;
 
-            // Use NotificationThemeHelpers for consistent color management
             var colors = NotificationThemeHelpers.GetColorsForType(
                 _notificationData.Type,
-                null, // Theme can be passed if available
+                null,
                 _notificationData.CustomBackColor,
                 _notificationData.CustomForeColor,
                 null,
                 _notificationData.IconTint
             );
-            
-            if (_notificationData.CustomBackColor.HasValue)
-            {
-                BackColor = _notificationData.CustomBackColor.Value;
-            }
-            else
-            {
-                BackColor = colors.BackColor;
-            }
 
-            if (_notificationData.CustomForeColor.HasValue)
-            {
-                ForeColor = _notificationData.CustomForeColor.Value;
-            }
-            else
-            {
-                ForeColor = colors.ForeColor;
-            }
-
+            BackColor   = _notificationData.CustomBackColor ?? colors.BackColor;
+            ForeColor   = _notificationData.CustomForeColor ?? colors.ForeColor;
             BorderColor = colors.BorderColor;
 
-            // Update icon path and tint
             _iconPath = !string.IsNullOrEmpty(_notificationData.IconPath)
                 ? _notificationData.IconPath
                 : NotificationData.GetDefaultIconForType(_notificationData.Type);
@@ -55,58 +37,76 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _iconTint = _notificationData.IconTint ?? colors.IconColor;
         }
 
+        /// <summary>
+        /// Recalculates all layout rectangles.
+        /// Passes the painter's theme fonts so text heights are measured correctly –
+        /// this is the fix for text size / alignment not matching notification size.
+        /// Must NOT be called from inside OnPaint.
+        /// </summary>
         private void RecalculateLayout()
         {
             if (_notificationData == null)
                 return;
 
-            // Use NotificationLayoutHelpers for layout calculation
             Rectangle content = ClientRectangle;
             if (content.IsEmpty || content.Width <= 0 || content.Height <= 0)
                 return;
 
-            int padding = NotificationStyleHelpers.GetRecommendedPadding(_notificationData.Layout, this);
-            int spacing = NotificationStyleHelpers.GetRecommendedSpacing(_notificationData.Layout, this);
+            int padding  = NotificationStyleHelpers.GetRecommendedPadding(_notificationData.Layout, this);
+            int spacing  = NotificationStyleHelpers.GetRecommendedSpacing(_notificationData.Layout, this);
             int iconSize = NotificationStyleHelpers.GetRecommendedIconSize(_notificationData.Layout, this);
 
-            bool hasIcon = !string.IsNullOrEmpty(_notificationData.IconPath) ||
-                          _notificationData.Type != NotificationType.Custom;
+            bool hasIcon   = !string.IsNullOrEmpty(_notificationData.IconPath)
+                             || _notificationData.Type != NotificationType.Custom;
+            bool hasTitle  = !string.IsNullOrEmpty(_notificationData.Title);
+            bool hasMsg    = !string.IsNullOrEmpty(_notificationData.Message);
+            bool hasActions = _notificationData.Actions != null && _notificationData.Actions.Length > 0;
 
-            // Use layout helper to calculate metrics
+            // Retrieve theme fonts from painter so layout heights are accurate.
+            Font titleFont   = null;
+            Font messageFont = null;
+            if (_painter is NotificationPainterBase pb)
+            {
+                titleFont   = pb.TitleFont;
+                messageFont = pb.MessageFont;
+            }
+
             var metrics = NotificationLayoutHelpers.CalculateLayout(
                 content,
                 _notificationData.Layout,
                 hasIcon,
-                !string.IsNullOrEmpty(_notificationData.Title),
-                !string.IsNullOrEmpty(_notificationData.Message),
-                _notificationData.Actions != null && _notificationData.Actions.Length > 0,
+                hasTitle,
+                hasMsg,
+                hasActions,
                 _notificationData.ShowCloseButton,
                 _notificationData.ShowProgressBar,
                 iconSize,
                 padding,
                 spacing,
-                this
+                this,
+                titleFont,
+                messageFont
             );
 
-            _iconRect = metrics.IconRect;
-            _titleRect = metrics.TitleRect;
-            _messageRect = metrics.MessageRect;
-            _actionsRect = metrics.ActionsRect;
+            _iconRect        = metrics.IconRect;
+            _titleRect       = metrics.TitleRect;
+            _messageRect     = metrics.MessageRect;
+            _actionsRect     = metrics.ActionsRect;
             _closeButtonRect = metrics.CloseButtonRect;
             _progressBarRect = metrics.ProgressBarRect;
 
-            // Adjust height if needed
-            int requiredHeight = Math.Max(_titleRect.Bottom, _messageRect.Bottom) + padding;
-            if (!_actionsRect.IsEmpty)
-                requiredHeight += _actionsRect.Height + spacing;
-            if (_notificationData.ShowProgressBar)
-                requiredHeight += ScaledProgressBarHeight;
+            // Grow height so all content fits
+            int progH        = _notificationData.ShowProgressBar ? ScaledProgressBarHeight : 0;
+            int required     = padding;
+            if (!_titleRect.IsEmpty)   required = Math.Max(required, _titleRect.Bottom   + padding);
+            if (!_messageRect.IsEmpty) required = Math.Max(required, _messageRect.Bottom + padding);
+            if (!_actionsRect.IsEmpty) required = Math.Max(required, _actionsRect.Bottom + padding);
+            required += progH;
 
-            if (Height < requiredHeight)
-            {
-                Height = Math.Min(requiredHeight, MaximumSize.Height);
-            }
+            if (Height < required)
+                Height = Math.Min(required, MaximumSize.Height > 0 ? MaximumSize.Height : required);
         }
+
         #endregion
 
         #region Override - Drawing
@@ -125,45 +125,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 return;
 
             var g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            g.SmoothingMode      = SmoothingMode.AntiAlias;
+            g.TextRenderingHint  = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            g.InterpolationMode  = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode    = PixelOffsetMode.HighQuality;
 
-            RecalculateLayout();
+            // Layout is pre-calculated in RecalculateLayout (called by OnSizeChanged)
+            // — do NOT call RecalculateLayout here to avoid layout thrash on every paint tick.
 
-            // Use painter to draw notification elements
             _painter.PaintBackground(g, ClientRectangle, _notificationData);
 
             if (!_iconRect.IsEmpty && !string.IsNullOrEmpty(_iconPath))
-            {
                 _painter.PaintIcon(g, _iconRect, _notificationData);
-            }
 
             if (!_closeButtonRect.IsEmpty)
             {
-                bool isHovered = _closeButtonRect.Contains(PointToClient(Cursor.Position));
-                _painter.PaintCloseButton(g, _closeButtonRect, isHovered, _notificationData);
+                bool hovered = _closeButtonRect.Contains(PointToClient(Cursor.Position));
+                _painter.PaintCloseButton(g, _closeButtonRect, hovered, _notificationData);
             }
 
             if (!_titleRect.IsEmpty && !string.IsNullOrEmpty(_notificationData.Title))
-            {
                 _painter.PaintTitle(g, _titleRect, _notificationData.Title, _notificationData);
-            }
 
             if (!_messageRect.IsEmpty && !string.IsNullOrEmpty(_notificationData.Message))
-            {
                 _painter.PaintMessage(g, _messageRect, _notificationData.Message, _notificationData);
-            }
 
             if (!_actionsRect.IsEmpty && _notificationData.Actions != null)
-            {
                 _painter.PaintActions(g, _actionsRect, _notificationData.Actions, _notificationData);
-            }
 
             if (!_progressBarRect.IsEmpty)
-            {
                 _painter.PaintProgressBar(g, _progressBarRect, _progressPercentage, _notificationData);
-            }
         }
+
         #endregion
     }
 }

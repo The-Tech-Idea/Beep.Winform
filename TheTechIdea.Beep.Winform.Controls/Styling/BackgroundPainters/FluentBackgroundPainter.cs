@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Fluent signature: subtle diagonal acrylic-like gradient - use HSL for more natural results
             Color secondary = ColorAccessibilityHelper.DarkenColor(stateColor, 0.03f);
 
-            var brush = PaintersFactory.GetLinearGradientBrush(
+            using var brush = PaintersFactory.CreateLinearGradientBrush(
                 bounds, stateColor, secondary, LinearGradientMode.ForwardDiagonal);
             
             // Custom color blend for acrylic feel (lighter in middle) - use HSL for more natural results

@@ -35,17 +35,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     sf.LineAlignment = StringAlignment.Center;
                     sf.Trimming = StringTrimming.EllipsisCharacter;
 
-                    // Use underlined font
-                    using (Font underlineFont = new Font(context.Font, FontStyle.Underline))
                     using (Brush textBrush = new SolidBrush(textColor))
                     {
-                        g.DrawString(context.Text, underlineFont, textBrush, buttonBounds, sf);
+                        g.DrawString(context.Text, context.TextFont, textBrush, buttonBounds, sf);
                     }
+                }
+
+                if (context.State == Enums.AdvancedButtonState.Hover || context.State == Enums.AdvancedButtonState.Focused)
+                {
+                    int textWidth = MeasureContextTextWidth(context);
+                    int y = buttonBounds.Y + (buttonBounds.Height / 2) + (int)(context.TextFont.Size * 0.45f);
+                    int x = buttonBounds.X + (buttonBounds.Width - textWidth) / 2;
+                    using Pen underlinePen = new Pen(textColor, 1);
+                    g.DrawLine(underlinePen, x, y, x + textWidth, y);
                 }
             }
             else
             {
-                DrawLoadingSpinner(g, buttonBounds, textColor);
+                DrawLoadingSpinner(g, context, buttonBounds, textColor);
             }
         }
     }

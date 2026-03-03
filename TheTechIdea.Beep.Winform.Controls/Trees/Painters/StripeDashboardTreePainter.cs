@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
  Color chevronColor = _theme.TreeForeColor;
 
- var pen = PaintersFactory.GetPen(chevronColor,1.5f);
+ using var pen = (Pen)PaintersFactory.GetPen(chevronColor,1.5f).Clone();
  pen.StartCap = LineCap.Round;
  pen.EndCap = LineCap.Round;
 
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  if (node.Item.IsChecked)
  {
- var checkPen = PaintersFactory.GetPen(Color.White,1.5f);
+ using var checkPen = (Pen)PaintersFactory.GetPen(Color.White,1.5f).Clone();
  checkPen.StartCap = LineCap.Round;
  checkPen.EndCap = LineCap.Round;
 
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  if (innerRect.Width >0 && innerRect.Height >0)
  {
- var pen = PaintersFactory.GetPen(iconColor,2f);
+ using var pen = (Pen)PaintersFactory.GetPen(iconColor,2f).Clone();
  pen.StartCap = LineCap.Round;
  pen.EndCap = LineCap.Round;
 

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -45,85 +46,88 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _locationFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _dateFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 12f, FontStyle.Bold);
-            _locationFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _dateFont = new Font(fontFamily, 10f, FontStyle.Bold);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_titleFont = titleFont;
+            _locationFont = captionFont;
+            _descFont = bodyFont;
+            _dateFont = titleFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int accentBarWidth = DpiScalingHelper.ScaleValue(AccentBarWidth, _owner);
+            int dateBlockWidth = DpiScalingHelper.ScaleValue(DateBlockWidth, _owner);
+            int dateBlockHeight = DpiScalingHelper.ScaleValue(DateBlockHeight, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int locationHeight = DpiScalingHelper.ScaleValue(LocationHeight, _owner);
+            int descHeightMin = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int tagsHeight = DpiScalingHelper.ScaleValue(TagsHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int buttonWidth = DpiScalingHelper.ScaleValue(ButtonWidth, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Accent bar on left edge
             ctx.StatusRect = new Rectangle(
                 drawingRect.Left,
                 drawingRect.Top,
-                AccentBarWidth,
+                accentBarWidth,
                 drawingRect.Height);
             
             // Date block at top-left (after accent bar)
             ctx.ImageRect = new Rectangle(
-                ctx.StatusRect.Right + Padding,
-                drawingRect.Top + Padding,
-                DateBlockWidth,
-                DateBlockHeight);
+                ctx.StatusRect.Right + padding,
+                drawingRect.Top + padding,
+                dateBlockWidth,
+                dateBlockHeight);
             
             // Content area to the right of date block
-            int contentLeft = ctx.ImageRect.Right + ContentGap;
-            int contentWidth = Math.Max(80, drawingRect.Width - contentLeft - Padding);
+            int contentLeft = ctx.ImageRect.Right + contentGap;
+            int contentWidth = Math.Max(DpiScalingHelper.ScaleValue(80, _owner), drawingRect.Width - contentLeft - padding);
             
             // Event title
             ctx.HeaderRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + Padding,
+                drawingRect.Top + padding,
                 contentWidth,
-                TitleHeight);
+                titleHeight);
             
             // Location/venue
             ctx.SubtitleRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                ctx.HeaderRect.Bottom + elementGap / 2,
                 contentWidth,
-                LocationHeight);
+                locationHeight);
             
             // Description
-            int descHeight = Math.Max(30, drawingRect.Height - Padding * 2 - TitleHeight - LocationHeight - TagsHeight - ButtonHeight - ElementGap * 4);
+            int descHeight = Math.Max(descHeightMin, drawingRect.Height - padding * 2 - titleHeight - locationHeight - tagsHeight - buttonHeight - elementGap * 4);
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.SubtitleRect.Bottom + ElementGap,
+                ctx.SubtitleRect.Bottom + elementGap,
                 contentWidth,
                 descHeight);
             
             // Tags row
             ctx.TagsRect = new Rectangle(
                 contentLeft,
-                ctx.ParagraphRect.Bottom + ElementGap,
-                contentWidth - ButtonWidth - ElementGap,
-                TagsHeight);
+                ctx.ParagraphRect.Bottom + elementGap,
+                contentWidth - buttonWidth - elementGap,
+                tagsHeight);
             
             // Action button (RSVP, Join, etc.)
             if (ctx.ShowButton)
             {
                 ctx.ButtonRect = new Rectangle(
-                    drawingRect.Right - Padding - ButtonWidth,
-                    drawingRect.Bottom - Padding - ButtonHeight,
-                    ButtonWidth,
-                    ButtonHeight);
+                    drawingRect.Right - padding - buttonWidth,
+                    drawingRect.Bottom - padding - buttonHeight,
+                    buttonWidth,
+                    buttonHeight);
             }
             
             ctx.ShowSecondaryButton = false;
@@ -171,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw event category tags
             if (ctx.Tags != null && ctx.Tags.Count > 0 && !ctx.TagsRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _locationFont);
             }
         }
         
@@ -197,14 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _locationFont?.Dispose();
-            _descFont?.Dispose();
-            _dateFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

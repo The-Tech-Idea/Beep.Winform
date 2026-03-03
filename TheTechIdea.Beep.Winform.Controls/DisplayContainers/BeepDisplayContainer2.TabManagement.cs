@@ -19,8 +19,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 oldControl.Visible = false;
                 oldControl.Invalidate(true);
-                // Don't call Update() - causes flicker, let it repaint naturally
             }
+
+            _indicatorProgress = 1f; // no animation — prevent timer from invalidating only _tabArea
             _previousTab = null;
             
             _activeTab = tab;
@@ -49,7 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 activeControl.Visible = true;
                 activeControl.Invalidate(true);
-                // Don't call Update() - causes flicker, let it repaint naturally
             }
             
             OnAddinChanged(new ContainerEvents 
@@ -62,7 +62,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             // Force full repaint of container including content area and tabs
             Invalidate(true);
-            // Don't call Update() - causes flicker, let it repaint naturally
         }
 
         private void RemoveTab(AddinTab tab)

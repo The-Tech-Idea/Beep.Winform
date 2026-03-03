@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     [Description("A modern, flexible radio group control with multiple selection modes, layouts, and render styles.")]
     public partial class BeepRadioGroup : BaseControl
     {
+        private const string AccessibilityDescriptionPrefix = "RadioGroup status:";
         #region Fields
         private readonly RadioGroupLayoutHelper _layoutHelper;
         private readonly RadioGroupHitTestHelper _hitTestHelper;
@@ -36,6 +37,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private bool _autoSizeItems = true;
         private Size _maxImageSize = new Size(24, 24);
         private object _oldValue;
+        private bool _isApplyingThemeFont;
+        private bool _layoutDirty = true;
+        private bool _eventHandlersRegistered;
         #endregion
 
         #region Constructor
@@ -49,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper = new RadioGroupLayoutHelper(this);
             _hitTestHelper = new RadioGroupHitTestHelper(this);
             _stateHelper = new RadioGroupStateHelper(this);
+            _stateHelper.RequestRedraw = RequestVisualRefresh;
 
             // Initialize renderers
             _renderers = new Dictionary<RadioGroupRenderStyle, IRadioGroupRenderer>
@@ -72,6 +77,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 _currentRenderer = _renderers[_renderStyle];
                 _currentRenderer.Initialize(this, _currentTheme);
                 _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer?.MeasureItem(item, g) ?? Size.Empty;
+                _hitTestHelper.IsItemInteractive = index =>
+                    Enabled &&
+                    index >= 0 &&
+                    index < _items.Count &&
+                    !IsItemDisabled(_items[index].Text);
 
                 // Initialize MaxImageSize for all renderers
                 foreach (var renderer in _renderers.Values)
@@ -99,10 +109,17 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 ApplyTheme();
             }
+
+            UpdateAccessibilityMetadata();
         }
 
         private void SetupEventHandlers()
         {
+            if (_eventHandlersRegistered)
+            {
+                return;
+            }
+
             // Hit test events
             _hitTestHelper.ItemClicked += OnItemClicked;
             _hitTestHelper.ItemHoverEnter += OnItemHoverEnter;
@@ -113,6 +130,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // State events
             _stateHelper.SelectionChanged += OnSelectionChanged;
             _stateHelper.ItemSelectionChanged += OnItemSelectionChanged;
+            _eventHandlersRegistered = true;
+        }
+
+        private void TeardownEventHandlers()
+        {
+            if (!_eventHandlersRegistered)
+            {
+                return;
+            }
+
+            _hitTestHelper.ItemClicked -= OnItemClicked;
+            _hitTestHelper.ItemHoverEnter -= OnItemHoverEnter;
+            _hitTestHelper.ItemHoverLeave -= OnItemHoverLeave;
+            _hitTestHelper.HoveredIndexChanged -= OnHoveredIndexChanged;
+            _hitTestHelper.FocusedIndexChanged -= OnFocusedIndexChanged;
+
+            _stateHelper.SelectionChanged -= OnSelectionChanged;
+            _stateHelper.ItemSelectionChanged -= OnItemSelectionChanged;
+            _eventHandlersRegistered = false;
         }
         #endregion
 
@@ -227,7 +263,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.ApplyTheme();
             
             // Apply font theme based on ControlStyle
-            RadioGroupFontHelpers.ApplyFontTheme(Style);
+            _isApplyingThemeFont = true;
+            try
+            {
+                RadioGroupFontHelpers.ApplyFontTheme(this, Style, _currentTheme);
+            }
+            finally
+            {
+                _isApplyingThemeFont = false;
+            }
             
             // Update current renderer with new theme
             _currentRenderer?.UpdateTheme(_currentTheme);
@@ -241,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // Ensure measurer stays valid
             _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer?.MeasureItem(item, g) ?? Size.Empty;
             
-            Invalidate();
+            RequestVisualRefresh(resetLayout: true);
         }
 
         public override void SetValue(object value)
@@ -256,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _stateHelper.SetMultipleSelection(stringList);
                 UpdateItemStates();
-                Invalidate();
+                RequestVisualRefresh();
             }
             else if (value is SimpleItem item)
             {
@@ -267,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 var values = itemList.Where(i => !string.IsNullOrEmpty(i.Text)).Select(i => i.Text);
                 _stateHelper.SetMultipleSelection(values);
                 UpdateItemStates();
-                Invalidate();
+                RequestVisualRefresh();
             }
 
             var newValue = GetValue();
@@ -301,6 +345,347 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 return true;
             }
             return false;
+        }
+
+        protected override AccessibleObject CreateAccessibilityInstance()
+            => new BeepRadioGroupAccessibleObject(this);
+
+        internal void MarkLayoutDirty()
+        {
+            _layoutDirty = true;
+        }
+
+        internal void RequestVisualRefresh()
+        {
+            RequestVisualRefresh(resetLayout: false);
+        }
+
+        internal void RequestVisualRefresh(bool resetLayout)
+        {
+            if (resetLayout)
+            {
+                _layoutDirty = true;
+            }
+
+            var redraw = DrawingRect;
+            if (redraw.Width > 0 && redraw.Height > 0)
+            {
+                Invalidate(redraw);
+            }
+            else
+            {
+                Invalidate();
+            }
+        }
+
+        protected override void OnEnabledChanged(EventArgs e)
+        {
+            base.OnEnabledChanged(e);
+            UpdateAccessibilityMetadata();
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            if (!RecreatingHandle)
+            {
+                _hitTestHelper.Clear();
+            }
+
+            base.OnHandleDestroyed(e);
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+
+            if (IsDisposed || !IsHandleCreated)
+            {
+                return;
+            }
+
+            _textFont = Font;
+
+            foreach (var renderer in _renderers.Values)
+            {
+                renderer.UpdateTheme(_currentTheme);
+            }
+
+            MarkLayoutDirty();
+            UpdateLayout();
+            _hitTestHelper.UpdateItems(_items, _itemRectangles);
+            RequestVisualRefresh();
+        }
+
+        protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+
+            if (IsDisposed || !IsHandleCreated || DesignMode)
+            {
+                return;
+            }
+
+            foreach (var renderer in _renderers.Values)
+            {
+                renderer.UpdateTheme(_currentTheme);
+            }
+
+            MarkLayoutDirty();
+            UpdateLayout();
+            _hitTestHelper.UpdateItems(_items, _itemRectangles);
+            RequestVisualRefresh();
+        }
+
+        internal void UpdateAccessibilityMetadata()
+        {
+            if (string.IsNullOrWhiteSpace(AccessibleName))
+            {
+                AccessibleName = Name;
+            }
+
+            if (AccessibleRole == AccessibleRole.Default || AccessibleRole == AccessibleRole.None)
+            {
+                AccessibleRole = AccessibleRole.Grouping;
+            }
+
+            int totalCount = _items?.Count ?? 0;
+            int selectedCount = _stateHelper?.SelectedCount ?? 0;
+            int disabledCount = _disabledItems?.Count ?? 0;
+            int focusedIndex = _hitTestHelper?.FocusedIndex ?? -1;
+            string focusedText = focusedIndex >= 0 && focusedIndex < totalCount ? _items[focusedIndex]?.Text : null;
+
+            string status = $"{AccessibilityDescriptionPrefix} {selectedCount} selected of {totalCount}. " +
+                            $"{disabledCount} disabled. " +
+                            (Enabled ? "Control enabled." : "Control disabled.");
+
+            if (!string.IsNullOrWhiteSpace(focusedText))
+            {
+                status += $" Focused item: {focusedText}.";
+            }
+
+            if (IsRequired)
+            {
+                status += selectedCount == 0 ? " Selection required." : " Required selection satisfied.";
+            }
+
+            if (HasError && !string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                status += $" Error: {ErrorMessage}.";
+            }
+
+            if (string.IsNullOrWhiteSpace(AccessibleDescription) ||
+                AccessibleDescription.StartsWith(AccessibilityDescriptionPrefix, StringComparison.Ordinal))
+            {
+                AccessibleDescription = status;
+            }
+
+            AccessibleDefaultActionDescription = AllowMultipleSelection
+                ? "Toggle item selection"
+                : "Select item";
+
+            if (IsHandleCreated)
+            {
+                AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, -1);
+                AccessibilityNotifyClients(AccessibleEvents.ValueChange, -1);
+            }
+        }
+
+        private int GetItemIndexAt(Point clientPoint)
+        {
+            var adjusted = new Point(clientPoint.X - DrawingRect.X, clientPoint.Y - DrawingRect.Y);
+            for (int i = 0; i < _itemRectangles.Count; i++)
+            {
+                if (_itemRectangles[i].Contains(adjusted))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private sealed class BeepRadioGroupAccessibleObject : ControlAccessibleObject
+        {
+            private readonly BeepRadioGroup _owner;
+
+            public BeepRadioGroupAccessibleObject(BeepRadioGroup owner) : base(owner)
+            {
+                _owner = owner;
+            }
+
+            public override AccessibleRole Role => AccessibleRole.Grouping;
+
+            public override string Name => _owner.AccessibleName ?? _owner.Name ?? "Radio group";
+
+            public override string Description => _owner.AccessibleDescription;
+
+            public override string Value
+                => _owner.AllowMultipleSelection
+                    ? string.Join(", ", _owner.SelectedValues)
+                    : _owner.SelectedValue ?? string.Empty;
+
+            public override AccessibleStates State
+            {
+                get
+                {
+                    var states = base.State | AccessibleStates.Focusable;
+                    if (!_owner.Enabled)
+                    {
+                        states |= AccessibleStates.Unavailable;
+                    }
+
+                    if (_owner.Focused)
+                    {
+                        states |= AccessibleStates.Focused;
+                    }
+
+                    return states;
+                }
+            }
+
+            public override int GetChildCount() => _owner._items?.Count ?? 0;
+
+            public override AccessibleObject GetChild(int index)
+            {
+                if (_owner._items == null || index < 0 || index >= _owner._items.Count)
+                {
+                    return null;
+                }
+
+                return new BeepRadioGroupItemAccessibleObject(_owner, this, index);
+            }
+
+            public override AccessibleObject HitTest(int x, int y)
+            {
+                var clientPoint = _owner.PointToClient(new Point(x, y));
+                int index = _owner.GetItemIndexAt(clientPoint);
+                return index >= 0 ? GetChild(index) : base.HitTest(x, y);
+            }
+        }
+
+        private sealed class BeepRadioGroupItemAccessibleObject : AccessibleObject
+        {
+            private readonly BeepRadioGroup _owner;
+            private readonly AccessibleObject _parent;
+            private readonly int _index;
+
+            public BeepRadioGroupItemAccessibleObject(BeepRadioGroup owner, AccessibleObject parent, int index)
+            {
+                _owner = owner;
+                _parent = parent;
+                _index = index;
+            }
+
+            public override AccessibleObject Parent => _parent;
+
+            public override AccessibleRole Role => AccessibleRole.RadioButton;
+
+            public override string Name => _owner._items[_index]?.Text ?? $"Item {_index + 1}";
+
+            public override string Description
+            {
+                get
+                {
+                    var item = _owner._items[_index];
+                    if (!string.IsNullOrWhiteSpace(item?.SubText))
+                    {
+                        return item.SubText;
+                    }
+
+                    return _owner.IsItemDisabled(item?.Text) ? "Disabled item" : string.Empty;
+                }
+            }
+
+            public override string Value => _owner._stateHelper.IsSelected(_owner._items[_index]) ? "Selected" : "Not selected";
+
+            public override Rectangle Bounds
+            {
+                get
+                {
+                    if (_index < 0 || _index >= _owner._itemRectangles.Count)
+                    {
+                        return Rectangle.Empty;
+                    }
+
+                    var logicalRect = _owner._itemRectangles[_index];
+                    var absolute = new Rectangle(
+                        logicalRect.X + _owner.DrawingRect.X,
+                        logicalRect.Y + _owner.DrawingRect.Y,
+                        logicalRect.Width,
+                        logicalRect.Height);
+                    return _owner.RectangleToScreen(absolute);
+                }
+            }
+
+            public override AccessibleStates State
+            {
+                get
+                {
+                    var states = AccessibleStates.Selectable | AccessibleStates.Focusable;
+                    var item = _owner._items[_index];
+
+                    if (_owner.IsItemDisabled(item?.Text) || !_owner.Enabled)
+                    {
+                        states |= AccessibleStates.Unavailable;
+                    }
+
+                    if (_owner._stateHelper.IsSelected(item))
+                    {
+                        states |= AccessibleStates.Checked | AccessibleStates.Selected;
+                    }
+
+                    if (_owner._hitTestHelper.FocusedIndex == _index)
+                    {
+                        states |= AccessibleStates.Focused;
+                    }
+
+                    return states;
+                }
+            }
+
+            public override string DefaultAction => _owner.AllowMultipleSelection ? "Toggle selection" : "Select";
+
+            public override void DoDefaultAction()
+            {
+                var item = _owner._items[_index];
+                if (item == null || _owner.IsItemDisabled(item.Text) || !_owner.Enabled)
+                {
+                    return;
+                }
+
+                if (_owner.AllowMultipleSelection)
+                {
+                    if (_owner._stateHelper.IsSelected(item))
+                    {
+                        _owner.DeselectItem(item.Text);
+                    }
+                    else
+                    {
+                        _owner.SelectItem(item.Text);
+                    }
+                }
+                else
+                {
+                    _owner.SelectItem(item.Text);
+                }
+
+                _owner._hitTestHelper.FocusedIndex = _index;
+                _owner.UpdateItemStates();
+                _owner.RequestVisualRefresh();
+                _owner.UpdateAccessibilityMetadata();
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                TeardownEventHandlers();
+                _hitTestHelper.Dispose();
+                _stateHelper.ResetCallbacks();
+            }
+
+            base.Dispose(disposing);
         }
         #endregion
        

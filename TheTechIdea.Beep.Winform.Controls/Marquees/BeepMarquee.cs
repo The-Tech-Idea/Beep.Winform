@@ -3,254 +3,671 @@ using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Marquees.Helpers;
-
+using TheTechIdea.Beep.Winform.Controls.Marquees;
+using TheTechIdea.Beep.Winform.Controls.Marquees.Models;
+using TheTechIdea.Beep.Winform.Controls.Marquees.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     /// <summary>
-    /// This Control will show a web-like marquee of items (IBeepUIComponent).
-    /// The effect is similar to an HTML <marquee> with continuous scrolling and seamless wrap-around.
+    /// A rich, themed marquee control that supports continuous, ping-pong, and news-ticker scroll
+    /// modes; multiple visual styles (Card, Pill, StockTicker, NewsBanner, Minimal, Default); 
+    /// fade-edge effects; pause-on-hover; and click/hover events per item.
     /// </summary>
-    /// 
     [ToolboxItem(true)]
     [Category("UI")]
-    [Description("A control that displays a continuous marquee of items.")]
+    [Description("A control that displays a continuous, styled marquee of items.")]
     [DisplayName("Beep Marquee")]
     public class BeepMarquee : BaseControl
     {
+        // ── Legacy component dictionary (kept for backward-compat) ────────────────
         private Dictionary<string, IBeepUIComponent> _marqueeComponents
             = new Dictionary<string, IBeepUIComponent>();
 
-        // The timer that drives animation.
+        // ── Rich item list ────────────────────────────────────────────────────────
+        private List<MarqueeItem> _items = new List<MarqueeItem>();
+
+        // ── Timer ─────────────────────────────────────────────────────────────────
         private Timer _timer;
 
-        // The horizontal position from which we start drawing the first component.
-        // As we scroll, we decrement (or increment) this offset.
-        private float _scrollOffset = 0f;
+        // ── Scroll state ──────────────────────────────────────────────────────────
+        private float _scrollOffset   = 0f;
+        private float _scrollOffsetY  = 0f;
+        private float _scrollSpeed    = 2f;
+        private bool  _pingPongForward = true;
 
-        // Pixels to move per timer tick. 
-        // Increase for faster scrolling, decrease for slower.
-        private float _scrollSpeed = 2f;
+        // ── NewsTicker state ──────────────────────────────────────────────────────
+        private float _newsAlpha        = 1f;
+        private bool  _newsFadingOut    = false;
+        private int   _activeNewsIndex  = 0;
+        private int   _newsHoldTicks    = 0;
+        private const int NewsHoldTarget = 100;  // ticks to hold each item
 
-        // If true, scroll from right to left. If false, left to right.
-        public bool ScrollLeft { get; set; } = true;
+        // ── Hit testing ───────────────────────────────────────────────────────────
+        private List<(MarqueeItem item, RectangleF rect)> _hitRects
+            = new List<(MarqueeItem, RectangleF)>();
+        private int _hoveredItemIndex = -1;
 
-        // Spacing (in pixels) between consecutive components.
-        public int ComponentSpacing { get; set; } = 20;
+        // ── Painter ───────────────────────────────────────────────────────────────
+        private IMarqueeItemRenderer _painter;
 
-        // The refresh rate of the marquee in milliseconds.
-        public int ScrollInterval
+        // ── Backing fields for properties ─────────────────────────────────────────
+        private MarqueeScrollMode      _scrollMode    = MarqueeScrollMode.Continuous;
+        private MarqueeScrollDirection _scrollDir     = MarqueeScrollDirection.RightToLeft;
+        private MarqueeStyle           _marqueeStyle  = MarqueeStyle.Default;
+        private bool _paused        = false;
+        private bool _pauseOnHover  = true;
+        private bool _fadeEdges     = false;
+        private int  _fadeWidth     = 40;
+        private int  _componentSpacing = 20;
+        private int  _itemHeight    = 32;
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Events
+        // ═════════════════════════════════════════════════════════════════════════
+        [Category("Marquee")]
+        [Description("Fired when the user clicks an item.")]
+        public event EventHandler<MarqueeItemEventArgs> ItemClicked;
+
+        [Category("Marquee")]
+        [Description("Fired when the mouse hovers over an item.")]
+        public event EventHandler<MarqueeItemEventArgs> ItemHovered;
+
+        [Category("Marquee")]
+        [Description("Fired when an item first becomes visible.")]
+        public event EventHandler<MarqueeItemEventArgs> ItemDisplayed;
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Properties
+        // ═════════════════════════════════════════════════════════════════════════
+
+        [Category("Marquee")]
+        [Description("Collection of rich marquee items.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<MarqueeItem> Items
         {
-            get => _timer?.Interval ?? 30;
+            get => _items;
+            set { _items = value ?? new List<MarqueeItem>(); Invalidate(); }
+        }
+
+        [Category("Marquee")]
+        [Description("Scroll mode: Continuous, PingPong, or NewsTicker.")]
+        [DefaultValue(MarqueeScrollMode.Continuous)]
+        public MarqueeScrollMode ScrollMode
+        {
+            get => _scrollMode;
+            set { _scrollMode = value; _scrollOffset = 0; _scrollOffsetY = 0; Invalidate(); }
+        }
+
+        [Category("Marquee")]
+        [Description("Direction of scrolling.")]
+        [DefaultValue(MarqueeScrollDirection.RightToLeft)]
+        public MarqueeScrollDirection ScrollDirection
+        {
+            get => _scrollDir;
+            set { _scrollDir = value; _scrollOffset = 0; _scrollOffsetY = 0; Invalidate(); }
+        }
+
+        /// <summary>Backward-compatible alias for ScrollDirection.</summary>
+        [Browsable(false)]
+        public bool ScrollLeft
+        {
+            get => _scrollDir == MarqueeScrollDirection.RightToLeft;
+            set => ScrollDirection = value ? MarqueeScrollDirection.RightToLeft
+                                           : MarqueeScrollDirection.LeftToRight;
+        }
+
+        [Category("Marquee")]
+        [Description("Visual style of the marquee items.")]
+        [DefaultValue(MarqueeStyle.Default)]
+        public MarqueeStyle MarqueeStyle
+        {
+            get => _marqueeStyle;
             set
             {
-                if (_timer != null)
-                    _timer.Interval = value;
+                _marqueeStyle = value;
+                _painter = MarqueePainterFactory.Create(value);
+                Invalidate();
             }
         }
 
+        [Category("Marquee")]
+        [Description("Pixels to advance per timer tick.")]
+        [DefaultValue(2f)]
         public float ScrollSpeed
         {
             get => _scrollSpeed;
             set => _scrollSpeed = Math.Max(0, value);
         }
 
-        public BeepMarquee():base()
+        [Category("Marquee")]
+        [Description("Timer interval in milliseconds (~30 = 33 FPS).")]
+        [DefaultValue(30)]
+        public int ScrollInterval
         {
-            // Create and configure the timer
-            _timer = new Timer();
-            _timer.Interval = 30; // Default to ~33 FPS
-            _timer.Tick += (sender, e) => OnTimerTick();
-
-            // Only start the timer if not in design mode
-            if (!DesignMode)
-            {
-                _timer.Start();
-            }
-
-       
+            get => _timer?.Interval ?? 30;
+            set { if (_timer != null) _timer.Interval = Math.Max(1, value); }
         }
+
+        [Category("Marquee")]
+        [Description("Spacing in pixels between items.")]
+        [DefaultValue(20)]
+        public int ComponentSpacing
+        {
+            get => _componentSpacing;
+            set { _componentSpacing = Math.Max(0, value); Invalidate(); }
+        }
+
+        [Category("Marquee")]
+        [Description("Height of each item in pixels (used by vertical scroll and painters).")]
+        [DefaultValue(32)]
+        public int ItemHeight
+        {
+            get => _itemHeight;
+            set { _itemHeight = Math.Max(8, value); Invalidate(); }
+        }
+
+        [Category("Marquee")]
+        [Description("Pause scrolling when the mouse hovers over the control.")]
+        [DefaultValue(true)]
+        public bool PauseOnHover
+        {
+            get => _pauseOnHover;
+            set => _pauseOnHover = value;
+        }
+
+        [Category("Marquee")]
+        [Description("Draw gradient fade strips on the leading/trailing edges.")]
+        [DefaultValue(false)]
+        public bool FadeEdges
+        {
+            get => _fadeEdges;
+            set { _fadeEdges = value; Invalidate(); }
+        }
+
+        [Category("Marquee")]
+        [Description("Width in pixels of the fade-edge gradient strips.")]
+        [DefaultValue(40)]
+        public int FadeWidth
+        {
+            get => _fadeWidth;
+            set { _fadeWidth = Math.Max(4, value); Invalidate(); }
+        }
+
+        /// <summary>True if the marquee is currently paused.</summary>
+        [Browsable(false)]
+        public bool IsPaused => _paused;
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Constructor
+        // ═════════════════════════════════════════════════════════════════════════
+        public BeepMarquee() : base()
+        {
+            _painter = MarqueePainterFactory.Create(MarqueeStyle.Default);
+
+            _timer = new Timer();
+            _timer.Interval = 30;
+            _timer.Tick += (s, e) => OnTimerTick();
+
+            if (!DesignMode)
+                _timer.Start();
+        }
+
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-
-            if (!DesignMode)
-            {
-                _timer.Start();
-            }
+            if (!DesignMode) _timer.Start();
         }
-        /// <summary>
-        /// Adds a new component to the marquee. 
-        /// If the key already exists, it is replaced.
-        /// </summary>
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Public API
+        // ═════════════════════════════════════════════════════════════════════════
+
+        /// <summary>Pause the marquee animation.</summary>
+        public void Pause()  { _paused = true;  _timer.Stop(); }
+
+        /// <summary>Resume the marquee animation.</summary>
+        public void Resume() { _paused = false; _timer.Start(); }
+
+        /// <summary>Add a rich item to the Items list.</summary>
+        public void AddItem(MarqueeItem item)
+        {
+            if (item == null) return;
+            _items.Add(item);
+            Invalidate();
+        }
+
+        /// <summary>Add a StockItem.</summary>
+        public void AddStockItem(string symbol, decimal price, decimal change)
+        {
+            var s = new StockItem { Symbol = symbol, Price = price, Change = change };
+            s.Text = symbol;
+            AddItem(s);
+        }
+
+        /// <summary>Add a NewsItem.</summary>
+        public void AddNewsItem(string headline, string category = "")
+        {
+            var n = new NewsItem { Text = headline, Category = category };
+            AddItem(n);
+        }
+
+        /// <summary>Remove an item by Id.</summary>
+        public void RemoveItem(string id)
+        {
+            _items.RemoveAll(i => i.Id == id);
+            Invalidate();
+        }
+
+        /// <summary>Clear all rich items.</summary>
+        public void ClearItems()
+        {
+            _items.Clear();
+            _scrollOffset = 0;
+            _scrollOffsetY = 0;
+            Invalidate();
+        }
+
+        // ── Legacy API (backward compat) ─────────────────────────────────────────
         public void AddMarqueeComponent(string key, IBeepUIComponent component)
         {
             _marqueeComponents[key] = component;
             Invalidate();
         }
 
-        /// <summary>
-        /// Optional method to remove an existing marquee component by key.
-        /// </summary>
         public void RemoveMarqueeComponent(string key)
         {
-            if (_marqueeComponents.ContainsKey(key))
+            _marqueeComponents.Remove(key);
+            Invalidate();
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Mouse interaction
+        // ═════════════════════════════════════════════════════════════════════════
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (_pauseOnHover && !_paused) { _paused = true; _timer.Stop(); }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            _hoveredItemIndex = -1;
+            if (_pauseOnHover && _paused) { _paused = false; _timer.Start(); }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            int prev = _hoveredItemIndex;
+            _hoveredItemIndex = HitTest(e.Location);
+
+            if (_hoveredItemIndex != prev)
             {
-                _marqueeComponents.Remove(key);
                 Invalidate();
+                if (_hoveredItemIndex >= 0 && _hoveredItemIndex < _items.Count)
+                {
+                    var item = _items[_hoveredItemIndex];
+                    var rect = _hitRects.Count > _hoveredItemIndex
+                        ? _hitRects[_hoveredItemIndex].rect
+                        : RectangleF.Empty;
+                    ItemHovered?.Invoke(this, new MarqueeItemEventArgs(item, _hoveredItemIndex,
+                        Point.Round(rect.Location)));
+                }
             }
         }
 
-        /// <summary>
-        /// Timer handler that updates the scroll position and redraws.
-        /// </summary>
-        private void OnTimerTick()
-        { // Skip animation logic if in design mode
-            if (DesignMode) return;
-            // Move the offset left or right
-            _scrollOffset += ScrollLeft ? -_scrollSpeed : _scrollSpeed;
-
-            // Because this is a continuous marquee, we do a wrap-around check.
-            // We'll compute how wide one "full loop" is:
-            float totalWidth = GetTotalComponentsWidth();
-
-            // For an infinitely repeating effect, we can let offset go negative 
-            // (or positive) beyond the total width, then "wrap" it back so that 
-            // the user never sees a break in the scrolling.
-
-            // If scrolling left and offset is less than -totalWidth, reset offset
-            // to 0 to start the cycle again. (Equivalent to pushing the first item 
-            // back to the right side).
-            if (ScrollLeft && _scrollOffset < -totalWidth)
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+            int idx = HitTest(e.Location);
+            if (idx >= 0 && idx < _items.Count)
             {
-                _scrollOffset = 0;
+                var item = _items[idx];
+                var rect = _hitRects.Count > idx ? _hitRects[idx].rect : RectangleF.Empty;
+                ItemClicked?.Invoke(this, new MarqueeItemEventArgs(item, idx,
+                    Point.Round(rect.Location)));
             }
-            // If scrolling right and offset is greater than totalWidth, wrap to 0.
-            else if (!ScrollLeft && _scrollOffset > totalWidth)
+        }
+
+        private int HitTest(Point pt)
+        {
+            for (int i = 0; i < _hitRects.Count; i++)
+                if (_hitRects[i].rect.Contains(pt)) return i;
+            return -1;
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Timer tick — scroll logic
+        // ═════════════════════════════════════════════════════════════════════════
+        private void OnTimerTick()
+        {
+            if (DesignMode || _paused) return;
+
+            switch (_scrollMode)
             {
-                _scrollOffset = 0;
+                case MarqueeScrollMode.Continuous:
+                    TickContinuous();
+                    break;
+                case MarqueeScrollMode.PingPong:
+                    TickPingPong();
+                    break;
+                case MarqueeScrollMode.NewsTicker:
+                    TickNewsTicker();
+                    break;
             }
 
             Invalidate();
         }
 
-        /// <summary>
-        /// Draw all components in a row, offset by _scrollOffset. 
-        /// Once we reach the end, we keep drawing them again to achieve the wrap-around.
-        /// </summary>
+        private void TickContinuous()
+        {
+            bool vertical = _scrollDir == MarqueeScrollDirection.TopToBottom
+                         || _scrollDir == MarqueeScrollDirection.BottomToTop;
+
+            if (vertical)
+            {
+                float delta = _scrollDir == MarqueeScrollDirection.BottomToTop
+                    ? -_scrollSpeed : _scrollSpeed;
+                _scrollOffsetY += delta;
+                float total = GetTotalHeight();
+                if (_scrollOffsetY < -total) _scrollOffsetY = 0;
+                else if (_scrollOffsetY > total) _scrollOffsetY = 0;
+            }
+            else
+            {
+                float delta = _scrollDir == MarqueeScrollDirection.RightToLeft
+                    ? -_scrollSpeed : _scrollSpeed;
+                _scrollOffset += delta;
+                float total = GetTotalWidth();
+                if (_scrollOffset < -total) _scrollOffset = 0;
+                else if (_scrollOffset > total) _scrollOffset = 0;
+            }
+        }
+
+        private void TickPingPong()
+        {
+            float total = GetTotalWidth();
+            float maxOffset = Math.Max(0, total - Width);
+
+            float delta = _pingPongForward ? _scrollSpeed : -_scrollSpeed;
+            _scrollOffset += delta;
+
+            if (_scrollOffset >= 0)
+            {
+                _scrollOffset = 0;
+                _pingPongForward = false;
+            }
+            else if (_scrollOffset <= -maxOffset)
+            {
+                _scrollOffset = -maxOffset;
+                _pingPongForward = true;
+            }
+        }
+
+        private void TickNewsTicker()
+        {
+            if (_items.Count == 0) return;
+
+            if (_newsFadingOut)
+            {
+                _newsAlpha = Math.Max(0f, _newsAlpha - 0.04f);
+                if (_newsAlpha <= 0f)
+                {
+                    _activeNewsIndex = (_activeNewsIndex + 1) % _items.Count;
+                    _newsFadingOut = false;
+                    _newsHoldTicks = 0;
+                    _newsAlpha = 0f;
+                }
+            }
+            else
+            {
+                _newsAlpha = Math.Min(1f, _newsAlpha + 0.04f);
+                if (_newsAlpha >= 1f)
+                {
+                    _newsHoldTicks++;
+                    if (_newsHoldTicks >= NewsHoldTarget)
+                        _newsFadingOut = true;
+                }
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Paint
+        // ═════════════════════════════════════════════════════════════════════════
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
 
-            // Clear background
-            e.Graphics.Clear(this.BackColor);
+            var g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // We treat the list of components like one continuous band. 
-            // We may need to draw them multiple times to fill the space when the offset wraps around.
+            // Build render context
+            var ctx = BuildContext(g);
 
-            float totalWidth = GetTotalComponentsWidth();
+            _hitRects.Clear();
+
+            if (_scrollMode == MarqueeScrollMode.NewsTicker)
+                PaintNewsTicker(g, ctx);
+            else if (_scrollDir == MarqueeScrollDirection.BottomToTop ||
+                     _scrollDir == MarqueeScrollDirection.TopToBottom)
+                PaintVertical(g, ctx);
+            else
+                PaintHorizontal(g, ctx);
+
+            // Fade edges overlay
+            if (_fadeEdges && _painter is MarqueePainterBase pb)
+                pb.DrawFadeEdges(g, ClientRectangle, ctx);
+        }
+
+        // ── Horizontal paint ─────────────────────────────────────────────────────
+        private void PaintHorizontal(Graphics g, MarqueeRenderContext ctx)
+        {
+            if (_items.Count == 0) { PaintLegacy(g); return; }
+
+            float totalW = GetTotalWidth();
             float startX = _scrollOffset;
 
-            // We'll keep drawing these "bands" of components until we fill the visible area.
-            // The visible area might be bigger or smaller than totalWidth. 
-            // So we handle that in a loop.
-            // 
-            // For a typical marquee, you only need to draw at most 2 times to 
-            // handle the wrap (once for the main band, once for the repeated band).
-
-            // We do a while loop to handle the scenario if the control width 
-            // is significantly larger than totalWidth, but typically 2 passes are enough.
-
+            // Draw enough bands to cover visible area (left + right of start)
             float drawX = startX;
-            while (drawX < this.Width)
-            {
-                DrawComponents(e.Graphics, drawX);
-                drawX += totalWidth;
-            }
+            while (drawX < Width)        { DrawBandH(g, ctx, drawX); drawX += totalW; }
+            drawX = startX - totalW;
+            while (drawX + totalW > 0)   { DrawBandH(g, ctx, drawX); drawX -= totalW; }
+        }
 
-            // Also handle if user resizes smaller or if offset is negative, 
-            // we might need to draw one pass to the left:
-            drawX = startX - totalWidth;
-            while (drawX + totalWidth > 0)
+        private void DrawBandH(Graphics g, MarqueeRenderContext ctx, float startX)
+        {
+            float cx = startX;
+            int centerY = Height / 2;
+            int ih = ctx.ItemHeight;
+            int topY = centerY - ih / 2;
+
+            for (int i = 0; i < _items.Count; i++)
             {
-                DrawComponents(e.Graphics, drawX);
-                drawX -= totalWidth;
+                var item = _items[i];
+                if (!item.IsVisible) { cx += _componentSpacing; continue; }
+
+                ctx.HoveredItemIndex  = _hoveredItemIndex;
+                ctx.CurrentItemIndex  = i;
+
+                var sz = _painter.Measure(g, item, ctx);
+                var dest = new RectangleF(cx, topY, sz.Width, ih);
+
+                if (dest.Right > 0 && dest.Left < Width)
+                {
+                    _painter.Draw(g, item, dest, ctx);
+                    _hitRects.Add((item, dest));
+                }
+
+                cx += sz.Width + _componentSpacing;
             }
         }
 
-        /// <summary>
-        /// Draws all components in a row starting from a given X coordinate.
-        /// </summary>
-        private void DrawComponents(Graphics graphics, float startX)
+        // ── Vertical paint ───────────────────────────────────────────────────────
+        private void PaintVertical(Graphics g, MarqueeRenderContext ctx)
         {
-            float currentX = startX;
+            if (_items.Count == 0) return;
 
-            int centerY = this.Height / 2;
+            float totalH = GetTotalHeight();
+            float startY = _scrollOffsetY;
+            float drawY  = startY;
 
+            while (drawY < Height)     { DrawBandV(g, ctx, drawY); drawY += totalH; }
+            drawY = startY - totalH;
+            while (drawY + totalH > 0) { DrawBandV(g, ctx, drawY); drawY -= totalH; }
+        }
+
+        private void DrawBandV(Graphics g, MarqueeRenderContext ctx, float startY)
+        {
+            float cy = startY;
+            int ih = ctx.ItemHeight;
+
+            for (int i = 0; i < _items.Count; i++)
+            {
+                var item = _items[i];
+                if (!item.IsVisible) { cy += _componentSpacing; continue; }
+
+                ctx.HoveredItemIndex = _hoveredItemIndex;
+                ctx.CurrentItemIndex = i;
+
+                var sz   = _painter.Measure(g, item, ctx);
+                var dest = new RectangleF(0, cy, Width, ih);
+
+                if (dest.Bottom > 0 && dest.Top < Height)
+                {
+                    _painter.Draw(g, item, dest, ctx);
+                    _hitRects.Add((item, dest));
+                }
+
+                cy += ih + _componentSpacing;
+            }
+        }
+
+        // ── NewsTicker paint ─────────────────────────────────────────────────────
+        private void PaintNewsTicker(Graphics g, MarqueeRenderContext ctx)
+        {
+            if (_items.Count == 0) return;
+
+            int idx  = _activeNewsIndex % _items.Count;
+            var item = _items[idx];
+
+            ctx.NewsAlpha        = _newsAlpha;
+            ctx.HoveredItemIndex = _hoveredItemIndex;
+            ctx.CurrentItemIndex = idx;
+
+            var sz   = _painter.Measure(g, item, ctx);
+            int ih   = ctx.ItemHeight;
+            int topY = (Height - ih) / 2;
+            var dest = new RectangleF((Width - sz.Width) / 2f, topY, sz.Width, ih);
+
+            _painter.Draw(g, item, dest, ctx);
+            _hitRects.Add((item, dest));
+        }
+
+        // ── Legacy (IBeepUIComponent) fallback ───────────────────────────────────
+        private void PaintLegacy(Graphics g)
+        {
+            float totalW = GetTotalComponentsWidth();
+            float startX = _scrollOffset;
+            float drawX  = startX;
+            while (drawX < Width)       { DrawComponents(g, drawX); drawX += totalW; }
+            drawX = startX - totalW;
+            while (drawX + totalW > 0)  { DrawComponents(g, drawX); drawX -= totalW; }
+        }
+
+        private void DrawComponents(Graphics g, float startX)
+        {
+            float cx = startX;
+            int cy = Height / 2;
             foreach (var kvp in _marqueeComponents)
             {
                 var comp = kvp.Value;
-                if (comp == null)
-                    continue;
-
-                int compWidth = comp.Width;
-                int compHeight = comp.Height;
-
-                // Calculate top Y so the component is centered vertically
-                int topY = centerY - (compHeight / 2);
-
-                // The rectangle where the component will be drawn
-                Rectangle rect = new Rectangle((int)currentX, topY, compWidth, compHeight);
-
-                // Let the component draw itself
-                comp.Draw(graphics, rect);
-
-                // Move currentX by the component's width and spacing
-                currentX += compWidth + ComponentSpacing;
+                if (comp == null) continue;
+                int topY = cy - comp.Height / 2;
+                var rect = new Rectangle((int)cx, topY, comp.Width, comp.Height);
+                comp.Draw(g, rect);
+                cx += comp.Width + _componentSpacing;
             }
         }
 
-        /// <summary>
-        /// Computes the total width of all components + spacing (one "band").
-        /// </summary>
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Helpers
+        // ═════════════════════════════════════════════════════════════════════════
+        private MarqueeRenderContext BuildContext(Graphics g)
+        {
+            return new MarqueeRenderContext
+            {
+                Theme           = _currentTheme,
+                UseThemeColors  = UseThemeColors,
+                DefaultForeColor = ForeColor,
+                DefaultBackColor = BackColor,
+                ItemFont        = Font ?? SystemFonts.DefaultFont,
+                OwnerControl    = this,
+                Direction       = _scrollDir,
+                ItemHeight      = _itemHeight,
+                Padding         = _componentSpacing / 2,
+                NewsAlpha       = _newsAlpha,
+                FadeEdges       = _fadeEdges,
+                FadeWidth       = _fadeWidth,
+            };
+        }
+
+        private float GetTotalWidth()
+        {
+            if (_items.Count == 0) return GetTotalComponentsWidth();
+            float total = 0;
+            using var g = CreateGraphics();
+            var ctx = BuildContext(g);
+            foreach (var item in _items)
+            {
+                if (!item.IsVisible) { total += _componentSpacing; continue; }
+                total += _painter.Measure(g, item, ctx).Width + _componentSpacing;
+            }
+            return total <= 0 ? 1 : total;
+        }
+
+        private float GetTotalHeight()
+        {
+            float total = _items.Count * (_itemHeight + _componentSpacing);
+            return total <= 0 ? 1 : total;
+        }
+
         private float GetTotalComponentsWidth()
         {
-            float totalWidth = 0;
+            float total = 0;
             foreach (var kvp in _marqueeComponents)
-            {
                 if (kvp.Value != null)
-                {
-                    totalWidth += kvp.Value.Width + ComponentSpacing;
-                }
-            }
-            // Remove the last extra spacing if desired:
-            // totalWidth -= ComponentSpacing;
-            return totalWidth <= 0 ? 1 : totalWidth; // avoid zero to prevent division issues
+                    total += kvp.Value.Width + _componentSpacing;
+            return total <= 0 ? 1 : total;
         }
 
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Layout / Theme
+        // ═════════════════════════════════════════════════════════════════════════
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            // You can reset or re-calc offset here if needed, but typically not necessary.
+            Invalidate();
         }
 
-        #region Theme Integration
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            
-            // Apply font theme based on ControlStyle
             MarqueeFontHelpers.ApplyFontTheme(ControlStyle);
-            
-            // Use theme helpers for consistent color retrieval
             if (_currentTheme != null && UseThemeColors)
-            {
-                BackColor = MarqueeThemeHelpers.GetMarqueeBackgroundColor(
-                    _currentTheme, UseThemeColors);
-            }
-            
+                BackColor = MarqueeThemeHelpers.GetMarqueeBackgroundColor(_currentTheme, UseThemeColors);
             Invalidate();
         }
-        #endregion
+
+        // ═════════════════════════════════════════════════════════════════════════
+        //  Dispose
+        // ═════════════════════════════════════════════════════════════════════════
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _timer?.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }

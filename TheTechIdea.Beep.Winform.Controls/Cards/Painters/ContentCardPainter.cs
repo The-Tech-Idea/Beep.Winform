@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -42,32 +43,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _excerptFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            try { _metaFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 13f, FontStyle.Bold);
-            _excerptFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
-            _metaFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_titleFont = titleFont;
+            _excerptFont = bodyFont;
+            _badgeFont = captionFont;
+            _metaFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int excerptHeightMin = DpiScalingHelper.ScaleValue(ExcerptHeight, _owner);
+            int tagsHeight = DpiScalingHelper.ScaleValue(TagsHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int buttonWidth = DpiScalingHelper.ScaleValue(ButtonWidth, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Full-width banner image at top (45% of height)
             int bannerHeight = Math.Max(60, Math.Min(
                 (int)(drawingRect.Height * BannerHeightPercent / 100f),
-                drawingRect.Height - (Padding * 3)));
+                drawingRect.Height - (padding * 3)));
             
             ctx.ImageRect = new Rectangle(
                 drawingRect.Left,
@@ -79,52 +81,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Content area below banner
-            int contentTop = ctx.ImageRect.Bottom + Padding;
-            int contentWidth = drawingRect.Width - Padding * 2;
-            int availableHeight = drawingRect.Bottom - contentTop - Padding;
+            int contentTop = ctx.ImageRect.Bottom + padding;
+            int contentWidth = drawingRect.Width - padding * 2;
+            int availableHeight = drawingRect.Bottom - contentTop - padding;
             
             // Title
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
                 contentWidth,
-                TitleHeight);
+                titleHeight);
             
             // Subtitle/meta info (author, date)
             ctx.SubtitleRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                ctx.HeaderRect.Bottom + elementGap / 2,
                 contentWidth,
-                18);
+                DpiScalingHelper.ScaleValue(18, _owner));
             
             // Excerpt/description
-            int excerptHeight = Math.Max(30, availableHeight - TitleHeight - TagsHeight - ButtonHeight - ElementGap * 4);
+            int excerptHeight = Math.Max(excerptHeightMin, availableHeight - titleHeight - tagsHeight - buttonHeight - elementGap * 4);
             ctx.ParagraphRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.SubtitleRect.Bottom + ElementGap,
+                ctx.SubtitleRect.Bottom + elementGap,
                 contentWidth,
                 excerptHeight);
             
             // Tags row
             ctx.TagsRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.ParagraphRect.Bottom + ElementGap,
-                contentWidth - ButtonWidth - ElementGap,
-                TagsHeight);
+                ctx.ParagraphRect.Bottom + elementGap,
+                contentWidth - buttonWidth - elementGap,
+                tagsHeight);
             
             // Action button at bottom-right
             ctx.ButtonRect = new Rectangle(
-                drawingRect.Right - Padding - ButtonWidth,
-                drawingRect.Bottom - Padding - ButtonHeight,
-                ButtonWidth,
-                ButtonHeight);
+                drawingRect.Right - padding - buttonWidth,
+                drawingRect.Bottom - padding - buttonHeight,
+                buttonWidth,
+                buttonHeight);
             
             ctx.ShowSecondaryButton = false;
             
@@ -148,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw tags/chips
             if (ctx.Tags != null && ctx.Tags.Count > 0 && !ctx.TagsRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _metaFont);
             }
         }
         
@@ -174,13 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _excerptFont?.Dispose();
-            _badgeFont?.Dispose();
-            _metaFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

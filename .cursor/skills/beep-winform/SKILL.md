@@ -1,910 +1,389 @@
 ---
 name: beep-winform
-description: Provides expert guidance for Beep.Winform Windows Forms control library development, including BaseControl architecture, painter pattern implementation, theme integration, control creation, hit testing, animation, and styling patterns. Use when creating or updating Beep controls, implementing painters, integrating themes, or working with Windows Forms controls in the Beep.Winform framework.
+description: Mandatory development rules for Beep.Winform controls, forms, painters, dialogs, theming, DPI, and commercial UI/UX implementation patterns.
 ---
 
-# Beep.Winform Development Guide
+# Beep.Winform Skill (Strict Rules)
 
-Expert guidance for developing Windows Forms controls using the Beep.Winform framework, a modern control library with Material Design integration, theme support, and painter-based rendering.
+Use this skill when creating or updating any Beep.Winform control, form, painter, helper, or DialogManager feature.
 
-## Core Architecture
+## 1) Non-Negotiable Rules
 
-### BaseControl
-Foundation class that all Beep controls inherit from:
-- **Location**: `TheTechIdea.Beep.Winform.Controls/BaseControl/`
-- **Key Responsibilities**: Paint pipeline, DPI scaling, theme integration, hit testing, Material Design layout
-- **Key Methods**: `DrawContent()`, `ApplyTheme()`, `CalculateLayout()`, `OnPaint()`
-- **Key Properties**: `DrawingRect`, `CurrentTheme`, `ScaleFactor`, `MaterialStyle`
+1. Always use Beep controls for business UI surfaces when available (not plain WinForms controls).
+2. Any new custom control must inherit from `BaseControl`.
+3. Keep painter pattern strict:
+   - painters only render,
+   - state changes live in control/layout/hit-test helpers.
+4. Always use `StyledImagePainter` for image/svg/icon rendering.
+5. Always use `BackgroundPainterFactory`, `BorderPainterFactory`, and `ShadowPainterFactory` for surface rendering.
+6. Always use `BeepStyling` path/style helpers.
+7. Always use DPI helpers (`DpiScalingHelper`) for pixel constants.
+8. Never cache a DPI scale float; always scale via control reference at usage time.
+9. For custom controls, inherit from `TheTechIdea.Beep.Winform.Controls/BaseControl/BaseControl.cs`.
+10. For form/control visual identity, always align `FormStyle` and `BeepControlStyle` through `BeepStyling`.
 
-### Painter Pattern (Strategy Pattern)
-Visual rendering separated from control logic:
-- **Interface**: `IControlNamePainter` - Defines drawing contract
-- **Base Class**: `BaseControlNamePainter` - Provides helper methods
-- **Concrete Painters**: One per visual style (Material3, iOS15, Fluent2, etc.)
-- **Separation**: Painters only draw; no state mutation
+## 2) Font and Theme Rules (Critical)
 
-### Theme System
-Centralized color and styling management:
-- **Manager**: `BeepThemesManager` - Theme management
-- **Interface**: `IBeepTheme` - Theme contract
-- **Integration**: `ApplyTheme()` method in all controls
-- **Properties**: `UseThemeColors`, `CurrentTheme`, `AccentColor`
+1. Never assign `Font` directly on controls.
+2. Never create inline fonts with `new Font(...)`.
+3. Never use `this.Font`, `Control.Font`, or painter-owned ad-hoc fonts for text rendering.
+4. Fonts must come from theme typography via:
+   - `BeepThemesManager.ToFont(theme.XxxStyle)` (preferred in current codebase), or
+   - equivalent theme-to-font conversion utility used by the target module.
+5. Resolve fonts in `ApplyTheme()` and store in `_textFont` (or typed font fields) and pass down to painters/helpers.
+6. When theme changes, re-resolve fonts and invalidate layout/paint.
 
-### File Structure Pattern
-```
-ControlName/
-├── ControlName.cs                     # Main class (properties, events)
-├── ControlName.Painters.cs            # Painter management
-├── ControlName.Drawing.cs             # Paint logic
-├── ControlName.Animation.cs           # Animation logic (optional)
-├── Painters/
-│   ├── IControlNamePainter.cs        # Painter interface
-│   ├── BaseControlNamePainter.cs     # Base with helpers
-│   ├── Material3Painter.cs           # Concrete painter 1
-│   ├── iOS15Painter.cs               # Concrete painter 2
-│   └── ...                           # More painters (16 styles)
-├── Helpers/
-│   ├── ControlNameRenderingHelper.cs # Rendering utilities
-│   └── ControlNameAnimationHelper.cs # Animation utilities (optional)
-└── ControlNameStyle.cs               # Style enum
-```
+## 3) Beep Control Replacement Rules
 
-## Control Creation Process
+When replacing standard controls, use:
 
-### Step 1: Create Main Control Class
+- `Button` -> `BeepButton`
+- `TextBox` -> `BeepTextBox`
+- `Label` -> `BeepLabel`
+- `ComboBox` -> `BeepComboBox`
+- `ListBox` -> `BeepListBox`
+- `ProgressBar` -> `BeepProgressBar`
+- `CheckBox` -> `BeepCheckBox`
 
-**File:** `ControlName.cs`
+Set `UseThemeColors = true` on Beep controls where applicable.
+
+## 4) Image and Icon Rules
+
+1. Use `StyledImagePainter.Paint`, `PaintWithTint`, `PaintDisabled`.
+2. Use icon resources from:
+   - `TheTechIdea.Beep.Winform.Controls/IconsManagement/SvgsUI.cs`
+   - `TheTechIdea.Beep.Winform.Controls/IconsManagement/Svgs.cs`
+3. Prefer string-based icon paths (resource path pattern), not raw `Image` object painting.
+
+## 5) DPI and Layout Rules
+
+1. Scale all hardcoded dimensions:
+   - `DpiScalingHelper.ScaleValue`
+   - `ScaleSize`, `ScalePoint`, `ScaleRectangle`, `ScalePadding`
+2. Keep rendering and hit-test geometry in the same coordinate system and same scaled metrics.
+3. Do not mix absolute and margin-relative coordinate spaces.
+4. On resize/theme/DPI changes: invalidate layout cache and hit areas.
+
+## 6) Painter and Helper Design
+
+1. Prefer partial-class split for complex controls:
+   - main/properties/events,
+   - painters,
+   - drawing,
+   - animation,
+   - layout/hit-test helpers.
+2. Distinct style painters are required; avoid style logic monoliths.
+3. Every painter should support hover/focus/pressed/selected visuals where relevant.
+4. Layout helper owns geometry + interaction detection; painter consumes geometry.
+
+## 6.1) Inherit From BaseControl (How-To)
+
+Use this baseline pattern for every new Beep custom control:
 
 ```csharp
-using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace
+public class MyBeepControl : BaseControl
 {
-    [ToolboxItem(true)]
-    [ToolboxBitmap(typeof(ControlName))]
-    [Category("Beep Controls")]
-    [Description("Control description")]
-    [DisplayName("Beep Control Name")]
-    public partial class ControlName : BaseControl
+    private Font _textFont = SystemFonts.DefaultFont;
+
+    public MyBeepControl()
     {
-        #region Fields
-        private ControlNameStyle _style = ControlNameStyle.Material3;
-        private bool _useThemeColors = true;
-        // Add other fields
-        #endregion
+        IsChild = true;
+        UseThemeColors = true;
+        ApplyTheme();
+    }
 
-        #region Constructor
-        public ControlName()
-        {
-            InitializeComponent();
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw, true);
-        }
+    public override void ApplyTheme()
+    {
+        base.ApplyTheme();
+        if (CurrentTheme == null) return;
 
-        private void InitializeComponent()
-        {
-            // Subscribe to events
-        }
-        #endregion
+        // Theme font only (no direct Font assignment)
+        _textFont = BeepThemesManager.ToFont(CurrentTheme.BodyMedium) ?? SystemFonts.DefaultFont;
 
-        #region Public Properties
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Visual style of the control.")]
-        [DefaultValue(ControlNameStyle.Material3)]
-        public ControlNameStyle Style
-        {
-            get => _style;
-            set
-            {
-                if (_style != value)
-                {
-                    _style = value;
-                    InitializePainter();
-                    Invalidate();
-                }
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors { get; set; } = true;
-        #endregion
-
-        #region Protected Methods
-        public override void ApplyTheme()
-        {
-            base.ApplyTheme();
-            if (CurrentTheme != null)
-            {
-                BackColor = CurrentTheme.BackColor;
-                ForeColor = CurrentTheme.ForeColor;
-                // Apply theme to child components
-            }
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            RefreshHitAreas();
-        }
-        #endregion
+        // Map form style to control style when needed
+        ControlStyle = BeepStyling.GetControlStyle(FormStyle);
+        Invalidate();
     }
 }
 ```
 
-### Step 2: Create Style Enum
+Mandatory notes:
+- Do not assign `Font` property in constructor or runtime.
+- Do not create inline fonts.
+- Keep text rendering on `_textFont` resolved from theme.
 
-**File:** `ControlNameStyle.cs`
+## 6.1.1) BeepButton Gold Standard Pattern
+
+Reference:
+- `TheTechIdea.Beep.Winform.Controls/Buttons/BeepButton.cs`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/BaseControl.cs`
+- `TheTechIdea.Beep.Vis.Modules2.0/IBeepUIComponent.cs`
+
+Observed architecture to follow:
+1. `BeepButton` inherits `BaseControl`.
+2. `BaseControl` implements `IBeepUIComponent` (so derived controls inherit the interface contract automatically).
+3. Rendering uses `DrawContent(Graphics g)` override pattern and calls `base.DrawContent(g)` first.
+4. Theme application is explicit via `BeepButton.ApplyTheme()` and visual rendering stays in `DrawContent(...)`.
+
+Mandatory rendering rule:
+- For Beep controls, implement custom drawing in `DrawContent(...)`, not ad-hoc paint-only logic.
+- Keep base pipeline intact by calling `base.DrawContent(g)` before control-specific rendering.
+
+Actual code references:
+- `TheTechIdea.Beep.Winform.Controls/Buttons/BeepButton.cs`
+  - `public class BeepButton : BaseControl`
+  - `public override void ApplyTheme()`
+  - `protected override void DrawContent(Graphics g)`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/BaseControl.cs`
+  - `public partial class BaseControl : ContainerControl, IBeepUIComponent, ...`
+
+Template:
 
 ```csharp
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace
+public class MyBeepControl : BaseControl
 {
-    public enum ControlNameStyle
+    protected override void DrawContent(Graphics g)
     {
-        Material3,
-        iOS15,
-        AntDesign,
-        Fluent2,
-        MaterialYou,
-        Windows11Mica,
-        MacOSBigSur,
-        ChakraUI,
-        TailwindCard,
-        NotionMinimal,
-        Minimal,
-        VercelClean,
-        StripeDashboard,
-        DarkGlow,
-        DiscordStyle,
-        GradientModern
+        base.DrawContent(g); // keep BaseControl pipeline
+
+        // custom drawing here using:
+        // - theme fonts from BeepThemesManager.ToFont(...)
+        // - StyledImagePainter for images/icons
+        // - DpiScalingHelper for dimensions
     }
 }
 ```
 
-### Step 3: Create Painter Interface
+## 6.1.2) IBeepUIComponent Embedding Pattern (BeepCheckBox Example)
 
-**File:** `Painters/IControlNamePainter.cs`
+Reference:
+- `TheTechIdea.Beep.Winform.Controls/CheckBoxes/BeepCheckBox.cs`
+- `TheTechIdea.Beep.Winform.Controls/CheckBoxes/BeepCheckBox.IBeepComponent.cs`
+
+Why this matters:
+- Controls that follow this pattern can be embedded and orchestrated by host controls (for example, data-host surfaces like `BeepGridPro`) using a consistent value/filter/binding contract.
+
+Pattern to follow:
+1. Inherit from `BaseControl` (inherits `IBeepUIComponent` contract).
+2. Keep `BoundProperty` explicit and meaningful for host binding.
+3. Override value APIs so hosts can set/get/clear values generically.
+4. Override filter APIs (`HasFilterValue`, `ToFilter`) so host containers can consume control state in query/filter flows.
+
+Actual code references:
+- `TheTechIdea.Beep.Winform.Controls/CheckBoxes/BeepCheckBox.IBeepComponent.cs`
+  - `public override string BoundProperty { get; set; } = "State";`
+  - `public override void SetValue(object value)`
+  - `public override object GetValue()`
+  - `public override void ClearValue()`
+  - `public override bool HasFilterValue()`
+  - `public override AppFilter ToFilter()`
+- `TheTechIdea.Beep.Vis.Modules2.0/IBeepUIComponent.cs`
+  - `void SetValue(object value)`
+  - `object GetValue()`
+  - `AppFilter ToFilter()`
+  - `void ReceiveMouseEvent(HitTestEventArgs eventArgs)`
+  - `void SendMouseEvent(IBeepUIComponent targetControl, MouseEventType eventType, Point screenLocation)`
+
+Why this enables embedding in hosts like grids:
+- Host controls can treat embedded editors uniformly through `IBeepUIComponent`.
+- Value extraction/sync and filter extraction are standardized (`GetValue`/`ToFilter`).
+- Host-level mouse dispatch can forward interaction through `SendMouseEvent` / `ReceiveMouseEvent`.
+
+Template (matching checkbox pattern):
 
 ```csharp
-using System;
-using System.Drawing;
-
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace.Painters
+public partial class MyControl : BaseControl
 {
-    public interface IControlNamePainter
+    public override string BoundProperty { get; set; } = "MyState";
+
+    public override void SetValue(object value)
     {
-        void Draw(ControlName control, Graphics g, Rectangle bounds);
-        void DrawSelection(ControlName control, Graphics g, Rectangle selectedRect);
-        void DrawHover(ControlName control, Graphics g, Rectangle hoverRect);
-        void UpdateHitAreas(ControlName control, Rectangle bounds, 
-            Action<string, Rectangle, Action> registerHitArea);
-        string Name { get; }
+        if (value != null)
+        {
+            // map incoming object to control state
+        }
+    }
+
+    public override object GetValue()
+    {
+        // return current control value for host containers
+        return /* current value */;
+    }
+
+    public override void ClearValue()
+    {
+        // reset control value
+    }
+
+    public override bool HasFilterValue()
+    {
+        return /* true when filterable value exists */;
+    }
+
+    public override AppFilter ToFilter()
+    {
+        return new AppFilter
+        {
+            FieldName = BoundProperty,
+            FilterValue = GetValue()?.ToString(),
+            Operator = "="
+        };
     }
 }
 ```
 
-### Step 4: Create Base Painter
+Required alongside this pattern:
+- Keep rendering in `DrawContent(Graphics g)` and call `base.DrawContent(g)`.
+- Keep fonts/theme/DPI/image rules from this skill (theme fonts only, `StyledImagePainter`, `DpiScalingHelper`).
 
-**File:** `Painters/BaseControlNamePainter.cs`
+## 6.2) FormStyle + ControlStyle + BeepStyling Usage
 
-```csharp
-using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.BaseImage;
+Reference files:
+- `TheTechIdea.Beep.Winform.Controls/Styling/BeepStyling.cs`
+- `TheTechIdea.Beep.Winform.Controls/Styling/FORM_STYLE_PAINTER_PLAN.md`
+- `TheTechIdea.Beep.Winform.Controls/Styling/PAINTER_ARCHITECTURE.md`
 
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace.Painters
-{
-    public abstract class BaseControlNamePainter : IControlNamePainter
-    {
-        // Shared ImagePainter instance - DO NOT create new instances!
-        private static readonly ImagePainter _sharedImagePainter = new ImagePainter();
-        
-        public abstract string Name { get; }
-        public abstract void Draw(ControlName control, Graphics g, Rectangle bounds);
+Rules:
+1. Form-level style drives control-level style mapping through:
+   - `BeepStyling.GetControlStyle(FormStyle formStyle)`
+2. Build shape paths via:
+   - `BeepStyling.CreateControlStylePath(...)` or `CreateControlPath(...)`
+3. Keep style painters factory-based and style-specific (do not collapse styles into one generic painter).
+4. Respect painter architecture split:
+   - Background / Border / Text / Button / Shadow / Path painters.
+5. Use theme-aware color retrieval through style/theme helpers, not ad-hoc hardcoded colors.
 
-        public virtual void DrawSelection(ControlName control, Graphics g, Rectangle selectedRect)
-        {
-            // Default implementation
-        }
-
-        public virtual void DrawHover(ControlName control, Graphics g, Rectangle hoverRect)
-        {
-            // Default implementation
-        }
-
-        public virtual void UpdateHitAreas(ControlName control, Rectangle bounds, 
-            Action<string, Rectangle, Action> registerHitArea)
-        {
-            // Default: register hit areas
-        }
-
-        #region Helper Methods
-        protected static GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int d = Math.Max(0, Math.Min(radius * 2, Math.Min(rect.Width, rect.Height)));
-            if (d <= 1) { path.AddRectangle(rect); return path; }
-            var arc = new Rectangle(rect.X, rect.Y, d, d);
-            path.AddArc(arc, 180, 90);
-            arc.X = rect.Right - d; path.AddArc(arc, 270, 90);
-            arc.Y = rect.Bottom - d; path.AddArc(arc, 0, 90);
-            arc.X = rect.Left; path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-
-        protected virtual void DrawIcon(ControlName control, Graphics g, string imagePath, Rectangle iconRect)
-        {
-            try
-            {
-                _sharedImagePainter.ImagePath = imagePath;
-                if (control.CurrentTheme != null)
-                {
-                    _sharedImagePainter.CurrentTheme = control.CurrentTheme;
-                    _sharedImagePainter.ApplyThemeOnImage = true;
-                }
-                _sharedImagePainter.DrawImage(g, iconRect);
-            }
-            catch
-            {
-                // Fallback
-            }
-        }
-        #endregion
-    }
-}
-```
-
-### Step 5: Create Concrete Painter
-
-**File:** `Painters/Material3Painter.cs`
+Minimal pattern:
 
 ```csharp
-using System.Drawing;
-using System.Drawing.Drawing2D;
-
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace.Painters
-{
-    public sealed class Material3Painter : BaseControlNamePainter
-    {
-        public override string Name => "Material3";
-
-        public override void Draw(ControlName control, Graphics g, Rectangle bounds)
-        {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-
-            // CRITICAL: Check UseThemeColors setting
-            bool useThemeColors = control.UseThemeColors;
-            Color backgroundColor, foreColor, accentColor;
-
-            if (useThemeColors && control.CurrentTheme != null)
-            {
-                backgroundColor = control.CurrentTheme.BackColor;
-                foreColor = control.CurrentTheme.ForeColor;
-                accentColor = control.CurrentTheme.AccentColor;
-            }
-            else
-            {
-                // Preserve Material Design 3 identity
-                backgroundColor = Color.FromArgb(255, 251, 254);
-                foreColor = Color.FromArgb(28, 27, 31);
-                accentColor = Color.FromArgb(103, 80, 164);
-            }
-
-            // Draw background
-            using var bgBrush = new SolidBrush(backgroundColor);
-            g.FillRectangle(bgBrush, bounds);
-
-            // Draw control-specific content
-            // Each painter implements this UNIQUELY
-        }
-    }
-}
+var controlStyle = BeepStyling.GetControlStyle(FormStyle);
+using var path = BeepStyling.CreateControlStylePath(DrawingRect, controlStyle);
+// Then paint using BackgroundPainterFactory + BorderPainterFactory + ShadowPainterFactory
 ```
 
-### Step 6: Painter Management
+## 6.3) Theme Integration With BeepThemesManager
 
-**File:** `ControlName.Painters.cs`
+Reference file:
+- `TheTechIdea.Beep.Winform.Controls/ThemeManagement/BeepThemesManager.cs`
+
+Rules:
+1. Resolve current theme through `BeepThemesManager`/`CurrentTheme`.
+2. Use theme change flow to re-apply style + fonts:
+   - update local `_textFont` from theme typography,
+   - update mapped `ControlStyle`,
+   - invalidate layout and paint.
+3. All rendered text must come from theme typography conversion, not designer/static font values.
+
+## 6.4) Child-Control Interactivity Helpers (Use This)
+
+Reference:
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/Helpers/ControlInputHelper.cs`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/Helpers/ControlHitTestHelper.cs`
+
+Use these helpers for embedded interactive parts (including child components hosted inside complex controls like grids, cards, custom editors).
+
+Rules:
+1. Register interactive regions/components via `ControlHitTestHelper.AddHitArea(...)`.
+2. Route mouse lifecycle through `ControlInputHelper` (`OnMouseEnter/Move/Down/Up/Click/...`) instead of ad-hoc event duplication.
+3. For embedded `IBeepUIComponent` children, use hit-test helper event routing:
+   - `SendMouseEvent(...)`
+   - `ReceiveMouseEvent(...)`
+4. Keep hit detection + interaction state in helpers (`IsHovered`, `IsPressed`, `IsHit`), not painters.
+5. Trigger actions only on click flow (`HandleClick`) to avoid duplicate execution on hover/move.
+
+Actual code references:
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/Helpers/ControlInputHelper.cs`
+  - `OnMouseEnter`, `OnMouseMove`, `OnMouseDown`, `OnMouseUp`, `OnClick`
+  - `ProcessDialogKey(Keys keyData)`
+  - `ReceiveMouseEvent(HitTestEventArgs eventArgs)`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/Helpers/ControlHitTestHelper.cs`
+  - `AddHitArea(string name, Rectangle rect, IBeepUIComponent component, Action hitAction)`
+  - `SendMouseEvent(IBeepUIComponent targetControl, MouseEventType eventType, Point screenLocation)`
+  - `HandleMouseMove`, `HandleMouseDown`, `HandleMouseUp`, `HandleClick`
+  - Internal dispatch of `MouseEnter/Move/Leave/Down/Up/Click/Hover` to embedded component
+
+Step-by-step embedding workflow (recommended):
+1. During layout refresh, register each embedded interactive region with `_hitTest.AddHitArea(...)`.
+2. In the parent control input overrides, forward mouse events to `_input` methods.
+3. Let `_input` call `_hitTest` to detect active region and dispatch to embedded `IBeepUIComponent`.
+4. Keep painter pure: painter reads state only (`IsHovered`, `IsPressed`, `IsHit`) and paints visuals.
+5. Keep business actions in control/helper callbacks (`hitAction`), not inside painter.
+
+Common mistake to avoid:
+- Do not call embedded actions from hover/move branches; only trigger command actions in click path.
+
+Minimal pattern:
 
 ```csharp
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls.YourNamespace.Painters;
+// During layout refresh:
+_hitTest.AddHitArea("CellEditor", editorRect, embeddedBeepComponent, () => OnEditorClick());
 
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace
-{
-    public partial class ControlName
-    {
-        #region Painter Fields
-        private IControlNamePainter _currentPainter;
-        private Dictionary<string, (Rectangle rect, Action action)> _hitAreas = new();
-        private int _hoveredItemIndex = -1;
-        #endregion
-
-        #region Painter Management
-        private void InitializePainter()
-        {
-            _currentPainter = _style switch
-            {
-                ControlNameStyle.Material3 => new Material3Painter(),
-                ControlNameStyle.iOS15 => new iOS15Painter(),
-                // ... other styles
-                _ => new Material3Painter()
-            };
-            RefreshHitAreas();
-        }
-        #endregion
-
-        #region Hit Area Management
-        private void RefreshHitAreas()
-        {
-            _hitAreas.Clear();
-            if (_currentPainter != null && ClientRectangle.Width > 0)
-            {
-                _currentPainter.UpdateHitAreas(this, ClientRectangle, 
-                    (name, rect, action) => _hitAreas[name] = (rect, action));
-            }
-        }
-
-        private void UpdateHoverState(Point mouseLocation)
-        {
-            int previousHover = _hoveredItemIndex;
-            _hoveredItemIndex = -1;
-
-            foreach (var kvp in _hitAreas)
-            {
-                if (kvp.Value.rect.Contains(mouseLocation))
-                {
-                    if (kvp.Key.StartsWith("Item_") && 
-                        int.TryParse(kvp.Key.Substring(5), out int index))
-                    {
-                        _hoveredItemIndex = index;
-                        Cursor = Cursors.Hand;
-                        break;
-                    }
-                }
-            }
-
-            if (_hoveredItemIndex < 0)
-                Cursor = Cursors.Default;
-
-            if (previousHover != _hoveredItemIndex)
-                Invalidate();
-        }
-
-        private bool HandleHitAreaClick(Point mouseLocation)
-        {
-            foreach (var kvp in _hitAreas)
-            {
-                if (kvp.Value.rect.Contains(mouseLocation))
-                {
-                    kvp.Value.action?.Invoke();
-                    return true;
-                }
-            }
-            return false;
-        }
-        #endregion
-
-        #region Mouse Events
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            UpdateHoverState(e.Location);
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (_hoveredItemIndex != -1)
-            {
-                _hoveredItemIndex = -1;
-                Cursor = Cursors.Default;
-                Invalidate();
-            }
-        }
-
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
-            HandleHitAreaClick(e.Location);
-        }
-        #endregion
-    }
-}
+// In input flow:
+_input.OnMouseMove(e.Location);
+_input.OnMouseDown(e);
+_input.OnMouseUp(e);
+_input.OnClick();
 ```
 
-### Step 7: Drawing Implementation
-
-**File:** `ControlName.Drawing.cs`
-
-```csharp
-using System.Drawing;
-
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace
-{
-    public partial class ControlName
-    {
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-            _currentPainter?.Draw(this, g, ClientRectangle);
-        }
-    }
-}
-```
-
-## Critical Rules
-
-### Always Follow These Rules
-
-1. **Always inherit from BaseControl** - Never inherit directly from Control
-2. **Always use StyledImagePainter** - For painting images and SVG
-3. **Always use partial classes** - Split by functionality (Painters, Drawing, Animation)
-4. **Always create distinct painters** - No base painter inheritance between styles
-5. **Always support UseThemeColors** - Every painter must check this setting
-6. **Always override ApplyTheme()** - Apply theme colors to control and children
-7. **Always use BeepFontManager** - For getting fonts
-8. **Always use BackgroundPainterFactory** - For painting backgrounds
-9. **Always use BorderPainterFactory** - For painting borders
-10. **Always use ShadowPainterFactory** - For painting shadows
-11. **Always use HitTestHelper** - For hit testing
-12. **Always use BeepStyling** - For applying FormStyle or ControlStyle
-13. **Event detection in layout manager** - Painter only paints effects
-14. **ImagePath is always string** - Never use Image objects directly
-
-### Painter Pattern Rules
-
-⚠️ **CRITICAL:**
-- Each painter's `Draw()` method is UNIQUE - Material3 draws differently than iOS15
-- Base class provides HELPERS only - Optional methods like `DrawMenuItems()`
-- Painters call helpers BY CHOICE - Can use helpers OR implement custom
-- No shared drawing logic - Each style defines its own layout and drawing
-- One class per file - NEVER put multiple painters in one file
-- UseThemeColors MUST be implemented - Check setting, use theme or style colors
-
-### UseThemeColors Pattern (MANDATORY)
-
-Every painter MUST implement:
-
-```csharp
-public override void Draw(ControlName control, Graphics g, Rectangle bounds)
-{
-    bool useThemeColors = control.UseThemeColors;
-    Color backgroundColor, foreColor, accentColor;
-
-    if (useThemeColors && control.CurrentTheme != null)
-    {
-        // Use theme's dedicated colors
-        backgroundColor = control.CurrentTheme.BackColor;
-        foreColor = control.CurrentTheme.ForeColor;
-        accentColor = control.CurrentTheme.AccentColor;
-    }
-    else
-    {
-        // Use original style-specific colors (preserve identity!)
-        backgroundColor = Color.FromArgb(255, 251, 254);  // MD3 Surface
-        foreColor = Color.FromArgb(28, 27, 31);           // MD3 On Surface
-        accentColor = Color.FromArgb(103, 80, 164);       // MD3 Primary
-    }
-
-    // Draw using selected colors
-}
-```
-
-## Theme Integration
-
-### ApplyTheme Pattern
-
-```csharp
-public override void ApplyTheme()
-{
-    base.ApplyTheme();
-    if (CurrentTheme != null)
-    {
-        BackColor = CurrentTheme.BackColor;
-        ForeColor = CurrentTheme.ForeColor;
-        BorderColor = CurrentTheme.BorderColor;
-        
-        // Propagate to child components
-        foreach (Control child in Controls)
-        {
-            if (child is BaseControl beepChild)
-            {
-                beepChild.CurrentTheme = CurrentTheme;
-                beepChild.ApplyTheme();
-            }
-        }
-    }
-}
-```
-
-### Theme Properties
-
-```csharp
-[Browsable(true)]
-[Category("Appearance")]
-[Description("Use theme colors instead of custom accent color.")]
-[DefaultValue(true)]
-public bool UseThemeColors { get; set; } = true;
-
-[Browsable(true)]
-[Category("Appearance")]
-[Description("Custom accent color (used when UseThemeColors = false).")]
-public Color AccentColor { get; set; } = Color.FromArgb(0, 120, 215);
-```
-
-## Hit Testing Pattern
-
-### Registering Hit Areas
-
-```csharp
-public virtual void UpdateHitAreas(ControlName control, Rectangle bounds, 
-    Action<string, Rectangle, Action> registerHitArea)
-{
-    if (control.Items == null) return;
-
-    int itemHeight = 44;
-    int currentY = bounds.Top + 8;
-
-    for (int i = 0; i < control.Items.Count; i++)
-    {
-        var itemRect = new Rectangle(bounds.Left + 4, currentY, bounds.Width - 8, itemHeight);
-        int index = i; // IMPORTANT: Capture for lambda
-        registerHitArea($"Item_{i}", itemRect, () => control.SelectItemByIndex(index));
-        currentY += itemHeight + 4;
-    }
-}
-```
-
-### Hit Testing Flow
-
-1. Control calls `RefreshHitAreas()` when layout changes
-2. Painter's `UpdateHitAreas()` registers clickable rectangles
-3. Mouse events check `_hitAreas` dictionary
-4. Matching area triggers registered action
-5. Control updates selection and raises events
-
-## Animation Implementation (Optional)
-
-### Animation Partial Class
-
-**File:** `ControlName.Animation.cs`
-
-```csharp
-using System;
-using System.Windows.Forms;
-
-namespace TheTechIdea.Beep.Winform.Controls.YourNamespace
-{
-    public partial class ControlName
-    {
-        #region Animation Fields
-        private Timer _animationTimer;
-        private DateTime _animationStartTime;
-        private int _animationDurationMs = 200;
-        private bool _isAnimating = false;
-        private bool _enableAnimation = true;
-        #endregion
-
-        #region Animation Properties
-        [Browsable(true)]
-        [Category("Animation")]
-        [Description("Enable smooth animation.")]
-        [DefaultValue(true)]
-        public bool EnableAnimation
-        {
-            get => _enableAnimation;
-            set => _enableAnimation = value;
-        }
-
-        [Browsable(true)]
-        [Category("Animation")]
-        [Description("Duration of animation in milliseconds.")]
-        [DefaultValue(200)]
-        public int AnimationDuration
-        {
-            get => _animationDurationMs;
-            set => _animationDurationMs = Math.Max(0, value);
-        }
-        #endregion
-
-        #region Animation Methods
-        private void StartAnimation()
-        {
-            if (_isAnimating && _animationTimer != null)
-                _animationTimer.Stop();
-
-            _animationStartTime = DateTime.Now;
-            _isAnimating = true;
-
-            if (_animationTimer == null)
-            {
-                _animationTimer = new Timer();
-                _animationTimer.Interval = 16; // ~60 FPS
-                _animationTimer.Tick += AnimationTimer_Tick;
-            }
-
-            _animationTimer.Start();
-        }
-
-        private void AnimationTimer_Tick(object sender, EventArgs e)
-        {
-            var elapsed = (DateTime.Now - _animationStartTime).TotalMilliseconds;
-            var progress = Math.Min(1.0, elapsed / _animationDurationMs);
-
-            // Update animated value
-            // Apply easing function
-
-            if (progress >= 1.0)
-            {
-                _animationTimer.Stop();
-                _isAnimating = false;
-            }
-
-            Invalidate();
-        }
-
-        private void DisposeAnimation()
-        {
-            if (_animationTimer != null)
-            {
-                _animationTimer.Stop();
-                _animationTimer.Tick -= AnimationTimer_Tick;
-                _animationTimer.Dispose();
-                _animationTimer = null;
-            }
-        }
-        #endregion
-    }
-}
-```
-
-## Common Patterns
-
-### Image Painting Pattern
-
-```csharp
-// Use shared ImagePainter instance (static readonly)
-private static readonly ImagePainter _sharedImagePainter = new ImagePainter();
-
-protected virtual void DrawIcon(ControlName control, Graphics g, string imagePath, Rectangle iconRect)
-{
-    try
-    {
-        _sharedImagePainter.ImagePath = imagePath; // Always string path
-        if (control.CurrentTheme != null)
-        {
-            _sharedImagePainter.CurrentTheme = control.CurrentTheme;
-            _sharedImagePainter.ApplyThemeOnImage = true;
-        }
-        _sharedImagePainter.DrawImage(g, iconRect);
-    }
-    catch
-    {
-        // Fallback drawing
-    }
-}
-```
-
-### Layout Calculation Pattern
-
-```csharp
-protected override void CalculateLayout()
-{
-    base.CalculateLayout();
-    
-    // Use DrawingRect (not ClientRectangle) for Material-aware layout
-    var baseRect = DrawingRect;
-    int padding = ScaleValue(8); // DPI-aware scaling
-    
-    // Calculate control-specific layout
-    _contentRect = new Rectangle(
-        baseRect.X + padding,
-        baseRect.Y + padding,
-        baseRect.Width - (padding * 2),
-        baseRect.Height - (padding * 2)
-    );
-}
-```
-
-### DPI Scaling Pattern
-
-```csharp
-// Always use ScaleValue for sizes
-int padding = ScaleValue(8);
-int fontSize = ScaleValue(14);
-
-// Use GetScaledFont for fonts
-Font font = GetScaledFont("Segoe UI", fontSize, FontStyle.Regular);
-
-// Use DrawingRect (already scaled) instead of ClientRectangle
-Rectangle contentRect = DrawingRect;
-```
-
-## Anti-Patterns to Avoid
-
-### ❌ DON'T:
-
-1. **Don't create ImagePainter in loops**
-   ```csharp
-   // BAD
-   for (int i = 0; i < items.Count; i++)
-   {
-       var painter = new ImagePainter(); // ❌ Creates many instances!
-   }
-   
-   // GOOD
-   private static readonly ImagePainter _sharedPainter = new ImagePainter();
-   ```
-
-2. **Don't hardcode colors**
-   ```csharp
-   // BAD
-   g.FillRectangle(Brushes.Blue, rect); // ❌ Ignores themes!
-   
-   // GOOD
-   Color blue = useThemeColors ? theme.AccentColor : Color.Blue;
-   using var brush = new SolidBrush(blue);
-   ```
-
-3. **Don't forget lambda capture**
-   ```csharp
-   // BAD
-   for (int i = 0; i < count; i++)
-   {
-       registerHitArea($"Item_{i}", rect, () => Select(i)); // ❌ All reference last i!
-   }
-   
-   // GOOD
-   for (int i = 0; i < count; i++)
-   {
-       int index = i; // ✅ Capture correctly
-       registerHitArea($"Item_{index}", rect, () => Select(index));
-   }
-   ```
-
-4. **Don't modify state in paint methods**
-   ```csharp
-   // BAD
-   protected override void OnPaint(PaintEventArgs e)
-   {
-       _someField = CalculateValue(); // ❌ State change in paint!
-   }
-   
-   // GOOD
-   protected override void OnPaint(PaintEventArgs e)
-   {
-       var value = CalculateValue(); // ✅ Read-only calculation
-   }
-   ```
-
-## Quick Reference Checklist
-
-When creating a new control, verify:
-
-- [ ] Main class inherits from BaseControl
-- [ ] Partial classes for Painters, Drawing, Animation (if needed)
-- [ ] Style enum with 16 options
-- [ ] IPainter interface defined
-- [ ] BasePainter with helper methods
-- [ ] 16 concrete painter implementations (or as needed)
-- [ ] All painters implement UseThemeColors pattern
-- [ ] Hit testing via UpdateHitAreas
-- [ ] Mouse events in Painters partial class
-- [ ] Animation in separate partial class (if needed)
-- [ ] Proper Dispose pattern
-- [ ] Designer attributes (Browsable, Category, Description, DefaultValue)
-- [ ] ToolboxItem, ToolboxBitmap, DisplayName attributes
-- [ ] No hardcoded colors (use theme or style-specific)
-- [ ] Shared ImagePainter instance (static readonly)
-- [ ] Lambda capture done correctly
-- [ ] RefreshHitAreas on layout changes
-- [ ] SmoothingMode.AntiAlias for graphics
-- [ ] DoubleBuffering enabled
-- [ ] ApplyTheme() implemented and propagates to children
-
-## Documentation Requirements
-
-### README Files to Update
-
-1. **Control README**: `ControlName/README.md` - Control-specific documentation
-2. **BaseControl README**: `BaseControl/README.md` - BaseControl architecture
-3. **Styling README**: `Styling/README.md` - Styling guidelines
-4. **Theme README**: `ThemeManagement/README.md` - Theme system
-5. **Main README**: `TheTechIdea.Beep.Winform.Controls/Readme.md` - Component list
-
-### Documentation Update Triggers
-
-Update README files when:
-- Adding new public properties/methods
-- Changing control behavior
-- Adding theme integration
-- Modifying layout logic
-- Adding new dependencies
-- Changing inheritance hierarchy
-
-## Reference Implementation
-
-**BeepSideBar** (`TheTechIdea.Beep.Winform.Controls.SideBar.BeepSideBar`) demonstrates perfect implementation:
-- Complete painter architecture (16 styles)
-- Smooth sliding animation (200ms, ease-out cubic)
-- Full theme integration with UseThemeColors
-- Hit testing for all menu items
-- Hover and selection effects
-- Clean partial class separation
-
-**Use BeepSideBar as the gold standard for new controls!**
-
-## Key File Locations
-
-- **BaseControl**: `TheTechIdea.Beep.Winform.Controls/BaseControl/`
-- **Theme Management**: `TheTechIdea.Beep.Winform.Controls/ThemeManagement/`
-- **Styling**: `TheTechIdea.Beep.Winform.Controls/Styling/`
-- **Image Painters**: `TheTechIdea.Beep.Winform.Controls/Styling/ImagePainters/`
-- **Instructions**: `.github/instructions/`
-
-## Related Documentation
-
-- **Control Creation**: `.github/instructions/CreateUpdateBeepControl.instructions.md`
-- **Co-pilot Instructions**: `.github/instructions/co-pilot.instructions.md`
-- **Claude Instructions**: `.github/instructions/claude-instructions.md`
-- **Cursor Instructions**: `.github/instructions/cursor-instructions.md`
-- **Rules**: `.cursor/rules/mycontrolsonly.mdc`
-
-you are an expert WinForms developer experienced in high-DPI support.I need you to analyze all forms and custom controls in my WinForms project and ensure full per-monitor DPI scaling support, especially when forms are moved between monitors with different DPI settings.
-For each form and control:
-
-If not already present, add PerMonitorV2 DPI awareness by:
-
-Setting Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); in Program.cs
-Adding required AppContextSwitchOverrides in app.config (for .NET Framework projects)
-
-
-For each custom control class (: Control, : UserControl, : Button, etc.):
-
-Override OnHandleCreated() to compute _dpiScaleX and _dpiScaleY (using CreateGraphics().DpiX / 96f)
-Override OnDpiChanged(DpiChangedEventArgs e) to update scale values and trigger layout/drawing recalculation
-Ensure all custom drawing (e.g., Graphics.DrawLine, Font size, Pen width) uses _dpiScaleX/Y
-Update any hard-coded positions/sizes (e.g., Location, Size, Padding, Margin) dynamically in OnDpiChanged
-
-
-For each form, add a DpiChanged event handler that:
-
-Propagates DPI change to all nested controls
-Recursively scales Font, Location, and Size for controls that aren’t already docked/anchored properly
-Calls Invalidate() and PerformLayout() after scaling
-
-
-Avoid breaking existing layout:  
-
-Preserve Anchor/Dock behavior — only manually scale controls that don’t auto-scale (e.g., custom drawing or flow layout)
-Use e.DpiScale.X/Y (available from DpiChangedEventArgs in .NET 5+ / .NET Framework 4.7.2+)
-
-
-Return a summary of:
-
-All files modified/added
-Any manual fixes needed (e.g., hardcoded values to replace)
-A test checklist (e.g., "Move form to 150% DPI monitor — verify no clipping")
-
-
-
-If certain controls (e.g., third-party ones) can’t be modified, suggest workarounds (e.g., wrapper UserControl or message hooks).
-Prioritize correctness and compatibility with both modern (.NET 6/7/8) and legacy (.NET Framework 4.7.2+) environments._
-
+This pattern enables reusable controls to be embedded in host controls (e.g., grid-like surfaces) with consistent interaction semantics.
+
+## 7) DialogManager-Specific Rules
+
+1. `IDialogManager` public surface should be async-first.
+2. Do not use `Application.DoEvents()` pump-based compatibility wrappers unless explicitly requested.
+3. For long-running dialogs (busy/progress), use async handles + cancellation support.
+4. Dialog UI should follow Beep-controls compliance, DPI scaling, and theme-font rules in this skill.
+
+## 8) Commercial UI/UX Quality Bar
+
+Implement interactions at a commercial standard (DevExpress/Figma-inspired):
+
+- smooth hover/press transitions,
+- focus visibility and keyboard navigation,
+- consistent backdrop/elevation behavior,
+- clear visual hierarchy and spacing,
+- responsive layout under compact/comfortable density.
+
+## 9) Explicit Anti-Patterns (Do Not Use)
+
+- `new Font(...)`
+- setting `Font = ...` directly
+- using unscaled pixel constants in layout/render paths
+- using plain WinForms controls where Beep equivalent exists
+- mutating control state inside painter rendering methods
+- direct `g.DrawImage(...)` for themed icons/images instead of `StyledImagePainter`
+
+## 10) Implementation Checklist
+
+- [ ] Inherits from `BaseControl` (for new controls)
+- [ ] Theme fonts resolved via `BeepThemesManager.ToFont(...)`
+- [ ] No direct `Font` assignments
+- [ ] No inline `new Font(...)`
+- [ ] All size/spacing values use `DpiScalingHelper`
+- [ ] Images/icons rendered via `StyledImagePainter`
+- [ ] Beep controls used instead of standard WinForms controls
+- [ ] Painters are render-only; helpers/control manage state
+- [ ] Hover/focus/pressed/selected states visually supported
+
+## 11) Key Paths
+
+- `TheTechIdea.Beep.Winform.Controls/ThemeManagement/BeepThemesManager.cs`
+- `TheTechIdea.Beep.Winform.Controls/Styling/ImagePainters/StyledImagePainter.cs`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/BaseControl.cs`
+- `TheTechIdea.Beep.Winform.Controls/Buttons/BeepButton.cs`
+- `TheTechIdea.Beep.Winform.Controls/CheckBoxes/BeepCheckBox.IBeepComponent.cs`
+- `TheTechIdea.Beep.Vis.Modules2.0/IBeepUIComponent.cs`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/Helpers/ControlInputHelper.cs`
+- `TheTechIdea.Beep.Winform.Controls/BaseControl/Helpers/ControlHitTestHelper.cs`
+- `TheTechIdea.Beep.Winform.Controls/Styling/BeepStyling.cs`
+- `TheTechIdea.Beep.Winform.Controls/Styling/FORM_STYLE_PAINTER_PLAN.md`
+- `TheTechIdea.Beep.Winform.Controls/Styling/PAINTER_ARCHITECTURE.md`
+- `TheTechIdea.Beep.Winform.Controls/IconsManagement/`
+- `TheTechIdea.Beep.Winform.Controls/Helpers/DpiScalingHelper.cs`
+- `.cursor/skills/beep-controls-usage/SKILL.md`
+- `.cursor/skills/beep-dpi-fonts/SKILL.md`

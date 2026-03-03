@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
         private BeepControlStyle _controlStyle = BeepControlStyle.PillRail;
@@ -49,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         // Chip design specifications
         private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
-        private const int MinItemHeight = 32;
+        private const int MinItemHeight = 36;
         private const int ItemPadding = 12;
         private const int ComponentSpacing = 8;
         private const int ChipRadius = 16;
@@ -61,16 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
-                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize)
-                : new Font("Segoe UI", 11f));
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
         #endregion
 
@@ -100,29 +96,35 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private Rectangle GetChipRectangle(Rectangle itemRectangle)
         {
-            // Calculate chip width based on content
             var chipWidth = CalculateChipWidth(itemRectangle.Width);
-            
-            return new Rectangle(
-                itemRectangle.X,
-                itemRectangle.Y + (itemRectangle.Height - MinItemHeight) / 2,
-                chipWidth,
-                MinItemHeight
-            );
+            int chipHeight = Math.Max(0, itemRectangle.Height);
+            return new Rectangle(itemRectangle.X, itemRectangle.Y, chipWidth, chipHeight);
         }
 
         private int CalculateChipWidth(int maxWidth)
         {
-            // For chip Style, we want to auto-size to content
-            // This is a simplified calculation - in real use, measure the actual content
-            return Math.Min(maxWidth, 200); // Default reasonable width
+            return Math.Max(0, maxWidth);
         }
 
         private void DrawChipBackground(Graphics graphics, Rectangle chipRect, RadioItemState state, ChipColors colors)
         {
-            Color backgroundColor = state.IsSelected ? colors.SelectedBackground : 
-                                  state.IsHovered ? colors.HoverBackground : 
-                                  colors.Background;
+            Color backgroundColor;
+            if (!state.IsEnabled)
+            {
+                backgroundColor = colors.DisabledBackground;
+            }
+            else if (state.IsSelected)
+            {
+                backgroundColor = colors.SelectedBackground;
+            }
+            else if (state.IsHovered)
+            {
+                backgroundColor = colors.HoverBackground;
+            }
+            else
+            {
+                backgroundColor = colors.Background;
+            }
 
             using (var brush = new SolidBrush(backgroundColor))
             using (var path = CreateChipPath(chipRect))
@@ -133,11 +135,33 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawChipBorder(Graphics graphics, Rectangle chipRect, RadioItemState state, ChipColors colors)
         {
-            Color borderColor = state.IsSelected ? colors.SelectedBorder :
-                              state.IsHovered ? colors.HoverBorder :
-                              colors.Border;
-
-            float borderWidth = state.IsSelected ? 2f : 1f;
+            Color borderColor;
+            float borderWidth;
+            if (!state.IsEnabled)
+            {
+                borderColor = colors.DisabledBorder;
+                borderWidth = 1f;
+            }
+            else if (state.IsSelected)
+            {
+                borderColor = colors.SelectedBorder;
+                borderWidth = 2f;
+            }
+            else if (state.IsFocused)
+            {
+                borderColor = colors.FocusBorder;
+                borderWidth = 2f;
+            }
+            else if (state.IsHovered)
+            {
+                borderColor = colors.HoverBorder;
+                borderWidth = 1.5f;
+            }
+            else
+            {
+                borderColor = colors.Border;
+                borderWidth = 1f;
+            }
 
             using (var pen = new Pen(borderColor, borderWidth))
             using (var path = CreateChipPath(chipRect))
@@ -151,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var contentRect = new Rectangle(
                 chipRect.X + ItemPadding,
                 chipRect.Y,
-                chipRect.Width - (ItemPadding * 2),
+                Math.Max(0, chipRect.Width - (ItemPadding * 2)),
                 chipRect.Height
             );
 
@@ -174,12 +198,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, RadioItemState state, ChipColors colors)
         {
             int currentX = contentArea.X;
+            int maxRight = contentArea.Right;
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
+                sz = Math.Min(sz, Math.Max(0, maxRight - currentX));
                 var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 currentX += sz + ComponentSpacing;
             }
 
@@ -213,6 +240,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private GraphicsPath CreateChipPath(Rectangle rect)
         {
             var path = new GraphicsPath();
+            if (rect.Width <= 1 || rect.Height <= 1)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
             int radius = rect.Height / 2; // Perfect circle ends
 
             // Left arc
@@ -271,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return new Rectangle(
                 chipRect.X + ItemPadding,
                 chipRect.Y,
-                chipRect.Width - (ItemPadding * 2),
+                Math.Max(0, chipRect.Width - (ItemPadding * 2)),
                 chipRect.Height
             );
         }
@@ -309,9 +341,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     Background = StyleColors.GetSecondary(_controlStyle),
                     HoverBackground = hover,
                     SelectedBackground = primary,
+                    DisabledBackground = Color.FromArgb(200, background),
                     Border = border,
                     HoverBorder = Color.FromArgb(180, primary),
                     SelectedBorder = primary,
+                    FocusBorder = primary,
+                    DisabledBorder = Color.FromArgb(150, border),
                     Text = foreground,
                     SelectedText = Color.White,
                     DisabledText = Color.FromArgb(128, foreground)
@@ -320,12 +355,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
             return new ChipColors
             {
-                Background = Color.FromArgb(240, _theme.BackgroundColor),
+                Background = _theme.PanelBackColor,
                 HoverBackground = _theme.ButtonHoverBackColor,
                 SelectedBackground = _theme.PrimaryColor,
+                DisabledBackground = _theme.DisabledBackColor,
                 Border = _theme.BorderColor,
                 HoverBorder = _theme.ButtonHoverBorderColor,
                 SelectedBorder = _theme.PrimaryColor,
+                FocusBorder = _theme.PrimaryColor,
+                DisabledBorder = _theme.DisabledBorderColor,
                 Text = _theme.ForeColor,
                 SelectedText = _theme.ButtonForeColor,
                 DisabledText = _theme.DisabledForeColor
@@ -337,9 +375,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color Background { get; set; }
             public Color HoverBackground { get; set; }
             public Color SelectedBackground { get; set; }
+            public Color DisabledBackground { get; set; }
             public Color Border { get; set; }
             public Color HoverBorder { get; set; }
             public Color SelectedBorder { get; set; }
+            public Color FocusBorder { get; set; }
+            public Color DisabledBorder { get; set; }
             public Color Text { get; set; }
             public Color SelectedText { get; set; }
             public Color DisabledText { get; set; }

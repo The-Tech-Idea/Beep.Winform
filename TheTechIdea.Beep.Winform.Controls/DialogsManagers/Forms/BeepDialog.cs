@@ -9,7 +9,9 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -45,6 +47,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         private bool _closeButtonHovered = false;
         private bool _isDragging = false;
         private Point _dragOffset;
+        private Rectangle _dragHandleRect;
+        private readonly List<Control> _focusableControls = new();
+        private int _focusedButtonIndex = -1;
+        private Panel? _messageScrollPanel;
+        private Label? _messageScrollLabel;
+        private float[] _buttonHoverProgress = Array.Empty<float>();
+        private float[] _buttonPressProgress = Array.Empty<float>();
+        private float _closeHoverProgress;
+        private Timer? _microInteractionTimer;
 
         // Constants
         private const int PADDING = 24;
@@ -53,6 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         private const int BUTTON_MIN_WIDTH = 100;
         private const int BUTTON_SPACING = 12;
         private const int CLOSE_BUTTON_SIZE = 32;
+        private const int DRAG_HANDLE_HEIGHT = 8;
 
         #endregion
 
@@ -138,6 +150,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             this.DoubleBuffered = true;
             this.BackColor = Color.White;
             this.Size = new Size(400, 200);
+            this.KeyPreview = true;
+            this.AccessibleRole = AccessibleRole.Dialog;
 
             // Enable transparency
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
@@ -151,6 +165,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _style = BeepStyling.CurrentControlStyle;
             _painter = DialogPainterFactory.GetDefaultPainter();
             _buttonRects = Array.Empty<Rectangle>();
+            _microInteractionTimer = new Timer { Interval = 16 };
+            _microInteractionTimer.Tick += (_, _) => AdvanceMicroInteractions();
         }
 
         #endregion
@@ -169,6 +185,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Calculate size
             CalculateSize();
             CalculateLayout();
+            ApplyAccessibilityMetadata();
+            BuildScrollableMessageIfNeeded();
 
             // Apply position
             ApplyPosition();
@@ -180,14 +198,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         {
             using var g = CreateGraphics();
 
-            int width = Math.Max(_config.MinWidth, 400);
-            int height = PADDING * 2;
+            int padding = Scale(PADDING);
+            int iconSize = ResolveIconSize();
+            int width = Math.Max(_config.MinWidth, Scale(400));
+            int height = padding * 2;
 
             // Title height
             if (!string.IsNullOrEmpty(_config.Title))
             {
                 var titleFont = GetTitleFont();
-                var titleSize = g.MeasureString(_config.Title, titleFont, width - PADDING * 2 - (_config.ShowIcon ? ICON_SIZE + 16 : 0));
+                var titleSize = g.MeasureString(_config.Title, titleFont, width - padding * 2 - (_config.ShowIcon ? iconSize + Scale(16) : 0));
                 height += (int)titleSize.Height + 8;
             }
 
@@ -195,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             if (!string.IsNullOrEmpty(_config.Message))
             {
                 var messageFont = GetMessageFont();
-                var messageSize = g.MeasureString(_config.Message, messageFont, width - PADDING * 2 - (_config.ShowIcon ? ICON_SIZE + 16 : 0));
+                var messageSize = g.MeasureString(_config.Message, messageFont, width - padding * 2 - (_config.ShowIcon ? iconSize + Scale(16) : 0));
                 height += (int)messageSize.Height + 16;
             }
 
@@ -203,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             if (!string.IsNullOrEmpty(_config.Details))
             {
                 var detailsFont = GetDetailsFont();
-                var detailsSize = g.MeasureString(_config.Details, detailsFont, width - PADDING * 2);
+                var detailsSize = g.MeasureString(_config.Details, detailsFont, width - padding * 2);
                 height += Math.Min((int)detailsSize.Height, 100) + 16;
             }
 
@@ -216,13 +236,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Button area height
             if (_config.Buttons != null && _config.Buttons.Length > 0)
             {
-                height += BUTTON_HEIGHT + PADDING;
+                height += Scale(BUTTON_HEIGHT) + padding;
             }
 
             // Icon affects minimum height
             if (_config.ShowIcon)
             {
-                height = Math.Max(height, PADDING * 2 + ICON_SIZE + BUTTON_HEIGHT + PADDING);
+                height = Math.Max(height, padding * 2 + iconSize + Scale(BUTTON_HEIGHT) + padding);
             }
 
             // Apply custom size if specified
@@ -241,22 +261,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
         private void CalculateLayout()
         {
-            int x = PADDING;
-            int y = PADDING;
-            int contentWidth = Width - PADDING * 2;
+            int padding = Scale(PADDING);
+            int iconSize = ResolveIconSize();
+            int buttonHeight = Scale(BUTTON_HEIGHT);
+            int minButtonWidth = Scale(BUTTON_MIN_WIDTH);
+            int buttonSpacing = Scale(BUTTON_SPACING);
+            int closeButtonSize = Scale(CLOSE_BUTTON_SIZE);
+            int x = padding;
+            int y = padding;
+            int contentWidth = Width - padding * 2;
+            _dragHandleRect = new Rectangle(padding, Scale(6), Math.Max(24, Width - (padding * 2)), Scale(DRAG_HANDLE_HEIGHT));
 
             // Close button
             if (_config.ShowCloseButton)
             {
-                _closeButtonRect = new Rectangle(Width - CLOSE_BUTTON_SIZE - 8, 8, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
+                _closeButtonRect = new Rectangle(Width - closeButtonSize - Scale(8), Scale(8), closeButtonSize, closeButtonSize);
             }
 
             // Icon
             if (_config.ShowIcon)
             {
-                _iconRect = new Rectangle(x, y, ICON_SIZE, ICON_SIZE);
-                x += ICON_SIZE + 16;
-                contentWidth -= ICON_SIZE + 16;
+                _iconRect = new Rectangle(x, y, iconSize, iconSize);
+                x += iconSize + Scale(16);
+                contentWidth -= iconSize + Scale(16);
             }
 
             // Title
@@ -286,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 var detailsFont = GetDetailsFont();
                 var detailsSize = g.MeasureString(_config.Details, detailsFont, Width - PADDING * 2);
                 int detailsHeight = Math.Min((int)detailsSize.Height, 100);
-                _detailsRect = new Rectangle(PADDING, y, Width - PADDING * 2, detailsHeight);
+                _detailsRect = new Rectangle(padding, y, Width - padding * 2, detailsHeight);
                 y += detailsHeight + 16;
             }
 
@@ -295,9 +322,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             {
                 int controlHeight = Math.Max(_config.CustomControlMinHeight, _config.CustomControl.Height);
                 _customControlRect = new Rectangle(
-                    PADDING + _config.CustomControlPadding,
-                    y + _config.CustomControlPadding,
-                    Width - PADDING * 2 - _config.CustomControlPadding * 2,
+                    padding + Scale(_config.CustomControlPadding),
+                    y + Scale(_config.CustomControlPadding),
+                    Width - padding * 2 - Scale(_config.CustomControlPadding) * 2,
                     controlHeight
                 );
 
@@ -309,17 +336,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                     this.Controls.Add(_config.CustomControl);
                 }
 
-                y += controlHeight + _config.CustomControlPadding * 2;
+                y += controlHeight + Scale(_config.CustomControlPadding) * 2;
             }
 
             // Button area
             if (_config.Buttons != null && _config.Buttons.Length > 0)
             {
-                _buttonAreaRect = new Rectangle(PADDING, Height - PADDING - BUTTON_HEIGHT, Width - PADDING * 2, BUTTON_HEIGHT);
+                _buttonAreaRect = new Rectangle(padding, Height - padding - buttonHeight, Width - padding * 2, buttonHeight);
 
                 // Calculate button rectangles (right-aligned)
                 var buttons = _config.ButtonOrder ?? _config.Buttons;
                 _buttonRects = new Rectangle[buttons.Length];
+                EnsureMicroInteractionArrays(buttons.Length);
 
                 int totalButtonWidth = 0;
                 using var g = CreateGraphics();
@@ -331,23 +359,41 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 {
                     string text = GetButtonText(buttons[i]);
                     var textSize = g.MeasureString(text, buttonFont);
-                    buttonWidths[i] = Math.Max(BUTTON_MIN_WIDTH, (int)textSize.Width + 32);
+                    buttonWidths[i] = Math.Max(minButtonWidth, (int)textSize.Width + Scale(32));
                     totalButtonWidth += buttonWidths[i];
                 }
-                totalButtonWidth += (buttons.Length - 1) * BUTTON_SPACING;
+                totalButtonWidth += (buttons.Length - 1) * buttonSpacing;
 
-                // Position buttons (right-aligned)
-                int buttonX = _buttonAreaRect.Right - totalButtonWidth;
+                int buttonX = _config.ButtonLayout switch
+                {
+                    DialogButtonLayout.HorizontalCenter => _buttonAreaRect.Left + (_buttonAreaRect.Width - totalButtonWidth) / 2,
+                    DialogButtonLayout.HorizontalLeft => _buttonAreaRect.Left,
+                    DialogButtonLayout.Spread => _buttonAreaRect.Left,
+                    _ => _buttonAreaRect.Right - totalButtonWidth
+                };
+                int spreadGap = buttonSpacing;
+                if (_config.ButtonLayout == DialogButtonLayout.Spread && buttons.Length > 1)
+                {
+                    spreadGap = Math.Max(buttonSpacing, (_buttonAreaRect.Width - totalButtonWidth) / (buttons.Length - 1) + buttonSpacing);
+                }
                 for (int i = 0; i < buttons.Length; i++)
                 {
-                    _buttonRects[i] = new Rectangle(buttonX, _buttonAreaRect.Y, buttonWidths[i], BUTTON_HEIGHT);
-                    buttonX += buttonWidths[i] + BUTTON_SPACING;
+                    _buttonRects[i] = new Rectangle(buttonX, _buttonAreaRect.Y, buttonWidths[i], buttonHeight);
+                    buttonX += buttonWidths[i] + spreadGap;
                 }
             }
         }
 
         private void ApplyPosition()
         {
+            var owner = Owner;
+            if (_config.PlacementStrategy != DialogPlacementStrategy.CenterOwner)
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.Location = DialogPlacementEngine.Place(owner, this.Size, _config.PlacementStrategy);
+                return;
+            }
+
             switch (_config.Position)
             {
                 case DialogPosition.CenterParent:
@@ -359,6 +405,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 case DialogPosition.Custom when _config.CustomLocation.HasValue:
                     this.StartPosition = FormStartPosition.Manual;
                     this.Location = _config.CustomLocation.Value;
+                    break;
+                case DialogPosition.BottomRight:
+                case DialogPosition.BottomLeft:
+                case DialogPosition.BottomCenter:
+                    if (owner != null)
+                    {
+                        this.StartPosition = FormStartPosition.Manual;
+                        int y = owner.Bottom - Height - Scale(16);
+                        int x = _config.Position switch
+                        {
+                            DialogPosition.BottomLeft => owner.Left + Scale(16),
+                            DialogPosition.BottomRight => owner.Right - Width - Scale(16),
+                            _ => owner.Left + ((owner.Width - Width) / 2)
+                        };
+                        this.Location = new Point(x, y);
+                    }
+                    else
+                    {
+                        this.StartPosition = FormStartPosition.CenterScreen;
+                    }
                     break;
                 default:
                     this.StartPosition = FormStartPosition.CenterParent;
@@ -398,6 +464,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             if (_config.ShowCloseButton)
             {
                 PaintCloseButton(g);
+            }
+
+            if (_config.AllowDrag && !_dragHandleRect.IsEmpty)
+            {
+                PaintDragHandle(g);
             }
         }
 
@@ -482,13 +553,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 bool isHovered = i == _hoveredButtonIndex;
                 bool isPressed = i == _pressedButtonIndex;
 
-                PaintButton(g, rect, button, isPrimary, isHovered, isPressed, buttonFont);
+                PaintButton(g, i, rect, button, isPrimary, isHovered || _focusedButtonIndex == i, isPressed, buttonFont);
             }
         }
 
-        private void PaintButton(Graphics g, Rectangle rect, BeepDialogButtons button, bool isPrimary, bool isHovered, bool isPressed, Font font)
+        private void PaintButton(Graphics g, int buttonIndex, Rectangle rect, BeepDialogButtons button, bool isPrimary, bool isHovered, bool isPressed, Font font)
         {
-            int radius = 8;
+            int radius = Scale(8);
+            float hover = buttonIndex >= 0 && buttonIndex < _buttonHoverProgress.Length ? _buttonHoverProgress[buttonIndex] : 0f;
+            float press = buttonIndex >= 0 && buttonIndex < _buttonPressProgress.Length ? _buttonPressProgress[buttonIndex] : 0f;
+            int depthOffset = (int)Math.Round(Scale(3) * press);
+            rect = new Rectangle(rect.X, rect.Y + depthOffset, rect.Width, rect.Height);
 
             // Determine colors based on state and type
             Color bgColor, fgColor, borderColor;
@@ -502,7 +577,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 if (isPressed)
                     bgColor = DarkenColor(bgColor, 0.15f);
                 else if (isHovered)
-                    bgColor = LightenColor(bgColor, 0.1f);
+                    bgColor = LightenColor(bgColor, 0.1f + (0.08f * hover));
             }
             else
             {
@@ -511,6 +586,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                           Color.White;
                 fgColor = Color.FromArgb(55, 65, 81);
                 borderColor = Color.FromArgb(209, 213, 219);
+                if (hover > 0f)
+                {
+                    bgColor = LightenColor(bgColor, 0.06f * hover);
+                }
             }
 
             // Draw button
@@ -526,6 +605,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 using (var pen = new Pen(borderColor, 1))
                 {
                     g.DrawPath(pen, path);
+                }
+
+                if (isHovered || hover > 0f)
+                {
+                    int alpha = (int)Math.Round(50 + (120 * hover));
+                    using var focusPen = new Pen(Color.FromArgb(Math.Max(0, Math.Min(255, alpha)), _theme?.AccentColor ?? Color.DodgerBlue), 2);
+                    g.DrawPath(focusPen, path);
                 }
             }
 
@@ -544,9 +630,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 return;
 
             // Background on hover
-            if (_closeButtonHovered)
+            if (_closeButtonHovered || _closeHoverProgress > 0f)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(254, 226, 226)))
+                int a = (int)Math.Round(120 * _closeHoverProgress);
+                using (var brush = new SolidBrush(Color.FromArgb(a, 254, 226, 226)))
                 using (var path = GraphicsExtensions.GetRoundedRectPath(_closeButtonRect, 6))
                 {
                     g.FillPath(brush, path);
@@ -554,7 +641,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             }
 
             // X icon
-            var color = _closeButtonHovered ? Color.FromArgb(220, 38, 38) : Color.FromArgb(156, 163, 175);
+            var color = _closeButtonHovered || _closeHoverProgress > 0.05f
+                ? Color.FromArgb(220, 38, 38)
+                : Color.FromArgb(156, 163, 175);
             using (var pen = new Pen(color, 2))
             {
                 int padding = 10;
@@ -565,6 +654,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                     _closeButtonRect.Right - padding, _closeButtonRect.Top + padding,
                     _closeButtonRect.Left + padding, _closeButtonRect.Bottom - padding);
             }
+        }
+
+        private void PaintDragHandle(Graphics g)
+        {
+            using var path = GraphicsExtensions.GetRoundedRectPath(_dragHandleRect, Scale(4));
+            using var brush = new SolidBrush(Color.FromArgb(60, _theme?.BorderColor ?? Color.Gray));
+            g.FillPath(brush, path);
         }
 
         #endregion
@@ -578,10 +674,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             // Dragging
             if (_isDragging && _config.AllowDrag)
             {
-                this.Location = new Point(
+                var proposed = new Point(
                     e.X + this.Left - _dragOffset.X,
                     e.Y + this.Top - _dragOffset.Y
                 );
+                this.Location = ApplySnapToOwnerEdges(proposed);
                 return;
             }
 
@@ -607,6 +704,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
             if (oldHovered != _hoveredButtonIndex || oldCloseHovered != _closeButtonHovered)
             {
+                StartMicroInteractionTimer();
                 Invalidate();
             }
 
@@ -624,10 +722,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 if (_hoveredButtonIndex >= 0)
                 {
                     _pressedButtonIndex = _hoveredButtonIndex;
+                    StartMicroInteractionTimer();
                     Invalidate();
                 }
                 // Start drag
-                else if (_config.AllowDrag && e.Y < 50)
+                else if (_config.AllowDrag && _dragHandleRect.Contains(e.Location))
                 {
                     _isDragging = true;
                     _dragOffset = e.Location;
@@ -658,6 +757,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 }
 
                 _pressedButtonIndex = -1;
+                StartMicroInteractionTimer();
                 Invalidate();
             }
         }
@@ -670,6 +770,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             {
                 _hoveredButtonIndex = -1;
                 _closeButtonHovered = false;
+                StartMicroInteractionTimer();
                 Invalidate();
             }
         }
@@ -680,9 +781,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            if (keyData == Keys.Tab || keyData == (Keys.Shift | Keys.Tab))
+            {
+                MoveFocus(keyData == (Keys.Shift | Keys.Tab) ? -1 : 1);
+                return true;
+            }
+
+            if (keyData == Keys.Left || keyData == Keys.Right)
+            {
+                MoveButtonFocus(keyData == Keys.Left ? -1 : 1);
+                return true;
+            }
+
             if (keyData == Keys.Enter)
             {
-                // Click default/primary button
+                if (_focusedButtonIndex >= 0)
+                {
+                    HandleButtonClick(_focusedButtonIndex);
+                    return true;
+                }
+
+                // Click primary button by default
                 if (_buttonRects != null && _buttonRects.Length > 0)
                 {
                     HandleButtonClick(_buttonRects.Length - 1); // Primary is last
@@ -754,6 +873,46 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         #endregion
 
         #region Helper Methods
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            BuildFocusableControls();
+            FocusPrimaryOrFirstControl();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            if (_messageScrollPanel != null)
+            {
+                Controls.Remove(_messageScrollPanel);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_microInteractionTimer != null)
+                {
+                    _microInteractionTimer.Stop();
+                    _microInteractionTimer.Dispose();
+                    _microInteractionTimer = null;
+                }
+                if (_messageScrollPanel != null)
+                {
+                    _messageScrollPanel.Dispose();
+                    _messageScrollPanel = null;
+                }
+                if (_messageScrollLabel != null)
+                {
+                    _messageScrollLabel.Dispose();
+                    _messageScrollLabel = null;
+                }
+            }
+            base.Dispose(disposing);
+        }
 
         private string GetIconPath(BeepDialogIcon icon)
         {
@@ -858,6 +1017,192 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 Math.Max(0, (int)(color.G * (1 - amount))),
                 Math.Max(0, (int)(color.B * (1 - amount)))
             );
+        }
+
+        private void EnsureMicroInteractionArrays(int buttonCount)
+        {
+            if (_buttonHoverProgress.Length == buttonCount && _buttonPressProgress.Length == buttonCount)
+            {
+                return;
+            }
+
+            _buttonHoverProgress = new float[buttonCount];
+            _buttonPressProgress = new float[buttonCount];
+        }
+
+        private void StartMicroInteractionTimer()
+        {
+            _microInteractionTimer?.Start();
+        }
+
+        private void AdvanceMicroInteractions()
+        {
+            bool changed = false;
+            const float speed = 0.22f;
+
+            for (int i = 0; i < _buttonHoverProgress.Length; i++)
+            {
+                float hoverTarget = (_hoveredButtonIndex == i || _focusedButtonIndex == i) ? 1f : 0f;
+                float pressTarget = _pressedButtonIndex == i ? 1f : 0f;
+
+                float nh = Lerp(_buttonHoverProgress[i], hoverTarget, speed);
+                float np = Lerp(_buttonPressProgress[i], pressTarget, speed + 0.08f);
+                changed |= Math.Abs(nh - _buttonHoverProgress[i]) > 0.001f || Math.Abs(np - _buttonPressProgress[i]) > 0.001f;
+                _buttonHoverProgress[i] = nh;
+                _buttonPressProgress[i] = np;
+            }
+
+            float closeTarget = _closeButtonHovered ? 1f : 0f;
+            float nc = Lerp(_closeHoverProgress, closeTarget, speed);
+            changed |= Math.Abs(nc - _closeHoverProgress) > 0.001f;
+            _closeHoverProgress = nc;
+
+            if (changed)
+            {
+                Invalidate();
+            }
+            else
+            {
+                _microInteractionTimer?.Stop();
+            }
+        }
+
+        private static float Lerp(float current, float target, float speed)
+        {
+            return current + ((target - current) * speed);
+        }
+
+        private int Scale(int value) => DpiScalingHelper.ScaleValue(value, this);
+
+        private int ResolveIconSize()
+        {
+            return _config.IconSizePreset switch
+            {
+                DialogIconSizePreset.Small => Scale(24),
+                DialogIconSizePreset.Medium => Scale(32),
+                DialogIconSizePreset.Large => Scale(48),
+                DialogIconSizePreset.ExtraLarge => Scale(64),
+                _ => Scale(Math.Max(16, _config.IconSize))
+            };
+        }
+
+        private void BuildFocusableControls()
+        {
+            _focusableControls.Clear();
+            foreach (Control control in Controls)
+            {
+                if (control.Visible && control.Enabled && control.TabStop && control.CanFocus)
+                {
+                    _focusableControls.Add(control);
+                }
+            }
+        }
+
+        private void FocusPrimaryOrFirstControl()
+        {
+            if (_focusableControls.Count > 0)
+            {
+                _focusableControls[0].Focus();
+            }
+
+            if (_buttonRects != null && _buttonRects.Length > 0)
+            {
+                _focusedButtonIndex = _buttonRects.Length - 1;
+            }
+        }
+
+        private void MoveFocus(int direction)
+        {
+            BuildFocusableControls();
+            if (_focusableControls.Count == 0)
+            {
+                return;
+            }
+
+            int current = _focusableControls.FindIndex(c => c.Focused);
+            if (current < 0) current = 0;
+            int next = (current + direction + _focusableControls.Count) % _focusableControls.Count;
+            _focusableControls[next].Focus();
+        }
+
+        private void MoveButtonFocus(int direction)
+        {
+            if (_buttonRects == null || _buttonRects.Length == 0)
+            {
+                return;
+            }
+
+            if (_focusedButtonIndex < 0)
+            {
+                _focusedButtonIndex = _buttonRects.Length - 1;
+            }
+
+            _focusedButtonIndex = (_focusedButtonIndex + direction + _buttonRects.Length) % _buttonRects.Length;
+            Invalidate();
+        }
+
+        private void ApplyAccessibilityMetadata()
+        {
+            AccessibleName = string.IsNullOrWhiteSpace(_config.Title) ? "Dialog" : _config.Title;
+            AccessibleDescription = string.IsNullOrWhiteSpace(_config.Message) ? "Dialog content" : _config.Message;
+            AccessibilityNotifyClients(AccessibleEvents.SystemForeground, -1);
+        }
+
+        private void BuildScrollableMessageIfNeeded()
+        {
+            if (_messageScrollPanel != null)
+            {
+                Controls.Remove(_messageScrollPanel);
+                _messageScrollPanel.Dispose();
+                _messageScrollPanel = null;
+                _messageScrollLabel = null;
+            }
+
+            if (string.IsNullOrWhiteSpace(_config.Message) || _messageRect.IsEmpty)
+            {
+                return;
+            }
+
+            using var g = CreateGraphics();
+            var messageSize = g.MeasureString(_config.Message, GetMessageFont(), _messageRect.Width);
+            if (messageSize.Height <= _config.MaxContentHeight)
+            {
+                return;
+            }
+
+            _messageScrollPanel = new Panel
+            {
+                Location = _messageRect.Location,
+                Size = new Size(_messageRect.Width, Math.Max(80, _config.MaxContentHeight)),
+                AutoScroll = true,
+                BackColor = Color.Transparent
+            };
+            _messageScrollLabel = new Label
+            {
+                AutoSize = true,
+                MaximumSize = new Size(Math.Max(20, _messageRect.Width - Scale(8)), 0),
+                Text = _config.Message,
+                ForeColor = Color.FromArgb(180, _theme?.DialogForeColor ?? Color.FromArgb(55, 65, 81))
+            };
+            _messageScrollPanel.Controls.Add(_messageScrollLabel);
+            Controls.Add(_messageScrollPanel);
+            _messageRect = Rectangle.Empty;
+        }
+
+        private Point ApplySnapToOwnerEdges(Point proposed)
+        {
+            if (!_config.SnapToOwnerEdges || Owner == null)
+            {
+                return proposed;
+            }
+
+            var snapped = proposed;
+            int threshold = Scale(Math.Max(4, _config.SnapThreshold));
+            if (Math.Abs(snapped.X - Owner.Left) <= threshold) snapped.X = Owner.Left;
+            if (Math.Abs((snapped.X + Width) - Owner.Right) <= threshold) snapped.X = Owner.Right - Width;
+            if (Math.Abs(snapped.Y - Owner.Top) <= threshold) snapped.Y = Owner.Top;
+            if (Math.Abs((snapped.Y + Height) - Owner.Bottom) <= threshold) snapped.Y = Owner.Bottom - Height;
+            return snapped;
         }
 
         #endregion

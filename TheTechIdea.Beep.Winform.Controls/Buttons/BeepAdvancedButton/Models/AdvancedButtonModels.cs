@@ -35,19 +35,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
     /// </summary>
     public class AdvancedButtonPaintContext
     {
-        public NewsBannerStyle NewsBannerStyle { get; set; }
-        public ContactButtonLayout ContactLayout { get; set; }
+        public NewsBannerVariant NewsBannerVariant { get; set; } = NewsBannerVariant.Auto;
+        public ContactVariant ContactVariant { get; set; } = ContactVariant.Auto;
+        public ChevronVariant ChevronVariant { get; set; } = ChevronVariant.Auto;
+        public FlatWebVariant FlatWebVariant { get; set; } = FlatWebVariant.Auto;
+        public LowerThirdVariant LowerThirdVariant { get; set; } = LowerThirdVariant.Auto;
+        public StickerLabelVariant StickerLabelVariant { get; set; } = StickerLabelVariant.Auto;
+
+        public NewsBannerStyle? NewsBannerStyle { get; set; }
+        public ContactButtonLayout? ContactLayout { get; set; }
         public Graphics Graphics { get; set; }
         public Rectangle Bounds { get; set; }
         public AdvancedButtonState State { get; set; }
         public string Text { get; set; }
+        public string ImagePath { get; set; } = string.Empty;
         public ImagePainter ImagePainter { get; set; }
         public string IconLeft { get; set; }
         public string IconRight { get; set; }
         public bool IsToggled { get; set; }
         public bool IsLoading { get; set; }
         public BeepTheme Theme { get; set; }
-        public Font Font { get; set; }
+        public Font TextFont { get; set; } = SystemFonts.DefaultFont;
+        public ButtonIntent Intent { get; set; } = ButtonIntent.Primary;
+
+        [Obsolete("Use TextFont instead.")]
+        public Font Font
+        {
+            get => TextFont;
+            set => TextFont = value;
+        }
         
         // Shape property - determines how painters render the button
         public ButtonShape Shape { get; set; }
@@ -80,7 +96,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public Color TextColor { get; set; }
         public Color IconColor { get; set; }
         public Color BackgroundColor { get; set; }
-    public Color SecondaryColor { get; set; }
+        public Color SecondaryColor { get; set; }
+        public Color FocusRingColor { get; set; }
 
         // Shadow properties
         public bool ShowShadow { get; set; }
@@ -91,13 +108,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public bool RippleActive { get; set; }
         public Point RippleCenter { get; set; }
         public float RippleProgress { get; set; }
-        
+        public float HoverProgress { get; set; }
+        public float PressProgress { get; set; }
+        public float LoadingRotationAngle { get; set; }
+        public bool ReduceMotion { get; set; }
+
         // Size
         public AdvancedButtonSize ButtonSize { get; set; }
         
         // Button shape for rendering
         public ButtonShape ButtonShape { get; set; }
-        public ChevronStyle ChevronStyle { get; set; }
+        public ChevronStyle? ChevronStyle { get; set; }
 
         // Chip/Tag specific properties
         public bool ShowCloseIcon { get; set; }
@@ -118,6 +139,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public bool IsPressed { get; set; }
         public bool ShowBorder { get; set; }
         public int BorderThickness { get; set; }
+        public bool ShowFocusRing { get; set; }
+        public int FocusRingThickness { get; set; }
+        public int FocusRingOffset { get; set; }
+        public int FocusRingRadiusDelta { get; set; }
         
        
     }

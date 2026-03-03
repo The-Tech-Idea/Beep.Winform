@@ -238,8 +238,72 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 AddMissingColumns = options.AddMissingColumns,
                 CreateSyncProfileDraft = options.CreateSyncProfileDraft,
                 RunImportOnFinish = options.RunImportOnFinish,
-                BatchSize = options.BatchSize
+                BatchSize = options.BatchSize,
+                OnBatchError = options.OnBatchError,
+                MaxRetries = options.MaxRetries
             };
+        }
+
+        // ── Bridge helpers ────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Builds an <see cref="ImportContext"/> from the currently stored selection,
+        /// mapping, and options.  Returns <c>null</c> when no valid selection is stored.
+        /// </summary>
+        public static ImportContext? ToImportContext()
+        {
+            lock (Sync)
+            {
+                if (_selection == null || !_selection.IsValid)
+                    return null;
+
+                var opts = _options ?? new ImportExecutionOptions();
+                return new ImportContext
+                {
+                    SourceEntityName          = _selection.SourceEntityName,
+                    SourceDataSourceName      = _selection.SourceDataSourceName,
+                    DestinationEntityName     = _selection.DestinationEntityName,
+                    DestinationDataSourceName = _selection.DestinationDataSourceName,
+                    CreateDestinationIfNotExists = _selection.CreateDestinationIfNotExists,
+                    Mapping                   = _mapping,
+                    BatchSize                 = opts.BatchSize > 0 ? opts.BatchSize : 100,
+                    RunMigrationPreflight     = opts.RunMigrationPreflight,
+                    AddMissingColumns         = opts.AddMissingColumns,
+                    CreateSyncProfileDraft    = opts.CreateSyncProfileDraft,
+                    OnBatchError              = opts.OnBatchError,
+                    MaxRetries                = opts.MaxRetries
+                };
+            }
+        }
+
+        /// <summary>
+        /// Populates the store's selection, mapping, and options from an <see cref="ImportContext"/>.
+        /// </summary>
+        public static void FromImportContext(ImportContext ctx)
+        {
+            if (ctx == null) throw new ArgumentNullException(nameof(ctx));
+
+            lock (Sync)
+            {
+                _selection = new ImportSelectionContext
+                {
+                    SourceEntityName          = ctx.SourceEntityName,
+                    SourceDataSourceName      = ctx.SourceDataSourceName,
+                    DestinationEntityName     = ctx.DestinationEntityName,
+                    DestinationDataSourceName = ctx.DestinationDataSourceName,
+                    CreateDestinationIfNotExists = ctx.CreateDestinationIfNotExists
+                };
+                _mapping = ctx.Mapping;
+                _options = new ImportExecutionOptions
+                {
+                    BatchSize              = ctx.BatchSize,
+                    RunMigrationPreflight  = ctx.RunMigrationPreflight,
+                    AddMissingColumns      = ctx.AddMissingColumns,
+                    CreateSyncProfileDraft = ctx.CreateSyncProfileDraft,
+                    OnBatchError           = ctx.OnBatchError,
+                    MaxRetries             = ctx.MaxRetries
+                };
+            }
         }
     }
 }

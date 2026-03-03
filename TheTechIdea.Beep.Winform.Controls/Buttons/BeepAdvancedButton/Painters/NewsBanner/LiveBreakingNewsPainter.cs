@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.NewsBanner
 {
@@ -11,13 +12,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
     /// </summary>
     public class LiveBreakingNewsPainter : BaseButtonPainter
     {
+        private const float SectionPaddingScale = 0.50f;
+        private const float AngleScale = 0.45f;
+
         public override void Paint(AdvancedButtonPaintContext context)
         {
             Graphics g = context.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var metrics = GetMetrics(context);
             Rectangle bounds = context.Bounds;
 
             // Split text into sections
@@ -26,8 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             string section2Text = parts[1]; // BREAKING NEWS
 
             // Measure section 1 width
-            int section1Width = MeasureTextWidth(g, section1Text, context.Font) + 30;
-            int angleWidth = 25; // Width of diagonal transition
+            int sectionInset = Math.Max(8, (int)Math.Round(bounds.Height * 0.22f));
+            int section1Width = MeasureTextWidth(section1Text, context.TextFont) + Math.Max(18, (int)Math.Round(bounds.Height * SectionPaddingScale));
+            int angleWidth = Math.Max(12, Math.Min(26, (int)Math.Round(bounds.Height * AngleScale)));
 
             // Colors
             Color section1Color = context.IconBackgroundColor != Color.Empty
@@ -69,14 +73,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw section 1 text
             Rectangle section1TextBounds = new Rectangle(
-                bounds.X + 10,
+                bounds.X + sectionInset,
                 bounds.Y,
-                section1Width - 10,
+                section1Width - sectionInset,
                 bounds.Height
             );
 
             using (Brush text1Brush = new SolidBrush(Color.White))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -86,14 +90,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw section 2 text
             Rectangle section2TextBounds = new Rectangle(
-                section2Bounds.X + metrics.PaddingHorizontal,
+                section2Bounds.X + sectionInset,
                 section2Bounds.Y,
-                section2Bounds.Width - metrics.PaddingHorizontal * 2,
+                section2Bounds.Width - (sectionInset * 2),
                 section2Bounds.Height
             );
 
             using (Brush text2Brush = new SolidBrush(Color.White))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Near;
@@ -138,12 +142,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             return new[] { text, "" };
         }
 
-        private int MeasureTextWidth(Graphics g, string text, Font font)
+        private int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
-            SizeF size = g.MeasureString(text, font);
-            return (int)size.Width;
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text, font);
         }
     }
 }

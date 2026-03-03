@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -35,51 +36,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 10f, FontStyle.Regular);
+_titleFont = titleFont;
+            _descFont = bodyFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descMinHeight = DpiScalingHelper.ScaleValue(DescMinHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Large centered icon at top
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - IconSize) / 2,
-                    drawingRect.Top + Padding,
-                    IconSize,
-                    IconSize);
+                    drawingRect.Left + (drawingRect.Width - iconSize) / 2,
+                    drawingRect.Top + padding,
+                    iconSize,
+                    iconSize);
             }
             
-            int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + ElementGap * 2 : drawingRect.Top + Padding;
+            int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + elementGap * 2 : drawingRect.Top + padding;
             
             // Title (centered)
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
-                drawingRect.Width - Padding * 2,
-                TitleHeight);
+                drawingRect.Width - padding * 2,
+                titleHeight);
             
             // Description (centered)
-            int descHeight = Math.Max(DescMinHeight,
-                drawingRect.Height - (ctx.HeaderRect.Bottom - drawingRect.Top) - Padding - ElementGap);
+            int descHeight = Math.Max(descMinHeight,
+                drawingRect.Height - (ctx.HeaderRect.Bottom - drawingRect.Top) - padding - elementGap);
             
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.HeaderRect.Bottom + ElementGap,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Left + padding,
+                ctx.HeaderRect.Bottom + elementGap,
+                drawingRect.Width - padding * 2,
                 descHeight);
             
             ctx.ShowButton = false;
@@ -107,10 +107,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             
             // Large circular background
             var bgRect = new Rectangle(
-                ctx.ImageRect.X - IconBackgroundPadding,
-                ctx.ImageRect.Y - IconBackgroundPadding,
-                ctx.ImageRect.Width + IconBackgroundPadding * 2,
-                ctx.ImageRect.Height + IconBackgroundPadding * 2);
+                ctx.ImageRect.X - DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner),
+                ctx.ImageRect.Y - DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner),
+                ctx.ImageRect.Width + DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner) * 2,
+                ctx.ImageRect.Height + DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner) * 2);
             
             // Gradient fill
             using var gradientBrush = new LinearGradientBrush(
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             g.FillEllipse(gradientBrush, bgRect);
             
             // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), 2);
+            using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
             g.DrawEllipse(borderPen, bgRect);
         }
         
@@ -132,10 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
                 var bgRect = new Rectangle(
-                    ctx.ImageRect.X - IconBackgroundPadding,
-                    ctx.ImageRect.Y - IconBackgroundPadding,
-                    ctx.ImageRect.Width + IconBackgroundPadding * 2,
-                    ctx.ImageRect.Height + IconBackgroundPadding * 2);
+                    ctx.ImageRect.X - DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner),
+                    ctx.ImageRect.Y - DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner),
+                    ctx.ImageRect.Width + DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner) * 2,
+                    ctx.ImageRect.Height + DpiScalingHelper.ScaleValue(IconBackgroundPadding, _owner) * 2);
                 
                 owner.AddHitArea("Icon", bgRect, null,
                     () => notifyAreaHit?.Invoke("Icon", bgRect));
@@ -149,11 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

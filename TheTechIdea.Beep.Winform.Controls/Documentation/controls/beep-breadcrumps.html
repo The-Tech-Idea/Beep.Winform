@@ -609,9 +609,9 @@ websiteBreadcrumbs.SelectedIndex = 4;</code></pre>
 // Handle breadcrumb navigation
 breadcrumbs.CrumbClicked += (sender, e) =>
 {
-    Console.WriteLine($"Clicked item: {e.ItemText}");
-    Console.WriteLine($"Index: {e.Index}");
-    Console.WriteLine($"Name: {e.ItemName}");
+  //  Console.WriteLine($"Clicked item: {e.ItemText}");
+  //  Console.WriteLine($"Index: {e.Index}");
+  //  Console.WriteLine($"Name: {e.ItemName}");
     
     // Navigate to the selected level
     NavigateToLevel(e.Index, e.ItemName);

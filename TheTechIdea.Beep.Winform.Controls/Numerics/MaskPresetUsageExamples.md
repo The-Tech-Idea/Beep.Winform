@@ -148,7 +148,7 @@ var control = new BeepNumericUpDown
 // Manual validation
 if (control.ValidateRange(123456789, out string error))
 {
-    Console.WriteLine("Valid SSN");
+  //  Console.WriteLine("Valid SSN");
 }
 
 // Event-based validation
@@ -232,7 +232,7 @@ control.ValueValidatingEx += (sender, e) =>
 // After validation completes
 control.ValueValidated += (sender, e) =>
 {
-    Console.WriteLine($"Changed from {e.OldValue} to {e.NewValue}");
+  //  Console.WriteLine($"Changed from {e.OldValue} to {e.NewValue}");
 };
 
 // Range exceeded
@@ -247,7 +247,7 @@ control.RangeExceeded += (sender, e) =>
 // Invalid input detected
 control.InvalidInput += (sender, e) =>
 {
-    Console.WriteLine($"Invalid: {e.Input} - {e.Reason}");
+  //  Console.WriteLine($"Invalid: {e.Input} - {e.Reason}");
 };
 
 // Format validation

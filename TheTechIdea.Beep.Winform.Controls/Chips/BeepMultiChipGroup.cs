@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
         // Title
         private string _titleText = "Multi-Select Chip Group";
-        private Font _titleFont = new Font("Segoe UI", 12, FontStyle.Bold);
+        private Font _titleFont = BeepThemesManager.ToFont("Segoe UI", 12f, FontWeight.Bold, FontStyle.Bold);
         private Color _titleColor = Color.Black;
         private ContentAlignment _titleAlignment = ContentAlignment.TopLeft;
         private int _titleHeight = 30;
@@ -200,6 +200,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         // Previous selection for event tracking
         private SimpleItem _previousSelectedItem;
         #endregion
+
+        private IBeepTheme GetEffectiveTheme()
+        {
+            return _currentTheme ?? BeepThemesManager.CurrentTheme ?? BeepThemesManager.GetDefaultTheme();
+        }
 
         #region Properties
         [Browsable(true)]
@@ -306,7 +311,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The size of the chips.")]
-        public ChipSize ChipSize { get => _chipSize; set { _chipSize = value; UpdateChipBounds(); Invalidate(); } }
+        public ChipSize ChipSize
+        {
+            get => _chipSize;
+            set
+            {
+                if (_chipSize != value)
+                {
+                    _chipSize = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -328,13 +346,135 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         [Category("Chip ProgressBarStyle")]
         [Description("Width of chip borders.")]
         [DefaultValue(1)]
-        public int ChipBorderWidth { get => _chipBorderWidth; set { _chipBorderWidth = Math.Max(0, value); Invalidate(); } }
+        public int ChipBorderWidth
+        {
+            get => _chipBorderWidth;
+            set
+            {
+                int safeValue = Math.Max(0, value);
+                if (_chipBorderWidth != safeValue)
+                {
+                    _chipBorderWidth = safeValue;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
 
         [Browsable(true)]
         [Category("Chip ProgressBarStyle")]
         [Description("Whether to show borders around chips.")]
         [DefaultValue(true)]
-        public bool ShowChipBorders { get => _showChipBorders; set { _showChipBorders = value; Invalidate(); } }
+        public bool ShowChipBorders
+        {
+            get => _showChipBorders;
+            set
+            {
+                if (_showChipBorders != value)
+                {
+                    _showChipBorders = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Chip ProgressBarStyle")]
+        [Description("Show a leading icon in chips when an image/icon source exists.")]
+        [DefaultValue(true)]
+        public bool ShowLeadingIcon
+        {
+            get => _showLeadingIcon;
+            set
+            {
+                if (_showLeadingIcon != value)
+                {
+                    _showLeadingIcon = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Chip ProgressBarStyle")]
+        [Description("Show trailing icon area when supported by the active painter.")]
+        [DefaultValue(true)]
+        public bool ShowTrailingIcon
+        {
+            get => _showTrailingIcon;
+            set
+            {
+                if (_showTrailingIcon != value)
+                {
+                    _showTrailingIcon = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Chip ProgressBarStyle")]
+        [Description("Show close button for selected chips.")]
+        [DefaultValue(true)]
+        public bool ShowCloseButton
+        {
+            get => _showCloseButton;
+            set
+            {
+                if (_showCloseButton != value)
+                {
+                    _showCloseButton = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Chip ProgressBarStyle")]
+        [Description("Show check mark for selected chips.")]
+        [DefaultValue(true)]
+        public bool ShowCheckmark
+        {
+            get => _showCheckmark;
+            set
+            {
+                if (_showCheckmark != value)
+                {
+                    _showCheckmark = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Chip ProgressBarStyle")]
+        [Description("Show avatar slot when supported by the active painter.")]
+        [DefaultValue(false)]
+        public bool ShowAvatar
+        {
+            get => _showAvatar;
+            set
+            {
+                if (_showAvatar != value)
+                {
+                    _showAvatar = value;
+                    SyncRenderOptions();
+                    UpdateChipBounds();
+                    Invalidate();
+                }
+            }
+        }
 
         /// <summary>
         /// Fired when the selected item changes (legacy event for backward compatibility)
@@ -416,17 +556,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
             // Painter setup
             _painter = new DefaultChipGroupPainter();
-            _painter.Initialize(this, _currentTheme);
+            _painter.Initialize(this, GetEffectiveTheme());
             _renderOptions = new ChipRenderOptions
             {
                 Font = this.Font,
                 CornerRadius = _chipCornerRadius,
                 Gap = _chipPadding,
-                ShowBorders = _showChipBorders,
-                BorderWidth = _chipBorderWidth,
-                Theme = _currentTheme,
+                Theme = GetEffectiveTheme(),
                 Size = _chipSize
             };
+            SyncRenderOptions();
 
             ApplyChipStyle(_chipStyle);
 
@@ -666,6 +805,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             Invalidate();
         }
 
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if (IsDisposed || Width <= 0 || Height <= 0) return;
+            UpdateChipBounds();
+            Invalidate();
+        }
+
         #region Theming
         public override void ApplyTheme()
         {
@@ -673,6 +820,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
             float dpiScale = DpiScalingHelper.GetDpiScaleFactor(this);
             _renderOptions.DpiScale = dpiScale;
+            SyncRenderOptions();
 
             // Apply font theme based on ControlStyle
             Helpers.ChipFontHelpers.ApplyFontTheme(this, ControlStyle, _chipSize, dpiScale);
@@ -689,17 +837,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 // Use ChipFontHelpers (which uses BeepFontManager) for chip text font
                 _textFont = Helpers.ChipFontHelpers.GetChipFont(ControlStyle, _chipSize, dpiScale);
                 
-                _renderOptions.Theme = _currentTheme;
-                _painter?.UpdateTheme(_currentTheme);
+                _renderOptions.Theme = GetEffectiveTheme();
+                _painter?.UpdateTheme(GetEffectiveTheme());
                 ApplyThemeToChips();
             }
+            else
+            {
+                _renderOptions.Theme = GetEffectiveTheme();
+                _painter?.UpdateTheme(GetEffectiveTheme());
+            }
 
+            UpdateChipBounds();
             Invalidate();
         }
 
         private void ApplyThemeToChips()
         {
             Invalidate();
+        }
+
+        private void SyncRenderOptions()
+        {
+            if (_renderOptions == null)
+            {
+                _renderOptions = new ChipRenderOptions();
+            }
+
+            float dpiScale = _renderOptions.DpiScale > 0
+                ? _renderOptions.DpiScale
+                : DpiScalingHelper.GetDpiScaleFactor(this);
+
+            _renderOptions.DpiScale = dpiScale;
+            _renderOptions.CornerRadius = _chipCornerRadius;
+            _renderOptions.Gap = _chipPadding;
+            _renderOptions.VerticalGap = _chipPadding;
+            _renderOptions.ShowBorders = _showChipBorders;
+            _renderOptions.BorderWidth = _chipBorderWidth;
+            _renderOptions.Size = _chipSize;
+            _renderOptions.Style = _chipStyle;
+            _renderOptions.Theme = GetEffectiveTheme();
+            _renderOptions.ShowLeadingIcon = _showLeadingIcon;
+            _renderOptions.ShowTrailingIcon = _showTrailingIcon;
+            _renderOptions.ShowAvatar = _showAvatar;
+            _renderOptions.ShowIcon = _showLeadingIcon || _showTrailingIcon || _showAvatar;
+            _renderOptions.ShowCloseOnSelected = _showCloseButton;
+            _renderOptions.ShowSelectionCheck = _showCheckmark;
+            _renderOptions.IconMaxSize = ChipIconHelpers.GetChipIconSize(_chipSize);
+            _renderOptions.IconTextGap = DpiScalingHelper.ScaleValue(6, dpiScale);
         }
 
         private void ApplyChipStyle(ChipStyle style)

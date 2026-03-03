@@ -17,23 +17,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             // Linear style: very subtle borders, almost invisible
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border",
-                Color.FromArgb(240, 240, 240)); // Very light gray
-            
-            float borderWidth = 0.5f; // Ultra-thin borders
+                Color.FromArgb(235, 235, 245)); // Linear subtle border
+
+            // NOTE: Previously 0.5f but GDI+ PaintSimpleBorder enforces Math.Max(1f, borderWidth),
+            // so 0.5f was always rendered as 1px anyway. Using 1f explicitly avoids the mismatch
+            // between intended width and actual rendered width.
+            float borderWidth = 1.5f;
 
             if (isFocused)
             {
                 borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary",
                     Color.FromArgb(99, 102, 241)); // Linear indigo
-                borderWidth = 1f;
+                borderWidth = 2f;
+            }
+            else if (state == ControlState.Hovered)
+            {
+                borderWidth = 1.8f;
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 200));
             }
 
             borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
-            if (borderWidth > 0)
-            {
-                BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
-            }
-            
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
             return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }

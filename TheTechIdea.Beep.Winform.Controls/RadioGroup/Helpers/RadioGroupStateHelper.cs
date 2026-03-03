@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private HashSet<string> _selectedValues = new HashSet<string>();
         private bool _allowMultipleSelection = false;
         private string _singleSelectedValue = string.Empty;
+        public Action RequestRedraw { get; set; }
 
         public RadioGroupStateHelper(BaseControl owner)
         {
@@ -181,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 var selectedItem = _items.First(i => i.Text == value);
                 ItemSelectionChanged?.Invoke(this, new ItemSelectionChangedEventArgs(selectedItem, true));
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(GetSelectedItems()));
-                _owner.Invalidate();
+                RedrawOwner();
                 return true;
             }
 
@@ -238,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
                 
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(GetSelectedItems()));
-                _owner.Invalidate();
+                RedrawOwner();
                 return true;
             }
 
@@ -310,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
 
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(new List<SimpleItem>()));
-                _owner.Invalidate();
+                RedrawOwner();
             }
         }
 
@@ -342,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
 
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(GetSelectedItems()));
-                _owner.Invalidate();
+                RedrawOwner();
             }
         }
 
@@ -457,6 +458,24 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private List<SimpleItem> GetSelectedItems()
         {
             return _items.Where(i => !string.IsNullOrEmpty(i.Text) && _selectedValues.Contains(i.Text)).ToList();
+        }
+
+        private void RedrawOwner()
+        {
+            if (RequestRedraw != null)
+            {
+                RequestRedraw();
+                return;
+            }
+
+            _owner.Invalidate();
+        }
+
+        public void ResetCallbacks()
+        {
+            RequestRedraw = null;
+            SelectionChanged = null;
+            ItemSelectionChanged = null;
         }
         #endregion
     }

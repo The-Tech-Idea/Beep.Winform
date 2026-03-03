@@ -6,9 +6,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 
@@ -22,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private readonly BeepImage _iconRenderer = new BeepImage();
         private readonly StringFormat _centerFormat = new StringFormat
         {
             Alignment = StringAlignment.Center,
@@ -44,12 +40,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions options)
         {
             float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
-            string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
+            string text = ResolveChipText(item);
             var font = GetFont(options, scale);
             var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
 
             int extraWidth = 0;
-            if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
                 extraWidth += DpiScalingHelper.ScaleSize(options.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(8, scale);
             if (options.ShowSelectionCheck)
                 extraWidth += DpiScalingHelper.ScaleValue(16, scale); // Dot indicator
@@ -90,6 +86,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 g.FillPath(bgBrush, path);
             }
 
+            // Always draw an outline so unselected chips stay visible
+            // even when chip/background colors are very close in some themes.
+            var outlineColor = state.IsSelected
+                ? Color.FromArgb(220, accentColor)
+                : Color.FromArgb(180, accentColor);
+            using (var borderPen = new Pen(outlineColor, Math.Max(1f, DpiScalingHelper.ScaleValue(1f, scale))))
+            {
+                g.DrawPath(borderPen, path);
+            }
+
             // Ripple effect hint on hover (color pulse)
             if (state.IsHovered && !state.IsSelected)
             {
@@ -118,26 +124,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
 
             // Leading icon
-            if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
             {
                 var iconSize = DpiScalingHelper.ScaleSize(options.IconMaxSize, scale);
-                var iconRect = new Rectangle(
+                var iconAnchorRect = new Rectangle(
                     contentRect.Left + leftOffset,
-                    contentRect.Top + (contentRect.Height - iconSize.Height) / 2,
-                    iconSize.Width, iconSize.Height);
-
-                try
-                {
-                    using var iconPath = new GraphicsPath();
-                    iconPath.AddRectangle(iconRect);
-                    StyledImagePainter.PaintWithTint(g, iconPath, item.ImagePath, fgColor, 1f);
-                }
-                catch
-                {
-                    _iconRenderer.ImagePath = item.ImagePath;
-                    _iconRenderer.Draw(g, iconRect);
-                }
-                leftOffset += iconSize.Width + DpiScalingHelper.ScaleValue(8, scale);
+                    contentRect.Top,
+                    iconSize.Width + DpiScalingHelper.ScaleValue(2, scale),
+                    contentRect.Height);
+                var iconRect = ChipIconHelpers.CalculateChipIconBounds(iconAnchorRect, options.Size, true);
+                ChipIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    item.ImagePath,
+                    fgColor,
+                    options.Theme ?? _theme,
+                    false,
+                    ChipVariant.Filled,
+                    state.Color,
+                    state.IsSelected,
+                    state.IsHovered,
+                    _owner.ControlStyle);
+                leftOffset += iconRect.Width + DpiScalingHelper.ScaleValue(8, scale);
             }
 
             // Close button
@@ -167,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             using (var textBrush = new SolidBrush(fgColor))
             {
-                g.DrawString(item?.Text ?? item?.DisplayField ?? string.Empty, font, textBrush, textRect, _centerFormat);
+                g.DrawString(ResolveChipText(item), font, textBrush, textRect, _centerFormat);
             }
         }
 
@@ -228,6 +236,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             return ChipFontHelpers.GetChipFont(_owner.ControlStyle, options.Size, scale);
         }
 
+        private static string ResolveChipText(SimpleItem item)
+        {
+            return item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
+        }
+
         private (Color bg, Color fg, Color accent) GetColors(ChipVisualState state, ChipRenderOptions options)
         {
             var theme = options.Theme ?? _theme;
@@ -265,6 +278,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 bg = theme?.ButtonBackColor ?? (theme?.CardBackColor ?? Color.White);
                 fg = theme?.ButtonForeColor ?? (theme?.ForeColor ?? Color.FromArgb(33, 33, 33));
                 accent = primary;
+
+                // Keep unselected chips visually distinct from group background.
+                var groupBack = theme?.BackColor ?? Color.White;
+                if (bg.ToArgb() == groupBack.ToArgb())
+                {
+                    bg = ControlPaint.Light(groupBack, 0.12f);
+                }
             }
             
             return (bg, fg, accent);

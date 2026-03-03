@@ -146,7 +146,7 @@ var switch1 = new BeepSwitch
     UseThemeColors = true
 };
 switch1.CheckedChanged += (s, e) => {
-    Console.WriteLine($"Switch is now: {switch1.Checked}");
+  //  Console.WriteLine($"Switch is now: {switch1.Checked}");
 };
 ```
 

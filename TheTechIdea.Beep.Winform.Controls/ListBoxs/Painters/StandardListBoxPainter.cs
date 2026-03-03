@@ -1,6 +1,9 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -14,10 +17,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Use precomputed rects for best consistency
-            var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
+            var info      = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
             Rectangle checkRect = info?.CheckRect ?? Rectangle.Empty;
-            Rectangle iconRect = info?.IconRect ?? Rectangle.Empty;
-            Rectangle textRect = info?.TextRect ?? itemRect;
+            Rectangle iconRect  = info?.IconRect  ?? Rectangle.Empty;
+            Rectangle textRect  = info?.TextRect  ?? itemRect;
 
             // Checkbox
             if (_owner.ShowCheckBox && SupportsCheckboxes() && !checkRect.IsEmpty)
@@ -28,13 +31,61 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Icon
             if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath) && !iconRect.IsEmpty)
-            {
                 DrawItemImage(g, iconRect, item.ImagePath);
+
+            // ── Rich item extras ──────────────────────────────────────────────────
+            var rich      = item as BeepListItem;
+            bool disabled = rich?.IsDisabled == true;
+
+            // Determine text colour (HC-aware, disabled-aware)
+            Color textColor;
+            if (_owner.IsHighContrast)
+                textColor = _owner.HCItemForeground(isSelected);
+            else if (disabled)
+                textColor = Color.FromArgb(ListBoxTokens.DisabledAlpha, _helper.GetTextColor());
+            else
+                textColor = isSelected
+                    ? (_theme?.OnPrimaryColor ?? Color.White)
+                    : _helper.GetTextColor();
+
+            if (textColor == Color.Empty) textColor = _helper.GetTextColor();
+
+            // Badge pill — draw before text so it can shrink textRect
+            if (rich != null && !string.IsNullOrEmpty(rich.BadgeText))
+            {
+                int badgePad = DpiScalingHelper.ScaleValue(72, _owner);
+                DrawBadgePill(g, itemRect, rich.BadgeText, rich.BadgeColor);
+                textRect = new Rectangle(textRect.X, textRect.Y,
+                    textRect.Width - badgePad, textRect.Height);
             }
 
-            // Text
-            Color textColor = _owner.IsItemSelected(item) ? Color.White : (_helper.GetTextColor());
-            DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
+            // Sub-text 2-line layout
+            if (rich != null && !string.IsNullOrEmpty(rich.SubText))
+            {
+                int subH = DpiScalingHelper.ScaleValue(16, _owner);
+                int titleH = textRect.Height - subH - DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner);
+                titleH = Math.Max(12, titleH);
+
+                var titleRect = new Rectangle(textRect.X, textRect.Y, textRect.Width, titleH);
+                var subRect   = new Rectangle(textRect.X,
+                    textRect.Y + titleH + DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner),
+                    textRect.Width, subH);
+
+                DrawItemText(g, titleRect, item.Text, textColor, _owner.TextFont);
+                DrawSubText(g, subRect, rich.SubText,
+                    _owner.IsHighContrast ? _owner.HCItemForeground(isSelected) : _helper.GetTextColor(),
+                    _owner.TextFont);
+            }
+            else
+            {
+                DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
+            }
+
+            // Focus ring (keyboard-navigated item)
+            var visible = _helper?.GetVisibleItems();
+            int fi = _owner.FocusedIndex;
+            if (fi >= 0 && visible != null && fi < visible.Count && visible[fi] == item)
+                DrawFocusRing(g, itemRect);
         }
         
         // Enhanced with border style and gradient background

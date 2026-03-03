@@ -14,12 +14,22 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
+            (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
 
-            // Button style - rounded rectangle with elevation effect when checked
+            Color surfaceColor = CheckBoxThemeHelpers.GetUncheckedBackgroundColor(options.Theme, options.UseThemeColors);
+            Color effectiveBackground = state.IsChecked || state.IsIndeterminate
+                ? bgColor
+                : surfaceColor;
+            if (state.IsHovered && !state.IsDisabled)
+            {
+                effectiveBackground = ControlPaint.Light(effectiveBackground, 0.06f);
+            }
+
             using (var path = CreateRoundedPath(bounds, options.BorderRadius))
             {
                 using (var brush = new SolidBrush(bgColor))
                 {
+                    brush.Color = effectiveBackground;
                     g.FillPath(brush, path);
                 }
 
@@ -29,10 +39,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                     g.DrawPath(pen, path);
                 }
 
-                // Add subtle shadow when checked
-                if (state.IsChecked)
+                if ((state.IsChecked || state.IsIndeterminate) && !state.IsDisabled)
                 {
-                    // Subtle elevation effect
+                    using var innerGlow = new Pen(Color.FromArgb(60, checkMarkColor), 1f);
+                    Rectangle inset = Rectangle.Inflate(bounds, -2, -2);
+                    using var insetPath = CreateRoundedPath(inset, Math.Max(1, options.BorderRadius - 1));
+                    g.DrawPath(innerGlow, insetPath);
                 }
             }
 
@@ -45,16 +57,23 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             {
                 PaintIndeterminateMark(g, bounds, options);
             }
+
+            if (state.IsFocused && !state.IsDisabled)
+            {
+                PaintFocusRing(g, bounds, options);
+            }
         }
 
         public override void PaintCheckMark(Graphics g, Rectangle bounds, CheckBoxRenderOptions options)
         {
-            PaintStandardCheckMark(g, bounds, options);
+            Rectangle iconBounds = Rectangle.Inflate(bounds, -Math.Max(3, bounds.Width / 5), -Math.Max(3, bounds.Height / 5));
+            PaintStandardCheckMark(g, iconBounds, options);
         }
 
         public override void PaintIndeterminateMark(Graphics g, Rectangle bounds, CheckBoxRenderOptions options)
         {
-            PaintStandardIndeterminateMark(g, bounds, options);
+            Rectangle iconBounds = Rectangle.Inflate(bounds, -Math.Max(3, bounds.Width / 5), -Math.Max(3, bounds.Height / 5));
+            PaintStandardIndeterminateMark(g, iconBounds, options);
         }
 
         public override void PaintText(Graphics g, Rectangle bounds, string text, CheckBoxRenderOptions options)

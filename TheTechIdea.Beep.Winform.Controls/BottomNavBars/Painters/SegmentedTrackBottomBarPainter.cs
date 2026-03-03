@@ -18,12 +18,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             base.CalculateLayout(context);
             var g = context.Graphics;
             var barRect = context.Bounds;
-            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.White : context.BarBackColor))
+            using (var b = new SolidBrush(ResolveBarBack(context)))
                 g.FillRectangle(b, barRect);
 
             // draw the small track across the bar, slightly inset from the bottom
             var trackRect = new Rectangle(barRect.Left + 16, barRect.Top + barRect.Height - TrackHeight - 10, barRect.Width - 32, TrackHeight);
-            using (var tr = new SolidBrush(context.BarHoverBackColor == Color.Empty ? Color.FromArgb(240,240,240) : context.BarHoverBackColor))
+            using (var tr = new SolidBrush(context.NavigationBorderColor == Color.Empty ? context.BarHoverBackColor : context.NavigationBorderColor))
                 g.FillRectangle(tr, trackRect);
 
             // indicator is a small rounded capsule track
@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             float iX = indicatorRect.Left + (indicatorRect.Width - IndicatorWidth) / 2f; // center under item
             try { if (context.AnimatedIndicatorWidth > 0f) { iX = context.AnimatedIndicatorX + (context.AnimatedIndicatorWidth - IndicatorWidth)/2f; } } catch { }
             var indRect = new RectangleF(iX, trackRect.Top - (IndicatorHeight - TrackHeight)/2f, IndicatorWidth, IndicatorHeight);
-            using (var br = new SolidBrush(context.AccentColor))
+            using (var br = new SolidBrush(ResolveAccent(context)))
             using (var gp = new GraphicsPath())
             {
                 int r = IndicatorRadius;

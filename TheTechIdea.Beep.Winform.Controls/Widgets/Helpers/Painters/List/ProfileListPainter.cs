@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -13,39 +15,73 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
     internal sealed class ProfileListPainter : WidgetPainterBase
     {
         private readonly List<Rectangle> _avatarRects = new();
-        private readonly List<Rectangle> _nameRects = new();
+        private readonly List<Rectangle> _nameRects   = new();
+        private WidgetContext? _lastCtx;
+        private bool _wheelHooked;
+
+        private Font? _titleFont;
+        private Font? _nameFont;
+        private Font? _roleFont;
+
+        private const int PadDp        = 16;
+        private const int HeaderHDp    = 24;
+        private const int ItemHeightDp = 48;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            if (!_wheelHooked && Owner != null) { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
+        }
+
+        protected override void RebuildFonts()
+        {
+            _titleFont?.Dispose(); _nameFont?.Dispose(); _roleFont?.Dispose();
+            _titleFont = BeepThemesManager.ToFont(Theme?.LabelMedium  ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold }, true);
+            _nameFont  = BeepThemesManager.ToFont(Theme?.LabelSmall   ?? new TypographyStyle { FontSize = 9f,  FontWeight = FontWeight.Bold }, true);
+            _roleFont  = BeepThemesManager.ToFont(Theme?.CaptionStyle ?? new TypographyStyle { FontSize = 8f }, true);
+        }
+
+        private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (_lastCtx == null) return;
+            int maxY = Math.Max(0, _lastCtx.TotalContentHeight - _lastCtx.ContentRect.Height);
+            _lastCtx.ScrollOffsetY = Math.Max(0, Math.Min(_lastCtx.ScrollOffsetY - e.Delta / 120 * Dp(ItemHeightDp) * 3, maxY));
+            Owner?.Invalidate();
+        }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 16;
+            int pad = Dp(PadDp);
             var baseRect = Owner?.DrawingRect ?? drawingRect;
             ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
-            
-            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
-            ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 8, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
 
-            _avatarRects.Clear();
-            _nameRects.Clear();
+            ctx.HeaderRect  = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, Dp(HeaderHDp));
+            ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + Dp(8), ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
+
+            _avatarRects.Clear(); _nameRects.Clear();
             var items = ctx.ListItems;
+            int stride = Dp(ItemHeightDp);
             if (items != null && items.Count > 0)
             {
-                int itemHeight = Math.Min(48, ctx.ContentRect.Height / Math.Max(items.Count, 1));
                 for (int i = 0; i < items.Count; i++)
                 {
-                    int y = ctx.ContentRect.Y + i * itemHeight;
-                    var avatarRect = new Rectangle(ctx.ContentRect.X + 8, y + 8, itemHeight - 16, itemHeight - 16);
-                    _avatarRects.Add(avatarRect);
-                    _nameRects.Add(new Rectangle(ctx.ContentRect.X + itemHeight + 8, y + 8, ctx.ContentRect.Width - itemHeight - 16, (itemHeight - 16) / 2));
+                    int y = ctx.ContentRect.Y + i * stride;
+                    int av = stride - Dp(16);
+                    _avatarRects.Add(new Rectangle(ctx.ContentRect.X + Dp(8), y + Dp(8), av, av));
+                    _nameRects.Add(new Rectangle(ctx.ContentRect.X + stride + Dp(8), y + Dp(8), ctx.ContentRect.Width - stride - Dp(16), av / 2));
                 }
+                ctx.TotalContentHeight = items.Count * stride;
             }
-            
+            else ctx.TotalContentHeight = 0;
+            ClampScrollOffset(ctx);
+            _lastCtx = ctx;
             return ctx;
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             DrawSoftShadow(g, ctx.DrawingRect, 12, layers: 4, offset: 2);
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
+            var bgBrush = PaintersFactory.GetSolidBrush(Theme?.BackColor ?? Color.White);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
         }
@@ -54,70 +90,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
-                g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
+                var titleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
+                if (_titleFont != null) g.DrawString(ctx.Title, _titleFont, titleBrush, ctx.HeaderRect);
             }
-            
             var items = ctx.ListItems;
             if (items != null && items.Count > 0)
-            {
-                DrawProfileItems(g, ctx.ContentRect, items, ctx.AccentColor);
-            }
+                DrawProfileItems(g, ctx, ctx.ContentRect, items, ctx.AccentColor);
         }
 
-        private void DrawProfileItems(Graphics g, Rectangle rect, List<ListItem> items, Color accentColor)
+        private void DrawProfileItems(Graphics g, WidgetContext ctx, Rectangle rect, List<ListItem> items, Color accentColor)
         {
             if (!items.Any()) return;
-            
-            int itemHeight = Math.Min(48, rect.Height / Math.Max(items.Count, 1));
-            using var nameFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-            using var roleFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            
+
+            int stride = Dp(ItemHeightDp);
+            var nameBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(180, Theme?.ForeColor ?? Color.Black));
+            var roleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
+            var nameFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+            var roleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+
+            var savedClip = g.Clip;
+            g.SetClip(rect);
+
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
-                int y = rect.Y + i * itemHeight;
-                
-                var avatarRect = _avatarRects.Count > i ? _avatarRects[i] : new Rectangle(rect.X + 8, y + 8, itemHeight - 16, itemHeight - 16);
-                using var avatarBrush = new SolidBrush(Color.FromArgb(30, accentColor));
-                g.FillEllipse(avatarBrush, avatarRect);
-                using var avatarPen = new Pen(Color.FromArgb(100, accentColor), 1);
-                g.DrawEllipse(avatarPen, avatarRect);
-                
-                var nameRect = _nameRects.Count > i ? _nameRects[i] : new Rectangle(rect.X + itemHeight + 8, y + 8, rect.Width - itemHeight - 16, (itemHeight - 16) / 2);
-                var roleRect = new Rectangle(nameRect.X, nameRect.Bottom, nameRect.Width, (itemHeight - 16) / 2);
-                
-                if (!string.IsNullOrEmpty(item.Title))
-                {
-                    using var nameBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
-                    var nameFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item.Title, nameFont, nameBrush, nameRect, nameFormat);
-                }
-                
-                if (!string.IsNullOrEmpty(item.Subtitle))
-                {
-                    using var roleBrush = new SolidBrush(Color.FromArgb(120, Color.Gray));
-                    var roleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item.Subtitle, roleFont, roleBrush, roleRect, roleFormat);
-                }
+                int y = rect.Y + i * stride - ctx.ScrollOffsetY;
+                if (y + stride < rect.Y) continue;
+                if (y > rect.Bottom) break;
+
+                int av = stride - Dp(16);
+                var avatarRect = _avatarRects.Count > i
+                    ? new Rectangle(_avatarRects[i].X, _avatarRects[i].Y - ctx.ScrollOffsetY + (i == 0 ? 0 : 0), _avatarRects[i].Width, _avatarRects[i].Height)
+                    : new Rectangle(rect.X + Dp(8), y + Dp(8), av, av);
+                avatarRect = new Rectangle(rect.X + Dp(8), y + Dp(8), av, av);
+
+                using var avatarFill = new SolidBrush(Color.FromArgb(30, accentColor));
+                g.FillEllipse(avatarFill, avatarRect);
+                var avatarOutline = PaintersFactory.GetPen(Color.FromArgb(100, accentColor), 1);
+                g.DrawEllipse(avatarOutline, avatarRect);
+
+                var nameRect = new Rectangle(rect.X + stride + Dp(8), y + Dp(8), rect.Width - stride - Dp(16), av / 2);
+                var roleRect = new Rectangle(nameRect.X, nameRect.Bottom, nameRect.Width, av / 2);
+
+                if (!string.IsNullOrEmpty(item.Title) && _nameFont != null)
+                    g.DrawString(item.Title, _nameFont, nameBrush, nameRect, nameFormat);
+                if (!string.IsNullOrEmpty(item.Subtitle) && _roleFont != null)
+                    g.DrawString(item.Subtitle, _roleFont, roleBrush, roleRect, roleFormat);
             }
+
+            g.Clip = savedClip;
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
+            DrawVerticalScrollbar(g, ctx.ContentRect, ctx, IsAreaHovered("ProfileList_Scroll"));
             for (int i = 0; i < _avatarRects.Count; i++)
             {
                 if (IsAreaHovered($"ProfileList_Avatar_{i}"))
                 {
-                    using var pen = new Pen(Theme?.AccentColor ?? Color.Blue, 1.2f);
-                    g.DrawEllipse(pen, _avatarRects[i]);
-                }
-                if (IsAreaHovered($"ProfileList_Name_{i}"))
-                {
-                    using var underline = new Pen(Theme?.AccentColor ?? Color.Blue, 1f);
-                    var nr = _nameRects[i];
-                    g.DrawLine(underline, nr.Left, nr.Bottom + 1, nr.Right, nr.Bottom + 1);
+                    int dy = i * Dp(ItemHeightDp) - ctx.ScrollOffsetY;
+                    var ar = new Rectangle(_avatarRects[i].X, ctx.ContentRect.Y + dy + Dp(8), _avatarRects[i].Width, _avatarRects[i].Height);
+                    var pen = PaintersFactory.GetPen(Theme?.AccentColor ?? Color.Blue, 1.2f);
+                    g.DrawEllipse(pen, ar);
                 }
             }
         }

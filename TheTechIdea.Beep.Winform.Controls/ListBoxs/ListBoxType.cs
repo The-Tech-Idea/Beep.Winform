@@ -185,9 +185,41 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         /// Timeline style - items displayed as timeline entries with connectors
         /// Ideal for activity logs and history
         /// </summary>
-        Timeline = 31
+        Timeline = 31,
+
+        /// <summary>
+        /// Infinite scroll sentinel — shows a "Load more…" row at the bottom;
+        /// raises LoadMoreRequested when the sentinel is clicked or scrolled past.
+        /// </summary>
+        InfiniteScroll = 32,
+
+        /// <summary>
+        /// Command-palette style list — icon + command name + keyboard shortcut right-aligned.
+        /// Ideal for VS Code-style command pickers and action menus.
+        /// </summary>
+        CommandList = 33,
+
+        /// <summary>
+        /// Navigation rail — large icon above a compact label, vertical rail layout.
+        /// Ideal for mobile-style nav menus inside desktop side panels.
+        /// </summary>
+        NavigationRail = 34
     }
-    
+
+    /// <summary>
+    /// Three canonical density levels for BeepListBox row height.
+    /// Maps to ListBoxTokens.ItemHeight* constants.
+    /// </summary>
+    public enum ListDensityMode
+    {
+        /// <summary>48 px rows — comfortable for touch and mixed title+sub-text layout.</summary>
+        Comfortable = 0,
+        /// <summary>36 px rows — compact for data-entry and power-user lists.</summary>
+        Compact = 1,
+        /// <summary>28 px rows — dense for data-grid-like lists.</summary>
+        Dense = 2
+    }
+
     public enum SelectionModeEnum
     {
         Single = 0,

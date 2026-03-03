@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
@@ -98,22 +99,30 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
             try
             {
-                // Orchestrated scan
+                // Merge registry-registered namespaces and directories into scan options
+                var embNamespaces = new List<string>
+                {
+                    "TheTechIdea.Beep.Winform.Controls.Fonts",
+                    "TheTechIdea.Beep.Fonts"
+                };
+                embNamespaces.AddRange(BeepFontRegistry.GetRegisteredNamespaces());
+
+                var allDirs = new List<string>
+                {
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fonts")
+                };
+                allDirs.AddRange(BeepFontRegistry.GetRegisteredDirectories());
+
                 var opt = new FontListHelper.FontScanOptions
                 {
                     ScanSystemFonts = true,
-                    Directories = new List<string>
-                    {
-                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fonts")
-                    },
-                    EmbeddedNamespaces = new[]
-                    {
-                        "TheTechIdea.Beep.Winform.Controls.Fonts",
-                        "TheTechIdea.Beep.Fonts"
-                    },
+                    Directories = allDirs,
+                    EmbeddedNamespaces = embNamespaces.ToArray(),
+                    AdditionalAssemblies = BeepFontRegistry.GetRegisteredAssemblies().ToList(),
                     IncludeFrameworkAssemblies = false,
                     IncludeReferencedAssemblies = true,
-                    MaxReferenceDepth = 2
+                    MaxReferenceDepth = 2,
+                    UseConventionDiscovery = true
                 };
 
                 await Task.Run(() => FontListHelper.LoadAllFonts(opt));
@@ -122,10 +131,23 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 CreateDefaultFonts();
 
                 _isInitialized = true;
+
+                // Subscribe to post-init registrations (plugins / theme packs loaded later)
+                BeepFontRegistry.Changed += OnRegistryChanged;
             }
             catch
             {
                 // swallow, consumers will fallback to generic fonts
+            }
+        }
+
+        private static void OnRegistryChanged(object sender, EventArgs e)
+        {
+            // Incrementally load fonts from any newly registered assemblies
+            foreach (var asm in BeepFontRegistry.GetRegisteredAssemblies())
+            {
+                FontListHelper.RegisterAndLoad(asm);
+                BeepFontPaths.RegisterFamilyFromAssembly(asm);
             }
         }
 
@@ -168,11 +190,85 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             try { return new Font(FontFamily.GenericSansSerif, size, style); }
             catch { }
             try { return new Font("Arial", size, style); }
-            catch { return null; }
+            catch { return System.Drawing.SystemFonts.DefaultFont; }
         }
         #endregion
 
         #region "Font Management"
+
+        #region "Assembly Registration"
+        /// <summary>
+        /// Registers an external assembly so its embedded fonts are discovered by all Beep
+        /// font look-up methods. If <see cref="Initialize"/> has already run an incremental scan
+        /// is triggered immediately; otherwise the assembly is included on the next call.
+        /// </summary>
+        /// <example>
+        /// // In your app startup, before showing any Beep controls:
+        /// BeepFontManager.Register(Assembly.GetExecutingAssembly());
+        /// BeepFontManager.Register("MyCompany.MyProject.Fonts");
+        /// </example>
+        public static void Register(Assembly assembly)
+        {
+            if (assembly == null) return;
+            BeepFontRegistry.Register(assembly);
+            if (_isInitialized)
+            {
+                FontListHelper.RegisterAndLoad(assembly);
+                BeepFontPaths.RegisterFamilyFromAssembly(assembly);
+            }
+        }
+
+        /// <summary>Registers multiple assemblies at once. Null entries are skipped.</summary>
+        public static void Register(IEnumerable<Assembly> assemblies)
+        {
+            if (assemblies == null) return;
+            foreach (var asm in assemblies) Register(asm);
+        }
+
+        /// <summary>
+        /// Registers a namespace prefix so that any embedded resource containing this string is
+        /// treated as a font resource during scanning.
+        /// Example: <c>"MyCompany.MyTheme.Fonts"</c>
+        /// </summary>
+        public static void Register(string namespacePrefix)
+        {
+            if (string.IsNullOrWhiteSpace(namespacePrefix)) return;
+            BeepFontRegistry.Register(namespacePrefix);
+        }
+
+        /// <summary>
+        /// Registers a file-system directory for .ttf/.otf scanning.
+        /// If already initialized, scanning runs immediately.
+        /// </summary>
+        public static void RegisterDirectory(string directoryPath)
+        {
+            if (string.IsNullOrWhiteSpace(directoryPath)) return;
+            BeepFontRegistry.RegisterFromDirectory(directoryPath);
+            if (_isInitialized)
+            {
+                try { FontListHelper.GetFontFilesLocations(directoryPath); } catch { }
+            }
+        }
+
+        /// <summary>
+        /// Walks the current AppDomain for assemblies matching the convention: at least one
+        /// embedded resource whose namespace prefix ends with <c>.Fonts</c>.
+        /// Those assemblies are registered and, if already initialized, loaded immediately.
+        /// </summary>
+        public static void RegisterFromAppDomain()
+        {
+            BeepFontRegistry.RegisterFromAppDomain();
+            if (_isInitialized)
+            {
+                foreach (var asm in BeepFontRegistry.GetRegisteredAssemblies())
+                {
+                    FontListHelper.RegisterAndLoad(asm);
+                    BeepFontPaths.RegisterFamilyFromAssembly(asm);
+                }
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Gets a font using GraphicsUnit.Point (default for standard WinForms controls).
         /// Per Microsoft guidance: Point fonts are DPI-independent and auto-scale with framework.
@@ -327,8 +423,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font ToFont(TypographyStyle style)
         {
             if (style == null) return DefaultFont;
-            return GetFont(style.FontFamily, style.FontSize,
-                style.FontWeight >= FontWeight.Bold ? FontStyle.Bold : FontStyle.Regular);
+            float size = style.FontSize > 0 ? style.FontSize : _defaultFontSize;
+            string family = !string.IsNullOrWhiteSpace(style.FontFamily) ? style.FontFamily : _defaultFontName;
+            FontStyle fs = style.FontWeight >= FontWeight.Bold ? FontStyle.Bold : FontStyle.Regular;
+            return GetFont(family, size, fs) ?? DefaultFont;
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -43,78 +44,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _tierFont?.Dispose(); } catch { }
-            try { _priceFont?.Dispose(); } catch { }
-            try { _periodFont?.Dispose(); } catch { }
-            try { _featureFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _tierFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _priceFont = new Font(fontFamily, 32f, FontStyle.Bold);
-            _periodFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _featureFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_tierFont = bodyFont;
+            _priceFont = titleFont;
+            _periodFont = bodyFont;
+            _featureFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int tierHeight = DpiScalingHelper.ScaleValue(TierHeight, _owner);
+            int priceHeight = DpiScalingHelper.ScaleValue(PriceHeight, _owner);
+            int periodHeight = DpiScalingHelper.ScaleValue(PeriodHeight, _owner);
+            int featureRowHeight = DpiScalingHelper.ScaleValue(FeatureRowHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int featureGap = DpiScalingHelper.ScaleValue(FeatureGap, _owner);
+            int checkmarkSize = DpiScalingHelper.ScaleValue(CheckmarkSize, _owner);
             
             // Popular/Recommended badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Tier name (header)
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
-                drawingRect.Top + Padding,
-                drawingRect.Width - Padding * 2 - (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
-                TierHeight);
+                drawingRect.Left + padding,
+                drawingRect.Top + padding,
+                drawingRect.Width - padding * 2 - (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
+                tierHeight);
             
             // Price display (large number)
             ctx.SubtitleRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.HeaderRect.Bottom + ElementGap,
-                drawingRect.Width - Padding * 2,
-                PriceHeight);
+                drawingRect.Left + padding,
+                ctx.HeaderRect.Bottom + elementGap,
+                drawingRect.Width - padding * 2,
+                priceHeight);
             
             // Billing period (/month, /year)
             ctx.StatusRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 ctx.SubtitleRect.Bottom,
-                drawingRect.Width - Padding * 2,
-                PeriodHeight);
+                drawingRect.Width - padding * 2,
+                periodHeight);
             
             // Features list area
-            int featuresTop = ctx.StatusRect.Bottom + ElementGap * 2;
-            int featuresHeight = Math.Max(60, drawingRect.Bottom - featuresTop - Padding - ButtonHeight - ElementGap * 2);
+            int featuresTop = ctx.StatusRect.Bottom + elementGap * 2;
+            int featuresHeight = Math.Max(featureRowHeight * 2 + featureGap, drawingRect.Bottom - featuresTop - padding - buttonHeight - elementGap * 2);
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 featuresTop,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Width - padding * 2,
                 featuresHeight);
             
             // CTA button at bottom
             if (ctx.ShowButton)
             {
                 ctx.ButtonRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Bottom - Padding - ButtonHeight,
-                    drawingRect.Width - Padding * 2,
-                    ButtonHeight);
+                    drawingRect.Left + padding,
+                    drawingRect.Bottom - padding - buttonHeight,
+                    drawingRect.Width - padding * 2,
+                    buttonHeight);
             }
             
             ctx.ShowSecondaryButton = false;
@@ -152,11 +155,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             }
             
             // Draw divider line
-            int dividerY = ctx.StatusRect.Bottom + ElementGap;
-            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 1);
+            int dividerY = ctx.StatusRect.Bottom + DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner));
             g.DrawLine(dividerPen, 
-                ctx.DrawingRect.Left + Padding, dividerY,
-                ctx.DrawingRect.Right - Padding, dividerY);
+                ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner), dividerY,
+                ctx.DrawingRect.Right - DpiScalingHelper.ScaleValue(Padding, _owner), dividerY);
             
             // Draw feature list with checkmarks
             DrawFeatureList(g, ctx);
@@ -166,8 +169,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         {
             if (ctx.Tags == null || ctx.ParagraphRect.IsEmpty) return;
             
-            int y = ctx.ParagraphRect.Top + ElementGap;
-            int maxY = ctx.ParagraphRect.Bottom - FeatureRowHeight;
+            int featureRowHeight = DpiScalingHelper.ScaleValue(FeatureRowHeight, _owner);
+            int featureGap = DpiScalingHelper.ScaleValue(FeatureGap, _owner);
+            int checkmarkSize = DpiScalingHelper.ScaleValue(CheckmarkSize, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int y = ctx.ParagraphRect.Top + elementGap;
+            int maxY = ctx.ParagraphRect.Bottom - featureRowHeight;
             
             using var checkBrush = new SolidBrush(Color.FromArgb(76, 175, 80)); // Green
             using var textBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
@@ -180,14 +187,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 // Draw checkmark circle
                 var checkRect = new Rectangle(
                     ctx.ParagraphRect.Left,
-                    y + (FeatureRowHeight - CheckmarkSize) / 2,
-                    CheckmarkSize,
-                    CheckmarkSize);
+                    y + (featureRowHeight - checkmarkSize) / 2,
+                    checkmarkSize,
+                    checkmarkSize);
                 
                 g.FillEllipse(checkBrush, checkRect);
                 
                 // Draw checkmark
-                using var checkPen = new Pen(Color.White, 2);
+                using var checkPen = new Pen(Color.White, DpiScalingHelper.ScaleValue(2, _owner));
                 checkPen.StartCap = LineCap.Round;
                 checkPen.EndCap = LineCap.Round;
                 
@@ -200,12 +207,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 var textRect = new Rectangle(
                     checkRect.Right + ElementGap,
                     y,
-                    ctx.ParagraphRect.Width - CheckmarkSize - ElementGap,
-                    FeatureRowHeight);
+                    ctx.ParagraphRect.Width - checkmarkSize - elementGap,
+                    featureRowHeight);
                 
                 g.DrawString(feature, _featureFont, textBrush, textRect, format);
                 
-                y += FeatureRowHeight + FeatureGap;
+                y += featureRowHeight + featureGap;
             }
         }
         
@@ -225,14 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _tierFont?.Dispose();
-            _priceFont?.Dispose();
-            _periodFont?.Dispose();
-            _featureFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

@@ -582,7 +582,7 @@ if (fileDialog.ShowDialog() == DialogResult.OK)
     string[] selectedFiles = fileDialog.FileNames;
     foreach (string file in selectedFiles)
     {
-        Console.WriteLine($"Selected: {Path.GetFileName(file)}");
+      //  Console.WriteLine($"Selected: {Path.GetFileName(file)}");
     }
     
     // Process all selected files
@@ -963,7 +963,7 @@ private void CreateBackup(string filePath)
     catch (Exception ex)
     {
         // Log backup failure but don't prevent save
-        Console.WriteLine($"Failed to create backup: {ex.Message}");
+      //  Console.WriteLine($"Failed to create backup: {ex.Message}");
     }
 }
 

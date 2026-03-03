@@ -78,6 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private readonly System.Collections.Generic.Dictionary<string, Rectangle> _areaRects = new();
         private string _hoverArea;
         private string _pressedArea;
+        private bool _keyboardFocusVisible;
 
         // Common events
         public event EventHandler ValueChanged;
@@ -102,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             set
             {
                 _useThemeColors = value;
-                Invalidate();
+                RequestVisualRefresh();
             }
         }
         private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
@@ -125,13 +126,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                         ControlStyle = _controlstyle;
                     }
 
-                    Invalidate();
+                    RequestVisualRefresh(resetLayoutCache: true);
                 }
             }
         }
         [Category("Behavior")]
         [DefaultValue(10)]
-        public int Step { get => _step; set { _step = value; Invalidate(); } }
+        public int Step { get => _step; set { _step = value; RequestVisualRefresh(); } }
 
         [Category("Behavior")]
         [DefaultValue(0)]
@@ -156,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                         if (!_transitionTimer.Enabled) _transitionTimer.Start();
                     }
                 }
-                else Invalidate();
+                else RequestVisualRefresh();
 
                 ValueChanged?.Invoke(this, System.EventArgs.Empty);
                 if (wasAtMinimum && _value > _minimum) ProgressStarted?.Invoke(this, System.EventArgs.Empty);
@@ -171,18 +172,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                     UpdateProgressTooltip();
                 }
                 
-                // Invalidate layout cache
-                InvalidateLayoutCache();
+                RequestVisualRefresh(resetLayoutCache: true);
             }
         }
 
         [Category("Behavior")]
         [DefaultValue(0)]
-        public int Minimum { get => _minimum; set { _minimum = value; if (_value < _minimum) _value = _minimum; InvalidateLayoutCache(); Invalidate(); } }
+        public int Minimum { get => _minimum; set { _minimum = value; if (_value < _minimum) _value = _minimum; RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Category("Behavior")]
         [DefaultValue(100)]
-        public int Maximum { get => _maximum; set { _maximum = value; if (_value > _maximum) _value = _maximum; InvalidateLayoutCache(); Invalidate(); } }
+        public int Maximum { get => _maximum; set { _maximum = value; if (_value > _maximum) _value = _maximum; RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Description("Font for the displayed text")]
         [Category("Appearance")]
@@ -194,8 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 if (_textFont != value)
                 {
                     _textFont = value;
-                    InvalidateLayoutCache();
-                    Invalidate();
+                    RequestVisualRefresh(resetLayoutCache: true);
                 }
             } 
         }
@@ -206,32 +205,50 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         public Color TextColor
         {
             get => _textBrush?.Color ?? Color.White;
-            set { _textBrush?.Dispose(); _textBrush = new SolidBrush(value); Invalidate(); }
+            set { _textBrush?.Dispose(); _textBrush = new SolidBrush(value); RequestVisualRefresh(); }
         }
 
         [Category("Appearance")]
         public Color ProgressColor
         {
             get => _progressBrush?.Color ?? Color.LightGreen;
-            set { _progressBrush?.Dispose(); _progressBrush = new SolidBrush(value); Invalidate(); }
+            set { _progressBrush?.Dispose(); _progressBrush = new SolidBrush(value); RequestVisualRefresh(); }
         }
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarStyle.Gradient)]
-        public ProgressBarStyle ProgressBarStyle { get => _style; set { _style = value; if (_style == ProgressBarStyle.Animated) StartAnimation(); else StopAnimation(); if (_style == ProgressBarStyle.Segmented) UpdateSizeForStyle(); Invalidate(); } }
+        public ProgressBarStyle ProgressBarStyle
+        {
+            get => _style;
+            set
+            {
+                if (_style == value)
+                {
+                    return;
+                }
+
+                _style = value;
+                SyncAnimationStatesForRuntimeState();
+                if (_style == ProgressBarStyle.Segmented)
+                {
+                    UpdateSizeForStyle();
+                }
+                RequestVisualRefresh(resetLayoutCache: true);
+            }
+        }
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarSize.Medium)]
-        public ProgressBarSize BarSize { get => _barSize; set { _barSize = value; UpdateSizeForStyle(); InvalidateLayoutCache(); Invalidate(); } }
+        public ProgressBarSize BarSize { get => _barSize; set { _barSize = value; UpdateSizeForStyle(); RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarDisplayMode.CurrProgress)]
-        public ProgressBarDisplayMode VisualMode { get => _visualMode; set { if (_visualMode != value) { _visualMode = value; InvalidateLayoutCache(); Invalidate(); } } }
+        public ProgressBarDisplayMode VisualMode { get => _visualMode; set { if (_visualMode != value) { _visualMode = value; RequestVisualRefresh(resetLayoutCache: true); } } }
         private ProgressBarDisplayMode _visualMode = ProgressBarDisplayMode.CurrProgress;
 
         [Category("Appearance")]
         [DefaultValue("")]
-        public string CustomText { get => _customText; set { if (_customText != value) { _customText = value; InvalidateLayoutCache(); Invalidate(); } } }
+        public string CustomText { get => _customText; set { if (_customText != value) { _customText = value; RequestVisualRefresh(resetLayoutCache: true); } } }
         private string _customText = string.Empty;
 
         [Category("Appearance")]
@@ -243,29 +260,42 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         public bool ShowGlowEffect 
         { 
             get => _showGlowEffect && !ProgressBarAccessibilityHelpers.IsReducedMotionEnabled(); 
-            set { _showGlowEffect = value; Invalidate(); } 
+            set { _showGlowEffect = value; RequestVisualRefresh(); } 
         }
 
         [Category("Behavior")]
         [DefaultValue(false)]
-        public bool IsPulsating { get => _isPulsating; set { if (_isPulsating == value) return; _isPulsating = value; if (_isPulsating) StartPulsating(); else StopPulsating(); } }
+        public bool IsPulsating
+        {
+            get => _isPulsating;
+            set
+            {
+                if (_isPulsating == value)
+                {
+                    return;
+                }
+
+                _isPulsating = value;
+                SyncAnimationStatesForRuntimeState();
+            }
+        }
 
         [Category("Task Management")]
-        public int CompletedTasks { get => _completedTasks; set { _completedTasks = value; if (_showTaskCount) UpdateTaskProgress(); InvalidateLayoutCache(); Invalidate(); } }
+        public int CompletedTasks { get => _completedTasks; set { _completedTasks = value; if (_showTaskCount) UpdateTaskProgress(); RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Category("Task Management")]
-        public int TotalTasks { get => _totalTasks; set { _totalTasks = value; if (_showTaskCount) UpdateTaskProgress(); InvalidateLayoutCache(); Invalidate(); } }
+        public int TotalTasks { get => _totalTasks; set { _totalTasks = value; if (_showTaskCount) UpdateTaskProgress(); RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Category("Task Management")]
-        public string TaskText { get => _taskText; set { _taskText = value; InvalidateLayoutCache(); Invalidate(); } }
+        public string TaskText { get => _taskText; set { _taskText = value; RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Category("Task Management")]
         [DefaultValue(false)]
-        public bool ShowTaskCount { get => _showTaskCount; set { _showTaskCount = value; if (_showTaskCount) UpdateTaskProgress(); InvalidateLayoutCache(); Invalidate(); } }
+        public bool ShowTaskCount { get => _showTaskCount; set { _showTaskCount = value; if (_showTaskCount) UpdateTaskProgress(); RequestVisualRefresh(resetLayoutCache: true); } }
 
         [Category("Appearance")]
         [DefaultValue(false)]
-        public bool AutoColorByProgress { get => _autoColorByProgress; set { _autoColorByProgress = value; if (_autoColorByProgress) UpdateColorByProgress(); Invalidate(); } }
+        public bool AutoColorByProgress { get => _autoColorByProgress; set { _autoColorByProgress = value; if (_autoColorByProgress) UpdateColorByProgress(); RequestVisualRefresh(); } }
 
         [Category("Appearance")] public Color SuccessColor { get => _successColor; set { _successColor = value; UpdateColorByProgress(); } }
         [Category("Appearance")] public Color WarningColor { get => _warningColor; set { _warningColor = value; UpdateColorByProgress(); } }
@@ -273,14 +303,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         [Category("Appearance")]
         [DefaultValue(10)]
-        public int Segments { get => _segments; set { _segments = Math.Max(2, value); Invalidate(); } }
+        public int Segments { get => _segments; set { _segments = Math.Max(2, value); RequestVisualRefresh(); } }
 
         [Category("Behavior")]
         [DefaultValue(0)]
-        public int SecondaryProgress { get => _secondaryProgress; set { _secondaryProgress = Math.Max(Minimum, Math.Min(value, Maximum)); Invalidate(); } }
+        public int SecondaryProgress { get => _secondaryProgress; set { _secondaryProgress = Math.Max(Minimum, Math.Min(value, Maximum)); RequestVisualRefresh(); } }
 
-        [Category("Appearance")] public Color SecondaryProgressColor { get => _secondaryProgressColor; set { _secondaryProgressColor = value; Invalidate(); } }
-        [Category("Appearance")][DefaultValue(10)] public int StripeWidth { get => _stripeWidth; set { _stripeWidth = value; Invalidate(); } }
+        [Category("Appearance")] public Color SecondaryProgressColor { get => _secondaryProgressColor; set { _secondaryProgressColor = value; RequestVisualRefresh(); } }
+        [Category("Appearance")][DefaultValue(10)] public int StripeWidth { get => _stripeWidth; set { _stripeWidth = value; RequestVisualRefresh(); } }
 
         [Category("Tooltip")]
         [DefaultValue(false)]
@@ -338,11 +368,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         {
             _transitionProgress += 0.08f;
             if (_transitionProgress >= 1.0f) { _transitionProgress = 1.0f; _transitionTimer.Stop(); }
-            Invalidate();
+            RequestVisualRefresh();
         }
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
-            _animationOffset += AnimationSpeed; if (_animationOffset > 100) _animationOffset = 0; Invalidate();
+            _animationOffset += AnimationSpeed;
+            if (_animationOffset > 100) _animationOffset = 0;
+            RequestVisualRefresh();
         }
         private void StartAnimation()
         {
@@ -351,9 +383,44 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             if (!_animationTimer.Enabled) _animationTimer.Start();
         }
         private void StopAnimation() { if (_animationTimer != null && _animationTimer.Enabled) _animationTimer.Stop(); }
-        private void PulsateTimer_Tick(object sender, EventArgs e) { _glowIntensity = (float)((Math.Sin(DateTime.Now.Millisecond / 500.0 * Math.PI) + 1) / 2.0); Invalidate(); }
+        private void PulsateTimer_Tick(object sender, EventArgs e)
+        {
+            _glowIntensity = (float)((Math.Sin(DateTime.Now.Millisecond / 500.0 * Math.PI) + 1) / 2.0);
+            RequestVisualRefresh();
+        }
         private void StartPulsating() { _pulsateTimer ??= new Timer { Interval = 30 }; _pulsateTimer.Tick -= PulsateTimer_Tick; _pulsateTimer.Tick += PulsateTimer_Tick; if (!_pulsateTimer.Enabled) _pulsateTimer.Start(); }
-        private void StopPulsating() { if (_pulsateTimer != null && _pulsateTimer.Enabled) { _pulsateTimer.Stop(); _glowIntensity = 0; Invalidate(); } }
+        private void StopPulsating()
+        {
+            if (_pulsateTimer != null && _pulsateTimer.Enabled)
+            {
+                _pulsateTimer.Stop();
+                _glowIntensity = 0;
+                RequestVisualRefresh();
+            }
+        }
+
+        private void SyncAnimationStatesForRuntimeState()
+        {
+            bool canAnimate = Enabled && Visible;
+
+            if (canAnimate && _style == ProgressBarStyle.Animated)
+            {
+                StartAnimation();
+            }
+            else
+            {
+                StopAnimation();
+            }
+
+            if (canAnimate && _isPulsating)
+            {
+                StartPulsating();
+            }
+            else
+            {
+                StopPulsating();
+            }
+        }
         #endregion
 
         #region Ctor + Theme
@@ -409,8 +476,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         {
             // Do not mutate Width/Height here to avoid re-entrant layout and designer issues.
             base.OnResize(e);
-            InvalidateLayoutCache();
-            Invalidate();
+            RequestVisualRefresh(resetLayoutCache: true);
+        }
+
+        protected override void OnEnabledChanged(EventArgs e)
+        {
+            base.OnEnabledChanged(e);
+            SyncAnimationStatesForRuntimeState();
+            RequestVisualRefresh();
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            SyncAnimationStatesForRuntimeState();
+        }
+
+        protected override void OnDpiChangedBeforeParent(EventArgs e)
+        {
+            base.OnDpiChangedBeforeParent(e);
+
+            if (UseThemeFont)
+            {
+                ProgressBarFontHelpers.ApplyFontTheme(this, ControlStyle, _currentTheme);
+            }
+
+            if (AutoSize)
+            {
+                Size = GetPreferredSize(Size.Empty);
+            }
+
+            RequestVisualRefresh(resetLayoutCache: true);
         }
 
         private void InvalidateLayoutCache()
@@ -455,7 +551,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 if (UseThemeFont)
                 {
                     // Use font helpers for centralized font management
-                    ProgressBarFontHelpers.ApplyFontTheme(this, ControlStyle);
+                    ProgressBarFontHelpers.ApplyFontTheme(this, ControlStyle, _currentTheme);
                     
                     // Fallback to theme font if helpers don't set it
                     if (TextFont == null && _currentTheme.ProgressBarFont != null)
@@ -464,7 +560,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                     }
                     else if (TextFont == null)
                     {
-                        TextFont = new Font(_currentTheme.FontFamily, _currentTheme.FontSizeCaption, FontStyle.Regular);
+                        TextFont = BeepThemesManager.ToFont(
+                            _currentTheme.FontFamily,
+                            _currentTheme.FontSizeCaption,
+                            FontWeight.Regular,
+                            FontStyle.Regular);
                     }
                 }
                 
@@ -477,12 +577,80 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 // Apply accessibility adjustments (high contrast, reduced motion)
                 ApplyAccessibilityAdjustments(_currentTheme, UseThemeColors);
                 
-                Invalidate();
+                RequestVisualRefresh(resetLayoutCache: true);
             }
             finally
             {
                 _isApplyingTheme = false;
             }
+        }
+
+        private void RequestVisualRefresh(bool resetLayoutCache = false)
+        {
+            if (resetLayoutCache)
+            {
+                InvalidateLayoutCache();
+            }
+
+            var redrawRect = DrawingRect;
+            if (redrawRect.Width > 0 && redrawRect.Height > 0)
+            {
+                Invalidate(redrawRect);
+            }
+            else
+            {
+                Invalidate();
+            }
+        }
+
+        private void DisposeTimersAndResources()
+        {
+            if (_transitionTimer != null)
+            {
+                _transitionTimer.Stop();
+                _transitionTimer.Tick -= TransitionTimer_Tick;
+                _transitionTimer.Dispose();
+                _transitionTimer = null;
+            }
+
+            if (_animationTimer != null)
+            {
+                _animationTimer.Stop();
+                _animationTimer.Tick -= AnimationTimer_Tick;
+                _animationTimer.Dispose();
+                _animationTimer = null;
+            }
+
+            if (_pulsateTimer != null)
+            {
+                _pulsateTimer.Stop();
+                _pulsateTimer.Tick -= PulsateTimer_Tick;
+                _pulsateTimer.Dispose();
+                _pulsateTimer = null;
+            }
+
+            _textBrush?.Dispose();
+            _textBrush = null;
+            _progressBrush?.Dispose();
+            _progressBrush = null;
+            _borderPen?.Dispose();
+            _borderPen = null;
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            DisposeTimersAndResources();
+            base.OnHandleDestroyed(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                DisposeTimersAndResources();
+            }
+
+            base.Dispose(disposing);
         }
         #endregion
 
@@ -495,10 +663,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             var border = _currentTheme.ProgressBarHoverBorderColor.IsEmpty ? Color.FromArgb(120, Color.Black) : _currentTheme.ProgressBarHoverBorderColor;
             using var b = new SolidBrush(fill); using var p = new Pen(border, 1); g.FillRectangle(b, rect); g.DrawRectangle(p, rect);
         }
-        protected override void OnMouseMove(MouseEventArgs e) { base.OnMouseMove(e); var nh = _areaRects.FirstOrDefault(kv => kv.Value.Contains(e.Location)).Key; if (nh != _hoverArea) { _hoverArea = nh; SetChildExternalDrawingRedraw(this, true); Invalidate(); } }
-        protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); _hoverArea = null; _pressedArea = null; SetChildExternalDrawingRedraw(this, true); Invalidate(); }
-        protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); if (e.Button == MouseButtons.Left) { _pressedArea = _areaRects.FirstOrDefault(kv => kv.Value.Contains(e.Location)).Key; if (_pressedArea != null) { SetChildExternalDrawingRedraw(this, true); Invalidate(); } } }
-        protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); if (_pressedArea != null) { _pressedArea = null; SetChildExternalDrawingRedraw(this, true); Invalidate(); } }
+        protected override void OnMouseMove(MouseEventArgs e) { base.OnMouseMove(e); var nh = _areaRects.FirstOrDefault(kv => kv.Value.Contains(e.Location)).Key; if (nh != _hoverArea) { _hoverArea = nh; SetChildExternalDrawingRedraw(this, true); RequestVisualRefresh(); } }
+        protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); _hoverArea = null; _pressedArea = null; SetChildExternalDrawingRedraw(this, true); RequestVisualRefresh(); }
+        protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); _keyboardFocusVisible = false; if (e.Button == MouseButtons.Left) { _pressedArea = _areaRects.FirstOrDefault(kv => kv.Value.Contains(e.Location)).Key; if (_pressedArea != null) { SetChildExternalDrawingRedraw(this, true); RequestVisualRefresh(); } } }
+        protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); if (_pressedArea != null) { _pressedArea = null; SetChildExternalDrawingRedraw(this, true); RequestVisualRefresh(); } }
         #endregion
 
         #region Keyboard Navigation
@@ -519,7 +687,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                             var newParams = new Dictionary<string, object>(Parameters);
                             newParams["Current"] = current - 1;
                             Parameters = newParams;
-                            Invalidate();
+                            _keyboardFocusVisible = true;
+                            RequestVisualRefresh();
                             return true;
                         }
                     }
@@ -541,7 +710,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                             var newParams = new Dictionary<string, object>(Parameters);
                             newParams["Current"] = current + 1;
                             Parameters = newParams;
-                            Invalidate();
+                            _keyboardFocusVisible = true;
+                            RequestVisualRefresh();
                             return true;
                         }
                     }
@@ -555,18 +725,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            Invalidate(); // Redraw to show focus indicator
+            _keyboardFocusVisible = true;
+            RequestVisualRefresh(); // Redraw to show focus indicator
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            Invalidate(); // Redraw to hide focus indicator
+            _keyboardFocusVisible = false;
+            RequestVisualRefresh(); // Redraw to hide focus indicator
         }
 
         private void DrawFocusIndicator(Graphics g, Rectangle bounds)
         {
-            if (Focused)
+            if (Focused && _keyboardFocusVisible)
             {
                 using (var pen = new Pen(_currentTheme?.PrimaryColor ?? SystemColors.Highlight, 2))
                 {

@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 // Warm top glow
                 int glowHeight = Math.Max(1, bounds.Height / 6);
                 var topRect = new Rectangle(bounds.Left, bounds.Top, bounds.Width, glowHeight);
-                var glow = PaintersFactory.GetLinearGradientBrush(
+                using var glow = PaintersFactory.CreateLinearGradientBrush(
                     topRect, 
                     Color.FromArgb(30, accent), 
                     Color.Transparent, 

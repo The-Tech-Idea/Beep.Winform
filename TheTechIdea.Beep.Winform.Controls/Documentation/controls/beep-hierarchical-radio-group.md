@@ -109,12 +109,12 @@ hierarchicalRadioGroup.AddRootItem(ktlo);
 ```csharp
 // Selection changed event
 hierarchicalRadioGroup.SelectionChanged += (sender, e) => {
-    Console.WriteLine($"Selected: {string.Join(", ", e.SelectedItems.Select(i => i.Text))}");
+  //  Console.WriteLine($"Selected: {string.Join(", ", e.SelectedItems.Select(i => i.Text))}");
 };
 
 // Individual item selection changed
 hierarchicalRadioGroup.ItemSelectionChanged += (sender, e) => {
-    Console.WriteLine($"Item '{e.Item.Text}' selection: {e.IsSelected}");
+  //  Console.WriteLine($"Item '{e.Item.Text}' selection: {e.IsSelected}");
 };
 ```
 
@@ -122,7 +122,7 @@ hierarchicalRadioGroup.ItemSelectionChanged += (sender, e) => {
 ```csharp
 // Item expanded/collapsed
 hierarchicalRadioGroup.ItemExpandedChanged += (sender, e) => {
-    Console.WriteLine($"Item '{e.Item.Text}' {(e.IsExpanded ? "expanded" : "collapsed")}");
+  //  Console.WriteLine($"Item '{e.Item.Text}' {(e.IsExpanded ? "expanded" : "collapsed")}");
 };
 ```
 
@@ -130,12 +130,12 @@ hierarchicalRadioGroup.ItemExpandedChanged += (sender, e) => {
 ```csharp
 // Item clicked
 hierarchicalRadioGroup.ItemClicked += (sender, e) => {
-    Console.WriteLine($"Clicked: {e.Item.Text}");
+  //  Console.WriteLine($"Clicked: {e.Item.Text}");
 };
 
 // Mouse hover events
 hierarchicalRadioGroup.ItemHoverEnter += (sender, e) => {
-    Console.WriteLine($"Hover enter: {e.Item.Text}");
+  //  Console.WriteLine($"Hover enter: {e.Item.Text}");
 };
 ```
 

@@ -140,17 +140,17 @@ var manager = BeepNotificationManager.Instance;
 
 manager.NotificationShown += (s, e) =>
 {
-    Console.WriteLine($"Shown: {e.Notification.Title}");
+  //  Console.WriteLine($"Shown: {e.Notification.Title}");
 };
 
 manager.NotificationDismissed += (s, e) =>
 {
-    Console.WriteLine($"Dismissed: {e.Notification.Title}");
+  //  Console.WriteLine($"Dismissed: {e.Notification.Title}");
 };
 
 manager.NotificationActionClicked += (s, e) =>
 {
-    Console.WriteLine($"Action '{e.Action.Text}' clicked");
+  //  Console.WriteLine($"Action '{e.Action.Text}' clicked");
 };
 ```
 
@@ -553,17 +553,17 @@ public event EventHandler<NotificationEventArgs> NotificationClicked;
 ```csharp
 notification.NotificationDismissed += (s, e) => 
 {
-    Console.WriteLine($"Notification '{e.Notification.Title}' was dismissed");
+  //  Console.WriteLine($"Notification '{e.Notification.Title}' was dismissed");
 };
 
 notification.ActionClicked += (s, e) => 
 {
-    Console.WriteLine($"Action '{e.Action.Text}' clicked");
+  //  Console.WriteLine($"Action '{e.Action.Text}' clicked");
 };
 
 notification.NotificationClicked += (s, e) => 
 {
-    Console.WriteLine($"Notification clicked");
+  //  Console.WriteLine($"Notification clicked");
 };
 ```
 

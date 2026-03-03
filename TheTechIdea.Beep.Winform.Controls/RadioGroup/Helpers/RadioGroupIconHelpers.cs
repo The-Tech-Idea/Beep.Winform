@@ -26,14 +26,50 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             // Priority 1: Custom image path from SimpleItem
             if (!string.IsNullOrEmpty(imagePath))
-                return imagePath;
+                return ResolveSvgSymbolPath(imagePath);
 
             // Priority 2: Fallback icon (if provided)
             if (!string.IsNullOrEmpty(fallbackIcon))
-                return fallbackIcon;
+                return ResolveSvgSymbolPath(fallbackIcon);
 
             // Priority 3: Default icon from SvgsUI
             return SvgsUI.Circle ?? SvgsUI.Check ?? SvgsUI.Box;
+        }
+
+        private static string ResolveSvgSymbolPath(string iconPath)
+        {
+            if (string.IsNullOrWhiteSpace(iconPath))
+            {
+                return iconPath;
+            }
+
+            // If the value already looks like a path/data URI, keep it.
+            if (iconPath.Contains("\\") || iconPath.Contains("/") || iconPath.StartsWith("<svg", StringComparison.OrdinalIgnoreCase))
+            {
+                return iconPath;
+            }
+
+            var svgUiProperty = typeof(SvgsUI).GetProperty(iconPath);
+            if (svgUiProperty?.PropertyType == typeof(string))
+            {
+                var svgUiValue = svgUiProperty.GetValue(null) as string;
+                if (!string.IsNullOrWhiteSpace(svgUiValue))
+                {
+                    return svgUiValue;
+                }
+            }
+
+            var svgProperty = typeof(Svgs).GetProperty(iconPath);
+            if (svgProperty?.PropertyType == typeof(string))
+            {
+                var svgValue = svgProperty.GetValue(null) as string;
+                if (!string.IsNullOrWhiteSpace(svgValue))
+                {
+                    return svgValue;
+                }
+            }
+
+            return iconPath;
         }
 
         /// <summary>

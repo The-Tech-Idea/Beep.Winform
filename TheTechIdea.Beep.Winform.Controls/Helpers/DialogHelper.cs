@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
       
 
         #region Configuration and Styling
-        public static class DialogConfig
+        public static class DialogDefaults
         {
             public static int DefaultWidth { get; set; } = 400;
             public static int DefaultMargin { get; set; } = 10;
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 DialogButtons = BeepDialogButtons.OkCancel,
                 DialogType = DialogType.GetInputString,
                 ReturnValue = initialValue,
-                Size = DialogConfig.DefaultLargeSize
+                Size = DialogDefaults.DefaultLargeSize
             })
             {
                 var result = ShowDialogSafely(dialog);

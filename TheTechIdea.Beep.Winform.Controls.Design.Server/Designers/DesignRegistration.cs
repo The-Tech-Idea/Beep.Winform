@@ -28,7 +28,7 @@ using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables;
 using TheTechIdea.Beep.Winform.Controls.Widgets;
-
+using TheTechIdea.Beep.Winform.Controls.DocumentHost;
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     internal static class DesignRegistration
@@ -82,6 +82,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Text Input Controls
             RegisterControl(typeof(BeepTextBox), typeof(BeepTextBoxDesigner));
 
+            // LOV Controls
+            RegisterControl(typeof(BeepListofValuesBox), typeof(BeepListofValuesBoxDesigner));
+
             // Container Controls
             RegisterControl(typeof(BeepCard), typeof(BeepCardDesigner));
             RegisterControl(typeof(BeepLayoutControl), typeof(BeepLayoutControlDesigner));
@@ -105,6 +108,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             // Widget Controls
             RegisterControl(typeof(BeepMetricWidget), typeof(BeepMetricWidgetDesigner));
+
+            // Document Host
+            RegisterControl(typeof(BeepDocumentHost), typeof(BeepDocumentHostDesigner));
+
             RegisterControl(typeof(BeepChartWidget), typeof(BeepChartWidgetDesigner));
             RegisterControl(typeof(BeepListWidget), typeof(BeepListWidgetDesigner));
             RegisterControl(typeof(BeepDashboardWidget), typeof(BeepDashboardWidgetDesigner));

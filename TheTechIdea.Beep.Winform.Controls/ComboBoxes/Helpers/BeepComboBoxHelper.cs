@@ -23,7 +23,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         
         /// <summary>
         /// Calculate layout rectangles for text area, dropdown button, and image
+        /// <para>
+        /// All rects are computed as direct subdivisions of <paramref name="drawingRect"/>
+        /// with NO dependency on cached InnerPadding, DropdownButtonWidth, or DPI-scale
+        /// fields.  This makes the layout immune to stale values after FormStyle / theme /
+        /// focus changes — exactly the same principle BeepButton uses.
+        /// </para>
         /// </summary>
+        /// <summary>
+        /// Minimum dropdown-button width (logical pixels, before DPI).
+        /// Ensures the chevron is always clickable even on tiny controls.
+        /// </summary>
+        private const int MinButtonWidthLogical = 28;
+
         public void CalculateLayout(Rectangle drawingRect, out Rectangle textAreaRect, out Rectangle dropdownButtonRect, out Rectangle imageRect)
         {
             if (drawingRect.Width <= 0 || drawingRect.Height <= 0)
@@ -33,57 +45,55 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 imageRect = Rectangle.Empty;
                 return;
             }
-            
-            // Apply inner padding (ensure scaled)
-            var padding = _owner.InnerPadding;
-            var workingRect = new Rectangle(
-                drawingRect.X + padding.Left,
-                drawingRect.Y + padding.Top,
-                Math.Max(1, drawingRect.Width - padding.Horizontal),
-                Math.Max(1, drawingRect.Height - padding.Vertical)
-            );
-            
-            // Calculate dropdown button area (right side) - ensure minimum size
-            int buttonWidth = Math.Max(_owner.DropdownButtonWidth, _owner.ScaleLogicalX(24));
-            buttonWidth = Math.Min(buttonWidth, workingRect.Width / 3); // Don't let button take more than 1/3 of width
+
+            // Use the actual drawing height to keep editor/text/button aligned with
+            // the rendered border/content rect. Forcing a larger height here causes
+            // vertical drift (controls appear shifted down) on some styles/scales.
+            int usableHeight = Math.Max(1, drawingRect.Height);
+
+            // ── 1. Dropdown button — fixed logical width, full height ────────
+            //    Use the owner's stored width (already DPI-scaled by ApplyLayoutDefaults)
+            //    but enforce a floor of MinButtonWidthLogical and clamp to 1/3 of width.
+            int minBtnW   = _owner.ScaleLogicalX(MinButtonWidthLogical);
+            int buttonWidth = Math.Max(minBtnW, _owner.DropdownButtonWidth);
+            buttonWidth = Math.Min(buttonWidth, drawingRect.Width / 3);
+            // Final safety: never below the logical minimum
+            buttonWidth = Math.Max(minBtnW, buttonWidth);
+
             dropdownButtonRect = new Rectangle(
-                workingRect.Right - buttonWidth,
-                workingRect.Y,
+                drawingRect.Right - buttonWidth,
+                drawingRect.Y,
                 buttonWidth,
-                workingRect.Height
-            );
-            
-            // Calculate image area if leading image exists
+                usableHeight);
+
+            // ── 2. Leading image (optional) ──────────────────────────────────
             imageRect = Rectangle.Empty;
-            int imageWidth = 0;
-            
+            int imageConsumed = 0;   // horizontal space consumed by image + gap
+
             if (!string.IsNullOrEmpty(_owner.LeadingImagePath) || !string.IsNullOrEmpty(_owner.LeadingIconPath))
             {
-                int minIconSize = _owner.ScaleLogicalY(16);
-                int maxIconSize = _owner.ScaleLogicalY(24);
-                int iconVerticalInset = _owner.ScaleLogicalY(4);
-                int iconSpacing = _owner.ScaleLogicalX(8);
+                int iconInset  = Math.Max(2, usableHeight / 8);
+                int iconSize   = Math.Max(8, usableHeight - iconInset * 2);
+                int iconGap    = Math.Max(4, iconSize / 4);
 
-                // Calculate icon size proportional to available height
-                int iconSize = Math.Max(minIconSize, Math.Min(maxIconSize, workingRect.Height - iconVerticalInset * 2));
-                iconSize = Math.Max(1, iconSize);
-                
                 imageRect = new Rectangle(
-                    workingRect.X,
-                    workingRect.Y + (workingRect.Height - iconSize) / 2,
+                    drawingRect.X + iconInset,
+                    drawingRect.Y + (usableHeight - iconSize) / 2,
                     iconSize,
-                    iconSize
-                );
-                imageWidth = iconSize + iconSpacing; // Add spacing after image
+                    iconSize);
+
+                imageConsumed = iconSize + iconGap + iconInset;
             }
-            
-            // Calculate text area (remaining space between image and button)
+
+            // ── 3. Text area — everything between image and button ───────────
+            int textX = drawingRect.X + imageConsumed;
+            int textW = Math.Max(1, dropdownButtonRect.X - textX);
+
             textAreaRect = new Rectangle(
-                workingRect.X + imageWidth,
-                workingRect.Y,
-                Math.Max(1, workingRect.Width - imageWidth - buttonWidth),
-                workingRect.Height
-            );
+                textX,
+                drawingRect.Y,
+                textW,
+                usableHeight);
         }
         
         #endregion
@@ -103,24 +113,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         }
         
         /// <summary>
-        /// Get display text (selected item text or placeholder)
+        /// Get display text:
+        /// 1. Selected item text  — when the user picked something from the list.
+        /// 2. Free-typed input text — when the user typed something that didn't match
+        ///    (or before the dropdown was used).
+        /// 3. Placeholder          — when nothing has been typed or selected.
         /// </summary>
         public string GetDisplayText()
         {
             if (_owner.SelectedItem != null && !string.IsNullOrEmpty(_owner.SelectedItem.Text))
-            {
                 return _owner.SelectedItem.Text;
-            }
-            
+
+            // Show whatever the user typed even if it doesn't match any item
+            if (!string.IsNullOrEmpty(_owner.InputText))
+                return _owner.InputText;
+
             return _owner.PlaceholderText ?? string.Empty;
         }
         
         /// <summary>
-        /// Check if showing placeholder
+        /// Returns true only when nothing is typed and no item is selected
+        /// (placeholder text is being shown).
         /// </summary>
         public bool IsShowingPlaceholder()
         {
-            return _owner.SelectedItem == null || string.IsNullOrEmpty(_owner.SelectedItem.Text);
+            return (_owner.SelectedItem == null || string.IsNullOrEmpty(_owner.SelectedItem.Text))
+                && string.IsNullOrEmpty(_owner.InputText);
         }
         
         #endregion

@@ -15,29 +15,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     public static class BorderPainterHelpers
     {
         /// <summary>
-        /// Paint a simple border with the given color and width
+        /// Paint a simple border with the given color and width.
+        /// NOTE: The caller is responsible for state-based color adjustments.
+        /// This method no longer calls ApplyState to avoid double color shifts
+        /// (individual painters already adjust for Hovered/Focused/etc.).
+        /// 
+        /// We do NOT use PenAlignment.Inset because GDI+ documents it as unreliable
+        /// for GraphicsPath objects. Instead we manually inset the path by half the
+        /// stroke width and draw with Center alignment so the full stroke is inside
+        /// the original path boundary and visible on all edges equally.
         /// </summary>
         public static void PaintSimpleBorder(Graphics g, GraphicsPath path, Color borderColor, float borderWidth, ControlState state = ControlState.Normal)
         {
-            Color stateAdjustedColor = ApplyState(borderColor, state);
+            if (borderWidth <= 0 || borderColor.A <= 0) return;
 
-            if (borderWidth > 0 && stateAdjustedColor.A > 0)
-            {
-                float effectiveWidth = Math.Max(1f, borderWidth);
-                var pen = PaintersFactory.GetPen(stateAdjustedColor, effectiveWidth);
-                pen.LineJoin = LineJoin.Round;
-                pen.Alignment = PenAlignment.Inset;
+            float effectiveWidth = Math.Max(1f, borderWidth);
+            float halfStroke = effectiveWidth / 2f;
 
-                var savedPixelMode = g.PixelOffsetMode;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                // PixelOffsetMode.Half shifts all rendering left/up by 0.5px.
-                // For a 1px border at x=0, this makes pixel column 0 receive only 50% coverage —
-                // making thin left/top borders appear nearly invisible.
-                // PixelOffsetMode.None aligns strokes exactly to pixel columns so x=0 → full coverage.
-                g.PixelOffsetMode = PixelOffsetMode.None;
-                g.DrawPath(pen, path);
-                g.PixelOffsetMode = savedPixelMode;
-            }
+            // Inset the path by half the stroke width so the full stroke
+            // sits inside the original path boundary.
+            int detectedRadius = (int)GraphicsExtensions.DetectRadiusFromRoundedRectPath(path);
+            using var insetPath = path.CreateInsetPath(halfStroke, detectedRadius);
+            GraphicsPath drawTarget = (insetPath != null && insetPath.PointCount > 2) ? insetPath : path;
+
+            var pen = PaintersFactory.GetStyledPen(borderColor, effectiveWidth, LineJoin.Round, PenAlignment.Center);
+
+            var savedPixelMode = g.PixelOffsetMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.None;
+            g.DrawPath(pen, drawTarget);
+            g.PixelOffsetMode = savedPixelMode;
         }
 
         /// <summary>
@@ -341,8 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         /// </summary>
         private static void PaintOutlineFocusRing(Graphics g, GraphicsPath path, Color focusColor, float width)
         {
-            var pen = PaintersFactory.GetPen(focusColor, width);
-            pen.LineJoin = LineJoin.Round;
+            var pen = PaintersFactory.GetStyledPen(focusColor, width, LineJoin.Round);
             g.DrawPath(pen, path);
         }
 
@@ -378,8 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             {
                 try
                 {
-                    var pen = PaintersFactory.GetPen(focusColor, width);
-                    pen.LineJoin = LineJoin.Round;
+                    var pen = PaintersFactory.GetStyledPen(focusColor, width, LineJoin.Round);
                     g.DrawPath(pen, insetPath);
                 }
                 finally

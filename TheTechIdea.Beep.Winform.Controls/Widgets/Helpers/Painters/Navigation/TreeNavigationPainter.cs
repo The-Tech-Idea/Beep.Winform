@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
-using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
@@ -15,37 +17,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
     /// </summary>
     internal sealed class TreeNavigationPainter : WidgetPainterBase, IDisposable
     {
-        private BaseImage.ImagePainter _imagePainter;
+        private WidgetContext? _lastCtx;
+        private bool _wheelHooked;
 
-        public TreeNavigationPainter()
+        private Font? _nodeName;
+
+        private const int ItemHeightDp = 24;
+        private const int IndentDp     = 20;
+        private const int IconSizeDp   = 16;
+        private const int ExpandSizeDp = 12;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
         {
-            _imagePainter = new BaseImage.ImagePainter();
+            base.Initialize(owner, theme);
+            if (!_wheelHooked && Owner != null) { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
+        }
+
+        protected override void RebuildFonts()
+        {
+            _nodeName?.Dispose();
+            _nodeName = BeepThemesManager.ToFont(Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f }, true);
+        }
+
+        private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (_lastCtx == null) return;
+            int maxY = Math.Max(0, _lastCtx.TotalContentHeight - _lastCtx.ContentRect.Height);
+            _lastCtx.ScrollOffsetY = Math.Max(0, Math.Min(_lastCtx.ScrollOffsetY - e.Delta / 120 * Dp(ItemHeightDp) * 3, maxY));
+            Owner?.Invalidate();
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
-            ctx.ContentRect = new Rectangle(ctx.DrawingRect.X + 8, ctx.DrawingRect.Y + 8,
-                ctx.DrawingRect.Width - 16, ctx.DrawingRect.Height - 16);
+            ctx.ContentRect = new Rectangle(ctx.DrawingRect.X + Dp(8), ctx.DrawingRect.Y + Dp(8),
+                ctx.DrawingRect.Width - Dp(16), ctx.DrawingRect.Height - Dp(16));
+
+            var treeItems = ctx.TreeItems?.Cast<TreeNodeItem>().ToList() ?? new List<TreeNodeItem>();
+            ctx.TotalContentHeight = treeItems.Count * Dp(ItemHeightDp);
+            ClampScrollOffset(ctx);
+            _lastCtx = ctx;
             return ctx;
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
+            var bgBrush = PaintersFactory.GetSolidBrush(Theme?.BackColor ?? Color.White);
             g.FillRectangle(bgBrush, ctx.DrawingRect);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.CurrentTheme = Theme;
-            _imagePainter.UseThemeColors = true;
-
             var treeItems = ctx.TreeItems?.Cast<TreeNodeItem>().ToList() ?? CreateSampleTreeStructure();
-
             if (!treeItems.Any()) return;
-
-            DrawTreeStructure(g, ctx, treeItems, 0, 0);
+            DrawTreeStructure(g, ctx, treeItems);
         }
 
         private List<TreeNodeItem> CreateSampleTreeStructure()
@@ -60,79 +85,87 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             };
         }
 
-        private int DrawTreeStructure(Graphics g, WidgetContext ctx, List<TreeNodeItem> items, int startY, int currentIndex)
+        private void DrawTreeStructure(Graphics g, WidgetContext ctx, List<TreeNodeItem> items)
         {
-            var primaryColor = Theme?.PrimaryColor ?? Color.Empty;
-            int itemHeight = 24;
-            int indentSize = 20;
-            
-            using var treeFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var textBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
-            using var linePen = new Pen(Color.FromArgb(100, Color.Gray), 1);
+            int stride    = Dp(ItemHeightDp);
+            int indent    = Dp(IndentDp);
+            int iconSz    = Dp(IconSizeDp);
+            int expandSz  = Dp(ExpandSizeDp);
 
-            int currentY = startY;
+            var primaryColor  = Theme?.PrimaryColor ?? Color.Blue;
+            var textBrush     = PaintersFactory.GetSolidBrush(Theme?.ForeColor ?? Color.Black);
+            var dimTextBrush  = PaintersFactory.GetSolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
+            var linePen       = PaintersFactory.GetPen(Color.FromArgb(100, Color.Gray), 1);
+            var nameFormat    = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
 
-            foreach (var item in items)
+            var savedClip = g.Clip;
+            g.SetClip(ctx.ContentRect);
+
+            for (int i = 0; i < items.Count; i++)
             {
-                if (currentY + itemHeight > ctx.ContentRect.Bottom) break;
+                var item = items[i];
+                int y = ctx.ContentRect.Y + i * stride - ctx.ScrollOffsetY;
+                if (y + stride < ctx.ContentRect.Y) continue;
+                if (y > ctx.ContentRect.Bottom) break;
 
-                int x = ctx.ContentRect.X + item.Level * indentSize;
-                var itemRect = new Rectangle(x, ctx.ContentRect.Y + currentY, 
-                    ctx.ContentRect.Width - item.Level * indentSize, itemHeight);
+                int x = ctx.ContentRect.X + item.Level * indent;
+                var itemRect = new Rectangle(x, y, ctx.ContentRect.Width - item.Level * indent, stride);
 
-                // Tree line connections
+                // Tree connector lines
                 if (item.Level > 0)
                 {
-                    int lineX = ctx.ContentRect.X + (item.Level - 1) * indentSize + 8;
-                    g.DrawLine(linePen, lineX, itemRect.Y, lineX + 12, itemRect.Y + itemHeight / 2);
-                    g.DrawLine(linePen, lineX, itemRect.Y + itemHeight / 2, lineX + 12, itemRect.Y + itemHeight / 2);
+                    int lineX = ctx.ContentRect.X + (item.Level - 1) * indent + Dp(8);
+                    g.DrawLine(linePen, lineX, y, lineX, y + stride / 2);
+                    g.DrawLine(linePen, lineX, y + stride / 2, lineX + Dp(12), y + stride / 2);
                 }
 
-                // Expand/collapse icon
+                // Expand/collapse chevron
                 if (item.HasChildren)
                 {
-                    var expandRect = new Rectangle(x, itemRect.Y + (itemHeight - 12) / 2, 12, 12);
-                    string expandIcon = item.IsExpanded ? "chevron-down" : "chevron-right";
-                    _imagePainter.DrawSvg(g, expandIcon, expandRect, primaryColor, 0.8f);
+                    var expandRect = new Rectangle(x, y + (stride - expandSz) / 2, expandSz, expandSz);
+                    string chevronSvg = item.IsExpanded ? SvgsUI.ChevronDown : SvgsUI.ChevronRight;
+                    using var expandPath = CreateRoundedPath(expandRect, 0);
+                    StyledImagePainter.PaintWithTint(g, expandPath, chevronSvg, primaryColor, 0.8f);
                 }
 
                 // Node icon
-                var iconRect = new Rectangle(x + (item.HasChildren ? 16 : 4), itemRect.Y + (itemHeight - 16) / 2, 16, 16);
-                string nodeIcon = GetTreeNodeIcon(item);
-                _imagePainter.DrawSvg(g, nodeIcon, iconRect, 
-                    item.HasChildren ? primaryColor : Color.FromArgb(140, Theme?.ForeColor ?? Color.Black), 0.8f);
+                int iconOffX = item.HasChildren ? expandSz + Dp(4) : Dp(4);
+                var iconRect = new Rectangle(x + iconOffX, y + (stride - iconSz) / 2, iconSz, iconSz);
+                string nodeIcon = GetTreeNodeIconSvg(item);
+                Color iconColor = item.HasChildren ? primaryColor : Color.FromArgb(140, Theme?.ForeColor ?? Color.Black);
+                using var iconPath = CreateRoundedPath(iconRect, 0);
+                StyledImagePainter.PaintWithTint(g, iconPath, nodeIcon, iconColor, 0.8f);
 
                 // Node text
-                var textRect = new Rectangle(iconRect.Right + 4, itemRect.Y, 
-                    itemRect.Width - (iconRect.Right + 4 - itemRect.X), itemHeight);
-                var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                g.DrawString(item.Text, treeFont, textBrush, textRect, format);
-
-                currentY += itemHeight;
+                var textRect = new Rectangle(iconRect.Right + Dp(4), y, itemRect.Width - (iconRect.Right + Dp(4) - x), stride);
+                if (_nodeName != null)
+                    g.DrawString(item.Text, _nodeName, item.HasChildren ? textBrush : dimTextBrush, textRect, nameFormat);
             }
 
-            return currentY;
+            g.Clip = savedClip;
         }
 
-        private string GetTreeNodeIcon(TreeNodeItem item)
+        private string GetTreeNodeIconSvg(TreeNodeItem item)
         {
-            if (item.HasChildren && item.IsExpanded) return "folder-open";
-            if (item.HasChildren) return "folder";
-            
+            if (item.HasChildren && item.IsExpanded) return SvgsUI.FolderPlus;
+            if (item.HasChildren) return SvgsUI.Folder;
+
             var text = item.Text?.ToLower() ?? "";
-            if (text.Contains(".pdf")) return "file-text";
-            if (text.Contains(".jpg") || text.Contains(".png") || text.Contains("image")) return "image";
-            if (text.Contains(".doc")) return "file-text";
-            if (text.Contains("setting")) return "settings";
-            
-            return "file";
+            if (text.Contains(".pdf") || text.Contains(".doc")) return SvgsUI.FileText;
+            if (text.Contains(".jpg") || text.Contains(".png") || text.Contains("image")) return SvgsUI.Image;
+            if (text.Contains("setting")) return SvgsUI.Settings;
+            return SvgsUI.FileText;
         }
 
-        public override void DrawForegroundAccents(Graphics g, WidgetContext ctx) { }
+        public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
+        {
+            DrawVerticalScrollbar(g, ctx.ContentRect, ctx, IsAreaHovered("TreeNav_Scroll"));
+        }
 
         public void Dispose()
         {
-            _imagePainter?.Dispose();
+            if (_wheelHooked && Owner != null) { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
+            _nodeName?.Dispose();
         }
     }
 

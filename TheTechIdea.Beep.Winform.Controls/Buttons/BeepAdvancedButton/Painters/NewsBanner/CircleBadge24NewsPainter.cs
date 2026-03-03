@@ -12,6 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
     /// </summary>
     public class CircleBadge24NewsPainter : BaseButtonPainter
     {
+        private const float CircleScale = 1.25f;
+        private const float CircleOverlapScale = 0.14f;
+
         public override void Paint(AdvancedButtonPaintContext context)
         {
             Graphics g = context.Graphics;
@@ -22,9 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             Rectangle bounds = context.Bounds;
 
             // Configuration
-            float circleScale = 1.3f; // Circle is 130% of banner height
-            int circleOverlap = 10; // Pixels the circle overlaps the banner
+            float circleScale = CircleScale;
+            int circleOverlap = Math.Max(6, (int)Math.Round(bounds.Height * CircleOverlapScale));
             int circleBorderWidth = 3;
+            int seamInset = Math.Max(6, (int)Math.Round(bounds.Height * 0.18f));
 
             // Calculate circle size and position
             int circleSize = (int)(bounds.Height * circleScale);
@@ -41,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 : context.SolidBackground;
 
             // Draw main white banner
-            int mainStartX = bounds.X + circleSize - circleOverlap - 10;
+            int mainStartX = bounds.X + circleSize - circleOverlap - seamInset;
             Rectangle mainBounds = new Rectangle(
                 mainStartX,
                 bounds.Y,
@@ -70,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             string badgeText = ExtractBadgeNumber(context.Text);
             if (!string.IsNullOrEmpty(badgeText))
             {
-                using (Font badgeFont = new Font(context.Font.FontFamily, context.Font.Size + 4, FontStyle.Bold))
+                using (Font badgeFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold, sizeDelta: 4f))
                 using (Brush badgeTextBrush = new SolidBrush(Color.White))
                 using (StringFormat format = new StringFormat())
                 {
@@ -93,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
                 Color textColor = badgeColor == Color.White ? Color.Black : badgeColor;
                 using (Brush textBrush = new SolidBrush(textColor))
-                using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+                using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
                 using (StringFormat format = new StringFormat())
                 {
                     format.Alignment = StringAlignment.Near;

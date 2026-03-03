@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 return;
             }
             base.OnLocationChanged(e);
+            if (IsDisposed || Disposing) return;
             
             // Invalidate parent background cache since our position changed
             InvalidateParentBackgroundCache();
@@ -36,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
+            if (IsDisposed || Disposing) return;
 
             // Keep painter layout in sync with padding changes
             EnsurePainter();
@@ -95,8 +97,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             if (Parent != null && IsChild)
             {
-                BackColor = Parent.BackColor;
+                // Read-only snapshot for painting transparency — do NOT assign BackColor here
+                // to avoid triggering IComponentChangeService and designer file writes on every frame.
+                // BackColor is set once in ApplyTheme() and OnParentChanged().
                 ParentBackColor = Parent.BackColor;
+                BackColor = ParentBackColor;
             }
 
             if (IsTransparentBackground)
@@ -189,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnPaint(PaintEventArgs e)
         {
             // Early out for safety during design-time removal/dispose
-            if (IsDisposed || !IsHandleCreated)
+            if (IsDisposed || Disposing || !IsHandleCreated)
                 return;
             base.OnPaint(e);
             
@@ -208,19 +213,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             try
             {
+              //  Console.WriteLine($"BaseControl.SafeDraw called for {Name} at {DateTime.Now:HH:mm:ss.fff}");
                 ClearDrawingSurface(g);
                 // Paint the inner area using the new PaintInnerShape method
                 //SafePaintInnerShape(g);
-
+              //  Console.WriteLine($"BaseControl.SafeDraw - after ClearDrawingSurface and SafePaintInnerShape for {Name} at {DateTime.Now:HH:mm:ss.fff}");
                 // External drawing hooks BEFORE content
                 SafeExternalDrawing(g, DrawingLayer.BeforeContent);
-
+              //  Console.WriteLine($"BaseControl.SafeDraw - after BeforeContent external drawing for {Name} at {DateTime.Now:HH:mm:ss.fff}");
                 // Main content and painter
                 DrawContent(g);
-
+              //  Console.WriteLine($"BaseControl.SafeDraw - after DrawContent for {Name} at {DateTime.Now:HH:mm:ss.fff}");
+                 DrawLabelAndHelperUniversal(g);
+               //  Console.WriteLine($"BaseControl.SafeDraw - after DrawLabelAndHelperUniversal for {Name} at {DateTime.Now:HH:mm:ss.fff}");
                 // After-all external drawings
                 SafeExternalDrawing(g, DrawingLayer.AfterAll);
-
+              //  Console.WriteLine($"BaseControl.SafeDraw - after AfterAll external drawing for {Name} at {DateTime.Now:HH:mm:ss.fff}");
                 // Effects
                 SafeDrawEffects(g);
             }
@@ -287,6 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            if (IsDisposed || Disposing) return;
 
             // Avoid updating regions/layout if dimensions aren't positive
             if (Width <= 0 || Height <= 0) return;
@@ -373,6 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Mouse and Input Event Routing
         protected override void OnMouseEnter(EventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnMouseEnter(e); 
             IsHovered = true; 
             _input.OnMouseEnter(); 
@@ -380,6 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         
         protected override void OnMouseLeave(EventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnMouseLeave(e); 
             IsHovered = false; 
             _input.OnMouseLeave(); 
@@ -387,12 +398,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         
         protected override void OnMouseMove(System.Windows.Forms.MouseEventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnMouseMove(e); 
             _input.OnMouseMove(e.Location); 
         }
         
         protected override void OnMouseDown(System.Windows.Forms.MouseEventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnMouseDown(e); 
             if (e.Button == System.Windows.Forms.MouseButtons.Left) IsPressed = true; 
             _input.OnMouseDown(e); 
@@ -400,6 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         
         protected override void OnMouseUp(System.Windows.Forms.MouseEventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnMouseUp(e); 
             if (e.Button == System.Windows.Forms.MouseButtons.Left) IsPressed = false; 
             _input.OnMouseUp(e); 
@@ -407,24 +421,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         
         protected override void OnMouseHover(EventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnMouseHover(e); 
             _input.OnMouseHover(); 
         }
         
         protected override void OnClick(EventArgs e) 
         { 
+            if (IsDisposed || Disposing) return;
             base.OnClick(e); 
             _input.OnClick(); 
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
+            if (IsDisposed || Disposing) return;
             base.OnGotFocus(e);
             _input.OnGotFocus();
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
+            if (IsDisposed || Disposing) return;
             base.OnLostFocus(e);
             _input.OnLostFocus();
         }
@@ -432,6 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         // Key event handling
         protected override bool ProcessDialogKey(System.Windows.Forms.Keys keyData)
         {
+            if (IsDisposed || Disposing) return false;
             if (_input.ProcessDialogKey(keyData))
                 return true;
             return base.ProcessDialogKey(keyData);
@@ -442,13 +461,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
+            if (IsDisposed || Disposing) return;
 
         // Clear ALL external drawings for this child from old parent
         // Parent keeps track of all drawings per child, so we clear all at once
         var oldParent = Tag as Control;
         Tag = Parent;
 
-        if (oldParent is IExternalDrawingProvider oldExternalDrawingProvider)
+        if (oldParent is IExternalDrawingProvider oldExternalDrawingProvider &&
+            oldParent is Control oldParentControl &&
+            !oldParentControl.IsDisposed &&
+            !oldParentControl.Disposing)
         {
             oldExternalDrawingProvider.ClearChildExternalDrawing(this);
         }
@@ -457,22 +480,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 // Try to clear from form if parent is null
                 var form = FindForm();
-                if (form != null)
+                if (form != null && !form.IsDisposed && !form.Disposing)
                 {
                     foreach (Control c in form.Controls)
                     {
-                        if (c is BaseControl beepParent)
+                        if (c == null || c.IsDisposed || c.Disposing)
+                            continue;
+
+                        if (c is BaseControl beepParent && !beepParent.IsDisposed && !beepParent.Disposing)
                         {
                             try
                             {
                                 beepParent.ClearChildExternalDrawing(this);
-                                beepParent.Invalidate();
+                                if (!beepParent.IsDisposed && !beepParent.Disposing)
+                                {
+                                    beepParent.Invalidate();
+                                }
                             }
                             catch { }
                         }
                     }
                 }
                 return;
+            }
+
+            // Sync background color from new parent once (avoids doing it on every paint frame)
+            if (IsChild && Parent != null)
+            {
+                ParentBackColor = Parent.BackColor;
+                BackColor = ParentBackColor;
             }
 
             // Now register all external drawings with new parent (parent tracks them per child)

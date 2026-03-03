@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (PainterKind!= BaseControlPainterKind.Material  || !ComboBoxAutoSizeForMaterial)
                 return;
 
-            Console.WriteLine($"BeepComboBox: Applying Material size compensation. Current size: {Width}x{Height}");
+          //  Console.WriteLine($"BeepComboBox: Applying Material size compensation. Current size: {Width}x{Height}");
 
             // Use fixed base size to prevent unwanted expansion
             Size textSize = new Size(100, 20); // Fixed base size instead of measuring actual text
@@ -261,13 +261,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
             }
 
-            Console.WriteLine($"BeepComboBox: Base content size: {textSize}");
-            Console.WriteLine($"BeepComboBox: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
+          //  Console.WriteLine($"BeepComboBox: Base content size: {textSize}");
+          //  Console.WriteLine($"BeepComboBox: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
 
             // Apply Material size compensation using base method
             AdjustSizeForMaterial(textSize, true);
 
-            Console.WriteLine($"BeepComboBox: Final size after compensation: {Width}x{Height}");
+          //  Console.WriteLine($"BeepComboBox: Final size after compensation: {Width}x{Height}");
         }
         public BeepComboBox()
         {
@@ -432,7 +432,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (MaterialPreserveContentArea)
             {
                 // Preserve content area approach - minimal height increase
-                Console.WriteLine("BeepComboBox: Using content-preserving height calculation");
+              //  Console.WriteLine("BeepComboBox: Using content-preserving height calculation");
                 int preservedHeight = baseTextHeight + 2 * _padding + 4; // Minimal padding for Material styling
                 _collapsedHeight = Math.Max(preservedHeight, 24); // Ensure minimum usable height
                 return _collapsedHeight;
@@ -440,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Standard Material Design approach
-                Console.WriteLine("BeepComboBox: Using standard Material Design height calculation");
+              //  Console.WriteLine("BeepComboBox: Using standard Material Design height calculation");
                 // Get Material Design minimum height
                 int materialMinHeight = GetMaterialMinimumHeight();
                 
@@ -1186,7 +1186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ForceMaterialSizeCompensation()
         {
-            Console.WriteLine($"BeepComboBox: Force compensation called. EnableMaterialStyle: {PainterKind == BaseControlPainterKind.Material}, AutoSize: {ComboBoxAutoSizeForMaterial}");
+          //  Console.WriteLine($"BeepComboBox: Force compensation called. EnableMaterialStyle: {PainterKind == BaseControlPainterKind.Material}, AutoSize: {ComboBoxAutoSizeForMaterial}");
             
             // Temporarily enable auto size if needed
             bool originalAutoSize = ComboBoxAutoSizeForMaterial;

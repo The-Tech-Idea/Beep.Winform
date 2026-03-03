@@ -45,13 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private void OnHoveredIndexChanged(object sender, IndexChangedEventArgs e)
         {
             UpdateItemStates();
-            Invalidate();
+            RequestVisualRefresh();
         }
 
         private void OnFocusedIndexChanged(object sender, IndexChangedEventArgs e)
         {
             UpdateItemStates();
-            Invalidate();
+            RequestVisualRefresh();
         }
 
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
             SelectionChanged?.Invoke(this, e);
             UpdateItemStates();
-            Invalidate();
+            RequestVisualRefresh();
         }
 
         private void OnItemSelectionChanged(object sender, ItemSelectionChangedEventArgs e)

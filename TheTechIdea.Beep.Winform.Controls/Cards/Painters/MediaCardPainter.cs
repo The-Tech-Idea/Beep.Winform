@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -42,27 +43,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _captionFont?.Dispose(); } catch { }
-            try { _metaFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            try { _statsFont?.Dispose(); } catch { }
-            
-            _captionFont = new Font(fontFamily, 12f, FontStyle.Bold);
-            _metaFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
-            _statsFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_captionFont = captionFont;
+            _metaFont = captionFont;
+            _badgeFont = captionFont;
+            _statsFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int captionHeight = DpiScalingHelper.ScaleValue(CaptionHeight, _owner);
+            int metaHeight = DpiScalingHelper.ScaleValue(MetaHeight, _owner);
+            int statsHeight = DpiScalingHelper.ScaleValue(StatsHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int playButtonSize = DpiScalingHelper.ScaleValue(PlayButtonSize, _owner);
+            int gradientHeight = DpiScalingHelper.ScaleValue(GradientHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Large media area (70% of card)
             if (ctx.ShowImage)
@@ -79,10 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Play button centered on media (for video)
@@ -91,10 +93,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (ctx.ShowButton && isVideo && ctx.ShowImage)
             {
                 ctx.ButtonRect = new Rectangle(
-                    ctx.ImageRect.Left + (ctx.ImageRect.Width - PlayButtonSize) / 2,
-                    ctx.ImageRect.Top + (ctx.ImageRect.Height - PlayButtonSize) / 2,
-                    PlayButtonSize,
-                    PlayButtonSize);
+                    ctx.ImageRect.Left + (ctx.ImageRect.Width - playButtonSize) / 2,
+                    ctx.ImageRect.Top + (ctx.ImageRect.Height - playButtonSize) / 2,
+                    playButtonSize,
+                    playButtonSize);
             }
             else
             {
@@ -102,31 +104,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             }
             
             // Content area below media
-            int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + Padding : drawingRect.Top + Padding;
-            int contentWidth = drawingRect.Width - Padding * 2;
+            int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + padding : drawingRect.Top + padding;
+            int contentWidth = drawingRect.Width - padding * 2;
             
             // Caption/title
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
                 contentWidth,
-                CaptionHeight);
+                captionHeight);
             
             // Meta info (date, location, author)
             ctx.SubtitleRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                ctx.HeaderRect.Bottom + elementGap / 2,
                 contentWidth,
-                MetaHeight);
+                metaHeight);
             
             // Stats (views, likes, downloads)
             if (ctx.ShowRating)
             {
                 ctx.RatingRect = new Rectangle(
                     ctx.HeaderRect.Left,
-                    ctx.SubtitleRect.Bottom + ElementGap,
+                    ctx.SubtitleRect.Bottom + elementGap,
                     contentWidth,
-                    StatsHeight);
+                    statsHeight);
             }
             
             ctx.ShowSecondaryButton = false;
@@ -141,14 +143,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            int gradientHeight = DpiScalingHelper.ScaleValue(GradientHeight, _owner);
+
             // Draw gradient overlay at bottom of media for caption contrast
-            if (ctx.ShowImage && ctx.ImageRect.Height > GradientHeight)
+            if (ctx.ShowImage && ctx.ImageRect.Height > gradientHeight)
             {
                 var gradientRect = new Rectangle(
                     ctx.ImageRect.Left,
-                    ctx.ImageRect.Bottom - GradientHeight,
+                    ctx.ImageRect.Bottom - gradientHeight,
                     ctx.ImageRect.Width,
-                    GradientHeight);
+                    gradientHeight);
                 
                 using var gradientBrush = new LinearGradientBrush(
                     new Point(gradientRect.Left, gradientRect.Top),
@@ -222,13 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _captionFont?.Dispose();
-            _metaFont?.Dispose();
-            _badgeFont?.Dispose();
-            _statsFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

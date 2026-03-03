@@ -40,9 +40,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 Color spinnerColor = context.State == Enums.AdvancedButtonState.Disabled
                     ? context.DisabledForeground
                     : context.SolidBackground;
-                DrawLoadingSpinner(g, buttonBounds, spinnerColor);
+                DrawLoadingSpinner(g, context, buttonBounds, spinnerColor);
             }
-            else if (!string.IsNullOrEmpty(context.ImagePainter?.ImagePath))
+            else if (HasPrimaryIcon(context))
             {
                 Rectangle iconBounds = new Rectangle(
                     buttonBounds.X + (buttonBounds.Width - metrics.IconSize) / 2,
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     ? context.DisabledForeground
                     : context.SolidBackground;
 
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
         }
     }

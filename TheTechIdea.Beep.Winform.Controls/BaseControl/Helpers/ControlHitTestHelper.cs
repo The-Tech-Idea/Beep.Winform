@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -142,6 +142,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public void RemoveHitTest(ControlHitTest hitTest)
         {
             HitList.Remove(hitTest);
+        }
+
+        public void RemoveHitTestsForControl(Control control)
+        {
+            if (control == null || HitList == null || HitList.Count == 0)
+                return;
+
+            HitList.RemoveAll(hit =>
+            {
+                if (hit == null)
+                    return true;
+
+                try
+                {
+                    if (string.Equals(hit.Name, control.Name, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                catch (ObjectDisposedException)
+                {
+                    // If the target control is already disposed, remove stale hit registrations.
+                    return true;
+                }
+
+                return hit.uIComponent is Control uiControl && ReferenceEquals(uiControl, control);
+            });
+
+            try
+            {
+                if (HitTestControl != null &&
+                    (string.Equals(HitTestControl.Name, control.Name, StringComparison.OrdinalIgnoreCase) ||
+                     (HitTestControl.uIComponent is Control uiControl && ReferenceEquals(uiControl, control))))
+                {
+                    HitTestControl = null;
+                    HitAreaEventOn = false;
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                HitTestControl = null;
+                HitAreaEventOn = false;
+            }
         }
 
         public void ClearHitList()

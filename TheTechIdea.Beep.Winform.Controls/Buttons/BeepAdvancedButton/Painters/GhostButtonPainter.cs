@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             if (context.IsLoading)
             {
-                DrawLoadingSpinner(g, buttonBounds, contentColor);
+                DrawLoadingSpinner(g, context, buttonBounds, contentColor);
             }
             else
             {
@@ -53,12 +53,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             AdvancedButtonMetrics metrics, Color color)
         {
             Rectangle bounds = context.Bounds;
-            bool hasIcon = !string.IsNullOrEmpty(context.ImagePainter?.ImagePath);
+            bool hasIcon = HasPrimaryIcon(context);
             bool hasText = !string.IsNullOrEmpty(context.Text);
 
             if (hasIcon && hasText)
             {
-                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureTextWidth(context);
+                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
                 int startX = bounds.X + (bounds.Width - totalWidth) / 2;
 
                 Rectangle iconBounds = new Rectangle(
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     metrics.IconSize,
                     metrics.IconSize
                 );
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
 
                 Rectangle textBounds = new Rectangle(
                     startX + metrics.IconSize + metrics.IconTextGap,
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     metrics.IconSize,
                     metrics.IconSize
                 );
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
             else
             {
@@ -93,13 +93,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
         }
 
-        private int MeasureTextWidth(AdvancedButtonPaintContext context)
-        {
-            if (string.IsNullOrEmpty(context.Text)) return 0;
-            using (Graphics g = Graphics.FromImage(new Bitmap(1, 1)))
-            {
-                return (int)g.MeasureString(context.Text, context.Font).Width;
-            }
-        }
     }
 }

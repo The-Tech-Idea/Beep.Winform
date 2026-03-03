@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width > 0 && bounds.Height > 0)
             {
-                var gradient = PaintersFactory.GetLinearGradientBrush(
+                using var gradient = PaintersFactory.CreateLinearGradientBrush(
                     bounds, 
                     Color.FromArgb(8, 255, 255, 255), 
                     Color.FromArgb(0, 255, 255, 255), 

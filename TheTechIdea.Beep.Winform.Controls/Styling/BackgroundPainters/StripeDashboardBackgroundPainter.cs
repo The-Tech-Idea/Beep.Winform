@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Stripe signature: 3% lighter at top for professional polish - use HSL for more natural results
             Color topColor = ColorAccessibilityHelper.LightenColor(stateColor, 0.03f);
 
-            var brush = PaintersFactory.GetLinearGradientBrush(
+            using var brush = PaintersFactory.CreateLinearGradientBrush(
                 bounds, topColor, stateColor, LinearGradientMode.Vertical);
             g.FillPath(brush, path);
         }

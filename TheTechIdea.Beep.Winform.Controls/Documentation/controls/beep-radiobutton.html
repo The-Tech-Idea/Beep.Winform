@@ -207,7 +207,7 @@ radioGroup.SelectedValue = "Option 1";
 
 // Handle selection changes
 radioGroup.SelectedValueChanged += (sender, e) => {
-    Console.WriteLine($"Selected: {e.SelectedValue} (Index: {e.SelectedIndex})");
+  //  Console.WriteLine($"Selected: {e.SelectedValue} (Index: {e.SelectedIndex})");
 };
 
 // Add to form
@@ -258,7 +258,7 @@ radioGroup.SelectedValue = "Option 2";
 var selectedItem = radioGroup.GetValue() as SimpleItem;
 if (selectedItem != null)
 {
-    Console.WriteLine($"Selected item: {selectedItem.Text}");
+  //  Console.WriteLine($"Selected item: {selectedItem.Text}");
 }
 
 // Get selected index
@@ -268,7 +268,7 @@ Console.WriteLine($"Selected index: {index}");
 // Check if anything is selected
 if (radioGroup.SelectedIndex >= 0)
 {
-    Console.WriteLine("Something is selected");
+  //  Console.WriteLine("Something is selected");
 }
 
 // Clear selection
@@ -453,12 +453,12 @@ horizontalRadio.Options.AddRange(new[]
 
 // Basic selection handling
 radioGroup.SelectedValueChanged += (sender, e) => {
-    Console.WriteLine($"Selection changed to: {e.SelectedValue}");
-    Console.WriteLine($"Selected index: {e.SelectedIndex}");
+  //  Console.WriteLine($"Selection changed to: {e.SelectedValue}");
+  //  Console.WriteLine($"Selected index: {e.SelectedIndex}");
     
     // Get the full SimpleItem if needed
     var selectedItem = radioGroup.Options[e.SelectedIndex];
-    Console.WriteLine($"Selected item value: {selectedItem.Value}");
+  //  Console.WriteLine($"Selected item value: {selectedItem.Value}");
 };
 
 // Advanced selection handling with business logic
@@ -648,7 +648,7 @@ public void CreateDataBoundRadioGroup()
         
         if (priority != null)
         {
-            Console.WriteLine($"Selected priority: {priority.Name} (Level: {priority.Level})");
+          //  Console.WriteLine($"Selected priority: {priority.Name} (Level: {priority.Level})");
             UpdateTaskPriority(priority);
         }
     };

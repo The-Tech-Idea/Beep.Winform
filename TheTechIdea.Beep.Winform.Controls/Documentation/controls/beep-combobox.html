@@ -352,25 +352,25 @@ customerCombo.SelectedItemChanged += (sender, e) => {
 comboBox.SelectedItemChanged += (sender, e) => {
     if (e.SelectedItem != null)
     {
-        Console.WriteLine($"Selected: {e.SelectedItem.Text}");
-        Console.WriteLine($"Value: {e.SelectedItem.Value}");
+      //  Console.WriteLine($"Selected: {e.SelectedItem.Text}");
+      //  Console.WriteLine($"Value: {e.SelectedItem.Value}");
         
         // Access the full object if stored
         if (e.SelectedItem.Item != null)
         {
-            Console.WriteLine($"Object: {e.SelectedItem.Item}");
+          //  Console.WriteLine($"Object: {e.SelectedItem.Item}");
         }
     }
 };
 
 // Popup events for UI feedback
 comboBox.PopupOpened += (sender, e) => {
-    Console.WriteLine("Dropdown opened");
+  //  Console.WriteLine("Dropdown opened");
     // Could show loading indicator for dynamic data
 };
 
 comboBox.PopupClosed += (sender, e) => {
-    Console.WriteLine("Dropdown closed");
+  //  Console.WriteLine("Dropdown closed");
     // Perform validation or other cleanup
 };</code></pre>
                     </div>

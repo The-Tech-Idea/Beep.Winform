@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Drawing.Text;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace TheTechIdea.Beep.Winform.Controls.FontManagement
@@ -14,9 +16,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.Fonts";
 
         /// <summary>
-        /// Gets the assembly containing the embedded font resources.
+        /// Gets the primary assembly containing the embedded font resources.
+        /// Returns <see cref="BeepFontRegistry.PrimaryAssembly"/> when set by the consuming project;
+        /// otherwise returns <see cref="Assembly.GetExecutingAssembly"/> (the Controls assembly).
         /// </summary>
-        public static Assembly ResourceAssembly => Assembly.GetExecutingAssembly();
+        public static Assembly ResourceAssembly
+            => BeepFontRegistry.PrimaryAssembly ?? Assembly.GetExecutingAssembly();
 
         #region "Individual Font Files"
         public static readonly string CaprasimoRegular = $"{BaseNamespace}.Caprasimo-Regular.ttf";
@@ -59,14 +64,54 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets all available font resource names from the assembly.
+        /// Gets all available font resource names from all registered assemblies plus the primary assembly.
+        /// Resources from all sources are merged and deduplicated by name.
         /// </summary>
         /// <returns>Array of resource names</returns>
         public static string[] GetAvailableFontResources()
         {
-            return ResourceAssembly.GetManifestResourceNames()
-                .Where(name => name.StartsWith(BaseNamespace) && (name.EndsWith(".ttf") || name.EndsWith(".otf")))
-                .ToArray();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var results = new List<string>();
+
+            void AddFromAssembly(Assembly asm)
+            {
+                if (asm == null) return;
+                try
+                {
+                    foreach (var name in asm.GetManifestResourceNames())
+                    {
+                        if ((name.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
+                             name.EndsWith(".otf", StringComparison.OrdinalIgnoreCase))
+                            && seen.Add(name))
+                        {
+                            results.Add(name);
+                        }
+                    }
+                }
+                catch { /* ignore reflection errors for dynamic/restricted assemblies */ }
+            }
+
+            // 1. Primary (Controls) assembly — base namespace filter for backward compat
+            var primary = ResourceAssembly;
+            try
+            {
+                foreach (var name in primary.GetManifestResourceNames()
+                    .Where(n => n.StartsWith(BaseNamespace) &&
+                               (n.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
+                                n.EndsWith(".otf", StringComparison.OrdinalIgnoreCase))))
+                {
+                    if (seen.Add(name)) results.Add(name);
+                }
+            }
+            catch { }
+
+            // 2. All additionally registered assemblies (no namespace filter — they opted in explicitly)
+            foreach (var asm in BeepFontRegistry.GetRegisteredAssemblies())
+            {
+                if (!ReferenceEquals(asm, primary)) AddFromAssembly(asm);
+            }
+
+            return results.ToArray();
         }
 
         /// <summary>

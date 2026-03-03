@@ -6,8 +6,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 
@@ -21,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private readonly BeepImage _iconRenderer = new BeepImage();
         private readonly StringFormat _centerFormat = new StringFormat
         {
             Alignment = StringAlignment.Center,
@@ -48,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
 
             int extraWidth = 0;
-            if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
                 extraWidth += DpiScalingHelper.ScaleSize(options.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(8, scale);
             if (options.ShowSelectionCheck)
                 extraWidth += DpiScalingHelper.ScaleValue(22, scale);
@@ -117,26 +114,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
 
             // Leading icon
-            if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
             {
                 var iconSize = DpiScalingHelper.ScaleSize(options.IconMaxSize, scale);
-                var iconRect = new Rectangle(
+                var iconAnchorRect = new Rectangle(
                     contentRect.Left + leftOffset,
-                    contentRect.Top + (contentRect.Height - iconSize.Height) / 2,
-                    iconSize.Width, iconSize.Height);
-
-                try
-                {
-                    using var iconPath = new GraphicsPath();
-                    iconPath.AddRectangle(iconRect);
-                    StyledImagePainter.PaintWithTint(g, iconPath, item.ImagePath, fgColor, 1f);
-                }
-                catch
-                {
-                    _iconRenderer.ImagePath = item.ImagePath;
-                    _iconRenderer.Draw(g, iconRect);
-                }
-                leftOffset += iconSize.Width + DpiScalingHelper.ScaleValue(8, scale);
+                    contentRect.Top,
+                    iconSize.Width + DpiScalingHelper.ScaleValue(2, scale),
+                    contentRect.Height);
+                var iconRect = ChipIconHelpers.CalculateChipIconBounds(iconAnchorRect, options.Size, true);
+                ChipIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    item.ImagePath,
+                    fgColor,
+                    options.Theme ?? _theme,
+                    false,
+                    ChipVariant.Filled,
+                    state.Color,
+                    state.IsSelected,
+                    state.IsHovered,
+                    _owner.ControlStyle);
+                leftOffset += iconRect.Width + DpiScalingHelper.ScaleValue(8, scale);
             }
 
             // Close button

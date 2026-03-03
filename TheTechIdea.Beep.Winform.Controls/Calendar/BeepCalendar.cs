@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -34,6 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         // Hover tracking
         private DateTime? _hoveredDate;
         private CalendarEvent _hoveredEvent;
+        private DateTime _focusedDate = DateTime.Today;
+        private bool _keyboardFocusVisible;
+        private CalendarDensityMode _densityMode = CalendarDensityMode.Comfortable;
+        private CalendarToolbarLabelMode _toolbarLabelMode = CalendarToolbarLabelMode.Full;
 
         // Data
         private List<CalendarEvent> _events = new();
@@ -54,8 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         // Exposed paddings for title & grid
         [Browsable(true)] [Category("Layout")] public int HeaderLeftPadding { get; set; } = 160; // min
-        [Browsable(true)] [Category("Layout")] public int HeaderRightPadding { get; set; } = 20;
-        [Browsable(true)] [Category("Layout")] public int GridLeftGutter { get; set; } = 12;
+        [Browsable(true)] [Category("Layout")] public int HeaderRightPadding { get; set; } = CalendarLayoutMetrics.HeaderRightPadding;
+        [Browsable(true)] [Category("Layout")] public int GridLeftGutter { get; set; } = CalendarLayoutMetrics.TimeColumnWidth / 5;
         
         /// <summary>
         /// Gets or sets the visual style for the calendar
@@ -101,6 +106,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         public BeepCalendar():base()
         {
             ShowAllBorders = true;
+            TabStop = true;
+            GridLeftGutter = CalendarLayoutMetrics.TimeColumnWidth / 5;
 
             try
             {
@@ -117,6 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             
             // Initialize style painter
             _stylePainter = CalendarPainterFactory.GetPainter(_calendarStyle);
+            ApplyThemeTypography();
             
             if (!IsDesignModeSafe)
             {
@@ -130,6 +138,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         [Category("Calendar")] public CalendarViewMode ViewMode { get => _state.ViewMode; set { _state.ViewMode = value; UpdateLayout(); Invalidate(); } }
         [Browsable(true)]
         [Category("Calendar")] public bool ShowSidebar { get => _state.ShowSidebar; set { _state.ShowSidebar = value; UpdateLayout(); Invalidate(); } }
+        [Browsable(true)]
+        [Category("Calendar")]
+        [DefaultValue(CalendarDensityMode.Comfortable)]
+        public CalendarDensityMode DensityMode
+        {
+            get => _densityMode;
+            set
+            {
+                if (_densityMode != value)
+                {
+                    _densityMode = value;
+                    UpdateLayout();
+                    Invalidate();
+                }
+            }
+        }
 
         [Browsable(true)]
         [Category("Calendar")] 
@@ -151,11 +175,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             set { _categories = value ?? new(); InitializeDefaultCategories(); Invalidate(); }
         }
 
-        [Browsable(true)] [Category("Appearance")] public Font HeaderFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
-        [Browsable(true)] [Category("Appearance")] public Font DayFont { get; set; } = new Font("Segoe UI", 12);
-        [Browsable(true)] [Category("Appearance")] public Font EventFont { get; set; } = new Font("Segoe UI", 9);
-        [Browsable(true)] [Category("Appearance")] public Font TimeFont { get; set; } = new Font("Segoe UI", 10);
-        public Font DaysHeaderFont { get; private set; } = new Font("Segoe UI", 10);
+        [Browsable(true)] [Category("Appearance")] public Font HeaderFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 16f, FontWeight.Bold, FontStyle.Bold);
+        [Browsable(true)] [Category("Appearance")] public Font DayFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 12f, FontWeight.Regular, FontStyle.Regular);
+        [Browsable(true)] [Category("Appearance")] public Font EventFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 9f, FontWeight.Regular, FontStyle.Regular);
+        [Browsable(true)] [Category("Appearance")] public Font TimeFont { get; set; } = BeepThemesManager.ToFont("Segoe UI", 10f, FontWeight.Regular, FontStyle.Regular);
+        public Font DaysHeaderFont { get; private set; } = BeepThemesManager.ToFont("Segoe UI", 10f, FontWeight.Medium, FontStyle.Regular);
 
         public event EventHandler<CalendarEventArgs> EventSelected;
         public event EventHandler<CalendarEventArgs> EventDoubleClick;
@@ -255,15 +279,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _stylePainter.PaintBackground(g, contentRect, painterCtx);
 
             // Paint header
-            int leftAnchor = Math.Max(_todayButton?.Right ?? 0, _nextButton?.Right ?? 0);
-            int headerLeft = Math.Max(leftAnchor + 20, HeaderLeftPadding);
-            var headerTextRect = new Rectangle(
-                headerLeft, 
-                _rects.HeaderRect.Y, 
-                _rects.HeaderRect.Width - headerLeft - HeaderRightPadding, 
-                _rects.HeaderRect.Height
-            );
-            _stylePainter.PaintHeader(g, _rects.HeaderRect, GetHeaderText(), painterCtx);
+            var headerTextBounds = GetHeaderTextBounds();
+            _stylePainter.PaintHeader(g, _rects.HeaderRect, string.Empty, painterCtx);
+            DrawPainterHeaderText(g, painterCtx, GetHeaderText(), headerTextBounds);
 
             // Paint view selector
             _stylePainter.PaintViewSelector(g, _rects.ViewSelectorRect, painterCtx);
@@ -300,15 +318,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             // Begin paint cycle for event caching
             _eventService?.BeginPaintCycle();
             
-            // Dynamic header left margin from right-most of nav buttons
-            int leftAnchor = Math.Max(_todayButton?.Right ?? 0, _nextButton?.Right ?? 0);
-            int headerLeft = Math.Max(leftAnchor + 20, HeaderLeftPadding);
-            int headerRight = HeaderRightPadding;
+            var headerTextBounds = GetHeaderTextBounds();
+            int headerLeft = Math.Max(0, headerTextBounds.Left - _rects.HeaderRect.X);
+            int headerRight = Math.Max(0, _rects.HeaderRect.Right - headerTextBounds.Right);
 
             var ctx = new CalendarRenderContext(this, _currentTheme,
                 HeaderFont, DayFont, EventFont, TimeFont, DaysHeaderFont,
                 _state, _rects, _eventService, _categories,
-                headerLeft, headerRight);
+                headerLeft, headerRight, GetDensityScale());
 
             _renderer.Draw(g, ctx);
         }
@@ -333,20 +350,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             var grid = _rects.CalendarGridRect;
             var firstDayOfMonth = new DateTime(_state.CurrentDate.Year, _state.CurrentDate.Month, 1);
             var firstDayOfCalendar = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
+            int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
+            int eventHeight = ScaleMetric(16);
+            int eventSpacing = ScaleMetric(2);
+            int eventStartOffset = ScaleMetric(30);
 
             int cellWidth = grid.Width / 7;
-            int cellHeight = (grid.Height - CalendarLayoutMetrics.DayHeaderHeight) / 6;
+            int cellHeight = (grid.Height - dayHeaderHeight) / 6;
 
             // Day headers
             string[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
             for (int i = 0; i < 7; i++)
             {
-                var headerRect = new Rectangle(grid.X + i * cellWidth, grid.Y, cellWidth, CalendarLayoutMetrics.DayHeaderHeight);
+                var headerRect = new Rectangle(grid.X + i * cellWidth, grid.Y, cellWidth, dayHeaderHeight);
                 bool isToday = (int)DateTime.Today.DayOfWeek == i;
                 _stylePainter.PaintDayHeader(g, headerRect, dayNames[i], isToday, ctx);
             }
 
             // Day cells
+            var eventsByDate = new Dictionary<DateTime, List<CalendarEvent>>();
             for (int week = 0; week < 6; week++)
             {
                 for (int day = 0; day < 7; day++)
@@ -354,10 +376,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     var cellDate = firstDayOfCalendar.AddDays(week * 7 + day);
                     var cellRect = new Rectangle(
                         grid.X + day * cellWidth, 
-                        grid.Y + CalendarLayoutMetrics.DayHeaderHeight + week * cellHeight, 
+                        grid.Y + dayHeaderHeight + week * cellHeight, 
                         cellWidth, 
                         cellHeight
                     );
+
+                    var dateKey = cellDate.Date;
+                    if (!eventsByDate.TryGetValue(dateKey, out var dayEvents))
+                    {
+                        dayEvents = _eventService.GetEventsForDate(cellDate);
+                        eventsByDate[dateKey] = dayEvents;
+                    }
 
                     var state = new DayCellState
                     {
@@ -365,29 +394,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                         IsToday = cellDate.Date == DateTime.Today,
                         IsSelected = cellDate.Date == _state.SelectedDate.Date,
                         IsHovered = _hoveredDate.HasValue && cellDate.Date == _hoveredDate.Value.Date,
+                        IsFocused = _keyboardFocusVisible && cellDate.Date == _focusedDate.Date,
                         IsWeekend = cellDate.DayOfWeek == DayOfWeek.Saturday || cellDate.DayOfWeek == DayOfWeek.Sunday,
-                        EventCount = _eventService.GetEventsForDate(cellDate).Count
+                        EventCount = dayEvents.Count
                     };
 
                     _stylePainter.PaintDayCell(g, cellRect, cellDate, state, ctx);
 
                     // Draw events in cell
-                    var events = _eventService.GetEventsForDate(cellDate);
-                    int eventY = cellRect.Y + 30;
-                    foreach (var evt in events.Take(3))
+                    int eventY = cellRect.Y + eventStartOffset;
+                    foreach (var evt in dayEvents.Take(3))
                     {
-                        var eventRect = new Rectangle(cellRect.X + 2, eventY, cellRect.Width - 4, 16);
+                        var eventRect = new Rectangle(cellRect.X + 2, eventY, cellRect.Width - 4, eventHeight);
                         bool isSelected = _state.SelectedEvent?.Id == evt.Id;
                         bool isHovered = _hoveredEvent?.Id == evt.Id;
                         _stylePainter.PaintEventBar(g, eventRect, evt, isSelected, isHovered, ctx);
-                        eventY += 18;
+                        eventY += eventHeight + eventSpacing;
                     }
 
-                    if (events.Count > 3)
+                    if (dayEvents.Count > 3)
                     {
                         using (var brush = new SolidBrush(ctx.ForegroundColor))
                         {
-                            g.DrawString($"+{events.Count - 3} more", new Font(EventFont.FontFamily, 8), 
+                            g.DrawString($"+{dayEvents.Count - 3} more", EventFont,
                                 brush, new PointF(cellRect.X + 2, eventY));
                         }
                     }
@@ -399,38 +428,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             var grid = _rects.CalendarGridRect;
             var startOfWeek = _state.CurrentDate.AddDays(-(int)_state.CurrentDate.DayOfWeek);
-            int cellWidth = (grid.Width - CalendarLayoutMetrics.TimeColumnWidth) / 7;
+            int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
+            int timeColumnWidth = ScaleMetric(CalendarLayoutMetrics.TimeColumnWidth);
+            int eventInsetX = ScaleMetric(CalendarLayoutMetrics.EventInsetX);
+            int eventInsetY = ScaleMetric(CalendarLayoutMetrics.EventInsetY);
+            int cellWidth = (grid.Width - timeColumnWidth) / 7;
 
             // Day headers
             for (int day = 0; day < 7; day++)
             {
                 var dayDate = startOfWeek.AddDays(day);
                 var headerRect = new Rectangle(
-                    grid.X + CalendarLayoutMetrics.TimeColumnWidth + day * cellWidth, 
+                    grid.X + timeColumnWidth + day * cellWidth, 
                     grid.Y, 
                     cellWidth, 
-                    CalendarLayoutMetrics.DayHeaderHeight
+                    dayHeaderHeight
                 );
                 _stylePainter.PaintWeekDayHeader(g, headerRect, dayDate, dayDate.Date == DateTime.Today, ctx);
             }
 
             // Time slots
-            int slotHeight = Math.Max(CalendarLayoutMetrics.TimeSlotHeight, (grid.Height - CalendarLayoutMetrics.DayHeaderHeight) / 24);
+            int slotHeight = Math.Max(ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight), (grid.Height - dayHeaderHeight) / 24);
             int currentHour = DateTime.Now.Hour;
+            var eventsByDay = Enumerable.Range(0, 7)
+                .Select(index => startOfWeek.AddDays(index).Date)
+                .ToDictionary(day => day, day => _eventService.GetEventsForDate(day));
 
             for (int hour = 0; hour < 24; hour++)
             {
-                int yPos = grid.Y + CalendarLayoutMetrics.DayHeaderHeight + hour * slotHeight;
+                int yPos = grid.Y + dayHeaderHeight + hour * slotHeight;
                 
                 // Time label
-                var timeLabelRect = new Rectangle(grid.X, yPos, CalendarLayoutMetrics.TimeColumnWidth, slotHeight);
+                var timeLabelRect = new Rectangle(grid.X, yPos, timeColumnWidth, slotHeight);
                 _stylePainter.PaintTimeLabel(g, timeLabelRect, hour, ctx);
 
                 // Time slot for each day
                 for (int day = 0; day < 7; day++)
                 {
                     var slotRect = new Rectangle(
-                        grid.X + CalendarLayoutMetrics.TimeColumnWidth + day * cellWidth, 
+                        grid.X + timeColumnWidth + day * cellWidth, 
                         yPos, 
                         cellWidth, 
                         slotHeight
@@ -438,18 +474,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     _stylePainter.PaintTimeSlot(g, slotRect, hour, hour == currentHour && startOfWeek.AddDays(day).Date == DateTime.Today, ctx);
 
                     // Draw events
-                    var dayDate = startOfWeek.AddDays(day);
-                    var dayEvents = _eventService.GetEventsForDate(dayDate)
+                    var dayDate = startOfWeek.AddDays(day).Date;
+                    var dayEvents = eventsByDay[dayDate]
                         .Where(e => e.StartTime.Hour == hour)
                         .ToList();
 
                     foreach (var evt in dayEvents)
                     {
                         var eventRect = new Rectangle(
-                            slotRect.X + 2, 
-                            yPos, 
-                            slotRect.Width - 4, 
-                            (int)(evt.Duration.TotalHours * slotHeight)
+                            slotRect.X + eventInsetX,
+                            yPos + eventInsetY,
+                            Math.Max(20, slotRect.Width - (eventInsetX * 2)),
+                            Math.Max(CalendarLayoutMetrics.MinEventHitHeight, (int)(evt.Duration.TotalHours * slotHeight) - (eventInsetY * 2))
                         );
                         bool isSelected = _state.SelectedEvent?.Id == evt.Id;
                         bool isHovered = _hoveredEvent?.Id == evt.Id;
@@ -462,44 +498,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         private void DrawDayViewWithPainter(Graphics g, CalendarPainterContext ctx)
         {
             var grid = _rects.CalendarGridRect;
+            int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
+            int timeColumnWidth = ScaleMetric(CalendarLayoutMetrics.TimeColumnWidth);
+            int eventInsetX = ScaleMetric(CalendarLayoutMetrics.EventInsetX);
+            int eventInsetY = ScaleMetric(CalendarLayoutMetrics.EventInsetY);
             
             // Day header
-            var headerRect = new Rectangle(grid.X, grid.Y, grid.Width, CalendarLayoutMetrics.DayHeaderHeight);
+            var headerRect = new Rectangle(grid.X, grid.Y, grid.Width, dayHeaderHeight);
             _stylePainter.PaintWeekDayHeader(g, headerRect, _state.CurrentDate, _state.CurrentDate.Date == DateTime.Today, ctx);
 
             // Time slots
-            int slotHeight = Math.Max(CalendarLayoutMetrics.TimeSlotHeight, (grid.Height - CalendarLayoutMetrics.DayHeaderHeight) / 24);
+            int slotHeight = Math.Max(ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight), (grid.Height - dayHeaderHeight) / 24);
             int currentHour = DateTime.Now.Hour;
+            var eventsByHour = _eventService.GetEventsForDate(_state.CurrentDate)
+                .GroupBy(e => e.StartTime.Hour)
+                .ToDictionary(group => group.Key, group => group.ToList());
 
             for (int hour = 0; hour < 24; hour++)
             {
-                int yPos = grid.Y + CalendarLayoutMetrics.DayHeaderHeight + hour * slotHeight;
+                int yPos = grid.Y + dayHeaderHeight + hour * slotHeight;
                 
                 // Time label
-                var timeLabelRect = new Rectangle(grid.X, yPos, CalendarLayoutMetrics.TimeColumnWidth, slotHeight);
+                var timeLabelRect = new Rectangle(grid.X, yPos, timeColumnWidth, slotHeight);
                 _stylePainter.PaintTimeLabel(g, timeLabelRect, hour, ctx);
 
                 // Time slot
                 var slotRect = new Rectangle(
-                    grid.X + CalendarLayoutMetrics.TimeColumnWidth, 
+                    grid.X + timeColumnWidth, 
                     yPos, 
-                    grid.Width - CalendarLayoutMetrics.TimeColumnWidth, 
+                    grid.Width - timeColumnWidth, 
                     slotHeight
                 );
                 _stylePainter.PaintTimeSlot(g, slotRect, hour, hour == currentHour && _state.CurrentDate.Date == DateTime.Today, ctx);
 
                 // Draw events
-                var dayEvents = _eventService.GetEventsForDate(_state.CurrentDate)
-                    .Where(e => e.StartTime.Hour == hour)
-                    .ToList();
+                if (!eventsByHour.TryGetValue(hour, out var dayEvents))
+                {
+                    continue;
+                }
 
                 foreach (var evt in dayEvents)
                 {
                     var eventRect = new Rectangle(
-                        slotRect.X + 10, 
-                        yPos, 
-                        slotRect.Width - 20, 
-                        (int)(evt.Duration.TotalHours * slotHeight)
+                        slotRect.X + eventInsetX,
+                        yPos + eventInsetY,
+                        Math.Max(20, slotRect.Width - (eventInsetX * 2)),
+                        Math.Max(CalendarLayoutMetrics.MinEventHitHeight, (int)(evt.Duration.TotalHours * slotHeight) - (eventInsetY * 2))
                     );
                     bool isSelected = _state.SelectedEvent?.Id == evt.Id;
                     bool isHovered = _hoveredEvent?.Id == evt.Id;
@@ -514,39 +558,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             var monthEvents = _eventService.GetEventsForMonth(_state.CurrentDate)
                 .OrderBy(e => e.StartTime)
                 .ToList();
+            int rowHeight = ScaleMetric(CalendarLayoutMetrics.ListRowHeight);
+            int rowSpacing = ScaleMetric(CalendarLayoutMetrics.ListRowSpacing);
+            int padding = ScaleMetric(CalendarLayoutMetrics.SidebarPadding);
 
-            int yPos = grid.Y + 10;
+            int yPos = grid.Y + padding;
             foreach (var evt in monthEvents)
             {
-                if (yPos + 70 > grid.Bottom) break;
+                if (yPos + rowHeight > grid.Bottom) break;
                 
-                var eventRect = new Rectangle(grid.X + 10, yPos, grid.Width - 20, 60);
+                var eventRect = new Rectangle(grid.X + padding, yPos, grid.Width - (padding * 2), rowHeight);
                 bool isSelected = _state.SelectedEvent?.Id == evt.Id;
                 bool isHovered = _hoveredEvent?.Id == evt.Id;
                 _stylePainter.PaintListViewEvent(g, eventRect, evt, isSelected, isHovered, ctx);
-                yPos += 70;
+                yPos += rowHeight + rowSpacing;
             }
         }
         
         private void DrawSidebarWithPainter(Graphics g, CalendarPainterContext ctx)
         {
             var rect = _rects.SidebarRect;
+            int padding = ScaleMetric(CalendarLayoutMetrics.SidebarPadding);
+            int cardHeight = ScaleMetric(CalendarLayoutMetrics.SidebarCardHeight);
+            int cardGap = ScaleMetric(CalendarLayoutMetrics.SidebarCardGap);
             _stylePainter.PaintSidebar(g, rect, ctx);
 
             // Mini calendar
-            var miniRect = new Rectangle(rect.X + 10, rect.Y + 10, Math.Max(10, rect.Width - 20), 200);
+            var miniRect = new Rectangle(rect.X + padding, rect.Y + padding, Math.Max(10, rect.Width - (padding * 2)), cardHeight);
             if (miniRect.Width > 20)
             {
                 _stylePainter.PaintMiniCalendar(g, miniRect, _state.CurrentDate, _state.SelectedDate, ctx);
             }
 
-            // Event details
-            if (_state.SelectedEvent != null)
+            // Event details / empty state
+            var detailsRect = new Rectangle(
+                rect.X + padding,
+                rect.Y + padding + cardHeight + cardGap,
+                Math.Max(10, rect.Width - (padding * 2)),
+                cardHeight);
+            if (detailsRect.Width > 20)
             {
-                var detailsRect = new Rectangle(rect.X + 10, rect.Y + 230, Math.Max(10, rect.Width - 20), 200);
-                if (detailsRect.Width > 20)
+                if (_state.SelectedEvent != null)
                 {
                     _stylePainter.PaintEventDetails(g, detailsRect, _state.SelectedEvent, ctx);
+                }
+                else
+                {
+                    using (var backBrush = new SolidBrush(ctx.BackgroundColor))
+                    using (var borderPen = new Pen(ctx.BorderColor))
+                    using (var titleBrush = new SolidBrush(ctx.ForegroundColor))
+                    using (var bodyBrush = new SolidBrush(Color.FromArgb(170, ctx.ForegroundColor)))
+                    {
+                        g.FillRectangle(backBrush, detailsRect);
+                        g.DrawRectangle(borderPen, detailsRect);
+                        g.DrawString("No event selected", DayFont, titleBrush, new Rectangle(detailsRect.X + 10, detailsRect.Y + 14, detailsRect.Width - 20, 24));
+                        g.DrawString("Select a date/event or use + Create Event.", EventFont, bodyBrush, new Rectangle(detailsRect.X + 10, detailsRect.Y + 40, detailsRect.Width - 20, 40));
+                    }
                 }
             }
         }
@@ -611,18 +678,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             base.OnMouseClick(e);
             if (IsDesignModeSafe) return;
+            Focus();
+            _keyboardFocusVisible = false;
 
             Rectangle contentRect = GetContentRectForDrawing();
             
-            int leftAnchor = Math.Max(_todayButton?.Right ?? 0, _nextButton?.Right ?? 0);
-            int headerLeft = Math.Max(leftAnchor + 20, HeaderLeftPadding);
-            int headerRight = HeaderRightPadding;
+            var headerTextBounds = GetHeaderTextBounds();
+            int headerLeft = Math.Max(0, headerTextBounds.Left - _rects.HeaderRect.X);
+            int headerRight = Math.Max(0, _rects.HeaderRect.Right - headerTextBounds.Right);
 
             var ctx = new CalendarRenderContext(this, _currentTheme,
                 HeaderFont, DayFont, EventFont, TimeFont, DaysHeaderFont,
                 _state, _rects, _eventService, _categories,
-                headerLeft, headerRight);
+                headerLeft, headerRight, GetDensityScale());
             _renderer.HandleClick(e.Location, ctx);
+            _focusedDate = _state.SelectedDate.Date;
 
             DateSelected?.Invoke(this, new CalendarDateArgs(_state.SelectedDate));
             if (_state.SelectedEvent != null)
@@ -651,12 +721,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             if (_state.ViewMode == CalendarViewMode.Month)
             {
                 var grid = _rects.CalendarGridRect;
-                if (e.Location.Y >= grid.Y + CalendarLayoutMetrics.DayHeaderHeight)
+                int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
+                if (e.Location.Y >= grid.Y + dayHeaderHeight)
                 {
                     int cellWidth = grid.Width / 7;
-                    int cellHeight = (grid.Height - CalendarLayoutMetrics.DayHeaderHeight) / 6;
+                    int cellHeight = (grid.Height - dayHeaderHeight) / 6;
                     int col = (e.Location.X - grid.X) / cellWidth;
-                    int row = (e.Location.Y - grid.Y - CalendarLayoutMetrics.DayHeaderHeight) / cellHeight;
+                    int row = (e.Location.Y - grid.Y - dayHeaderHeight) / cellHeight;
 
                     if (col >= 0 && col < 7 && row >= 0 && row < 6)
                     {
@@ -670,8 +741,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             bool needsRedraw = false;
             if (_hoveredDate != newHoveredDate)
             {
+                var previousHoveredDate = _hoveredDate;
                 _hoveredDate = newHoveredDate;
-                needsRedraw = true;
+                if (_state.ViewMode == CalendarViewMode.Month)
+                {
+                    InvalidateDateCell(previousHoveredDate);
+                    InvalidateDateCell(_hoveredDate);
+                }
+                else
+                {
+                    needsRedraw = true;
+                }
             }
             if (_hoveredEvent != newHoveredEvent)
             {
@@ -692,10 +772,111 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             
             if (_hoveredDate.HasValue || _hoveredEvent != null)
             {
+                var previousHoveredDate = _hoveredDate;
                 _hoveredDate = null;
                 _hoveredEvent = null;
+                if (_state.ViewMode == CalendarViewMode.Month)
+                {
+                    InvalidateDateCell(previousHoveredDate);
+                }
+                else
+                {
+                    Invalidate();
+                }
+            }
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            _keyboardFocusVisible = true;
+            _focusedDate = _state.SelectedDate.Date;
+            InvalidateDateCell(_focusedDate);
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            if (_keyboardFocusVisible)
+            {
+                _keyboardFocusVisible = false;
+                InvalidateDateCell(_focusedDate);
+            }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (IsDesignModeSafe)
+            {
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            var previousFocusDate = _focusedDate.Date;
+            bool handled = true;
+
+            switch (keyData)
+            {
+                case Keys.Left:
+                    MoveFocusedDate(-1);
+                    break;
+                case Keys.Right:
+                    MoveFocusedDate(1);
+                    break;
+                case Keys.Up:
+                    MoveFocusedDate(-7);
+                    break;
+                case Keys.Down:
+                    MoveFocusedDate(7);
+                    break;
+                case Keys.Home:
+                    _focusedDate = _focusedDate.AddDays(-(int)_focusedDate.DayOfWeek);
+                    break;
+                case Keys.End:
+                    _focusedDate = _focusedDate.AddDays(6 - (int)_focusedDate.DayOfWeek);
+                    break;
+                case Keys.PageUp:
+                    NavigatePrevious();
+                    _focusedDate = _state.CurrentDate.Date;
+                    break;
+                case Keys.PageDown:
+                    NavigateNext();
+                    _focusedDate = _state.CurrentDate.Date;
+                    break;
+                case Keys.Enter:
+                    _state.SelectedDate = _focusedDate.Date;
+                    _state.CurrentDate = _focusedDate.Date;
+                    _state.SelectedEvent = _eventService.GetEventsForDate(_focusedDate.Date).FirstOrDefault();
+                    DateSelected?.Invoke(this, new CalendarDateArgs(_state.SelectedDate));
+                    if (_state.SelectedEvent != null)
+                    {
+                        EventSelected?.Invoke(this, new CalendarEventArgs(_state.SelectedEvent));
+                    }
+                    break;
+                default:
+                    handled = false;
+                    break;
+            }
+
+            if (!handled)
+            {
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            _keyboardFocusVisible = true;
+            _state.SelectedDate = _focusedDate.Date;
+            _state.CurrentDate = _focusedDate.Date;
+
+            if (_state.ViewMode == CalendarViewMode.Month)
+            {
+                InvalidateDateCell(previousFocusDate);
+                InvalidateDateCell(_focusedDate.Date);
+            }
+            else
+            {
                 Invalidate();
             }
+
+            return true;
         }
 
         private void InitializeControls()
@@ -764,6 +945,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             _layout ??= new CalendarLayoutManager(this, _state, _rects);
 
+            Rectangle contentRect = GetContentRectForDrawing();
+            ApplyResponsiveButtonLabels(contentRect.Width);
+
             int tallestBtn = new[]
             {
                 _createEventButton?.Height ?? 30,
@@ -774,8 +958,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }.DefaultIfEmpty(30).Max();
 
             // Use the content rect from BaseControl instead of ClientRectangle
-            Rectangle contentRect = GetContentRectForDrawing();
-            _layout.UpdateLayout(contentRect, tallestBtn, CalendarLayoutMetrics.SidebarWidth, GridLeftGutter);
+            _layout.UpdateLayout(
+                contentRect,
+                tallestBtn,
+                ScaleMetric(CalendarLayoutMetrics.SidebarWidth),
+                ScaleMetric(GridLeftGutter));
 
             if (!_controlsInitialized || _prevButton == null || _nextButton == null || _todayButton == null || _createEventButton == null ||
                 _monthViewButton == null || _weekViewButton == null || _dayViewButton == null || _listViewButton == null)
@@ -785,8 +972,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             // CRITICAL FIX: Position buttons relative to DrawingRect, not absolute coordinates
             // This ensures buttons stay within the proper content area defined by BaseControl
-            int spacing = 8; 
-            int margin = 10;
+            int spacing = ScaleMetric(CalendarLayoutMetrics.ControlSpacing); 
+            int margin = ScaleMetric(CalendarLayoutMetrics.OuterMargin);
 
             // All button positioning should be offset by the content rectangle
             int baseX = contentRect.X;
@@ -828,6 +1015,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _listViewButton.BackColor  = _state.ViewMode == CalendarViewMode.List  ? selectedColor : normalColor;
         }
 
+        private void ApplyResponsiveButtonLabels(int availableWidth)
+        {
+            if (_todayButton == null || _monthViewButton == null || _weekViewButton == null ||
+                _dayViewButton == null || _listViewButton == null || _createEventButton == null)
+            {
+                return;
+            }
+
+            CalendarToolbarLabelMode requestedMode = availableWidth < 720
+                ? CalendarToolbarLabelMode.Compact
+                : availableWidth < 980
+                    ? CalendarToolbarLabelMode.Medium
+                    : CalendarToolbarLabelMode.Full;
+
+            if (_toolbarLabelMode == requestedMode)
+            {
+                return;
+            }
+
+            _toolbarLabelMode = requestedMode;
+            switch (requestedMode)
+            {
+                case CalendarToolbarLabelMode.Compact:
+                    _todayButton.Text = "T";
+                    _monthViewButton.Text = "M";
+                    _weekViewButton.Text = "W";
+                    _dayViewButton.Text = "D";
+                    _listViewButton.Text = "L";
+                    _createEventButton.Text = "+";
+                    break;
+
+                case CalendarToolbarLabelMode.Medium:
+                    _todayButton.Text = "Today";
+                    _monthViewButton.Text = "Mon";
+                    _weekViewButton.Text = "Week";
+                    _dayViewButton.Text = "Day";
+                    _listViewButton.Text = "List";
+                    _createEventButton.Text = "+ Event";
+                    break;
+
+                default:
+                    _todayButton.Text = "Today";
+                    _monthViewButton.Text = "Month";
+                    _weekViewButton.Text = "Week";
+                    _dayViewButton.Text = "Day";
+                    _listViewButton.Text = "List";
+                    _createEventButton.Text = "+ Create Event";
+                    break;
+            }
+        }
+
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -839,11 +1077,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             
             if (UseThemeFont)
             {
-                if (_currentTheme.CalendarTitleFont != null) HeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarTitleFont);
-                if (_currentTheme.DaysHeaderFont != null) DaysHeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.DaysHeaderFont);
-                if (_currentTheme.DateFont != null) DayFont = FontListHelper.CreateFontFromTypography(_currentTheme.DateFont);
-                if (_currentTheme.CalendarSelectedFont != null) EventFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarSelectedFont);
-                if (_currentTheme.CalendarUnSelectedFont != null) TimeFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
+                ApplyThemeTypography();
             }
             foreach (Control control in Controls)
             {
@@ -855,6 +1089,132 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             UpdateViewButtonStates();
             UpdateLayout();
             Invalidate();
+        }
+
+        private void ApplyThemeTypography()
+        {
+            HeaderFont = ResolveFont(_currentTheme?.CalendarTitleFont, HeaderFont);
+            DaysHeaderFont = ResolveFont(_currentTheme?.DaysHeaderFont, DaysHeaderFont);
+            DayFont = ResolveFont(_currentTheme?.DateFont, DayFont);
+            EventFont = ResolveFont(_currentTheme?.CalendarSelectedFont, EventFont);
+            TimeFont = ResolveFont(_currentTheme?.CalendarUnSelectedFont, TimeFont);
+        }
+
+        private static Font ResolveFont(TypographyStyle style, Font fallback)
+        {
+            return style != null ? BeepThemesManager.ToFont(style) : fallback;
+        }
+
+        private void DrawPainterHeaderText(Graphics g, CalendarPainterContext ctx, string headerText, Rectangle textRect)
+        {
+            if (textRect.Width <= 0 || textRect.Height <= 0) return;
+
+            using (var brush = new SolidBrush(ctx.ForegroundColor))
+            using (var sf = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center,
+                Trimming = StringTrimming.EllipsisCharacter
+            })
+            {
+                g.DrawString(headerText, HeaderFont, brush, textRect, sf);
+            }
+        }
+
+        private float GetDensityScale()
+        {
+            return _densityMode == CalendarDensityMode.Compact ? 0.85f : 1.0f;
+        }
+
+        private int ScaleMetric(int baseValue)
+        {
+            return Math.Max(1, (int)Math.Round(baseValue * GetDensityScale()));
+        }
+
+        private void MoveFocusedDate(int deltaDays)
+        {
+            _focusedDate = _focusedDate.AddDays(deltaDays);
+        }
+
+        private void InvalidateDateCell(DateTime? date)
+        {
+            if (!date.HasValue || _state.ViewMode != CalendarViewMode.Month)
+            {
+                return;
+            }
+
+            var cellRect = TryGetMonthCellRect(date.Value.Date);
+            if (cellRect.HasValue)
+            {
+                Invalidate(cellRect.Value);
+            }
+        }
+
+        private Rectangle? TryGetMonthCellRect(DateTime date)
+        {
+            var grid = _rects.CalendarGridRect;
+            int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
+            if (grid.Width <= 0 || grid.Height <= dayHeaderHeight)
+            {
+                return null;
+            }
+
+            var firstDayOfMonth = new DateTime(_state.CurrentDate.Year, _state.CurrentDate.Month, 1);
+            var firstDayOfCalendar = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
+            int offset = (date.Date - firstDayOfCalendar.Date).Days;
+            if (offset < 0 || offset > 41)
+            {
+                return null;
+            }
+
+            int col = offset % 7;
+            int row = offset / 7;
+            int cellWidth = grid.Width / 7;
+            int cellHeight = (grid.Height - dayHeaderHeight) / 6;
+
+            return new Rectangle(
+                grid.X + (col * cellWidth),
+                grid.Y + dayHeaderHeight + (row * cellHeight),
+                cellWidth,
+                cellHeight);
+        }
+
+        private Rectangle GetHeaderTextBounds()
+        {
+            var headerRect = _rects.HeaderRect;
+            if (headerRect.Width <= 0 || headerRect.Height <= 0)
+            {
+                return Rectangle.Empty;
+            }
+
+            int navRightAnchor = Math.Max(_todayButton?.Right ?? headerRect.X, _nextButton?.Right ?? headerRect.X);
+            int leftFromNav = navRightAnchor + CalendarLayoutMetrics.HeaderTextSpacingFromNav;
+            int leftFromPadding = headerRect.X + Math.Max(0, HeaderLeftPadding);
+            int leftFromGrid = Math.Max(headerRect.X, _rects.CalendarGridRect.Left);
+            int availableLeft = Math.Max(Math.Max(leftFromNav, leftFromPadding), leftFromGrid);
+
+            int rightFromPadding = headerRect.Right - Math.Max(0, HeaderRightPadding);
+            int rightFromGrid = _rects.CalendarGridRect.Width > 0
+                ? Math.Min(headerRect.Right, _rects.CalendarGridRect.Right)
+                : headerRect.Right;
+            int availableRight = Math.Min(rightFromPadding, rightFromGrid);
+
+            if (availableRight <= availableLeft)
+            {
+                availableLeft = headerRect.X + Math.Max(0, HeaderLeftPadding);
+                availableRight = headerRect.Right - Math.Max(0, HeaderRightPadding);
+                if (availableRight <= availableLeft)
+                {
+                    availableLeft = headerRect.X;
+                    availableRight = headerRect.Right;
+                }
+            }
+
+            return new Rectangle(
+                availableLeft,
+                headerRect.Y,
+                Math.Max(1, availableRight - availableLeft),
+                headerRect.Height);
         }
 
         private void NavigatePrevious()
@@ -975,6 +1335,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         Week,
         Day,
         List
+    }
+
+    public enum CalendarDensityMode
+    {
+        Compact,
+        Comfortable
+    }
+
+    internal enum CalendarToolbarLabelMode
+    {
+        Full,
+        Medium,
+        Compact
     }
 
     /// <summary>

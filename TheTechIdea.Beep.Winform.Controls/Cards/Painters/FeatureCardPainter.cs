@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -36,47 +37,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 10f, FontStyle.Regular);
+_titleFont = titleFont;
+            _descFont = bodyFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int iconCirclePadding = DpiScalingHelper.ScaleValue(IconCirclePadding, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descHeightMin = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Center the icon horizontally at top
-            int iconAreaWidth = drawingRect.Width - Padding * 2;
-            int iconX = drawingRect.Left + (drawingRect.Width - IconSize) / 2;
+            int iconAreaWidth = drawingRect.Width - padding * 2;
+            int iconX = drawingRect.Left + (drawingRect.Width - iconSize) / 2;
             
             ctx.ImageRect = new Rectangle(
                 iconX,
-                drawingRect.Top + Padding + IconCirclePadding,
-                IconSize,
-                IconSize);
+                drawingRect.Top + padding + iconCirclePadding,
+                iconSize,
+                iconSize);
             
             // Title centered below icon
-            int contentTop = ctx.ImageRect.Bottom + IconCirclePadding + ElementGap;
+            int contentTop = ctx.ImageRect.Bottom + iconCirclePadding + elementGap;
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
-                drawingRect.Width - Padding * 2,
-                TitleHeight);
+                drawingRect.Width - padding * 2,
+                titleHeight);
             
             // Description below title
-            int descHeight = Math.Max(40, drawingRect.Bottom - ctx.HeaderRect.Bottom - Padding - ElementGap);
+            int descHeight = Math.Max(descHeightMin, drawingRect.Bottom - ctx.HeaderRect.Bottom - padding - elementGap);
             ctx.ParagraphRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Bottom + elementGap,
                 ctx.HeaderRect.Width,
                 descHeight);
             
@@ -97,10 +98,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw accent circle behind icon
             if (!ctx.ImageRect.IsEmpty)
             {
-                int circleSize = IconSize + IconCirclePadding * 2;
+                int iconCirclePadding = DpiScalingHelper.ScaleValue(IconCirclePadding, _owner);
+                int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+                int circleSize = iconSize + iconCirclePadding * 2;
                 var circleRect = new Rectangle(
-                    ctx.ImageRect.X - IconCirclePadding,
-                    ctx.ImageRect.Y - IconCirclePadding,
+                    ctx.ImageRect.X - iconCirclePadding,
+                    ctx.ImageRect.Y - iconCirclePadding,
                     circleSize,
                     circleSize);
                 
@@ -112,9 +115,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw badge if present
             if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
-                using var font = new Font(_owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif, 8f, FontStyle.Bold);
                 CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
-                    ctx.Badge1BackColor, ctx.Badge1ForeColor, font);
+                    ctx.Badge1BackColor, ctx.Badge1ForeColor, _descFont);
             }
         }
         
@@ -130,11 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

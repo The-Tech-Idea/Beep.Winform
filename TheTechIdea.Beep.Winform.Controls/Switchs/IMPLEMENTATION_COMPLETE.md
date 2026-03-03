@@ -153,9 +153,9 @@ mySwitch.CheckedChanged += (s, e) =>
 {
     var sw = (BeepSwitch)s;
     if (sw.Checked)
-        Console.WriteLine("Switch is ON!");
+      //  Console.WriteLine("Switch is ON!");
     else
-        Console.WriteLine("Switch is OFF!");
+      //  Console.WriteLine("Switch is OFF!");
 };
 ```
 

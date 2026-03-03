@@ -112,7 +112,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     function.Dispose();
                 }
                 _childExternalDrawers.Remove(child);
-                _owner.Invalidate();
+                if (!_owner.IsDisposed && !_owner.Disposing)
+                {
+                    _owner.Invalidate();
+                }
             }
         }
 
@@ -127,17 +130,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
 
             _childExternalDrawers.Clear();
-            _owner.Invalidate();
+            if (!_owner.IsDisposed && !_owner.Disposing)
+            {
+                _owner.Invalidate();
+            }
         }
 
         public void PerformExternalDrawing(Graphics g, DrawingLayer layer)
         {
             if (_childExternalDrawers == null) return;
 
+            var staleChildren = new List<Control>();
             foreach (var kvp in _childExternalDrawers)
             {
                 Control childControl = kvp.Key;
                 var list = kvp.Value;
+
+                if (childControl == null || childControl.IsDisposed || childControl.Disposing)
+                {
+                    staleChildren.Add(childControl);
+                    continue;
+                }
 
                 if (!childControl.Visible) continue;
 
@@ -145,7 +158,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 {
                     if (drawingFunction.Layer == layer && drawingFunction.Redraw && drawingFunction.IsValid)
                     {
-                        drawingFunction.Invoke(g, childControl.Bounds);
+                        try
+                        {
+                            drawingFunction.Invoke(g, childControl.Bounds);
+                        }
+                        catch
+                        {
+                            // Ignore child drawing errors to keep parent painting stable.
+                        }
+                    }
+                }
+            }
+
+            if (staleChildren.Count > 0)
+            {
+                foreach (var stale in staleChildren)
+                {
+                    if (stale != null)
+                    {
+                        _childExternalDrawers.Remove(stale);
                     }
                 }
             }

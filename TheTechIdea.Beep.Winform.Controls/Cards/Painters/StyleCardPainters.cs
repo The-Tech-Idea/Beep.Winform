@@ -13,39 +13,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     /// </summary>
     internal static class CardRenderingHelpers
     {
-        // Simple font cache keyed by family+size+style
-        private static readonly Dictionary<string, Font> _fontCache = new Dictionary<string, Font>();
-        private static Font GetCachedFont(FontFamily family, float size, FontStyle style)
-        {
-            string key = $"{family.Name}-{size}-{(int)style}";
-            if (_fontCache.TryGetValue(key, out var f)) return f;
-            try
-            {
-                f = new Font(family, size, style);
-            }
-            catch
-            {
-                f = SystemFonts.DefaultFont;
-            }
-            _fontCache[key] = f;
-            return f;
-        }
-
         /// <summary>
         /// Draws chip/tag elements in a horizontal row
         /// </summary>
-        public static void DrawChips(Graphics g, BaseControl owner, Rectangle area, Color accent, IEnumerable<string> tags)
+        public static void DrawChips(Graphics g, BaseControl owner, Rectangle area, Color accent, IEnumerable<string> tags, Font font = null)
         {
             if (tags == null || !tags.Any()) return;
 
             int x = area.Left, y = area.Top, h = Math.Min(24, area.Height);
-            var font = GetCachedFont(owner.Font.FontFamily,8.5f, FontStyle.Regular);
+            var chipFont = font ?? SystemFonts.DefaultFont;
 
             foreach (var tag in tags)
             {
                 if (string.IsNullOrWhiteSpace(tag)) continue;
 
-                var textSize = TextUtils.MeasureText(g, tag, font);
+                var textSize = TextUtils.MeasureText(g, tag, chipFont);
                 int w = Math.Min(120, (int)(textSize.Width +16));
                 if (x + w > area.Right -8) break;
 
@@ -60,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 
                 var textRect = new Rectangle(chipRect.X +8, chipRect.Y, chipRect.Width -16, chipRect.Height);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(tag, font, textBrush, textRect, format);
+                g.DrawString(tag, chipFont, textBrush, textRect, format);
 
                 x += w +8;
             }
@@ -144,6 +126,67 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             var textBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Color.Black));
             var format = new StringFormat { LineAlignment = StringAlignment.Center };
             g.DrawString(text, font, textBrush, textRect, format);
+        }
+
+        /// <summary>
+        /// Draws a reusable focus ring around a card.
+        /// </summary>
+        public static void DrawFocusRing(Graphics g, Rectangle rect, int radius, Color color, float thickness)
+        {
+            if (rect.IsEmpty || thickness <= 0f) return;
+
+            var inset = Math.Max(1, (int)Math.Ceiling(thickness));
+            var focusRect = Rectangle.Inflate(rect, -inset, -inset);
+            if (focusRect.Width <= 0 || focusRect.Height <= 0) return;
+
+            using var path = CreateRoundedPath(focusRect, Math.Max(0, radius - inset));
+            using var pen = new Pen(color, thickness) { Alignment = PenAlignment.Inset };
+            g.DrawPath(pen, path);
+        }
+
+        /// <summary>
+        /// Draws a clipped ripple overlay inside card bounds.
+        /// </summary>
+        public static void DrawRippleOverlay(Graphics g, Rectangle rect, int radius, Point center, float rippleRadius, int rippleAlpha, Color rippleColor)
+        {
+            if (rect.IsEmpty || rippleRadius <= 0f || rippleAlpha <= 0) return;
+
+            using var clipPath = CreateRoundedPath(rect, radius);
+            var oldClip = g.Clip;
+            g.SetClip(clipPath);
+            using var brush = new SolidBrush(Color.FromArgb(Math.Min(255, rippleAlpha), rippleColor));
+            g.FillEllipse(
+                brush,
+                center.X - rippleRadius,
+                center.Y - rippleRadius,
+                rippleRadius * 2f,
+                rippleRadius * 2f);
+            g.Clip = oldClip;
+        }
+
+        /// <summary>
+        /// Draws shimmer skeleton placeholders for loading state.
+        /// </summary>
+        public static void DrawShimmerSkeleton(Graphics g, Rectangle bounds, int radius, float phase, Color baseColor, Color shimmerColor)
+        {
+            if (bounds.IsEmpty) return;
+
+            using var cardPath = CreateRoundedPath(bounds, radius);
+            using var baseBrush = new SolidBrush(baseColor);
+            g.FillPath(baseBrush, cardPath);
+
+            int shimmerWidth = Math.Max(12, bounds.Width / 3);
+            int shimmerX = bounds.X - shimmerWidth + (int)((bounds.Width + shimmerWidth * 2) * phase);
+            using var shimmerBrush = new LinearGradientBrush(
+                new Rectangle(shimmerX, bounds.Y, shimmerWidth, bounds.Height),
+                Color.FromArgb(0, shimmerColor),
+                Color.FromArgb(170, shimmerColor),
+                LinearGradientMode.Horizontal);
+
+            var oldClip = g.Clip;
+            g.SetClip(cardPath);
+            g.FillRectangle(shimmerBrush, shimmerX, bounds.Y, shimmerWidth, bounds.Height);
+            g.Clip = oldClip;
         }
 
         /// <summary>

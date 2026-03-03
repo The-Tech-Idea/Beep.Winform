@@ -138,6 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Tokyo => 14,
                 BeepControlStyle.Ubuntu => 6,                 // Ubuntu/Yaru: subtle like GNOME
                 BeepControlStyle.Retro => 4,                     // Retro tight shadow
+                BeepControlStyle.Shadcn => 2,                    // Shadcn: subtleShadow spread=1
+                BeepControlStyle.RadixUI => 3,                   // Radix: subtleShadow spread=1+offsetY=2
+                BeepControlStyle.NextJS => 5,                    // Next.js: cardShadow Medium spread=3
+                BeepControlStyle.Linear => 2,                    // Linear: subtleShadow spread=1
                 _ => 8
             };
         }
@@ -233,6 +237,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Tokyo => 7,
                 BeepControlStyle.Ubuntu => 2,                 // Ubuntu/Yaru: subtle below
                 BeepControlStyle.Retro => 2,                     // Retro offset
+                BeepControlStyle.Shadcn => 1,                    // Shadcn: 1px subtle drop
+                BeepControlStyle.RadixUI => 2,                   // Radix: 2px subtle drop
+                BeepControlStyle.NextJS => 2,                    // Next.js: card shadow offsetY=2
+                BeepControlStyle.Linear => 1,                    // Linear: 1px subtle (hover only)
                 _ => 2
             };
         }

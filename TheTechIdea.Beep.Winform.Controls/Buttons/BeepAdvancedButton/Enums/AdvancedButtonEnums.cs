@@ -48,7 +48,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums
         NeonGlow,
         
         /// <summary>News/broadcast banner button with badges</summary>
-        NewsBanner
+        NewsBanner,
+
+        /// <summary>Flat web UI button family (badges, search bars, segmented actions)</summary>
+        FlatWeb,
+
+        /// <summary>Broadcast lower-third UI family (headline bars, live tags, tickers)</summary>
+        LowerThird,
+
+        /// <summary>Comic/sticker style label family (speech bubbles, bursts, ribbons)</summary>
+        StickerLabel
     }
 
     /// <summary>
@@ -88,6 +97,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums
     }
 
     /// <summary>
+    /// Semantic intent used to map button visuals to consistent color roles.
+    /// </summary>
+    public enum ButtonIntent
+    {
+        /// <summary>Primary call-to-action.</summary>
+        Primary,
+
+        /// <summary>Secondary supporting action.</summary>
+        Secondary,
+
+        /// <summary>Tertiary low emphasis action.</summary>
+        Tertiary,
+
+        /// <summary>Destructive action.</summary>
+        Destructive,
+
+        /// <summary>Positive/success action.</summary>
+        Success,
+
+        /// <summary>Neutral action.</summary>
+        Neutral
+    }
+
+    /// <summary>
     /// Defines the shape of the button
     /// </summary>
     public enum ButtonShape
@@ -112,5 +145,117 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums
         
         /// <summary>Custom shape defined by painter</summary>
         Custom
+    }
+
+    /// <summary>
+    /// Explicit variant selector for news banner painter layouts.
+    /// </summary>
+    public enum NewsBannerVariant
+    {
+        /// <summary>Use painter heuristics to select a layout.</summary>
+        Auto,
+        CircleBadgeLeft,
+        RectangleBadgeLeft,
+        AngledBadgeLeft,
+        ChevronRight,
+        ChevronBoth,
+        FlagLeft,
+        AngledTwoTone,
+        SlantedEdges,
+        PillWithIcon,
+        BNLiveCircleBanner,
+        BNSquareGreenBanner,
+        BreakingNewsGlobe,
+        LightningBreakingNews,
+        LightningBreakingNewsLive,
+        LiveWorldNewsPill,
+        MorningLiveYellowBanner,
+        NewsLiveCirclePink,
+        SportNewsCirclePill,
+        TwentyFourTVNews,
+        TwentyFourWorldNewsHexagon,
+        WorldNewsGlobePill
+    }
+
+    /// <summary>
+    /// Explicit variant selector for contact/CTA painter layouts.
+    /// </summary>
+    public enum ContactVariant
+    {
+        /// <summary>Use painter heuristics to select a layout.</summary>
+        Auto,
+        IconCircleLeft1,
+        IconSquareLeft2,
+        IconCirclesLeftPill3,
+        IconCircleRightPill4,
+        IconDiagonalLeft5,
+        IconSquareLeft6,
+        IconArrowLeftPill7,
+        IconInsidePillBorder8,
+        Standard,
+        IconLeftSplit,
+        IconRightSplit,
+        IconLeftCircle,
+        IconRightCircle,
+        IconLeftAngled,
+        IconLeftArrow,
+        Outlined
+    }
+
+    /// <summary>
+    /// Explicit variant selector for navigation chevron painter layouts.
+    /// </summary>
+    public enum ChevronVariant
+    {
+        /// <summary>Use painter heuristics to select a layout.</summary>
+        Auto,
+        LeftIconRightChevron,
+        LeftChevronRightIcon,
+        BothChevrons,
+        LeftIconCenterChevron
+    }
+
+    /// <summary>
+    /// Explicit variants for flat web button family.
+    /// </summary>
+    public enum FlatWebVariant
+    {
+        Auto,
+        LeftBadgeAction,
+        RightNotchSearch,
+        SegmentedIconAction,
+        SearchPillNotch,
+        ToolbarSegment,
+        RightArrowTagSearch,
+        LeftPointTagSearch,
+        MagnifierBubbleLeft
+    }
+
+    /// <summary>
+    /// Explicit variants for broadcast lower-third family.
+    /// </summary>
+    public enum LowerThirdVariant
+    {
+        Auto,
+        HeadlineBar,
+        LiveTagHeadline,
+        ReportSplit,
+        TickerStrip,
+        TickerChevron,
+        LocationHeadlineBlock,
+        CompactLiveTag,
+        ReportStacked
+    }
+
+    /// <summary>
+    /// Explicit variants for comic/sticker label family.
+    /// </summary>
+    public enum StickerLabelVariant
+    {
+        Auto,
+        SpeechBubble,
+        CloudTag,
+        BurstBadge,
+        ComicRibbon
     }
 }

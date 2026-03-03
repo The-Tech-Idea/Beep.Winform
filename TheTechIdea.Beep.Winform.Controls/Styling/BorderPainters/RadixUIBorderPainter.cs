@@ -18,25 +18,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border",
                 Color.FromArgb(214, 211, 209)); // Radix UI default
             
-            float borderWidth = 1f;
+            float borderWidth = 1.5f;
 
             if (isFocused)
             {
-                // Radix UI uses prominent focus rings for accessibility
-                BorderPainterHelpers.PaintFocusRing(g, path,
-                    BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary",
-                        Color.FromArgb(0, 122, 255)), // Radix blue
-                    2f, BorderPainterHelpers.FocusRingStyle.Outline);
-                
+                // Radix UI focused: single inset-aligned border in primary color.
                 borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary",
-                    Color.FromArgb(0, 122, 255));
+                    Color.FromArgb(99, 102, 241)); // Radix indigo
                 borderWidth = 2f;
+            }
+            else if (state == ControlState.Hovered)
+            {
+                borderWidth = 1.8f;
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 220));
             }
             else if (state == ControlState.Normal)
             {
-                // Idle parity baseline for web-style controls.
-                borderWidth = 1.2f;
-                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 180));
+                borderWidth = 1.5f;
+                borderColor = BorderPainterHelpers.WithAlpha(borderColor, Math.Max((int)borderColor.A, 200));
             }
 
             borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);

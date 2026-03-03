@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 if (glowHeight > 2)
                 {
                     var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, glowHeight);
-                    var grad = PaintersFactory.GetLinearGradientBrush(
+                    using var grad = PaintersFactory.CreateLinearGradientBrush(
                         topRect,
                         Color.FromArgb(25, accent),
                         Color.Transparent,

@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 {
                     // Add subtle top highlight for acrylic effect
                     var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height / 4f);
-                    var acrylicHighlight = PaintersFactory.GetLinearGradientBrush(
+                    using var acrylicHighlight = PaintersFactory.CreateLinearGradientBrush(
                         topRect,
                         Color.FromArgb(30, Color.White),
                         Color.Transparent,

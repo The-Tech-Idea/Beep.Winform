@@ -25,11 +25,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         // Header text margins to avoid overlap with buttons
         public int HeaderLeftMargin { get; }
         public int HeaderRightMargin { get; }
+        public float DensityScale { get; }
 
         public CalendarRenderContext(BaseControl owner, IBeepTheme theme,
             Font headerFont, Font dayFont, Font eventFont, Font timeFont, Font daysHeaderFont,
             CalendarState state, CalendarRects rects, CalendarEventService eventService,
-            List<EventCategory> categories, int headerLeftMargin = 160, int headerRightMargin = 20)
+            List<EventCategory> categories, int headerLeftMargin = 160, int headerRightMargin = 20, float densityScale = 1.0f)
         {
             Owner = owner;
             Theme = theme;
@@ -44,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             Categories = categories;
             HeaderLeftMargin = headerLeftMargin;
             HeaderRightMargin = headerRightMargin;
+            DensityScale = densityScale <= 0 ? 1.0f : densityScale;
         }
     }
 }

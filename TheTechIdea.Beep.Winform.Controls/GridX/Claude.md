@@ -535,7 +535,7 @@ using (var pen = new Pen(Color.Red, 2))
 var hitAreas = grid.GetHitAreas(); // Not public, but useful in debug
 foreach (var area in hitAreas)
 {
-    Console.WriteLine($"{area.Name}: {area.Rect}");
+  //  Console.WriteLine($"{area.Name}: {area.Rect}");
 }
 ```
 

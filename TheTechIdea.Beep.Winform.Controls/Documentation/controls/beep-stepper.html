@@ -574,9 +574,9 @@ this.Controls.Add(verticalStepper);</code></pre>
 stepper.SelectedItemChanged += (sender, e) =>
 {
     var selectedItem = e.Item;
-    Console.WriteLine($"Step selected: {selectedItem.Name}");
-    Console.WriteLine($"Step text: {selectedItem.Text}");
-    Console.WriteLine($"Is completed: {selectedItem.IsChecked}");
+  //  Console.WriteLine($"Step selected: {selectedItem.Name}");
+  //  Console.WriteLine($"Step text: {selectedItem.Text}");
+  //  Console.WriteLine($"Is completed: {selectedItem.IsChecked}");
     
     // Handle specific step logic
     HandleStepChange(selectedItem);

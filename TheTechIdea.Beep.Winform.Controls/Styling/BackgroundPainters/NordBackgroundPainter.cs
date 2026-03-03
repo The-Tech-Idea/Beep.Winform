@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             {
                 // Frost glow from top (aurora effect)
                 var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height / 3f);
-                var frostBrush = PaintersFactory.GetLinearGradientBrush(
+                using var frostBrush = PaintersFactory.CreateLinearGradientBrush(
                     topRect,
                     Color.FromArgb(10, frost),
                     Color.FromArgb(0, frost),

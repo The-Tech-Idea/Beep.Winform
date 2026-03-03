@@ -38,25 +38,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
         {
             return style switch
             {
-                // Material Design styles
+                // High-fidelity native implementations
                 BeepControlStyle.Material3 => new Material3DialogPainter(),
-                BeepControlStyle.Material => new Material3DialogPainter(),
-                BeepControlStyle.MaterialYou => new Material3DialogPainter(),
-
-                // Fluent Design styles
-                BeepControlStyle.Fluent => new FluentDialogPainter(),
                 BeepControlStyle.Fluent2 => new FluentDialogPainter(),
+                BeepControlStyle.MaterialYou => new Material3DialogPainter(),
                 BeepControlStyle.Windows11Mica => new FluentDialogPainter(),
-
-                // Glassmorphism styles
                 BeepControlStyle.Glassmorphism => new GlassmorphismDialogPainter(),
                 BeepControlStyle.GlassAcrylic => new GlassmorphismDialogPainter(),
-                BeepControlStyle.GradientModern => new GlassmorphismDialogPainter(),
-
-                // Neumorphism styles
                 BeepControlStyle.Neumorphism => new NeumorphismDialogPainter(),
+                BeepControlStyle.Material => new Material3DialogPainter(),
+                BeepControlStyle.Fluent => new FluentDialogPainter(),
 
-                // Default to BeepStyledDialogPainter for other styles
+                // Glass-forward family
+                BeepControlStyle.GradientModern => new GlassmorphismDialogPainter(),
+                BeepControlStyle.DarkGlow => new GlassmorphismDialogPainter(),
+                BeepControlStyle.DiscordStyle => new GlassmorphismDialogPainter(),
+                BeepControlStyle.Holographic => new GlassmorphismDialogPainter(),
+                BeepControlStyle.NeonGlow => new GlassmorphismDialogPainter(),
+
+                // Soft depth family
+                BeepControlStyle.MacOSBigSur => new NeumorphismDialogPainter(),
+                BeepControlStyle.iOS15 => new NeumorphismDialogPainter(),
+                BeepControlStyle.Apple => new NeumorphismDialogPainter(),
+
+                // Modern commercial family on style-driven painter
+                BeepControlStyle.AntDesign => new BeepStyledDialogPainter(),
+                BeepControlStyle.ChakraUI => new BeepStyledDialogPainter(),
+                BeepControlStyle.TailwindCard => new BeepStyledDialogPainter(),
+                BeepControlStyle.NotionMinimal => new BeepStyledDialogPainter(),
+                BeepControlStyle.Minimal => new BeepStyledDialogPainter(),
+                BeepControlStyle.VercelClean => new BeepStyledDialogPainter(),
+                BeepControlStyle.StripeDashboard => new BeepStyledDialogPainter(),
+                BeepControlStyle.Bootstrap => new BeepStyledDialogPainter(),
+                BeepControlStyle.Shadcn => new BeepStyledDialogPainter(),
+                BeepControlStyle.RadixUI => new BeepStyledDialogPainter(),
+                BeepControlStyle.NextJS => new BeepStyledDialogPainter(),
+                BeepControlStyle.Linear => new BeepStyledDialogPainter(),
                 _ => new BeepStyledDialogPainter()
             };
         }

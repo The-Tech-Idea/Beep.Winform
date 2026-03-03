@@ -11,19 +11,92 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepComboBox
     {
         #region Drawing
-        
+
+      
+        private static void DrawChevronDesignTime(Graphics g, Rectangle btnR, Color fg)
+        {
+            int cx = btnR.Left + btnR.Width / 2;
+            int cy = btnR.Top  + btnR.Height / 2;
+            int hw = Math.Max(3, btnR.Width  / 4);
+            int hh = Math.Max(2, btnR.Height / 8);
+            var pts = new[]
+            {
+                new PointF(cx - hw, cy - hh),
+                new PointF(cx,      cy + hh),
+                new PointF(cx + hw, cy - hh)
+            };
+            using var pen = new Pen(fg, 1.5f) { LineJoin = LineJoin.Round };
+            g.DrawLines(pen, pts);
+        }
+
         /// <summary>
-        /// DrawContent override - called by BaseControl.
-        /// First calls base to let ClassicBaseControlPainter draw border/background/shadow,
-        /// then paints the ComboBox-specific content inside DrawingRect.
+        /// DrawContent override — follows BeepButton's paint-only pattern:
+        ///   base.DrawContent(g)  →  UpdateDrawingRect()  →  compute fresh layout  →  paint.
+        /// All layout rects are recalculated every frame from the current DrawingRect,
+        /// exactly like BeepButton does with contentRect = DrawingRect → CalculateLayout.
+        /// This eliminates stale cached rects that caused arrow-resizing, editor-drift,
+        /// and layout shifts on style/focus/theme changes.
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
-            // Let BaseControl's ClassicBaseControlPainter draw border, background, shadow
+         
+            // 1 — BaseControl: border, background, DrawingRect
             base.DrawContent(g);
-            
-            // Now paint ComboBox content (text, dropdown button, etc.) inside the DrawingRect
-            Paint(g, DrawingRect);
+            UpdateDrawingRect();
+            if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0) return;
+
+            // 2 — Fresh layout from current DrawingRect (no caching, no stored padding)
+            _helper.CalculateLayout(DrawingRect, out _textAreaRect, out _dropdownButtonRect, out _imageRect);
+
+            // 2b — Clear-button carve-out
+            if (ShowClearButton && (_selectedItem != null || !string.IsNullOrEmpty(_inputText)))
+            {
+                int cbw = Math.Max(16, Math.Min(ScaleLogicalX(ClearButtonWidthLogical), _textAreaRect.Width / 4));
+                _clearButtonRect = new Rectangle(
+                    _dropdownButtonRect.Left - cbw,
+                    DrawingRect.Y, cbw, DrawingRect.Height);
+                _textAreaRect = new Rectangle(
+                    _textAreaRect.X, _textAreaRect.Y,
+                    Math.Max(1, _textAreaRect.Width - cbw), _textAreaRect.Height);
+            }
+            else
+            {
+                _clearButtonRect = Rectangle.Empty;
+            }
+
+            // 2c — RTL mirror
+            if (IsRtl && !DrawingRect.IsEmpty)
+            {
+                _dropdownButtonRect = MirrorRect(_dropdownButtonRect, DrawingRect);
+                _textAreaRect       = MirrorRect(_textAreaRect,       DrawingRect);
+                _clearButtonRect    = _clearButtonRect.IsEmpty ? Rectangle.Empty
+                                     : MirrorRect(_clearButtonRect, DrawingRect);
+                if (!_imageRect.IsEmpty)
+                    _imageRect = MirrorRect(_imageRect, DrawingRect);
+            }
+
+            // 3 — Sync inline editor
+            if (_inlineEditor != null && _inlineEditor.Visible)
+            {
+                if (_inlineEditor.Bounds != _textAreaRect)
+                    _inlineEditor.Bounds = _textAreaRect;
+            }
+
+            // 4 — Painter
+            if (_comboBoxPainter == null)
+            {
+                _comboBoxPainter = CreatePainter(_comboBoxType);
+                _comboBoxPainter.Initialize(this, _currentTheme);
+            }
+            _comboBoxPainter.Paint(g, this, DrawingRect);
+
+            // 5 — Loading overlay
+            if (_isLoading) DrawLoadingIndicator(g, DrawingRect);
+
+            // 6 — Hit areas
+            if (!_isLoading) RegisterHitAreas();
+
+           
         }
 
         /// <summary>
@@ -60,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 Font textFont = TextFont
                     ?? BeepThemesManager.ToFont(_currentTheme?.LabelFont)
-                    ?? new Font("Segoe UI", 9f, FontStyle.Regular);
+                    ?? Font;
 
                 int hInset = ScaleLogicalX(6);
                 var textBounds = new Rectangle(
@@ -102,47 +175,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        /// <summary>
-        /// Main paint function - centralized painting logic
-        /// Called from both DrawContent and Draw
-        /// </summary>
-        private void Paint(Graphics g, Rectangle bounds)
-        {
-            if (bounds.Width <= 0 || bounds.Height <= 0) return;
-            
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            
-            // Ensure painter exists for current type
-            if (_comboBoxPainter == null)
-            {
-                _comboBoxPainter = CreatePainter(_comboBoxType);
-                _comboBoxPainter.Initialize(this, _currentTheme);
-            }
-            
-            // Update layout ONLY if needed (not on every paint)
-            if (_needsLayoutUpdate || !_layoutCacheValid)
-            {
-                UpdateLayout();
-                _needsLayoutUpdate = false;
-            }
-            
-            // Let the combo box painter draw everything
-            _comboBoxPainter.Paint(g, this, bounds);
-            
-            // Draw loading indicator if loading
-            if (_isLoading)
-            {
-                DrawLoadingIndicator(g, bounds);
-            }
-            
-            // Register hit areas for interaction (disabled when loading)
-            if (!_isLoading)
-            {
-                RegisterHitAreas();
-            }
-        }
-        
         /// <summary>
         /// Draws the loading spinner indicator
         /// </summary>
@@ -242,33 +274,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Hit Area Registration
         
         /// <summary>
-        /// Registers interactive hit areas using BaseControl's hit test system
+        /// Registers interactive hit areas using BaseControl's hit test system.
+        /// These are used for hover-detection and cursor changes.
+        /// All actual click actions are handled in OnMouseDown for reliability (exact press location,
+        /// fires on press not release). Hit actions here are intentionally null to prevent
+        /// double-invocation when the Click event also fires after MouseDown.
         /// </summary>
         private void RegisterHitAreas()
         {
             // Clear previous hit areas
             ClearHitList();
-            
-            // Register dropdown button hit area
+
+            // Register dropdown button - action is null; click is handled in OnMouseDown
             if (!_dropdownButtonRect.IsEmpty)
             {
-                AddHitArea("DropdownButton", _dropdownButtonRect, null, TogglePopup);
+                AddHitArea("DropdownButton", _dropdownButtonRect, null, null);
             }
-            
-            // Register text area hit area (for editable mode or focus)
+
+            // Register text area - editable-mode start-editing is also handled in OnMouseDown
             if (!_textAreaRect.IsEmpty)
             {
-                AddHitArea("TextArea", _textAreaRect, null, () =>
-                {
-                    if (IsEditable)
-                    {
-                        StartEditing();
-                    }
-                    else
-                    {
-                        Focus();
-                    }
-                });
+                AddHitArea("TextArea", _textAreaRect, null, null);
             }
         }
         

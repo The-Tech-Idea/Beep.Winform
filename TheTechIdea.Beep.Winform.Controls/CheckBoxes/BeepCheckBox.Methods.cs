@@ -7,62 +7,128 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 {
     public partial class BeepCheckBox<T>
     {
+        private void ClearGraphicsCaches()
+        {
+            foreach (var brush in _brushCache.Values)
+            {
+                brush?.Dispose();
+            }
+            _brushCache.Clear();
+
+            foreach (var pen in _penCache.Values)
+            {
+                pen?.Dispose();
+            }
+            _penCache.Clear();
+
+            foreach (var path in _pathCache.Values)
+            {
+                path?.Dispose();
+            }
+            _pathCache.Clear();
+        }
+
+        private Rectangle GetDirtyRegion(bool includeText)
+        {
+            Rectangle dirty = _lastCheckBoxRect;
+            if (includeText)
+            {
+                dirty = dirty.IsEmpty ? _lastTextRect : Rectangle.Union(dirty, _lastTextRect);
+            }
+
+            if (dirty.IsEmpty)
+            {
+                dirty = DrawingRect.IsEmpty ? ClientRectangle : DrawingRect;
+            }
+
+            dirty.Inflate(4, 4);
+            return dirty;
+        }
+
+        private void RequestVisualRefresh(bool includeText)
+        {
+            _stateChanged = true;
+            Invalidate(GetDirtyRegion(includeText));
+        }
+
+        private T ResolveCheckedStateValue()
+        {
+            return _hasCheckedStateValue ? _checkedStateValue : _checkedValue;
+        }
+
+        private T ResolveUncheckedStateValue()
+        {
+            return _hasUncheckedStateValue ? _uncheckedStateValue : _uncheckedValue;
+        }
+
+        private T ResolveIndeterminateStateValue()
+        {
+            if (_hasIndeterminateStateValue)
+            {
+                return _indeterminateStateValue;
+            }
+
+            return _useUncheckedValueForIndeterminate
+                ? ResolveUncheckedStateValue()
+                : ResolveCheckedStateValue();
+        }
+
+        private T ResolveValueForState(CheckBoxState state)
+        {
+            return state switch
+            {
+                CheckBoxState.Checked => ResolveCheckedStateValue(),
+                CheckBoxState.Indeterminate => ResolveIndeterminateStateValue(),
+                _ => ResolveUncheckedStateValue()
+            };
+        }
+
         private void UpdateCurrentValue()
         {
-            _currentValue = _state == CheckBoxState.Checked ? _checkedValue : _uncheckedValue;
+            _currentValue = ResolveValueForState(_state);
             OnStateChanged();
         }
 
         private void UpdateStateFromValue()
         {
-            if (typeof(T) == typeof(bool))
+            if (EqualityComparer<T>.Default.Equals(_currentValue, ResolveCheckedStateValue()))
             {
-                bool current = Convert.ToBoolean(_currentValue);
-                bool checkedVal = Convert.ToBoolean(_checkedValue);
-                bool uncheckedVal = Convert.ToBoolean(_uncheckedValue);
-
-                if (current)
-                {
-                    _state = CheckBoxState.Checked;
-                }
-                else if (current == uncheckedVal)
-                {
-                    _state = CheckBoxState.Unchecked;
-                }
-                else
-                {
-                    _state = CheckBoxState.Indeterminate;
-                }
+                _state = CheckBoxState.Checked;
+            }
+            else if (EqualityComparer<T>.Default.Equals(_currentValue, ResolveUncheckedStateValue()))
+            {
+                _state = CheckBoxState.Unchecked;
+            }
+            else if (EqualityComparer<T>.Default.Equals(_currentValue, ResolveIndeterminateStateValue()))
+            {
+                _state = CheckBoxState.Indeterminate;
             }
             else
             {
-                if (_currentValue == null)
+                if (typeof(T) == typeof(bool))
+                {
+                    bool current = Convert.ToBoolean(_currentValue);
+                    _state = current ? CheckBoxState.Checked : CheckBoxState.Unchecked;
+                }
+                else if (_currentValue == null)
                 {
                     _state = CheckBoxState.Indeterminate;
-                }
-                else if (EqualityComparer<T>.Default.Equals(_currentValue, _checkedValue))
-                {
-                    _state = CheckBoxState.Checked;
-                }
-                else if (EqualityComparer<T>.Default.Equals(_currentValue, _uncheckedValue))
-                {
-                    _state = CheckBoxState.Unchecked;
                 }
                 else
                 {
                     _state = CheckBoxState.Indeterminate;
                 }
             }
-            Invalidate(); // Redraw without calling OnStateChanged
+            RequestVisualRefresh(includeText: true);
         }
 
         private void OnStateChanged()
         {
             // Only update CurrentValue if necessary, avoid recursion
-            T newValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
+            T newValue = ResolveValueForState(State);
             _currentValue = newValue; // Set directly, bypass setter to avoid recursion
             StateChanged?.Invoke(this, EventArgs.Empty);
-            Invalidate();
+            RequestVisualRefresh(includeText: true);
         }
 
         private void ToggleState()
@@ -79,7 +145,6 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                     State = CheckBoxState.Unchecked;
                     break;
             }
-            OnStateChanged();
         }
 
 

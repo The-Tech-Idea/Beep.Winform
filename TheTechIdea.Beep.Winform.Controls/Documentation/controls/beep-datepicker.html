@@ -214,7 +214,7 @@ this.Controls.Add(datePicker);
 
 // Handle date changes
 datePicker.SelectedDateTimeChanged += (sender, e) => {
-    Console.WriteLine($"Date selected: {datePicker.SelectedDateTime}");
+  //  Console.WriteLine($"Date selected: {datePicker.SelectedDateTime}");
 };</code></pre>
                     </div>
 
@@ -474,7 +474,7 @@ var customFormat = new BeepDatePicker
 // Handle date selection changes
 datePicker.SelectedDateTimeChanged += (sender, e) => {
     DateTime selectedDate = datePicker.SelectedDateTime;
-    Console.WriteLine($"Date selected: {selectedDate:yyyy-MM-dd HH:mm}");
+  //  Console.WriteLine($"Date selected: {selectedDate:yyyy-MM-dd HH:mm}");
     
     // Update related controls
     UpdateDependentFields(selectedDate);
@@ -485,13 +485,13 @@ datePicker.SelectedDateTimeChanged += (sender, e) => {
 
 // Handle calendar popup events
 datePicker.CalendarOpened += (sender, e) => {
-    Console.WriteLine("Calendar popup opened");
+  //  Console.WriteLine("Calendar popup opened");
     // Could pause other validations while user selects
 };
 
 // Handle validation failures
 datePicker.ValidationFailed += (sender, e) => {
-    Console.WriteLine($"Date validation failed: {e.ErrorMessage}");
+  //  Console.WriteLine($"Date validation failed: {e.ErrorMessage}");
     ShowValidationError(e.ErrorMessage);
 };</code></pre>
                     </div>
@@ -692,12 +692,12 @@ datePicker.ValidationFailed += (sender, e) => {
 // You can handle calendar events through the DatePicker events
 
 datePicker.CalendarOpened += (s, e) => {
-    Console.WriteLine("Calendar is now visible");
+  //  Console.WriteLine("Calendar is now visible");
     // Could implement custom logic when calendar opens
 };
 
 datePicker.CalendarClosed += (s, e) => {
-    Console.WriteLine("Calendar closed");
+  //  Console.WriteLine("Calendar closed");
     // Validate the selected date
     ValidateSelectedDate();
 };
@@ -750,7 +750,7 @@ foreach (var culture in cultures)
     };
     
     // The placeholder text automatically adjusts to the culture
-    Console.WriteLine($"{culture.Name}: {picker.GetPlaceholderText()}");
+  //  Console.WriteLine($"{culture.Name}: {picker.GetPlaceholderText()}");
 }</code></pre>
                     </div>
 

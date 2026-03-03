@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 string iconPath = iconOnRight ? context.IconRight : context.IconLeft;
                 if (string.IsNullOrEmpty(iconPath))
-                    iconPath = context.ImagePainter?.ImagePath;
+                    iconPath = GetPrimaryIconPath(context);
 
                 if (!string.IsNullOrEmpty(iconPath))
                 {
@@ -294,14 +294,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                             textBounds.Width,
                             textBounds.Height
                         );
-                        g.DrawString(context.Text, context.Font, glowBrush, glowTextBounds, format);
+                        g.DrawString(context.Text, context.TextFont, glowBrush, glowTextBounds, format);
                     }
                 }
 
                 // Draw main text (bright)
                 using (Brush textBrush = new SolidBrush(Color.FromArgb(255, Color.White)))
                 {
-                    g.DrawString(context.Text, context.Font, textBrush, textBounds, format);
+                    g.DrawString(context.Text, context.TextFont, textBrush, textBounds, format);
                 }
             }
         }

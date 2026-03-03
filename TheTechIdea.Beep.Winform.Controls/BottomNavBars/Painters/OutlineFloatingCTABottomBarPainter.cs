@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var g = context.Graphics;
             var barRect = context.Bounds;
             // draw base background
-            using (var br = new SolidBrush(context.BarBackColor == Color.Empty ? Color.White : context.BarBackColor))
+            using (var br = new SolidBrush(ResolveBarBack(context)))
                 g.FillRectangle(br, barRect);
             // draw indicator base if needed
             var indicator = _layoutHelper.GetIndicatorRect();
@@ -34,19 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 var center = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2 - 10);
                 int radius = Math.Min(r.Width, r.Height) / 2 + 6;
                 // outer halo
-                using (var halo = new SolidBrush(Color.FromArgb(HaloAlpha, context.AccentColor)))
+                using (var halo = new SolidBrush(Color.FromArgb(HaloAlpha, ResolveAccent(context))))
                 {
                     var haloRect = new Rectangle(center.X - (int)(radius * HaloScale), center.Y - (int)(radius * HaloScale), (int)(radius * 2 * HaloScale), (int)(radius * 2 * HaloScale));
                     g.FillEllipse(halo, haloRect);
                 }
                 // inner shadow / subtle inner fill
-                using (var fill = new SolidBrush(Color.FromArgb(InnerAlpha, context.AccentColor)))
+                using (var fill = new SolidBrush(Color.FromArgb(InnerAlpha, ResolveAccent(context))))
                 {
                     var fillRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                     g.FillEllipse(fill, fillRect);
                 }
                 // outline ring
-                using (var pen = new Pen(context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor, RingStrokeWidth))
+                using (var pen = new Pen(ResolveOnAccent(context), RingStrokeWidth))
                 {
                     var ringRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                     g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 var prev = context.ImagePainter.FillColor;
                 context.ImagePainter.ImagePath = string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath) ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath;
                 context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
-                context.ImagePainter.FillColor = context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor;
+                context.ImagePainter.FillColor = ResolveOnAccent(context);
                 context.ImagePainter.DrawImage(g, iconRect);
                 context.ImagePainter.FillColor = prev;
             }

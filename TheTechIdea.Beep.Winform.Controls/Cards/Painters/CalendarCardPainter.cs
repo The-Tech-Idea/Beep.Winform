@@ -44,26 +44,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _monthFont?.Dispose(); } catch { }
-            try { _dayFont?.Dispose(); } catch { }
-            try { _titleFont?.Dispose(); } catch { }
-            try { _timeFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _monthFont = new Font(fontFamily, 9f, FontStyle.Bold);
-            _dayFont = new Font(fontFamily, 22f, FontStyle.Bold);
-            _titleFont = new Font(fontFamily, 12f, FontStyle.Bold);
-            _timeFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_monthFont = bodyFont;
+            _dayFont = bodyFont;
+            _titleFont = titleFont;
+            _timeFont = captionFont;
+            _descFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
@@ -226,15 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _monthFont?.Dispose();
-            _dayFont?.Dispose();
-            _titleFont?.Dispose();
-            _timeFont?.Dispose();
-            _descFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

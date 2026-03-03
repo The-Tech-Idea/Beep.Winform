@@ -5,6 +5,8 @@ using System.Drawing.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
@@ -176,8 +178,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var rowRect = info.RowRect;
                 if (rowRect.IsEmpty) continue;
 
-                bool isHovered = rowRect.Contains(mousePoint);
-                bool isSelected = _owner.IsItemSelected(item);
+                // ── Separator row ────────────────────────────────────────────────
+                var richItem = item as BeepListItem;
+                if (richItem?.IsSeparator == true)
+                {
+                    DrawSeparatorRow(g, rowRect, richItem.Text);
+                    continue;
+                }
+
+                bool isDisabled  = richItem?.IsDisabled == true;
+                bool isHovered   = !isDisabled && rowRect.Contains(mousePoint);
+                bool isSelected  = !isDisabled && _owner.IsItemSelected(item);
 
                 // Save graphics state to apply clipping
                 var graphicsState = g.Save();
@@ -186,8 +197,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     // Set clipping region to prevent item from drawing outside its bounds
                     g.SetClip(rowRect, System.Drawing.Drawing2D.CombineMode.Replace);
 
+                    // ── Left accent bar ──────────────────────────────────────────
+                    if (richItem?.ItemAccentColor != Color.Empty && richItem?.ItemAccentColor != null)
+                        DrawAccentBar(g, rowRect, richItem.ItemAccentColor);
+
                     // Let concrete painter draw using the row rect
                     DrawItem(g, rowRect, item, isHovered, isSelected);
+
+                    // ── HC focus ring ────────────────────────────────────────────
+                    if (isSelected || _owner.FocusedIndex >= 0)
+                    {
+                        var visible = _helper?.GetVisibleItems();
+                        if (visible != null)
+                        {
+                            int fi = _owner.FocusedIndex;
+                            if (fi >= 0 && fi < visible.Count && visible[fi] == item)
+                                _owner.PaintFocusRectIfHC(g, rowRect);
+                        }
+                    }
                 }
                 finally
                 {
@@ -422,6 +449,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Allow painter-specific background customization via DrawItemBackground override
             // This is called AFTER base clearing to allow painters to add custom styling
             DrawItemBackground(g, itemRect, isHovered, isSelected);
+
+            // ── High-contrast override ───────────────────────────────────────────
+            if (_owner.IsHighContrast)
+            {
+                Color hcBg = _owner.HCItemBackground(isHovered, isSelected);
+                if (hcBg != Color.Empty)
+                {
+                    using var hcBrush = new SolidBrush(hcBg);
+                    g.FillRectangle(hcBrush, itemRect);
+                }
+                Color hcBorder = _owner.HCBorderColor;
+                if (isSelected && hcBorder != Color.Empty)
+                {
+                    using var hcPen = new Pen(hcBorder, 2f);
+                    g.DrawRectangle(hcPen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
+                }
+            }
+
+            // ── Disabled dimming overlay ─────────────────────────────────────────
+            if (item is BeepListItem ri && ri.IsDisabled)
+            {
+                var bg = _theme?.BackgroundColor ?? SystemColors.Window;
+                using var dimBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.DisabledAlpha, bg));
+                g.FillRectangle(dimBrush, itemRect);
+            }
         }
 
         /// <summary>
@@ -463,7 +515,182 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
             DrawItemText(g, contentRect, item.Text, textColor, TextFont ?? _owner.Font);
         }
-        
+
+        // ── Sprint 7: IListBoxPainter new contract members ──────────────────────
+
+        /// <inheritdoc/>
+        /// Returns a taller height for rich items that have a sub-text line.
+        public virtual int GetItemHeight(BeepListBox owner, object item)
+        {
+            if (item is BeepListItem ri && !string.IsNullOrEmpty(ri.SubText))
+            {
+                // 2-line item: base height + sub-text line (~18 px scaled)
+                int sub = DpiScalingHelper.ScaleValue(18, owner ?? _owner);
+                return GetPreferredItemHeight() + sub;
+            }
+            if (item is BeepListItem sep && sep.IsSeparator)
+                return DpiScalingHelper.ScaleValue(ListBoxTokens.SeparatorHeight, owner ?? _owner);
+
+            return GetPreferredItemHeight();
+        }
+
+        /// <inheritdoc/>
+        public virtual void DrawGroupHeader(
+            Graphics g, BeepListBox owner, Rectangle headerRect,
+            string groupKey, bool isCollapsed, int itemCount)
+        {
+            if (g == null || headerRect.IsEmpty) return;
+            // Background
+            using var bg = new SolidBrush(Color.FromArgb(30, _theme?.PrimaryColor ?? Color.Gray));
+            g.FillRectangle(bg, headerRect);
+
+            // Bottom border line
+            using var pen = new Pen(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.Gray), 1f);
+            g.DrawLine(pen, headerRect.Left, headerRect.Bottom - 1, headerRect.Right, headerRect.Bottom - 1);
+
+            int pad     = DpiScalingHelper.ScaleValue(8, owner);
+            int chevron = DpiScalingHelper.ScaleValue(10, owner);
+
+            // Chevron: ▶ collapsed, ▼ expanded
+            string ch = isCollapsed ? "▶" : "▼";
+            using var chFont  = new Font(Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f);
+            using var chBrush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray);
+            var chRect = new Rectangle(headerRect.Left + pad, headerRect.Top, chevron, headerRect.Height);
+            g.DrawString(ch, chFont, chBrush,
+                new RectangleF(chRect.X, chRect.Y, chRect.Width, chRect.Height),
+                new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+
+            // Group label + count
+            string label = $"{groupKey}  ({itemCount})";
+            using var lFont  = new Font(owner.Font.FontFamily, Math.Max(8f, owner.Font.Size - 1f), FontStyle.Bold);
+            using var lBrush = new SolidBrush(_theme?.ListForeColor ?? Color.Gray);
+            var lRect = new Rectangle(headerRect.Left + pad + chevron + 4, headerRect.Top,
+                                      headerRect.Width - pad * 2 - chevron - 4, headerRect.Height);
+            g.DrawString(label, lFont, lBrush, lRect,
+                new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center,
+                                   Trimming = StringTrimming.EllipsisCharacter });
+        }
+
+        // The Font helper below lets DrawGroupHeader compile without a direct field ref
+        private static Font? Font => null;  // placeholders resolved via _owner.Font above
+
+        // ── Sprint 7: shared decoration helpers ─────────────────────────────────
+
+        /// <summary>
+        /// Draws a 3 px left-edge accent bar using <paramref name="accentColor"/>.
+        /// Painters should call this before rendering item text.
+        /// </summary>
+        protected void DrawAccentBar(Graphics g, Rectangle rowRect, Color accentColor)
+        {
+            if (accentColor == Color.Empty || accentColor.A == 0) return;
+            int w = DpiScalingHelper.ScaleValue(ListBoxTokens.PinnedAccentBarWidth, _owner);
+            using var brush = new SolidBrush(accentColor);
+            g.FillRectangle(brush, rowRect.X, rowRect.Y, w, rowRect.Height);
+        }
+
+        /// <summary>
+        /// Draws a badge/count pill in the top-right corner of the item row.
+        /// </summary>
+        protected void DrawBadgePill(Graphics g, Rectangle rowRect, string badgeText, Color badgeColor)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return;
+
+            using var badgeFont = new Font(_owner.Font.FontFamily, Math.Max(7f, _owner.Font.Size - 3f), FontStyle.Bold);
+            var textSize = TextRenderer.MeasureText(badgeText, badgeFont);
+            int r = DpiScalingHelper.ScaleValue(ListBoxTokens.BadgePillRadius, _owner);
+            int pad = DpiScalingHelper.ScaleValue(6, _owner);
+            int pillW = Math.Max(r * 2, textSize.Width + pad);
+            int pillH = Math.Max(r * 2, textSize.Height + 2);
+            int pillX = rowRect.Right  - pillW - DpiScalingHelper.ScaleValue(8, _owner);
+            int pillY = rowRect.Top    + (rowRect.Height - pillH) / 2;
+
+            var pillRect = new Rectangle(pillX, pillY, pillW, pillH);
+
+            // Fill pill
+            var fill = badgeColor == Color.Empty ? (_theme?.PrimaryColor ?? Color.DodgerBlue) : badgeColor;
+            using var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r);
+            using var fillBrush = new SolidBrush(fill);
+            g.FillPath(fillBrush, path);
+
+            // Badge text (white/auto-contrast)
+            Color textColor = fill.GetBrightness() > 0.55f ? Color.Black : Color.White;
+            using var textBrush = new SolidBrush(textColor);
+            g.DrawString(badgeText, badgeFont, textBrush, pillRect,
+                new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+        }
+
+        /// <summary>
+        /// Draws a secondary sub-text line below the primary text.
+        /// </summary>
+        protected void DrawSubText(Graphics g, Rectangle subRect, string subText, Color color, Font? ownerFont)
+        {
+            if (string.IsNullOrEmpty(subText) || subRect.IsEmpty) return;
+            using var subFont = new Font(
+                (ownerFont ?? _owner.Font).FontFamily,
+                Math.Max(7f, (ownerFont ?? _owner.Font).Size - 1.5f),
+                FontStyle.Regular);
+            TextRenderer.DrawText(g, subText, subFont, subRect,
+                Color.FromArgb(ListBoxTokens.SubTextAlpha, color),
+                TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+        }
+
+        /// <summary>
+        /// Draws a separator row — a horizontal rule with an optional label centred on it.
+        /// </summary>
+        protected void DrawSeparatorRow(Graphics g, Rectangle rowRect, string? label = null)
+        {
+            int midY = rowRect.Top + rowRect.Height / 2;
+            var lineColor = Color.FromArgb(60, _theme?.ListForeColor ?? Color.Gray);
+            using var pen = new Pen(lineColor, 1f);
+
+            if (string.IsNullOrEmpty(label))
+            {
+                g.DrawLine(pen, rowRect.Left + 8, midY, rowRect.Right - 8, midY);
+            }
+            else
+            {
+                using var lFont = new Font(_owner.Font.FontFamily, Math.Max(7f, _owner.Font.Size - 2f), FontStyle.Regular);
+                var lSize  = TextRenderer.MeasureText(label, lFont);
+                int lX     = rowRect.Left + (rowRect.Width - lSize.Width) / 2;
+                int gapPad = DpiScalingHelper.ScaleValue(4, _owner);
+
+                g.DrawLine(pen, rowRect.Left + 8, midY, lX - gapPad, midY);
+                g.DrawLine(pen, lX + lSize.Width + gapPad, midY, rowRect.Right - 8, midY);
+                TextRenderer.DrawText(g, label, lFont,
+                    new Rectangle(lX, rowRect.Top, lSize.Width, rowRect.Height),
+                    Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            }
+        }
+
+        /// <summary>
+        /// Draws a focus ring around the item row (keyboard-navigated item).
+        /// Uses HC colours when HC mode is active, otherwise uses <see cref="ListBoxTokens.FocusRingThickness"/>.
+        /// </summary>
+        protected void DrawFocusRing(Graphics g, Rectangle rowRect)
+        {
+            Color ringColor;
+            int   thickness;
+
+            if (_owner.IsHighContrast)
+            {
+                ringColor = SystemColors.Highlight;
+                thickness = 3;
+            }
+            else
+            {
+                ringColor = _owner.FocusOutlineColor != Color.Empty
+                    ? _owner.FocusOutlineColor
+                    : (_theme?.PrimaryColor ?? Color.DodgerBlue);
+                thickness = ListBoxTokens.FocusRingThickness;
+            }
+
+            using var pen = new Pen(ringColor, thickness);
+            g.DrawRectangle(pen,
+                rowRect.X + thickness, rowRect.Y + thickness,
+                rowRect.Width - thickness * 2 - 1, rowRect.Height - thickness * 2 - 1);
+        }
+
         #endregion
     }
 }

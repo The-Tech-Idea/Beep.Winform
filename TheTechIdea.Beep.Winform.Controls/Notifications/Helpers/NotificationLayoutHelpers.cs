@@ -6,19 +6,27 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 {
     /// <summary>
-    /// Helper class for calculating notification layout rectangles
-    /// Handles different layout styles (Standard, Compact, Prominent, Banner, Toast)
+    /// Calculates layout rectangles for all notification elements.
+    /// All sizes are DPI-scaled. Text heights are measured from the supplied
+    /// fonts (passed in from <c>NotificationPainterBase</c>) so text never
+    /// clips or overruns its container.
     /// </summary>
     public static class NotificationLayoutHelpers
     {
-        private static int ScaleVal(int value, Control ctrl)
-            => ctrl != null ? DpiScalingHelper.ScaleValue(value, ctrl) : value;
+        // ── Internal DPI helper ───────────────────────────────────────────────
+        private static int S(int v, Control c) =>
+            c != null ? DpiScalingHelper.ScaleValue(v, c) : v;
+
+        // ── Main entry point ──────────────────────────────────────────────────
 
         /// <summary>
-        /// Calculates layout rectangles for notification elements
+        /// Calculates all layout rectangles for a notification given its bounds,
+        /// layout mode, and the fonts that will actually be used to render text.
         /// </summary>
+        /// <param name="titleFont">Font used for the title; null ⇒ use system default.</param>
+        /// <param name="messageFont">Font used for the message; null ⇒ use system default.</param>
         public static NotificationLayoutMetrics CalculateLayout(
-            Rectangle bounds,
+            Rectangle        bounds,
             NotificationLayout layout,
             bool hasIcon,
             bool hasTitle,
@@ -26,264 +34,367 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             bool hasActions,
             bool showCloseButton,
             bool showProgressBar,
-            int iconSize,
-            int padding,
-            int spacing,
-            Control ownerControl = null)
+            int  iconSize,
+            int  padding,
+            int  spacing,
+            Control ownerControl,
+            Font titleFont   = null,
+            Font messageFont = null)
         {
-            var metrics = new NotificationLayoutMetrics();
-
-            int x = bounds.X + padding;
-            int y = bounds.Y + padding;
-            int availableWidth = bounds.Width - (padding * 2);
-            int availableHeight = bounds.Height - (padding * 2);
-
-            if (showCloseButton)
+            var m = layout switch
             {
-                int closeButtonSize = ScaleVal(20, ownerControl);
-                metrics.CloseButtonRect = new Rectangle(
-                    bounds.Right - padding - closeButtonSize,
-                    y,
-                    closeButtonSize,
-                    closeButtonSize
-                );
-                availableWidth -= (closeButtonSize + spacing);
-            }
+                NotificationLayout.Standard  => CalculateStandard (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Compact   => CalculateCompact  (bounds, hasIcon, hasTitle, hasMessage,             showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Prominent => CalculateProminent(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Banner    => CalculateBanner   (bounds, hasIcon, hasTitle, hasMessage,             showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Toast     => CalculateToast    (bounds, hasIcon, hasTitle,                                          iconSize, padding, spacing, ownerControl, titleFont),
+                // New layout types – simple sensible defaults
+                NotificationLayout.Elevated  => CalculateElevated (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Snackbar  => CalculateSnackbar (bounds, hasTitle, hasActions, padding, spacing, ownerControl, messageFont),
+                NotificationLayout.StatusBar => CalculateStatusBar(bounds, hasTitle, padding, ownerControl, messageFont),
+                NotificationLayout.Chip      => CalculateChip     (bounds, hasIcon, hasTitle, padding, spacing, ownerControl, titleFont),
+                _                            => CalculateStandard (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+            };
 
-            switch (layout)
+            // ── Close button (top-right, always DPI-scaled) ───────────────────
+            if (showCloseButton && m.CloseButtonRect.IsEmpty)
             {
-                case NotificationLayout.Standard:
-                    metrics = CalculateStandardLayout(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing);
-                    break;
-
-                case NotificationLayout.Compact:
-                    metrics = CalculateCompactLayout(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing);
-                    break;
-
-                case NotificationLayout.Prominent:
-                    metrics = CalculateProminentLayout(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing);
-                    break;
-
-                case NotificationLayout.Banner:
-                    metrics = CalculateBannerLayout(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing);
-                    break;
-
-                case NotificationLayout.Toast:
-                    metrics = CalculateToastLayout(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing);
-                    break;
-            }
-
-            // Adjust close button position if needed
-            if (showCloseButton && metrics.CloseButtonRect.IsEmpty)
-            {
-                int closeButtonSize = ScaleVal(20, ownerControl);
-                metrics.CloseButtonRect = new Rectangle(
-                    bounds.Right - padding - closeButtonSize,
+                int closeSz = S(20, ownerControl);
+                m.CloseButtonRect = new Rectangle(
+                    bounds.Right - padding - closeSz,
                     bounds.Y + padding,
-                    closeButtonSize,
-                    closeButtonSize
-                );
+                    closeSz, closeSz);
             }
 
-            // Progress bar at bottom
-            if (showProgressBar)
+            // ── Progress bar (full-width, bottom edge) ────────────────────────
+            if (showProgressBar && m.ProgressBarRect.IsEmpty)
             {
-                int progressBarHeight = ScaleVal(4, ownerControl);
-                metrics.ProgressBarRect = new Rectangle(
-                    bounds.X,
-                    bounds.Bottom - progressBarHeight,
-                    bounds.Width,
-                    progressBarHeight
-                );
+                int barH = S(4, ownerControl);
+                m.ProgressBarRect = new Rectangle(bounds.X, bounds.Bottom - barH, bounds.Width, barH);
             }
 
-            return metrics;
+            return m;
         }
 
-        private static NotificationLayoutMetrics CalculateStandardLayout(
-            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
-        {
-            var metrics = new NotificationLayoutMetrics();
-            int x = bounds.X + padding;
-            int y = bounds.Y + padding;
-            int availableWidth = bounds.Width - (padding * 2);
+        // ── Font measurement helper ───────────────────────────────────────────
 
-            // Icon on left
+        /// <summary>Measures the height needed for one line of text in <paramref name="font"/>.</summary>
+        private static int OneLineHeight(Font font, Control owner)
+        {
+            if (font == null) return S(18, owner);
+            // TextRenderer.MeasureText is reliable and matches what DrawText will produce
+            return TextRenderer.MeasureText("Wg", font).Height;
+        }
+
+        // ── Standard layout ───────────────────────────────────────────────────
+        // [ICON | TITLE      ] [X]
+        // [     | MESSAGE    ]
+        // [     | ACTIONS    ]
+        // [====== PROGRESS ==]
+
+        private static NotificationLayoutMetrics CalculateStandard(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int progH = showProgressBar ? S(4, owner) : 0;
+            int closeW = S(20 + spacing, owner);     // reserved for close button
+
+            // Working area after padding
+            int innerX   = bounds.X + padding;
+            int innerY   = bounds.Y + padding;
+            int innerW   = bounds.Width  - padding * 2 - closeW;
+            int innerH   = bounds.Height - padding * 2 - progH;
+            int innerBot = bounds.Y + padding + innerH;
+
+            // Icon – vertically centred in working area
             if (hasIcon)
             {
-                metrics.IconRect = new Rectangle(x, y, iconSize, iconSize);
-                x += iconSize + spacing;
-                availableWidth -= (iconSize + spacing);
+                int iconY = bounds.Y + (bounds.Height - progH - iconSize) / 2;
+                m.IconRect = new Rectangle(innerX, iconY, iconSize, iconSize);
+                innerX += iconSize + spacing;
+                innerW -= iconSize + spacing;
             }
 
-            // Title and message
-            int titleHeight = ScaleVal(20, ownerControl);
-            int titleSpacing = ScaleVal(4, ownerControl);
+            int curY = bounds.Y + padding;
+
+            // Title – measured single-line height
+            int titleH = hasTitle ? OneLineHeight(titleFont, owner) : 0;
             if (hasTitle)
             {
-                // Title will be measured in the control
-                metrics.TitleRect = new Rectangle(x, y, availableWidth, titleHeight);
-                y += titleHeight + titleSpacing;
+                m.TitleRect = new Rectangle(innerX, curY, innerW, titleH);
+                curY += titleH + S(4, owner);
             }
 
-            int progressBarHeight = ScaleVal(4, ownerControl);
-            if (hasMessage)
-            {
-                // Message will be measured in the control
-                metrics.MessageRect = new Rectangle(x, y, availableWidth, bounds.Height - y - padding - (showProgressBar ? progressBarHeight : 0));
-            }
-
-            // Actions below
+            // Actions – aligned to bottom
+            int actionH = 0;
             if (hasActions)
             {
-                int actionHeight = ScaleVal(32, ownerControl);
-                metrics.ActionsRect = new Rectangle(x, bounds.Bottom - padding - actionHeight - (showProgressBar ? progressBarHeight : 0), availableWidth, actionHeight);
+                actionH = S(32, owner);
+                m.ActionsRect = new Rectangle(innerX, innerBot - actionH, innerW, actionH);
             }
 
-            return metrics;
-        }
-
-        private static NotificationLayoutMetrics CalculateCompactLayout(
-            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
-        {
-            var metrics = new NotificationLayoutMetrics();
-            int x = bounds.X + padding;
-            int y = bounds.Y + padding;
-            int availableWidth = bounds.Width - (padding * 2);
-
-            // Icon and text inline
-            if (hasIcon)
-            {
-                metrics.IconRect = new Rectangle(x, y, iconSize, iconSize);
-                x += iconSize + spacing;
-                availableWidth -= (iconSize + spacing);
-            }
-
-            int compactHeight = ScaleVal(16, ownerControl);
-            // Title and message on same line if possible
-            if (hasTitle)
-            {
-                metrics.TitleRect = new Rectangle(x, y, availableWidth / 2, compactHeight);
-            }
-
+            // Message fills the remaining space between title bottom and actions/bottom
             if (hasMessage)
             {
-                metrics.MessageRect = new Rectangle(x + (hasTitle ? availableWidth / 2 + spacing : 0), y, availableWidth - (hasTitle ? availableWidth / 2 + spacing : 0), compactHeight);
+                int msgBot = hasActions ? m.ActionsRect.Top - spacing : innerBot;
+                int msgH   = Math.Max(S(16, owner), msgBot - curY);
+                if (msgH > 0)
+                    m.MessageRect = new Rectangle(innerX, curY, innerW, msgH);
             }
 
-            return metrics;
+            return m;
         }
 
-        private static NotificationLayoutMetrics CalculateProminentLayout(
-            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
-        {
-            var metrics = new NotificationLayoutMetrics();
-            int x = bounds.X + padding;
-            int y = bounds.Y + padding;
-            int availableWidth = bounds.Width - (padding * 2);
+        // ── Compact layout ────────────────────────────────────────────────────
+        // [ICON | TITLE  MSG ] [X]   — all on one line, fits small height
 
-            // Large icon centered
-            int largeIconSize = Math.Max(iconSize, ScaleVal(32, ownerControl));
+        private static NotificationLayoutMetrics CalculateCompact(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int progH   = showProgressBar ? S(4, owner) : 0;
+            int closeW  = S(20 + spacing, owner);
+            int lineH   = Math.Max(OneLineHeight(titleFont, owner), OneLineHeight(messageFont, owner));
+            int innerX  = bounds.X + padding;
+            int innerW  = bounds.Width - padding * 2 - closeW;
+            int centreY = bounds.Y + (bounds.Height - progH - lineH) / 2;
+
             if (hasIcon)
             {
-                metrics.IconRect = new Rectangle(
-                    bounds.X + (bounds.Width - largeIconSize) / 2,
-                    y,
-                    largeIconSize,
-                    largeIconSize
-                );
-                y += largeIconSize + spacing;
+                int iy = bounds.Y + (bounds.Height - progH - iconSize) / 2;
+                m.IconRect = new Rectangle(innerX, iy, iconSize, iconSize);
+                innerX += iconSize + spacing;
+                innerW -= iconSize + spacing;
             }
 
-            int prominentTitleHeight = ScaleVal(24, ownerControl);
-            int prominentSpacing = ScaleVal(4, ownerControl);
-            // Title centered
-            if (hasTitle)
+            if (hasTitle && hasMessage)
             {
-                metrics.TitleRect = new Rectangle(x, y, availableWidth, prominentTitleHeight);
-                y += prominentTitleHeight + prominentSpacing;
+                // Split: title takes 40 %, message takes 60 %
+                int titleW = (int)(innerW * 0.40);
+                m.TitleRect   = new Rectangle(innerX, centreY, titleW, lineH);
+                m.MessageRect = new Rectangle(innerX + titleW + spacing, centreY, innerW - titleW - spacing, lineH);
             }
-
-            // Message centered
-            int progressBarH = ScaleVal(4, ownerControl);
-            if (hasMessage)
+            else if (hasTitle)
             {
-                metrics.MessageRect = new Rectangle(x, y, availableWidth, bounds.Height - y - padding - (showProgressBar ? progressBarH : 0));
+                m.TitleRect = new Rectangle(innerX, centreY, innerW, lineH);
+            }
+            else if (hasMessage)
+            {
+                m.MessageRect = new Rectangle(innerX, centreY, innerW, lineH);
             }
 
-            return metrics;
+            return m;
         }
 
-        private static NotificationLayoutMetrics CalculateBannerLayout(
-            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
-        {
-            var metrics = new NotificationLayoutMetrics();
-            int x = bounds.X + padding;
-            int y = bounds.Y + padding;
-            int availableWidth = bounds.Width - (padding * 2);
+        // ── Prominent layout ──────────────────────────────────────────────────
+        // [     ICON     ]   (centred, 32 dp)
+        // [    TITLE     ]   (centred, large)
+        // [   MESSAGE    ]
+        // [   ACTIONS    ]
 
-            // Icon on left
+        private static NotificationLayoutMetrics CalculateProminent(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m     = new NotificationLayoutMetrics();
+            int progH = showProgressBar ? S(4, owner) : 0;
+            int largeIcon = Math.Max(iconSize, S(32, owner));
+            int innerW    = bounds.Width - padding * 2;
+            int curY      = bounds.Y + padding;
+
             if (hasIcon)
             {
-                metrics.IconRect = new Rectangle(x, y, iconSize, iconSize);
-                x += iconSize + spacing;
-                availableWidth -= (iconSize + spacing);
+                m.IconRect = new Rectangle(bounds.X + (bounds.Width - largeIcon) / 2, curY, largeIcon, largeIcon);
+                curY += largeIcon + spacing;
             }
 
-            // Title and message on same line
+            int titleH = hasTitle ? OneLineHeight(titleFont, owner) + S(2, owner) : 0;
             if (hasTitle)
             {
-                metrics.TitleRect = new Rectangle(x, y, availableWidth / 2, bounds.Height - (padding * 2));
+                m.TitleRect = new Rectangle(bounds.X + padding, curY, innerW, titleH);
+                curY += titleH + S(4, owner);
             }
 
-            if (hasMessage)
-            {
-                metrics.MessageRect = new Rectangle(x + (hasTitle ? availableWidth / 2 + spacing : 0), y, availableWidth - (hasTitle ? availableWidth / 2 + spacing : 0), bounds.Height - (padding * 2));
-            }
+            int actionH = hasActions ? S(32, owner) : 0;
+            int msgBot  = bounds.Bottom - padding - progH - (hasActions ? actionH + spacing : 0);
+            if (hasMessage && msgBot > curY)
+                m.MessageRect = new Rectangle(bounds.X + padding, curY, innerW, msgBot - curY);
 
-            return metrics;
+            if (hasActions)
+                m.ActionsRect = new Rectangle(bounds.X + padding, bounds.Bottom - padding - progH - actionH, innerW, actionH);
+
+            return m;
         }
 
-        private static NotificationLayoutMetrics CalculateToastLayout(
-            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
-            bool showProgressBar, int iconSize, int padding, int spacing, Control ownerControl = null)
-        {
-            var metrics = new NotificationLayoutMetrics();
-            int x = bounds.X + padding;
-            int y = bounds.Y + padding;
-            int availableWidth = bounds.Width - (padding * 2);
+        // ── Banner layout ─────────────────────────────────────────────────────
+        // [ICON | TITLE  MSG  | ACTIONS ] — single horizontal row
 
-            // Small icon on left
+        private static NotificationLayoutMetrics CalculateBanner(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m       = new NotificationLayoutMetrics();
+            int progH   = showProgressBar ? S(4, owner) : 0;
+            int closeW  = S(20 + spacing, owner);
+            int innerH  = bounds.Height - padding * 2 - progH;
+            int innerX  = bounds.X + padding;
+            int innerW  = bounds.Width - padding * 2 - closeW;
+            int centreY = bounds.Y + padding;
+
             if (hasIcon)
             {
-                metrics.IconRect = new Rectangle(x, y, iconSize, iconSize);
-                x += iconSize + spacing;
-                availableWidth -= (iconSize + spacing);
+                int iy = bounds.Y + (bounds.Height - progH - iconSize) / 2;
+                m.IconRect = new Rectangle(innerX, iy, iconSize, iconSize);
+                innerX += iconSize + spacing;
+                innerW -= iconSize + spacing;
             }
 
-            // Title only (compact)
-            if (hasTitle)
+            // Reserve right section for actions
+            int actionW = 0;
+            if (hasTitle && hasMessage)   // split 35 / 65
             {
-                metrics.TitleRect = new Rectangle(x, y, availableWidth, bounds.Height - (padding * 2));
+                int titleW = (int)(innerW * 0.35);
+                m.TitleRect   = new Rectangle(innerX, centreY, titleW, innerH);
+                m.MessageRect = new Rectangle(innerX + titleW + spacing, centreY, innerW - titleW - spacing, innerH);
+            }
+            else if (hasTitle)
+            {
+                m.TitleRect = new Rectangle(innerX, centreY, innerW, innerH);
+            }
+            else if (hasMessage)
+            {
+                m.MessageRect = new Rectangle(innerX, centreY, innerW, innerH);
             }
 
-            return metrics;
+            return m;
+        }
+
+        // ── Toast layout ──────────────────────────────────────────────────────
+        // [ICON | TITLE ] [X]   — absolute minimal, single line
+
+        private static NotificationLayoutMetrics CalculateToast(
+            Rectangle bounds, bool hasIcon, bool hasTitle,
+            int iconSize, int padding, int spacing,
+            Control owner, Font titleFont)
+        {
+            var m      = new NotificationLayoutMetrics();
+            int closeW = S(20 + spacing, owner);
+            int lineH  = OneLineHeight(titleFont, owner);
+            int innerX = bounds.X + padding;
+            int innerW = bounds.Width - padding * 2 - closeW;
+            int centreY = bounds.Y + (bounds.Height - lineH) / 2;
+
+            if (hasIcon)
+            {
+                int iy = bounds.Y + (bounds.Height - iconSize) / 2;
+                m.IconRect = new Rectangle(innerX, iy, iconSize, iconSize);
+                innerX += iconSize + spacing;
+                innerW -= iconSize + spacing;
+            }
+
+            if (hasTitle)
+                m.TitleRect = new Rectangle(innerX, centreY, innerW, lineH);
+
+            return m;
+        }
+
+        // ── Elevated layout ───────────────────────────────────────────────────
+        // Like Standard but icon is a larger (40 dp) circle badge
+
+        private static NotificationLayoutMetrics CalculateElevated(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            int largeIcon = S(40, owner);
+            return CalculateStandard(bounds, hasIcon, hasTitle, hasMessage, hasActions,
+                showProgressBar, largeIcon, padding, spacing, owner, titleFont, messageFont);
+        }
+
+        // ── Snackbar layout ───────────────────────────────────────────────────
+        // [  MESSAGE  ] [ACTION] — single line, no title, no icon
+
+        private static NotificationLayoutMetrics CalculateSnackbar(
+            Rectangle bounds, bool hasTitle, bool hasActions, int padding, int spacing,
+            Control owner, Font messageFont)
+        {
+            var m       = new NotificationLayoutMetrics();
+            int lineH   = OneLineHeight(messageFont, owner);
+            int centreY = bounds.Y + (bounds.Height - lineH) / 2;
+            int innerW  = bounds.Width - padding * 2;
+            int actionW = hasActions ? S(80, owner) : 0;
+
+            m.MessageRect = new Rectangle(bounds.X + padding, centreY, innerW - actionW - (hasActions ? spacing : 0), lineH);
+            if (hasActions)
+                m.ActionsRect = new Rectangle(bounds.Right - padding - actionW, centreY, actionW, lineH);
+
+            return m;
+        }
+
+        // ── StatusBar layout ──────────────────────────────────────────────────
+        // [ ● TYPE | MESSAGE                  ] — full-width, single line
+
+        private static NotificationLayoutMetrics CalculateStatusBar(
+            Rectangle bounds, bool hasTitle, int padding, Control owner, Font messageFont)
+        {
+            var m       = new NotificationLayoutMetrics();
+            int dotSz   = S(8, owner);
+            int spacing = S(6, owner);
+            int lineH   = OneLineHeight(messageFont, owner);
+            int centreY = bounds.Y + (bounds.Height - lineH) / 2;
+            int x       = bounds.X + padding;
+
+            // Small type dot
+            m.IconRect = new Rectangle(x, bounds.Y + (bounds.Height - dotSz) / 2, dotSz, dotSz);
+            x += dotSz + spacing;
+            m.MessageRect = new Rectangle(x, centreY, bounds.Right - padding - x, lineH);
+            return m;
+        }
+
+        // ── Chip layout ───────────────────────────────────────────────────────
+        // [● TITLE  ×] — pill-shaped, very compact
+
+        private static NotificationLayoutMetrics CalculateChip(
+            Rectangle bounds, bool hasIcon, bool hasTitle, int padding, int spacing,
+            Control owner, Font titleFont)
+        {
+            var m       = new NotificationLayoutMetrics();
+            int lineH   = OneLineHeight(titleFont, owner);
+            int closeSz = S(16, owner);
+            int innerX  = bounds.X + padding;
+            int centreY = bounds.Y + (bounds.Height - lineH) / 2;
+            int closeX  = bounds.Right - padding - closeSz;
+
+            if (hasIcon)
+            {
+                int iconSz = S(14, owner);
+                m.IconRect = new Rectangle(innerX, bounds.Y + (bounds.Height - iconSz) / 2, iconSz, iconSz);
+                innerX += iconSz + S(4, owner);
+            }
+
+            m.TitleRect      = new Rectangle(innerX, centreY, closeX - innerX - spacing, lineH);
+            m.CloseButtonRect = new Rectangle(closeX, bounds.Y + (bounds.Height - closeSz) / 2, closeSz, closeSz);
+            return m;
         }
     }
 
-    /// <summary>
-    /// Layout metrics for notification elements
-    /// </summary>
+    // ─────────────────────────────────────────────────────────────────────────
+    // Result type
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>Pre-calculated rectangles for all notification UI elements.</summary>
     public class NotificationLayoutMetrics
     {
-        public Rectangle IconRect { get; set; } = Rectangle.Empty;
-        public Rectangle TitleRect { get; set; } = Rectangle.Empty;
-        public Rectangle MessageRect { get; set; } = Rectangle.Empty;
-        public Rectangle ActionsRect { get; set; } = Rectangle.Empty;
+        public Rectangle IconRect        { get; set; } = Rectangle.Empty;
+        public Rectangle TitleRect       { get; set; } = Rectangle.Empty;
+        public Rectangle MessageRect     { get; set; } = Rectangle.Empty;
+        public Rectangle ActionsRect     { get; set; } = Rectangle.Empty;
         public Rectangle CloseButtonRect { get; set; } = Rectangle.Empty;
         public Rectangle ProgressBarRect { get; set; } = Rectangle.Empty;
     }

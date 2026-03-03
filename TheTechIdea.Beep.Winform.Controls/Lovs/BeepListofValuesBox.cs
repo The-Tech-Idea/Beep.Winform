@@ -1,18 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
-using TheTechIdea.Beep.Winform.Controls.Buttons;
-using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Lovs.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Icons;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -24,15 +27,24 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepListofValuesBox : BaseControl
     {
         #region Fields
-        private BeepTextBox _keyTextBox;
-        private BeepTextBox _valueTextBox;
-        private BeepButton _dropdownButton;
-        private BeepContextMenu _lovContextMenu;
+        private BeepTextBox  _keyTextBox;
+        // _valueTextBox removed (Phase 6) — display value is painted directly in DrawContent
+        private string _selectedDisplayValue = string.Empty;
+        private BeepLovPopup _lovPopup;
         private List<SimpleItem> _items = new List<SimpleItem>();
         private int padding = 1;
         private int spacing = 1;
         private int buttonHeight;
         private object _lastValidKey;
+        // Cached fonts (rebuilt in RebuildFonts via ApplyTheme)
+        private Font? _fieldFont;
+        private Font? _badgeFont;
+
+        // ── Phase 6 options ─────────────────────────────────────────────
+        private bool _showKeyBadge = true;
+
+        // ── Phase 13: recent-selection history (persisted across popup opens) ──
+        private List<SimpleItem> _recentHistory = new List<SimpleItem>();
         #endregion
 
         #region Properties
@@ -47,20 +59,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _items = value ?? new List<SimpleItem>();
                 UpdateDisplayValue();
-                
-                // Update context menu items
-                if (_lovContextMenu != null)
-                {
-                    _lovContextMenu.ClearItems();
-                    foreach (var item in _items)
-                    {
-                        if (item != null)
-                        {
-                            _lovContextMenu.AddItem(item);
-                        }
-                    }
-                }
-                
                 Invalidate();
             }
         }
@@ -96,15 +94,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("The selected display value.")]
         public string SelectedDisplayValue
         {
-            get => _valueTextBox?.Text ?? string.Empty;
+            get => _selectedDisplayValue;
             private set
             {
-                if (_valueTextBox != null)
-                {
-                    _valueTextBox.Text = value;
-                    Invalidate();
-                }
+                _selectedDisplayValue = value ?? string.Empty;
+                Invalidate();
             }
+        }
+
+        /// <summary>When true a coloured pill badge showing the raw key is drawn inside
+        /// the value display area to the left of the display text.</summary>
+        [Browsable(true)]
+        [Category("LOV")]
+        [DefaultValue(true)]
+        [Description("Show a coloured key-badge pill next to the selected display value.")]
+        public bool ShowKeyBadge
+        {
+            get => _showKeyBadge;
+            set { _showKeyBadge = value; Invalidate(); }
         }
         #endregion
 
@@ -122,59 +129,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize key textbox (editable) using BeepTextBox
             _keyTextBox = new BeepTextBox
             {
-                IsChild = true,
-                IsFrameless = true,
-                Visible = true,
+                IsChild         = true,
+                IsFrameless     = true,
+                Visible         = true,
                 PlaceholderText = "Enter key..."
             };
             _keyTextBox.TextChanged += KeyTextBox_TextChanged;
 
-            // Initialize value textbox (read-only display) using BeepTextBox
-            _valueTextBox = new BeepTextBox
-            {
-                IsChild = true,
-                IsFrameless = true,
-                ReadOnly = true,
-                Visible = true,
-                PlaceholderText = "Display value..."
-            };
-            _valueTextBox.TextChanged += (s, e) => Invalidate();
-
-            // Initialize dropdown button using BeepButton
-            _dropdownButton = new BeepButton
-            {
-                Text = "▼",
-                HideText = true,
-                ShowAllBorders = false,
-                IsShadowAffectedByTheme = false,
-                IsChild = true,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                TextImageRelation = TextImageRelation.Overlay,
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.dropdown-select.svg"
-            };
-            _dropdownButton.Click += DropdownButton_Click;
-
-            // Initialize context menu for LOV display
-            _lovContextMenu = new BeepContextMenu
-            {
-                ShowSearchBox = true, // Enable search for LOV
-                ShowCheckBox = false, // Single selection mode
-                MultiSelect = false
-            };
-            _lovContextMenu.ItemClicked += LovContextMenu_ItemClicked;
-
             Controls.Add(_keyTextBox);
-            Controls.Add(_valueTextBox);
-            Controls.Add(_dropdownButton);
 
-            // Forward mouse events for proper hover/focus behavior
+            // Use BaseControl’s built-in trailing icon as the dropdown toggle — no separate BeepButton child needed
+            TrailingIconPath      = SvgsUI.ChevronDown;
+            TrailingIconClickable = true;
+            TrailingIconClicked  += (_, __) => OpenPopup();
+
+            // Forward mouse events for proper hover/focus behaviour
             _keyTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
             _keyTextBox.MouseHover += (s, e) => OnMouseHover(e);
             _keyTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
-            _valueTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
-            _valueTextBox.MouseHover += (s, e) => OnMouseHover(e);
-            _valueTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
 
             _lastValidKey = null;
             AdjustLayout();
@@ -192,10 +164,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Layout and Drawing
         private void GetHeight()
         {
-            padding = BorderThickness;
-            spacing = 5;
+            padding     = BorderThickness;
+            spacing     = 5;
             buttonHeight = _keyTextBox != null ? _keyTextBox.PreferredHeight : 24;
-            Height = Math.Max(Height, buttonHeight + (padding * 2));
+            Height       = Math.Max(Height, buttonHeight + (padding * 2));
         }
 
         private void AdjustLayout()
@@ -203,34 +175,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             GetHeight();
 
-            int totalWidth = DrawingRect.Width;
-            int centerY = DrawingRect.Top + (DrawingRect.Height - buttonHeight) / 2;
+            // Prefer the painter’s content rect (excludes trailing icon area).  
+            // Fall back to DrawingRect when the painter hasn’t measured yet.
+            Rectangle contentRect = GetAdjustedContentRect();
+            if (contentRect.IsEmpty || contentRect.Width <= 0)
+                contentRect = DrawingRect;
 
-            int keyWidth = (int)(totalWidth * 0.2);
-            int buttonWidth = (int)(totalWidth * 0.1);
-            int valueWidth = totalWidth - keyWidth - buttonWidth - (padding * 2) - (spacing);
+            int totalWidth = contentRect.Width;
+            int centerY    = contentRect.Top + (contentRect.Height - buttonHeight) / 2;
+
+            // Key field: 22 % of the available content width
+            int keyWidth   = Math.Max(40, (int)(totalWidth * 0.22));
+            // Value field: remainder
+            int valueWidth = Math.Max(40, totalWidth - keyWidth - spacing);
 
             if (_keyTextBox != null)
             {
-                _keyTextBox.Location = new Point(DrawingRect.Left + padding, centerY);
-                _keyTextBox.Width = Math.Max(keyWidth, 20) - 1;
-                _keyTextBox.Height = buttonHeight;
+                _keyTextBox.Location = new Point(contentRect.Left + padding, centerY);
+                _keyTextBox.Width    = keyWidth - 1;
+                _keyTextBox.Height   = buttonHeight;
             }
-
-            if (_valueTextBox != null)
-            {
-                _valueTextBox.Location = new Point(_keyTextBox.Right + spacing, centerY);
-                _valueTextBox.Width = Math.Max(valueWidth, 20) - 1;
-                _valueTextBox.Height = buttonHeight;
-            }
-
-            if (_dropdownButton != null)
-            {
-                _dropdownButton.Location = new Point(_valueTextBox.Right + spacing, centerY);
-                _dropdownButton.Width = Math.Max(buttonWidth, buttonHeight - 2);
-                _dropdownButton.Height = buttonHeight - 2;
-                _dropdownButton.MaxImageSize = new Size(_dropdownButton.Width - 4, _dropdownButton.Height - 4);
-            }
+            // Value display area is painted in DrawContent — no child control needed
         }
 
         protected override void OnResize(EventArgs e)
@@ -240,81 +205,266 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
+        protected override void DrawContent(Graphics g)
+        {
+            // Let BaseControl paint border, background, shadow, leading/trailing icons
+            base.DrawContent(g);
+            PaintValueArea(g, GetAdjustedContentRect());
+        }
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            // BaseControl handles the main drawing, we just need to ensure child controls are positioned
-            // The BeepTextBox controls handle their own drawing
             base.Draw(graphics, rectangle);
+            // When rendered inside a grid/container also paint the value area
+            Rectangle contentRect = GetAdjustedContentRect();
+            if (contentRect.IsEmpty) contentRect = rectangle;
+            PaintValueArea(graphics, contentRect);
+        }
+
+        /// <summary>Paints the read-only value-display area (right 78 %) directly onto
+        /// the control's graphics. Called from both <see cref="DrawContent"/> and
+        /// <see cref="Draw"/>.</summary>
+        private void PaintValueArea(Graphics g, Rectangle contentRect)
+        {
+            if (contentRect.IsEmpty || contentRect.Width <= 0) return;
+
+            int keyW     = Math.Max(40, (int)(contentRect.Width * 0.22));
+            int valueX   = contentRect.Left + padding + keyW + spacing;
+            int valueW   = Math.Max(0, contentRect.Right - valueX - padding);
+            if (valueW <= 0) return;
+
+            var valueArea = new Rectangle(valueX, contentRect.Top + padding,
+                                          valueW, contentRect.Height - padding * 2);
+            if (valueArea.Height <= 0) return;
+
+            // Fill value area background (seamlessly matches the field background)
+            Color bgColor = _currentTheme?.PanelBackColor ?? BackColor;
+            using (var bgBrush = new SolidBrush(bgColor))
+                g.FillRectangle(bgBrush, valueArea);
+
+            bool hasKey   = !string.IsNullOrEmpty(SelectedKey);
+            bool hasValue = !string.IsNullOrEmpty(_selectedDisplayValue);
+
+            if (!hasKey && !hasValue)
+            {
+                // Placeholder text
+                Color phColor = _currentTheme?.SecondaryTextColor ?? Color.Gray;
+                TextRenderer.DrawText(g, "Select a value\u2026", _fieldFont ?? Font,
+                    valueArea, phColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter
+                    | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                return;
+            }
+
+            int x = valueArea.X;
+
+            // ── Key badge pill (optional) ──────────────────────────────
+            if (_showKeyBadge && hasKey && _badgeFont != null)
+            {
+                string  badgeText = SelectedKey;
+                Size    textSz    = TextRenderer.MeasureText(g, badgeText, _badgeFont,
+                                        new Size(valueArea.Width / 2, valueArea.Height),
+                                        TextFormatFlags.NoPrefix);
+                int     badgeW   = textSz.Width  + ScaleLogicalX(10);
+                int     badgeH   = Math.Min(textSz.Height + ScaleLogicalY(4),
+                                           valueArea.Height - ScaleLogicalY(2));
+                int     badgeY   = valueArea.Top + (valueArea.Height - badgeH) / 2;
+                var     badgeRect = new Rectangle(x, badgeY, badgeW, badgeH);
+
+                Color badgeBg = _currentTheme?.AccentColor ?? Color.SteelBlue;
+                Color badgeFg = ContrastForeColor(badgeBg);
+
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var path = BuildRoundedPath(badgeRect, ScaleLogicalX(4)))
+                using (var fill = new SolidBrush(badgeBg))
+                    g.FillPath(fill, path);
+                g.SmoothingMode = SmoothingMode.Default;
+
+                TextRenderer.DrawText(g, badgeText, _badgeFont, badgeRect, badgeFg,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
+                    | TextFormatFlags.NoPrefix);
+
+                x += badgeW + ScaleLogicalX(5);
+            }
+
+            // ── Display value text ────────────────────────────────────
+            if (hasValue && x < valueArea.Right)
+            {
+                Color fgColor = _currentTheme?.ForeColor ?? ForeColor;
+                var textBounds = new Rectangle(x, valueArea.Top,
+                                               valueArea.Right - x, valueArea.Height);
+                TextRenderer.DrawText(g, _selectedDisplayValue, _fieldFont ?? Font,
+                    textBounds, fgColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter
+                    | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+            }
+        }
+
+        // ── Painting helpers ──────────────────────────────────────────────
+
+        /// <summary>DPI-aware horizontal pixel scaling via <see cref="BeepThemesManager.DpiScaleX"/>.</summary>
+        private static int ScaleLogicalX(int px) =>
+            (int)Math.Round(px * (BeepThemesManager.DpiScaleX > 0f ? BeepThemesManager.DpiScaleX : 1f));
+
+        /// <summary>DPI-aware vertical pixel scaling via <see cref="BeepThemesManager.DpiScaleY"/>.</summary>
+        private static int ScaleLogicalY(int px) =>
+            (int)Math.Round(px * (BeepThemesManager.DpiScaleY > 0f ? BeepThemesManager.DpiScaleY : 1f));
+
+        private static GraphicsPath BuildRoundedPath(Rectangle rect, int radius)
+        {
+            int r  = Math.Max(1, radius);
+            int d  = r * 2;
+            var gp = new GraphicsPath();
+            gp.AddArc(rect.Left,          rect.Top,           d, d, 180, 90);
+            gp.AddArc(rect.Right - d,     rect.Top,           d, d, 270, 90);
+            gp.AddArc(rect.Right - d,     rect.Bottom - d,    d, d,   0, 90);
+            gp.AddArc(rect.Left,          rect.Bottom - d,    d, d,  90, 90);
+            gp.CloseFigure();
+            return gp;
+        }
+
+        /// <summary>Returns black or white depending on which provides higher
+        /// contrast against <paramref name="bg"/>.</summary>
+        private static Color ContrastForeColor(Color bg)
+        {
+            // Perceived luminance (ITU-R BT.601)
+            double lum = (0.299 * bg.R + 0.587 * bg.G + 0.114 * bg.B) / 255.0;
+            return lum > 0.55 ? Color.FromArgb(30, 30, 30) : Color.White;
         }
         #endregion
 
         #region Event Handlers
-        private void DropdownButton_Click(object sender, EventArgs e)
+        // (TrailingIconClicked fires OpenPopup — wired in InitializeComponents)
+
+        private void LovPopup_ItemAccepted(object sender, SimpleItem item)
         {
-            if (_items.Count > 0 && _lovContextMenu != null)
+            if (item == null) return;
+
+            SetSelectedItem(item);
+
+            // Phase 13: Keep _recentHistory in sync with what the popup tracks
+            if (_lovPopup != null && !_lovPopup.IsDisposed)
+                _recentHistory = _lovPopup.RecentItems;
+        }
+
+        private void LovPopup_Cancelled(object sender, EventArgs e)
+        {
+            // No action required — popup already hidden
+        }
+
+        /// <summary>Opens the LOV popup, optionally pre-seeding the search box.</summary>
+        private async void OpenPopup(string preloadSearch = "")
+        {
+            if (_lovPopup == null || _lovPopup.IsDisposed)
             {
-                // Clear existing items
-                _lovContextMenu.ClearItems();
-                
-                // Add all LOV items to context menu
-                // Ensure DisplayField is set to Text for proper display (Oracle Forms LOV style)
-                foreach (var item in _items)
-                {
-                    if (item != null)
-                    {
-                        // Set DisplayField to Text if not already set (for context menu display)
-                        if (string.IsNullOrEmpty(item.DisplayField) && !string.IsNullOrEmpty(item.Text))
-                        {
-                            item.DisplayField = item.Text;
-                        }
-                        _lovContextMenu.AddItem(item);
-                    }
-                }
-                
-                // Apply theme to context menu
-                if (UseThemeColors && _currentTheme != null)
-                {
-                    _lovContextMenu.Theme = _currentTheme.ThemeName;
-                }
-                else if (Theme != null)
-                {
-                    _lovContextMenu.Theme = Theme;
-                }
-                
-                // Show context menu below the dropdown button (Oracle Forms LOV style)
-                Point showLocation = _dropdownButton.PointToScreen(new Point(0, _dropdownButton.Height));
-                _lovContextMenu.Show(showLocation, this);
+                _lovPopup = new BeepLovPopup();
+                _lovPopup.ItemAccepted += LovPopup_ItemAccepted;
+                _lovPopup.Cancelled    += LovPopup_Cancelled;
+            }
+
+            _lovPopup.LovTitle       = LovTitle;
+            _lovPopup.LovColumns     = LovColumns;
+            _lovPopup.MaxPopupHeight = MaxPopupHeight;
+            _lovPopup.LovTheme       = _currentTheme?.ThemeName ?? Theme;
+            _lovPopup.UseThemeColors = UseThemeColors;
+            _lovPopup.CurrentTheme   = _currentTheme;
+
+            // Phase 13: restore recent-selection history into the popup
+            _lovPopup.RecentItems = _recentHistory;
+
+            Form? parentForm = FindForm();
+            if (parentForm != null)
+                _lovPopup.Owner = parentForm;
+
+            Point origin = PointToScreen(new Point(0, Height));
+
+            if (ItemsLoader != null)
+            {
+                // Phase 12: Async path — show popup immediately with empty list + spinner,
+                // then fill the grid once the loader completes.
+                _lovPopup.ShowAt(new List<SimpleItem>(), origin, Width, preloadSearch: "");
+                await _lovPopup.LoadItemsAsync(ItemsLoader, preloadSearch);
+
+                // After a successful async load, keep _items in sync for subsequent sync opens
+                // (e.g. if the control is used offline without a loader)
+            }
+            else
+            {
+                // Synchronous path: items already in _items list
+                _lovPopup.ShowAt(_items, origin, Width, preloadSearch);
             }
         }
 
-        private void LovContextMenu_ItemClicked(object sender, MenuItemEventArgs e)
+        /// <summary>Clears the current selection and raises <see cref="SelectionChanged"/>.</summary>
+        private void ClearSelection()
         {
-            if (e?.Item != null)
+            if (_keyTextBox != null) _keyTextBox.Text = string.Empty;
+            _selectedDisplayValue = string.Empty;
+            _lastValidKey = null;
+            OnSelectionChanged();
+            Invalidate();
+        }
+
+        // ── Keyboard Navigation (Phase 8) ─────────────────────────────────
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            // F9 — Oracle Forms standard to open LOV
+            if (keyData == Keys.F9)
             {
-                SetSelectedItem(e.Item);
-                
-                // Close the context menu
-                if (_lovContextMenu != null && _lovContextMenu.Visible)
-                {
-                    _lovContextMenu.Close();
-                }
+                string preload = _keyTextBox?.Focused == true ? _keyTextBox.Text : string.Empty;
+                OpenPopup(preload);
+                return true;
             }
+
+            // Alt+Down — Windows combobox standard
+            if (keyData == (Keys.Alt | Keys.Down))
+            {
+                OpenPopup();
+                return true;
+            }
+
+            // Delete / Backspace — clear the current selection
+            if ((keyData == Keys.Delete || keyData == Keys.Back)
+                && !string.IsNullOrEmpty(SelectedKey)
+                && !(_keyTextBox?.Focused == true))
+            {
+                ClearSelection();
+                return true;
+            }
+
+            // Escape when popup is open — close it
+            if (keyData == Keys.Escape && _lovPopup?.Visible == true)
+            {
+                _lovPopup.Hide();
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void KeyTextBox_TextChanged(object sender, EventArgs e)
         {
             if (_keyTextBox == null) return;
-            
+
             string newKey = _keyTextBox.Text;
             if (ValidateKey(newKey))
             {
                 UpdateLastValidKey(newKey);
                 UpdateDisplayValue();
+                // Clear any previous validation error
+                if (HasError)
+                {
+                    ErrorText = string.Empty;
+                    HasError  = false;
+                }
             }
             else if (!string.IsNullOrEmpty(newKey))
             {
-                // Show validation error using tooltip or notification instead of MessageBox
-                ShowNotification("Invalid key. Please enter a valid value from the list.", ToolTipType.Warning, 2000);
+                // Show error inline (BaseControl ErrorText) + notification tooltip
+                ErrorText = "Invalid key — not in the list.";
+                HasError  = true;
+                ShowNotification("Invalid key. Please enter a valid value from the list.",
+                                 ToolTipType.Warning, 2000);
                 _keyTextBox.Text = _lastValidKey?.ToString() ?? string.Empty;
                 UpdateDisplayValue();
             }
@@ -338,7 +488,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateDisplayValue()
         {
             var selectedItem = _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
-            SelectedDisplayValue = selectedItem?.Text ?? string.Empty;
+            _selectedDisplayValue = selectedItem?.Text ?? string.Empty;
+            Invalidate();
         }
 
         private void SetSelectedItem(SimpleItem item)
@@ -362,18 +513,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _items.Clear();
             if (_keyTextBox != null)
-            {
                 _keyTextBox.Text = string.Empty;
-            }
-            if (_valueTextBox != null)
-            {
-                _valueTextBox.Text = string.Empty;
-            }
+            _selectedDisplayValue = string.Empty;
             _lastValidKey = null;
-            if (_lovContextMenu != null)
-            {
-                _lovContextMenu.ClearItems();
-            }
+            Invalidate();
         }
         
         /// <summary>
@@ -394,32 +537,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            
-            // Apply font theme based on ControlStyle
-            LovFontHelpers.ApplyFontTheme(ControlStyle);
-            
-            if (_keyTextBox == null || _valueTextBox == null || _dropdownButton == null) 
+
+            // Rebuild cached fonts from the current theme
+            RebuildFonts();
+
+            if (_keyTextBox == null)
                 return;
 
             // Apply theme to key textbox
-            _keyTextBox.Theme = _currentTheme?.ThemeName ?? Theme;
+            _keyTextBox.Theme         = _currentTheme?.ThemeName ?? Theme;
             _keyTextBox.UseThemeColors = UseThemeColors;
+            if (_fieldFont != null) _keyTextBox.Font = _fieldFont;
             _keyTextBox.ApplyTheme();
-            
-            // Apply theme to value textbox (read-only display)
-            _valueTextBox.Theme = _currentTheme?.ThemeName ?? Theme;
-            _valueTextBox.UseThemeColors = UseThemeColors;
-            _valueTextBox.ApplyTheme();
-            
-            // Apply theme to dropdown button
-            _dropdownButton.Theme = _currentTheme?.ThemeName ?? Theme;
-            _dropdownButton.UseThemeColors = UseThemeColors;
-            _dropdownButton.ApplyTheme();
-            
-            // Apply theme to context menu
-            if (_lovContextMenu != null)
+
+            // Forward theme to popup if it already exists
+            if (_lovPopup != null && !_lovPopup.IsDisposed)
             {
-                _lovContextMenu.Theme = _currentTheme?.ThemeName ?? Theme;
+                _lovPopup.LovTheme       = _currentTheme?.ThemeName ?? Theme;
+                _lovPopup.UseThemeColors = UseThemeColors;
+                _lovPopup.CurrentTheme   = _currentTheme;
+                _lovPopup.ApplyLovTheme();
             }
 
             Invalidate();
@@ -445,6 +582,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
         }
+
+        /// <summary>Rebuilds <see cref="_fieldFont"/> and <see cref="_badgeFont"/> from the
+        /// current theme using <see cref="LovFontHelpers"/>. Safe to call repeatedly.</summary>
+        private void RebuildFonts()
+        {
+            Font newField = LovFontHelpers.GetLovFontFromTheme(_currentTheme);
+            Font newBadge = LovFontHelpers.GetBadgeFontFromTheme(_currentTheme);
+
+            // Dispose old instances only when they differ
+            if (_fieldFont != null && !ReferenceEquals(_fieldFont, newField))
+            {
+                _fieldFont.Dispose();
+            }
+            _fieldFont = newField;
+
+            if (_badgeFont != null && !ReferenceEquals(_badgeFont, newBadge))
+            {
+                _badgeFont.Dispose();
+            }
+            _badgeFont = newBadge;
+        }
         
         /// <summary>
         /// Gets the selected SimpleItem
@@ -454,6 +612,85 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get => _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
         }
+
+        // ── LOV Popup Configuration ─────────────────────────────────────
+
+        [Browsable(true)]
+        [Category("LOV")]
+        [Description("Title shown in the selection popup header.")]
+        public string LovTitle { get; set; } = "Select Value";
+
+        [Browsable(true)]
+        [Category("LOV")]
+        [Description("Maximum height of the selection popup.")]
+        public int MaxPopupHeight { get; set; } = 360;
+
+        [Browsable(true)]
+        [Category("LOV")]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Description("Optional explicit column definitions for the popup grid. Leave empty for auto Key+Value columns.")]
+        public List<BeepColumnConfig> LovColumns { get; set; } = new List<BeepColumnConfig>();
+        // ── Phase 12: Async item loader ──────────────────────────
+        /// <summary>
+        /// Optional async factory used to populate the LOV popup.
+        /// When set to a non-null delegate, opening the popup will show a
+        /// loading spinner immediately, then call this delegate on a background
+        /// thread.  The results replace <see cref="ListItems"/> once loaded.
+        /// When null (default) the popup is populated synchronously from
+        /// <see cref="ListItems"/>.
+        /// </summary>
+        [Browsable(false)]
+        public Func<CancellationToken, Task<List<SimpleItem>>>? ItemsLoader { get; set; }
+
+        // ── Phase 13: recent selections ──────────────────────────
+        /// <summary>
+        /// The most-recent selections made through this control’s LOV popup.
+        /// Ordered oldest-first; capped at 5 items.
+        /// You can persist this list (e.g. to user settings) and re-assign it
+        /// to restore the history on the next session.
+        /// </summary>
+        [Browsable(false)]
+        public List<SimpleItem> RecentSelections
+        {
+            get => new List<SimpleItem>(_recentHistory);
+            set
+            {
+                _recentHistory = value ?? new List<SimpleItem>();
+                // Sync into the popup if it is already open
+                if (_lovPopup != null && !_lovPopup.IsDisposed)
+                    _lovPopup.RecentItems = _recentHistory;
+            }
+        }        // ── Label / helper text convenience overrides ──────────────────────
+        // Shadow base properties so that setting a non-empty value auto-enables the On flag.
+
+        [Browsable(true)]
+        [Category("LOV")]
+        [Description("Label text shown above the field. Setting this also enables LabelTextOn.")]
+        public new string LabelText
+        {
+            get => base.LabelText;
+            set
+            {
+                base.LabelText = value;
+                if (!string.IsNullOrEmpty(value) && !LabelTextOn)
+                    LabelTextOn = true;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("LOV")]
+        [Description("Helper / hint text shown below the field. Setting this also enables HelperTextOn.")]
+        public new string HelperText
+        {
+            get => base.HelperText;
+            set
+            {
+                base.HelperText = value;
+                if (!string.IsNullOrEmpty(value) && !HelperTextOn)
+                    HelperTextOn = true;
+            }
+        }
         #endregion
 
         #region Dispose
@@ -461,15 +698,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
-                if (_lovContextMenu != null)
+                if (_lovPopup != null)
                 {
-                    _lovContextMenu.ItemClicked -= LovContextMenu_ItemClicked;
-                    if (!_lovContextMenu.IsDisposed)
-                    {
-                        _lovContextMenu.Close();
-                    }
-                    _lovContextMenu.Dispose();
-                    _lovContextMenu = null;
+                    _lovPopup.ItemAccepted -= LovPopup_ItemAccepted;
+                    _lovPopup.Cancelled    -= LovPopup_Cancelled;
+                    if (!_lovPopup.IsDisposed)
+                        _lovPopup.Close();
+                    _lovPopup.Dispose();
+                    _lovPopup = null;
                 }
                 
                 if (_keyTextBox != null)
@@ -479,18 +715,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _keyTextBox = null;
                 }
                 
-                if (_valueTextBox != null)
-                {
-                    _valueTextBox.Dispose();
-                    _valueTextBox = null;
-                }
-                
-                if (_dropdownButton != null)
-                {
-                    _dropdownButton.Click -= DropdownButton_Click;
-                    _dropdownButton.Dispose();
-                    _dropdownButton = null;
-                }
+                _fieldFont?.Dispose();
+                _fieldFont = null;
+                _badgeFont?.Dispose();
+                _badgeFont = null;
             }
             base.Dispose(disposing);
         }

@@ -1074,7 +1074,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
 
         //    g.SmoothingMode = SmoothingMode.AntiAlias;
           //  g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
+         //  Console.WriteLine($"Painting control with Style={style}, State={state}, Theme={theme?.ThemeName}, UseThemeColors={useThemeColors}");
             int radius = StyleBorders.GetRadius(style);
             GraphicsPath currentPath = (GraphicsPath)controlPath.Clone();
 
@@ -1087,11 +1087,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             //    if (contentPath == null)
             //        contentPath = currentPath;
             //}
-
+          //  Console.WriteLine($"Content area after padding: {contentPath.GetBounds()}");
             // === STEP 1: Paint Inner Shadow FIRST (background layer - paints around content area, returns smaller path) ===
             GraphicsPath pathAfterShadow = contentPath;
             if (StyleShadows.HasShadow(style) && state != ControlState.Disabled)
             {
+              //  Console.WriteLine($"Applying shadow for Style={style}, State={state}");
                 ShadowPainterFactory.CurrentUseThemeColors = useThemeColors;
                 ShadowPainterFactory.CurrentState = state;
                 var shadowPainter = ShadowPainterFactory.CreatePainter(style);
@@ -1102,27 +1103,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                         pathAfterShadow = contentPath;
                 }
             }
-
+          //  Console.WriteLine($"Drawing area after shadow: {pathAfterShadow.GetBounds()}");
             // === STEP 2: Paint Background (fills the area between border and final content) ===
             float configuredBorderWidth = StyleBorders.GetBorderWidth(style);
             bool suppressDecorativeEdgeStrokes = showborders && configuredBorderWidth > 0f;
             bool previousSuppressEdgeStrokes = BackgroundPainterHelpers.SuppressEdgeStrokes;
             BackgroundPainterHelpers.SuppressEdgeStrokes = suppressDecorativeEdgeStrokes;
+          //  Console.WriteLine($"Painting background for Style={style}, State={state}, SuppressEdgeStrokes={suppressDecorativeEdgeStrokes}, IsTransparentBackground={IsTransparentBackground}");
             if (!IsTransparentBackground)
             {
+              //  Console.WriteLine($"Applying background for Style={style}, State={state}");
                 var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
                 if (backgroundPainter != null)
                 {
+                  //  Console.WriteLine($"Background painter {backgroundPainter.GetType().Name} will paint area: {pathAfterShadow.GetBounds()}");
                     backgroundPainter.Paint(g, pathAfterShadow, style, theme, useThemeColors, state);
                 }
             }
+          //  Console.WriteLine($"Drawing area after background: {pathAfterShadow.GetBounds()}");
             BackgroundPainterHelpers.SuppressEdgeStrokes = previousSuppressEdgeStrokes;
 
             // === STEP 3: Paint Border LAST (uses shadow path, returns smaller path after border) ===
             // NOTE: Border should ALWAYS be painted regardless of IsTransparentBackground
             // The transparent flag only affects background fill, not borders
             GraphicsPath pathAfterBorder = pathAfterShadow;
+          //  Console.WriteLine($"Painting border for Style={style}, State={state}, ShowBorders={showborders}, ConfiguredBorderWidth={configuredBorderWidth}");
             var borderPainter = BorderPainterFactory.CreatePainter(style);
+          //  Console.WriteLine("Border painter: " + (borderPainter != null ? borderPainter.GetType().Name : "None"));
             if (borderPainter != null && configuredBorderWidth > 0f && showborders)
             {
                 bool isFocused = (state == ControlState.Focused);
@@ -1130,7 +1137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             }
 
 
-
+          //  Console.WriteLine($"Drawing area after border: {pathAfterBorder.GetBounds()}");
             // Cleanup intermediate paths if they're different
             if (contentPath != currentPath && contentPath != pathAfterBorder)
                 contentPath.Dispose();

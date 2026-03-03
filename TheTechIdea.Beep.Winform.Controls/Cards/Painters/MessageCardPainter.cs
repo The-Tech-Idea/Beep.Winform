@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -41,27 +42,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _senderFont?.Dispose(); } catch { }
-            try { _messageFont?.Dispose(); } catch { }
-            try { _timeFont?.Dispose(); } catch { }
-            try { _statusFont?.Dispose(); } catch { }
-            
-            _senderFont = new Font(fontFamily, 9f, FontStyle.Bold);
-            _messageFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _timeFont = new Font(fontFamily, 7.5f, FontStyle.Regular);
-            _statusFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_senderFont = bodyFont;
+            _messageFont = bodyFont;
+            _timeFont = captionFont;
+            _statusFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int avatarSize = DpiScalingHelper.ScaleValue(AvatarSize, _owner);
+            int bubbleRadius = DpiScalingHelper.ScaleValue(BubbleRadius, _owner);
+            int bubblePadding = DpiScalingHelper.ScaleValue(BubblePadding, _owner);
+            int senderHeight = DpiScalingHelper.ScaleValue(SenderHeight, _owner);
+            int timeHeight = DpiScalingHelper.ScaleValue(TimeHeight, _owner);
+            int statusIconSize = DpiScalingHelper.ScaleValue(StatusIconSize, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Determine if this is an outgoing message (use ShowRating as indicator)
             bool isOutgoing = ctx.ShowRating;
@@ -70,28 +72,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (ctx.ShowImage)
             {
                 int avatarX = isOutgoing 
-                    ? drawingRect.Right - Padding - AvatarSize 
-                    : drawingRect.Left + Padding;
+                    ? drawingRect.Right - padding - avatarSize 
+                    : drawingRect.Left + padding;
                 
                 ctx.ImageRect = new Rectangle(
                     avatarX,
-                    drawingRect.Top + Padding,
-                    AvatarSize,
-                    AvatarSize);
+                    drawingRect.Top + padding,
+                    avatarSize,
+                    avatarSize);
             }
             
             // Calculate bubble area
             int bubbleLeft, bubbleWidth;
             if (isOutgoing)
             {
-                bubbleWidth = Math.Min(drawingRect.Width - Padding * 3 - (ctx.ShowImage ? AvatarSize + ContentGap : 0), 
+                bubbleWidth = Math.Min(drawingRect.Width - padding * 3 - (ctx.ShowImage ? avatarSize + contentGap : 0), 
                     (int)(drawingRect.Width * 0.75));
-                bubbleLeft = drawingRect.Right - Padding - (ctx.ShowImage ? AvatarSize + ContentGap : 0) - bubbleWidth;
+                bubbleLeft = drawingRect.Right - padding - (ctx.ShowImage ? avatarSize + contentGap : 0) - bubbleWidth;
             }
             else
             {
-                bubbleLeft = drawingRect.Left + Padding + (ctx.ShowImage ? AvatarSize + ContentGap : 0);
-                bubbleWidth = Math.Min(drawingRect.Width - Padding * 3 - (ctx.ShowImage ? AvatarSize + ContentGap : 0),
+                bubbleLeft = drawingRect.Left + padding + (ctx.ShowImage ? avatarSize + contentGap : 0);
+                bubbleWidth = Math.Min(drawingRect.Width - padding * 3 - (ctx.ShowImage ? avatarSize + contentGap : 0),
                     (int)(drawingRect.Width * 0.75));
             }
             
@@ -99,15 +101,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             if (!isOutgoing)
             {
                 ctx.HeaderRect = new Rectangle(
-                    bubbleLeft + BubblePadding,
-                    drawingRect.Top + Padding,
-                    bubbleWidth - BubblePadding * 2,
-                    SenderHeight);
+                    bubbleLeft + bubblePadding,
+                    drawingRect.Top + padding,
+                    bubbleWidth - bubblePadding * 2,
+                    senderHeight);
             }
             
             // Message bubble
-            int bubbleTop = isOutgoing ? drawingRect.Top + Padding : ctx.HeaderRect.Bottom + ElementGap / 2;
-            int bubbleHeight = Math.Max(40, drawingRect.Height - (bubbleTop - drawingRect.Top) - Padding - TimeHeight - ElementGap);
+            int bubbleTop = isOutgoing ? drawingRect.Top + padding : ctx.HeaderRect.Bottom + elementGap / 2;
+            int bubbleHeight = Math.Max(DpiScalingHelper.ScaleValue(40, _owner), drawingRect.Height - (bubbleTop - drawingRect.Top) - padding - timeHeight - elementGap);
             
             ctx.ParagraphRect = new Rectangle(
                 bubbleLeft,
@@ -117,19 +119,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             
             // Timestamp and status (below bubble)
             ctx.SubtitleRect = new Rectangle(
-                isOutgoing ? ctx.ParagraphRect.Right - 80 : ctx.ParagraphRect.Left,
-                ctx.ParagraphRect.Bottom + ElementGap / 2,
-                80,
-                TimeHeight);
+                isOutgoing ? ctx.ParagraphRect.Right - DpiScalingHelper.ScaleValue(80, _owner) : ctx.ParagraphRect.Left,
+                ctx.ParagraphRect.Bottom + elementGap / 2,
+                DpiScalingHelper.ScaleValue(80, _owner),
+                timeHeight);
             
             // Read status indicator (for outgoing)
             if (isOutgoing)
             {
                 ctx.StatusRect = new Rectangle(
-                    ctx.SubtitleRect.Right + 4,
+                    ctx.SubtitleRect.Right + DpiScalingHelper.ScaleValue(4, _owner),
                     ctx.SubtitleRect.Top,
-                    StatusIconSize,
-                    StatusIconSize);
+                    statusIconSize,
+                    statusIconSize);
             }
             
             ctx.ShowButton = false;
@@ -156,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 using var bgBrush = new SolidBrush(Color.FromArgb(40, ctx.AccentColor));
                 g.FillEllipse(bgBrush, ctx.ImageRect);
                 
-                using var borderPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 2);
+            using var borderPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawEllipse(borderPen, ctx.ImageRect);
             }
             
@@ -191,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 : Color.FromArgb(240, 240, 240);
             
             // Draw bubble with tail
-            using var bubblePath = CreateBubblePath(ctx.ParagraphRect, BubbleRadius, isOutgoing);
+            using var bubblePath = CreateBubblePath(ctx.ParagraphRect, DpiScalingHelper.ScaleValue(BubbleRadius, _owner), isOutgoing);
             using var bubbleBrush = new SolidBrush(bubbleColor);
             g.FillPath(bubbleBrush, bubblePath);
         }
@@ -210,10 +212,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Right side and tail
             if (tailOnRight)
             {
-                path.AddLine(rect.Right, rect.Top + radius, rect.Right, rect.Bottom - radius - TailSize);
+                int tailSize = DpiScalingHelper.ScaleValue(TailSize, _owner);
+                path.AddLine(rect.Right, rect.Top + radius, rect.Right, rect.Bottom - radius - tailSize);
                 // Tail
-                path.AddLine(rect.Right, rect.Bottom - radius - TailSize, rect.Right + TailSize, rect.Bottom - radius);
-                path.AddLine(rect.Right + TailSize, rect.Bottom - radius, rect.Right, rect.Bottom - radius + 4);
+                path.AddLine(rect.Right, rect.Bottom - radius - tailSize, rect.Right + tailSize, rect.Bottom - radius);
+                path.AddLine(rect.Right + tailSize, rect.Bottom - radius, rect.Right, rect.Bottom - radius + DpiScalingHelper.ScaleValue(4, _owner));
                 path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
             }
             else
@@ -224,11 +227,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Bottom-left corner and tail
             if (!tailOnRight)
             {
-                path.AddLine(rect.Right - radius, rect.Bottom, rect.Left + radius + TailSize, rect.Bottom);
+                int tailSize = DpiScalingHelper.ScaleValue(TailSize, _owner);
+                path.AddLine(rect.Right - radius, rect.Bottom, rect.Left + radius + tailSize, rect.Bottom);
                 // Tail
-                path.AddLine(rect.Left + radius + TailSize, rect.Bottom, rect.Left - TailSize, rect.Bottom - radius);
-                path.AddLine(rect.Left - TailSize, rect.Bottom - radius, rect.Left, rect.Bottom - radius - TailSize);
-                path.AddLine(rect.Left, rect.Bottom - radius - TailSize, rect.Left, rect.Top + radius);
+                path.AddLine(rect.Left + radius + tailSize, rect.Bottom, rect.Left - tailSize, rect.Bottom - radius);
+                path.AddLine(rect.Left - tailSize, rect.Bottom - radius, rect.Left, rect.Bottom - radius - tailSize);
+                path.AddLine(rect.Left, rect.Bottom - radius - tailSize, rect.Left, rect.Top + radius);
             }
             else
             {
@@ -244,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Double checkmark for "read"
-            using var pen = new Pen(ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.FromArgb(52, 168, 83), 1.5f);
+            using var pen = new Pen(ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.FromArgb(52, 168, 83), DpiScalingHelper.ScaleValue(2, _owner));
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             
@@ -252,12 +256,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             int y = ctx.StatusRect.Top + ctx.StatusRect.Height / 2;
             
             // First checkmark
-            g.DrawLine(pen, x, y, x + 3, y + 3);
-            g.DrawLine(pen, x + 3, y + 3, x + 8, y - 2);
+            g.DrawLine(pen, x, y, x + DpiScalingHelper.ScaleValue(3, _owner), y + DpiScalingHelper.ScaleValue(3, _owner));
+            g.DrawLine(pen, x + DpiScalingHelper.ScaleValue(3, _owner), y + DpiScalingHelper.ScaleValue(3, _owner), x + DpiScalingHelper.ScaleValue(8, _owner), y - DpiScalingHelper.ScaleValue(2, _owner));
             
             // Second checkmark (offset)
-            g.DrawLine(pen, x + 4, y, x + 7, y + 3);
-            g.DrawLine(pen, x + 7, y + 3, x + 12, y - 2);
+            g.DrawLine(pen, x + DpiScalingHelper.ScaleValue(4, _owner), y, x + DpiScalingHelper.ScaleValue(7, _owner), y + DpiScalingHelper.ScaleValue(3, _owner));
+            g.DrawLine(pen, x + DpiScalingHelper.ScaleValue(7, _owner), y + DpiScalingHelper.ScaleValue(3, _owner), x + DpiScalingHelper.ScaleValue(12, _owner), y - DpiScalingHelper.ScaleValue(2, _owner));
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
@@ -284,13 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _senderFont?.Dispose();
-            _messageFont?.Dispose();
-            _timeFont?.Dispose();
-            _statusFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

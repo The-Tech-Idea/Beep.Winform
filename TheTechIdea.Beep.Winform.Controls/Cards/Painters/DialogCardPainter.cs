@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -38,70 +39,72 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            var fontSize = owner?.Font?.Size ?? 10f;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _messageFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, fontSize + 2f, FontStyle.Bold);
-            _messageFont = new Font(fontFamily, fontSize, FontStyle.Regular);
+var fontSize = owner?.Font?.Size ?? 10f;
+_titleFont = titleFont;
+            _messageFont = bodyFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int messageHeight = DpiScalingHelper.ScaleValue(MessageHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int buttonWidth = DpiScalingHelper.ScaleValue(ButtonWidth, _owner);
+            int buttonGap = DpiScalingHelper.ScaleValue(ButtonGap, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
-            int contentTop = drawingRect.Top + Padding;
+            int contentTop = drawingRect.Top + padding;
             
             // Centered icon at top (optional)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - IconSize) / 2,
+                    drawingRect.Left + (drawingRect.Width - iconSize) / 2,
                     contentTop,
-                    IconSize,
-                    IconSize);
-                contentTop = ctx.ImageRect.Bottom + ElementGap;
+                    iconSize,
+                    iconSize);
+                contentTop = ctx.ImageRect.Bottom + elementGap;
             }
             
             // Title (centered)
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
-                drawingRect.Width - Padding * 2,
-                TitleHeight);
+                drawingRect.Width - padding * 2,
+                titleHeight);
             
             // Message/description (centered)
             ctx.ParagraphRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Bottom + elementGap,
                 ctx.HeaderRect.Width,
-                MessageHeight);
+                messageHeight);
             
             // Two action buttons at bottom (Cancel on left, Confirm on right)
-            int buttonsTop = drawingRect.Bottom - Padding - ButtonHeight;
-            int buttonsWidth = ButtonWidth * 2 + ButtonGap;
+            int buttonsTop = drawingRect.Bottom - padding - buttonHeight;
+            int buttonsWidth = buttonWidth * 2 + buttonGap;
             int buttonsLeft = drawingRect.Left + (drawingRect.Width - buttonsWidth) / 2;
             
             // Secondary button (Cancel) - left
             ctx.SecondaryButtonRect = new Rectangle(
                 buttonsLeft,
                 buttonsTop,
-                ButtonWidth,
-                ButtonHeight);
+                buttonWidth,
+                buttonHeight);
             
             // Primary button (Confirm) - right
             ctx.ButtonRect = new Rectangle(
-                ctx.SecondaryButtonRect.Right + ButtonGap,
+                ctx.SecondaryButtonRect.Right + buttonGap,
                 buttonsTop,
-                ButtonWidth,
-                ButtonHeight);
+                buttonWidth,
+                buttonHeight);
             
             ctx.ShowSecondaryButton = true;
             
@@ -122,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 
                 // Subtle circle behind icon
-                var circleRect = Rectangle.Inflate(ctx.ImageRect, 8, 8);
+                var circleRect = Rectangle.Inflate(ctx.ImageRect, DpiScalingHelper.ScaleValue(8, _owner), DpiScalingHelper.ScaleValue(8, _owner));
                 using var brush = new SolidBrush(Color.FromArgb(15, ctx.AccentColor));
                 g.FillEllipse(brush, circleRect);
             }
@@ -140,11 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _messageFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

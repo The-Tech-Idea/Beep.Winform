@@ -465,7 +465,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                     }
                     catch (Exception ex)
                     {
-                       Console.WriteLine("Error in Creating Field Type");
+                     //  Console.WriteLine("Error in Creating Field Type");
                       
                     }
 
@@ -804,7 +804,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                     {
                         // Handle instantiation exceptions (e.g., constructor throws)
                         // Log the error or handle accordingly
-                        Console.WriteLine($"Error creating instance of {type.FullName}: {ex.Message}");
+                      //  Console.WriteLine($"Error creating instance of {type.FullName}: {ex.Message}");
                         continue;
                     }
 
@@ -820,7 +820,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                         // Check for duplicate GuidID
                         if (uiComponents.ContainsKey(componentInstance.GuidID))
                         {
-                            Console.WriteLine($"Duplicate GuidID detected: {componentInstance.GuidID} for type {type.FullName}. Skipping.");
+                          //  Console.WriteLine($"Duplicate GuidID detected: {componentInstance.GuidID} for type {type.FullName}. Skipping.");
                             continue;
                         }
 
@@ -841,7 +841,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
+              //  Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
                 return null;
             }
 
@@ -856,7 +856,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
+              //  Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
                 return (null, null);
             }
         }
@@ -870,7 +870,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
+              //  Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
                 return (null, null);
             }
         }

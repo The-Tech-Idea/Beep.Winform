@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -19,15 +20,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private Rectangle _toggleRect;
         private bool _collapsed;
         private bool _keysHooked;
-        private WidgetContext _lastCtx;
+        private bool _wheelHooked;
+        private WidgetContext? _lastCtx;
         private int _flatItemIndex; // index among only items
         private readonly List<int> _itemAreaIndices = new();
         private int _sectionJump; // number of rows in one section jump (estimate)
+
+        // Cached fonts
+        private Font? _headFont;
+        private Font? _itemFont;
 
         public override void Initialize(BaseControl owner, IBeepTheme theme)
         {
             base.Initialize(owner, theme);
             HookKeyboard();
+            HookMouseWheel();
+        }
+
+        private void HookMouseWheel()
+        {
+            if (_wheelHooked || Owner == null) return;
+            try { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
+            catch { }
+        }
+
+        private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (_lastCtx == null) return;
+            int lineH = Dp(26); // ~item row stride
+            _lastCtx.ScrollOffsetY = Math.Max(0,
+                Math.Min(_lastCtx.ScrollOffsetY - e.Delta / 120 * lineH * 3,
+                         Math.Max(0, _lastCtx.TotalContentHeight - _lastCtx.ContentRect.Height)));
+            Owner?.Invalidate();
+        }
+
+        protected override void RebuildFonts()
+        {
+            _headFont?.Dispose();
+            _itemFont?.Dispose();
+            var hStyle = Theme?.SideMenuSubTitleFont ?? Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f, FontWeight = FontWeight.Bold };
+            var iStyle = Theme?.SideMenuTextFont    ?? Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f };
+            _headFont = BeepThemesManager.ToFont(hStyle, applyDpiScaling: true);
+            _itemFont = BeepThemesManager.ToFont(iStyle, applyDpiScaling: true);
         }
 
         private void HookKeyboard()
@@ -105,7 +139,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 8;
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
             _collapsed = ctx.IsCollapsed;
             int width = _collapsed ? 56 : Math.Max(160, ctx.DrawingRect.Width);
@@ -121,25 +154,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     ("Management", new List<string>{"Users","Settings"})
                 };
 
-            int y = ctx.ContentRect.Y + 36;
+            int headerH  = Dp(20);
+            int headerGap = Dp(24);
+            int itemH    = Dp(24);
+            int itemGap  = Dp(26);
+            int groupGap = Dp(8);
+            int pad      = Dp(8);
+            int y = ctx.ContentRect.Y + Dp(36);
             int maxItemsInSection = 0;
-            foreach (var g in groups)
+            foreach (var grp in groups)
             {
-                string header = g.Item1;
-                var items = g.Item2;
+                string header = grp.Item1;
+                var items = grp.Item2;
                 maxItemsInSection = Math.Max(maxItemsInSection, items?.Count ?? 0);
-                var headerRect = new Rectangle(ctx.ContentRect.X + 8, y, ctx.ContentRect.Width - 16, 20);
+                var headerRect = new Rectangle(ctx.ContentRect.X + pad, y, ctx.ContentRect.Width - pad * 2, headerH);
                 _areas.Add((headerRect, $"Sidebar_Header_{header}"));
-                y += 24;
+                y += headerGap;
                 foreach (var item in items)
                 {
-                    var itemRect = new Rectangle(ctx.ContentRect.X + 8, y, ctx.ContentRect.Width - 16, 24);
+                    var itemRect = new Rectangle(ctx.ContentRect.X + pad, y, ctx.ContentRect.Width - pad * 2, itemH);
                     _areas.Add((itemRect, $"Sidebar_Item_{item}"));
                     _itemAreaIndices.Add(_areas.Count - 1);
-                    y += 26;
+                    y += itemGap;
                 }
-                y += 8;
+                y += groupGap;
             }
+
+            // Total scrollable content height
+            ctx.TotalContentHeight = Math.Max(0, y - ctx.ContentRect.Y);
+            ctx.TotalContentWidth  = 0;
+            ClampScrollOffset(ctx);
 
             // estimate a section jump as the largest group size, at least 3
             _sectionJump = Math.Max(3, maxItemsInSection);
@@ -162,76 +206,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            using var bg = new SolidBrush(Theme?.BackColor ?? Color.White);
+            var bg = PaintersFactory.GetSolidBrush(Theme?.BackColor ?? Color.White);
             g.FillRectangle(bg, ctx.DrawingRect);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            using var headFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
-            using var itemFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            var primary = Theme?.PrimaryColor ?? Color.SteelBlue;
+            var fgColor = Theme?.ForeColor    ?? Color.Black;
 
-            // Toggle button
+            // ── Toggle button (fixed, not scrolled) ──
             bool hvT = IsAreaHovered("Sidebar_Toggle");
-            using (var br = new SolidBrush(Color.FromArgb(hvT ? 24 : 12, Theme?.PrimaryColor ?? Color.SteelBlue)))
+            using (var br = new SolidBrush(Color.FromArgb(hvT ? 24 : 12, primary)))
                 g.FillEllipse(br, _toggleRect);
-            using (var pen = new Pen(Theme?.PrimaryColor ?? Color.SteelBlue, 1.5f))
+            using (var pen = new Pen(primary, 1.5f))
             {
                 int cx = _toggleRect.X + _toggleRect.Width / 2;
                 int cy = _toggleRect.Y + _toggleRect.Height / 2;
-                if (_collapsed)
-                {
-                    g.DrawLine(pen, cx - 3, cy, cx + 3, cy);
-                    g.DrawLine(pen, cx, cy - 3, cx, cy + 3);
-                }
-                else
-                {
-                    g.DrawLine(pen, cx - 3, cy, cx + 3, cy);
-                }
+                int d  = Dp(3);
+                if (_collapsed) { g.DrawLine(pen, cx - d, cy, cx + d, cy); g.DrawLine(pen, cx, cy - d, cx, cy + d); }
+                else            { g.DrawLine(pen, cx - d, cy, cx + d, cy); }
             }
 
-            // Current selection id
+            // ── Scrollable sections/items ──
             string? activeId = ctx.SidebarSelectionId;
+            var savedClip    = g.Clip;
+            g.SetClip(ctx.ContentRect);
 
-            // Sections and items
+            using var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+
             for (int i = 0; i < _areas.Count; i++)
             {
-                var (rect, id) = _areas[i];
-                bool hv = IsAreaHovered(id);
+                var (baseRect, id) = _areas[i];
+                // Apply scroll offset
+                var rect = new Rectangle(baseRect.X, baseRect.Y - ctx.ScrollOffsetY, baseRect.Width, baseRect.Height);
+
+                if (rect.Bottom < ctx.ContentRect.Y) continue;
+                if (rect.Y      > ctx.ContentRect.Bottom) break;
+
+                bool hv      = IsAreaHovered(id);
                 bool isHeader = id.StartsWith("Sidebar_Header_");
-                bool isSelected = (!isHeader && activeId != null && id == activeId) || (!isHeader && _itemAreaIndices.IndexOf(i) == _flatItemIndex);
+                bool isSelected = (!isHeader && activeId != null && id == activeId)
+                               || (!isHeader && _itemAreaIndices.IndexOf(i) == _flatItemIndex);
 
                 if (isHeader)
                 {
-                    using var h = new SolidBrush(Color.FromArgb(hv ? 12 : 8, Theme?.PrimaryColor ?? Color.SteelBlue));
-                    g.FillRectangle(h, rect);
-                    string text = id.Substring("Sidebar_Header_".Length);
-                    using var brush = new SolidBrush(Color.FromArgb(170, Theme?.ForeColor ?? Color.Black));
-                    g.DrawString(text, headFont, brush, rect.X, rect.Y + 2);
+                    if (hv)
+                    {
+                        using var h = new SolidBrush(Color.FromArgb(12, primary));
+                        g.FillRectangle(h, rect);
+                    }
+                    string htext = id.Substring("Sidebar_Header_".Length);
+                    var hbrush   = PaintersFactory.GetSolidBrush(Color.FromArgb(170, fgColor));
+                    if (_headFont != null)
+                        g.DrawString(htext, _headFont, hbrush, rect.X, rect.Y + Dp(2));
                 }
                 else
                 {
-                    using var h = new SolidBrush(Color.FromArgb(isSelected ? 18 : (hv ? 12 : 6), Theme?.PrimaryColor ?? Color.SteelBlue));
-                    g.FillRoundedRectangle(h, rect, 4);
-                    string text = id.Substring("Sidebar_Item_".Length);
-                    using var brush = new SolidBrush(Color.FromArgb(isSelected ? 220 : 180, Theme?.ForeColor ?? Color.Black));
-                    var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                    g.DrawString(text, itemFont, brush, Rectangle.Inflate(rect, -6, 0), fmt);
+                    using var h = new SolidBrush(Color.FromArgb(isSelected ? 18 : (hv ? 12 : 6), primary));
+                    g.FillRoundedRectangle(h, rect, Dp(4));
+                    string itext  = id.Substring("Sidebar_Item_".Length);
+                    var ibrush    = PaintersFactory.GetSolidBrush(Color.FromArgb(isSelected ? 220 : 180, fgColor));
+                    if (_itemFont != null)
+                        g.DrawString(itext, _itemFont, ibrush, Rectangle.Inflate(rect, -Dp(6), 0), fmt);
                 }
             }
+
+            g.Clip = savedClip;
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            foreach (var (rect, id) in _areas)
-            {
-                if (IsAreaHovered(id))
-                {
-                    using var pen = new Pen(Theme?.AccentColor ?? Color.SteelBlue, 1f);
-                    if (id.StartsWith("Sidebar_Header_")) g.DrawRectangle(pen, rect);
-                    else g.DrawRoundedRectangle(pen, rect, 4);
-                }
-            }
+            bool scrollHov = IsAreaHovered("Sidebar_Scroll");
+            DrawVerticalScrollbar(g, ctx.ContentRect, ctx, scrollHov);
         }
 
         public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
@@ -244,16 +291,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 notifyAreaHit?.Invoke("Sidebar_Toggle", _toggleRect);
                 Owner?.Invalidate();
             });
-            foreach (var (rect, id) in _areas)
+            foreach (var (baseRect, id) in _areas)
             {
+                // Apply scroll offset to hit areas too
+                var hitRect = new Rectangle(baseRect.X, baseRect.Y - ctx.ScrollOffsetY, baseRect.Width, baseRect.Height);
+                if (hitRect.Bottom < ctx.ContentRect.Y || hitRect.Y > ctx.ContentRect.Bottom)
+                    continue;
                 string capture = id;
-                owner.AddHitArea(id, rect, null, () =>
+                owner.AddHitArea(id, hitRect, null, () =>
                 {
                     if (!capture.StartsWith("Sidebar_Header_"))
-                    {
                         ctx.SidebarSelectionId = capture;
-                    }
-                    notifyAreaHit?.Invoke(capture, rect);
+                    notifyAreaHit?.Invoke(capture, hitRect);
                     Owner?.Invalidate();
                 });
             }
@@ -261,19 +310,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public void Dispose()
         {
-            if (!_keysHooked || Owner == null) return;
-            try
+            if (_keysHooked && Owner != null)
             {
-                Owner._input.UpArrowKeyPressed -= OnUp;
-                Owner._input.DownArrowKeyPressed -= OnDown;
-                Owner._input.HomeKeyPressed -= OnHome;
-                Owner._input.EndKeyPressed -= OnEnd;
-                Owner._input.PageUpKeyPressed -= OnPageUp;
-                Owner._input.PageDownKeyPressed -= OnPageDown;
-                Owner._input.EnterKeyPressed -= OnEnter;
-                _keysHooked = false;
+                try
+                {
+                    Owner._input.UpArrowKeyPressed   -= OnUp;
+                    Owner._input.DownArrowKeyPressed -= OnDown;
+                    Owner._input.HomeKeyPressed      -= OnHome;
+                    Owner._input.EndKeyPressed       -= OnEnd;
+                    Owner._input.PageUpKeyPressed    -= OnPageUp;
+                    Owner._input.PageDownKeyPressed  -= OnPageDown;
+                    Owner._input.EnterKeyPressed     -= OnEnter;
+                    _keysHooked = false;
+                }
+                catch { }
             }
-            catch { }
+            if (_wheelHooked && Owner != null)
+            {
+                try { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
+                catch { }
+            }
+            _headFont?.Dispose();
+            _itemFont?.Dispose();
         }
     }
 }

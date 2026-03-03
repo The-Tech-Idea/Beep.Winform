@@ -735,7 +735,7 @@ calendar.DateTimeSelected += (sender, selectedDate) =>
 {
     if (selectedDate.HasValue)
     {
-        Console.WriteLine($"User selected: {selectedDate.Value:F}");
+      //  Console.WriteLine($"User selected: {selectedDate.Value:F}");
         // Process the selected date and time
         ProcessSelectedDateTime(selectedDate.Value);
     }
@@ -744,7 +744,7 @@ calendar.DateTimeSelected += (sender, selectedDate) =>
 // Handle cancellation
 calendar.Cancelled += (sender, e) =>
 {
-    Console.WriteLine("User cancelled date selection");
+  //  Console.WriteLine("User cancelled date selection");
     // Handle cancellation logic
     HandleCancellation();
 };</code></pre>

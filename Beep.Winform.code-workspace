@@ -11,6 +11,27 @@
 		},
 		{
 			"path": "../Beep.Shell"
+		},
+		{
+			"path": "../Beep.Branchs"
+		},
+		{
+			"path": "../BeepDM"
+		},
+		{
+			"path": "../Beep.Desktop"
+		},
+		{
+			"path": "../Beep.DeveloperAssistant"
+		},
+		{
+			"path": "../BeepDataSources/DataSourcesPlugins/RDBMSDataSource"
+		},
+		{
+			"path": "../BeepDataSources/DataSourcesPluginsCore/SqliteDatasourceCore"
+		},
+		{
+			"path": "../BeepDataSources/DataSourcesPluginsCore/LiteDBDataSourceCore"
 		}
 	],
 	"settings": {}

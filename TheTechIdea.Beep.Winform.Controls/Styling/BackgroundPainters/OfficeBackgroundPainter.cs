@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var (topColor, bottomColor) = GetOfficeStateColors(backgroundColor, primaryColor, state);
 
             // Office ribbon-style vertical gradient
-            var brush = PaintersFactory.GetLinearGradientBrush(
+            using var brush = PaintersFactory.CreateLinearGradientBrush(
                 bounds, topColor, bottomColor, LinearGradientMode.Vertical);
             g.FillPath(brush, path);
         }

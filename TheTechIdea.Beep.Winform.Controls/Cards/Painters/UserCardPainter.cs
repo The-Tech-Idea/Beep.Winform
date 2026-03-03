@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -42,103 +43,105 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _nameFont?.Dispose(); } catch { }
-            try { _roleFont?.Dispose(); } catch { }
-            try { _bioFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _nameFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _roleFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _bioFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_nameFont = titleFont;
+            _roleFont = captionFont;
+            _bioFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int avatarSize = DpiScalingHelper.ScaleValue(AvatarSize, _owner);
+            int avatarBorderWidth = DpiScalingHelper.ScaleValue(AvatarBorderWidth, _owner);
+            int nameHeight = DpiScalingHelper.ScaleValue(NameHeight, _owner);
+            int roleHeight = DpiScalingHelper.ScaleValue(RoleHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int bioMinHeight = DpiScalingHelper.ScaleValue(BioMinHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Centered avatar at top
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - AvatarSize) / 2,
-                    drawingRect.Top + Padding,
-                    AvatarSize,
-                    AvatarSize);
+                    drawingRect.Left + (drawingRect.Width - avatarSize) / 2,
+                    drawingRect.Top + padding,
+                    avatarSize,
+                    avatarSize);
             }
             
             // Name (centered below avatar)
-            int nameTop = ctx.ShowImage ? ctx.ImageRect.Bottom + ElementGap * 2 : drawingRect.Top + Padding;
+            int nameTop = ctx.ShowImage ? ctx.ImageRect.Bottom + elementGap * 2 : drawingRect.Top + padding;
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 nameTop,
-                drawingRect.Width - Padding * 2,
-                NameHeight);
+                drawingRect.Width - padding * 2,
+                nameHeight);
             
             // Role/title (centered below name)
             ctx.SubtitleRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
-                drawingRect.Width - Padding * 2,
-                RoleHeight);
+                drawingRect.Left + padding,
+                ctx.HeaderRect.Bottom + elementGap / 2,
+                drawingRect.Width - padding * 2,
+                roleHeight);
             
             // Status badge (centered below role)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - BadgeWidth) / 2,
-                    ctx.SubtitleRect.Bottom + ElementGap,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Left + (drawingRect.Width - badgeWidth) / 2,
+                    ctx.SubtitleRect.Bottom + elementGap,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Bio/description
             int bioTop = ctx.SubtitleRect.Bottom + 
-                (string.IsNullOrEmpty(ctx.BadgeText1) ? ElementGap * 2 : BadgeHeight + ElementGap * 2);
-            int bioHeight = Math.Max(BioMinHeight,
-                drawingRect.Height - (bioTop - drawingRect.Top) - Padding * 2 - 
-                (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
+                (string.IsNullOrEmpty(ctx.BadgeText1) ? elementGap * 2 : badgeHeight + elementGap * 2);
+            int bioHeight = Math.Max(bioMinHeight,
+                drawingRect.Height - (bioTop - drawingRect.Top) - padding * 2 - 
+                (ctx.ShowButton ? buttonHeight + elementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 bioTop,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Width - padding * 2,
                 bioHeight);
             
             // Action buttons
             if (ctx.ShowButton)
             {
-                int buttonTop = drawingRect.Bottom - Padding - ButtonHeight;
+                int buttonTop = drawingRect.Bottom - padding - buttonHeight;
                 
                 if (ctx.ShowSecondaryButton)
                 {
-                    int buttonWidth = (drawingRect.Width - Padding * 3) / 2;
+                    int buttonWidth = (drawingRect.Width - padding * 3) / 2;
                     ctx.ButtonRect = new Rectangle(
-                        drawingRect.Left + Padding,
+                        drawingRect.Left + padding,
                         buttonTop,
                         buttonWidth,
-                        ButtonHeight);
+                        buttonHeight);
                     
                     ctx.SecondaryButtonRect = new Rectangle(
-                        ctx.ButtonRect.Right + Padding,
+                        ctx.ButtonRect.Right + padding,
                         buttonTop,
                         buttonWidth,
-                        ButtonHeight);
+                        buttonHeight);
                 }
                 else
                 {
                     ctx.ButtonRect = new Rectangle(
-                        drawingRect.Left + Padding,
+                        drawingRect.Left + padding,
                         buttonTop,
-                        drawingRect.Width - Padding * 2,
-                        ButtonHeight);
+                        drawingRect.Width - padding * 2,
+                        buttonHeight);
                 }
             }
             
@@ -170,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 g.DrawEllipse(glowPen, glowRect);
                 
                 // Main border ring
-                using var borderPen = new Pen(ctx.AccentColor, AvatarBorderWidth);
+                using var borderPen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(AvatarBorderWidth, _owner));
                 g.DrawEllipse(borderPen, ctx.ImageRect);
             }
         }
@@ -197,13 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _nameFont?.Dispose();
-            _roleFont?.Dispose();
-            _bioFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

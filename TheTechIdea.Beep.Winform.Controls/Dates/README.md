@@ -250,7 +250,7 @@ var datePicker = new BeepDateDropDown
 datePicker.SelectedDateTimeChanged += (s, e) =>
 {
     if (e.Date.HasValue)
-        Console.WriteLine($"Selected: {e.Date:d}");
+      //  Console.WriteLine($"Selected: {e.Date:d}");
 };
 ```
 
@@ -266,8 +266,8 @@ var dateTimePicker = new BeepDateDropDown
 DateTime? selectedDateTime = dateTimePicker.DateTimeValue;
 if (selectedDateTime.HasValue)
 {
-    Console.WriteLine($"Date: {selectedDateTime.Value:d}");
-    Console.WriteLine($"Time: {selectedDateTime.Value:t}");
+  //  Console.WriteLine($"Date: {selectedDateTime.Value:d}");
+  //  Console.WriteLine($"Time: {selectedDateTime.Value:t}");
 }
 ```
 
@@ -285,8 +285,8 @@ rangePicker.DateRangeChanged += (s, e) =>
     if (e.StartDate.HasValue && e.EndDate.HasValue)
     {
         var range = rangePicker.DateRangeValue;
-        Console.WriteLine($"Range: {range}");
-        Console.WriteLine($"Days: {range.Days}");
+      //  Console.WriteLine($"Range: {range}");
+      //  Console.WriteLine($"Days: {range.Days}");
     }
 };
 ```
@@ -304,8 +304,8 @@ var meetingPicker = new BeepDateDropDown
 var meeting = meetingPicker.DateTimeRangeValue;
 if (meeting.IsValid)
 {
-    Console.WriteLine($"Meeting: {meeting.Start:g} to {meeting.End:g}");
-    Console.WriteLine($"Duration: {meeting.TotalHours:F1} hours");
+  //  Console.WriteLine($"Meeting: {meeting.Start:g} to {meeting.End:g}");
+  //  Console.WriteLine($"Duration: {meeting.TotalHours:F1} hours");
 }
 ```
 
@@ -459,7 +459,7 @@ var calendar = new BeepDateTimePicker
 calendar.DateChanged += (s, e) =>
 {
     if (e.Date.HasValue)
-        Console.WriteLine($"Selected: {e.Date:d}");
+      //  Console.WriteLine($"Selected: {e.Date:d}");
 };
 
 form.Controls.Add(calendar);
@@ -498,7 +498,7 @@ quarterlyPicker.DateChanged += (s, e) =>
     var props = quarterlyPicker.Properties;
     if (props.RangeStartDate.HasValue && props.RangeEndDate.HasValue)
     {
-        Console.WriteLine($"Q Range: {props.RangeStartDate:d} to {props.RangeEndDate:d}");
+      //  Console.WriteLine($"Q Range: {props.RangeStartDate:d} to {props.RangeEndDate:d}");
     }
 };
 ```

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
@@ -20,6 +22,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
        
         public static event EventHandler<ThemeChangeEventArgs> ThemeChanged;
         public static event EventHandler <StyleChangeEventArgs> FormStyleChanged;
+        /// <summary>
+        /// Fired when the DPI scale factor changes (window moved to different-DPI monitor).
+        /// Controls should handle this by updating layout/size metrics and invalidating — NOT by calling ApplyTheme().
+        /// </summary>
+        public static event EventHandler DpiChanged;
         // Static themes collection
         public static readonly List<IBeepTheme> _themes = new List<IBeepTheme>();
 
@@ -355,9 +362,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
 
         /// <summary>
         /// Gets or sets whether DPI scaling should be applied to fonts automatically.
-        /// Default is true.
+        /// Default is FALSE — WinForms Point fonts auto-scale with the framework; manual multiplication causes double-scaling.
+        /// Only enable if you manage font DPI outside of WinForms auto-scale (e.g. purely custom GDI painting).
         /// </summary>
-        private static bool _enableDpiFontScaling = true;
+        private static bool _enableDpiFontScaling = false;
         public static bool EnableDpiFontScaling
         {
             get => _enableDpiFontScaling;
@@ -419,52 +427,50 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
 
         /// <summary>
         /// Called when DPI scale factor changes to notify consumers.
+        /// Fires <see cref="DpiChanged"/> so controls can update layout metrics and invalidate.
+        /// Does NOT fire <see cref="ThemeChanged"/> — a DPI change is NOT a theme change; firing ThemeChanged
+        /// forces full ApplyTheme() on every control, which causes unnecessary font re-creation and multiple repaints.
         /// </summary>
         private static void OnDpiScaleFactorChanged()
         {
-            // Clear font cache since sizes have changed
-            BeepFontManager.ClearFontCache();
-            
-            // Raise theme changed event to trigger UI refresh with new font sizes
-            if (CurrentTheme != null)
-            {
-                ThemeChanged?.Invoke(null, new ThemeChangeEventArgs
-                {
-                    OldThemeName = _currentThemeName,
-                    NewThemeName = _currentThemeName,
-                    OldTheme = CurrentTheme,
-                    NewTheme = CurrentTheme
-                });
-            }
+            // Notify controls that DPI changed — they should update layout and invalidate (not re-apply entire theme)
+            DpiChanged?.Invoke(null, EventArgs.Empty);
         }
 
         #endregion
 
         // Helper for font creation - uses BeepFontManager
+        /// <summary>
+        /// Returns a logical Point font for a TypographyStyle. DPI scaling is intentionally NOT applied here.
+        /// WinForms automatically scales GraphicsUnit.Point fonts when the host form's DPI changes.
+        /// Use <see cref="ToFontForControl"/> in custom painters where you need physical pixel sizes.
+        /// </summary>
         public static Font ToFont(TypographyStyle style)
         {
-            return ToFont(style, EnableDpiFontScaling);
+            return ToFont(style, false);
         }
 
         /// <summary>
-        /// Creates a Font from a TypographyStyle with optional DPI scaling.
+        /// Creates a Font from a TypographyStyle. The <paramref name="applyDpiScaling"/> parameter is
+        /// preserved for backward compatibility but should remain <c>false</c> (the default).
+        /// WinForms Point fonts are DPI-independent by design; manual multiplication causes size inflation.
         /// </summary>
         public static Font ToFont(TypographyStyle style, bool applyDpiScaling)
         {
             if (style == null) return BeepFontManager.DefaultFont;
 
             float fontSize = style.FontSize;
-            
-            // Apply DPI scaling if enabled
-            if (applyDpiScaling && _dpiScaleFactor > 0 && Math.Abs(_dpiScaleFactor - 1.0f) > 0.01f)
-            {
-                fontSize = style.FontSize * _dpiScaleFactor;
-                // Ensure minimum readable font size
-                fontSize = Math.Max(fontSize, 6.0f);
-            }
+
+            // NOTE: DPI multiplication intentionally removed. WinForms GraphicsUnit.Point fonts
+            // auto-scale when the host monitor DPI changes (ScaleControl cascade). Multiplying here
+            // caused 2-3× size inflation on high-DPI monitors. Use ToFontForControl() in GDI painters
+            // that need a physical pixel size.
+            // Legacy callers that pass applyDpiScaling=true are silently treated the same as false.
+
+            if (fontSize <= 0) fontSize = 9.0f;
 
             string fontFamily = style.FontFamily;
-            if (!BeepFontManager.IsFontAvailable(fontFamily))
+            if (string.IsNullOrWhiteSpace(fontFamily) || !BeepFontManager.IsFontAvailable(fontFamily))
                 fontFamily = "Arial";
 
             FontStyle fontStyle = style.FontStyle;
@@ -475,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (style.IsStrikeout)
                 fontStyle |= FontStyle.Strikeout;
 
-            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle);
+            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle) ?? BeepFontManager.DefaultFont;
         }
 
         /// <summary>
@@ -488,11 +494,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (control == null) return ToFont(style, false);
 
             float dpiScale = DpiScalingHelper.GetDpiScaleFactor(control);
-            float fontSize = style.FontSize * dpiScale;
+            float fontSize = style.FontSize > 0 ? style.FontSize * dpiScale : 9.0f;
             fontSize = Math.Max(fontSize, 6.0f);
 
             string fontFamily = style.FontFamily;
-            if (!BeepFontManager.IsFontAvailable(fontFamily))
+            if (string.IsNullOrWhiteSpace(fontFamily) || !BeepFontManager.IsFontAvailable(fontFamily))
                 fontFamily = "Arial";
 
             FontStyle fontStyle = style.FontStyle;
@@ -503,7 +509,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (style.IsStrikeout)
                 fontStyle |= FontStyle.Strikeout;
 
-            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle);
+            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle) ?? BeepFontManager.DefaultFont;
         }
 
         /// <summary>
@@ -531,18 +537,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         // Create font from parameters - uses BeepFontManager
         public static Font ToFont(string fontFamily, float fontSize, FontWeight fontWeight, FontStyle fontStyle)
         {
+            if (fontSize <= 0) fontSize = 9.0f;
+
             // Check if font is available via BeepFontManager
-            if (!BeepFontManager.IsFontAvailable(fontFamily))
+            if (string.IsNullOrWhiteSpace(fontFamily) || !BeepFontManager.IsFontAvailable(fontFamily))
                 fontFamily = "Arial";
 
-            // Apply DPI scaling if enabled
-            if (EnableDpiFontScaling && _dpiScaleFactor > 0 && Math.Abs(_dpiScaleFactor - 1.0f) > 0.01f)
-            {
-                fontSize = fontSize * _dpiScaleFactor;
-                fontSize = Math.Max(fontSize, 6.0f);
-            }
+            // DPI multiplication intentionally removed (see ToFont(TypographyStyle, bool) notes).
+            // WinForms handles point font scaling automatically via ScaleControl.
 
-            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle);
+            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle) ?? BeepFontManager.DefaultFont;
         }
 
         // Save theme to file

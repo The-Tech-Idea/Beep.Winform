@@ -5,7 +5,9 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 {
@@ -158,6 +160,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 // This will set _activeTab and handle all activation logic
                 // ActivateTab will call RecalculateLayout internally
                 ActivateTab(tab);
+
+                // Apply current theme AND ControlStyle to the newly added addin immediately
+                // so it fully inherits the container's active style without a second trigger.
+                //
+                // For the FIRST tab we must call ApplyTheme() — not just PropagateThemeToAddins()
+                // — because _currentTheme and _paintHelper may still hold their constructor-time
+                // defaults (null / BeepControlStyle.None) at the moment AddControl is first invoked.
+                // PropagateThemeToAddins() silently no-ops when _currentTheme is null, leaving the
+                // tab strip painted with wrong colours until the user pokes ControlStyle a second
+                // time.  ApplyTheme() refreshes _currentTheme, rebuilds paint-helper colours and
+                // then calls PropagateThemeToAddins() internally — guaranteeing a correct first paint.
+                // For subsequent tabs the lighter PropagateThemeToAddins() path remains sufficient.
+                try
+                {
+                    if (_tabs.Count == 1)
+                        ApplyTheme();       // full refresh — ensures _currentTheme + helpers are live
+                    else
+                    {
+                        PropagateThemeToAddins();
+                        // PropagateThemeToAddins() pushes ControlStyle into addins which can
+                        // trigger their internal PerformLayout and reset their bounds.
+                        // Re-position all controls so the active addin stays inside _contentArea.
+                        PositionActiveAddin();
+                    }
+                }
+                catch { /* non-fatal */ }
                 
                 OnAddinAdded(new ContainerEvents 
                 { 

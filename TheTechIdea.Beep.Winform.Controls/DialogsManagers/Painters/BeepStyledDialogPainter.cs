@@ -389,18 +389,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Painters
         /// </summary>
         public override void PaintButtons(Graphics g, Rectangle buttonBounds, DialogConfig config, IBeepTheme theme)
         {
-            var layout = CalculateLayout(buttonBounds, config);
-            if (layout.ButtonRects == null || layout.ButtonRects.Length == 0)
+            if (buttonBounds.Width <= 0 || buttonBounds.Height <= 0)
                 return;
 
             var buttons = config.Buttons;
+            if (buttons == null || buttons.Length == 0) return;
             var colors = DialogStyleAdapter.GetColors(config, theme);
             var beepStyle = DialogStyleAdapter.GetBeepControlStyle(config);
             var buttonFont = GetButtonFont(config);
+            int maxButtonWidth = Math.Max(90, buttonBounds.Width / Math.Max(1, buttons.Length) - 8);
+            int buttonHeight = Math.Min(buttonBounds.Height, 38);
+            var rects = DialogHelpers.CalculateButtonPositions(
+                buttonBounds,
+                buttons.Length,
+                config.ButtonLayout,
+                maxButtonWidth,
+                buttonHeight,
+                8);
 
-            for (int i = 0; i < Math.Min(buttons.Length, layout.ButtonRects.Length); i++)
+            for (int i = 0; i < Math.Min(buttons.Length, rects.Length); i++)
             {
-                var buttonRect = layout.ButtonRects[i];
+                var buttonRect = rects[i];
                 var button = buttons[i];
                 var buttonText = DialogStyleAdapter.GetButtonText(button);
 

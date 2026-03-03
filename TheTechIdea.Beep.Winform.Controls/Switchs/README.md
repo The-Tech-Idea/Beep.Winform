@@ -97,7 +97,7 @@ var mySwitch = new BeepSwitch
     Checked = true
 };
 mySwitch.CheckedChanged += (s, e) => {
-    Console.WriteLine($"Switch: {mySwitch.Checked}");
+  //  Console.WriteLine($"Switch: {mySwitch.Checked}");
 };
 ```
 

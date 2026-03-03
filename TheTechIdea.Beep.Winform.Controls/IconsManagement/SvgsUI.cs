@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Icons
     public static class SvgsUI
     {
         private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI";
+        private static string R(string fileName) => SvgResourcePathHelper.Build(BaseNamespace, fileName);
 
         /// <summary>
         /// Gets the assembly containing the embedded SVG resources.
@@ -22,7 +23,7 @@ namespace TheTechIdea.Beep.Icons
         public static Assembly ResourceAssembly => Assembly.GetExecutingAssembly();
 
         #region "Alerts & Notifications"
-        public static readonly string AlertCircle = $"{BaseNamespace}.alert-circle.svg";
+        public static readonly string AlertCircle = R("alert-circle.svg");
         public static readonly string AlertOctagon = $"{BaseNamespace}.alert-octagon.svg";
         public static readonly string AlertTriangle = $"{BaseNamespace}.alert-triangle.svg";
         public static readonly string Bell = $"{BaseNamespace}.bell.svg";
@@ -126,6 +127,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Bold = $"{BaseNamespace}.bold.svg";
         public static readonly string Code = $"{BaseNamespace}.code.svg";
         public static readonly string DotsVertical = $"{BaseNamespace}.dotsvertical.svg";
+        public static readonly string MoreVertical = DotsVertical;
         public static readonly string Edit = $"{BaseNamespace}.edit.svg";
         public static readonly string Edit2 = $"{BaseNamespace}.edit-2.svg";
         public static readonly string Edit3 = $"{BaseNamespace}.edit-3.svg";
@@ -437,7 +439,7 @@ namespace TheTechIdea.Beep.Icons
                     var value = field.GetValue(null) as string;
                     if (!string.IsNullOrEmpty(value) && value.EndsWith(".svg"))
                     {
-                        paths[field.Name] = value;
+                        paths[field.Name] = SvgResourcePathHelper.Normalize(value);
                     }
                 }
             }
@@ -452,8 +454,9 @@ namespace TheTechIdea.Beep.Icons
         /// <returns>True if the resource exists</returns>
         public static bool ResourceExists(string resourcePath)
         {
+            string normalizedPath = SvgResourcePathHelper.Normalize(resourcePath);
             var resourceNames = ResourceAssembly.GetManifestResourceNames();
-            return resourceNames.Contains(resourcePath);
+            return resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -462,9 +465,21 @@ namespace TheTechIdea.Beep.Icons
         /// <returns>Array of resource names</returns>
         public static string[] GetAvailableResources()
         {
+            string normalizedBase = SvgResourcePathHelper.Normalize(BaseNamespace);
             return ResourceAssembly.GetManifestResourceNames()
-                .Where(name => name.StartsWith(BaseNamespace) && name.EndsWith(".svg"))
+                .Where(name => name.StartsWith(normalizedBase, StringComparison.OrdinalIgnoreCase) &&
+                               name.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
+        }
+
+        /// <summary>
+        /// Returns icon constants that currently do not match an embedded manifest resource.
+        /// </summary>
+        public static Dictionary<string, string> GetInvalidPaths()
+        {
+            return GetAllPaths()
+                .Where(kvp => !ResourceExists(kvp.Value))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         /// <summary>

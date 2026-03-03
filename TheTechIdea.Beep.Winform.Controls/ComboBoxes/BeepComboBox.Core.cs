@@ -41,9 +41,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Gets whether the dropdown button is currently hovered (for painters)
         /// </summary>
-        internal bool IsButtonHovered => _isButtonHovered;
-        internal bool IsControlHovered => _isHovered;
-        
+        internal bool IsButtonHovered       => _isButtonHovered;
+        internal bool IsControlHovered      => _isHovered;
+        internal bool IsDropdownOpen        => _isDropdownOpen;
+        internal bool ClearButtonHovered    => _clearButtonHovered;
+        internal Rectangle ClearButtonRect  => _clearButtonRect;
+        internal float ChevronAngle         => _chevronAngle;
+        internal float LoadingRotationAngle => _loadingRotationAngle;
+        internal float SkeletonOffset       => _skeletonOffset;
+
+        // ENH-19: map SimpleItem.ID → chip-close button rect (populated by MultiSelectChipsPainter)
+        internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipCloseRects
+            = new System.Collections.Generic.Dictionary<string, Rectangle>();
+
+        // ENH-15: tooltip for truncated display text
+        private System.Windows.Forms.ToolTip _overflowTooltip;
+        internal System.Windows.Forms.ToolTip OverflowTooltip => _overflowTooltip;
+
         #endregion
         
         #region Core Fields
@@ -62,23 +76,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Text and editing
         private string _inputText = string.Empty;
         private bool _isEditing = false;
+
+        // Inline text editor — a BeepTextBox child shown over _textAreaRect on click
+        private BeepTextBox _inlineEditor;
         
-        // Layout caching
+        // Layout rectangles — recomputed fresh every frame (BeepButton pattern)
         private Rectangle _textAreaRect;
         private Rectangle _dropdownButtonRect;
         private Rectangle _imageRect;
-        private float _cachedScaleX = -1f;
-        private float _cachedScaleY = -1f;
         
-        // Layout cache invalidation tracking
-        private int _cachedWidth;
-        private int _cachedHeight;
-        private Padding _cachedInnerPadding;
-        private string _cachedLeadingImagePath;
-        private string _cachedLeadingIconPath;
-        private int _cachedDropdownButtonWidth;
-        private Font _cachedTextFont;
-        private bool _layoutCacheValid = false;
+        // Layout flags
         private bool _dropdownButtonWidthSetExplicitly = false;
         private bool _innerPaddingSetExplicitly = false;
         private bool _layoutDefaultsInitialized = false;
@@ -93,10 +100,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Visual state
         private bool _isHovered = false;
         private bool _isButtonHovered = false;
+
+        // Clear button
+        private bool _clearButtonHovered = false;
+        private Rectangle _clearButtonRect;
+        private const int ClearButtonWidthLogical = 22;
+
+        // Chevron animation
+        private float _chevronAngle = 0f;           // 0 = closed / 180 = open
+        private Timer _chevronTimer;
+        private float _chevronAnimTarget = 0f;
+        private const float ChevronAnimStep = 180f / (150f / 16f); // ~19.2 deg per 16 ms tick
         private string _dropdownIconPath = "";
         
-        // Font
-        private Font _textFont = new Font("Segoe UI", 9f);
+        // Font — resolved from theme in ApplyTheme(); never use this.Font / Control.Font (SKILL Rule 2)
+        private Font _textFont = SystemFonts.DefaultFont;
         
         // Performance optimizations
         private Timer _delayedInvalidateTimer;
@@ -106,7 +124,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isLoading = false;
         private Timer _loadingAnimationTimer;
         private float _loadingRotationAngle = 0f;
-        
+
+        // ENH-23: Skeleton shimmer
+        private Timer _skeletonTimer;
+        private float _skeletonOffset = 0f;   // 0..1 sweep position
+
         // Auto-complete debouncing
         private Timer _autoCompleteDelayTimer;
         
@@ -148,9 +170,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Set default properties
             Size = new Size(200, 40);
+            MinimumSize = new Size(80, 28);  // Enforce minimum so rects are always usable
             BorderRadius = 4;
             ShowAllBorders = true;
-            ApplyLayoutDefaultsFromPainter();
+            ApplyLayoutDefaultsFromPainter(applyHeight: true);
             
             // Set accessibility properties
             AccessibleRole = AccessibleRole.ComboBox;
@@ -162,7 +185,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 AccessibleDescription = "Select an item from the dropdown list";
             }
-            
+
+            // ENH-15: tooltip for truncated display text
+            _overflowTooltip = new System.Windows.Forms.ToolTip
+            {
+                InitialDelay = 500,
+                AutoPopDelay = 4000,
+                ReshowDelay  = 200,
+                ShowAlways   = true
+            };
+
             // Initialize context menu (using inherited BeepContextMenu from BaseControl)
             InitializeContextMenu();
             
@@ -263,12 +295,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void OnControlGotFocus(object sender, EventArgs e)
         {
+            if (DesignMode) return; // Prevent design-time redraws on focus selection
+            // Focus gain may shift DrawingRect (different border for focused state).
+            // UpdateLayout always recomputes fresh + syncs inline editor.
+            UpdateLayout();
             Invalidate();
         }
         
         private void OnControlLostFocus(object sender, EventArgs e)
         {
+            if (DesignMode) return; // Prevent design-time redraws on focus loss
             _isEditing = false;
+            // Sync dropdown state: if the context menu closed itself (via deactivation)
+            // without going through CloseDropdown(), the flag may still be true.
+            if (_isDropdownOpen && (BeepContextMenu == null || !BeepContextMenu.Visible))
+            {
+                _isDropdownOpen = false;
+                PopupClosed?.Invoke(this, EventArgs.Empty);
+            }
+            // Focus loss may shift DrawingRect. Always recompute.
+            UpdateLayout();
             Invalidate();
         }
         
@@ -280,6 +326,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void OnContextMenuItemClicked(object sender, MenuItemEventArgs e)
         {
+            // ENH-18: handle the virtual "Select all / Clear all" row
+            if (e.Item?.Name == "_selectall")
+            {
+                bool allSelected = _listItems.Count > 0 &&
+                                   (_selectedItems?.Count ?? 0) >= _listItems.Count;
+                SelectedItems = allSelected
+                    ? new System.Collections.Generic.List<SimpleItem>()
+                    : new System.Collections.Generic.List<SimpleItem>(_listItems);
+                SelectedItemsChanged?.Invoke(this, EventArgs.Empty);
+                return; // keep dropdown open so user can refine
+            }
+
+            // ENH-06: skip non-selectable group headers
+            if (e.Item?.Name?.StartsWith("_grp_") == true || e.Item?.IsEnabled == false)
+                return;
+
             if (AllowMultipleSelection || (BeepContextMenu != null && BeepContextMenu.MultiSelect))
             {
                 // Toggle selection in selected items
@@ -344,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ScaleLogicalY(logicalPadding.Bottom));
         }
 
-        private void ApplyLayoutDefaultsFromPainter(bool force = false)
+        private void ApplyLayoutDefaultsFromPainter(bool force = false, bool applyHeight = false)
         {
             _comboBoxPainter ??= CreatePainter(_comboBoxType);
             _comboBoxPainter.Initialize(this, _currentTheme);
@@ -363,64 +425,135 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var preferredPadding = _comboBoxPainter.GetPreferredPadding();
                     _innerPadding = ScaleLogicalPadding(preferredPadding);
                 }
-                
+
+                // ENH-05: apply SizeVariant height only when the caller explicitly opts in.
+                // Theme / FormStyle / ComboBoxType / property-reset callers use applyHeight=false
+                // so they can never accidentally shrink or grow the control.
+                if (applyHeight)
+                {
+                    int targetH = SizeVariant switch
+                    {
+                        BeepComboBoxSize.Small  => ScaleLogicalY(24),
+                        BeepComboBoxSize.Large  => ScaleLogicalY(40),
+                        _                       => ScaleLogicalY(32)
+                    };
+                    if (Height != targetH)
+                    {
+                        Size = new System.Drawing.Size(Width, targetH);
+                    }
+                }
+
                 _layoutDefaultsInitialized = true;
             }
         }
         
+        /// <summary>
+        /// Recalculates all layout rectangles from the current DrawingRect.
+        /// Following BeepButton's approach: always compute fresh, no caching.
+        /// </summary>
         private void UpdateLayout()
         {
             if (Width <= 0 || Height <= 0) return;
-            
-            // Only apply painter defaults if not yet initialized
+
             if (!_layoutDefaultsInitialized)
             {
-                ApplyLayoutDefaultsFromPainter();
+                ApplyLayoutDefaultsFromPainter(force: false, applyHeight: false);
             }
-            
-            // Check if layout cache is still valid
-            // Note: LeadingImagePath and LeadingIconPath may be inherited from BaseControl
-            string currentLeadingImagePath = null;
-            string currentLeadingIconPath = null;
-            try { currentLeadingImagePath = LeadingImagePath; } catch { }
-            try { currentLeadingIconPath = LeadingIconPath; } catch { }
-            
-            bool needsRecalc = !_layoutCacheValid ||
-                _cachedWidth != Width ||
-                _cachedHeight != Height ||
-                _cachedInnerPadding != InnerPadding ||
-                _cachedLeadingImagePath != currentLeadingImagePath ||
-                _cachedLeadingIconPath != currentLeadingIconPath ||
-                _cachedDropdownButtonWidth != DropdownButtonWidth ||
-                _cachedTextFont != TextFont ||
-                !DpiScalingHelper.AreScaleFactorsEqual(_cachedScaleX, _dpiScaleX) ||
-                !DpiScalingHelper.AreScaleFactorsEqual(_cachedScaleY, _dpiScaleY);
-            
-            if (needsRecalc)
+
+            // Refresh DrawingRect so we work with the latest value
+            UpdateDrawingRect();
+
+            // Always compute fresh — identical to DrawContent pipeline
+            _helper.CalculateLayout(DrawingRect, out _textAreaRect, out _dropdownButtonRect, out _imageRect);
+
+            // Clear-button carve-out
+            if (ShowClearButton && (_selectedItem != null || !string.IsNullOrEmpty(_inputText)))
             {
-                // Use helper to calculate layout
-                _helper.CalculateLayout(DrawingRect, out _textAreaRect, out _dropdownButtonRect, out _imageRect);
-                
-                // Update cache tracking
-                _cachedWidth = Width;
-                _cachedHeight = Height;
-                _cachedInnerPadding = InnerPadding;
-                try { _cachedLeadingImagePath = LeadingImagePath; } catch { _cachedLeadingImagePath = null; }
-                try { _cachedLeadingIconPath = LeadingIconPath; } catch { _cachedLeadingIconPath = null; }
-                _cachedDropdownButtonWidth = DropdownButtonWidth;
-                _cachedTextFont = TextFont;
-                _cachedScaleX = _dpiScaleX;
-                _cachedScaleY = _dpiScaleY;
-                _layoutCacheValid = true;
+                int cbw = Math.Max(16, Math.Min(ScaleLogicalX(ClearButtonWidthLogical), _textAreaRect.Width / 4));
+                _clearButtonRect = new Rectangle(
+                    _dropdownButtonRect.Left - cbw,
+                    DrawingRect.Y, cbw, DrawingRect.Height);
+                _textAreaRect = new Rectangle(
+                    _textAreaRect.X, _textAreaRect.Y,
+                    Math.Max(1, _textAreaRect.Width - cbw), _textAreaRect.Height);
             }
+            else
+            {
+                _clearButtonRect = Rectangle.Empty;
+            }
+
+            // RTL mirror
+            if (IsRtl && !DrawingRect.IsEmpty)
+            {
+                _dropdownButtonRect = MirrorRect(_dropdownButtonRect, DrawingRect);
+                _textAreaRect       = MirrorRect(_textAreaRect,       DrawingRect);
+                _clearButtonRect    = _clearButtonRect.IsEmpty ? Rectangle.Empty
+                                     : MirrorRect(_clearButtonRect, DrawingRect);
+                if (!_imageRect.IsEmpty)
+                    _imageRect = MirrorRect(_imageRect, DrawingRect);
+            }
+
+            // Sync inline editor
+            if (_inlineEditor != null && _inlineEditor.Visible)
+            {
+                if (_inlineEditor.Bounds != _textAreaRect)
+                    _inlineEditor.Bounds = _textAreaRect;
+            }
+        }
+
+        /// <summary>ENH-24: Mirrors a rectangle horizontally inside a container.</summary>
+        private static Rectangle MirrorRect(Rectangle r, Rectangle container)
+        {
+            int mirrored = container.Right - (r.Right - container.Left);
+            return new Rectangle(mirrored, r.Y, r.Width, r.Height);
         }
         
         private void InvalidateLayout()
         {
-            _layoutCacheValid = false;
+            if (DesignMode) return; // Never schedule timer-driven repaints at design time
             _needsLayoutUpdate = true;
             _delayedInvalidateTimer?.Stop();
             _delayedInvalidateTimer?.Start();
+        }
+
+        protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+
+            if (newScaleX <= 0f || newScaleY <= 0f)
+            {
+                return;
+            }
+
+            float ratioX = oldScaleX > 0f ? (newScaleX / oldScaleX) : 1f;
+            float ratioY = oldScaleY > 0f ? (newScaleY / oldScaleY) : 1f;
+
+            if (_dropdownButtonWidthSetExplicitly)
+            {
+                int scaledWidth = (int)Math.Round(_dropdownButtonWidth * ratioX);
+                _dropdownButtonWidth = Math.Max(ScaleLogicalX(18), Math.Max(1, scaledWidth));
+            }
+            else
+            {
+                _layoutDefaultsInitialized = false;
+            }
+
+            if (_innerPaddingSetExplicitly)
+            {
+                _innerPadding = new Padding(
+                    Math.Max(0, (int)Math.Round(_innerPadding.Left * ratioX)),
+                    Math.Max(0, (int)Math.Round(_innerPadding.Top * ratioY)),
+                    Math.Max(0, (int)Math.Round(_innerPadding.Right * ratioX)),
+                    Math.Max(0, (int)Math.Round(_innerPadding.Bottom * ratioY)));
+            }
+            else
+            {
+                _layoutDefaultsInitialized = false;
+            }
+
+            ApplyLayoutDefaultsFromPainter(force: true, applyHeight: false);
+            UpdateLayout();
+            Invalidate();
         }
         
         #endregion
@@ -446,13 +579,34 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _chipAnimationTimer?.Dispose();
                 _chipAnimationTimer = null;
                 
+                _chevronTimer?.Stop();
+                _chevronTimer?.Dispose();
+                _chevronTimer = null;
+
                 _loadingAnimationTimer?.Stop();
                 _loadingAnimationTimer?.Dispose();
                 _loadingAnimationTimer = null;
-                
+
+                _overflowTooltip?.Dispose();
+                _overflowTooltip = null;
+
+                _skeletonTimer?.Stop();
+                _skeletonTimer?.Dispose();
+                _skeletonTimer = null;
+
                 _autoCompleteDelayTimer?.Stop();
                 _autoCompleteDelayTimer?.Dispose();
                 _autoCompleteDelayTimer = null;
+
+                // Inline editor is a child control — Dispose releases it
+                if (_inlineEditor != null)
+                {
+                    _inlineEditor.LostFocus     -= InlineEditor_LostFocus;
+                    _inlineEditor.KeyDown       -= InlineEditor_KeyDown;
+                    _inlineEditor.TextChanged   -= InlineEditor_TextChanged;
+                    _inlineEditor.Dispose();
+                    _inlineEditor = null;
+                }
             }
             
             base.Dispose(disposing);
@@ -534,6 +688,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _loadingRotationAngle = 0f;
             }
+            Invalidate();
+        }
+
+        // ── ENH-23: Skeleton shimmer ────────────────────────────────────────
+        internal void StartSkeletonAnimation()
+        {
+            if (_skeletonTimer == null)
+            {
+                _skeletonTimer = new Timer { Interval = 24 }; // ~42 FPS
+                _skeletonTimer.Tick += SkeletonTimer_Tick;
+            }
+            _skeletonOffset = 0f;
+            _skeletonTimer.Start();
+        }
+
+        internal void StopSkeletonAnimation()
+        {
+            _skeletonTimer?.Stop();
+            _skeletonOffset = 0f;
+        }
+
+        private void SkeletonTimer_Tick(object sender, EventArgs e)
+        {
+            if (!ShowSkeleton)
+            {
+                StopSkeletonAnimation();
+                Invalidate();
+                return;
+            }
+            _skeletonOffset += 0.015f;
+            if (_skeletonOffset > 1f) _skeletonOffset = 0f;
             Invalidate();
         }
         

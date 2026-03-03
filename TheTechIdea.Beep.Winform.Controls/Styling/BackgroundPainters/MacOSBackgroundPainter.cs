@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             RectangleF bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            var gradientBrush = PaintersFactory.GetLinearGradientBrush(
+            using var gradientBrush = PaintersFactory.CreateLinearGradientBrush(
                 bounds,
                 Color.FromArgb(10, 255, 255, 255),  // Subtle top highlight
                 Color.FromArgb(5, 0, 0, 0),         // Subtle bottom shadow

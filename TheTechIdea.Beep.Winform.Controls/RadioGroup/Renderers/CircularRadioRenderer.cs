@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
         private BeepControlStyle _controlStyle = BeepControlStyle.Minimal;
@@ -48,11 +47,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         }
 
         // Traditional radio specifications
-        private const int RadioSize = 16;
+        private const int RadioSize = 20;
         private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
-        private const int MinItemHeight = 28;
-        private const int ItemPadding = 8;
-        private const int ComponentSpacing = 8;
+        private const int MinItemHeight = 40;
+        private const int ItemPadding = 12;
+        private const int ComponentSpacing = 12;
         #endregion
 
         #region Initialization
@@ -60,16 +59,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
-                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize)
-                : new Font("Segoe UI", 12f));
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
         #endregion
 
@@ -85,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var colors = GetStateColors(state);
 
             // Draw hover background if needed
-            if (state.IsHovered)
+            if (state.IsEnabled && state.IsHovered)
             {
                 DrawHoverBackground(graphics, rectangle, colors);
             }
@@ -141,10 +137,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
 
             // Draw inner circle (when selected)
-            if (state.IsSelected && state.IsEnabled)
+            if (state.IsSelected)
             {
                 int innerRadius = outerRadius - 4;
-                using (var brush = new SolidBrush(colors.SelectedFill))
+                var fillColor = state.IsEnabled ? colors.SelectedFill : colors.DisabledBorder;
+                using (var brush = new SolidBrush(fillColor))
                 {
                     var innerRect = new Rectangle(
                         center.X - innerRadius,
@@ -159,22 +156,23 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle radioArea, RadioItemState state, RadioColors colors)
         {
-            int currentX = radioArea.Right + ComponentSpacing;
+            int currentX = Math.Max(radioArea.Right + ComponentSpacing, contentArea.Left);
             
             // Draw icon if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
+                int iconSize = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
                 var iconRect = new Rectangle(
                     currentX,
-                    contentArea.Y + (contentArea.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize
+                    contentArea.Y + (contentArea.Height - iconSize) / 2,
+                    iconSize,
+                    iconSize
                 );
-
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 
-                currentX += IconSize + ComponentSpacing;
+                currentX += iconSize + ComponentSpacing;
             }
 
             // Draw text
@@ -207,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawFocusIndicator(Graphics graphics, Rectangle rectangle, RadioColors colors)
         {
-            using var pen = new Pen(colors.FocusBorder, 1f) { DashStyle = DashStyle.Dot };
+            using var pen = new Pen(colors.FocusBorder, 2f) { DashStyle = DashStyle.Dot };
             var focusRect = Rectangle.Inflate(rectangle, -2, -2);
             graphics.DrawRectangle(pen, focusRect);
         }
@@ -248,10 +246,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public Rectangle GetContentArea(Rectangle itemRectangle)
         {
             return new Rectangle(
-                itemRectangle.X + ItemPadding / 2,
-                itemRectangle.Y + ItemPadding / 2,
-                itemRectangle.Width - ItemPadding,
-                itemRectangle.Height - ItemPadding
+                itemRectangle.X + Math.Max(4, ItemPadding / 2),
+                itemRectangle.Y + Math.Max(2, ItemPadding / 2),
+                Math.Max(0, itemRectangle.Width - Math.Max(8, ItemPadding)),
+                Math.Max(0, itemRectangle.Height - Math.Max(4, ItemPadding))
             );
         }
 
@@ -277,19 +275,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         #region Helper Methods
         private RadioColors GetStateColors(RadioItemState state)
         {
-            if (_theme == null)
+            if (!_useThemeColors || _theme == null)
             {
                 return new RadioColors
                 {
-                    Border = Color.FromArgb(118, 118, 118),
-                    SelectedBorder = Color.FromArgb(0, 120, 215),
-                    DisabledBorder = Color.FromArgb(200, 200, 200),
-                    SelectedFill = Color.FromArgb(0, 120, 215),
-                    Text = Color.Black,
-                    SelectedText = Color.Black,
-                    DisabledText = Color.FromArgb(109, 109, 109),
-                    HoverBackground = Color.FromArgb(240, 240, 240),
-                    FocusBorder = Color.FromArgb(0, 120, 215)
+                    Border = StyleColors.GetBorder(_controlStyle),
+                    SelectedBorder = StyleColors.GetPrimary(_controlStyle),
+                    DisabledBorder = Color.FromArgb(160, StyleColors.GetBorder(_controlStyle)),
+                    SelectedFill = StyleColors.GetPrimary(_controlStyle),
+                    Text = StyleColors.GetForeground(_controlStyle),
+                    SelectedText = StyleColors.GetForeground(_controlStyle),
+                    DisabledText = Color.FromArgb(150, StyleColors.GetForeground(_controlStyle)),
+                    HoverBackground = StyleColors.GetHover(_controlStyle),
+                    FocusBorder = StyleColors.GetPrimary(_controlStyle)
                 };
             }
 

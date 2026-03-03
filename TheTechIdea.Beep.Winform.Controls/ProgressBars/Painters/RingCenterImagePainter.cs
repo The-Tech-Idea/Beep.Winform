@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -17,10 +18,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int thickness = GetInt(p, "Thickness", Math.Max(6, bounds.Height/8));
             int pad = thickness/2 + 2;
             var ringRect = new Rectangle(bounds.X + pad, bounds.Y + pad, bounds.Width - pad*2, bounds.Height - pad*2);
-            using var backPen = new Pen(Color.FromArgb(40, theme.CardTextForeColor), thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
-            using var forePen = new Pen(theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor, thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            using var backPen = new Pen(Color.FromArgb(owner.Enabled ? 40 : 24, theme.CardTextForeColor), thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            var activeColor = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
+            if (!owner.Enabled)
+            {
+                activeColor = Color.FromArgb(120, activeColor);
+            }
+            using var forePen = new Pen(activeColor, thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             g.DrawArc(backPen, ringRect, -90, 360);
-            float pct = Math.Max(0f, Math.Min(1f, owner.Value / (float)Math.Max(1, owner.Maximum)));
+            float pct = owner.DisplayProgressPercentageAccessor;
             g.DrawArc(forePen, ringRect, -90, 360f * pct);
 
             // center image and optional text
@@ -44,10 +50,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             string txt = GetString(p, "CenterText", string.Empty);
             if (!string.IsNullOrEmpty(txt))
             {
-                using var f = new Font("Segoe UI", Math.Max(8, ringRect.Height/8f), FontStyle.Bold);
+                using var f = BeepThemesManager.ToFont(
+                    theme.ProgressBarFont?.FontFamily ?? theme.FontFamily,
+                    Math.Max(8, ringRect.Height / 8f),
+                    FontWeight.Bold,
+                    FontStyle.Bold);
                 var sz = TextUtils.MeasureText(g, txt, f);
                 var pt = new PointF(ringRect.X + (ringRect.Width - sz.Width)/2, ringRect.Y + (ringRect.Height - sz.Height)/2 + iconSize/2f + 4);
-                using var br = new SolidBrush(theme.CardTextForeColor);
+                using var br = new SolidBrush(owner.Enabled ? theme.CardTextForeColor : Color.FromArgb(140, theme.CardTextForeColor));
                 g.DrawString(txt, f, br, pt);
             }
         }

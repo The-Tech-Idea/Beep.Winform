@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -28,13 +29,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             string text = GetString(p, "BadgeText", $"{(int)(pct * 100)}%");
             var back = GetColor(p, "BadgeBackColor", theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor);
             var fore = GetColor(p, "BadgeForeColor", theme.OnPrimaryColor.IsEmpty ? Color.White : theme.OnPrimaryColor);
+            if (!owner.Enabled)
+            {
+                back = Color.FromArgb(120, back);
+                fore = Color.FromArgb(170, fore);
+            }
 
             int cx = rect.Left + (int)(pct * rect.Width);
+            cx = Math.Max(rect.Left + badgeRadius, Math.Min(rect.Right - badgeRadius, cx));
             int cy = rect.Top + offsetY;
             var ellipse = new Rectangle(cx - badgeRadius, cy - badgeRadius, badgeRadius * 2, badgeRadius * 2);
             using (var shadow = new SolidBrush(Color.FromArgb(40, 0, 0, 0))) g.FillEllipse(shadow, ellipse.X + 2, ellipse.Y + 3, ellipse.Width, ellipse.Height);
             using (var b = new SolidBrush(back)) g.FillEllipse(b, ellipse);
-            using (var f = new Font(owner.TextFont?.FontFamily ?? new Font("Segoe UI", 9f).FontFamily, Math.Max(8, badgeRadius/2f), FontStyle.Bold))
+            using (var f = BeepThemesManager.ToFont(
+                theme.ProgressBarFont?.FontFamily ?? owner.TextFont?.FontFamily?.Name ?? theme.FontFamily,
+                Math.Max(8, badgeRadius / 2f),
+                FontWeight.Bold,
+                FontStyle.Bold))
             using (var tb = new SolidBrush(fore))
             {
                 var sz = TextUtils.MeasureText(g, text, f);

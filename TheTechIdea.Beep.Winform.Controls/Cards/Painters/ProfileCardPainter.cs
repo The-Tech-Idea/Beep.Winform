@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -40,94 +41,94 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _nameFont?.Dispose(); } catch { }
-            try { _titleFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            try { _statusFont?.Dispose(); } catch { }
-            
-            _nameFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _titleFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
-            _statusFont = new Font(fontFamily, 9f, FontStyle.Regular);
+_nameFont = titleFont;
+            _titleFont = titleFont;
+            _badgeFont = captionFont;
+            _statusFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int nameHeight = DpiScalingHelper.ScaleValue(NameHeight, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int statusHeight = DpiScalingHelper.ScaleValue(StatusHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Banner image area - 40% of card height
             int bannerHeight = Math.Max(80, Math.Min(
                 (int)(drawingRect.Height * BannerHeightPercent / 100f),
-                drawingRect.Height - (Padding * 4)));
+                drawingRect.Height - (padding * 4)));
             
             ctx.ImageRect = new Rectangle(
-                drawingRect.Left + Padding,
-                drawingRect.Top + Padding,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Left + padding,
+                drawingRect.Top + padding,
+                drawingRect.Width - padding * 2,
                 bannerHeight);
             
             // Name below banner
             ctx.HeaderRect = new Rectangle(
                 ctx.ImageRect.Left,
-                ctx.ImageRect.Bottom + ElementGap * 2,
+                ctx.ImageRect.Bottom + elementGap * 2,
                 ctx.ImageRect.Width,
-                NameHeight);
+                nameHeight);
             
             // Title/subtitle below name
             ctx.SubtitleRect = new Rectangle(
                 ctx.HeaderRect.Left,
                 ctx.HeaderRect.Bottom + 2,
                 ctx.HeaderRect.Width,
-                TitleHeight);
+                titleHeight);
             
             // Status indicator below title
             ctx.StatusRect = new Rectangle(
                 ctx.SubtitleRect.Left,
-                ctx.SubtitleRect.Bottom + ElementGap,
+                ctx.SubtitleRect.Bottom + elementGap,
                 ctx.SubtitleRect.Width,
-                StatusHeight);
+                statusHeight);
             
             // Badge in top-right corner of banner
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    ctx.ImageRect.Right - BadgeWidth - ElementGap,
-                    ctx.ImageRect.Top + ElementGap,
-                    BadgeWidth,
-                    BadgeHeight);
+                    ctx.ImageRect.Right - badgeWidth - elementGap,
+                    ctx.ImageRect.Top + elementGap,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Primary button at bottom - full width
             ctx.ButtonRect = new Rectangle(
-                drawingRect.Left + Padding,
-                drawingRect.Bottom - Padding - ButtonHeight,
-                (drawingRect.Width - Padding * 2 - ElementGap) / 2,
-                ButtonHeight);
+                drawingRect.Left + padding,
+                drawingRect.Bottom - padding - buttonHeight,
+                (drawingRect.Width - padding * 2 - elementGap) / 2,
+                buttonHeight);
             
             // Secondary button next to primary
             if (ctx.ShowSecondaryButton)
             {
                 ctx.SecondaryButtonRect = new Rectangle(
-                    ctx.ButtonRect.Right + ElementGap,
+                    ctx.ButtonRect.Right + elementGap,
                     ctx.ButtonRect.Top,
                     ctx.ButtonRect.Width,
-                    ButtonHeight);
+                    buttonHeight);
             }
             else
             {
                 // Single button takes full width
                 ctx.ButtonRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Bottom - Padding - ButtonHeight,
-                    drawingRect.Width - Padding * 2,
-                    ButtonHeight);
+                    drawingRect.Left + padding,
+                    drawingRect.Bottom - padding - buttonHeight,
+                    drawingRect.Width - padding * 2,
+                    buttonHeight);
             }
             
             return ctx;
@@ -177,13 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _nameFont?.Dispose();
-            _titleFont?.Dispose();
-            _badgeFont?.Dispose();
-            _statusFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

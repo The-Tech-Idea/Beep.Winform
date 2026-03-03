@@ -9,7 +9,11 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
-            // Force a layout update when the text changes.
+            if (AutoSize)
+            {
+                Size = GetPreferredSize(Size.Empty);
+            }
+            RequestVisualRefresh(includeText: true);
         }
 
         #region Keyboard Event Handlers
@@ -21,11 +25,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             {
                 if (Enabled)
                 {
-                    // Toggle state when Spacebar or Enter is pressed
-                    _state = _state == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
-                    OnStateChanged();
+                    // Keyboard toggle keeps parity with mouse behavior.
+                    _keyboardFocusVisible = true;
+                    State = State == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
                     e.Handled = true;
                 }
+            }
+            else if (e.KeyCode == Keys.Tab || e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+            {
+                _keyboardFocusVisible = true;
+                RequestVisualRefresh(includeText: false);
             }
         }
 
@@ -33,13 +42,14 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            Invalidate(); // Redraw to show focus indication
+            RequestVisualRefresh(includeText: false);
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            Invalidate(); // Redraw to remove focus indication
+            _keyboardFocusVisible = false;
+            RequestVisualRefresh(includeText: false);
         }
 
         // Make the control focusable and ensure proper tab navigation
@@ -58,6 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
+            _keyboardFocusVisible = false;
             if (!Focused)
             {
                 Focus();
@@ -68,19 +79,28 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             // Users expect to be able to click anywhere on the control (text or checkbox) to toggle
             if (Enabled)
             {
-                // Toggle between checked and unchecked states only
-                // (Don't cycle through indeterminate state unless specifically needed)
-                _state = _state == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
-
-                // Update the current value based on the new state
-                _currentValue = _state == CheckBoxState.Checked ? _checkedValue : _uncheckedValue;
-
-                // Fire the StateChanged event
-                StateChanged?.Invoke(this, EventArgs.Empty);
-
-                // Redraw the control
-                Invalidate();
+                // Keep two-state click behavior, but route through State property
+                // so mappings, submit notifications, and painters stay in sync.
+                State = State == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
             }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            RequestVisualRefresh(includeText: false);
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            RequestVisualRefresh(includeText: false);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            ClearGraphicsCaches();
+            base.OnHandleDestroyed(e);
         }
         #endregion
     }

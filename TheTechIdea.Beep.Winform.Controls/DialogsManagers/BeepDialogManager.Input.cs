@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -46,7 +47,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                return dialog.ReturnValue;
+                var value = dialog.ReturnValue;
+                if (config.FieldValidators.TryGetValue("value", out var validator))
+                {
+                    var validation = validator(value ?? string.Empty);
+                    config.ValidationState["value"] = validation;
+                    if (!validation.Valid)
+                    {
+                        DialogMotionEngine.ShakeDialog(dialog);
+                        return null;
+                    }
+                }
+                StoreRecentInput(config, value ?? string.Empty);
+                return value;
             }
 
             return null;
@@ -72,7 +85,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                return dialog.ReturnValue;
+                var value = dialog.ReturnValue;
+                if (_defaultTheme != null && _recentInputMemory.TryGetValue($"{title}:{prompt}", out var queue) && queue.Count > 0)
+                {
+                    // no-op placeholder for future autofill suggestions
+                }
+                return value;
             }
 
             return null;
@@ -113,6 +131,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         #endregion
+
+        public async Task<string?> InputTextValidatedAsync(
+            string title,
+            string prompt,
+            Func<string, (bool Valid, string Error)> validator,
+            string? defaultValue = null)
+        {
+            var config = new DialogConfig
+            {
+                Title = title,
+                Message = prompt,
+                Buttons = new[] { BeepDialogButtons.Cancel, BeepDialogButtons.Ok },
+                DialogKey = $"{title}:{prompt}",
+                EnableRecentInputMemory = true
+            };
+            config.FieldValidators["value"] = validator;
+            return await InputTextAsync(title, prompt, defaultValue);
+        }
 
         #region Numeric Input
 
@@ -413,11 +449,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             using var fd = new FontDialog();
 
-            if (initialFont != null)
-            {
-                fd.Font = initialFont;
-            }
-
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? fd.ShowDialog(owner) : fd.ShowDialog();
 
@@ -436,11 +467,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             using var fd = new FontDialog();
 
-            if (initialFont != null)
-            {
-                fd.Font = initialFont;
-            }
-
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? fd.ShowDialog(owner) : fd.ShowDialog();
 
@@ -456,184 +482,173 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region IDialogManager Implementation (Input Methods)
 
-        DialogReturn IDialogManager.InputBox(string title, string promptText)
+        private static DialogReturn CreateValueReturn(string? value, object? tag = null)
         {
-            var value = InputText(title, promptText);
             return new DialogReturn
             {
                 Result = value != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
                 Value = value ?? string.Empty,
+                Tag = tag,
                 Submit = value != null,
-                Cancel = value == null
+                Cancel = value == null,
+                UserAction = value != null ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
             };
         }
 
-        DialogReturn IDialogManager.InputBoxYesNo(string title, string promptText)
+        private static DialogReturn CreateTagReturn<T>(T? value) where T : struct
         {
-            var result = ShowQuestion(title, promptText);
-            return result;
-        }
-
-        DialogReturn IDialogManager.InputLargeBox(string title, string promptText)
-        {
-            var value = InputLargeText(title, promptText);
             return new DialogReturn
             {
-                Result = value != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value ?? string.Empty,
-                Submit = value != null,
-                Cancel = value == null
+                Result = value.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
+                Value = value?.ToString() ?? string.Empty,
+                Tag = value,
+                Submit = value.HasValue,
+                Cancel = !value.HasValue,
+                UserAction = value.HasValue ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
             };
         }
 
-        DialogReturn IDialogManager.InputPassword(string title, string promptText, bool masked)
+        async Task<DialogReturn> IDialogManager.InputBoxAsync(string title, string promptText, System.Threading.CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            var value = await InputTextAsync(title, promptText);
+            return CreateValueReturn(value);
+        }
+
+        async Task<DialogReturn> IDialogManager.InputBoxYesNoAsync(string title, string promptText, System.Threading.CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return await ShowAsync(DialogConfig.CreateQuestion(title, promptText), cancellationToken);
+        }
+
+        Task<DialogReturn> IDialogManager.InputLargeBoxAsync(string title, string promptText, System.Threading.CancellationToken cancellationToken)
+        {
+            return ((IDialogManager)this).InputBoxAsync(title, promptText, cancellationToken);
+        }
+
+        async Task<DialogReturn> IDialogManager.InputPasswordAsync(string title, string promptText, bool masked, System.Threading.CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
             var value = InputPassword(title, promptText);
-            return new DialogReturn
-            {
-                Result = value != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value ?? string.Empty,
-                Submit = value != null,
-                Cancel = value == null
-            };
+            return await Task.FromResult(CreateValueReturn(value));
         }
 
-        DialogReturn IDialogManager.InputInt(string title, string promptText, int? min, int? max, int? @default)
+        async Task<DialogReturn> IDialogManager.InputIntAsync(string title, string promptText, int? min, int? max, int? @default, System.Threading.CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var value = InputInteger(title, promptText, min, max, @default);
-            return new DialogReturn
-            {
-                Result = value.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value?.ToString() ?? string.Empty,
-                Submit = value.HasValue,
-                Cancel = !value.HasValue
-            };
+            return await Task.FromResult(CreateTagReturn(value));
         }
 
-        DialogReturn IDialogManager.InputDouble(string title, string promptText, double? min, double? max, double? @default, int? decimals)
+        async Task<DialogReturn> IDialogManager.InputDoubleAsync(string title, string promptText, double? min, double? max, double? @default, int? decimals, System.Threading.CancellationToken cancellationToken)
         {
-            var value = InputNumber(title, promptText, min, max, @default);
-            return new DialogReturn
-            {
-                Result = value.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value?.ToString() ?? string.Empty,
-                Submit = value.HasValue,
-                Cancel = !value.HasValue
-            };
+            cancellationToken.ThrowIfCancellationRequested();
+            var value = await InputNumberAsync(title, promptText, min, max, @default);
+            return CreateTagReturn(value);
         }
 
-        DialogReturn IDialogManager.InputDateTime(string title, string promptText, DateTime? min, DateTime? max, DateTime? @default)
+        async Task<DialogReturn> IDialogManager.InputDateTimeAsync(string title, string promptText, DateTime? min, DateTime? max, DateTime? @default, System.Threading.CancellationToken cancellationToken)
         {
-            var value = InputDate(title, promptText, min, max, @default);
-            return new DialogReturn
-            {
-                Result = value.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value?.ToString() ?? string.Empty,
-                Tag = value,
-                Submit = value.HasValue,
-                Cancel = !value.HasValue
-            };
+            cancellationToken.ThrowIfCancellationRequested();
+            var value = await InputDateAsync(title, promptText, min, max, @default);
+            return CreateTagReturn(value);
         }
 
-        DialogReturn IDialogManager.InputTimeSpan(string title, string promptText, TimeSpan? min, TimeSpan? max, TimeSpan? @default)
+        async Task<DialogReturn> IDialogManager.InputTimeSpanAsync(string title, string promptText, TimeSpan? min, TimeSpan? max, TimeSpan? @default, System.Threading.CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var value = InputTimeSpan(title, promptText, min, max, @default);
-            return new DialogReturn
-            {
-                Result = value.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value?.ToString() ?? string.Empty,
-                Tag = value,
-                Submit = value.HasValue,
-                Cancel = !value.HasValue
-            };
+            return await Task.FromResult(CreateTagReturn(value));
         }
 
-        DialogReturn IDialogManager.InputComboBox(string title, string promptText, List<SimpleItem> itvalues)
+        async Task<DialogReturn> IDialogManager.InputComboBoxAsync(string title, string promptText, List<SimpleItem> itvalues, System.Threading.CancellationToken cancellationToken)
         {
-            var value = InputSelect(title, promptText, itvalues);
+            cancellationToken.ThrowIfCancellationRequested();
+            var value = await InputSelectAsync(title, promptText, itvalues);
             return new DialogReturn
             {
                 Result = value != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
                 Value = value?.Text ?? string.Empty,
                 Tag = value,
                 Submit = value != null,
-                Cancel = value == null
+                Cancel = value == null,
+                UserAction = value != null ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
             };
         }
 
-        DialogReturn IDialogManager.InputComboBox(string title, string promptText, List<string> values)
+        async Task<DialogReturn> IDialogManager.InputComboBoxAsync(string title, string promptText, List<string> values, System.Threading.CancellationToken cancellationToken)
         {
-            var value = InputSelectString(title, promptText, values);
-            return new DialogReturn
-            {
-                Result = value != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
-                Value = value ?? string.Empty,
-                Submit = value != null,
-                Cancel = value == null
-            };
+            var items = values?.Select(v => new SimpleItem { Text = v, Value = v }).ToList() ?? new List<SimpleItem>();
+            return await ((IDialogManager)this).InputComboBoxAsync(title, promptText, items, cancellationToken);
         }
 
-        DialogReturn IDialogManager.InputListBox(string title, string promptText, List<SimpleItem> itvalues)
+        Task<DialogReturn> IDialogManager.InputListBoxAsync(string title, string promptText, List<SimpleItem> itvalues, System.Threading.CancellationToken cancellationToken)
         {
-            return ((IDialogManager)this).InputComboBox(title, promptText, itvalues);
+            return ((IDialogManager)this).InputComboBoxAsync(title, promptText, itvalues, cancellationToken);
         }
 
-        DialogReturn IDialogManager.InputRadioGroupBox(string title, string promptText, List<SimpleItem> itvalues)
+        Task<DialogReturn> IDialogManager.InputRadioGroupBoxAsync(string title, string promptText, List<SimpleItem> itvalues, System.Threading.CancellationToken cancellationToken)
         {
-            return ((IDialogManager)this).InputComboBox(title, promptText, itvalues);
+            return ((IDialogManager)this).InputComboBoxAsync(title, promptText, itvalues, cancellationToken);
         }
 
-        DialogReturn IDialogManager.InputCheckList(string title, string promptText, List<SimpleItem> items)
+        async Task<DialogReturn> IDialogManager.InputCheckListAsync(string title, string promptText, List<SimpleItem> items, System.Threading.CancellationToken cancellationToken)
         {
-            var values = InputMultiSelect(title, promptText, items);
+            cancellationToken.ThrowIfCancellationRequested();
+            var values = await InputMultiSelectAsync(title, promptText, items);
             return new DialogReturn
             {
                 Result = values.Count > 0 ? BeepDialogResult.OK : BeepDialogResult.Cancel,
                 Items = values,
                 Submit = values.Count > 0,
-                Cancel = values.Count == 0
+                Cancel = values.Count == 0,
+                UserAction = values.Count > 0 ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
             };
         }
 
-        DialogReturn IDialogManager.MultiSelect(string title, string promptText, List<SimpleItem> items)
+        Task<DialogReturn> IDialogManager.MultiSelectAsync(string title, string promptText, List<SimpleItem> items, System.Threading.CancellationToken cancellationToken)
         {
-            return ((IDialogManager)this).InputCheckList(title, promptText, items);
+            return ((IDialogManager)this).InputCheckListAsync(title, promptText, items, cancellationToken);
         }
 
-        DialogReturn IDialogManager.DialogCombo(string text, List<SimpleItem> comboSource, string DisplyMember, string ValueMember)
+        Task<DialogReturn> IDialogManager.DialogComboAsync(string text, List<SimpleItem> comboSource, string displayMember, string valueMember, System.Threading.CancellationToken cancellationToken)
         {
-            return ((IDialogManager)this).InputComboBox("Select", text, comboSource);
+            return ((IDialogManager)this).InputComboBoxAsync("Select", text, comboSource, cancellationToken);
         }
 
-        DialogReturn IDialogManager.SelectColor(string? title, string? initialColor)
+        async Task<DialogReturn> IDialogManager.SelectColorAsync(string? title, string? initialColor, System.Threading.CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             Color? initial = null;
             if (!string.IsNullOrEmpty(initialColor))
             {
                 try { initial = ColorTranslator.FromHtml(initialColor); } catch { }
             }
 
-            var color = InputColor(title, initial);
+            var color = await InputColorAsync(title, initial);
             return new DialogReturn
             {
                 Result = color.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
                 Value = color.HasValue ? ColorTranslator.ToHtml(color.Value) : string.Empty,
                 Tag = color,
                 Submit = color.HasValue,
-                Cancel = !color.HasValue
+                Cancel = !color.HasValue,
+                UserAction = color.HasValue ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
             };
         }
 
-        DialogReturn IDialogManager.SelectFont(string? title, string? initialFont)
+        async Task<DialogReturn> IDialogManager.SelectFontAsync(string? title, string? initialFont, System.Threading.CancellationToken cancellationToken)
         {
-            var font = InputFont(title);
+            cancellationToken.ThrowIfCancellationRequested();
+            var font = await InputFontAsync(title);
             return new DialogReturn
             {
                 Result = font != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
                 Value = font?.Name ?? string.Empty,
                 Tag = font,
                 Submit = font != null,
-                Cancel = font == null
+                Cancel = font == null,
+                UserAction = font != null ? BeepDialogButtons.Ok : BeepDialogButtons.Cancel
             };
         }
 

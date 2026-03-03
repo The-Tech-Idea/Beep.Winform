@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -40,65 +41,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _quoteMarkFont?.Dispose(); } catch { }
-            try { _quoteFont?.Dispose(); } catch { }
-            try { _nameFont?.Dispose(); } catch { }
-            try { _titleFont?.Dispose(); } catch { }
-            
-            _quoteMarkFont = new Font("Georgia", 42f, FontStyle.Bold);
-            _quoteFont = new Font(fontFamily, 11f, FontStyle.Italic);
-            _nameFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _titleFont = new Font(fontFamily, 9f, FontStyle.Regular);
+_quoteMarkFont = titleFont;
+            _quoteFont = titleFont;
+            _nameFont = titleFont;
+            _titleFont = titleFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int quoteMarkSize = DpiScalingHelper.ScaleValue(QuoteMarkSize, _owner);
+            int avatarSize = DpiScalingHelper.ScaleValue(AvatarSize, _owner);
+            int nameHeight = DpiScalingHelper.ScaleValue(NameHeight, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int ratingHeight = DpiScalingHelper.ScaleValue(RatingHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Quote area at top (50% of height)
             int quoteHeight = Math.Max(60, (int)(drawingRect.Height * QuoteHeightPercent / 100f));
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding + 20, // Indent for quote mark
-                drawingRect.Top + Padding + QuoteMarkSize / 2,
-                drawingRect.Width - Padding * 2 - 20,
+                drawingRect.Left + padding + DpiScalingHelper.ScaleValue(20, _owner), // Indent for quote mark
+                drawingRect.Top + padding + quoteMarkSize / 2,
+                drawingRect.Width - padding * 2 - DpiScalingHelper.ScaleValue(20, _owner),
                 quoteHeight);
             
             // Avatar at bottom-left
             ctx.ImageRect = new Rectangle(
                 drawingRect.Left + Padding,
-                drawingRect.Bottom - Padding - AvatarSize,
-                AvatarSize,
-                AvatarSize);
+                drawingRect.Bottom - padding - avatarSize,
+                avatarSize,
+                avatarSize);
             
             // Name and title to the right of avatar
-            int nameLeft = ctx.ImageRect.Right + ElementGap * 2;
+            int nameLeft = ctx.ImageRect.Right + elementGap * 2;
             int nameWidth = Math.Max(80, drawingRect.Width - nameLeft - Padding);
             
             ctx.HeaderRect = new Rectangle(
                 nameLeft,
                 ctx.ImageRect.Top + 4,
                 nameWidth,
-                NameHeight);
+                nameHeight);
             
             ctx.SubtitleRect = new Rectangle(
                 nameLeft,
                 ctx.HeaderRect.Bottom + 2,
                 nameWidth,
-                TitleHeight);
+                titleHeight);
             
             // Rating below name
             ctx.RatingRect = new Rectangle(
                 nameLeft,
-                ctx.SubtitleRect.Bottom + ElementGap / 2,
-                100,
-                RatingHeight);
+                ctx.SubtitleRect.Bottom + elementGap / 2,
+                DpiScalingHelper.ScaleValue(100, _owner),
+                ratingHeight);
             
             // No buttons for testimonial cards
             ctx.ShowButton = false;
@@ -117,8 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw large decorative quote mark
             using var quoteBrush = new SolidBrush(Color.FromArgb(25, ctx.AccentColor));
             g.DrawString("\u201C", _quoteMarkFont, quoteBrush, 
-                ctx.DrawingRect.Left + Padding - 5, 
-                ctx.DrawingRect.Top + Padding - 10);
+                ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(5, _owner), 
+                ctx.DrawingRect.Top + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(10, _owner));
             
             // Draw rating stars
             if (ctx.ShowRating && ctx.Rating > 0 && !ctx.RatingRect.IsEmpty)
@@ -143,13 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _quoteMarkFont?.Dispose();
-            _quoteFont?.Dispose();
-            _nameFont?.Dispose();
-            _titleFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
                 border = (int)Math.Ceiling(BeepStyling.GetBorderThickness(owner.ControlStyle));
-                padding = BeepStyling.GetPadding(owner.ControlStyle);
+                padding = 2;// BeepStyling.GetPadding(owner.ControlStyle);
                 
                 // Note: Style padding is symmetric, we'll add customPadding asymmetrically later
                 
@@ -188,16 +188,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             // Calculate label for text drawing
             CalculateLabelProperties(g, owner);
-
+            // Check if Borders need to bedrawn
+            bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0));
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
+              //  Console.WriteLine("Using styled painting for control with style: " + owner.ControlStyle);
                 // === STYLED PAINTING ===
                 // Use the master PaintControl method which handles Shadow, Background, and Border 
                 // using the shape specific to the style.
-                BeepStyling.PaintControl(g, owner.BorderPath, owner.ControlStyle, owner._currentTheme, true, GetEffectiveState(owner), owner.IsTransparentBackground, true);
+                BeepStyling.PaintControl(g, owner.BorderPath, owner.ControlStyle, owner._currentTheme, true, GetEffectiveState(owner), owner.IsTransparentBackground, shouldDrawBorders);
             }
             else
             {
+              //  Console.WriteLine("Using classic painting for control.");
                 // === CLASSIC PAINTING ===
                 // 1. Background
                 if (!owner.IsTransparentBackground)
@@ -213,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 }
 
                 // 2. Borders
-                bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0));
+               
                 if (shouldDrawBorders && owner.BorderPath != null)
                 {
                     DrawBorders(g, owner);

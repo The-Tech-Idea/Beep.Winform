@@ -7,10 +7,11 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
  
 
@@ -62,11 +63,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool showConnectorLines = true;
         private bool highlightActiveStep = true;
         private int connectorLineWidth = 2;
-        private Color completedStepColor = Color.FromArgb(34, 197, 94);  // Green
-        private Color activeStepColor = Color.FromArgb(59, 130, 246);    // Blue  
-        private Color pendingStepColor = Color.FromArgb(156, 163, 175);  // Gray
-        private Color errorStepColor = Color.FromArgb(239, 68, 68);      // Red
-        private Color warningStepColor = Color.FromArgb(245, 158, 11);   // Orange
+        private Color completedStepColor = Color.Empty;
+        private Color activeStepColor = Color.Empty;
+        private Color pendingStepColor = Color.Empty;
+        private Color errorStepColor = Color.Empty;
+        private Color warningStepColor = Color.Empty;
         
         private bool _isApplyingTheme = false;
         private Font _textFont;
@@ -77,6 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly Dictionary<int, ToolTipConfig> _stepTooltipConfigs = new Dictionary<int, ToolTipConfig>();
         private int _hoveredStepIndex = -1;
         private string _currentTooltipKey = null;
+        private BindingList<StepModel> _stepModels = new();
         #endregion
 
         #region Events
@@ -139,6 +141,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 stepCount = Math.Max(1, value);
                 InitializeSteps();
+                UpdateNavigationButtonsState();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("Optional strongly typed step models used by painter-based steppers.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public BindingList<StepModel> StepModels
+        {
+            get => _stepModels;
+            set
+            {
+                if (ReferenceEquals(_stepModels, value))
+                {
+                    return;
+                }
+
+                if (_stepModels != null)
+                {
+                    _stepModels.ListChanged -= StepModels_ListChanged;
+                }
+
+                _stepModels = value ?? new BindingList<StepModel>();
+                _stepModels.ListChanged += StepModels_ListChanged;
+                SyncStepModelsWithSteps();
+                InitializeSteps();
+                UpdateNavigationButtonsState();
                 Invalidate();
             }
         }
@@ -161,9 +192,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     UpdateStepStates();
                     
                     // Trigger animation (respect reduced motion)
-                    if (!StepperAccessibilityHelpers.ShouldDisableAnimations(highlightActiveStep))
+                    if (!StepperAccessibilityHelpers.IsReducedMotionEnabled())
                     {
-                        StartStepAnimation(value);
+                        if (highlightActiveStep)
+                        {
+                            StartStepAnimation(value);
+                        }
+                        else
+                        {
+                            StartConnectorTransition(value);
+                            selectedIndex = value;
+                        }
                     }
                     else
                     {
@@ -178,6 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                     // Fire events
                     StepChanged?.Invoke(this, new StepChangedEventArgs(oldStep, currentStep));
+                    UpdateNavigationButtonsState();
                     
                     Invalidate();
                 }
@@ -311,11 +351,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SyncListItemsWithSteps();
                 ApplyAccessibilitySettings();
                 UpdateAllStepTooltips();
+                UpdateNavigationButtonsState();
                 Invalidate();
             };
+            _stepModels.ListChanged += StepModels_ListChanged;
 
             InitializeAnimation();
             InitializeSteps();
+            InitializePainter();
+            EnsureNavigationButtons();
+            UpdateNavigationButtonsLayout();
+            UpdateNavigationButtonsState();
             ApplyAccessibilitySettings();
             UpdateAllStepTooltips();
         }
@@ -331,17 +377,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     animationTimer.Stop();
                     selectedIndex = animatingToIndex;
                     animationProgress = 1f;
+                    AdvancePainterAnimations();
                     Invalidate();
                     return;
                 }
                 
                 var elapsed = (DateTime.Now - animationStartTime).TotalMilliseconds;
-                animationProgress = (float)Math.Min(1, elapsed / animationDuration);
+                float t = (float)Math.Min(1, elapsed / animationDuration);
+                animationProgress = StepperAnimationEasing.CubicEaseOut(t);
+                bool hasPainterAnimations = AdvancePainterAnimations();
                 
                 if (animationProgress >= 1f)
                 {
-                    animationTimer.Stop();
                     selectedIndex = animatingToIndex;
+                    if (!hasPainterAnimations)
+                    {
+                        animationTimer.Stop();
+                    }
                 }
                 
                 Invalidate();
@@ -350,6 +402,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializeSteps()
         {
+            SyncStepModelsWithSteps();
+
             // Clear existing data
             stepLabels.Clear();
             stepStates.Clear();
@@ -357,12 +411,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize default labels and states
             for (int i = 0; i < stepCount; i++)
             {
-                stepLabels[i] = $"Step {i + 1}";
-                stepStates[i] = i == currentStep ? StepState.Active : 
-                               i < currentStep ? StepState.Completed : StepState.Pending;
+                var model = (_stepModels != null && i < _stepModels.Count) ? _stepModels[i] : null;
+                stepLabels[i] = string.IsNullOrWhiteSpace(model?.Text) ? $"Step {i + 1}" : model.Text;
+                stepStates[i] = model?.State ?? (i == currentStep ? StepState.Active :
+                               i < currentStep ? StepState.Completed : StepState.Pending);
             }
             
             SyncStepsWithListItems();
+            EnsurePainterAnimationStates();
+            UpdateNavigationButtonsState();
         }
         #endregion
 
@@ -543,6 +600,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void SyncListItemsWithSteps()
         {
+            if (_stepModels.Count > 0)
+            {
+                return;
+            }
+
             // Update stepCount based on ListItems
             if (ListItems.Count > 0 && ListItems.Count != stepCount)
             {
@@ -557,6 +619,34 @@ namespace TheTechIdea.Beep.Winform.Controls
                     stepStates[i] = ListItems[i].IsChecked ? StepState.Completed :
                                    ListItems[i].IsSelected ? StepState.Active : StepState.Pending;
                 }
+            }
+        }
+
+        private void StepModels_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            SyncStepModelsWithSteps();
+            InitializeSteps();
+            ApplyAccessibilitySettings();
+            UpdateAllStepTooltips();
+            UpdateNavigationButtonsState();
+            Invalidate();
+        }
+
+        private void SyncStepModelsWithSteps()
+        {
+            if (_stepModels == null || _stepModels.Count == 0)
+            {
+                return;
+            }
+
+            if (stepCount != _stepModels.Count)
+            {
+                stepCount = _stepModels.Count;
+            }
+
+            if (currentStep >= stepCount)
+            {
+                currentStep = stepCount - 1;
             }
         }
 
@@ -579,6 +669,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Animation
         private void StartStepAnimation(int targetIndex)
         {
+            StartConnectorTransition(targetIndex);
+            if (highlightActiveStep)
+            {
+                StartNodePulse(targetIndex);
+            }
+
             // Respect reduced motion preferences
             if (StepperAccessibilityHelpers.IsReducedMotionEnabled())
             {
@@ -606,20 +702,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            if (TryPaintWithRegisteredPainter(e.Graphics))
+            {
+                return;
+            }
 
             buttonBounds.Clear();
             DrawSteps(e.Graphics);
+            RegisterStepHitAreas();
         }
 
         private void DrawSteps(Graphics graphics)
         {
-            int spacing = 20;
-            int stepTotalSize = orientation == Orientation.Horizontal ? buttonSize.Width : buttonSize.Height;
-            int totalLength = (stepTotalSize + spacing) * stepCount - spacing;
-
-            Point startPoint = orientation == Orientation.Horizontal
-                ? new Point((Width - totalLength) / 2, (Height - buttonSize.Height) / 2)
-                : new Point((Width - buttonSize.Width) / 2, (Height - totalLength) / 2);
+            int spacing = GetScaledStepSpacing();
+            Point startPoint = ComputeStepStartPoint(spacing);
 
             for (int i = 0; i < stepCount; i++)
             {
@@ -748,7 +844,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                         
                         if (stepImages[stepIndex] != null)
                         {
-                            var imageRect = new Rectangle(rect.X + 4, rect.Y + 4, rect.Width - 8, rect.Height - 8);
+                            int imagePadding = DpiScalingHelper.ScaleValue(4, this);
+                            var imageRect = new Rectangle(
+                                rect.X + imagePadding,
+                                rect.Y + imagePadding,
+                                rect.Width - (imagePadding * 2),
+                                rect.Height - (imagePadding * 2));
                             graphics.DrawImage(stepImages[stepIndex], imageRect);
                         }
                         else
@@ -867,11 +968,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (orientation == Orientation.Horizontal)
             {
                 textX = rect.Left + (rect.Width - textSize.Width) / 2;
-                textY = rect.Bottom + 5;
+                textY = rect.Bottom + DpiScalingHelper.ScaleValue(5, this);
             }
             else
             {
-                textX = rect.Right + 10;
+                textX = rect.Right + DpiScalingHelper.ScaleValue(10, this);
                 textY = rect.Top + (rect.Height - textSize.Height) / 2;
             }
             
@@ -883,79 +984,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Mouse Handling
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            
-            // Detect hovered step
-            int hoveredIndex = -1;
-            for (int i = 0; i < buttonBounds.Count; i++)
-            {
-                if (buttonBounds[i].Contains(e.Location))
-                {
-                    hoveredIndex = i;
-                    break;
-                }
-            }
-            
-            // Update tooltip for hovered step
-            if (hoveredIndex != _hoveredStepIndex)
-            {
-                _hoveredStepIndex = hoveredIndex;
-                UpdateTooltipForHoveredStep();
-            }
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            
-            // Hide tooltip when mouse leaves
-            _hoveredStepIndex = -1;
-            if (!string.IsNullOrEmpty(_currentTooltipKey))
-            {
-                _ = ToolTipManager.Instance.HideTooltipAsync(_currentTooltipKey);
-                _currentTooltipKey = null;
-            }
-        }
-
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
-            
-            if (!allowStepNavigation) return;
-            
-            for (int i = 0; i < buttonBounds.Count; i++)
-            {
-                if (buttonBounds[i].Contains(e.Location))
-                {
-                    NavigateToStep(i);
-                    ShowStepNotification(i);
-                    break;
-                }
-            }
-        }
-
-        private void NavigateToStep(int stepIndex)
-        {
-            if (stepIndex >= 0 && stepIndex < stepCount)
-            {
-                // Validate navigation
-                var args = new StepValidatingEventArgs(currentStep, stepIndex);
-                StepValidating?.Invoke(this, args);
-                
-                if (!args.Cancel)
-                {
-                    CurrentStep = stepIndex;
-                    
-                    // Fire legacy event for backward compatibility
-                    if (stepIndex < ListItems.Count)
-                    {
-                        SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(ListItems[stepIndex]));
-                    }
-                }
-            }
-        }
+        // Mouse and hit-test logic moved to BeepStepperBar.HitTest.cs
         #endregion
 
         #region Legacy Support
@@ -996,14 +1025,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     StepperThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
                 }
                 
-                // Set _textFont from theme stepper properties
-                _textFont?.Dispose();
+                // Resolve stepper font from the active theme typography.
                 _textFont = (_currentTheme?.StepperItemFont != null)
-                    ? BeepFontManager.ToFont(_currentTheme.StepperItemFont)
-                    : null;
-                
-                // Apply font theme
-                StepperFontHelpers.ApplyFontTheme(this, ControlStyle, _textFont);
+                    ? BeepThemesManager.ToFont(_currentTheme.StepperItemFont)
+                    : BeepThemesManager.ToFont(_currentTheme?.BodyMedium);
+                InitializePainter();
                 
                 // Apply accessibility adjustments (high contrast, reduced motion)
                 ApplyAccessibilityAdjustments();
@@ -1366,9 +1392,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
-                _textFont?.Dispose();
+                if (_stepModels != null)
+                {
+                    _stepModels.ListChanged -= StepModels_ListChanged;
+                }
+
                 animationTimer?.Stop();
                 animationTimer?.Dispose();
+                DisposeNavigationButtons();
                 
                 foreach (var image in stepImages.Values)
                 {

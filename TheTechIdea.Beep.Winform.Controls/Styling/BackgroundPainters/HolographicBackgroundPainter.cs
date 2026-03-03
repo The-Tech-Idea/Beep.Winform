@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Rainbow iridescent gradient overlay
-            var gradient = PaintersFactory.GetLinearGradientBrush(
+            using var gradient = PaintersFactory.CreateLinearGradientBrush(
                 bounds, Color.Magenta, Color.Cyan, LinearGradientMode.Horizontal);
             
             try

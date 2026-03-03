@@ -781,7 +781,8 @@ namespace TheTechIdea.Beep.Winform.Controls
      
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+            if (_currentTheme == null) return;  // guard
+          //  base.ApplyTheme();
 
             // Store whether colors should be from theme for later restoration
             _isColorFromTheme = true;
@@ -835,7 +836,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 // Get font from button Style or fall back to default Style
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonFont);
                     
 
             }
@@ -1631,42 +1632,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawImageAndText(Graphics g)
         {
             Color textColor;
-            Color backColor;
-           
 
-            // Update text color based on button state for better visibility
             if (Enabled)
             {
                 if (IsHovered)
-                {
-                    textColor = _currentTheme.ButtonHoverForeColor;
-                    backColor= _currentTheme.ButtonHoverBackColor;
-                }
+                    textColor = HoverForeColor;
                 else if (IsSelected)
-                {
-                    textColor = _currentTheme.ButtonSelectedForeColor;
-                    backColor= _currentTheme.ButtonSelectedBackColor;
-                }
+                    textColor = SelectedForeColor;
                 else if (IsPressed)
-                {
-                    textColor = _currentTheme.ButtonPressedForeColor;
-                    backColor= _currentTheme.ButtonPressedBackColor;
-                }
+                    textColor = PressedForeColor;
                 else
-                {
-                    textColor = _currentTheme.ButtonForeColor;
-                    backColor= _currentTheme.ButtonBackColor;
-                }
+                    textColor = ForeColor;
             }
             else
             {
                 textColor = DisabledForeColor;
-                backColor= DisabledBackColor;
             }
-
+          //  Console.WriteLine("1");
             // Framework handles DPI scaling automatically - use font directly
             Font scaledFont = _textFont;
-
+          //  Console.WriteLine("2");
             // Check if measurements need recalculation
             bool needsRecalc = _measurementsDirty ||
                 _cachedImagePath != _imagePath ||
@@ -1676,7 +1661,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Size imageSize;
             Size textSize;
-
+          //  Console.WriteLine("3");
             if (needsRecalc || !_cachedImageSize.HasValue || !_cachedTextSize.HasValue)
             {
                 // Calculate image size
@@ -1692,7 +1677,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         (int)(imageSize.Width * scaleFactor),
                         (int)(imageSize.Height * scaleFactor));
                 }
-
+              //  Console.WriteLine("4");
                 // Measure text with Graphics for accurate sizing (using cached TextUtils)
                 SizeF textSizeF = TextUtils.MeasureText(g, Text ?? "", scaledFont, int.MaxValue);
                 textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
@@ -1708,15 +1693,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
+              //  Console.WriteLine("5");
                 // Use cached values
                 imageSize = _cachedImageSize.Value;
                 textSize = _cachedTextSize.Value;
             }
-
+          //  Console.WriteLine("6");
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
             CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-
+          //  Console.WriteLine("7");
             // Draw the image if available using StyledImagePainter
             if (!string.IsNullOrEmpty(_imagePath))
             {
@@ -1736,10 +1722,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Log error silently - image drawing failed, continue without image
                 }
             }
-
+          //  Console.WriteLine("8");
+          //  Console.WriteLine( "Text rectangle should be calculated even if text is empty, to allow for proper layout of image-only buttons.");
             // Draw text if available and not hidden - measure to prevent clipping
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
+              //  Console.WriteLine("9");
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 
                 // Measure text to ensure it fits in the rectangle (using cached TextUtils)
@@ -1750,10 +1738,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 // Add EndEllipsis flag to prevent text from being cut
                 flags |= TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding;
-
+              //  Console.WriteLine("Text rectangle should be calculated even if text is empty, to allow for proper layout of image-only buttons.");
                 // For better text rendering on modern buttons
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
+              //  Console.WriteLine( "Text rectangle should be calculated even if text is empty, to allow for proper layout of image-only buttons.");
             }
         }
         #endregion // End Draw Button From Html source

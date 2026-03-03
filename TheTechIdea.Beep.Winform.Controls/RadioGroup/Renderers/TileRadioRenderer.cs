@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _titleFont;
         private Font _subtitleFont;
         private Size _maxImageSize = new Size(48, 48);
@@ -63,15 +62,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            _titleFont = new Font("Segoe UI Semibold", 12f);
-            _subtitleFont = new Font("Segoe UI", 9f);
+            _titleFont = _owner?.Font ?? RadioGroupFontHelpers.GetLabelFont(_controlStyle, theme);
+            _subtitleFont = RadioGroupFontHelpers.GetSubtextFont(_controlStyle, theme);
         }
         #endregion
 
@@ -104,12 +102,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private Rectangle GetTileRectangle(Rectangle itemRectangle)
         {
-            // Use full item rectangle but ensure minimum size
+            // Keep drawing inside allocated bounds; minimum size is handled by measurement/layout.
             return new Rectangle(
                 itemRectangle.X,
                 itemRectangle.Y,
-                Math.Max(itemRectangle.Width, MinTileWidth),
-                Math.Max(itemRectangle.Height, MinTileHeight)
+                Math.Max(0, itemRectangle.Width),
+                Math.Max(0, itemRectangle.Height)
             );
         }
 
@@ -146,7 +144,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             Color borderColor;
             float borderWidth;
             
-            if (state.IsSelected)
+            if (!state.IsEnabled)
+            {
+                borderColor = colors.DisabledBorder;
+                borderWidth = 1f;
+            }
+            else if (state.IsSelected)
             {
                 borderColor = colors.SelectedBorder;
                 borderWidth = 2f;
@@ -176,12 +179,17 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawSelectionIndicator(Graphics graphics, Rectangle tileRect, TileColors colors)
         {
+            if (tileRect.Width <= 16 || tileRect.Height <= 16) return;
+
+            int indicatorSize = Math.Min(SelectionIndicatorSize, Math.Min(tileRect.Width - 16, tileRect.Height - 16));
+            if (indicatorSize < 8) return;
+
             // Draw checkmark circle in top-right corner
             var indicatorRect = new Rectangle(
-                tileRect.Right - SelectionIndicatorSize - 8,
+                tileRect.Right - indicatorSize - 8,
                 tileRect.Y + 8,
-                SelectionIndicatorSize,
-                SelectionIndicatorSize
+                indicatorSize,
+                indicatorSize
             );
 
             // Draw circle background
@@ -191,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
 
             // Draw checkmark
-            using (var pen = new Pen(Color.White, 2f))
+            using (var pen = new Pen(colors.SelectionGlyph, 2f))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
@@ -212,25 +220,39 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var contentRect = new Rectangle(
                 tileRect.X + TilePadding,
                 tileRect.Y + TilePadding,
-                tileRect.Width - (TilePadding * 2),
-                tileRect.Height - (TilePadding * 2)
+                Math.Max(0, tileRect.Width - (TilePadding * 2)),
+                Math.Max(0, tileRect.Height - (TilePadding * 2))
             );
 
             int currentY = contentRect.Y;
+            int titleHeight = 0;
+            int subtitleHeight = 0;
+            if (!string.IsNullOrEmpty(item.Text))
+            {
+                titleHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, item.Text, _titleFont).Height);
+            }
+            if (!string.IsNullOrEmpty(item.SubText))
+            {
+                subtitleHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, item.SubText, _subtitleFont).Height);
+            }
+            int textBlockHeight = titleHeight + subtitleHeight;
+            if (titleHeight > 0 && subtitleHeight > 0) textBlockHeight += 2;
 
             // Draw icon centered at top
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int sz = Math.Min(IconSize, Math.Max(24, Math.Min(contentRect.Width, contentRect.Height - 40)));
+                int availableForIcon = Math.Max(0, contentRect.Height - textBlockHeight - (titleHeight > 0 ? ComponentSpacing : 0));
+                int maxIcon = Math.Max(8, Math.Min(contentRect.Width, availableForIcon));
+                int sz = Math.Min(IconSize, maxIcon);
                 var iconRect = new Rectangle(
                     contentRect.X + (contentRect.Width - sz) / 2,
                     currentY,
                     sz,
                     sz
                 );
-
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 currentY = iconRect.Bottom + ComponentSpacing;
             }
 
@@ -250,9 +272,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                         Trimming = StringTrimming.EllipsisCharacter
                     };
                     
-                    var textRect = new Rectangle(contentRect.X, currentY, contentRect.Width, 24);
+                    int remaining = Math.Max(0, contentRect.Bottom - currentY);
+                    int drawHeight = Math.Min(Math.Max(1, titleHeight), remaining);
+                    var textRect = new Rectangle(contentRect.X, currentY, contentRect.Width, drawHeight);
                     graphics.DrawString(item.Text, _titleFont, brush, textRect, stringFormat);
-                    currentY += 24;
+                    currentY += drawHeight;
                 }
             }
 
@@ -272,7 +296,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                         Trimming = StringTrimming.EllipsisCharacter
                     };
                     
-                    var textRect = new Rectangle(contentRect.X, currentY, contentRect.Width, 18);
+                    int remaining = Math.Max(0, contentRect.Bottom - currentY);
+                    int drawHeight = Math.Min(Math.Max(1, subtitleHeight), remaining);
+                    var textRect = new Rectangle(contentRect.X, currentY, contentRect.Width, drawHeight);
                     graphics.DrawString(item.SubText, _subtitleFont, brush, textRect, stringFormat);
                 }
             }
@@ -290,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             // Icon height
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                height += IconSize + ComponentSpacing;
+                height += IconSize;
             }
 
             // Title text
@@ -298,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 var textSize = TextUtils.MeasureText(graphics, item.Text, _titleFont);
                 width = Math.Max(width, (int)Math.Ceiling(textSize.Width) + TilePadding * 2);
-                height += 24;
+                height += (int)Math.Ceiling(textSize.Height);
             }
 
             // Subtitle text
@@ -306,7 +332,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 var textSize = TextUtils.MeasureText(graphics, item.SubText, _subtitleFont);
                 width = Math.Max(width, (int)Math.Ceiling(textSize.Width) + TilePadding * 2);
-                height += 18;
+                height += (int)Math.Ceiling(textSize.Height);
+            }
+
+            if (!string.IsNullOrEmpty(item.ImagePath) && (!string.IsNullOrEmpty(item.Text) || !string.IsNullOrEmpty(item.SubText)))
+            {
+                height += ComponentSpacing;
             }
 
             return new Size(Math.Max(width, MinTileWidth), Math.Max(height, MinTileHeight));
@@ -318,8 +349,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return new Rectangle(
                 tileRect.X + TilePadding,
                 tileRect.Y + TilePadding,
-                tileRect.Width - (TilePadding * 2),
-                tileRect.Height - (TilePadding * 2)
+                Math.Max(0, tileRect.Width - (TilePadding * 2)),
+                Math.Max(0, tileRect.Height - (TilePadding * 2))
             );
         }
 
@@ -355,9 +386,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 {
                     Background = background,
                     HoverBackground = hover,
-                    SelectedBackground = Color.FromArgb(20, primary),
+                    SelectedBackground = selection,
                     DisabledBackground = Color.FromArgb(200, secondary),
                     Border = border,
+                    DisabledBorder = Color.FromArgb(150, border),
                     HoverBorder = Color.FromArgb(180, primary),
                     SelectedBorder = primary,
                     FocusBorder = primary,
@@ -365,7 +397,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     SelectedText = foreground,
                     SubtitleText = Color.FromArgb(160, foreground),
                     DisabledText = Color.FromArgb(128, foreground),
-                    SelectionIndicator = primary
+                    SelectionIndicator = primary,
+                    SelectionGlyph = Color.White
                 };
             }
 
@@ -373,9 +406,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 Background = _theme.BackgroundColor,
                 HoverBackground = _theme.ButtonHoverBackColor,
-                SelectedBackground = Color.FromArgb(20, _theme.PrimaryColor),
+                SelectedBackground = _theme.SelectedRowBackColor,
                 DisabledBackground = _theme.DisabledBackColor,
                 Border = _theme.BorderColor,
+                DisabledBorder = _theme.DisabledBorderColor,
                 HoverBorder = _theme.ButtonHoverBorderColor,
                 SelectedBorder = _theme.PrimaryColor,
                 FocusBorder = _theme.PrimaryColor,
@@ -383,7 +417,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 SelectedText = _theme.ForeColor,
                 SubtitleText = _theme.SecondaryTextColor,
                 DisabledText = _theme.DisabledForeColor,
-                SelectionIndicator = _theme.PrimaryColor
+                SelectionIndicator = _theme.PrimaryColor,
+                SelectionGlyph = _theme.ButtonForeColor
             };
         }
 
@@ -426,6 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color SelectedBackground { get; set; }
             public Color DisabledBackground { get; set; }
             public Color Border { get; set; }
+            public Color DisabledBorder { get; set; }
             public Color HoverBorder { get; set; }
             public Color SelectedBorder { get; set; }
             public Color FocusBorder { get; set; }
@@ -434,6 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color SubtitleText { get; set; }
             public Color DisabledText { get; set; }
             public Color SelectionIndicator { get; set; }
+            public Color SelectionGlyph { get; set; }
         }
         #endregion
     }

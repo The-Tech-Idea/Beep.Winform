@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(250, 250, 250) : context.BarBackColor))
+            using (var b = new SolidBrush(ResolveBarBack(context)))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
@@ -45,8 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                         gp.AddArc(pillRect.Right - radius * 2, pillRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
                         gp.AddArc(pillRect.Left, pillRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
                         gp.CloseFigure();
-                        using (var br = new SolidBrush(context.AccentColor))
-                        using (var sbr = new SolidBrush(Color.FromArgb(22, context.AccentColor)))
+                        using (var br = new SolidBrush(ResolveAccent(context)))
+                        using (var sbr = new SolidBrush(Color.FromArgb(22, ResolveAccent(context))))
                         {
                             // subtle shadow fill
                             context.Graphics.FillPath(sbr, gp);
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     int radius = hoverRect.Height / 2;
                     using (var gp = new GraphicsPath())
                     {
-                        var hoverBrushColor = context.BarHoverBackColor == Color.Empty ? (context.BarForeColor == Color.Empty ? Color.FromArgb(18, Color.Black) : Color.FromArgb(18, context.BarForeColor)) : Color.FromArgb(18, context.BarHoverBackColor);
+                        var hoverBrushColor = Color.FromArgb(18, ResolveHoverFore(context));
                         using (var br = new SolidBrush(hoverBrushColor))
                         {
                             gp.AddArc(hoverRect.Left, hoverRect.Top, radius * 2, radius * 2, 180, 90);
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             context.ImagePainter.ImagePath = string.IsNullOrEmpty(item.ImagePath) ? context.DefaultImagePath : item.ImagePath;
             context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
             var prevFill = context.ImagePainter.FillColor;
-            context.ImagePainter.FillColor = context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor;
+            context.ImagePainter.FillColor = ResolveOnAccent(context);
             // white icon in pill
             var prevTheme = context.ImagePainter.ApplyThemeOnImage;
             context.ImagePainter.ApplyThemeOnImage = false;
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
             // draw label to the right
             using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
-            using (var brush = new SolidBrush(context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor))
+            using (var brush = new SolidBrush(ResolveOnAccent(context)))
             {
                 var textRect = new Rectangle(iconRect.Right + 8, pillRect.Top, pillRect.Right - (iconRect.Right + 12), pillRect.Height);
                 var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };

@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(24, 24);
         private BeepControlStyle _controlStyle = BeepControlStyle.Minimal;
@@ -61,16 +60,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
-                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize)
-                : new Font("Segoe UI", 12f));
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
         #endregion
 
@@ -109,7 +105,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             Color backgroundColor = Color.Transparent;
             
-            if (state.IsSelected)
+            if (!state.IsEnabled)
+            {
+                backgroundColor = state.IsSelected ? colors.DisabledBackground : Color.Transparent;
+            }
+            else if (state.IsSelected)
             {
                 backgroundColor = colors.SelectedBackground;
             }
@@ -152,8 +152,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             int radius = SelectorSize / 2 - 1;
 
             // Outer circle - flat design with subtle border
-            Color borderColor = state.IsSelected ? colors.SelectedBorder : colors.Border;
-            Color fillColor = state.IsSelected ? colors.SelectedBorder : Color.Transparent;
+            Color borderColor = !state.IsEnabled
+                ? colors.DisabledBorder
+                : (state.IsSelected ? colors.SelectedBorder : colors.Border);
+            Color fillColor = !state.IsEnabled
+                ? colors.DisabledBackground
+                : (state.IsSelected ? colors.SelectedBorder : Color.Transparent);
 
             var outerRect = new Rectangle(
                 center.X - radius,
@@ -188,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     innerRadius * 2
                 );
 
-                using (var brush = new SolidBrush(colors.SelectedIndicator))
+                using (var brush = new SolidBrush(state.IsEnabled ? colors.SelectedIndicator : colors.DisabledText))
                 {
                     graphics.FillEllipse(brush, innerRect);
                 }
@@ -207,19 +211,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             if (state.IsSelected)
             {
                 // Filled checkbox with rounded corners
-                using (var brush = new SolidBrush(colors.SelectedBorder))
+                var checkFill = state.IsEnabled ? colors.SelectedBorder : colors.DisabledBackground;
+                using (var brush = new SolidBrush(checkFill))
                 using (var path = CreateRoundedRectanglePath(checkboxRect, 3))
                 {
                     graphics.FillPath(brush, path);
                 }
 
                 // Checkmark
-                DrawCheckmark(graphics, checkboxRect, colors.SelectedIndicator);
+                DrawCheckmark(graphics, checkboxRect, state.IsEnabled ? colors.SelectedIndicator : colors.DisabledText);
             }
             else
             {
                 // Outlined checkbox
-                using (var pen = new Pen(colors.Border, 1.5f))
+                var borderColor = state.IsEnabled ? colors.Border : colors.DisabledBorder;
+                using (var pen = new Pen(borderColor, 1.5f))
                 using (var path = CreateRoundedRectanglePath(checkboxRect, 3))
                 {
                     graphics.DrawPath(pen, path);
@@ -254,27 +260,41 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
                 var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 currentX += sz + ComponentSpacing;
             }
 
-            var half = contentArea.Height / 2;
+            bool hasSubtitle = !string.IsNullOrEmpty(item.SubText);
+            var subtitleFont = hasSubtitle ? RadioGroupFontHelpers.GetSubtextFont(_controlStyle, _theme) : null;
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, contentArea.Right - currentX), half);
+                int textWidth = Math.Max(0, contentArea.Right - currentX);
+                int titleHeight = contentArea.Height;
+                if (hasSubtitle)
+                {
+                    var titleSize = TextUtils.MeasureText(graphics, item.Text, _textFont);
+                    titleHeight = Math.Max(1, Math.Min(contentArea.Height - 1, (int)Math.Ceiling(titleSize.Height)));
+                }
+
+                var textRect = new Rectangle(currentX, contentArea.Y, textWidth, titleHeight);
                 using var brush = new SolidBrush(state.IsEnabled ? colors.Text : colors.DisabledText);
                 var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
                 graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
             }
 
-            if (!string.IsNullOrEmpty(item.SubText))
+            if (hasSubtitle)
             {
-                using var subtitleFont = new Font(_textFont.FontFamily, Math.Max(6f, _textFont.Size * 0.85f));
-                var subtitleRect = new Rectangle(currentX, contentArea.Y + half, Math.Max(0, contentArea.Right - currentX), half);
-                using var brush = new SolidBrush(colors.SubtitleText);
+                int textWidth = Math.Max(0, contentArea.Right - currentX);
+                var titleSize = TextUtils.MeasureText(graphics, item.Text ?? string.Empty, _textFont);
+                int titleHeight = Math.Max(1, Math.Min(contentArea.Height - 1, (int)Math.Ceiling(titleSize.Height)));
+                int subtitleHeight = Math.Max(0, contentArea.Height - titleHeight);
+                var subtitleRect = new Rectangle(currentX, contentArea.Y + titleHeight, textWidth, subtitleHeight);
+                using var brush = new SolidBrush(state.IsEnabled ? colors.SubtitleText : colors.DisabledText);
                 var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
                 graphics.DrawString(item.SubText, subtitleFont, brush, subtitleRect, fmt);
+                subtitleFont?.Dispose();
             }
         }
 
@@ -348,11 +368,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 // Account for subtitle
                 if (!string.IsNullOrEmpty(item.SubText))
                 {
-                    height = Math.Max(height, (int)(textSize.Height * 1.8f) + ItemPadding);
+                    using var subtitleFont = RadioGroupFontHelpers.GetSubtextFont(_controlStyle, _theme);
+                    var subtitleSize = TextUtils.MeasureText(graphics, item.SubText, subtitleFont);
+                    height = Math.Max(height, (int)Math.Ceiling(textSize.Height + subtitleSize.Height) + ItemPadding);
                 }
                 else
                 {
-                    height = Math.Max(height, (int)textSize.Height + ItemPadding);
+                    height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + ItemPadding);
                 }
             }
 
@@ -366,19 +388,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return new Rectangle(
                 itemRectangle.X + ItemPadding / 2,
                 itemRectangle.Y + ItemPadding / 2,
-                itemRectangle.Width - ItemPadding,
-                itemRectangle.Height - ItemPadding
+                Math.Max(0, itemRectangle.Width - ItemPadding),
+                Math.Max(0, itemRectangle.Height - ItemPadding)
             );
         }
 
         public Rectangle GetSelectorArea(Rectangle itemRectangle)
         {
             var contentArea = GetContentArea(itemRectangle);
+            int selectorSize = Math.Min(SelectorSize, Math.Max(0, contentArea.Height));
             return new Rectangle(
                 contentArea.X,
-                contentArea.Y + (contentArea.Height - SelectorSize) / 2,
-                SelectorSize,
-                SelectorSize
+                contentArea.Y + (contentArea.Height - selectorSize) / 2,
+                selectorSize,
+                selectorSize
             );
         }
         #endregion
@@ -394,33 +417,37 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         #region Helper Methods
         private FlatColors GetStateColors(RadioItemState state)
         {
-            if (_theme == null)
+            if (!_useThemeColors || _theme == null)
             {
                 return new FlatColors
                 {
-                    Border = Color.FromArgb(209, 213, 219),
-                    SelectedBorder = Color.FromArgb(34, 197, 94), // Green instead of blue
+                    Border = StyleColors.GetBorder(_controlStyle),
+                    SelectedBorder = StyleColors.GetPrimary(_controlStyle),
                     SelectedIndicator = Color.White,
-                    Text = Color.FromArgb(17, 24, 39),
-                    SubtitleText = Color.FromArgb(75, 85, 99),
-                    DisabledText = Color.FromArgb(156, 163, 175),
-                    HoverBackground = Color.FromArgb(240, 253, 244), // Light green
-                    SelectedBackground = Color.FromArgb(220, 252, 231), // Light green
-                    FocusBorder = Color.FromArgb(34, 197, 94) // Green focus
+                    Text = StyleColors.GetForeground(_controlStyle),
+                    SubtitleText = Color.FromArgb(190, StyleColors.GetForeground(_controlStyle)),
+                    DisabledText = Color.FromArgb(150, StyleColors.GetForeground(_controlStyle)),
+                    DisabledBorder = Color.FromArgb(140, StyleColors.GetBorder(_controlStyle)),
+                    HoverBackground = StyleColors.GetHover(_controlStyle),
+                    SelectedBackground = StyleColors.GetSelection(_controlStyle),
+                    DisabledBackground = Color.FromArgb(80, StyleColors.GetBackground(_controlStyle)),
+                    FocusBorder = StyleColors.GetPrimary(_controlStyle)
                 };
             }
 
             return new FlatColors
             {
                 Border = _theme.BorderColor,
-                SelectedBorder = Color.FromArgb(34, 197, 94), // Force green theme
+                SelectedBorder = _theme.PrimaryColor,
                 SelectedIndicator = _theme.ButtonForeColor,
                 Text = _theme.ForeColor,
                 SubtitleText = _theme.LabelForeColor,
                 DisabledText = _theme.DisabledForeColor,
-                HoverBackground = Color.FromArgb(240, 253, 244),
-                SelectedBackground = Color.FromArgb(220, 252, 231),
-                FocusBorder = Color.FromArgb(34, 197, 94)
+                DisabledBorder = _theme.DisabledBorderColor,
+                HoverBackground = _theme.ButtonHoverBackColor,
+                SelectedBackground = _theme.SelectedRowBackColor,
+                DisabledBackground = _theme.DisabledBackColor,
+                FocusBorder = _theme.PrimaryColor
             };
         }
 
@@ -432,8 +459,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color Text { get; set; }
             public Color SubtitleText { get; set; }
             public Color DisabledText { get; set; }
+            public Color DisabledBorder { get; set; }
             public Color HoverBackground { get; set; }
             public Color SelectedBackground { get; set; }
+            public Color DisabledBackground { get; set; }
             public Color FocusBorder { get; set; }
         }
         #endregion

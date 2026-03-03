@@ -421,40 +421,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             
             try
             {
-                // Get the BorderShape path which already has the correct rounded corners
-                using (var borderPath = BorderShape)
+                // IMPORTANT: Do NOT wrap BorderShape in a 'using' block.
+                // BorderShape is a cached GraphicsPath owned by _cachedBorderShape.
+                // Disposing it here invalidates the cache while leaving the cache keys
+                // pointing to the now-disposed object — the next BorderShape access returns
+                // a disposed path, causing GDI+ exceptions and blank/corrupt painting on resize.
+                // The cache is managed exclusively by the BorderShape getter and InvalidateLayout.
+                var borderPath = BorderShape;
+                if (borderPath == null || borderPath.PointCount == 0)
+                    return;
+                
+                // Dispose old region before replacing (avoids GDI handle leak)
+                if (Region != null)
                 {
-                    if (borderPath == null || borderPath.PointCount == 0)
-                        return;
-                    
-                    // Dispose old region if it exists (properly clean up before creating new one)
-                    if (Region != null)
-                    {
-                        var oldRegion = Region;
-                        Region = null; // Clear reference first to prevent issues
-                        oldRegion.Dispose();
-                    }
-                    
-                    // Create region from the rounded path to clip the form
-                    // This ensures sharp corners are hidden when rounded borders are used
-                    Region = new Region(borderPath);
+                    var oldRegion = Region;
+                    Region = null;
+                    oldRegion.Dispose();
                 }
+                
+                // Create a managed Region from the (still-alive, cached) border path.
+                // The Region constructor copies the path data internally, so the cached
+                // path remains valid for subsequent paints.
+                Region = new Region(borderPath);
             }
             catch
             {
-                // If region creation fails, continue without clipping
-                // This can happen if the path is invalid or too complex
-                // Reset to null to ensure no invalid region is set
-                if (Region != null)
+                // If region creation fails, clear any partially-set region and continue.
+                try
                 {
-                    try
+                    if (Region != null)
                     {
                         var oldRegion = Region;
                         Region = null;
                         oldRegion.Dispose();
                     }
-                    catch { }
                 }
+                catch { }
             }
         }
     }

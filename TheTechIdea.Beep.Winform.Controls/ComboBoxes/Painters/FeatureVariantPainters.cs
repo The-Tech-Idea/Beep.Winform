@@ -24,7 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             {
                 foreach (var a in animating)
                 {
-                    if (!combined.Contains(a)) combined.Add(a);
+                    // Use text/id equality to avoid reference-based duplicate detection
+                    if (!combined.Any(c => c.ID == a.ID || c.Text == a.Text))
+                        combined.Add(a);
                 }
             }
             if (combined == null || combined.Count == 0)
@@ -32,6 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 base.DrawText(g, textAreaRect);
                 return;
             }
+
+            // ENH-19: reset chip close rect map before repainting
+            _owner.ChipCloseRects.Clear();
 
             int chipInset = _owner.ScaleLogicalX(4);
             int chipGap = _owner.ScaleLogicalX(6);
@@ -48,7 +53,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 // Apply theme-defined easing if any
                 var themeEasing = _owner._currentTheme?.AnimationEasingFunction;
                 progress = TheTechIdea.Beep.Winform.Controls.Helpers.AnimationEasingHelper.Evaluate(themeEasing, progress);
-                var chipSize = DrawChip(g, item.Text, chipX, chipY, progress, chipHeight);
+                // ENH-19: pass a stable key so the close rect can be hit-tested
+                string chipKey = !string.IsNullOrEmpty(item.ID.ToString()) ? item.ID.ToString() : item.Text;
+                var chipSize = DrawChip(g, chipKey, item.Text, chipX, chipY, progress, chipHeight);
                 chipX += chipSize.Width + chipGap;
                 shown++;
             }
@@ -71,12 +78,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
         }
 
-        private Size DrawChip(Graphics g, string text, int x, int y, float progress, int chipHeight)
+        private Size DrawChip(Graphics g, string key, string text, int x, int y, float progress, int chipHeight)
         {
             SizeF textSizeF = TextUtils.MeasureText(text, _owner.TextFont, int.MaxValue);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-            int textInset = _owner.ScaleLogicalX(10);
-            int chipWidth = textSize.Width + (textInset * 2) + _owner.ScaleLogicalX(8);
+            int textInset  = _owner.ScaleLogicalX(10);
+            int closeSize  = _owner.ScaleLogicalX(14);   // ENH-19: close (×) button size
+            int closePad   = _owner.ScaleLogicalX(4);
+            int chipWidth  = textSize.Width + (textInset * 2) + _owner.ScaleLogicalX(8) + closeSize + closePad;
 
             Rectangle chipRect = new Rectangle(x, y, chipWidth, chipHeight);
             // Apply simple scale + alpha animation based on progress (0..1)
@@ -95,13 +104,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 g.FillPath(brush, path);
             }
 
-            // Draw text
-            int textRectWidth = Math.Max(1, scaledRect.Width - (textInset * 2));
+            // Draw text (reserve right-side space for the close button)
+            int textRectWidth = Math.Max(1, scaledRect.Width - (textInset * 2) - closeSize - closePad);
             var textRect = new Rectangle(scaledRect.X + textInset, scaledRect.Y, textRectWidth, scaledRect.Height);
             var textColor = _theme?.OnPrimaryColor ?? Color.White;
-            var textAlpha = (int)(alpha); // same alpha
+            var textAlpha = (int)(alpha);
             var textColorAlpha = Color.FromArgb(textAlpha, textColor.R, textColor.G, textColor.B);
             TextRenderer.DrawText(g, text, _owner.TextFont, textRect, textColorAlpha, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+
+            // ENH-19: draw × close button and record its hit-test rect
+            int closeX = scaledRect.Right - closeSize - closePad;
+            int closeY = scaledRect.Top   + (scaledRect.Height - closeSize) / 2;
+            var closeRect = new Rectangle(closeX, closeY, closeSize, closeSize);
+            if (!string.IsNullOrEmpty(key))
+                _owner.ChipCloseRects[key] = closeRect;
+            var closeColor = Color.FromArgb(textAlpha, textColor.R, textColor.G, textColor.B);
+            StyledImagePainter.PaintWithTint(g, closeRect, SvgsUI.X, closeColor, 0.75f, 0);
 
             return new Size(scaledW, scaledH);
         }

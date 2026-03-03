@@ -31,6 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         public int BorderRadius { get; set; } = 4;
         public int BorderWidth { get; set; } = 2;
         public int CheckMarkThickness { get; set; } = 2;
+        public float GlyphSizeRatio { get; set; } = 0.62f;
+        public string CheckIconPath { get; set; }
+        public string IndeterminateIconPath { get; set; }
         public Font TextFont { get; set; }
         public string Text { get; set; }
         public bool HideText { get; set; }

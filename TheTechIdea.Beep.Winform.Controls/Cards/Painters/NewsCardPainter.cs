@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -41,82 +42,84 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _headlineFont?.Dispose(); } catch { }
-            try { _sourceFont?.Dispose(); } catch { }
-            try { _timeFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _headlineFont = new Font(fontFamily, 12f, FontStyle.Bold);
-            _sourceFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _timeFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_headlineFont = titleFont;
+            _sourceFont = captionFont;
+            _timeFont = captionFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int thumbnailWidth = DpiScalingHelper.ScaleValue(ThumbnailWidth, _owner);
+            int thumbnailMinHeight = DpiScalingHelper.ScaleValue(ThumbnailMinHeight, _owner);
+            int headlineHeight = DpiScalingHelper.ScaleValue(HeadlineHeight, _owner);
+            int sourceHeight = DpiScalingHelper.ScaleValue(SourceHeight, _owner);
+            int timeHeight = DpiScalingHelper.ScaleValue(TimeHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Thumbnail on left
             if (ctx.ShowImage)
             {
-                int thumbnailHeight = Math.Max(ThumbnailMinHeight, drawingRect.Height - Padding * 2);
+                int thumbnailHeight = Math.Max(thumbnailMinHeight, drawingRect.Height - padding * 2);
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Top + Padding,
-                    ThumbnailWidth,
+                    drawingRect.Left + padding,
+                    drawingRect.Top + padding,
+                    thumbnailWidth,
                     thumbnailHeight);
             }
             
-            int contentLeft = drawingRect.Left + Padding + (ctx.ShowImage ? ThumbnailWidth + ContentGap : 0);
-            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - Padding;
+            int contentLeft = drawingRect.Left + padding + (ctx.ShowImage ? thumbnailWidth + contentGap : 0);
+            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - padding;
             
             // Breaking/Live badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
-                contentWidth -= BadgeWidth + ElementGap;
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
+                contentWidth -= badgeWidth + elementGap;
             }
             
             // Headline (title)
             ctx.HeaderRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + Padding,
+                drawingRect.Top + padding,
                 contentWidth,
-                HeadlineHeight);
+                headlineHeight);
             
             // Source name with icon
             ctx.SubtitleRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Bottom + elementGap,
                 contentWidth / 2,
-                SourceHeight);
+                sourceHeight);
             
             // Time ago
             ctx.StatusRect = new Rectangle(
-                ctx.SubtitleRect.Right + ElementGap,
+                ctx.SubtitleRect.Right + elementGap,
                 ctx.SubtitleRect.Top,
-                contentWidth / 2 - ElementGap,
-                TimeHeight);
+                contentWidth / 2 - elementGap,
+                timeHeight);
             
             // Category/tags
             if (ctx.Tags != null)
             {
                 ctx.TagsRect = new Rectangle(
                     contentLeft,
-                    drawingRect.Bottom - Padding - 20,
-                    contentWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
-                    20);
+                    drawingRect.Bottom - padding - DpiScalingHelper.ScaleValue(20, _owner),
+                    contentWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
+                    DpiScalingHelper.ScaleValue(20, _owner));
             }
             
             ctx.ShowButton = false;
@@ -167,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw category tags
             if (ctx.Tags != null && !ctx.TagsRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _timeFont);
             }
             
             // Draw thumbnail overlay gradient
@@ -242,13 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _headlineFont?.Dispose();
-            _sourceFont?.Dispose();
-            _timeFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

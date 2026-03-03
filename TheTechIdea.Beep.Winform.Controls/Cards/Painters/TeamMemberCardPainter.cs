@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -44,93 +45,95 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _nameFont?.Dispose(); } catch { }
-            try { _roleFont?.Dispose(); } catch { }
-            try { _bioFont?.Dispose(); } catch { }
-            try { _statsFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _nameFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _roleFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _bioFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _statsFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_nameFont = titleFont;
+            _roleFont = captionFont;
+            _bioFont = bodyFont;
+            _statsFont = captionFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int avatarSize = DpiScalingHelper.ScaleValue(AvatarSize, _owner);
+            int nameHeight = DpiScalingHelper.ScaleValue(NameHeight, _owner);
+            int roleHeight = DpiScalingHelper.ScaleValue(RoleHeight, _owner);
+            int bioMinHeight = DpiScalingHelper.ScaleValue(BioMinHeight, _owner);
+            int socialIconSize = DpiScalingHelper.ScaleValue(SocialIconSize, _owner);
+            int socialIconGap = DpiScalingHelper.ScaleValue(SocialIconGap, _owner);
+            int statHeight = DpiScalingHelper.ScaleValue(StatHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Avatar (centered at top)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - AvatarSize) / 2,
-                    drawingRect.Top + Padding,
-                    AvatarSize,
-                    AvatarSize);
+                    drawingRect.Left + (drawingRect.Width - avatarSize) / 2,
+                    drawingRect.Top + padding,
+                    avatarSize,
+                    avatarSize);
             }
             
             // Status badge (top-right, overlapping avatar)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
-            int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + ElementGap : drawingRect.Top + Padding;
+            int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + elementGap : drawingRect.Top + padding;
             
             // Name (centered)
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
-                drawingRect.Width - Padding * 2,
-                NameHeight);
+                drawingRect.Width - padding * 2,
+                nameHeight);
             
             // Role/Title (centered)
             ctx.SubtitleRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 ctx.HeaderRect.Bottom + 2,
-                drawingRect.Width - Padding * 2,
-                RoleHeight);
+                drawingRect.Width - padding * 2,
+                roleHeight);
             
             // Bio/description
-            int bioHeight = Math.Max(BioMinHeight,
-                drawingRect.Height - (ctx.SubtitleRect.Bottom - drawingRect.Top) - Padding * 2 - 
-                StatHeight - ElementGap * 2 - (ctx.ShowButton ? SocialIconSize + ElementGap : 0));
+            int bioHeight = Math.Max(bioMinHeight,
+                drawingRect.Height - (ctx.SubtitleRect.Bottom - drawingRect.Top) - padding * 2 - 
+                statHeight - elementGap * 2 - (ctx.ShowButton ? socialIconSize + elementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.SubtitleRect.Bottom + ElementGap,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Left + padding,
+                ctx.SubtitleRect.Bottom + elementGap,
+                drawingRect.Width - padding * 2,
                 bioHeight);
             
             // Stats row (followers, projects, etc.)
             ctx.RatingRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.ParagraphRect.Bottom + ElementGap,
-                drawingRect.Width - Padding * 2,
-                StatHeight);
+                drawingRect.Left + padding,
+                ctx.ParagraphRect.Bottom + elementGap,
+                drawingRect.Width - padding * 2,
+                statHeight);
             
             // Social links row at bottom
             if (ctx.ShowButton)
             {
-                int socialRowWidth = (SocialIconSize + SocialIconGap) * 4 - SocialIconGap;
+                int socialRowWidth = (socialIconSize + socialIconGap) * 4 - socialIconGap;
                 ctx.ButtonRect = new Rectangle(
                     drawingRect.Left + (drawingRect.Width - socialRowWidth) / 2,
-                    drawingRect.Bottom - Padding - SocialIconSize,
+                    drawingRect.Bottom - padding - socialIconSize,
                     socialRowWidth,
-                    SocialIconSize);
+                    socialIconSize);
             }
             
             ctx.ShowSecondaryButton = false;
@@ -176,28 +179,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             
             // Draw ring around avatar
             var ringRect = new Rectangle(
-                ctx.ImageRect.X - 3,
-                ctx.ImageRect.Y - 3,
-                ctx.ImageRect.Width + 6,
-                ctx.ImageRect.Height + 6);
+                ctx.ImageRect.X - DpiScalingHelper.ScaleValue(3, _owner),
+                ctx.ImageRect.Y - DpiScalingHelper.ScaleValue(3, _owner),
+                ctx.ImageRect.Width + DpiScalingHelper.ScaleValue(6, _owner),
+                ctx.ImageRect.Height + DpiScalingHelper.ScaleValue(6, _owner));
             
-            using var ringPen = new Pen(ctx.AccentColor, 3);
+            using var ringPen = new Pen(ctx.AccentColor, DpiScalingHelper.ScaleValue(3, _owner));
             g.DrawEllipse(ringPen, ringRect);
             
             // Draw online status dot
             if (ctx.ShowStatus)
             {
-                int dotSize = 16;
+                int dotSize = DpiScalingHelper.ScaleValue(16, _owner);
                 var dotRect = new Rectangle(
-                    ctx.ImageRect.Right - dotSize + 2,
-                    ctx.ImageRect.Bottom - dotSize + 2,
+                    ctx.ImageRect.Right - dotSize + DpiScalingHelper.ScaleValue(2, _owner),
+                    ctx.ImageRect.Bottom - dotSize + DpiScalingHelper.ScaleValue(2, _owner),
                     dotSize,
                     dotSize);
                 
                 using var dotBrush = new SolidBrush(ctx.StatusColor != Color.Empty ? ctx.StatusColor : Color.FromArgb(76, 175, 80));
                 g.FillEllipse(dotBrush, dotRect);
                 
-                using var dotBorderPen = new Pen(Color.White, 2);
+                using var dotBorderPen = new Pen(Color.White, DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawEllipse(dotBorderPen, dotRect);
             }
         }
@@ -227,9 +230,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                     // Number
                     var numberRect = new Rectangle(statRect.X, statRect.Y, statRect.Width, statRect.Height / 2 + 4);
                     using var numberBrush = new SolidBrush(ctx.AccentColor);
-                    using var numberFont = new Font(_owner.Font.FontFamily, 14f, FontStyle.Bold);
                     var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(parts[0], numberFont, numberBrush, numberRect, format);
+                    g.DrawString(parts[0], _nameFont, numberBrush, numberRect, format);
                     
                     // Label
                     var labelRect = new Rectangle(statRect.X, statRect.Y + statRect.Height / 2, statRect.Width, statRect.Height / 2);
@@ -250,7 +252,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             
             foreach (var icon in icons)
             {
-                var iconRect = new Rectangle(x, ctx.ButtonRect.Top, SocialIconSize, SocialIconSize);
+                int socialIconSize = DpiScalingHelper.ScaleValue(SocialIconSize, _owner);
+                int socialIconGap = DpiScalingHelper.ScaleValue(SocialIconGap, _owner);
+                var iconRect = new Rectangle(x, ctx.ButtonRect.Top, socialIconSize, socialIconSize);
                 
                 // Circle background
                 using var bgBrush = new SolidBrush(Color.FromArgb(20, ctx.AccentColor));
@@ -258,11 +262,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 
                 // Icon text
                 using var textBrush = new SolidBrush(Color.FromArgb(150, ctx.AccentColor));
-                using var iconFont = new Font(_owner.Font.FontFamily, 8f, FontStyle.Bold);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(icon, iconFont, textBrush, iconRect, format);
+                g.DrawString(icon, _statsFont, textBrush, iconRect, format);
                 
-                x += SocialIconSize + SocialIconGap;
+                x += socialIconSize + socialIconGap;
             }
         }
         
@@ -283,10 +286,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 
                 foreach (var icon in icons)
                 {
-                    var iconRect = new Rectangle(x, ctx.ButtonRect.Top, SocialIconSize, SocialIconSize);
+                    int socialIconSize = DpiScalingHelper.ScaleValue(SocialIconSize, _owner);
+                    int socialIconGap = DpiScalingHelper.ScaleValue(SocialIconGap, _owner);
+                    var iconRect = new Rectangle(x, ctx.ButtonRect.Top, socialIconSize, socialIconSize);
                     owner.AddHitArea(icon, iconRect, null,
                         () => notifyAreaHit?.Invoke(icon, iconRect));
-                    x += SocialIconSize + SocialIconGap;
+                    x += socialIconSize + socialIconGap;
                 }
             }
         }
@@ -298,14 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _nameFont?.Dispose();
-            _roleFont?.Dispose();
-            _bioFont?.Dispose();
-            _statsFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

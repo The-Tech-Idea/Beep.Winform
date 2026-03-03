@@ -24,14 +24,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         private const int HeaderHeight = 26;
         private const int ButtonHeight = 32;
 
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             Owner = owner;
             Theme = theme;
-            try { _badgeFont?.Dispose(); } catch { }
-            try { _statusFont?.Dispose(); } catch { }
-            _badgeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-            _statusFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
+_badgeFont = captionFont;
+            _statusFont = captionFont;
         }
 
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
@@ -124,9 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         {
             if (!_disposed)
             {
-                _badgeFont?.Dispose();
-                _statusFont?.Dispose();
-                _disposed = true;
+_disposed = true;
             }
         }
     }

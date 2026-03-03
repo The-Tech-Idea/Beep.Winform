@@ -139,8 +139,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                             Math.Max(0, _contentArea.Height)
                         );
                         
-                        control.Bounds = targetBounds;
+                        // IMPORTANT: Set Dock=None BEFORE Bounds.
+                        // If the child had Dock=Fill, setting Bounds first has no effect
+                        // (dock manager overrides it). This caused child controls to cover
+                        // the tab area on first add. On resize Dock was already None so
+                        // Bounds stuck — which is why resize worked but AddControl didn't.
                         control.Dock = DockStyle.None;
+                        control.Bounds = targetBounds;
                         control.Region = null; // Don't clip with Region - causes rendering issues
                     }
                     

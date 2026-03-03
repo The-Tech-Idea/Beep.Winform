@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -17,12 +18,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private int _activeIndex;
         private int _itemsCount;
         private bool _keysHooked;
+        private bool _wheelHooked;
         private WidgetContext _lastCtx;
+
+        private Font? _itemFont;
+
+        private const int ItemHeightDp = 28;
+        private const int PadDp        = 8;
+        private const int CornerDp     = 6;
+
+        protected override void RebuildFonts()
+        {
+            _itemFont?.Dispose();
+            _itemFont = BeepThemesManager.ToFont(Theme?.LabelSmall ?? new TypographyStyle { FontSize = 9f }, true);
+        }
 
         public override void Initialize(BaseControl owner, IBeepTheme theme)
         {
             base.Initialize(owner, theme);
             HookKeyboard();
+            if (!_wheelHooked && Owner != null) { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
         }
 
         private void HookKeyboard()
@@ -43,6 +58,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         }
 
         private int PageSize => Math.Max(1, _itemRects.Count);
+
+        private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (_lastCtx == null) return;
+            int maxY = Math.Max(0, _lastCtx.TotalContentHeight - _lastCtx.ContentRect.Height);
+            _lastCtx.ScrollOffsetY = Math.Max(0, Math.Min(_lastCtx.ScrollOffsetY - e.Delta / 120 * Dp(ItemHeightDp) * 3, maxY));
+            Owner?.Invalidate();
+        }
 
         private void UpdateActive(int idx)
         {
@@ -73,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 8;
+            int pad = Dp(PadDp);
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - pad * 2);
 
@@ -82,19 +105,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _itemsCount = items.Count;
             _activeIndex = ctx.ActiveIndex > 0 ? Math.Clamp(ctx.ActiveIndex, 0, Math.Max(0, _itemsCount - 1)) : 0;
 
-            int itemHeight = 28;
-            int visible = Math.Max(0, Math.Min(items.Count, ctx.ContentRect.Height / itemHeight));
-            for (int i = 0; i < visible; i++)
-            {
-                _itemRects.Add(new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + i * itemHeight, ctx.ContentRect.Width, itemHeight));
-            }
+            int stride = Dp(ItemHeightDp);
+            for (int i = 0; i < items.Count; i++)
+                _itemRects.Add(new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + i * stride, ctx.ContentRect.Width, stride));
+
+            ctx.TotalContentHeight = items.Count * stride;
+            ClampScrollOffset(ctx);
             _lastCtx = ctx;
             return ctx;
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            using var bg = new SolidBrush(Theme?.BackColor ?? Color.White);
+            var bg = PaintersFactory.GetSolidBrush(Theme?.BackColor ?? Color.White);
             g.FillRectangle(bg, ctx.DrawingRect);
         }
 
@@ -103,54 +126,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _lastCtx = ctx;
             var items = ctx.NavigationItems?.Select(n => n.Text).ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
             int active = _activeIndex;
-            using var font = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            int stride = Dp(ItemHeightDp);
+            var corner = Dp(CornerDp);
 
-            for (int i = 0; i < _itemRects.Count && i < items.Count; i++)
+            var activeBrush  = PaintersFactory.GetSolidBrush(Theme?.ForeColor ?? Color.Black);
+            var normalBrush  = PaintersFactory.GetSolidBrush(Color.FromArgb(160, Theme?.ForeColor ?? Color.Black));
+            var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+
+            var savedClip = g.Clip;
+            g.SetClip(ctx.ContentRect);
+
+            for (int i = 0; i < items.Count; i++)
             {
-                var rect = _itemRects[i];
+                int y = ctx.ContentRect.Y + i * stride - ctx.ScrollOffsetY;
+                if (y + stride < ctx.ContentRect.Y) continue;
+                if (y > ctx.ContentRect.Bottom) break;
+
+                var rect    = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, stride);
                 bool isActive = i == active;
                 bool hv = IsAreaHovered($"Menu_Item_{i}");
 
                 if (isActive || hv)
                 {
                     using var layer = new SolidBrush(Color.FromArgb(isActive ? 20 : 8, Theme?.PrimaryColor ?? Color.SteelBlue));
-                    g.FillRoundedRectangle(layer, rect, 6);
+                    g.FillRoundedRectangle(layer, rect, corner);
                 }
 
-                using var brush = new SolidBrush(isActive ? (Theme?.ForeColor ?? Color.Black) : Color.FromArgb(160, Theme?.ForeColor ?? Color.Black));
-                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-                var textRect = Rectangle.Inflate(rect, -10, 0);
-                g.DrawString(items[i], font, brush, textRect, fmt);
+                var textRect = Rectangle.Inflate(rect, -Dp(10), 0);
+                if (_itemFont != null)
+                    g.DrawString(items[i], _itemFont, isActive ? activeBrush : normalBrush, textRect, fmt);
 
-                // Right chevron for active
                 if (isActive)
                 {
-                    using var pen = new Pen(Theme?.PrimaryColor ?? Color.SteelBlue, 2f);
-                    g.DrawLine(pen, rect.Right - 10, rect.Y + rect.Height / 2 - 4, rect.Right - 6, rect.Y + rect.Height / 2);
-                    g.DrawLine(pen, rect.Right - 10, rect.Y + rect.Height / 2 + 4, rect.Right - 6, rect.Y + rect.Height / 2);
+                    var chevronPen = PaintersFactory.GetPen(Theme?.PrimaryColor ?? Color.SteelBlue, 2f);
+                    int cx = rect.Right - Dp(10); int cy = rect.Y + rect.Height / 2;
+                    g.DrawLine(chevronPen, cx, cy - Dp(4), cx + Dp(4), cy);
+                    g.DrawLine(chevronPen, cx, cy + Dp(4), cx + Dp(4), cy);
                 }
             }
+
+            g.Clip = savedClip;
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            for (int i = 0; i < _itemRects.Count; i++)
-            {
-                if (IsAreaHovered($"Menu_Item_{i}"))
-                {
-                    using var pen = new Pen(Theme?.AccentColor ?? Color.SteelBlue, 1f);
-                    g.DrawRoundedRectangle(pen, _itemRects[i], 6);
-                }
-            }
+            DrawVerticalScrollbar(g, ctx.ContentRect, ctx, IsAreaHovered("Menu_Scroll"));
         }
 
         public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
         {
             if (owner == null) return;
             ClearOwnerHitAreas();
-            for (int i = 0; i < _itemRects.Count; i++)
+            int stride = Dp(ItemHeightDp);
+            var items = ctx.NavigationItems?.Select(n => n.Text).ToList() ?? new List<string> { "Home", "Analytics", "Reports", "Settings" };
+            for (int i = 0; i < items.Count; i++)
             {
-                int idx = i; var rect = _itemRects[i];
+                int idx = i;
+                int y = ctx.ContentRect.Y + i * stride - ctx.ScrollOffsetY;
+                if (y + stride < ctx.ContentRect.Y || y > ctx.ContentRect.Bottom) continue;
+                var rect = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, stride);
                 owner.AddHitArea($"Menu_Item_{idx}", rect, null, () =>
                 {
                     ctx.ActiveIndex = idx;
@@ -163,19 +197,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public void Dispose()
         {
-            if (!_keysHooked || Owner == null) return;
-            try
+            if (_keysHooked && Owner != null)
             {
-                Owner._input.UpArrowKeyPressed -= OnUp;
-                Owner._input.DownArrowKeyPressed -= OnDown;
-                Owner._input.HomeKeyPressed -= OnHome;
-                Owner._input.EndKeyPressed -= OnEnd;
-                Owner._input.PageUpKeyPressed -= OnPageUp;
-                Owner._input.PageDownKeyPressed -= OnPageDown;
-                Owner._input.EnterKeyPressed -= OnEnter;
-                _keysHooked = false;
+                try
+                {
+                    Owner._input.UpArrowKeyPressed -= OnUp;
+                    Owner._input.DownArrowKeyPressed -= OnDown;
+                    Owner._input.HomeKeyPressed -= OnHome;
+                    Owner._input.EndKeyPressed -= OnEnd;
+                    Owner._input.PageUpKeyPressed -= OnPageUp;
+                    Owner._input.PageDownKeyPressed -= OnPageDown;
+                    Owner._input.EnterKeyPressed -= OnEnter;
+                    _keysHooked = false;
+                }
+                catch { }
             }
-            catch { }
+            if (_wheelHooked && Owner != null) { Owner.MouseWheel -= OnMouseWheel; _wheelHooked = false; }
+            _itemFont?.Dispose();
         }
     }
 }

@@ -12,6 +12,9 @@ using VoteType = TheTechIdea.Beep.Winform.Controls.Widgets.Models.VoteType;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
@@ -21,40 +24,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
     /// </summary>
     internal sealed class CommentThreadPainter : WidgetPainterBase, IDisposable
     {
-        private BaseImage.ImagePainter _imagePainter;
-        private const int COMMENT_PADDING = 12;
-        private const int AVATAR_SIZE = 32;
-        private const int REPLY_INDENT = 40;
-        private const int VOTE_BUTTON_SIZE = 20;
+        private Font? _titleFont;
+        private Font? _bodyFont;
+        private Font? _smallFont;
+        private Font? _tinyFont;
+        private Font? _boldSmallFont;
+        private bool _wheelHooked;
+        private WidgetContext? _lastCtx;
 
-        public CommentThreadPainter()
+        protected override void RebuildFonts()
         {
-            _imagePainter = new BaseImage.ImagePainter();
+            _titleFont?.Dispose(); _bodyFont?.Dispose(); _smallFont?.Dispose();
+            _tinyFont?.Dispose(); _boldSmallFont?.Dispose();
+            _titleFont     = BeepThemesManager.ToFont(Theme?.LabelMedium  ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold }, true);
+            _bodyFont      = BeepThemesManager.ToFont(Theme?.LabelSmall   ?? new TypographyStyle { FontSize = 9f }, true);
+            _smallFont     = BeepThemesManager.ToFont(Theme?.CaptionStyle ?? new TypographyStyle { FontSize = 8f }, true);
+            _tinyFont      = BeepThemesManager.ToFont(Theme?.CaptionStyle ?? new TypographyStyle { FontSize = 7f }, true);
+            _boldSmallFont = BeepThemesManager.ToFont(Theme?.LabelSmall   ?? new TypographyStyle { FontSize = 9f, FontWeight = FontWeight.Bold }, true);
+        }
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            if (!_wheelHooked && Owner != null)
+            {
+                Owner.MouseWheel += OnMouseWheel;
+                _wheelHooked = true;
+            }
+        }
+
+        private void OnMouseWheel(object? sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (_lastCtx == null) return;
+            _lastCtx.ScrollOffsetY -= e.Delta / 3;
+            ClampScrollOffset(_lastCtx);
+            Owner?.Invalidate();
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 12;
+            int pad = Dp(12);
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
-            
+
             // Thread header with title and stats
             ctx.HeaderRect = new Rectangle(
-                ctx.DrawingRect.Left + pad, 
-                ctx.DrawingRect.Top + pad, 
-                ctx.DrawingRect.Width - pad * 2, 
-                32
+                ctx.DrawingRect.Left + pad,
+                ctx.DrawingRect.Top + pad,
+                ctx.DrawingRect.Width - pad * 2,
+                Dp(32)
             );
-            
+
             // Comments area (scrollable)
-            int contentTop = ctx.HeaderRect.Bottom + 8;
-            int inputHeight = 40;
+            int contentTop = ctx.HeaderRect.Bottom + Dp(8);
+            int inputHeight = Dp(40);
             ctx.ContentRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
                 contentTop,
                 ctx.DrawingRect.Width - pad * 2,
-                ctx.DrawingRect.Bottom - contentTop - pad - inputHeight - 8
+                ctx.DrawingRect.Bottom - contentTop - pad - inputHeight - Dp(8)
             );
-            
+
             // Add comment area
             ctx.FooterRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
@@ -62,24 +91,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 ctx.DrawingRect.Width - pad * 2,
                 inputHeight
             );
-            
+
+            // Estimate total content height for scrolling
+            var comments = ctx.Comments ?? CreateSampleComments();
+            int estimatedHeight = comments.Count * Dp(80);
+            foreach (var c in comments)
+                estimatedHeight += (c.Replies?.Count ?? 0) * Dp(70);
+            ctx.TotalContentHeight = estimatedHeight;
+            ClampScrollOffset(ctx);
+            _lastCtx = ctx;
+
             return ctx;
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             DrawSoftShadow(g, ctx.DrawingRect, 8, layers: 3, offset: 2);
-            using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.Empty);
+            var bgBrush = PaintersFactory.GetSolidBrush(Theme?.BackColor ?? Color.Empty);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Configure ImagePainter with theme
-            _imagePainter.CurrentTheme = Theme;
-            _imagePainter.UseThemeColors = true;
-
             // Draw thread header
             DrawThreadHeader(g, ctx.HeaderRect, ctx);
 
@@ -99,38 +133,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawThreadHeader(Graphics g, Rectangle rect, WidgetContext ctx)
         {
             // Comments icon
-            var iconRect = new Rectangle(rect.X, rect.Y + 4, 24, 24);
-            _imagePainter.DrawSvg(g, "message-square", iconRect, ctx.AccentColor, 0.9f);
+            var iconRect = new Rectangle(rect.X, rect.Y + Dp(4), Dp(24), Dp(24));
+            using var iconPath = CreateRoundedPath(iconRect, 0);
+            StyledImagePainter.PaintWithTint(g, iconPath, SvgsUI.MessageSquare, ctx.AccentColor, 0.9f);
 
             // Thread title
-            var titleRect = new Rectangle(iconRect.Right + 8, rect.Y, rect.Width - iconRect.Width - 100, 20);
+            var titleRect = new Rectangle(iconRect.Right + Dp(8), rect.Y, rect.Width - iconRect.Width - Dp(100), Dp(20));
             string title = ctx.Title ?? "Comments";
-            
-            using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
-            using var titleBrush = new SolidBrush(Color.FromArgb(200, Theme?.CardTextForeColor ?? Color.Empty));
-            g.DrawString(title, titleFont, titleBrush, titleRect, 
+
+            var titleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(200, Theme?.CardTextForeColor ?? Color.Empty));
+            g.DrawString(title, _titleFont ?? SystemFonts.DefaultFont, titleBrush, titleRect,
                 new StringFormat { LineAlignment = StringAlignment.Center });
 
             // Comment count and stats
             var comments = ctx.Comments;
-            
+
             int totalComments = CountTotalComments(comments);
-            var statsRect = new Rectangle(rect.X, rect.Y + 20, rect.Width, 12);
-            
-            using var statsFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var statsBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
-            
-            string statsText = totalComments == 0 ? "No comments" : 
+            var statsRect = new Rectangle(rect.X, rect.Y + Dp(20), rect.Width, Dp(12));
+
+            var statsBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
+
+            string statsText = totalComments == 0 ? "No comments" :
                 totalComments == 1 ? "1 comment" : $"{totalComments} comments";
-            
-            g.DrawString(statsText, statsFont, statsBrush, statsRect);
+
+            g.DrawString(statsText, _bodyFont ?? SystemFonts.DefaultFont, statsBrush, statsRect);
 
             // Sort/filter options
-            var sortRect = new Rectangle(rect.Right - 80, rect.Y + 4, 80, 16);
-            using var sortFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var sortBrush = new SolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
+            var sortRect = new Rectangle(rect.Right - Dp(80), rect.Y + Dp(4), Dp(80), Dp(16));
+            var sortBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
             var sortFormat = new StringFormat { Alignment = StringAlignment.Far };
-            g.DrawString("Sort: Recent", sortFont, sortBrush, sortRect, sortFormat);
+            g.DrawString("Sort: Recent", _smallFont ?? SystemFonts.DefaultFont, sortBrush, sortRect, sortFormat);
         }
 
         private void DrawComments(Graphics g, Rectangle rect, List<Comment> comments, WidgetContext ctx)
@@ -141,73 +173,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 return;
             }
 
-            int currentY = rect.Y;
-            int maxHeight = rect.Height;
+            var savedClip = g.Clip;
+            g.SetClip(rect);
+
+            int currentY = rect.Y - ctx.ScrollOffsetY;
+            int spacing = Dp(8);
 
             foreach (var comment in comments)
             {
-                if (currentY >= rect.Bottom) break;
+                if (currentY > rect.Bottom) break;
 
-                int commentHeight = DrawComment(g, 
-                    new Rectangle(rect.X, currentY, rect.Width, maxHeight - (currentY - rect.Y)), 
+                int commentHeight = DrawComment(g,
+                    new Rectangle(rect.X, currentY, rect.Width, rect.Height),
                     comment, 0, ctx);
-                
-                currentY += commentHeight + 8; // Comment spacing
+
+                currentY += commentHeight + spacing;
             }
+
+            g.Clip = savedClip;
         }
 
         private int DrawComment(Graphics g, Rectangle availableRect, Comment comment, int indentLevel, WidgetContext ctx)
         {
-            int indent = indentLevel * REPLY_INDENT;
+            int indent = indentLevel * Dp(40);
             int commentWidth = availableRect.Width - indent;
             int startY = availableRect.Y;
-            
+
             // Comment container
             var commentRect = new Rectangle(availableRect.X + indent, startY, commentWidth, 0);
-            
+
             // Calculate comment content height
-            using var contentFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            var contentSize = TextUtils.MeasureText(g,comment.Content, contentFont, commentWidth - AVATAR_SIZE - COMMENT_PADDING * 3);
-            int commentHeight = Math.Max(60, (int)contentSize.Height + 40); // Min height for avatar + padding
+            var contentFont = _bodyFont ?? SystemFonts.DefaultFont;
+            var contentSize = TextUtils.MeasureText(g, comment.Content, contentFont, commentWidth - Dp(32) - Dp(12) * 3);
+            int commentHeight = Math.Max(Dp(60), (int)contentSize.Height + Dp(40));
             
             commentRect.Height = commentHeight;
 
             // Draw comment background (subtle for replies)
             if (indentLevel > 0)
             {
-                using var replyBgBrush = new SolidBrush(Color.FromArgb(5, Theme?.SecondaryTextColor ?? Color.Empty));
+                var replyBgBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(5, Theme?.SecondaryTextColor ?? Color.Empty));
                 g.FillRectangle(replyBgBrush, commentRect);
-                
+
                 // Draw reply connection line
-                using var connectionPen = new Pen(Color.FromArgb(60, Theme?.SecondaryTextColor ?? Color.Empty), 1);
-                g.DrawLine(connectionPen, 
-                    availableRect.X + indent - 20, startY,
-                    availableRect.X + indent - 20, startY + commentHeight);
+                var connectionPen = PaintersFactory.GetPen(Color.FromArgb(60, Theme?.SecondaryTextColor ?? Color.Empty), 1f);
+                g.DrawLine(connectionPen,
+                    availableRect.X + indent - Dp(20), startY,
+                    availableRect.X + indent - Dp(20), startY + commentHeight);
             }
 
             // User avatar
-            var avatarRect = new Rectangle(commentRect.X + COMMENT_PADDING, 
-                commentRect.Y + COMMENT_PADDING, AVATAR_SIZE, AVATAR_SIZE);
+            int avSize = Dp(32);
+            int cPad   = Dp(12);
+            var avatarRect = new Rectangle(commentRect.X + cPad, commentRect.Y + cPad, avSize, avSize);
             DrawCommentAvatar(g, avatarRect, comment.AuthorName, comment.AuthorAvatar);
 
             // Comment content area
-            var contentRect = new Rectangle(avatarRect.Right + 12, commentRect.Y + COMMENT_PADDING,
-                commentRect.Width - avatarRect.Width - COMMENT_PADDING * 3, commentRect.Height - COMMENT_PADDING * 2);
+            var contentRect = new Rectangle(avatarRect.Right + Dp(12), commentRect.Y + cPad,
+                commentRect.Width - avatarRect.Width - cPad * 3, commentRect.Height - cPad * 2);
 
             // Author name and timestamp
             var authorRect = new Rectangle(contentRect.X, contentRect.Y, contentRect.Width, 16);
             DrawCommentAuthor(g, authorRect, comment);
 
             // Comment text
-            var textRect = new Rectangle(contentRect.X, authorRect.Bottom + 4, 
+            var textRect = new Rectangle(contentRect.X, authorRect.Bottom + Dp(4),
                 contentRect.Width, (int)contentSize.Height);
-            
-            using var textBrush = new SolidBrush(Color.FromArgb(80, Theme?.CardTextForeColor ?? Color.Empty));
+
+            var textBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(80, Theme?.CardTextForeColor ?? Color.Empty));
             g.DrawString(comment.Content, contentFont, textBrush, textRect);
 
             // Comment actions (vote, reply, etc.)
-            var actionsRect = new Rectangle(contentRect.X, textRect.Bottom + 8, 
-                contentRect.Width, 20);
+            var actionsRect = new Rectangle(contentRect.X, textRect.Bottom + Dp(8),
+                contentRect.Width, Dp(20));
             DrawCommentActions(g, actionsRect, comment, ctx);
 
             int totalHeight = commentHeight;
@@ -215,19 +253,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Draw replies recursively
             if (comment.Replies?.Any() == true && indentLevel < 3) // Limit nesting depth
             {
-                int repliesY = commentRect.Bottom + 4;
-                
+                int repliesY = commentRect.Bottom + Dp(4);
+
                 foreach (var reply in comment.Replies)
                 {
                     if (repliesY >= availableRect.Bottom) break;
 
                     int replyHeight = DrawComment(g,
-                        new Rectangle(availableRect.X, repliesY, availableRect.Width, 
+                        new Rectangle(availableRect.X, repliesY, availableRect.Width,
                         availableRect.Bottom - repliesY),
                         reply, indentLevel + 1, ctx);
-                    
-                    repliesY += replyHeight + 4;
-                    totalHeight += replyHeight + 4;
+
+                    repliesY += replyHeight + Dp(4);
+                    totalHeight += replyHeight + Dp(4);
                 }
             }
 
@@ -237,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
         private void DrawCommentAvatar(Graphics g, Rectangle rect, string authorName, string avatarPath)
         {
             // Draw avatar background
-            using var avatarBrush = new SolidBrush(Theme?.CardBackColor ?? Color.Empty);
+            var avatarBrush = PaintersFactory.GetSolidBrush(Theme?.CardBackColor ?? Color.Empty);
             g.FillEllipse(avatarBrush, rect);
 
             if (!string.IsNullOrEmpty(avatarPath))
@@ -249,50 +287,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                     float cy = rect.Y + rect.Height / 2f;
                     StyledImagePainter.PaintInCircle(g, cx, cy, radius, avatarPath);
                 }
-                catch
-                {
-                    _imagePainter.ImagePath = avatarPath;
-                    _imagePainter.ClipShape = Vis.Modules.ImageClipShape.Circle;
-                    _imagePainter.DrawImage(g, avatarPath, rect);
-                }
+                catch { /* avatar unavailable, fall through to initials */ }
             }
-            else
+
+            if (string.IsNullOrEmpty(avatarPath))
             {
                 // Draw initials
                 string initials = GetUserInitials(authorName);
-                using var initialFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-                using var initialBrush = new SolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
+                var initialBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Empty));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(initials, initialFont, initialBrush, rect, format);
+                g.DrawString(initials, _boldSmallFont ?? SystemFonts.DefaultFont, initialBrush, rect, format);
             }
         }
 
         private void DrawCommentAuthor(Graphics g, Rectangle rect, Comment comment)
         {
             // Author name
-            using var nameFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-            using var nameBrush = new SolidBrush(Color.FromArgb(160, Theme?.CardTextForeColor ?? Color.Empty));
-            g.DrawString(comment.AuthorName, nameFont, nameBrush, rect.X, rect.Y);
+            var nameBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(160, Theme?.CardTextForeColor ?? Color.Empty));
+            g.DrawString(comment.AuthorName, _boldSmallFont ?? SystemFonts.DefaultFont, nameBrush, rect.X, rect.Y);
 
             // Timestamp
             string timeText = FormatCommentTime(comment.CreatedAt);
-            using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var timeBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
-            var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
-            g.DrawString(timeText, timeFont, timeBrush, rect.Right - timeSize.Width, rect.Y);
+            var timeBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
+            var timeSize = TextUtils.MeasureText(g, timeText, _smallFont ?? SystemFonts.DefaultFont);
+            g.DrawString(timeText, _smallFont ?? SystemFonts.DefaultFont, timeBrush, rect.Right - timeSize.Width, rect.Y);
 
             // Author badge (if applicable)
             if (comment.IsAuthor)
             {
-                var badgeRect = new Rectangle((int)(rect.Right - timeSize.Width - 40), rect.Y, 35, 12);
-                using var badgeBrush = new SolidBrush(Theme?.BadgeBackColor ?? Theme?.AccentColor ?? Color.Empty);
+                var badgeRect = new Rectangle((int)(rect.Right - timeSize.Width - Dp(40)), rect.Y, Dp(35), Dp(12));
+                var badgeBrush = PaintersFactory.GetSolidBrush(Theme?.BadgeBackColor ?? Theme?.AccentColor ?? Color.Empty);
                 using var badgePath = CreateRoundedPath(badgeRect, 6);
                 g.FillPath(badgeBrush, badgePath);
 
-                using var badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
-                using var badgeTextBrush = new SolidBrush(Theme?.BadgeForeColor ?? Theme?.OnPrimaryColor ?? Color.Empty);
+                var badgeTextBrush = PaintersFactory.GetSolidBrush(Theme?.BadgeForeColor ?? Theme?.OnPrimaryColor ?? Color.Empty);
                 var badgeFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString("AUTHOR", badgeFont, badgeTextBrush, badgeRect, badgeFormat);
+                g.DrawString("AUTHOR", _tinyFont ?? SystemFonts.DefaultFont, badgeTextBrush, badgeRect, badgeFormat);
             }
         }
 
@@ -301,114 +331,115 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             int buttonSpacing = 40;
             int currentX = rect.X;
 
+            int btnSize = Dp(20);
+
             // Upvote button
-                var upvoteRect = new Rectangle(currentX, rect.Y, VOTE_BUTTON_SIZE, VOTE_BUTTON_SIZE);
-                Color upvoteColor = comment.UserVote == VoteType.Upvote ? (Theme?.SuccessColor ?? Color.Empty) : PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.SecondaryTextColor ?? Color.Empty, 150);
-                _imagePainter.DrawSvg(g, "chevron-up", upvoteRect, upvoteColor, 0.8f);
+            var upvoteRect = new Rectangle(currentX, rect.Y, btnSize, btnSize);
+            Color upvoteColor = comment.UserVote == VoteType.Upvote ? (Theme?.SuccessColor ?? Color.Empty) : PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.SecondaryTextColor ?? Color.Empty, 150);
+            using (var upPath = CreateRoundedPath(upvoteRect, 0))
+                StyledImagePainter.PaintWithTint(g, upPath, SvgsUI.ChevronUp, upvoteColor, 0.8f);
 
             // Vote count
-            using var voteFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-            Color voteTextColor = comment.UserVote != VoteType.None ? 
-                (comment.UserVote == VoteType.Upvote ? (Theme?.SuccessColor ?? Color.FromArgb(76, 175, 80)) : (Theme?.ErrorColor ?? Color.FromArgb(244, 67, 54))) : 
+            Color voteTextColor = comment.UserVote != VoteType.None ?
+                (comment.UserVote == VoteType.Upvote ? (Theme?.SuccessColor ?? Color.FromArgb(76, 175, 80)) : (Theme?.ErrorColor ?? Color.FromArgb(244, 67, 54))) :
                 Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty);
-            using var voteBrush = new SolidBrush(voteTextColor);
-            
+            var voteBrush = PaintersFactory.GetSolidBrush(voteTextColor);
+
             string voteText = comment.VoteScore.ToString();
-            var voteSize = TextUtils.MeasureText(g,voteText, voteFont);
-            g.DrawString(voteText, voteFont, voteBrush, currentX + 22, rect.Y + 2);
+            var voteSize = TextUtils.MeasureText(g, voteText, _smallFont ?? SystemFonts.DefaultFont);
+            g.DrawString(voteText, _smallFont ?? SystemFonts.DefaultFont, voteBrush, currentX + Dp(22), rect.Y + Dp(2));
 
             // Downvote button
-                var downvoteRect = new Rectangle(currentX + 22 + (int)voteSize.Width + 4, rect.Y, VOTE_BUTTON_SIZE, VOTE_BUTTON_SIZE);
-                Color downvoteColor = comment.UserVote == VoteType.Downvote ? (Theme?.ErrorColor ?? Color.Empty) : PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.SecondaryTextColor ?? Color.Empty, 150);
-                _imagePainter.DrawSvg(g, "chevron-down", downvoteRect, downvoteColor, 0.8f);
+            var downvoteRect = new Rectangle(currentX + Dp(22) + (int)voteSize.Width + Dp(4), rect.Y, btnSize, btnSize);
+            Color downvoteColor = comment.UserVote == VoteType.Downvote ? (Theme?.ErrorColor ?? Color.Empty) : PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.SecondaryTextColor ?? Color.Empty, 150);
+            using (var dnPath = CreateRoundedPath(downvoteRect, 0))
+                StyledImagePainter.PaintWithTint(g, dnPath, SvgsUI.ChevronDown, downvoteColor, 0.8f);
 
-            currentX += buttonSpacing + 40;
+            currentX += buttonSpacing + Dp(40);
 
             // Reply button
-            var replyRect = new Rectangle(currentX, rect.Y + 2, 16, 16);
-            _imagePainter.DrawSvg(g, "corner-down-right", replyRect, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
-            
-            using var replyFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var replyBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
-            g.DrawString("Reply", replyFont, replyBrush, currentX + 20, rect.Y + 4);
+            var replyRect = new Rectangle(currentX, rect.Y + Dp(2), Dp(16), Dp(16));
+            using (var replyIconPath = CreateRoundedPath(replyRect, 0))
+                StyledImagePainter.PaintWithTint(g, replyIconPath, SvgsUI.CornerDownRight, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
 
-            currentX += buttonSpacing + 20;
+            var replyBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
+            g.DrawString("Reply", _smallFont ?? SystemFonts.DefaultFont, replyBrush, currentX + Dp(20), rect.Y + Dp(4));
+
+            currentX += buttonSpacing + Dp(20);
 
             // More actions (edit, delete for own comments)
             if (comment.CanEdit)
             {
-                var moreRect = new Rectangle(currentX, rect.Y + 2, 16, 16);
-                _imagePainter.DrawSvg(g, "more-horizontal", moreRect, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
+                var moreRect = new Rectangle(currentX, rect.Y + Dp(2), Dp(16), Dp(16));
+                using var morePath = CreateRoundedPath(moreRect, 0);
+                StyledImagePainter.PaintWithTint(g, morePath, SvgsUI.More, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
             }
         }
 
         private void DrawAddCommentArea(Graphics g, Rectangle rect, WidgetContext ctx)
         {
             // Input background
-            using var inputBgBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.Empty);
-            using var inputPath = CreateRoundedPath(rect, 8);
+            var inputBgBrush = PaintersFactory.GetSolidBrush(Theme?.TextBoxBackColor ?? Color.Empty);
+            using var inputPath = CreateRoundedPath(rect, Dp(8));
             g.FillPath(inputBgBrush, inputPath);
 
             // Input border
-            using var borderPen = new Pen(Theme?.BorderColor ?? Color.Empty, 1);
+            var borderPen = PaintersFactory.GetPen(Theme?.BorderColor ?? Color.Empty, 1f);
             g.DrawPath(borderPen, inputPath);
 
             // User avatar (small)
-            var avatarRect = new Rectangle(rect.X + 8, rect.Y + 4, 24, 24);
-            using var avatarBrush = new SolidBrush(Theme?.CardBackColor ?? Color.Empty);
+            var avatarRect = new Rectangle(rect.X + Dp(8), rect.Y + Dp(4), Dp(24), Dp(24));
+            var avatarBrush = PaintersFactory.GetSolidBrush(Theme?.CardBackColor ?? Color.Empty);
             g.FillEllipse(avatarBrush, avatarRect);
 
             // Placeholder text or current input
             string inputText = ctx.CommentText ?? "";
-            
+
             string displayText = string.IsNullOrEmpty(inputText) ? "Add a comment..." : inputText;
-            Color textColor = string.IsNullOrEmpty(inputText) ? 
+            Color textColor = string.IsNullOrEmpty(inputText) ?
                 Color.FromArgb(150, Theme?.SecondaryTextColor ?? Color.Empty) : Color.FromArgb(80, Theme?.CardTextForeColor ?? Color.Empty);
 
-            var textRect = new Rectangle(avatarRect.Right + 8, rect.Y + 4, 
-                rect.Width - avatarRect.Width - 80, rect.Height - 8);
+            var textRect = new Rectangle(avatarRect.Right + Dp(8), rect.Y + Dp(4),
+                rect.Width - avatarRect.Width - Dp(80), rect.Height - Dp(8));
 
-            using var inputFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var textBrush = new SolidBrush(textColor);
+            var inputTextBrush = PaintersFactory.GetSolidBrush(textColor);
             var format = new StringFormat { LineAlignment = StringAlignment.Center };
-            g.DrawString(displayText, inputFont, textBrush, textRect, format);
+            g.DrawString(displayText, _bodyFont ?? SystemFonts.DefaultFont, inputTextBrush, textRect, format);
 
             // Post button
-            var postRect = new Rectangle(rect.Right - 60, rect.Y + 8, 50, 24);
+            var postRect = new Rectangle(rect.Right - Dp(60), rect.Y + Dp(8), Dp(50), Dp(24));
             bool canPost = !string.IsNullOrEmpty(inputText?.Trim());
-            
+
             Color postColor = canPost ? ctx.AccentColor : Color.FromArgb(200, 200, 200);
-            using var postBrush = new SolidBrush(postColor);
-            using var postPath = CreateRoundedPath(postRect, 4);
+            var postBrush = PaintersFactory.GetSolidBrush(postColor);
+            using var postPath = CreateRoundedPath(postRect, Dp(4));
             g.FillPath(postBrush, postPath);
 
-            using var postFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-            using var postTextBrush = new SolidBrush(Color.White);
+            var postTextBrush = PaintersFactory.GetSolidBrush(Color.White);
             var postFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString("POST", postFont, postTextBrush, postRect, postFormat);
+            g.DrawString("POST", _smallFont ?? SystemFonts.DefaultFont, postTextBrush, postRect, postFormat);
         }
 
         private void DrawEmptyComments(Graphics g, Rectangle rect)
         {
             // Empty state illustration
             var illustrationRect = new Rectangle(
-                rect.X + rect.Width / 2 - 32, 
-                rect.Y + rect.Height / 2 - 40, 
-                64, 64
+                rect.X + rect.Width / 2 - Dp(32),
+                rect.Y + rect.Height / 2 - Dp(40),
+                Dp(64), Dp(64)
             );
-            _imagePainter.DrawSvg(g, "message-square", illustrationRect, Color.FromArgb(150, Color.Gray), 0.6f);
+            using (var emptyIconPath = CreateRoundedPath(illustrationRect, 0))
+                StyledImagePainter.PaintWithTint(g, emptyIconPath, SvgsUI.MessageSquare, Color.FromArgb(150, Color.Gray), 0.6f);
 
             // Empty state text
-            using var emptyFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
-            using var emptyBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-            var textRect = new Rectangle(rect.X, illustrationRect.Bottom + 16, rect.Width, 40);
+            var emptyBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Black));
+            var textRect = new Rectangle(rect.X, illustrationRect.Bottom + Dp(16), rect.Width, Dp(40));
             var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString("No comments yet", emptyFont, emptyBrush, textRect, format);
+            g.DrawString("No comments yet", _bodyFont ?? SystemFonts.DefaultFont, emptyBrush, textRect, format);
 
-            using var subFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var subBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
-            var subTextRect = new Rectangle(rect.X, textRect.Bottom, rect.Width, 20);
-            g.DrawString("Be the first to share your thoughts!", subFont, subBrush, subTextRect, format);
+            var subBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(100, Theme?.CardTextForeColor ?? Color.Black));
+            var subTextRect = new Rectangle(rect.X, textRect.Bottom, rect.Width, Dp(20));
+            g.DrawString("Be the first to share your thoughts!", _smallFont ?? SystemFonts.DefaultFont, subBrush, subTextRect, format);
         }
 
         private List<Comment> CreateSampleComments()
@@ -489,15 +520,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Draw new comment indicator if there are unread comments
             if (ctx.HasNewComments)
             {
-                var indicatorRect = new Rectangle(ctx.DrawingRect.Right - 16, ctx.DrawingRect.Top + 8, 8, 8);
-                using var indicatorBrush = new SolidBrush(Color.FromArgb(244, 67, 54));
+                var indicatorRect = new Rectangle(ctx.DrawingRect.Right - Dp(16), ctx.DrawingRect.Top + Dp(8), Dp(8), Dp(8));
+                var indicatorBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(244, 67, 54));
                 g.FillEllipse(indicatorBrush, indicatorRect);
             }
+
+            DrawVerticalScrollbar(g, ctx.ContentRect, ctx, IsAreaHovered("CommentThread_Scroll"));
         }
 
         public void Dispose()
         {
-            _imagePainter?.Dispose();
+            if (_wheelHooked && Owner != null)
+            {
+                Owner.MouseWheel -= OnMouseWheel;
+                _wheelHooked = false;
+            }
+            _titleFont?.Dispose();
+            _bodyFont?.Dispose();
+            _smallFont?.Dispose();
+            _tinyFont?.Dispose();
+            _boldSmallFont?.Dispose();
         }
     }
 

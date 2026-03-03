@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
 {
@@ -13,8 +17,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
     {
         private FlowLayoutPanel flowPanel;
         private Dictionary<string, Control> inputControls = new Dictionary<string, Control>();
-        private Dictionary<string, Label> labels = new Dictionary<string, Label>();
-        private Label lblError;
+        private Dictionary<string, BeepLabel> labels = new Dictionary<string, BeepLabel>();
+        private BeepLabel lblError;
 
         #region Configuration
 
@@ -63,14 +67,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
                 Padding = new Padding(10)
             };
 
-            lblError = new Label
+            lblError = new BeepLabel
             {
                 Text = "",
                 Size = new Size(280, 40),
-                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
                 ForeColor = Color.FromArgb(220, 53, 69),
                 Visible = false,
-                Margin = new Padding(0, 0, 0, 10)
+                Margin = new Padding(0, 0, 0, 10),
+                UseThemeColors = true
             };
 
             flowPanel.Controls.Add(lblError);
@@ -97,12 +101,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
         private void AddField(InputField field)
         {
             // Label
-            var label = new Label
+            var label = new BeepLabel
             {
                 Text = field.Label + (field.Required ? " *" : ""),
                 Size = new Size(280, 20),
-                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
-                Margin = new Padding(0, 5, 0, 5)
+                Margin = new Padding(0, 5, 0, 5),
+                UseThemeColors = true
             };
             labels[field.Name] = label;
             flowPanel.Controls.Add(label);
@@ -125,13 +129,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
 
         private Control CreateTextBox(InputField field)
         {
-            var txt = new TextBox
+            var txt = new BeepTextBox
             {
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 10F),
                 Text = field.DefaultValue?.ToString() ?? "",
                 MaxLength = field.MaxLength ?? 255,
-                Margin = new Padding(0, 0, 0, 10)
+                Margin = new Padding(0, 0, 0, 10),
+                UseThemeColors = true
             };
             txt.Tag = field;
             return txt;
@@ -142,7 +146,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
             var num = new NumericUpDown
             {
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 10F),
                 Value = field.DefaultValue != null ? Convert.ToDecimal(field.DefaultValue) : 0,
                 Margin = new Padding(0, 0, 0, 10)
             };
@@ -155,7 +158,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
             var date = new DateTimePicker
             {
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 10F),
                 Value = field.DefaultValue is DateTime dt ? dt : DateTime.Now,
                 Margin = new Padding(0, 0, 0, 10)
             };
@@ -165,25 +167,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
 
         private Control CreateDropdown(InputField field)
         {
-            var cmb = new ComboBox
+            var cmb = new BeepComboBox
             {
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 10F),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Margin = new Padding(0, 0, 0, 10)
+                Margin = new Padding(0, 0, 0, 10),
+                UseThemeColors = true
             };
             
             if (field.DropdownItems != null)
             {
                 foreach (var item in field.DropdownItems)
                 {
-                    cmb.Items.Add(item);
+                    cmb.ListItems.Add(new SimpleItem { Text = item?.ToString() ?? string.Empty, Value = item });
                 }
             }
             
             if (field.DefaultValue != null)
             {
-                cmb.SelectedItem = field.DefaultValue;
+                var selected = cmb.ListItems.FirstOrDefault(i => Equals(i.Value, field.DefaultValue));
+                cmb.SelectedItem = selected;
             }
             
             cmb.Tag = field;
@@ -192,15 +194,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
 
         private Control CreateMultilineTextBox(InputField field)
         {
-            var txt = new TextBox
+            var txt = new BeepTextBox
             {
                 Size = new Size(280, 80),
-                Font = new Font("Segoe UI", 10F),
                 Multiline = true,
                 Text = field.DefaultValue?.ToString() ?? "",
                 MaxLength = field.MaxLength ?? 1000,
                 ScrollBars = ScrollBars.Vertical,
-                Margin = new Padding(0, 0, 0, 10)
+                Margin = new Padding(0, 0, 0, 10),
+                UseThemeColors = true
             };
             txt.Tag = field;
             return txt;
@@ -208,13 +210,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
 
         private Control CreateCheckBox(InputField field)
         {
-            var chk = new CheckBox
+            var chk = new BeepCheckBox<Boolean>
             {
                 Text = field.Label,
                 Size = new Size(280, 24),
-                Font = new Font("Segoe UI", 9F),
-                Checked = field.DefaultValue is bool b && b,
-                Margin = new Padding(0, 0, 0, 10)
+                CheckedValue = field.DefaultValue is bool b && b,
+                Margin = new Padding(0, 0, 0, 10),
+                UseThemeColors = true
             };
             chk.Tag = field;
             
@@ -237,11 +239,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Examples
 
             return control switch
             {
-                TextBox txt => txt.Text,
+                BeepTextBox txt => txt.Text,
                 NumericUpDown num => num.Value,
                 DateTimePicker date => date.Value,
-                ComboBox cmb => cmb.SelectedItem,
-                CheckBox chk => chk.Checked,
+                BeepComboBox cmb => cmb.SelectedItem,
+                BeepCheckBox<Boolean> chk => chk.CheckedValue,
                 _ => null
             };
         }

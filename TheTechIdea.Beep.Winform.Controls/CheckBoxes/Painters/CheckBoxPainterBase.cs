@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -37,6 +38,42 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 state.IsIndeterminate);
         }
 
+        protected (Color background, Color border) ApplyInteractionStateColors(
+            CheckBoxItemState state,
+            Color background,
+            Color border)
+        {
+            if (state.IsDisabled)
+            {
+                return (ControlPaint.Light(background, 0.15f), ControlPaint.Light(border, 0.25f));
+            }
+
+            if (state.IsHovered)
+            {
+                return (ControlPaint.Light(background, 0.08f), ControlPaint.Light(border, 0.06f));
+            }
+
+            return (background, border);
+        }
+
+        protected void PaintFocusRing(Graphics g, Rectangle bounds, CheckBoxRenderOptions options)
+        {
+            if (bounds.Width <= 2 || bounds.Height <= 2)
+            {
+                return;
+            }
+
+            Color focusColor = options.Theme?.PrimaryColor != Color.Empty
+                ? options.Theme.PrimaryColor
+                : Color.FromArgb(46, 110, 240);
+            Rectangle ringRect = Rectangle.Inflate(bounds, 2, 2);
+
+            using var ringPen = new Pen(Color.FromArgb(150, focusColor), 2f);
+            ringPen.DashStyle = DashStyle.Solid;
+            using var ringPath = CreateRoundedPath(ringRect, Math.Max(2, options.BorderRadius + 1));
+            g.DrawPath(ringPen, ringPath);
+        }
+
         /// <summary>
         /// Creates a rounded rectangle path
         /// </summary>
@@ -68,9 +105,32 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             Rectangle bounds,
             CheckBoxRenderOptions options)
         {
-            Color checkMarkColor = CheckBoxThemeHelpers.GetCheckMarkColor(
+            Color checkMarkColor = CheckBoxIconHelpers.GetIconColor(
                 options.Theme,
-                options.UseThemeColors);
+                options.UseThemeColors,
+                isChecked: true);
+
+            string iconPath = string.IsNullOrWhiteSpace(options.CheckIconPath)
+                ? CheckBoxIconHelpers.GetCheckIconPath()
+                : options.CheckIconPath;
+            Rectangle iconBounds = CheckBoxIconHelpers.CalculateCheckBoxIconBounds(
+                bounds,
+                options.CheckBoxSize > 0 ? options.CheckBoxSize : bounds.Width,
+                options.GlyphSizeRatio);
+
+            if (!string.IsNullOrWhiteSpace(iconPath))
+            {
+                CheckBoxIconHelpers.PaintIcon(
+                    g,
+                    iconBounds,
+                    iconPath,
+                    checkMarkColor,
+                    options.Theme,
+                    options.UseThemeColors,
+                    isChecked: true,
+                    controlStyle: options.ControlStyle);
+                return;
+            }
 
             using (var pen = new Pen(checkMarkColor, options.CheckMarkThickness))
             {
@@ -97,9 +157,32 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             Rectangle bounds,
             CheckBoxRenderOptions options)
         {
-            Color indeterminateColor = CheckBoxThemeHelpers.GetIndeterminateMarkColor(
+            Color indeterminateColor = CheckBoxIconHelpers.GetIconColor(
                 options.Theme,
-                options.UseThemeColors);
+                options.UseThemeColors,
+                isIndeterminate: true);
+
+            string iconPath = string.IsNullOrWhiteSpace(options.IndeterminateIconPath)
+                ? CheckBoxIconHelpers.GetIndeterminateIconPath()
+                : options.IndeterminateIconPath;
+            Rectangle iconBounds = CheckBoxIconHelpers.CalculateCheckBoxIconBounds(
+                bounds,
+                options.CheckBoxSize > 0 ? options.CheckBoxSize : bounds.Width,
+                options.GlyphSizeRatio);
+
+            if (!string.IsNullOrWhiteSpace(iconPath))
+            {
+                CheckBoxIconHelpers.PaintIcon(
+                    g,
+                    iconBounds,
+                    iconPath,
+                    indeterminateColor,
+                    options.Theme,
+                    options.UseThemeColors,
+                    isIndeterminate: true,
+                    controlStyle: options.ControlStyle);
+                return;
+            }
 
             using (var brush = new SolidBrush(indeterminateColor))
             {
@@ -128,26 +211,24 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             Font font = options.TextFont;
             if (font == null)
             {
-                // Fallback: Use system DPI scale for default font creation
-                // Note: Prefer passing pre-scaled font in options.TextFont
-                float scale = DpiScalingHelper.GetSystemDpiScaleFactor();
-                font = CheckBoxFontHelpers.GetCheckBoxFont(options.ControlStyle, scale);
+                // Resolve typography from theme via BeepThemesManager helper path.
+                font = CheckBoxFontHelpers.GetCheckBoxFont(options.Theme, options.ControlStyle);
             }
 
             Color textColor = CheckBoxThemeHelpers.GetForegroundColor(
                 options.Theme,
                 options.UseThemeColors);
 
-            using (var brush = new SolidBrush(textColor))
-            {
-                var format = new StringFormat
-                {
-                    Alignment = options.TextAlignment == TextAlignment.Left ? StringAlignment.Far : StringAlignment.Near,
-                    LineAlignment = StringAlignment.Center,
-                    Trimming = StringTrimming.EllipsisCharacter
-                };
+            TextFormatFlags flags = TextFormatFlags.VerticalCenter |
+                                    TextFormatFlags.EndEllipsis |
+                                    TextFormatFlags.NoPrefix;
+            flags |= options.TextAlignment == TextAlignment.Left
+                ? TextFormatFlags.Right
+                : TextFormatFlags.Left;
 
-                g.DrawString(text, font, brush, bounds, format);
+            if (bounds.Width > 0 && bounds.Height > 0)
+            {
+                TextRenderer.DrawText(g, text, font, bounds, textColor, flags);
             }
         }
 

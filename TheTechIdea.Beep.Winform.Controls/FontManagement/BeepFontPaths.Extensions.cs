@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 {
     /// <summary>
@@ -5,12 +7,19 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
     /// </summary>
     public static partial class BeepFontPaths
     {
+        // ── Runtime-registered families from external assemblies ────────────────
+        // Populated by RegisterFamilyFromAssembly(); merged into GetAllFamilies().
+        private static readonly Dictionary<string, Dictionary<string, string>> _runtimeFamilies
+            = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Gets all font resource paths grouped by font family.
+        /// Includes both the built-in Controls-assembly families AND any families registered at
+        /// runtime via <see cref="RegisterFamilyFromAssembly"/>.
         /// </summary>
         public static Dictionary<string, Dictionary<string, string>> GetAllFamilies()
         {
-            return new Dictionary<string, Dictionary<string, string>>
+            var families = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase)
             {
                 // Web Fonts
                 { "Cairo", Families.Cairo.GetAllWeights() },
@@ -22,14 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 { "Nunito", Families.Nunito.GetAllStyles() },
                 { "Tajawal", Families.Tajawal.GetAllWeights() },
                 { "Oxygen", Families.Oxygen.GetAllStyles() },
-                
+
                 // Monospace Fonts
                 { "FiraCode", Families.FiraCode.GetAllWeights() },
                 { "JetBrainsMono", Families.JetBrainsMono.GetAllStyles() },
                 { "CascadiaCode", Families.CascadiaCode.GetAllStyles() },
                 { "SpaceMono", Families.SpaceMono.GetAllStyles() },
                 { "DejaVuSansMono", Families.DejaVuSansMono.GetAllStyles() },
-                
+
                 // Display Fonts
                 { "BebasNeue", Families.BebasNeue.GetAllWeights() },
                 { "Orbitron", Families.Orbitron.GetAllWeights() },
@@ -37,16 +46,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 { "Rajdhani", Families.Rajdhani.GetAllWeights() },
                 { "Whitney", Families.Whitney.GetAllStyles() },
                 { "NotoColorEmoji", Families.NotoColorEmoji.GetAllStyles() },
-                
+
                 // Accessibility Fonts
                 { "AtkinsonHyperlegible", Families.AtkinsonHyperlegible.GetAllStyles() },
                 { "OpenDyslexic", Families.OpenDyslexic.GetAllStyles() },
                 { "Lexend", Families.Lexend.GetAllWeights() },
-                
+
                 // System Fonts
                 { "SourceSansPro", Families.SourceSansPro.GetAllStyles() },
                 { "ComicNeue", Families.ComicNeue.GetAllStyles() },
-                
+
                 // Individual Fonts
                 { "Individual", new Dictionary<string, string>
                     {
@@ -55,6 +64,85 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     }
                 }
             };
+
+            // Merge runtime-registered families (from external assemblies / plugins)
+            foreach (var kvp in _runtimeFamilies)
+            {
+                if (!families.TryGetValue(kvp.Key, out var existing))
+                {
+                    families[kvp.Key] = new Dictionary<string, string>(kvp.Value, StringComparer.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    foreach (var styleKvp in kvp.Value)
+                        existing[styleKvp.Key] = styleKvp.Value;
+                }
+            }
+
+            return families;
+        }
+
+        /// <summary>
+        /// Scans an assembly's embedded font resources under the given namespace root and adds the
+        /// discovered families to the runtime lookup table so that <see cref="GetFontPath"/>,
+        /// <see cref="GetFontFamilyNames"/>, and related look-up methods return them.
+        /// </summary>
+        /// <param name="assembly">Assembly to scan. Null is silently ignored.</param>
+        /// <param name="namespaceRoot">
+        /// Namespace root under which fonts are embedded (e.g. "MyApp.Fonts").
+        /// Pass null to accept all embedded .ttf/.otf resources in the assembly.
+        /// </param>
+        public static void RegisterFamilyFromAssembly(Assembly assembly, string namespaceRoot = null)
+        {
+            if (assembly == null || assembly.IsDynamic) return;
+            try
+            {
+                foreach (var res in assembly.GetManifestResourceNames())
+                {
+                    var ext = System.IO.Path.GetExtension(res)?.ToLowerInvariant();
+                    if (ext != ".ttf" && ext != ".otf") continue;
+
+                    if (!string.IsNullOrWhiteSpace(namespaceRoot) &&
+                        !res.StartsWith(namespaceRoot, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    string familyName = ExtractFontNameFromPath(res);
+                    if (string.IsNullOrWhiteSpace(familyName)) continue;
+
+                    string styleStr = ExtractStyleFromResourcePath(res);
+
+                    if (!_runtimeFamilies.TryGetValue(familyName, out var styles))
+                    {
+                        styles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                        _runtimeFamilies[familyName] = styles;
+                    }
+                    styles[styleStr] = res;
+                }
+            }
+            catch { /* ignore */ }
+        }
+
+        /// <summary>
+        /// Infers a style string ("Regular", "Bold", "Italic", "BoldItalic", "Light", etc.)
+        /// from an embedded resource path based on filename suffix conventions.
+        /// </summary>
+        private static string ExtractStyleFromResourcePath(string resourcePath)
+        {
+            if (string.IsNullOrEmpty(resourcePath)) return "Regular";
+            var name = System.IO.Path.GetFileNameWithoutExtension(resourcePath);
+            if (name.EndsWith("-BoldItalic", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith("BoldItalic", StringComparison.OrdinalIgnoreCase)) return "BoldItalic";
+            if (name.EndsWith("-Bold", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith("Bold", StringComparison.OrdinalIgnoreCase)) return "Bold";
+            if (name.EndsWith("-Italic", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith("Italic", StringComparison.OrdinalIgnoreCase)) return "Italic";
+            if (name.EndsWith("-Light", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith("Light", StringComparison.OrdinalIgnoreCase)) return "Light";
+            if (name.EndsWith("-Medium", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith("Medium", StringComparison.OrdinalIgnoreCase)) return "Medium";
+            if (name.EndsWith("-SemiBold", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith("SemiBold", StringComparison.OrdinalIgnoreCase)) return "SemiBold";
+            return "Regular";
         }
     }
 

@@ -64,6 +64,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         private void DrawSidebar(Graphics g, CalendarRenderContext ctx)
         {
             var rect = ctx.Rects.SidebarRect;
+            int sidebarPadding = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.SidebarPadding, ctx.DensityScale);
+            int cardHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.SidebarCardHeight, ctx.DensityScale);
+            int cardGap = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.SidebarCardGap, ctx.DensityScale);
             
             // Draw sidebar background
             using (var brush = new SolidBrush(ctx.Theme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
@@ -74,43 +77,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 g.DrawLine(pen, rect.X, rect.Y, rect.X, rect.Bottom);
 
             // Mini calendar placeholder
-            var miniRect = new Rectangle(rect.X + 10, rect.Y + 10, Math.Max(10, rect.Width - 20), 200);
+            var miniRect = new Rectangle(
+                rect.X + sidebarPadding,
+                rect.Y + sidebarPadding,
+                Math.Max(10, rect.Width - (sidebarPadding * 2)),
+                cardHeight);
             if (miniRect.Width > 20) // only draw if there's enough space
             {
-                using (var brush = new SolidBrush(Color.White)) 
-                    g.FillRectangle(brush, miniRect);
-                using (var pen = new Pen(Color.FromArgb(218, 220, 224))) 
-                    g.DrawRectangle(pen, miniRect);
-                
-                // Mini calendar title
-                using (var brush = new SolidBrush(Color.Black))
-                    g.DrawString(ctx.State.CurrentDate.ToString("MMMM yyyy"), 
-                        new Font(ctx.DayFont.FontFamily, 10, FontStyle.Bold), brush,
-                        new Rectangle(miniRect.X + 5, miniRect.Y + 5, miniRect.Width - 10, 20), 
-                        new StringFormat { Alignment = StringAlignment.Center });
+                CommonDrawing.DrawMiniCalendarCard(g, ctx, miniRect, ctx.State.CurrentDate, ctx.State.SelectedDate);
             }
 
-            // Selected event details
-            if (ctx.State.SelectedEvent != null)
+            var detailsRect = new Rectangle(
+                rect.X + sidebarPadding,
+                rect.Y + sidebarPadding + cardHeight + cardGap,
+                Math.Max(10, rect.Width - (sidebarPadding * 2)),
+                cardHeight);
+            if (detailsRect.Width > 20) // only draw if there's enough space
             {
-                var detailsRect = new Rectangle(rect.X + 10, rect.Y + 230, Math.Max(10, rect.Width - 20), 200);
-                if (detailsRect.Width > 20) // only draw if there's enough space
-                {
-                    using (var brush = new SolidBrush(Color.White)) 
-                        g.FillRectangle(brush, detailsRect);
-                    using (var pen = new Pen(Color.FromArgb(218, 220, 224))) 
-                        g.DrawRectangle(pen, detailsRect);
-                    
-                    var category = ctx.Categories.Find(c => c.Id == ctx.State.SelectedEvent.CategoryId);
-                    string details = $"Title: {ctx.State.SelectedEvent.Title}\n" +
-                                     $"Date: {ctx.State.SelectedEvent.StartTime:MMM dd, yyyy}\n" +
-                                     $"Time: {ctx.State.SelectedEvent.StartTime:HH:mm} - {ctx.State.SelectedEvent.EndTime:HH:mm}\n" +
-                                     $"Category: {category?.Name ?? "None"}\n" +
-                                     $"Description: {ctx.State.SelectedEvent.Description}";
-                    
-                    using (var brush = new SolidBrush(Color.Black))
-                        g.DrawString(details, ctx.EventFont, brush, Rectangle.Inflate(detailsRect, -10, -10));
-                }
+                CommonDrawing.DrawEventInsightsCard(g, ctx, detailsRect, ctx.State.SelectedEvent);
             }
         }
     }

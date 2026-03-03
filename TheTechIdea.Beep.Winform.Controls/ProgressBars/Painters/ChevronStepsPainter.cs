@@ -16,16 +16,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             int steps = GetInt(p, "Steps", 4);
-            int current = GetInt(p, "Current", 1);
+            int current = GetInt(p, "Current", Math.Max(0, (int)Math.Round(owner.DisplayProgressPercentageAccessor * (steps - 1))));
             string[] labels = GetStringArray(p, "Labels") ?? new string[steps];
 
             int chevronW = Math.Max(40, bounds.Width / steps);
             int chevronH = bounds.Height - 4;
             int x = bounds.X;
+            var activeColor = theme.PrimaryColor.IsEmpty ? Color.DodgerBlue : theme.PrimaryColor;
+            if (!owner.Enabled)
+            {
+                activeColor = Color.FromArgb(120, activeColor);
+            }
+            var inactiveColor = Color.FromArgb(owner.Enabled ? 40 : 24, theme.CardTextForeColor);
+            var inactiveTextColor = owner.Enabled ? theme.CardTextForeColor : Color.FromArgb(120, theme.CardTextForeColor);
 
             for (int i = 0; i < steps; i++)
             {
-                var fill = i < current ? (theme.PrimaryColor.IsEmpty ? Color.DodgerBlue : theme.PrimaryColor) : Color.FromArgb(40, theme.CardTextForeColor);
+                var fill = i <= current ? activeColor : inactiveColor;
+                var textColor = i <= current
+                    ? (theme.OnPrimaryColor.IsEmpty ? Color.White : theme.OnPrimaryColor)
+                    : inactiveTextColor;
+                if (!owner.Enabled && i <= current)
+                {
+                    textColor = Color.FromArgb(160, textColor);
+                }
                 using var b = new SolidBrush(fill);
                 using var pth = MakeChevron(new Rectangle(x, bounds.Y + 2, chevronW, chevronH), i == steps - 1);
                 g.FillPath(b, pth);
@@ -33,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 var text = labels[i] ?? $"Step {i+1}";
                 SizeF szF = TextUtils.MeasureText(text, small);
                 var sz = new Size((int)szF.Width, (int)szF.Height);
-                TextRenderer.DrawText(g, text, small, new Rectangle(x, bounds.Y + (chevronH - sz.Height)/2 + 2, chevronW, sz.Height), Color.White, TextFormatFlags.HorizontalCenter);
+                TextRenderer.DrawText(g, text, small, new Rectangle(x, bounds.Y + (chevronH - sz.Height)/2 + 2, chevronW, sz.Height), textColor, TextFormatFlags.HorizontalCenter);
                 x += chevronW - 8; // slight overlap
             }
         }

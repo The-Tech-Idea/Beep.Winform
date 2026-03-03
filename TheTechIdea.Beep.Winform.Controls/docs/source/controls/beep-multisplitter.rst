@@ -294,7 +294,7 @@ Applying Themes
 
    // Theme properties that affect BeepMultiSplitter:
    // - PanelBackColor: Background color of the splitter
-   // - PanelForeColor: Text color of any labels within the splitter
+   // - .ForeColor: Text color of any labels within the splitter
    // - BorderColor: Color of the cell borders
 
 .. tip::

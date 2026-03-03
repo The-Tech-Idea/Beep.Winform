@@ -221,29 +221,106 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
     /// </summary>
     public enum ToolTipAnimation
     {
-        /// <summary>
-        /// No animation
-        /// </summary>
+        /// <summary>No animation</summary>
         None,
-
-        /// <summary>
-        /// Fade in/out opacity transition
-        /// </summary>
+        /// <summary>Fade in/out opacity transition</summary>
         Fade,
-
-        /// <summary>
-        /// Scale up/down from center
-        /// </summary>
+        /// <summary>Scale up/down from center</summary>
         Scale,
-
-        /// <summary>
-        /// Slide in/out from placement direction
-        /// </summary>
+        /// <summary>Slide in/out from placement direction</summary>
         Slide,
+        /// <summary>Bounce effect on entry</summary>
+        Bounce,
+        /// <summary>Spring/elastic physics entry from edge</summary>
+        Spring,
+        /// <summary>Zoom in/out with opacity</summary>
+        Zoom,
+        /// <summary>Flip along the axis perpendicular to placement direction</summary>
+        Flip
+    }
 
-        /// <summary>
-        /// Bounce effect on entry
-        /// </summary>
-        Bounce
+    /// <summary>
+    /// Arrow caret visual style
+    /// </summary>
+    public enum ToolTipArrowStyle
+    {
+        /// <summary>Sharp flat triangle (Material Design)</summary>
+        Sharp,
+        /// <summary>Triangle with rounded tips (iOS / Figma)</summary>
+        Rounded,
+        /// <summary>No arrow shown</summary>
+        Hidden
+    }
+
+    /// <summary>
+    /// Trigger mode that causes a tooltip or popover to show
+    /// </summary>
+    public enum ToolTipTriggerMode
+    {
+        /// <summary>Show on mouse hover (default)</summary>
+        Hover,
+        /// <summary>Show when control receives keyboard focus</summary>
+        Focus,
+        /// <summary>Show on mouse click</summary>
+        Click,
+        /// <summary>Show/hide only via programmatic API calls</summary>
+        Manual
+    }
+
+    /// <summary>
+    /// Easing function applied to animation progress (0→1)
+    /// </summary>
+    public enum EasingFunction
+    {
+        /// <summary>Constant velocity</summary>
+        Linear,
+        /// <summary>Accelerate at start</summary>
+        EaseIn,
+        /// <summary>Decelerate at end (most natural for UI elements appearing)</summary>
+        EaseOut,
+        /// <summary>Accelerate then decelerate</summary>
+        EaseInOut,
+        /// <summary>Spring overshoot and settle</summary>
+        Spring,
+        /// <summary>Elastic bounce at end</summary>
+        Bounce,
+        /// <summary>Step back then forward (back ease-out)</summary>
+        BackOut
+    }
+
+    /// <summary>
+    /// Section of a rich multi-section tooltip
+    /// </summary>
+    public enum ToolTipSection
+    {
+        /// <summary>Header row with icon, title and optional close button</summary>
+        Header,
+        /// <summary>Main content area</summary>
+        Body,
+        /// <summary>Horizontal divider line</summary>
+        Divider,
+        /// <summary>Footer row with shortcuts/action buttons</summary>
+        Footer
+    }
+
+    /// <summary>
+    /// Layout variant controlling how tooltip sections are arranged
+    /// </summary>
+    public enum ToolTipLayoutVariant
+    {
+        /// <summary>Single text line, no title (default)</summary>
+        Simple,
+        /// <summary>Title + body text (Material Rich Tooltip)</summary>
+        Rich,
+        /// <summary>Header / body / footer card layout (DevExpress SuperTip)</summary>
+        Card,
+        /// <summary>Large image on top + text below (GitHub hover card)</summary>
+        Preview,
+        /// <summary>Tour/walkthrough step with navigation controls</summary>
+        Tour,
+        /// <summary>Compact single row with key-cap shortcut badges</summary>
+        Shortcut,
+        /// <summary>Glassmorphism / frosted-glass semi-transparent style</summary>
+        Glass
     }
 }

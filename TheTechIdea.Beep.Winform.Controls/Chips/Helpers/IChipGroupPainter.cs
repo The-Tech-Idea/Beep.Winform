@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         public Font Font { get; set; }
         public int CornerRadius { get; set; } = 15;
         public int Gap { get; set; } = 5; // horizontal gap between chips
+        public int VerticalGap { get; set; } = 5;
         public bool ShowCloseOnSelected { get; set; } = true;
         public bool ShowSelectionCheck { get; set; } = true;
         public bool ShowBorders { get; set; } = true;
@@ -50,7 +51,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         public float DpiScale { get; set; } = 1.0f;
         // Icons
         public bool ShowIcon { get; set; } = true;
+        public bool ShowLeadingIcon { get; set; } = true;
+        public bool ShowTrailingIcon { get; set; } = false;
+        public bool ShowAvatar { get; set; } = false;
         public Size IconMaxSize { get; set; } = new Size(16, 16);
+        public int IconTextGap { get; set; } = 6;
         // Selection mark kind
         public SelectionMarkKind SelectionMark { get; set; } = SelectionMarkKind.Check;
         // Optional badge counter provider

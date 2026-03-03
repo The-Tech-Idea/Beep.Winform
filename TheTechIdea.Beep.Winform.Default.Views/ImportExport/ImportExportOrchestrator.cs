@@ -18,6 +18,30 @@ using TheTechIdea.Beep.Workflow.Mapping;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
+    /// <summary>Defines how a failed import batch should be handled.</summary>
+    internal enum BatchErrorStrategy { Abort, Skip, Retry }
+
+    /// <summary>
+    /// Typed run context that can be passed between wizard steps and the orchestrator.
+    /// All properties are flat — no dependency on BeepDM source types.
+    /// </summary>
+    internal sealed class ImportContext
+    {
+        public string RunId                      { get; set; } = Guid.NewGuid().ToString("N");
+        public string SourceEntityName           { get; set; } = string.Empty;
+        public string SourceDataSourceName       { get; set; } = string.Empty;
+        public string DestinationEntityName      { get; set; } = string.Empty;
+        public string DestinationDataSourceName  { get; set; } = string.Empty;
+        public bool   CreateDestinationIfNotExists { get; set; } = true;
+        public EntityDataMap? Mapping            { get; set; }
+        public int    BatchSize                  { get; set; } = 100;
+        public bool   RunMigrationPreflight      { get; set; }
+        public bool   AddMissingColumns          { get; set; } = true;
+        public bool   CreateSyncProfileDraft     { get; set; }
+        public BatchErrorStrategy OnBatchError   { get; set; } = BatchErrorStrategy.Abort;
+        public int    MaxRetries                 { get; set; } = 3;
+    }
+
     internal sealed class ImportExecutionOptions
     {
         public bool RunMigrationPreflight { get; set; }
@@ -25,6 +49,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         public bool CreateSyncProfileDraft { get; set; }
         public bool RunImportOnFinish { get; set; } = true;
         public int BatchSize { get; set; } = 100;
+        public BatchErrorStrategy OnBatchError { get; set; } = BatchErrorStrategy.Abort;
+        public int MaxRetries { get; set; } = 3;
     }
 
     internal sealed class ImportExecutionRequest
@@ -111,18 +137,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 throw new InvalidOperationException("No valid mapping is available.");
             }
 
-            if (request.Options.RunMigrationPreflight)
-            {
-                var migrationResult = RunMigrationPreflight(request, log);
-                if (migrationResult.Flag != Errors.Ok)
-                {
-                    return new ImportExecutionResult
-                    {
-                        ImportResult = migrationResult
-                    };
-                }
-            }
-
             CleanupRunState();
 
             var manager = new DataImportManager(_editor);
@@ -138,6 +152,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             try
             {
                 var config = BuildImportConfiguration(manager, request);
+
+                if (request.Options.RunMigrationPreflight)
+                {
+                    var migrationResult = RunMigrationPreflight(request, log);
+                    if (migrationResult.Flag != Errors.Ok)
+                    {
+                        return new ImportExecutionResult { ImportResult = migrationResult };
+                    }
+                }
+
                 importResult = await manager
                     .RunImportAsync(config, progress, cancellation.Token)
                     .ConfigureAwait(false);
@@ -211,49 +235,31 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             try
             {
-                var destinationDataSource = _editor.GetDataSource(request.Selection.DestinationDataSourceName);
-                var sourceDataSource = _editor.GetDataSource(request.Selection.SourceDataSourceName);
+                var destDs = _editor.GetDataSource(request.Selection.DestinationDataSourceName);
+                var srcDs  = _editor.GetDataSource(request.Selection.SourceDataSourceName);
 
-                if (destinationDataSource == null)
-                {
+                if (destDs == null)
                     return CreateError($"Destination datasource '{request.Selection.DestinationDataSourceName}' is not available.");
-                }
-
-                if (sourceDataSource == null)
-                {
+                if (srcDs == null)
                     return CreateError($"Source datasource '{request.Selection.SourceDataSourceName}' is not available.");
-                }
 
-                if (destinationDataSource.ConnectionStatus != ConnectionState.Open)
-                {
-                    destinationDataSource.Openconnection();
-                }
+                if (destDs.ConnectionStatus != ConnectionState.Open) destDs.Openconnection();
+                if (srcDs.ConnectionStatus  != ConnectionState.Open) srcDs.Openconnection();
 
-                if (sourceDataSource.ConnectionStatus != ConnectionState.Open)
-                {
-                    sourceDataSource.Openconnection();
-                }
-
-                var sourceStructure = sourceDataSource.GetEntityStructure(request.Selection.SourceEntityName, false);
-                if (sourceStructure == null)
-                {
+                var srcStructure = srcDs.GetEntityStructure(request.Selection.SourceEntityName, false);
+                if (srcStructure == null)
                     return CreateError($"Could not load source entity structure '{request.Selection.SourceEntityName}'.");
-                }
 
-                sourceStructure.EntityName = request.Selection.DestinationEntityName;
+                srcStructure.EntityName = request.Selection.DestinationEntityName;
                 log?.Invoke($"Running migration preflight for '{request.Selection.DestinationEntityName}'.");
 
-                var migrationManager = new MigrationManager(_editor, destinationDataSource);
-                var result = migrationManager.EnsureEntity(
-                    sourceStructure,
+                var migMgr = new MigrationManager(_editor, destDs);
+                var result = migMgr.EnsureEntity(
+                    srcStructure,
                     createIfMissing: request.Selection.CreateDestinationIfNotExists,
                     addMissingColumns: request.Options.AddMissingColumns);
 
-                if (result.Flag == Errors.Ok)
-                {
-                    log?.Invoke("Migration preflight completed.");
-                }
-
+                if (result.Flag == Errors.Ok) log?.Invoke("Migration preflight completed.");
                 return result;
             }
             catch (Exception ex)
@@ -266,33 +272,33 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             var schema = new DataSyncSchema
             {
-                EntityName = request.Selection.DestinationEntityName,
-                SourceEntityName = request.Selection.SourceEntityName,
-                DestinationEntityName = request.Selection.DestinationEntityName,
-                SourceDataSourceName = request.Selection.SourceDataSourceName,
+                EntityName                = request.Selection.DestinationEntityName,
+                SourceEntityName          = request.Selection.SourceEntityName,
+                DestinationEntityName     = request.Selection.DestinationEntityName,
+                SourceDataSourceName      = request.Selection.SourceDataSourceName,
                 DestinationDataSourceName = request.Selection.DestinationDataSourceName,
-                SyncType = "ImportHandoff",
-                SyncDirection = "SourceToDestination",
-                SyncStatus = "Draft",
+                SyncType          = "ImportHandoff",
+                SyncDirection     = "SourceToDestination",
+                SyncStatus        = "Draft",
                 SyncStatusMessage = "Generated from Import/Export wizard."
             };
 
             foreach (var field in request.Mapping?.MappedEntities?
-                         .SelectMany(entity => entity.FieldMapping ?? new List<Mapping_rep_fields>())
+                         .SelectMany(e => e.FieldMapping ?? new List<Mapping_rep_fields>())
                          ?? Enumerable.Empty<Mapping_rep_fields>())
             {
                 schema.MappedFields.Add(new FieldSyncData
                 {
-                    SourceField = field.FromFieldName,
-                    DestinationField = field.ToFieldName,
-                    SourceFieldType = field.FromFieldType,
+                    SourceField          = field.FromFieldName,
+                    DestinationField     = field.ToFieldName,
+                    SourceFieldType      = field.FromFieldType,
                     DestinationFieldType = field.ToFieldType
                 });
             }
 
-            using var syncManager = new DataSyncManager(_editor);
-            syncManager.AddSyncSchema(schema);
-            syncManager.SaveSchemas();
+            using var syncMgr = new DataSyncManager(_editor);
+            syncMgr.AddSyncSchema(schema);
+            syncMgr.SaveSchemas();
             return schema;
         }
 

@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             base.CalculateLayout(context);
             // draw base background (with optional notch if CTA present)
             var barRect = context.Bounds;
-            var barFill = context.BarBackColor == Color.Empty ? Color.FromArgb(245, 245, 245) : context.BarBackColor;
+            var barFill = ResolveBarBack(context);
             using (var barBrush = new SolidBrush(barFill))
                 if (context.CTAIndex >= 0 && context.CTAIndex < context.Items.Count)
                 {
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 // small decorative notch circle above the bar center
                 var decorativeNotchRadius = Math.Min(8, rect.Width / 8);
                 var decorativeNotchCenter = new Point(center.X, context.Bounds.Top);
-                using (var notchFill = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(255, 255, 255) : context.BarBackColor))
+                using (var notchFill = new SolidBrush(barFill))
                 {
                     var notchPenBase = context.NavigationBorderColor == Color.Empty ? (context.BarForeColor == Color.Empty ? Color.White : context.BarForeColor) : context.NavigationBorderColor;
                     var notchPenColor = Color.FromArgb(200, notchPenBase.R, notchPenBase.G, notchPenBase.B);
@@ -99,13 +99,13 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     }
 
                     // cta circle with slight glow
-                    using (var fill = new SolidBrush(context.AccentColor))
-                    using (var pen = new Pen(context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor, 2f))
+                    using (var fill = new SolidBrush(ResolveAccent(context)))
+                    using (var pen = new Pen(ResolveOnAccent(context), 2f))
                     {
                         var circleRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                         context.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
                         // soft halo
-                        using (var halo = new SolidBrush(Color.FromArgb(32, context.AccentColor)))
+                        using (var halo = new SolidBrush(Color.FromArgb(32, ResolveAccent(context))))
                         {
                             var haloRect = new Rectangle(center.X - (int)(radius * 1.35), center.Y - (int)(radius * 1.35), (int)(radius * 2.7), (int)(radius * 2.7));
                             context.Graphics.FillEllipse(halo, haloRect);
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     context.ImagePainter.ImagePath = string.IsNullOrEmpty(context.Items[context.CTAIndex].ImagePath) ? context.DefaultImagePath : context.Items[context.CTAIndex].ImagePath;
                     context.ImagePainter.ImageEmbededin = ImageEmbededin.Button;
                     var prevFill = context.ImagePainter.FillColor;
-                    context.ImagePainter.FillColor = context.OnAccentColor == Color.Empty ? Color.White : context.OnAccentColor;
+                    context.ImagePainter.FillColor = ResolveOnAccent(context);
                     context.ImagePainter.DrawImage(context.Graphics, scaledIconRect);
                     context.ImagePainter.FillColor = prevFill;
                 }
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 }
                 catch { }
                 var iRect = new RectangleF(iX, indicatorRect.Top, iW, indicatorRect.Height);
-                using (var ib = new SolidBrush(Color.FromArgb(25, context.AccentColor)))
+                using (var ib = new SolidBrush(Color.FromArgb(25, ResolveAccent(context))))
                 using (var gp = new GraphicsPath())
                 {
                     int adjustedRadius = Math.Max(2, (int)Math.Round(iRect.Height / 2f));

@@ -573,12 +573,12 @@ public partial class ParentControl : BeepControl
 
 // Handle property changes
 control.PropertyChanged += (sender, e) => {
-    Console.WriteLine($"Property {e.PropertyName} changed to {e.NewValue}");
+  //  Console.WriteLine($"Property {e.PropertyName} changed to {e.NewValue}");
 };
 
 // Handle hit detection
 control.HitDetected += (sender, e) => {
-    Console.WriteLine($"Hit detected on {e.HitTest.Name}");
+  //  Console.WriteLine($"Hit detected on {e.HitTest.Name}");
 };
 
 // Handle key presses

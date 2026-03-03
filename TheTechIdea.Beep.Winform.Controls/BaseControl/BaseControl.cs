@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
                 else
                 {
-                    Console.WriteLine($"BaseControl: Helper initialization error: {ex.Message}");
+                  //  Console.WriteLine($"BaseControl: Helper initialization error: {ex.Message}");
                 }
                 
                 // Create minimal safe helpers for design-time
@@ -245,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
             catch (Exception tooltipEx)
             {
-                Console.WriteLine($"Tooltip initialization failed: {tooltipEx.Message}");
+              //  Console.WriteLine($"Tooltip initialization failed: {tooltipEx.Message}");
             }
             
             // Subscribe to global theme changes at runtime
@@ -265,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 
                 if (_externalDrawing == null)
                 {
-                    Console.WriteLine("Creating minimal external drawing helper for fallback");
+                  //  Console.WriteLine("Creating minimal external drawing helper for fallback");
                     _externalDrawing = new ControlExternalDrawingHelper(this);
                 }
                 
@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 // If even safe helpers fail, we'll have to work without them
                 System.Diagnostics.Debug.WriteLine($"BaseControl: Could not create safe design-time helpers: {ex.Message}");
-                Console.WriteLine($"BaseControl: Could not create safe design-time helpers: {ex.Message}");
+              //  Console.WriteLine($"BaseControl: Could not create safe design-time helpers: {ex.Message}");
             }
         }
         #endregion
@@ -295,6 +295,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Dispose
         protected override void Dispose(bool disposing)
         {
+            // Detect cascade disposal: our parent BaseControl is being torn down,
+            // so we are a child being disposed as part of a container deletion.
+            // In this case Component.Dispose(bool) would call site.Container.Remove(this)
+            // which triggers UndoEngine serialization on a half-torn-down tree → crash.
+            // During normal form close the designer manages Sites itself; clearing them
+            // here would trigger mass property-change cascades that hang the IDE.
+            bool isCascadeDisposal = disposing &&
+                                     Parent is BaseControl parentBase &&
+                                     (parentBase.IsDisposed || parentBase.Disposing);
+
             if (disposing)
             {
                 // Cleanup ToolTipManager registration
@@ -309,8 +319,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Dispose tooltip
                 _toolTip?.Dispose();
 
-                // Clear external drawing from parent
-                if (Parent is IExternalDrawingProvider externalDrawingProvider)
+                // Clear external drawing from parent only when parent is still valid.
+                if (Parent is IExternalDrawingProvider externalDrawingProvider &&
+                    Parent is Control parentCtrl &&
+                    !parentCtrl.IsDisposed &&
+                    !parentCtrl.Disposing)
                 {
                     externalDrawingProvider.ClearChildExternalDrawing(this);
                 }
@@ -320,6 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     try { BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged; } catch { }
                     try { BeepThemesManager.FormStyleChanged -= OnGlobalFormStyleChanged; } catch { }
+                    try { BeepThemesManager.DpiChanged -= OnGlobalDpiChanged; } catch { }
                     _subscribedToThemeChanged = false;
                 }
 
@@ -332,6 +346,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _cachedParentBackground?.Dispose();
                 _cachedParentBackground = null;
                 _parentBackgroundCacheValid = false;
+
+                // Unsubscribe from child dispose events before base tears down children.
+                foreach (Control child in Controls)
+                {
+                    try { child.Disposed -= ChildControl_Disposed; } catch { }
+                }
+
+                // Only clear children Sites during cascade disposal
+                if (isCascadeDisposal)
+                {
+                    foreach (Control child in Controls)
+                    {
+                        try { if (child.Site?.Container != null) child.Site = null; } catch { }
+                    }
+                }
+            }
+
+            // Only clear own Site during cascade disposal
+            if (isCascadeDisposal)
+            {
+                try { if (Site?.Container != null) Site = null; } catch { }
             }
 
             base.Dispose(disposing);
@@ -341,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private void ClearChildExternalDrawing(BaseControl baseControl)
         {
            // Fix: only clear registrations for the specified child on this parent
-           _externalDrawing.ClearChildExternalDrawing(baseControl);
+           _externalDrawing?.ClearChildExternalDrawing(baseControl);
         }
         #endregion
 
@@ -478,6 +513,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _cachedFontHeight = -1;
             _lastMeasuredFont = null;
         }
+
+        // ── Batched Invalidation ─────────────────────────────────────────────
+        // Collapses multiple property-setter Invalidate() calls (e.g. during ApplyTheme)
+        // into a single WM_PAINT per message-loop cycle, matching the DevExpress / Telerik pattern.
+        private bool _invalidatePending = false;
+
+        /// <summary>
+        /// Schedules a single <see cref="Invalidate"/> on the next message-loop cycle.
+        /// Multiple calls within the same sync pulse collapse to one repaint.
+        /// Falls back to immediate Invalidate() when the control has no handle yet
+        /// (design-time / constructor) so no visual regression occurs.
+        /// </summary>
+        protected void InvalidateOnce()
+        {
+            if (IsDisposed) return;
+            if (!IsHandleCreated)
+            {
+                // Pre-handle: no real window yet; Invalidate() is a no-op but keeps the flag clean.
+                Invalidate();
+                return;
+            }
+            if (_invalidatePending) return;
+            _invalidatePending = true;
+            BeginInvoke(new Action(() =>
+            {
+                _invalidatePending = false;
+                if (!IsDisposed && IsHandleCreated) Invalidate();
+            }));
+        }
         protected override void OnHandleCreated(EventArgs e)
         {
             // Add design-time safety
@@ -525,6 +589,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
                 BeepThemesManager.FormStyleChanged -= OnGlobalFormStyleChanged;
                 BeepThemesManager.FormStyleChanged += OnGlobalFormStyleChanged;
+                BeepThemesManager.DpiChanged -= OnGlobalDpiChanged;
+                BeepThemesManager.DpiChanged += OnGlobalDpiChanged;
                 _subscribedToThemeChanged = true;
             }
             catch { /* best-effort */ }
@@ -545,15 +611,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 System.Diagnostics.Debug.WriteLine($"BaseControl: OnGlobalThemeChanged error: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Handles the global <see cref="BeepThemesManager.DpiChanged"/> event.
+        /// A DPI change is NOT a theme change — colours, style tokens, and logic are unchanged.
+        /// We only need to: clear cached metrics, refresh layout geometry, and request one repaint.
+        /// Full ApplyTheme() is intentionally NOT called here to avoid unnecessary font re-creation
+        /// and multiple WM_PAINT messages on every control when the user drags to a high-DPI monitor.
+        /// </summary>
+        private void OnGlobalDpiChanged(object? sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+            try
+            {
+                InvalidateFontCache();
+                UpdateDrawingRect();
+                _painter?.UpdateLayout(this);
+                PerformLayout();
+                InvalidateOnce();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl: OnGlobalDpiChanged error: {ex.Message}");
+            }
+        }
         private void OnGlobalFormStyleChanged(object? sender, StyleChangeEventArgs e)
         {
             if (IsDisposed) return;
             try
             {
-                var newFormStyle = e.NewStyle;
-                ControlStyle= BeepStyling.GetControlStyle(newFormStyle);
-                Theme= BeepThemesManager.CurrentThemeName;
-
+                // Only update ControlStyle here.  Do NOT read BeepThemesManager.CurrentThemeName —
+                // it is still stale at this point because FormStyleChanged fires BEFORE CurrentThemeName
+                // is assigned in BeepThemesManager.CurrentStyle.set.  Reading it would apply the old
+                // theme, causing a visible intermediate state (the "double-click to update" bug).
+                // The ThemeChanged event fires immediately after FormStyleChanged completes and will
+                // call OnGlobalThemeChanged which sets the correct new theme.
+                ControlStyle = BeepStyling.GetControlStyle(e.NewStyle);
             }
             catch (Exception ex)
             {

@@ -6,12 +6,13 @@ BeepAdvancedButton is a sophisticated, highly customizable button control for Wi
 
 ## Features
 
-- **10+ Button Styles**: Solid, Outlined, Icon, Text, Toggle, FAB (Floating Action Button), Ghost, Link, Gradient, and Icon+Text
+- **16+ Button Styles**: Solid, Outlined, Icon, Text, Toggle, FAB (Floating Action Button), Ghost, Link, Gradient, Icon+Text, Chip, Contact, NavigationChevron, NeonGlow, NewsBanner, FlatWeb, LowerThird, and StickerLabel
 - **3 Size Presets**: Small (32px), Medium (40px), Large (48px) with automatic sizing
 - **Smooth Animations**: Ripple effects, hover transitions, loading spinners
-- **SVG Icon Support**: Full integration with BeepImage and ImagePainter for scalable vector graphics
+- **Semantic Intents**: `Primary`, `Secondary`, `Tertiary`, `Destructive`, `Success`, `Neutral`
+- **SVG Icon Support**: Consistent icon rendering via `StyledImagePainter`
 - **Theme Integration**: Automatically adapts to BeepTheme system
-- **Accessibility**: Keyboard navigation, focus indicators, ARIA-compliant
+- **Accessibility**: Keyboard navigation (`Tab`/`Space`/`Enter`), focus-visible ring, reduced motion
 - **Custom Painting**: Modular painter architecture for extensibility
 
 ## Architecture
@@ -161,6 +162,95 @@ Linear gradient fill from top to bottom.
 Optimized layout for icon + text combination.
 - **Use for**: Buttons needing both visual and text clarity
 
+### Contact
+CTA/contact layout family with split icon sections and directional accents.
+- **Use for**: Action-heavy cards and highlighted communication actions
+
+### NavigationChevron
+Angled and chevron-forward navigation layouts.
+- **Use for**: Step navigation, directional calls-to-action
+
+### NeonGlow
+Glow/high-emphasis style with luminous edges.
+- **Use for**: High-visibility actions in themed dashboards
+
+### NewsBanner
+Broadcast/news badge layouts.
+- **Use for**: Status strips, breaking/live labels
+
+### FlatWeb
+Flat web UI layouts (left badges, right notches, segmented search/action bars).
+- **Use for**: Utility bars, lightweight search/action controls
+
+### LowerThird
+Broadcast lower-third layouts (headline bars, live tags, ticker strips).
+- **Use for**: Media overlays, headline/ticker style actions
+
+### StickerLabel
+Comic/sticker inspired label layouts (speech bubbles, cloud tags, bursts, ribbons).
+- **Use for**: Youthful CTA accents, promo chips, playful callouts
+
+## NewsBanner Variant Mapping
+
+Use `ButtonStyle = AdvancedButtonStyle.NewsBanner` with `NewsBannerVariant` for deterministic painter selection.
+
+| `NewsBannerVariant` | Painter Class |
+|---|---|
+| `Auto` | `NewsBannerButtonPainter` (heuristic) |
+| `CircleBadgeLeft` | `CircleBadge24NewsPainter` |
+| `RectangleBadgeLeft` | `BreakingNewsRectanglePainter` |
+| `AngledBadgeLeft` | `CircleBadgeAngledBannerPainter` |
+| `ChevronRight` | `ChevronRightNewsPainter` |
+| `ChevronBoth` | `HexagonWorldNewsPainter` |
+| `FlagLeft` | `LiveBreakingNewsPainter` |
+| `AngledTwoTone` | `PinkWhiteAngledBannerPainter` |
+| `SlantedEdges` | `FakeNewsChevronPainter` |
+| `PillWithIcon` | `IconCirclePillNewsPainter` |
+| `BNLiveCircleBanner` | `BNLiveCircleBannerPainter` |
+| `BNSquareGreenBanner` | `BNSquareGreenBannerPainter` |
+| `BreakingNewsGlobe` | `BreakingNewsGlobePainter` |
+| `LightningBreakingNews` | `LightningBreakingNewsPainter` |
+| `LightningBreakingNewsLive` | `LightningBreakingNewsLivePainter` |
+| `LiveWorldNewsPill` | `LiveWorldNewsPillPainter` |
+| `MorningLiveYellowBanner` | `MorningLiveYellowBannerPainter` |
+| `NewsLiveCirclePink` | `NewsLiveCirclePinkPainter` |
+| `SportNewsCirclePill` | `SportNewsCirclePillPainter` |
+| `TwentyFourTVNews` | `TwentyFourTVNewsPainter` |
+| `TwentyFourWorldNewsHexagon` | `TwentyFourWorldNewsHexagonPainter` |
+| `WorldNewsGlobePill` | `WorldNewsGlobePillPainter` |
+
+## FlatWeb Variant Mapping
+
+Use `ButtonStyle = AdvancedButtonStyle.FlatWeb` with `FlatWebVariant`.
+
+| `FlatWebVariant` | Layout Motif |
+|---|---|
+| `Auto` | Heuristic selection |
+| `LeftBadgeAction` | Left color badge + right text action |
+| `RightNotchSearch` | Right notch tag + search/action text |
+| `SegmentedIconAction` | Three-segment icon/text/icon strip |
+| `SearchPillNotch` | Pill body + left notch/search icon |
+| `ToolbarSegment` | Flat segmented toolbar strip |
+| `RightArrowTagSearch` | Right arrow tag search/action bar |
+| `LeftPointTagSearch` | Left pointed tag search/action bar |
+| `MagnifierBubbleLeft` | Left magnifier bubble + body bar |
+
+## LowerThird Variant Mapping
+
+Use `ButtonStyle = AdvancedButtonStyle.LowerThird` with `LowerThirdVariant`.
+
+| `LowerThirdVariant` | Layout Motif |
+|---|---|
+| `Auto` | Heuristic selection |
+| `HeadlineBar` | Headline + subline + right slash |
+| `LiveTagHeadline` | Left LIVE tag + headline/subline |
+| `ReportSplit` | Left report block + right headline |
+| `TickerStrip` | Time box + ticker strip |
+| `TickerChevron` | Chevron time + chevron ticker |
+| `LocationHeadlineBlock` | Top location strip + dark headline block |
+| `CompactLiveTag` | Compact LIVE + headline tag |
+| `ReportStacked` | LIVE REPORT split + stacked headline/subline |
+
 ## Size Specifications
 
 Based on UI design standards:
@@ -181,12 +271,22 @@ Based on UI design standards:
 | `ButtonSize` | `AdvancedButtonSize` | `Medium` | Size preset (Small/Medium/Large) |
 | `Text` | `string` | `"Button"` | Text displayed on button |
 | `ImagePath` | `string` | `""` | Path to icon (SVG/PNG/JPG) |
+| `Intent` | `ButtonIntent` | `Primary` | Semantic color intent mapping |
 | `IconLeft` | `string` | `""` | Left icon path (for dual icons) |
 | `IconRight` | `string` | `""` | Right icon path |
+| `NewsBannerVariant` | `NewsBannerVariant` | `Auto` | Explicit banner layout selector for `NewsBanner` |
+| `ContactVariant` | `ContactVariant` | `Auto` | Explicit layout selector for `Contact` |
+| `ChevronVariant` | `ChevronVariant` | `Auto` | Explicit layout selector for `NavigationChevron` |
+| `FlatWebVariant` | `FlatWebVariant` | `Auto` | Explicit layout selector for `FlatWeb` |
+| `LowerThirdVariant` | `LowerThirdVariant` | `Auto` | Explicit layout selector for `LowerThird` |
+| `StickerLabelVariant` | `StickerLabelVariant` | `Auto` | Explicit layout selector for `StickerLabel` |
 | `BorderRadius` | `int` | `8` | Corner rounding (pixels) |
 | `BorderWidth` | `int` | `2` | Border thickness |
 | `BorderColor` | `Color` | Indigo | Border color |
 | `ShowShadow` | `bool` | `true` | Enable drop shadow |
+| `FocusRingThickness` | `int` | `2` | Focus ring stroke thickness |
+| `FocusRingOffset` | `int` | `2` | Focus ring inset offset |
+| `FocusRingRadiusDelta` | `int` | `2` | Extra focus ring corner radius |
 
 ### Colors
 
@@ -205,6 +305,9 @@ Based on UI design standards:
 |----------|------|---------|-------------|
 | `IsToggled` | `bool` | `false` | Toggle state (for Toggle buttons) |
 | `IsLoading` | `bool` | `false` | Shows loading spinner |
+| `ReduceMotion` | `bool` | `false` | Disables ripple/transition animation |
+| `ShowFocusRing` | `bool` | `true` | Shows keyboard-only focus ring |
+| `SuppressClickWhileLoading` | `bool` | `true` | Prevents duplicate click activation while loading |
 | `Enabled` | `bool` | `true` | Enable/disable interaction |
 
 ## Events
@@ -235,6 +338,7 @@ The control respects theme properties:
 ### Ripple Effect
 Material Design-style ripple emanates from click point.
 - Automatically triggered on `MouseDown`
+- Triggered on keyboard activation (`Space`/`Enter`)
 - Clips to button bounds
 - Fades out smoothly
 
@@ -242,7 +346,10 @@ Material Design-style ripple emanates from click point.
 Rotating arc spinner replaces content when `IsLoading = true`.
 
 ### Hover Transitions
-Smooth color transitions on hover (handled by painter).
+Shared hover/press transition pipeline is applied to all styles.
+
+### Focus-Visible
+Focus ring is shown only for keyboard-origin focus.
 
 ## Extending with Custom Painters
 
@@ -310,7 +417,7 @@ Based on modern UI design systems:
 
 - Custom painting with `OptimizedDoubleBuffer`
 - Efficient ripple animation (~60 FPS)
-- SVG rendering cached by ImagePainter
+- SVG rendering cached by `StyledImagePainter`
 - Minimal GC pressure
 
 ## Known Limitations

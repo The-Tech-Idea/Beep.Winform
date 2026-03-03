@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(20, 20);
         private BeepControlStyle _controlStyle = BeepControlStyle.iOS15;
@@ -49,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         // Segmented control specifications
         private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
-        private const int MinSegmentHeight = 32;
+        private const int MinSegmentHeight = 36;
         private const int MinSegmentWidth = 60;
         private const int SegmentPadding = 12;
         private const int ComponentSpacing = 6;
@@ -62,16 +61,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
-                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize, FontStyle.Regular)
-                : new Font("Segoe UI Semibold", 11f));
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
         #endregion
 
@@ -86,13 +82,22 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var colors = GetStateColors(state);
 
             // Draw segment background (selected segments get the selection indicator)
-            if (state.IsSelected)
+            if (!state.IsEnabled)
+            {
+                DrawDisabledSegment(graphics, rectangle, colors);
+            }
+            else if (state.IsSelected)
             {
                 DrawSelectedSegment(graphics, rectangle, colors);
             }
             else if (state.IsHovered)
             {
                 DrawHoveredSegment(graphics, rectangle, colors);
+            }
+
+            if (state.IsFocused)
+            {
+                DrawFocusedSegment(graphics, rectangle, colors);
             }
 
             // Draw content (icon + text)
@@ -102,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawSelectedSegment(Graphics graphics, Rectangle rect, SegmentedColors colors)
         {
             // iOS-style selected segment with rounded corners and shadow
-            var segmentRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
+            var segmentRect = new Rectangle(rect.X + 2, rect.Y + 2, Math.Max(0, rect.Width - 4), Math.Max(0, rect.Height - 4));
             
             // Draw shadow
             using (var shadowPath = CreateRoundedRectanglePath(new Rectangle(segmentRect.X + 1, segmentRect.Y + 1, segmentRect.Width, segmentRect.Height), CornerRadius - 2))
@@ -121,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawHoveredSegment(Graphics graphics, Rectangle rect, SegmentedColors colors)
         {
-            var segmentRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
+            var segmentRect = new Rectangle(rect.X + 2, rect.Y + 2, Math.Max(0, rect.Width - 4), Math.Max(0, rect.Height - 4));
             
             using (var path = CreateRoundedRectanglePath(segmentRect, CornerRadius - 2))
             using (var brush = new SolidBrush(colors.HoverBackground))
@@ -130,12 +135,32 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
         }
 
+        private void DrawDisabledSegment(Graphics graphics, Rectangle rect, SegmentedColors colors)
+        {
+            var segmentRect = new Rectangle(rect.X + 2, rect.Y + 2, Math.Max(0, rect.Width - 4), Math.Max(0, rect.Height - 4));
+            using (var path = CreateRoundedRectanglePath(segmentRect, CornerRadius - 2))
+            using (var brush = new SolidBrush(colors.DisabledBackground))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        private void DrawFocusedSegment(Graphics graphics, Rectangle rect, SegmentedColors colors)
+        {
+            var focusRect = new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2);
+            using (var path = CreateRoundedRectanglePath(focusRect, CornerRadius - 1))
+            using (var pen = new Pen(colors.FocusBorder, 2f))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle rect, RadioItemState state, SegmentedColors colors)
         {
             var contentRect = new Rectangle(
                 rect.X + SegmentPadding,
                 rect.Y,
-                rect.Width - (SegmentPadding * 2),
+                Math.Max(0, rect.Width - (SegmentPadding * 2)),
                 rect.Height
             );
 
@@ -154,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
             
             // Center content
-            currentX = contentRect.X + (contentRect.Width - totalContentWidth) / 2;
+            currentX = Math.Max(contentRect.X, contentRect.X + (contentRect.Width - totalContentWidth) / 2);
 
             // Draw icon if present
             if (!string.IsNullOrEmpty(item.ImagePath))
@@ -166,9 +191,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     sz,
                     sz
                 );
-
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 currentX += sz + ComponentSpacing;
             }
 
@@ -224,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return new Rectangle(
                 itemRectangle.X + SegmentPadding,
                 itemRectangle.Y,
-                itemRectangle.Width - (SegmentPadding * 2),
+                Math.Max(0, itemRectangle.Width - (SegmentPadding * 2)),
                 itemRectangle.Height
             );
         }
@@ -304,10 +329,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 return new SegmentedColors
                 {
                     Background = secondary,
-                    SelectedBackground = Color.White,
+                    SelectedBackground = StyleColors.GetSelection(_controlStyle),
                     HoverBackground = Color.FromArgb(40, primary),
+                    DisabledBackground = Color.FromArgb(200, secondary),
                     Border = border,
                     Divider = Color.FromArgb(100, border),
+                    FocusBorder = primary,
                     Text = foreground,
                     SelectedText = foreground,
                     DisabledText = Color.FromArgb(128, foreground)
@@ -317,10 +344,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return new SegmentedColors
             {
                 Background = Color.FromArgb(240, _theme.BackgroundColor),
-                SelectedBackground = _theme.PanelBackColor,
+                SelectedBackground = _theme.SelectedRowBackColor,
                 HoverBackground = Color.FromArgb(40, _theme.PrimaryColor),
+                DisabledBackground = _theme.DisabledBackColor,
                 Border = _theme.BorderColor,
                 Divider = Color.FromArgb(100, _theme.BorderColor),
+                FocusBorder = _theme.PrimaryColor,
                 Text = _theme.ForeColor,
                 SelectedText = _theme.ForeColor,
                 DisabledText = _theme.DisabledForeColor
@@ -364,8 +393,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color Background { get; set; }
             public Color SelectedBackground { get; set; }
             public Color HoverBackground { get; set; }
+            public Color DisabledBackground { get; set; }
             public Color Border { get; set; }
             public Color Divider { get; set; }
+            public Color FocusBorder { get; set; }
             public Color Text { get; set; }
             public Color SelectedText { get; set; }
             public Color DisabledText { get; set; }

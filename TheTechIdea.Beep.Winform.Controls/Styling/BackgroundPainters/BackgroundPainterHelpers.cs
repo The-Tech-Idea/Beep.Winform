@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             var bounds = path.GetBounds();
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
-            var brush = PaintersFactory.GetLinearGradientBrush(bounds, fillStart, fillEnd, mode);
+            using var brush = PaintersFactory.CreateLinearGradientBrush(bounds, fillStart, fillEnd, mode);
             g.FillPath(brush, path);
         }
 
@@ -293,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             int overlayAlpha = (int)(255 * gradientStrength);
-            var overlay = PaintersFactory.GetLinearGradientBrush(
+            using var overlay = PaintersFactory.CreateLinearGradientBrush(
                 bounds,
                 Color.FromArgb(overlayAlpha, Color.White),
                 Color.FromArgb(0, Color.White),
@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Enhanced top highlight for glass reflection
             var topRect = new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height / 3f);
-            var highlight = PaintersFactory.GetLinearGradientBrush(
+            using var highlight = PaintersFactory.CreateLinearGradientBrush(
                 topRect,
                 Color.FromArgb(45, Color.White),
                 Color.Transparent,
@@ -747,7 +747,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                         var rect = segmentPath.GetBounds();
                         if (rect.Width > 0 && rect.Height > 0)
                         {
-                            var brush = PaintersFactory.GetLinearGradientBrush(
+                            using var brush = PaintersFactory.CreateLinearGradientBrush(
                                 rect, color1, color2, angle1);
                             g.FillPath(brush, segmentPath);
                         }
@@ -790,7 +790,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
                 if (segmentBounds.Width > 0 && segmentBounds.Height > 0)
                 {
-                    var brush = PaintersFactory.GetLinearGradientBrush(segmentBounds, color1, color2, mode);
+                    using var brush = PaintersFactory.CreateLinearGradientBrush(segmentBounds, color1, color2, mode);
                     
                     // Clip to segment area
                     using (var clipPath = new GraphicsPath())

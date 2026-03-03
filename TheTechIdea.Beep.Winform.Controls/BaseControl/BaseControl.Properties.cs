@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
                 
                 UpdateBorderPainter();
-                Invalidate();
+                InvalidateOnce();
             }
         }
         private IBorderPainter _currentBorderPainter = null;
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_painterKind == value) return;
                 _painterKind = value;
                 UpdatePainterFromKind();
-                Invalidate();
+                InvalidateOnce();
             }
         }
         public bool EnableMaterialStyle { get;set; } = false;
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
                 SafeApplyFont(_textFont);
                 UseThemeFont = false;
-                Invalidate();
+                InvalidateOnce();
 
 
             }
@@ -142,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
                 _text = value;
                 OnTextChanged(EventArgs.Empty);
-                Invalidate();
+                InvalidateOnce();
             }
         }
         #endregion
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (!_excludedPaintRectangles.Contains(rectangle))
             {
                 _excludedPaintRectangles.Add(rectangle);
-                Invalidate();
+                InvalidateOnce();
             }
         }
 
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
 
             _excludedPaintRectangles.Clear();
-            Invalidate();
+            InvalidateOnce();
         }
         #endregion
 
@@ -240,10 +240,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 _themeName = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                
+                ApplyTheme();
                 // Invalidate cached parent background when theme changes
                 InvalidateParentBackgroundCache();
-                ApplyTheme();
+              
             }
         }
      
@@ -263,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 _useThemeFont = value;
                 if (value) SetFont();
-                Invalidate();
+                InvalidateOnce();
             }
         }
 
@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 _overrideFontSize = value;
                 SetFont();
-                Invalidate();
+                InvalidateOnce();
             }
         }
         #endregion
@@ -344,16 +344,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public object Oldvalue => _oldValue;
         
-        public Color BorderColor { get => _borderColor; set { _borderColor = value; Invalidate(); } }
+        public Color BorderColor { get => _borderColor; set { _borderColor = value; InvalidateOnce(); } }
         public bool IsRequired { get => _isRequired; set => _isRequired = value; }
         public bool IsSelected 
         { 
             get => _isSelected; 
             set 
             { 
-                _isSelected = value; 
-                Invalidate(); 
-                if (value) OnSelected?.Invoke(this, new BeepComponentEventArgs(this, BoundProperty, LinkedProperty, GetValue())); 
+                _isSelected = value;
+                InvalidateOnce();
+                if (value) OnSelected?.Invoke(this, new BeepComponentEventArgs(this, BoundProperty, LinkedProperty, GetValue()));
             } 
         }
         
@@ -1253,8 +1253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         }
                     }
                     catch { /* design-time safe */ }
-                    
-                    // Invalidate cached parent background when style changes
+
                     InvalidateParentBackgroundCache();
                     Invalidate();
                 }
@@ -1333,7 +1332,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         /// <summary>
         /// Calculates the total chrome (non-content overhead) for a given control style.
-        /// Chrome = (shadow margin + border thickness) on each side, doubled for both sides.
+        /// Chrome includes border thickness on each side, doubled for both sides.
         /// </summary>
         private static int CalculateStyleChrome(BeepControlStyle style)
         {

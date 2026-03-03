@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             GetEffectColors(baseColor, state, theme, useThemeColors, out stateColor, out gradientEndColor);
 
             // Rich diagonal gradient with multiple color stops
-            var brush = PaintersFactory.GetLinearGradientBrush(
+            using var brush = PaintersFactory.CreateLinearGradientBrush(
                 bounds, stateColor, gradientEndColor, LinearGradientMode.ForwardDiagonal);
 
             // Multi-stop gradient for complex effect

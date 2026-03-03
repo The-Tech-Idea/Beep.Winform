@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color topColor = ColorAccessibilityHelper.LightenColor(stateColor, 0.05f);
             Color bottomColor = stateColor;
 
-            var brush = PaintersFactory.GetLinearGradientBrush(
+            using var brush = PaintersFactory.CreateLinearGradientBrush(
                 bounds, topColor, bottomColor, LinearGradientMode.Vertical);
             g.FillPath(brush, path);
 

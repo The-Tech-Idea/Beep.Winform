@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
 {
@@ -139,8 +140,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 {
                     // Placeholder
                     var placeholderRect = new Rectangle(contentRect.X + _padding, y, Math.Max(10, contentRect.Width - _buttonWidth - (_padding*3)), contentRect.Height - _padding);
-                    Color phColor = Color.FromArgb(150, ForeColor);
-                    TextRenderer.DrawText(g, Placeholder, this.Font, placeholderRect, phColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                    Color phColor = _currentTheme?.TextBoxPlaceholderColor ?? Color.FromArgb(150, ForeColor);
+                    if (ThemeContrastHelper.ContrastRatio(phColor, BackColor) < 2.8)
+                    {
+                        phColor = ThemeContrastHelper.AdjustForegroundToContrast(phColor, BackColor, 2.8);
+                    }
+                    TextRenderer.DrawText(g, Placeholder, TextFont, placeholderRect, phColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                 }
                 else
                 {
@@ -165,11 +170,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                                 catch { }
 
                                 var textRect = new Rectangle(c.TextRect.X + imgRect.Width + 4, c.TextRect.Y, c.TextRect.Width - (imgRect.Width + 4), c.TextRect.Height);
-                                TextRenderer.DrawText(g, c.Text, this.Font, textRect, Color.White, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                                TextRenderer.DrawText(g, c.Text, TextFont, textRect, Color.White, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                             }
                             else
                             {
-                                TextRenderer.DrawText(g, c.Text, this.Font, c.TextRect, Color.White, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                                TextRenderer.DrawText(g, c.Text, TextFont, c.TextRect, Color.White, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                             }
 
                             // draw small X box
@@ -197,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 {
                     var err = string.IsNullOrEmpty(ValidationError) ? "(at least one item is required)" : ValidationError;
                     var lblRect = new Rectangle(contentRect.Left, contentRect.Bottom + 2, contentRect.Width, 18);
-                    TextRenderer.DrawText(g, err, this.Font, lblRect, Color.FromArgb(200, Color.Red), TextFormatFlags.Left | TextFormatFlags.Top);
+                    TextRenderer.DrawText(g, err, TextFont, lblRect, Color.FromArgb(200, Color.Red), TextFormatFlags.Left | TextFormatFlags.Top);
                 }
             }
         }
@@ -231,14 +236,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
             int x = contentRect.X + _padding;
             int y = contentRect.Y + _padding/2;
             int maxW = contentRect.Width - _buttonWidth - (_padding*3);
-            int lineHeight = this.Font.Height + 8;
+            int lineHeight = TextFont.Height + 8;
             int cx = x;
             int cy = y;
             int usedW = 0;
             foreach (var s in _selected)
             {
                 string text = string.IsNullOrEmpty(s.DisplayField) ? s.Text ?? s.Name : s.DisplayField;
-                SizeF szF = TextUtils.MeasureText(text, this.Font, int.MaxValue);
+                SizeF szF = TextUtils.MeasureText(text, TextFont, int.MaxValue);
                 Size sz = new Size((int)szF.Width, (int)szF.Height);
                 int chipW = Math.Max(40, sz.Width + 28);
                 if (usedW + chipW > maxW && usedW > 0)

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -38,68 +39,69 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _statusFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _statusFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_titleFont = titleFont;
+            _descFont = bodyFont;
+            _statusFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descHeight = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int toggleWidth = DpiScalingHelper.ScaleValue(ToggleWidth, _owner);
+            int toggleHeight = DpiScalingHelper.ScaleValue(ToggleHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Setting icon (left)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Top + (drawingRect.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize);
+                    drawingRect.Left + padding,
+                    drawingRect.Top + (drawingRect.Height - iconSize) / 2,
+                    iconSize,
+                    iconSize);
             }
             
-            int contentLeft = drawingRect.Left + Padding + (ctx.ShowImage ? IconSize + ContentGap : 0);
-            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - Padding - ToggleWidth - ContentGap;
+            int contentLeft = drawingRect.Left + padding + (ctx.ShowImage ? iconSize + contentGap : 0);
+            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - padding - toggleWidth - contentGap;
             
             // Toggle switch (right)
             ctx.ButtonRect = new Rectangle(
-                drawingRect.Right - Padding - ToggleWidth,
-                drawingRect.Top + (drawingRect.Height - ToggleHeight) / 2,
-                ToggleWidth,
-                ToggleHeight);
+                drawingRect.Right - padding - toggleWidth,
+                drawingRect.Top + (drawingRect.Height - toggleHeight) / 2,
+                toggleWidth,
+                toggleHeight);
             
             // Setting title
             ctx.HeaderRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + Padding,
+                drawingRect.Top + padding,
                 contentWidth,
-                TitleHeight);
+                titleHeight);
             
             // Setting description
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                ctx.HeaderRect.Bottom + elementGap / 2,
                 contentWidth,
-                DescHeight);
+                descHeight);
             
             // Status text (below toggle)
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
                 ctx.StatusRect = new Rectangle(
                     ctx.ButtonRect.Left,
-                    ctx.ButtonRect.Bottom + 4,
-                    ToggleWidth,
-                    16);
+                    ctx.ButtonRect.Bottom + DpiScalingHelper.ScaleValue(4, _owner),
+                    toggleWidth,
+                    DpiScalingHelper.ScaleValue(16, _owner));
             }
             
             ctx.ShowButton = true;
@@ -198,12 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            _statusFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

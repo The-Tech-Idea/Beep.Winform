@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters;
 using TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 {
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
     [Designer(typeof(ControlDesigner))]
     public class BottomBar : BaseControl
     {
+        private const string AccessibilityDescriptionPrefix = "BottomBar status:";
         private BindingList<SimpleItem> _items = new BindingList<SimpleItem>();
         private SimpleItem? _selectedItem;
         private readonly ImagePainter _imagePainter = new ImagePainter();
@@ -41,6 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         private BottomBarHitTestHelper _bbHitTestHelper;
         private BeepBottomBarLayoutHelper _layoutHelper = new BeepBottomBarLayoutHelper();
         private BottomBarStyle _style = BottomBarStyle.Classic;
+        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BottomBar"/> control.
@@ -60,16 +63,27 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             this.AccessibleRole = AccessibleRole.MenuBar;
             this.AccessibleName = "Bottom Navigation";
             _tickerTimer = new Timer { Interval = 50 };
-            _tickerTimer.Tick += (s, e) => { _tickerMs += _tickerTimer.Interval; Invalidate(); };
+            _tickerTimer.Tick += TickerTimer_Tick;
             _tickerTimer.Start();
+            UpdateAccessibilityMetadata();
+        }
+
+        private void TickerTimer_Tick(object? sender, EventArgs e)
+        {
+            if (_isDisposed || _tickerTimer == null || !Visible || !IsHandleCreated)
+            {
+                return;
+            }
+
+            _tickerMs += _tickerTimer.Interval;
+            Invalidate();
         }
 
         private void BottomBarHit_ItemClicked(object? sender, ItemClickEventArgs e)
         {
             if (e?.Item != null)
             {
-                SelectedItem = e.Item;
-                ItemClicked?.Invoke(e.Item);
+                ActivateIndex(e.Index, raiseClick: true);
             }
         }
 
@@ -111,6 +125,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
         private void SelectionTimer_Tick(object? s, EventArgs e)
         {
+            float previousX = _indicatorX;
+            float previousWidth = _indicatorWidth;
             double elapsed = (DateTime.Now - _animationStart).TotalMilliseconds;
             double progress = Math.Min(1.0, elapsed / _animationDuration);
             double eased = 1 - Math.Pow(1 - progress, 3);
@@ -119,7 +135,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             var eased2 = 1 - Math.Pow(1 - progress, 4);
             _indicatorX = _indicatorStartX + (float)(_indicatorTargetX - _indicatorStartX) * (float)eased2;
             _indicatorWidth = _indicatorStartWidth + (float)(_indicatorTargetWidth - _indicatorStartWidth) * (float)eased2;
-            Invalidate();
+            InvalidateIndicatorRegion(previousX, previousWidth);
+            InvalidateIndicatorRegion(_indicatorX, _indicatorWidth);
             if (progress >= 1.0)
             {
                 _indicatorX = _indicatorTargetX;
@@ -149,7 +166,19 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
-        public BottomBarStyle BarStyle { get => _style; set { _style = value; InitializePainterFromStyle(_style); Invalidate(); } }
+        public BottomBarStyle BarStyle
+        {
+            get => _style;
+            set
+            {
+                if (_style != value)
+                {
+                    _style = value;
+                    InitializePainterFromStyle(_style);
+                    SyncLayoutAndHitTest();
+                }
+            }
+        }
 
         /// <summary>
         /// The currently selected item in the BottomBar.
@@ -178,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             set
             {
                 Height = Math.Max(48, value);
-                Invalidate();
+                SyncLayoutAndHitTest();
             }
         }
 
@@ -211,12 +240,28 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         [Browsable(true)]
         [Category("Behavior")]
         [DefaultValue(1.6f)]
-        public float CTAWidthFactor { get => _layoutHelper.CtaWidthFactor; set => _layoutHelper.CtaWidthFactor = Math.Max(1.0f, value); }
+        public float CTAWidthFactor
+        {
+            get => _layoutHelper.CtaWidthFactor;
+            set
+            {
+                _layoutHelper.CtaWidthFactor = Math.Max(1.0f, value);
+                SyncLayoutAndHitTest();
+            }
+        }
 
         [Browsable(true)]
         [Category("Behavior")]
         [DefaultValue(1.25f)]
-        public float SelectedWidthFactor { get => _layoutHelper.SelectedWidthFactor; set => _layoutHelper.SelectedWidthFactor = Math.Max(1.0f, value); }
+        public float SelectedWidthFactor
+        {
+            get => _layoutHelper.SelectedWidthFactor;
+            set
+            {
+                _layoutHelper.SelectedWidthFactor = Math.Max(1.0f, value);
+                SyncLayoutAndHitTest();
+            }
+        }
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -300,13 +345,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 Graphics = g,
                 Bounds = rect,
                 Items = Items.ToList(),
-                SelectedIndex = Items.IndexOf(SelectedItem!),
+                SelectedIndex = Items.IndexOf(SelectedItem),
                 HoverIndex = _bbHitTestHelper?.HoveredIndex ?? -1,
                 HitTest = _hitTest,
                 ImagePainter = _imagePainter,
                 DefaultImagePath = DefaultItemImagePath,
                 CTAIndex = CTAIndex,
-                AccentColor = AccentColor
+                AccentColor = AccentColor,
+                BarBackColor = BackColor,
+                BarForeColor = ForeColor,
+                BarHoverBackColor = BackColor,
+                BarHoverForeColor = ForeColor,
+                BadgeBackColor = Color.FromArgb(220, AccentColor),
+                BadgeForeColor = Color.White,
+                OnAccentColor = Color.White
             };
             ctx.OnItemClicked = (idx, btn) =>
             {
@@ -374,11 +426,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             ctx.ImagePainter.CurrentTheme = _currentTheme;
             ctx.ImagePainter.ApplyThemeOnImage = true;
             ctx.CTAShadowYOffset = CTAShadowYOffset;
-            // Also set default accent to theme value if not explicitly set
-            if (_currentTheme != null && AccentColor == Color.FromArgb(96, 80, 255))
-            {
-                AccentColor = _currentTheme.AccentColor;
-            }
 
             _bottomBarPainter?.CalculateLayout(ctx);
             // Ensure hit helper is updated with computed rectangles
@@ -408,16 +455,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            var rect = ClientRectangle;
-            rect.Inflate(-8, -8);
             if (Items == null || Items.Count == 0) return;
             _bbHitTestHelper?.HandleMouseClick(e.Location, e.Button);
-            var idx = _bbHitTestHelper?.FocusedIndex ?? -1;
-            if (idx >= 0 && idx < Items.Count)
-            {
-                SelectedItem = Items[idx];
-                ItemClicked?.Invoke(SelectedItem);
-            }
         }
 
         /// <summary>
@@ -452,6 +491,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             _bbHitTestHelper?.HandleMouseLeave();
         }
 
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            _bbHitTestHelper?.HandleMouseMove(e.Location);
+        }
+
         /// <summary>
         /// Determines if a given key is treated as an input key (so it will be processed by the control).
         /// </summary>
@@ -474,31 +519,109 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             base.OnKeyDown(e);
             if (Items == null || Items.Count == 0) return;
             int idx = Items.IndexOf(SelectedItem ?? Items[0]);
+            if (idx < 0) idx = 0;
+            bool handled = false;
             switch (e.KeyCode)
             {
                 case Keys.Left:
                     idx = idx <= 0 ? Items.Count - 1 : idx - 1;
-                    SelectedItem = Items[idx];
+                    ActivateIndex(idx, raiseClick: false);
+                    handled = true;
                     break;
                 case Keys.Right:
                     idx = (idx + 1) % Items.Count;
-                    SelectedItem = Items[idx];
+                    ActivateIndex(idx, raiseClick: false);
+                    handled = true;
                     break;
                 case Keys.Home:
-                    SelectedItem = Items[0];
+                    ActivateIndex(0, raiseClick: false);
+                    handled = true;
                     break;
                 case Keys.End:
-                    SelectedItem = Items[Items.Count - 1];
+                    ActivateIndex(Items.Count - 1, raiseClick: false);
+                    handled = true;
                     break;
                 case Keys.Space:
                 case Keys.Enter:
-                    // Activate (fire ItemClicked)
-                    ItemClicked?.Invoke(SelectedItem!);
+                    ActivateIndex(idx, raiseClick: true);
+                    handled = true;
                     break;
                 default:
                     break;
             }
+            if (handled)
+            {
+                e.SuppressKeyPress = true;
+                e.Handled = true;
+            }
             Invalidate();
+        }
+
+        protected override void OnEnabledChanged(EventArgs e)
+        {
+            base.OnEnabledChanged(e);
+            UpdateAccessibilityMetadata();
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            if (Items.Count > 0 && _bbHitTestHelper.FocusedIndex < 0)
+            {
+                var idx = Items.IndexOf(SelectedItem);
+                _bbHitTestHelper.FocusedIndex = idx >= 0 ? idx : 0;
+            }
+            UpdateAccessibilityMetadata();
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            UpdateAccessibilityMetadata();
+        }
+
+        protected override AccessibleObject CreateAccessibilityInstance()
+            => new BottomBarAccessibleObject(this);
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            SyncLayoutAndHitTest();
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            SyncLayoutAndHitTest();
+        }
+
+        protected override void OnDpiScaleChanged(float oldScaleX, float oldScaleY, float newScaleX, float newScaleY)
+        {
+            base.OnDpiScaleChanged(oldScaleX, oldScaleY, newScaleX, newScaleY);
+            int minBarHeight = DpiScalingHelper.ScaleValue(48, DpiScalingHelper.GetDpiScaleFactor(this));
+            if (Height < minBarHeight)
+            {
+                Height = minBarHeight;
+            }
+            SyncLayoutAndHitTest();
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            if (_tickerTimer == null)
+            {
+                return;
+            }
+
+            if (Visible && !_isDisposed)
+            {
+                _tickerTimer.Start();
+            }
+            else
+            {
+                _tickerTimer.Stop();
+            }
         }
 
         /// <summary>
@@ -507,15 +630,36 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         /// <param name="disposing">Whether disposing is in progress</param>
         protected override void Dispose(bool disposing)
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+
             if (disposing)
             {
-                _selectionTimer?.Stop();
-                _selectionTimer?.Dispose();
+                _isDisposed = true;
+                if (_items != null)
+                {
+                    _items.ListChanged -= Items_ListChanged;
+                }
+                if (_selectionTimer != null)
+                {
+                    _selectionTimer.Stop();
+                    _selectionTimer.Tick -= SelectionTimer_Tick;
+                    _selectionTimer.Dispose();
+                }
+                if (_tickerTimer != null)
+                {
+                    _tickerTimer.Stop();
+                    _tickerTimer.Tick -= TickerTimer_Tick;
+                    _tickerTimer.Dispose();
+                }
                 _imagePainter?.Dispose();
                 _bottomBarPainter?.Dispose();
                 if (_bbHitTestHelper != null)
                 {
                     _bbHitTestHelper.ItemClicked -= BottomBarHit_ItemClicked;
+                    _bbHitTestHelper.Dispose();
                 }
             }
             base.Dispose(disposing);
@@ -553,13 +697,28 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         #region Helpers
         private void Items_ListChanged(object? sender, ListChangedEventArgs e)
         {
-            Invalidate();
-            // Update hit areas with new items or count
+            SyncLayoutAndHitTest();
+        }
+
+        private void SyncLayoutAndHitTest()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _layoutHelper.InvalidateLayout();
+            if (Items == null || Items.Count == 0)
+            {
+                Invalidate();
+                return;
+            }
+
             var bounds = ClientRectangle;
             bounds.Inflate(-8, -8);
-            _layoutHelper.InvalidateLayout();
-            _layoutHelper.EnsureLayout(bounds, Items.ToList(), CTAIndex, Items.IndexOf(SelectedItem!));
+            _layoutHelper.EnsureLayout(bounds, Items.ToList(), CTAIndex, Items.IndexOf(SelectedItem));
             _bbHitTestHelper?.UpdateItems(Items.ToList(), new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetItemRectangles()));
+            Invalidate();
         }
 
         private void DrawNavItem(Graphics g, SimpleItem item, Rectangle itemRect, int index)
@@ -613,9 +772,214 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             if ((_selectionTimer?.Enabled ?? false) == false) _selectionTimer?.Start();
         }
 
+        private void InvalidateIndicatorRegion(float indicatorX, float indicatorWidth)
+        {
+            if (indicatorWidth <= 0 || !_layoutHelper.GetIndicatorRect().IntersectsWith(ClientRectangle))
+            {
+                Invalidate();
+                return;
+            }
+
+            var indicatorTemplate = _layoutHelper.GetIndicatorRect();
+            var invalidRect = new Rectangle(
+                (int)Math.Floor(indicatorX) - 8,
+                indicatorTemplate.Top - 8,
+                (int)Math.Ceiling(indicatorWidth) + 16,
+                indicatorTemplate.Height + 16);
+            Invalidate(invalidRect);
+        }
+
         private void OnSelectedItemChanged()
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(SelectedItem!));
+            UpdateAccessibilityMetadata();
+        }
+
+        private void ActivateIndex(int index, bool raiseClick)
+        {
+            if (index < 0 || index >= Items.Count)
+            {
+                return;
+            }
+
+            _bbHitTestHelper.FocusedIndex = index;
+            SelectedItem = Items[index];
+            if (raiseClick)
+            {
+                ItemClicked?.Invoke(Items[index]);
+            }
+
+            UpdateAccessibilityMetadata();
+        }
+
+        private int GetItemIndexAt(Point clientPoint)
+        {
+            var rects = _layoutHelper.GetItemRectangles();
+            for (int i = 0; i < rects.Count; i++)
+            {
+                if (rects[i].Contains(clientPoint))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private void UpdateAccessibilityMetadata()
+        {
+            if (string.IsNullOrWhiteSpace(AccessibleName))
+            {
+                AccessibleName = "Bottom Navigation";
+            }
+
+            if (AccessibleRole == AccessibleRole.Default || AccessibleRole == AccessibleRole.None)
+            {
+                AccessibleRole = AccessibleRole.MenuBar;
+            }
+
+            int count = Items?.Count ?? 0;
+            int selectedIndex = Items?.IndexOf(SelectedItem) ?? -1;
+            int focusedIndex = _bbHitTestHelper?.FocusedIndex ?? -1;
+            string selectedText = selectedIndex >= 0 && selectedIndex < count ? Items[selectedIndex]?.Text : null;
+            string focusedText = focusedIndex >= 0 && focusedIndex < count ? Items[focusedIndex]?.Text : null;
+
+            string status = $"{AccessibilityDescriptionPrefix} {count} items. " +
+                            (Enabled ? "Control enabled." : "Control disabled.");
+            if (!string.IsNullOrWhiteSpace(selectedText))
+            {
+                status += $" Selected: {selectedText}.";
+            }
+            if (!string.IsNullOrWhiteSpace(focusedText))
+            {
+                status += $" Focused: {focusedText}.";
+            }
+
+            if (string.IsNullOrWhiteSpace(AccessibleDescription) ||
+                AccessibleDescription.StartsWith(AccessibilityDescriptionPrefix, StringComparison.Ordinal))
+            {
+                AccessibleDescription = status;
+            }
+
+            AccessibleDefaultActionDescription = "Select navigation item";
+
+            if (IsHandleCreated)
+            {
+                AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, -1);
+                AccessibilityNotifyClients(AccessibleEvents.ValueChange, -1);
+            }
+        }
+
+        private sealed class BottomBarAccessibleObject : ControlAccessibleObject
+        {
+            private readonly BottomBar _owner;
+
+            public BottomBarAccessibleObject(BottomBar owner) : base(owner)
+            {
+                _owner = owner;
+            }
+
+            public override AccessibleRole Role => AccessibleRole.MenuBar;
+            public override string Name => _owner.AccessibleName ?? "Bottom Navigation";
+            public override string Description => _owner.AccessibleDescription;
+
+            public override int GetChildCount() => _owner.Items?.Count ?? 0;
+
+            public override AccessibleObject GetChild(int index)
+            {
+                if (_owner.Items == null || index < 0 || index >= _owner.Items.Count)
+                {
+                    return null;
+                }
+
+                return new BottomBarItemAccessibleObject(_owner, this, index);
+            }
+
+            public override AccessibleObject HitTest(int x, int y)
+            {
+                var clientPoint = _owner.PointToClient(new Point(x, y));
+                int idx = _owner.GetItemIndexAt(clientPoint);
+                return idx >= 0 ? GetChild(idx) : base.HitTest(x, y);
+            }
+        }
+
+        private sealed class BottomBarItemAccessibleObject : AccessibleObject
+        {
+            private readonly BottomBar _owner;
+            private readonly AccessibleObject _parent;
+            private readonly int _index;
+
+            public BottomBarItemAccessibleObject(BottomBar owner, AccessibleObject parent, int index)
+            {
+                _owner = owner;
+                _parent = parent;
+                _index = index;
+            }
+
+            public override AccessibleObject Parent => _parent;
+            public override AccessibleRole Role => AccessibleRole.MenuItem;
+            public override string Name => _owner.Items[_index]?.Text ?? $"Item {_index + 1}";
+
+            public override string Description
+            {
+                get
+                {
+                    var item = _owner.Items[_index];
+                    if (!string.IsNullOrWhiteSpace(item?.SubText))
+                    {
+                        return item.SubText;
+                    }
+                    if (!string.IsNullOrWhiteSpace(item?.BadgeText))
+                    {
+                        return $"Badge {item.BadgeText}";
+                    }
+                    return string.Empty;
+                }
+            }
+
+            public override Rectangle Bounds
+            {
+                get
+                {
+                    var rects = _owner._layoutHelper.GetItemRectangles();
+                    if (_index < 0 || _index >= rects.Count)
+                    {
+                        return Rectangle.Empty;
+                    }
+                    return _owner.RectangleToScreen(rects[_index]);
+                }
+            }
+
+            public override AccessibleStates State
+            {
+                get
+                {
+                    var states = AccessibleStates.Selectable | AccessibleStates.Focusable;
+                    if (!_owner.Enabled)
+                    {
+                        states |= AccessibleStates.Unavailable;
+                    }
+
+                    if (_owner.Items[_index] == _owner.SelectedItem)
+                    {
+                        states |= AccessibleStates.Selected;
+                    }
+
+                    if (_owner._bbHitTestHelper?.FocusedIndex == _index)
+                    {
+                        states |= AccessibleStates.Focused;
+                    }
+
+                    return states;
+                }
+            }
+
+            public override string DefaultAction => "Select";
+
+            public override void DoDefaultAction()
+            {
+                _owner.ActivateIndex(_index, raiseClick: true);
+            }
         }
 
         private string GetIconPath(SimpleItem item)

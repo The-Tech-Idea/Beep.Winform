@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             // Subtle cool gradient overlay (natural light from above)
-            var gradient = PaintersFactory.GetLinearGradientBrush(
+            using var gradient = PaintersFactory.CreateLinearGradientBrush(
                 bounds, 
                 Color.FromArgb(0, accent), 
                 Color.FromArgb(25, accent), 

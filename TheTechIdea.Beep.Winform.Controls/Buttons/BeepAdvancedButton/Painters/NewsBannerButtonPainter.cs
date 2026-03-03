@@ -13,6 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
     /// </summary>
     public class NewsBannerButtonPainter : BaseButtonPainter
     {
+        private const float CircleBadgeScale = 1.25f;
+        private const float IconPillScale = 1.15f;
+
         public override void Paint(AdvancedButtonPaintContext context)
         {
             Graphics g = context.Graphics;
@@ -81,9 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         /// </summary>
         private NewsBannerStyle DetermineBannerStyle(AdvancedButtonPaintContext context)
         {
-            if (context.NewsBannerStyle != null)
+            if (context.NewsBannerVariant != NewsBannerVariant.Auto)
             {
-                return context.NewsBannerStyle;
+                return MapVariant(context.NewsBannerVariant);
+            }
+
+            if (context.NewsBannerStyle.HasValue)
+            {
+                return context.NewsBannerStyle.Value;
             }
 
             // Auto-detect based on text or properties
@@ -110,6 +118,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             return NewsBannerStyle.RectangleBadgeLeft;
         }
 
+        private static NewsBannerStyle MapVariant(NewsBannerVariant variant)
+        {
+            return variant switch
+            {
+                NewsBannerVariant.CircleBadgeLeft => NewsBannerStyle.CircleBadgeLeft,
+                NewsBannerVariant.RectangleBadgeLeft => NewsBannerStyle.RectangleBadgeLeft,
+                NewsBannerVariant.AngledBadgeLeft => NewsBannerStyle.AngledBadgeLeft,
+                NewsBannerVariant.ChevronRight => NewsBannerStyle.ChevronRight,
+                NewsBannerVariant.ChevronBoth => NewsBannerStyle.ChevronBoth,
+                NewsBannerVariant.FlagLeft => NewsBannerStyle.FlagLeft,
+                NewsBannerVariant.AngledTwoTone => NewsBannerStyle.AngledTwoTone,
+                NewsBannerVariant.SlantedEdges => NewsBannerStyle.SlantedEdges,
+                NewsBannerVariant.PillWithIcon => NewsBannerStyle.PillWithIcon,
+                _ => NewsBannerStyle.RectangleBadgeLeft
+            };
+        }
+
         #region "Banner Style Renderers"
 
         /// <summary>
@@ -118,8 +143,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawCircleBadgeLeft(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int circleSize = (int)(bounds.Height * 1.3);
-            int circleOverlap = (int)(circleSize * 0.15);
+            int circleSize = Math.Max(26, (int)Math.Round(bounds.Height * CircleBadgeScale));
+            int circleOverlap = Math.Max(6, (int)Math.Round(circleSize * 0.14f));
+            int seamInset = GetSeamInset(bounds);
 
             // Draw circle badge (left)
             Rectangle circleBounds = new Rectangle(
@@ -146,9 +172,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw main banner section
             Rectangle mainBounds = new Rectangle(
-                bounds.X + circleSize - circleOverlap - 10,
+                bounds.X + circleSize - circleOverlap - seamInset,
                 bounds.Y,
-                bounds.Width - circleSize + circleOverlap + 10,
+                bounds.Width - circleSize + circleOverlap + seamInset,
                 bounds.Height
             );
 
@@ -161,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             string badgeText = ExtractBadgeText(context.Text);
             if (!string.IsNullOrEmpty(badgeText))
             {
-                using (Font badgeFont = new Font(context.Font.FontFamily, context.Font.Size + 2, FontStyle.Bold))
+                using (Font badgeFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold, sizeDelta: 2f))
                 using (Brush badgeTextBrush = new SolidBrush(Color.White))
                 using (StringFormat format = new StringFormat())
                 {
@@ -174,9 +200,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw main text
             string mainText = RemoveBadgeText(context.Text);
             Rectangle textBounds = new Rectangle(
-                mainBounds.X + 10,
+                mainBounds.X + seamInset,
                 mainBounds.Y,
-                mainBounds.Width - 20,
+                mainBounds.Width - (seamInset * 2),
                 mainBounds.Height
             );
             DrawText(g, context, textBounds, context.SolidBackground, mainText);
@@ -189,7 +215,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
             string[] parts = SplitBannerText(context.Text);
-            int badgeWidth = MeasureTextWidth(g, parts[0], context.Font) + 20;
+            int badgePadding = Math.Max(16, (int)Math.Round(bounds.Height * 0.45f));
+            int badgeWidth = MeasureTextWidth(parts[0], context.TextFont) + badgePadding;
+            int sectionInset = GetSectionInset(bounds);
 
             // Draw badge section
             Rectangle badgeBounds = new Rectangle(bounds.X, bounds.Y, badgeWidth, bounds.Height);
@@ -211,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 bounds.Height
             );
 
-            Color mainColor = context.SecondaryColor != null
+            Color mainColor = context.SecondaryColor != Color.Empty
                 ? context.SecondaryColor
                 : Color.White;
 
@@ -226,14 +254,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(parts[0], context.Font, badgeTextBrush, badgeBounds, format);
+                g.DrawString(parts[0], context.TextFont, badgeTextBrush, badgeBounds, format);
             }
 
             // Draw main text
             Rectangle textBounds = new Rectangle(
-                mainBounds.X + 10,
+                mainBounds.X + sectionInset,
                 mainBounds.Y,
-                mainBounds.Width - 20,
+                mainBounds.Width - (sectionInset * 2),
                 mainBounds.Height
             );
             Color textColor = mainColor == Color.White ? Color.Black : Color.White;
@@ -246,8 +274,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawAngledBadgeLeft(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int badgeWidth = bounds.Height;
-            int angle = 15;
+            int badgeWidth = Math.Max(24, (int)Math.Round(bounds.Height * 0.95f));
+            int angle = GetAngleWidth(bounds);
+            int sectionInset = GetSectionInset(bounds);
 
             // Draw angled badge
             using (GraphicsPath badgePath = new GraphicsPath())
@@ -295,9 +324,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw main text
             Rectangle textBounds = new Rectangle(
-                mainBounds.X + 10,
+                mainBounds.X + sectionInset,
                 mainBounds.Y,
-                mainBounds.Width - 20,
+                mainBounds.Width - (sectionInset * 2),
                 mainBounds.Height
             );
             DrawText(g, context, textBounds, context.SolidBackground);
@@ -309,7 +338,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawChevronRight(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int chevronWidth = 30;
+            int chevronWidth = GetChevronWidth(bounds);
+            int sectionInset = GetSectionInset(bounds);
 
             using (GraphicsPath mainPath = new GraphicsPath())
             {
@@ -331,9 +361,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw text
             Rectangle textBounds = new Rectangle(
-                bounds.X + 15,
+                bounds.X + sectionInset,
                 bounds.Y,
-                bounds.Width - chevronWidth - 25,
+                bounds.Width - chevronWidth - (sectionInset * 2),
                 bounds.Height
             );
             DrawText(g, context, textBounds, Color.White);
@@ -345,7 +375,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawChevronBoth(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int chevronWidth = 25;
+            int chevronWidth = Math.Max(16, GetChevronWidth(bounds) - 4);
+            int sectionInset = GetSectionInset(bounds);
 
             using (GraphicsPath mainPath = new GraphicsPath())
             {
@@ -368,9 +399,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw text
             Rectangle textBounds = new Rectangle(
-                bounds.X + chevronWidth + 10,
+                bounds.X + chevronWidth + sectionInset,
                 bounds.Y,
-                bounds.Width - (chevronWidth * 2) - 20,
+                bounds.Width - (chevronWidth * 2) - (sectionInset * 2),
                 bounds.Height
             );
             DrawText(g, context, textBounds, Color.White);
@@ -382,8 +413,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawFlagLeft(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int flagWidth = (int)(bounds.Height * 1.2);
-            int flagPoint = 20;
+            int flagWidth = Math.Max(26, (int)Math.Round(bounds.Height * 1.10f));
+            int flagPoint = Math.Max(10, GetAngleWidth(bounds));
+            int sectionInset = GetSectionInset(bounds);
 
             // Draw flag section
             using (GraphicsPath flagPath = new GraphicsPath())
@@ -422,9 +454,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             
             // Flag text
             Rectangle flagTextBounds = new Rectangle(
-                bounds.X + 10,
+                bounds.X + sectionInset,
                 bounds.Y,
-                flagWidth - flagPoint - 10,
+                flagWidth - flagPoint - sectionInset,
                 bounds.Height
             );
             using (Brush flagTextBrush = new SolidBrush(Color.White))
@@ -432,14 +464,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(parts[0], context.Font, flagTextBrush, flagTextBounds, format);
+                g.DrawString(parts[0], context.TextFont, flagTextBrush, flagTextBounds, format);
             }
 
             // Main text
             Rectangle textBounds = new Rectangle(
-                mainBounds.X + 10,
+                mainBounds.X + sectionInset,
                 mainBounds.Y,
-                mainBounds.Width - 20,
+                mainBounds.Width - (sectionInset * 2),
                 mainBounds.Height
             );
             DrawText(g, context, textBounds, context.SolidBackground, parts[1]);
@@ -452,8 +484,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
             string[] parts = SplitBannerText(context.Text);
-            int section1Width = MeasureTextWidth(g, parts[0], context.Font) + 30;
-            int angleWidth = 30;
+            int sectionInset = GetSectionInset(bounds);
+            int section1Width = MeasureTextWidth(parts[0], context.TextFont) + Math.Max(18, (int)Math.Round(bounds.Height * 0.50f));
+            int angleWidth = GetAngleWidth(bounds);
 
             // Section 1 (LIVE/MORNING/etc)
             using (GraphicsPath section1Path = new GraphicsPath())
@@ -492,9 +525,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw section 1 text
             Rectangle section1TextBounds = new Rectangle(
-                bounds.X + 10,
+                bounds.X + sectionInset,
                 bounds.Y,
-                section1Width - 10,
+                section1Width - sectionInset,
                 bounds.Height
             );
             using (Brush text1Brush = new SolidBrush(Color.White))
@@ -502,14 +535,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(parts[0], context.Font, text1Brush, section1TextBounds, format);
+                g.DrawString(parts[0], context.TextFont, text1Brush, section1TextBounds, format);
             }
 
             // Draw section 2 text
             Rectangle section2TextBounds = new Rectangle(
-                section2Bounds.X + 10,
+                section2Bounds.X + sectionInset,
                 section2Bounds.Y,
-                section2Bounds.Width - 20,
+                section2Bounds.Width - (sectionInset * 2),
                 section2Bounds.Height
             );
             DrawText(g, context, section2TextBounds, Color.White, parts[1]);
@@ -521,7 +554,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawSlantedEdges(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int slant = 20;
+            int slant = GetAngleWidth(bounds);
+            int sectionInset = GetSectionInset(bounds);
 
             using (GraphicsPath mainPath = new GraphicsPath())
             {
@@ -542,9 +576,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw text
             Rectangle textBounds = new Rectangle(
-                bounds.X + slant + 10,
+                bounds.X + slant + sectionInset,
                 bounds.Y,
-                bounds.Width - (slant * 2) - 20,
+                bounds.Width - (slant * 2) - (sectionInset * 2),
                 bounds.Height
             );
             DrawText(g, context, textBounds, Color.White);
@@ -556,8 +590,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawPillWithIcon(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int iconSize = (int)(bounds.Height * 1.2);
-            int iconOverlap = (int)(iconSize * 0.2);
+            int iconSize = Math.Max(24, (int)Math.Round(bounds.Height * IconPillScale));
+            int iconOverlap = Math.Max(6, (int)Math.Round(iconSize * 0.18f));
+            int sectionInset = GetSectionInset(bounds);
 
             // Draw main pill
             using (GraphicsPath pillPath = CreatePillPath(bounds))
@@ -605,9 +640,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw text
             Rectangle textBounds = new Rectangle(
-                bounds.X + iconSize - iconOverlap + 10,
+                bounds.X + iconSize - iconOverlap + sectionInset,
                 bounds.Y,
-                bounds.Width - iconSize + iconOverlap - 20,
+                bounds.Width - iconSize + iconOverlap - (sectionInset * 2),
                 bounds.Height
             );
             DrawText(g, context, textBounds, Color.White);
@@ -631,6 +666,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 g.FillRectangle(shadowBrush, shadowBounds);
             }
         }
+
+        private static int GetSectionInset(Rectangle bounds)
+            => Math.Max(8, (int)Math.Round(bounds.Height * 0.22f));
+
+        private static int GetSeamInset(Rectangle bounds)
+            => Math.Max(6, (int)Math.Round(bounds.Height * 0.18f));
+
+        private static int GetChevronWidth(Rectangle bounds)
+            => Math.Max(18, Math.Min(36, (int)Math.Round(bounds.Height * 0.68f)));
+
+        private static int GetAngleWidth(Rectangle bounds)
+            => Math.Max(12, Math.Min(26, (int)Math.Round(bounds.Height * 0.45f)));
 
         private string[] SplitBannerText(string text)
         {
@@ -686,13 +733,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             return text.Replace(badge, "").Trim();
         }
 
-        private int MeasureTextWidth(Graphics g, string text, Font font)
+        private int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
 
-            SizeF size = g.MeasureString(text, font);
-            return (int)size.Width;
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text, font);
         }
 
         private void DrawText(Graphics g, AdvancedButtonPaintContext context, Rectangle bounds, Color color, string overrideText = null)
@@ -708,7 +754,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 format.LineAlignment = StringAlignment.Center;
                 format.Trimming = StringTrimming.EllipsisCharacter;
 
-                g.DrawString(text, context.Font, textBrush, bounds, format);
+                g.DrawString(text, context.TextFont, textBrush, bounds, format);
             }
         }
 

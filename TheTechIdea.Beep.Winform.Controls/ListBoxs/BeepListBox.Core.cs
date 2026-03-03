@@ -204,7 +204,11 @@ namespace TheTechIdea.Beep.Winform.Controls;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
-            
+
+            // Notify accessibility tree of the selection change
+            int idx = _listItems?.IndexOf(selectedItem) ?? -1;
+            NotifyA11ySelectionChanged(idx);
+
             // Also fire the unified SelectionChanged event
             OnSelectionChanged(selectedItem, _selectedItems.ToList(), SelectionChangeReason.ItemSelected);
         }
@@ -581,6 +585,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            SubscribeHighContrastEvents();
         }
 
         /// <summary>
@@ -653,6 +658,8 @@ namespace TheTechIdea.Beep.Winform.Controls;
                     _hoverAnimationTimer.Dispose();
                     _hoverAnimationTimer = null;
                 }
+
+                UnsubscribeHighContrastEvents();
             }
             
             base.Dispose(disposing);

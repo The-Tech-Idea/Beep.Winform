@@ -70,18 +70,23 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                         checkBoxRect = new Rectangle(rectangle.X + scaledPaddingLeft,
                             rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
                             checkBoxSize, checkBoxSize);
-                        textRect = new Rectangle(checkBoxRect.Right + scaledSpacing,
-                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
-                            textSize.Width, textSize.Height);
+                        textRect = new Rectangle(
+                            checkBoxRect.Right + scaledSpacing,
+                            rectangle.Y + scaledPaddingTop,
+                            Math.Max(0, rectangle.Right - (checkBoxRect.Right + scaledSpacing) - Padding.Right),
+                            Math.Max(0, rectangle.Height - Padding.Vertical));
                         break;
 
                     case TextAlignment.Left:
-                        textRect = new Rectangle(rectangle.X + scaledPaddingLeft,
-                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
-                            textSize.Width, textSize.Height);
-                        checkBoxRect = new Rectangle(textRect.Right + scaledSpacing,
+                        int checkBoxX = rectangle.Right - Padding.Right - checkBoxSize;
+                        checkBoxRect = new Rectangle(checkBoxX,
                             rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
                             checkBoxSize, checkBoxSize);
+                        textRect = new Rectangle(
+                            rectangle.X + scaledPaddingLeft,
+                            rectangle.Y + scaledPaddingTop,
+                            Math.Max(0, checkBoxRect.Left - scaledSpacing - (rectangle.X + scaledPaddingLeft)),
+                            Math.Max(0, rectangle.Height - Padding.Vertical));
                         break;
 
                     case TextAlignment.Above:
@@ -108,6 +113,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 }
             }
 
+            _lastCheckBoxRect = checkBoxRect;
+            _lastTextRect = textRect;
+
             // Create render options
             var renderOptions = new CheckBoxRenderOptions
             {
@@ -121,6 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 BorderRadius = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderRadius(_checkBoxStyle, ControlStyle), scale),
                 BorderWidth = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderWidth(_checkBoxStyle), scale),
                 CheckMarkThickness = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedCheckMarkThickness(_checkBoxStyle), scale),
+                GlyphSizeRatio = _checkBoxStyle == CheckBoxStyle.Switch ? 0.5f : 0.62f,
+                CheckIconPath = string.IsNullOrWhiteSpace(ImagePath) ? CheckIconPath : ImagePath,
+                IndeterminateIconPath = IndeterminateIconPath,
                 TextFont = TextFont,
                 Text = Text,
                 HideText = HideText,
@@ -133,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 IsChecked = _state == CheckBoxState.Checked,
                 IsIndeterminate = _state == CheckBoxState.Indeterminate,
                 IsHovered = IsHovered,
-                IsFocused = IsFocused,
+                IsFocused = IsFocused && _keyboardFocusVisible,
                 IsDisabled = !Enabled
             };
 
@@ -145,6 +156,11 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             {
                 _painter.PaintText(graphics, textRect, Text, renderOptions);
             }
+
+            _lastDrawnState = _state;
+            _lastDrawnText = Text;
+            _lastDrawnRect = rectangle;
+            _stateChanged = false;
         }
 
         private void DrawForGrid(Graphics graphics, Rectangle rectangle)
@@ -326,8 +342,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         public override Size GetPreferredSize(Size proposedSize)
         {
             bool hasText = !HideText && !string.IsNullOrEmpty(Text);
-            Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
+            Size textSize = hasText ? TextRenderer.MeasureText(Text, TextFont) : Size.Empty;
             int checkBoxSize = CheckBoxSize;
+            int minimumTarget = DpiScalingHelper.ScaleValue(_minimumHitTargetSize, DpiScalingHelper.GetDpiScaleFactor(this));
 
             int width, height;
 
@@ -356,7 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 }
             }
 
-            return new Size(Math.Max(width, 100), Math.Max(height, 30)); // Minimum size to prevent collapse
+            return new Size(Math.Max(width, Math.Max(minimumTarget, 100)), Math.Max(height, minimumTarget));
         }
         #endregion
     }

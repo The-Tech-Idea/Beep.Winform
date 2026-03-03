@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -43,89 +44,90 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _labelFont?.Dispose(); } catch { }
-            try { _valueFont?.Dispose(); } catch { }
-            try { _trendFont?.Dispose(); } catch { }
-            try { _secondaryFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _labelFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _valueFont = new Font(fontFamily, 26f, FontStyle.Bold);
-            _trendFont = new Font(fontFamily, 9f, FontStyle.Bold);
-            _secondaryFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_labelFont = captionFont;
+            _valueFont = bodyFont;
+            _trendFont = bodyFont;
+            _secondaryFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int labelHeight = DpiScalingHelper.ScaleValue(LabelHeight, _owner);
+            int valueHeight = DpiScalingHelper.ScaleValue(ValueHeight, _owner);
+            int trendHeight = DpiScalingHelper.ScaleValue(TrendHeight, _owner);
+            int trendPillWidth = DpiScalingHelper.ScaleValue(TrendPillWidth, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int statusBarHeight = DpiScalingHelper.ScaleValue(StatusBarHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Icon or chart thumbnail (optional)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Top + Padding,
-                    IconSize,
-                    IconSize);
+                    drawingRect.Left + padding,
+                    drawingRect.Top + padding,
+                    iconSize,
+                    iconSize);
             }
             
             // Metric label/name
-            int labelLeft = drawingRect.Left + Padding + (ctx.ShowImage ? IconSize + ElementGap : 0);
-            int labelWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? IconSize + ElementGap : 0);
+            int labelLeft = drawingRect.Left + padding + (ctx.ShowImage ? iconSize + elementGap : 0);
+            int labelWidth = drawingRect.Width - padding * 2 - (ctx.ShowImage ? iconSize + elementGap : 0);
             
             ctx.HeaderRect = new Rectangle(
                 labelLeft,
-                drawingRect.Top + Padding,
+                drawingRect.Top + padding,
                 labelWidth,
-                LabelHeight);
+                labelHeight);
             
             // Category badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Large metric value
             ctx.SubtitleRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.HeaderRect.Bottom + ElementGap,
-                drawingRect.Width - Padding * 2,
-                ValueHeight);
+                drawingRect.Left + padding,
+                ctx.HeaderRect.Bottom + elementGap,
+                drawingRect.Width - padding * 2,
+                valueHeight);
             
             // Trend indicator (left side)
             ctx.RatingRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.SubtitleRect.Bottom + ElementGap,
-                TrendPillWidth,
-                TrendHeight);
+                drawingRect.Left + padding,
+                ctx.SubtitleRect.Bottom + elementGap,
+                trendPillWidth,
+                trendHeight);
             
             // Secondary metric/comparison (right of trend)
             ctx.ParagraphRect = new Rectangle(
-                ctx.RatingRect.Right + ElementGap * 2,
-                ctx.SubtitleRect.Bottom + ElementGap,
-                Math.Max(60, drawingRect.Right - Padding - ctx.RatingRect.Right - ElementGap * 2),
-                TrendHeight);
+                ctx.RatingRect.Right + elementGap * 2,
+                ctx.SubtitleRect.Bottom + elementGap,
+                Math.Max(DpiScalingHelper.ScaleValue(60, _owner), drawingRect.Right - padding - ctx.RatingRect.Right - elementGap * 2),
+                trendHeight);
             
             // Status/progress bar at bottom
             if (ctx.ShowStatus)
             {
                 ctx.StatusRect = new Rectangle(
                     drawingRect.Left,
-                    drawingRect.Bottom - StatusBarHeight,
+                    drawingRect.Bottom - statusBarHeight,
                     drawingRect.Width,
-                    StatusBarHeight);
+                    statusBarHeight);
             }
             
             // No buttons for metric cards
@@ -167,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 
                 // Draw pill background
                 var pillRect = new Rectangle(ctx.RatingRect.X, ctx.RatingRect.Y, 
-                    Math.Min(TrendPillWidth, ctx.RatingRect.Width), ctx.RatingRect.Height);
+                    Math.Min(DpiScalingHelper.ScaleValue(TrendPillWidth, _owner), ctx.RatingRect.Width), ctx.RatingRect.Height);
                 
                 using var pillPath = CardRenderingHelpers.CreateRoundedPath(pillRect, 10);
                 using var pillBrush = new SolidBrush(Color.FromArgb(25, trendColor));
@@ -214,14 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _labelFont?.Dispose();
-            _valueFont?.Dispose();
-            _trendFont?.Dispose();
-            _secondaryFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

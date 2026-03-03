@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                         renderer.UseThemeColors = value;
                     }
                     
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                         renderer.ControlStyle = value;
                     }
 
-                    Invalidate();
+                    RequestVisualRefresh(resetLayout: true);
                 }
             }
         }
@@ -89,8 +89,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _textFont = value;
                 SafeApplyFont(_textFont);
-                UseThemeFont = false;
-                Invalidate();
+                if (!_isApplyingThemeFont)
+                {
+                    UseThemeFont = false;
+                }
+                RequestVisualRefresh(resetLayout: true);
             }
         }
 
@@ -104,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _isChild = value;
                 base.IsChild = value;
-                Invalidate();
+                RequestVisualRefresh();
             }
         }
 
@@ -145,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     }
                     
                     UpdateItemStates();
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -162,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _stateHelper.SelectedValue = value;
                     UpdateItemStates();
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -190,6 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 if (_renderStyle != value && _renderers.ContainsKey(value))
                 {
+                    _hitTestHelper.ResetInteractionState();
                     _renderStyle = value;
                     _currentRenderer = _renderers[value];
                     _currentRenderer.Initialize(this, _currentTheme);
@@ -308,8 +312,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _autoSizeItems = value;
                     _layoutHelper.AutoSize = value;
+                    MarkLayoutDirty();
                     UpdateLayout();
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -336,8 +341,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                         }
                     }
                     
+                    MarkLayoutDirty();
                     UpdateLayout();
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -362,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _isRequired = value;
                     ValidateSelection();
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -383,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 if (_hasValidationError != value)
                 {
                     _hasValidationError = value;
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -404,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 if (_errorMessage != value)
                 {
                     _errorMessage = value ?? string.Empty;
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -450,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _disabledItems.Add(itemText);
                 UpdateItemStates();
-                Invalidate();
+                RequestVisualRefresh();
             }
         }
         
@@ -463,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _disabledItems.Remove(itemText);
                 UpdateItemStates();
-                Invalidate();
+                RequestVisualRefresh();
             }
         }
         
@@ -500,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _disabledItems.Clear();
                 UpdateItemStates();
-                Invalidate();
+                RequestVisualRefresh();
             }
         }
         

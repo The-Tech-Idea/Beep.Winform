@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Ratings;
+using TheTechIdea.Beep.Winform.Controls.Ratings.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
 {
     /// <summary>
-    /// Context object passed to rating painters containing all necessary information for rendering
+    /// Context object passed to rating painters containing all necessary information for rendering.
     /// </summary>
     public class RatingPainterContext
     {
@@ -62,6 +65,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Painters
 
         // Style
         public RatingStyle RatingStyle { get; set; }
+
+        // ── Sprint 4 additions ────────────────────────────────────────────────────
+
+        /// <summary>Size variant controlling the star/symbol pixel size.</summary>
+        public RatingSizeVariant SizeVariant { get; set; } = RatingSizeVariant.MD;
+
+        /// <summary>Layout orientation of symbols.</summary>
+        public RatingLayoutMode LayoutMode { get; set; } = RatingLayoutMode.Horizontal;
+
+        /// <summary>Mirror layout for right-to-left locales.</summary>
+        public bool IsRightToLeft { get; set; }
+
+        /// <summary>
+        /// When true, the filled symbol color transitions from 
+        /// <see cref="ColorGradeStart"/> (1 star = red/low) to 
+        /// <see cref="ColorGradeEnd"/> (5 stars = green/high).
+        /// </summary>
+        public bool UseColorGrade { get; set; }
+
+        /// <summary>Color representing the lowest rating in the color grade.</summary>
+        public Color ColorGradeStart { get; set; } = Color.FromArgb(244, 67, 54);   // Material Red
+
+        /// <summary>Color representing the highest rating in the color grade.</summary>
+        public Color ColorGradeEnd { get; set; } = Color.FromArgb(76, 175, 80);     // Material Green
+
+        /// <summary>
+        /// Multi-category ratings (e.g. Speed, Quality).
+        /// Populated when the control is in category-rating mode.
+        /// </summary>
+        public IReadOnlyList<RatingCategory> Categories { get; set; }
+
+        /// <summary>Histogram distribution data for the histogram painter.</summary>
+        public RatingHistogramData HistogramData { get; set; }
+
+        /// <summary>
+        /// Derives the effective filled-star color from the color grade at the given rating.
+        /// Returns <see cref="FilledStarColor"/> when <see cref="UseColorGrade"/> is false.
+        /// </summary>
+        public Color GetGradedColor(float ratingValue)
+        {
+            if (!UseColorGrade) return FilledStarColor;
+
+            float t = StarCount <= 1 ? 1f : Math.Max(0f, Math.Min(1f, (ratingValue - 1f) / (StarCount - 1f)));
+            return InterpolateColor(ColorGradeStart, ColorGradeEnd, t);
+        }
+
+        private static Color InterpolateColor(Color from, Color to, float t)
+        {
+            return Color.FromArgb(
+                (int)(from.A + (to.A - from.A) * t),
+                (int)(from.R + (to.R - from.R) * t),
+                (int)(from.G + (to.G - from.G) * t),
+                (int)(from.B + (to.B - from.B) * t));
+        }
     }
 }
 

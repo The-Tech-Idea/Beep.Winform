@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
@@ -19,10 +20,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             float totalSweep = GetFloat(p, "SweepAngle", 360f);
             int thickness = GetInt(p, "Thickness", Math.Max(6, Math.Min(bounds.Width, bounds.Height)/10));
             var color = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
-            var off = Color.FromArgb(40, color);
+            if (!owner.Enabled)
+            {
+                color = Color.FromArgb(120, color);
+            }
+            var off = Color.FromArgb(owner.Enabled ? 40 : 24, color);
 
             var rect = Rectangle.Inflate(bounds, -thickness - 4, -thickness - 4);
-            float pct = Math.Max(0f, Math.Min(1f, owner.Value/(float)Math.Max(1, owner.Maximum)));
+            float pct = owner.DisplayProgressPercentageAccessor;
             int active = (int)Math.Round(segments * pct);
 
             float sweepPer = (totalSweep - segments * gap) / segments;
@@ -38,10 +43,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
             // Center text
             var txt = GetString(p, "CenterText", $"{(int)(pct*100)}%");
-            using var f = new Font("Segoe UI", Math.Max(8, rect.Height/6f), FontStyle.Bold);
+            using var f = BeepThemesManager.ToFont(
+                theme.ProgressBarFont?.FontFamily ?? theme.FontFamily,
+                Math.Max(8, rect.Height / 6f),
+                FontWeight.Bold,
+                FontStyle.Bold);
             var sz = TextUtils.MeasureText(g,txt, f);
             var pt = new PointF(rect.X + (rect.Width - sz.Width)/2, rect.Y + (rect.Height - sz.Height)/2);
-            using var br = new SolidBrush(theme.CardTextForeColor);
+            using var br = new SolidBrush(owner.Enabled ? theme.CardTextForeColor : Color.FromArgb(140, theme.CardTextForeColor));
             g.DrawString(txt, f, br, pt);
         }
 

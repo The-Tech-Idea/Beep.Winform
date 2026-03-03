@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -43,76 +44,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 14f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Regular);
+_titleFont = titleFont;
+            _descFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int iconCirclePadding = DpiScalingHelper.ScaleValue(IconCirclePadding, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int descMinHeight = DpiScalingHelper.ScaleValue(DescMinHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int buttonMaxWidth = DpiScalingHelper.ScaleValue(ButtonMaxWidth, _owner);
+            int accentLineWidth = DpiScalingHelper.ScaleValue(AccentLineWidth, _owner);
+            int accentLineThickness = DpiScalingHelper.ScaleValue(AccentLineThickness, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Large centered icon at top
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - IconSize) / 2,
-                    drawingRect.Top + Padding,
-                    IconSize,
-                    IconSize);
+                    drawingRect.Left + (drawingRect.Width - iconSize) / 2,
+                    drawingRect.Top + padding,
+                    iconSize,
+                    iconSize);
             }
             
             // Service title (centered below icon)
-            int titleTop = ctx.ShowImage ? ctx.ImageRect.Bottom + ElementGap * 2 : drawingRect.Top + Padding;
+            int titleTop = ctx.ShowImage ? ctx.ImageRect.Bottom + elementGap * 2 : drawingRect.Top + padding;
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 titleTop,
-                drawingRect.Width - Padding * 2,
-                TitleHeight);
+                drawingRect.Width - padding * 2,
+                titleHeight);
             
             // Category badge (centered below title)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Left + (drawingRect.Width - BadgeWidth) / 2,
-                    ctx.HeaderRect.Bottom + ElementGap,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Left + (drawingRect.Width - badgeWidth) / 2,
+                    ctx.HeaderRect.Bottom + elementGap,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Service description
             int descTop = ctx.HeaderRect.Bottom + 
-                (string.IsNullOrEmpty(ctx.BadgeText1) ? ElementGap * 2 : BadgeHeight + ElementGap * 2);
-            int descHeight = Math.Max(DescMinHeight,
-                drawingRect.Height - (descTop - drawingRect.Top) - Padding * 2 - 
-                (ctx.ShowButton ? ButtonHeight + ElementGap + AccentLineThickness + ElementGap : 0));
+                (string.IsNullOrEmpty(ctx.BadgeText1) ? elementGap * 2 : badgeHeight + elementGap * 2);
+            int descHeight = Math.Max(descMinHeight,
+                drawingRect.Height - (descTop - drawingRect.Top) - padding * 2 - 
+                (ctx.ShowButton ? buttonHeight + elementGap + accentLineThickness + elementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 descTop,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Width - padding * 2,
                 descHeight);
             
             // CTA button (centered at bottom)
             if (ctx.ShowButton)
             {
-                int buttonWidth = Math.Min(drawingRect.Width - Padding * 2, ButtonMaxWidth);
+                int buttonWidth = Math.Min(drawingRect.Width - padding * 2, buttonMaxWidth);
                 ctx.ButtonRect = new Rectangle(
                     drawingRect.Left + (drawingRect.Width - buttonWidth) / 2,
-                    drawingRect.Bottom - Padding - ButtonHeight,
+                    drawingRect.Bottom - padding - buttonHeight,
                     buttonWidth,
-                    ButtonHeight);
+                    buttonHeight);
             }
             
             ctx.ShowSecondaryButton = false;
@@ -132,10 +138,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 
-                int circleSize = IconSize + IconCirclePadding * 2;
+                int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+                int iconCirclePadding = DpiScalingHelper.ScaleValue(IconCirclePadding, _owner);
+                int circleSize = iconSize + iconCirclePadding * 2;
                 var circleRect = new Rectangle(
-                    ctx.ImageRect.Left - IconCirclePadding,
-                    ctx.ImageRect.Top - IconCirclePadding,
+                    ctx.ImageRect.Left - iconCirclePadding,
+                    ctx.ImageRect.Top - iconCirclePadding,
                     circleSize,
                     circleSize);
                 
@@ -144,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 g.FillEllipse(fillBrush, circleRect);
                 
                 // Border circle
-                using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), 2);
+                using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawEllipse(borderPen, circleRect);
             }
             
@@ -158,14 +166,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw decorative accent line above button
             if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
             {
-                int lineY = ctx.ButtonRect.Top - ElementGap;
-                int lineX = ctx.DrawingRect.Left + (ctx.DrawingRect.Width - AccentLineWidth) / 2;
+                int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+                int accentLineWidth = DpiScalingHelper.ScaleValue(AccentLineWidth, _owner);
+                int accentLineThickness = DpiScalingHelper.ScaleValue(AccentLineThickness, _owner);
+                int lineY = ctx.ButtonRect.Top - elementGap;
+                int lineX = ctx.DrawingRect.Left + (ctx.DrawingRect.Width - accentLineWidth) / 2;
                 
-                using var pen = new Pen(ctx.AccentColor, AccentLineThickness);
+                using var pen = new Pen(ctx.AccentColor, accentLineThickness);
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
                 
-                g.DrawLine(pen, lineX, lineY, lineX + AccentLineWidth, lineY);
+                g.DrawLine(pen, lineX, lineY, lineX + accentLineWidth, lineY);
             }
         }
         
@@ -191,12 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

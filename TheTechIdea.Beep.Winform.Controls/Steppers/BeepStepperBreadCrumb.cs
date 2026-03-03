@@ -7,9 +7,9 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
@@ -20,11 +20,12 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Stepper Breadcrumb")]
     [Description("A breadcrumb-Style stepper control that draws chevron-shaped steps directly, with clickable steps and optional orientation.")]
-    public class BeepStepperBreadCrumb : BaseControl
+    public partial class BeepStepperBreadCrumb : BaseControl
     {
         private Orientation orientation = Orientation.Horizontal;
         private int selectedIndex = -1;
         private readonly List<GraphicsPath> chevronPaths = new List<GraphicsPath>(); // For precise click detection
+        private readonly List<Rectangle> chevronBounds = new List<Rectangle>();
 
         // Animation
         private System.Windows.Forms.Timer animationTimer;
@@ -114,9 +115,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             SizeChanged += (s, e) => Invalidate();
             DoubleBuffered = true;
-            Padding = new Padding(5);
+            Padding = new Padding(DpiScalingHelper.ScaleValue(5, this));
             animationTimer = new System.Windows.Forms.Timer { Interval = 25 };
             animationTimer.Tick += AnimationTimer_Tick;
+            InitializePainter();
             ApplyAccessibilitySettings();
             UpdateAllStepTooltips();
         }
@@ -143,8 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             animFrame++;
-            float t = animFrame / (float)animFramesTotal;
-            if (t > 1f) t = 1f;
+            float t = StepperAnimationEasing.CubicEaseOut(animFrame / (float)animFramesTotal);
             int r = (int)(animStart.R + (animEnd.R - animStart.R) * t);
             int g = (int)(animStart.G + (animEnd.G - animStart.G) * t);
             int b = (int)(animStart.B + (animEnd.B - animStart.B) * t);
@@ -153,9 +154,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (animFrame >= animFramesTotal)
             {
+                int completedIndex = animIndex;
                 animationTimer.Stop();
                 animIndex = -1;
-                animatedColors.Remove(animIndex);
+                animatedColors.Remove(completedIndex);
             }
         }
 
@@ -173,257 +175,19 @@ namespace TheTechIdea.Beep.Winform.Controls
     base.DrawContent(g);
     UpdateDrawingRect();
     chevronPaths.Clear();
+    chevronBounds.Clear();
     animatedColors.Clear();
+
+    if (TryPaintWithRegisteredPainter(g))
+    {
+        return;
+    }
 
     if (ListItems == null || ListItems.Count == 0)
         return;
 
-    int count       = ListItems.Count;
-    int totalLen    = orientation == Orientation.Horizontal 
-                         ? DrawingRect.Width  
-                         : DrawingRect.Height;
-    int crossLen    = orientation == Orientation.Horizontal 
-                         ? DrawingRect.Height 
-                         : DrawingRect.Width;
-    int stepLen     = totalLen / Math.Max(1, count);
-
-    // Depth of each arrowhead. Tune (/3 or /4) if you want shallower points.
-    int arrowSize   = crossLen / 4; 
-
-    for (int i = 0; i < count; i++)
-    {
-        int x = orientation == Orientation.Horizontal
-                    ? DrawingRect.Left + (i * stepLen)
-                    : DrawingRect.Left;
-        int y = orientation == Orientation.Horizontal
-                    ? DrawingRect.Top
-                    : DrawingRect.Top + (i * stepLen) ;
-
-            Point[] pts;
-
-        if (orientation == Orientation.Horizontal)
-        {
-            if (i == 0)
-            {
-                // ───► first: straight left, arrow on right
-                pts = new[]
-                {
-                    new Point(x,                  y),
-                    new Point(x + stepLen - arrowSize, y),
-                    new Point(x + stepLen,        y + crossLen/2),
-                    new Point(x + stepLen - arrowSize, y + crossLen),
-                    new Point(x,                  y + crossLen),
-                    new Point(x,                  y)
-
-                };
-            }
-            else if (i == count - 1)
-            {
-                // ◄─── last: arrow on left, straight right
-                pts = new[]
-                {
-                    new Point(x,                  y),
-                    new Point(x + stepLen,        y),
-                    new Point(x + stepLen,        y + crossLen),
-                    new Point(x,                  y + crossLen),
-                    new Point(x + arrowSize,      (y+ crossLen)- crossLen/2),
-                    new Point(x ,      y ),
-                };
-            }
-            else
-            {
-                // ◄───► middle: arrow on both sides
-                pts = new[]
-                {
-                    new Point(x,                  y),
-                    new Point(x + stepLen - arrowSize, y),
-                     new Point(x + stepLen,        y + crossLen/2),
-                    new Point(x + stepLen - arrowSize, y + crossLen),
-                    new Point(x,                  y + crossLen),
-                     new Point(x + arrowSize,      (y+ crossLen)- crossLen/2),
-                    new Point(x ,      y ),
-
-                };
-            }
-        }
-        else
-        {
-            // Vertical: mirror the same pattern top/bottom
-            if (i == 0)
-            {
-                // straight top, arrow at bottom
-                pts = new[]
-                {
-                    new Point(x,                  y),
-                    new Point(x + crossLen,       y),
-                    new Point(x + crossLen/2,     y + stepLen),
-                    new Point(x,                  y + stepLen)
-                };
-            }
-            else if (i == count - 1)
-            {
-                // arrow at top, straight bottom
-                pts = new[]
-                {
-                    new Point(x + crossLen/2,     y),
-                    new Point(x + crossLen,       y + stepLen - arrowSize),
-                    new Point(x + crossLen,       y + stepLen),
-                    new Point(x,                  y + stepLen)
-                };
-            }
-            else
-            {
-                // middle: arrow on both top & bottom
-                pts = new[]
-                {
-                    new Point(x + crossLen/2,     y),               // top tip
-                    new Point(x + crossLen,       y + arrowSize),   // right‑top slant
-                    new Point(x + crossLen,       y + stepLen - arrowSize), // right‑bottom
-                    new Point(x + crossLen/2,     y + stepLen),     // bottom tip
-                    new Point(x,                  y + stepLen - arrowSize), // left‑bottom
-                    new Point(x,                  y + arrowSize)     // left‑top
-                };
-            }
-        }
-
-        // hit‑test
-        var path = new GraphicsPath();
-        path.AddPolygon(pts);
-        chevronPaths.Add(path);
-
-        // fill - use theme helpers for consistent color management
-        Color fill;
-        if (animatedColors.ContainsKey(i))
-        {
-            fill = animatedColors[i];
-        }
-        else
-        {
-            StepState state = i < selectedIndex ? StepState.Completed :
-                             i == selectedIndex ? StepState.Active : StepState.Pending;
-            
-            fill = state switch
-            {
-                StepState.Completed => StepperThemeHelpers.GetStepCompletedColor(_currentTheme, UseThemeColors),
-                StepState.Active => StepperThemeHelpers.GetStepActiveColor(_currentTheme, UseThemeColors),
-                _ => StepperThemeHelpers.GetStepPendingColor(_currentTheme, UseThemeColors)
-            };
-        }
-
-        using (var br = new SolidBrush(fill))
-            g.FillPolygon(br, pts);
-
-        int accessibleBorderWidth = StepperAccessibilityHelpers.GetAccessibleBorderWidth(BorderThickness);
-        using (var pen = new Pen(_currentTheme.ShadowColor, accessibleBorderWidth))
-            g.DrawPolygon(pen, pts);
-
-               if(orientation == Orientation.Horizontal)
-                {
-                    // Get item info
-                    var headerText = ListItems[i].Name ?? "";
-                    var subText = ListItems[i].Text ?? "";
-
-                    // Fonts - use font helpers
-                    StepState state = i == selectedIndex ? StepState.Active : StepState.Pending;
-                    Font headerFont = StepperFontHelpers.GetStepLabelFont(this, ControlStyle, state, _textFont, this);
-                    Font subFont = StepperFontHelpers.GetStepTextFont(this, ControlStyle, _textFont, this);
-
-                    // Measure both
-                    var headerSize = TextUtils.MeasureText(g,headerText, headerFont);
-                    var subSize = TextUtils.MeasureText(g,subText, subFont);
-
-                    // Total vertical space
-                    float totalTextHeight = headerSize.Height + subSize.Height;
-
-                    // Starting Y so both lines are vertically centered as a block
-                    float startY = y + (crossLen - totalTextHeight) / 2;
-
-                    // Horizontal X center
-                    float headerX = x + (stepLen - headerSize.Width) / 2;
-                    float subX = x + (stepLen - subSize.Width) / 2;
-
-                    // Colors - use theme helpers for text color (state already declared above)
-                    Color foreColor = StepperThemeHelpers.GetStepLabelColor(_currentTheme, UseThemeColors, state);
-
-                    // Ensure WCAG contrast compliance
-                    if (StepperAccessibilityHelpers.IsHighContrastMode())
-                    {
-                        var (_, _, _, _, _, highContrastTextColor, _) = StepperAccessibilityHelpers.GetHighContrastColors();
-                        foreColor = highContrastTextColor;
-                    }
-                    else
-                    {
-                        foreColor = StepperAccessibilityHelpers.AdjustForContrast(foreColor, BackColor);
-                    }
-
-                    // Draw header
-                    using (var brush = new SolidBrush(foreColor))
-                    {
-                        g.DrawString(headerText, headerFont, brush, headerX, startY);
-                        g.DrawString(subText, subFont, brush, subX, startY + headerSize.Height);
-                    }
-
-                }
-            }
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            
-            // Detect hovered step
-            int hoveredIndex = -1;
-            for (int i = 0; i < chevronPaths.Count; i++)
-            {
-                using (Region region = new Region(chevronPaths[i]))
-                {
-                    if (region.IsVisible(e.Location))
-                    {
-                        hoveredIndex = i;
-                        break;
-                    }
-                }
-            }
-            
-            // Update tooltip for hovered step
-            if (hoveredIndex != _hoveredStepIndex)
-            {
-                _hoveredStepIndex = hoveredIndex;
-                UpdateTooltipForHoveredStep();
-            }
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            
-            // Hide tooltip when mouse leaves
-            _hoveredStepIndex = -1;
-            if (!string.IsNullOrEmpty(_currentTooltipKey))
-            {
-                _ = ToolTipManager.Instance.HideTooltipAsync(_currentTooltipKey);
-                _currentTooltipKey = null;
-            }
-        }
-
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
-            IsPressed = false;
-            IsSelected = false;
-            for (int i = 0; i < chevronPaths.Count; i++)
-            {
-                using (Region region = new Region(chevronPaths[i]))
-                {
-                    if (region.IsVisible(e.Location))
-                    {
-                        OnStepClicked(i);
-                        ShowStepNotification(i);
-                        break;
-                    }
-                }
-            }
-        }
+    DrawLegacyChevronLayout(g);
+}
 
         private void OnStepClicked(int index)
         {
@@ -443,6 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 animationTimer.Start();
                 selectedIndex = index;
+                _focusedStepIndex = index;
                 SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(SelectedItem));
                 UpdateStepperTooltip();
                 Invalidate();
@@ -482,7 +247,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
-                _textFont?.Dispose();
                 _textFont = null;
             }
             base.Dispose(disposing);
@@ -518,14 +282,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             PressedBackColor = _currentTheme?.ButtonPressedBackColor ?? PressedBackColor;
             PressedForeColor = _currentTheme?.ButtonPressedForeColor ?? PressedForeColor;
 
-            // Set fonts from theme stepper properties
-            _textFont?.Dispose();
             _textFont = (_currentTheme?.StepperItemFont != null)
-                ? BeepFontManager.ToFont(_currentTheme.StepperItemFont)
-                : null;
-
-            // Apply font theme
-            StepperFontHelpers.ApplyFontTheme(this, ControlStyle, _textFont);
+                ? BeepThemesManager.ToFont(_currentTheme.StepperItemFont)
+                : BeepThemesManager.ToFont(_currentTheme?.BodyMedium);
+            InitializePainter();
             
             // Apply accessibility adjustments (high contrast, reduced motion)
             ApplyAccessibilityAdjustments();

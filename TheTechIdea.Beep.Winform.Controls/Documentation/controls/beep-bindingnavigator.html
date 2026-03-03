@@ -395,18 +395,18 @@ navigator.DataSource = customers;
 // Handle events
 navigator.NewRecordCreated += (sender, bindingSource) =>
 {
-    Console.WriteLine("New record created");
+  //  Console.WriteLine("New record created");
 };
 
 navigator.SaveCalled += (sender, bindingSource) =>
 {
-    Console.WriteLine("Save operation requested");
+  //  Console.WriteLine("Save operation requested");
     // Implement save logic here
 };
 
 navigator.DeleteCalled += (sender, bindingSource) =>
 {
-    Console.WriteLine("Delete operation requested");
+  //  Console.WriteLine("Delete operation requested");
     // Implement delete logic here
 };
 
@@ -450,13 +450,13 @@ navigator.ListChanged += (sender, e) =>
     switch (e.ListChangedType)
     {
         case ListChangedType.ItemAdded:
-            Console.WriteLine($"New item added at index {e.NewIndex}");
+          //  Console.WriteLine($"New item added at index {e.NewIndex}");
             break;
         case ListChangedType.ItemDeleted:
-            Console.WriteLine("Item deleted");
+          //  Console.WriteLine("Item deleted");
             break;
         case ListChangedType.ItemChanged:
-            Console.WriteLine($"Item changed at index {e.NewIndex}");
+          //  Console.WriteLine($"Item changed at index {e.NewIndex}");
             break;
     }
 };</code></pre>

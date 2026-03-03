@@ -6,8 +6,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private BeepImage _imageRenderer;
         private Font _textFont;
         private Size _maxImageSize = new Size(18, 18);
         private BeepControlStyle _controlStyle = BeepControlStyle.PillRail;
@@ -60,16 +59,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
-            _imageRenderer = new BeepImage();
             UpdateTheme(theme);
         }
 
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
-                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize, FontStyle.Regular)
-                : new Font("Segoe UI", 11f));
+            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
         }
         #endregion
 
@@ -96,12 +92,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private Rectangle GetPillRectangle(Rectangle itemRectangle)
         {
-            // Center the pill vertically within the item rectangle
             return new Rectangle(
                 itemRectangle.X,
-                itemRectangle.Y + (itemRectangle.Height - MinPillHeight) / 2,
-                itemRectangle.Width,
-                MinPillHeight
+                itemRectangle.Y,
+                Math.Max(0, itemRectangle.Width),
+                Math.Max(0, itemRectangle.Height)
             );
         }
 
@@ -138,9 +133,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             Color borderColor;
             float borderWidth;
             
-            if (state.IsSelected)
+            if (!state.IsEnabled)
+            {
+                borderColor = colors.DisabledBorder;
+                borderWidth = 1f;
+            }
+            else if (state.IsSelected)
             {
                 borderColor = colors.SelectedBorder;
+                borderWidth = 2f;
+            }
+            else if (state.IsFocused)
+            {
+                borderColor = colors.FocusBorder;
                 borderWidth = 2f;
             }
             else if (state.IsHovered)
@@ -166,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var contentRect = new Rectangle(
                 pillRect.X + PillPadding,
                 pillRect.Y,
-                pillRect.Width - (PillPadding * 2),
+                Math.Max(0, pillRect.Width - (PillPadding * 2)),
                 pillRect.Height
             );
 
@@ -184,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
             
             // Center content
-            int currentX = contentRect.X + (contentRect.Width - totalContentWidth) / 2;
+            int currentX = Math.Max(contentRect.X, contentRect.X + (contentRect.Width - totalContentWidth) / 2);
 
             // Draw icon if present
             if (!string.IsNullOrEmpty(item.ImagePath))
@@ -196,9 +201,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     sz,
                     sz
                 );
-
-                _imageRenderer.ImagePath = item.ImagePath;
-                _imageRenderer.Draw(graphics, iconRect);
+                var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
+                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
                 currentX += sz + ComponentSpacing;
             }
 
@@ -237,6 +242,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private GraphicsPath CreatePillPath(Rectangle rect)
         {
             var path = new GraphicsPath();
+            if (rect.Width <= 1 || rect.Height <= 1)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
             int radius = rect.Height / 2; // Perfect circle ends for pill shape
 
             // Left arc
@@ -289,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             return new Rectangle(
                 pillRect.X + PillPadding,
                 pillRect.Y,
-                pillRect.Width - (PillPadding * 2),
+                Math.Max(0, pillRect.Width - (PillPadding * 2)),
                 pillRect.Height
             );
         }
@@ -330,6 +341,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     Border = border,
                     HoverBorder = Color.FromArgb(180, primary),
                     SelectedBorder = primary,
+                    FocusBorder = primary,
+                    DisabledBorder = Color.FromArgb(150, border),
                     Text = foreground,
                     SelectedText = Color.White,
                     DisabledText = Color.FromArgb(128, foreground)
@@ -338,13 +351,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
             return new PillColors
             {
-                Background = Color.FromArgb(245, _theme.BackgroundColor),
+                Background = _theme.PanelBackColor,
                 HoverBackground = _theme.ButtonHoverBackColor,
                 SelectedBackground = _theme.PrimaryColor,
                 DisabledBackground = _theme.DisabledBackColor,
                 Border = _theme.BorderColor,
                 HoverBorder = _theme.ButtonHoverBorderColor,
                 SelectedBorder = _theme.PrimaryColor,
+                FocusBorder = _theme.PrimaryColor,
+                DisabledBorder = _theme.DisabledBorderColor,
                 Text = _theme.ForeColor,
                 SelectedText = _theme.ButtonForeColor,
                 DisabledText = _theme.DisabledForeColor
@@ -360,6 +375,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             public Color Border { get; set; }
             public Color HoverBorder { get; set; }
             public Color SelectedBorder { get; set; }
+            public Color FocusBorder { get; set; }
+            public Color DisabledBorder { get; set; }
             public Color Text { get; set; }
             public Color SelectedText { get; set; }
             public Color DisabledText { get; set; }

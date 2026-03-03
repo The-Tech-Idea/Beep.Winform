@@ -1,6 +1,10 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -29,31 +33,72 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw item background
             DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
+            var rich     = item as BeepListItem;
+            bool disabled = rich?.IsDisabled == true;
+
             // Calculate checkbox rectangle
-            var padding = GetPreferredPadding();
+            var padding     = GetPreferredPadding();
+            int cbSize      = DpiScalingHelper.ScaleValue(ListBoxTokens.CheckboxSize, _owner);
             var checkboxRect = new Rectangle(
                 itemRect.X + padding.Left,
-                itemRect.Y + (itemRect.Height - 16) / 2,
-                16,
-                16
-            );
+                itemRect.Y + (itemRect.Height - cbSize) / 2,
+                cbSize, cbSize);
 
-            // Draw checkbox
-            DrawCheckbox(g, checkboxRect, item.IsChecked, isHovered);
+            // Draw checkbox (disabled items show greyed-out box)
+            DrawCheckbox(g, checkboxRect, item.IsChecked, isHovered && !disabled);
 
-            // Draw text next to checkbox
+            // Content area after checkbox
+            int gap      = DpiScalingHelper.ScaleValue(8, _owner);
             var textRect = new Rectangle(
-                checkboxRect.Right + 8,
+                checkboxRect.Right + gap,
                 itemRect.Y,
-                itemRect.Width - checkboxRect.Right - 8 - padding.Right,
-                itemRect.Height
-            );
+                itemRect.Width - checkboxRect.Right - gap - padding.Right,
+                itemRect.Height);
 
-            Color textColor = isSelected
-                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.OnPrimaryColor ?? Color.White
-                : Color.FromArgb(26, 32, 44);
+            // Badge — shrink textRect
+            if (rich != null && !string.IsNullOrEmpty(rich.BadgeText))
+            {
+                int badgePad = DpiScalingHelper.ScaleValue(72, _owner);
+                DrawBadgePill(g, itemRect, rich.BadgeText, rich.BadgeColor);
+                textRect.Width -= badgePad;
+            }
 
-            DrawItemText(g, textRect, item.Text, textColor, _owner.Font);
+            // Determine text colour
+            Color textColor;
+            if (_owner.IsHighContrast)
+                textColor = _owner.HCItemForeground(isSelected);
+            else if (disabled)
+                textColor = System.Drawing.Color.FromArgb(ListBoxTokens.DisabledAlpha,
+                    _theme?.ListItemForeColor ?? System.Drawing.Color.FromArgb(26, 32, 44));
+            else
+                textColor = isSelected
+                    ? (_theme?.OnPrimaryColor ?? System.Drawing.Color.White)
+                    : (_theme?.ListItemForeColor ?? System.Drawing.Color.FromArgb(26, 32, 44));
+
+            // Sub-text 2-line layout
+            if (rich != null && !string.IsNullOrEmpty(rich.SubText))
+            {
+                int subH   = DpiScalingHelper.ScaleValue(16, _owner);
+                int titleH = Math.Max(12, textRect.Height - subH - DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner));
+                var titleRect = new Rectangle(textRect.X, textRect.Y, textRect.Width, titleH);
+                var subRect   = new Rectangle(textRect.X,
+                    textRect.Y + titleH + DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner),
+                    textRect.Width, subH);
+                DrawItemText(g, titleRect, item.Text, textColor, _owner.Font);
+                DrawSubText(g, subRect, rich.SubText,
+                    _owner.IsHighContrast ? _owner.HCItemForeground(isSelected) : (_theme?.ListItemForeColor ?? System.Drawing.Color.Gray),
+                    _owner.Font);
+            }
+            else
+            {
+                DrawItemText(g, textRect, item.Text, textColor, _owner.Font);
+            }
+
+            // Focus ring
+            var visible = _helper?.GetVisibleItems();
+            int fi = _owner.FocusedIndex;
+            if (fi >= 0 && visible != null && fi < visible.Count && visible[fi] == item)
+                DrawFocusRing(g, itemRect);
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -64,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var selColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
 
                     // Selected background with subtle gradient
                     using (var brush = new LinearGradientBrush(itemRect,
@@ -84,13 +129,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else if (isHovered)
                 {
                     // Hover background
-                    using (var brush = new SolidBrush(Color.FromArgb(248, 248, 248)))
+                    var hoverBg = _theme?.ListItemHoverBackColor ?? Color.FromArgb(248, 248, 248);
+                    using (var brush = new SolidBrush(hoverBg))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Hover border
-                    using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray, 1.5f))
+                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1.5f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -98,13 +144,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Normal state
-                    using (var brush = new SolidBrush(Color.White))
+                    var normalBg = _theme?.BackgroundColor ?? Color.White;
+                    using (var brush = new SolidBrush(normalBg))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Normal border
-                    using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(200, 200, 200), 0.5f))
+                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 0.5f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -112,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw subtle divider
-            using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
+            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
             {
                 g.DrawLine(pen, itemRect.Left + 8, itemRect.Bottom - 1, itemRect.Right - 8, itemRect.Bottom - 1);
             }

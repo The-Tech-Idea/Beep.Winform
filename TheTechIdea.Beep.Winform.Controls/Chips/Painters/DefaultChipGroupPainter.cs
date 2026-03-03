@@ -7,7 +7,6 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 
@@ -17,7 +16,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private readonly BeepImage _image = new BeepImage();
         private StringFormat _centerFmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
 
         public void Initialize(BaseControl owner, IBeepTheme theme)
@@ -34,16 +32,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         public Size MeasureChip(SimpleItem item, Graphics g, ChipRenderOptions opt)
         {
             float scale = DpiScalingHelper.GetDpiScaleFactor(_owner);
-            string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
+            string text = ResolveChipText(item);
             var font = ResolveFont(opt, scale);
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
             
             int extra = 0;
-            if (opt.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath)) 
+            if (opt.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
                 extra += DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(6, scale);
             
             if (opt.ShowSelectionCheck) 
                 extra += DpiScalingHelper.ScaleValue(14, scale); // reserve for dot/check
+            if (opt.ShowCloseOnSelected)
+                extra += DpiScalingHelper.ScaleValue(16, scale);
                 
             int pad = GetHorizontalPadding(opt.Size, scale);
             int h = GetChipHeight(opt.Size, scale);
@@ -56,6 +56,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             closeRect = Rectangle.Empty;
             var font = ResolveFont(opt, scale);
             var (bg, fg, border) = GetColors(state, opt);
+            var groupBack = (opt.Theme ?? _theme)?.BackColor ?? _owner?.BackColor ?? Color.White;
+
+            // Keep unselected chips visible even when theme button and group backgrounds are identical.
+            if (!state.IsSelected && bg.ToArgb() == groupBack.ToArgb())
+            {
+                bg = ControlPaint.Light(groupBack, 0.12f);
+                border = ControlPaint.Dark(border, 0.08f);
+            }
+
+            // Ensure readable text in rare low-contrast theme combinations.
+            if (!state.IsSelected && fg.ToArgb() == bg.ToArgb())
+            {
+                fg = bg.GetBrightness() > 0.55f ? Color.Black : Color.White;
+            }
             using var path = RoundedPath(bounds, DpiScalingHelper.ScaleValue(opt.CornerRadius, scale));
 
             // Background per Style (same as before)
@@ -78,15 +92,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                     break;
                 default:
                     {
-                        var bgBr = PaintersFactory.GetSolidBrush(state.IsSelected ? bg : Color.FromArgb(10, bg));
+                        // Keep unselected chips visibly present across all themes/styles.
+                        // Use a near-opaque fill to avoid blending away on same-tone backgrounds.
+                        var fillColor = state.IsSelected ? bg : Color.FromArgb(220, bg);
+                        var bgBr = PaintersFactory.GetSolidBrush(fillColor);
                         g.FillPath(bgBr, path);
                     }
                     break;
             }
 
-            if (opt.ShowBorders && (opt.Style is ChipStyle.Classic or ChipStyle.Professional or ChipStyle.HighContrast or ChipStyle.Minimalist))
+            if (opt.ShowBorders)
             {
-                var pen = (Pen)PaintersFactory.GetPen(border, Math.Max(1, DpiScalingHelper.ScaleValue(opt.BorderWidth, scale))).Clone();
+                var stroke = state.IsSelected ? border : Color.FromArgb(210, border);
+                var pen = (Pen)PaintersFactory.GetPen(stroke, Math.Max(1, DpiScalingHelper.ScaleValue(opt.BorderWidth, scale))).Clone();
                 using (pen)
                 {
                     g.DrawPath(pen, path);
@@ -127,13 +145,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             }
 
             // Left icon
-            if (opt.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (opt.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
             {
                 var sz = DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale);
-                var iconRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top + (contentRect.Height - sz.Height) / 2, sz.Width, sz.Height);
-                _image.ImagePath = item.ImagePath;
-                _image.Draw(g, iconRect);
-                leftPad += sz.Width + DpiScalingHelper.ScaleValue(6, scale);
+                var iconAnchorRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, sz.Width + DpiScalingHelper.ScaleValue(2, scale), contentRect.Height);
+                var iconRect = ChipIconHelpers.CalculateChipIconBounds(iconAnchorRect, opt.Size, true);
+                ChipIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    item.ImagePath,
+                    fg,
+                    opt.Theme ?? _theme,
+                    false,
+                    ChipVariant.Filled,
+                    state.Color,
+                    state.IsSelected,
+                    state.IsHovered,
+                    _owner.ControlStyle);
+                leftPad += iconRect.Width + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             int rightPad = 0;
@@ -158,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
             var textBr = PaintersFactory.GetSolidBrush(fg);
-            g.DrawString(item?.Text ?? string.Empty, font, textBr, textRect, _centerFmt);
+            g.DrawString(ResolveChipText(item), font, textBr, textRect, _centerFmt);
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options) { }
@@ -192,6 +221,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         private Font ResolveFont(ChipRenderOptions opt, float scale = 1.0f)
         {
             return ChipFontHelpers.GetChipFont(_owner.ControlStyle, opt.Size, scale);
+        }
+
+        private static string ResolveChipText(SimpleItem item)
+        {
+            return item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
         }
 
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState s, ChipRenderOptions opt)

@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             // Tailwind card gradient: 5% darker at bottom for depth - use HSL for more natural results
             Color bottomColor = ColorAccessibilityHelper.DarkenColor(stateColor, 0.05f);
-            var brush = PaintersFactory.GetLinearGradientBrush(
+            using var brush = PaintersFactory.CreateLinearGradientBrush(
                 bounds, stateColor, bottomColor, LinearGradientMode.Vertical);
             g.FillPath(brush, path);
         }

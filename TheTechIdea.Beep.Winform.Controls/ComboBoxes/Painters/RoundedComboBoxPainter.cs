@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
@@ -16,51 +17,43 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         
         protected override void DrawBorder(Graphics g, Rectangle rect)
         {
-            Color borderColor = _owner.Focused 
+            Color borderColor = _owner.Focused
                 ? _theme?.PrimaryColor ?? Color.Blue
                 : (_owner.HasError ? Color.Red : (_theme?.BorderColor ?? Color.Gray));
-            
+
             float borderWidth = 1.5f;
-            var basePen = PaintersFactory.GetPen(borderColor, borderWidth);
-            var pen = (System.Drawing.Pen)basePen.Clone();
-            try
+            using (var path = GetRoundedRectPath(rect, _owner.ScaleLogicalX(BorderRadiusLogical)))
             {
-                pen.Alignment = PenAlignment.Inset;
-                using (var path = GetRoundedRectPath(rect, _owner.ScaleLogicalX(BorderRadiusLogical)))
-                {
-                    g.DrawPath(pen, path);
-                }
-            }
-            finally
-            {
-                pen.Dispose();
+                // Use Center alignment (PenAlignment.Inset is unreliable for GraphicsPath in GDI+)
+                var pen = PaintersFactory.GetPen(borderColor, borderWidth);
+                pen.Alignment = PenAlignment.Center;
+                g.DrawPath(pen, path);
             }
         }
         
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)
         {
             if (buttonRect.IsEmpty) return;
-            
-            // No separator for rounded Style - cleaner look
-            
-            // Draw arrow with state-aware coloring
-            DrawDropdownArrow(g, buttonRect, GetArrowColor());
+
+            // Subtle hover fill (no separator for rounded style - cleaner look)
+            if (_owner.IsButtonHovered && _owner.Enabled)
+            {
+                Color hoverFill = PathPainterHelpers.WithAlphaIfNotEmpty(
+                    _theme?.ComboBoxHoverBackColor != Color.Empty
+                        ? _theme.ComboBoxHoverBackColor
+                        : (_theme?.PrimaryColor ?? Color.Empty), 50);
+                if (hoverFill != Color.Empty && hoverFill.A > 0)
+                {
+                    int r = Math.Max(ScaleX(4), Math.Min(buttonRect.Width, buttonRect.Height) / 3);
+                    using (var path = GetRoundedRectPath(Rectangle.Inflate(buttonRect, -ScaleX(1), -ScaleY(1)), r))
+                        g.FillPath(PaintersFactory.GetSolidBrush(hoverFill), path);
+                }
+            }
+
+            DrawDropdownArrow(g, buttonRect, GetArrowColor(), _owner.IsDropdownOpen);
         }
         
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
-        }
-        
+
         public override Padding GetPreferredPadding()
         {
             return new System.Windows.Forms.Padding(16, 8, 12, 8); // More padding for rounded Style

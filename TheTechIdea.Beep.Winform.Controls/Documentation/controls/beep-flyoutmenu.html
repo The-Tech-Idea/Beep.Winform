@@ -597,7 +597,7 @@ flyoutMenu.SelectedIndexChanged += (sender, e) =>
     if (flyoutMenu.SelectedIndex >= 0)
     {
         var selectedItem = flyoutMenu.ListItems[flyoutMenu.SelectedIndex];
-        Console.WriteLine($"Selected: {selectedItem.Text}");
+      //  Console.WriteLine($"Selected: {selectedItem.Text}");
     }
 };
 
@@ -869,7 +869,7 @@ private void HandleRecentFile(object sender, BeepEventDataArgs e)
 
     private void HandleToolbarAction(string menuName, string actionName)
     {
-        Console.WriteLine($"Menu: {menuName}, Action: {actionName}");
+      //  Console.WriteLine($"Menu: {menuName}, Action: {actionName}");
         
         // Implement specific actions based on menu and item
         switch (menuName)

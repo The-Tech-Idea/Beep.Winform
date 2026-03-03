@@ -285,7 +285,7 @@ List<string> themeNames = BeepThemesManager.GetThemeNames();
 
 foreach (string themeName in themeNames)
 {
-    Console.WriteLine($"Available theme: {themeName}");
+  //  Console.WriteLine($"Available theme: {themeName}");
 }
 
 // Get all theme objects
@@ -333,7 +333,7 @@ button.ApplyTheme();
 
 // Listen for theme changes
 BeepThemesManager.ThemeChanged += (sender, e) => {
-    Console.WriteLine($"Theme changed from {e.OldThemeName} to {e.NewThemeName}");
+  //  Console.WriteLine($"Theme changed from {e.OldThemeName} to {e.NewThemeName}");
     
     // Update all controls
     button.Theme = e.NewThemeName;
@@ -619,7 +619,7 @@ BeepThemesManager.SetCurrentTheme(loadedTheme.ThemeName);</code></pre>
             string filePath = Path.Combine(BackupDirectory, fileName);
             
             BeepThemesManager.SaveTheme(theme, filePath);
-            Console.WriteLine($"Backed up theme: {theme.ThemeName}");
+          //  Console.WriteLine($"Backed up theme: {theme.ThemeName}");
         }
     }
     
@@ -635,11 +635,11 @@ BeepThemesManager.SetCurrentTheme(loadedTheme.ThemeName);</code></pre>
             try
             {
                 var theme = BeepThemesManager.LoadTheme(file);
-                Console.WriteLine($"Restored theme: {theme.ThemeName}");
+              //  Console.WriteLine($"Restored theme: {theme.ThemeName}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to restore theme from {file}: {ex.Message}");
+              //  Console.WriteLine($"Failed to restore theme from {file}: {ex.Message}");
             }
         }
     }
@@ -669,7 +669,7 @@ BeepThemesManager.ThemeChanged += OnThemeChanged;
 
 private static void OnThemeChanged(object sender, ThemeChangeEventArgs e)
 {
-    Console.WriteLine($"Theme changed from {e.OldThemeName} to {e.NewThemeName}");
+  //  Console.WriteLine($"Theme changed from {e.OldThemeName} to {e.NewThemeName}");
     
     // Access old and new theme objects
     IBeepTheme oldTheme = e.OldTheme;
@@ -724,7 +724,7 @@ BeepThemesManager.ThemeChanged -= OnThemeChanged;</code></pre>
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error applying theme to component: {ex.Message}");
+              //  Console.WriteLine($"Error applying theme to component: {ex.Message}");
                 
                 // Remove failed components
                 _themeAwareComponents.Remove(component);

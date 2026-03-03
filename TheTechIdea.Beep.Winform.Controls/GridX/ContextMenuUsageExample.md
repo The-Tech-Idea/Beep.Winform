@@ -124,7 +124,7 @@ private void BeepGridPro1_GridContextMenuItemSelected(object sender, GridContext
             if (e.CurrentRow?.RowDataObject is Customer customer)
             {
                 // Do something with the customer data
-                Console.WriteLine($"Copying customer: {customer.Name}");
+              //  Console.WriteLine($"Copying customer: {customer.Name}");
             }
             break;
             
@@ -495,7 +495,7 @@ public class MyForm : Form
     private void OnGridContextMenu(object sender, GridContextMenuEventArgs e)
     {
         // Log the action
-        Console.WriteLine($"Context menu action: {e.Action}, Row: {e.CurrentRowIndex}");
+      //  Console.WriteLine($"Context menu action: {e.Action}, Row: {e.CurrentRowIndex}");
         
         // Handle specific actions
         switch (e.Action)

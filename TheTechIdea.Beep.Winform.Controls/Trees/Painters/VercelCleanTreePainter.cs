@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color iconColor = _theme.TreeForeColor;
 
-                    var pen = PaintersFactory.GetPen(iconColor, 1.5f);
+                    using var pen = (Pen)PaintersFactory.GetPen(iconColor, 1.5f).Clone();
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
 
@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Minimalist checkmark
                     if (node.Item.IsChecked)
                     {
-                        var checkPen = PaintersFactory.GetPen(Color.White, 1.5f);
+                        using var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 1.5f).Clone();
                         checkPen.StartCap = LineCap.Round;
                         checkPen.EndCap = LineCap.Round;
 
@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Vercel Style: minimalist plus/minus
             Color iconColor = _theme.TreeForeColor;
 
-            var pen = PaintersFactory.GetPen(iconColor, 1.5f);
+            using var pen = (Pen)PaintersFactory.GetPen(iconColor, 1.5f).Clone();
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
 

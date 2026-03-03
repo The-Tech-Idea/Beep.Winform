@@ -552,7 +552,155 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RequestDelayedInvalidate();
             }
         }
-        
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 1 — Batch update API (BeginUpdate / EndUpdate)
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Batch Update
+
+        private int _updateDepth;
+
+        /// <summary>
+        /// Suspend layout and repaint while performing bulk item changes.
+        /// Calls may be nested; the matching EndUpdate() re-enables updates.
+        /// </summary>
+        public void BeginUpdate() => _updateDepth++;
+
+        /// <summary>
+        /// Resume layout and repaint after BeginUpdate().
+        /// When the last nesting level closes, a full layout refresh is triggered.
+        /// </summary>
+        public void EndUpdate()
+        {
+            if (_updateDepth <= 0) return;
+            if (--_updateDepth == 0)
+            {
+                _needsLayoutUpdate = true;
+                RequestDelayedInvalidate();
+            }
+        }
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 3 — Additional selection helpers
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Advanced selection
+
+        /// <summary>Invert the selection of all visible items (multi-select mode only).</summary>
+        public void InvertSelection()
+        {
+            var visible = GetVisibleItems();
+            if (visible == null || visible.Count == 0) return;
+            if (SelectionMode == ListBoxs.SelectionModeEnum.Single) return;
+            foreach (var item in visible)
+            {
+                if (_selectedItems.Contains(item))
+                    _selectedItems.Remove(item);
+                else
+                    _selectedItems.Add(item);
+            }
+            RequestDelayedInvalidate();
+        }
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 4 — Skeleton animation helpers
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Skeleton animation
+
+        private Timer? _skeletonTimer;
+        private float _skeletonPhase;          // 0..1 — shimmer sweep position
+        internal float SkeletonPhase => _skeletonPhase;
+
+        private void StartSkeletonAnimation()
+        {
+            if (_skeletonTimer != null) return;
+            _skeletonTimer = new Timer { Interval = 33 };   // ~30 fps
+            _skeletonTimer.Tick += (s, e) =>
+            {
+                _skeletonPhase += 33f / ListBoxs.Tokens.ListBoxTokens.SkeletonCycleDurationMs;
+                if (_skeletonPhase > 1f) _skeletonPhase = 0f;
+                Invalidate();
+            };
+            _skeletonTimer.Start();
+        }
+
+        private void StopSkeletonAnimation()
+        {
+            _skeletonTimer?.Stop();
+            _skeletonTimer?.Dispose();
+            _skeletonTimer = null;
+            _skeletonPhase = 0f;
+        }
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Sprint 6 — Data source binding
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Data source binding
+
+        /// <summary>
+        /// Populate ListItems from the bound DataSource using DisplayMember / ValueMember.
+        /// Supports IList and IBindingList sources.
+        /// </summary>
+        private void ApplyDataSource()
+        {
+            if (_dataSource == null) return;
+
+            var source = _dataSource as System.Collections.IEnumerable;
+            if (source == null) return;
+
+            BeginUpdate();
+            try
+            {
+                _listItems.ListChanged -= ListItems_ListChanged;
+                _listItems.Clear();
+
+                foreach (var obj in source)
+                {
+                    string text = string.Empty;
+                    if (!string.IsNullOrEmpty(_displayMember))
+                    {
+                        var prop = obj?.GetType().GetProperty(_displayMember);
+                        text = prop?.GetValue(obj)?.ToString() ?? string.Empty;
+                    }
+                    else
+                    {
+                        text = obj?.ToString() ?? string.Empty;
+                    }
+
+                    _listItems.Add(new SimpleItem { Text = text });
+                }
+
+                // Wire IBindingList change notifications
+                if (_dataSource is System.ComponentModel.IBindingList bl)
+                {
+                    bl.ListChanged -= BindingSource_ListChanged;
+                    bl.ListChanged += BindingSource_ListChanged;
+                }
+            }
+            finally
+            {
+                _listItems.ListChanged += ListItems_ListChanged;
+                EndUpdate();
+            }
+        }
+
+        private void BindingSource_ListChanged(object? sender, System.ComponentModel.ListChangedEventArgs e)
+        {
+            if (InvokeRequired) { Invoke(new Action(ApplyDataSource)); return; }
+            ApplyDataSource();
+        }
+
         #endregion
     }
 }

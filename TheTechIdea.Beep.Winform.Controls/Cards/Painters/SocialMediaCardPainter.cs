@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using PaintersFactory = TheTechIdea.Beep.Winform.Controls.Styling.PaintersFactory;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -23,19 +24,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         private const int HeaderHeight = 26;
         private const int ButtonHeight = 32;
 
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             Owner = owner;
             Theme = theme;
-            try { _timeFont?.Dispose(); } catch { }
-            try { _iconFont?.Dispose(); } catch { }
-            _timeFont = new Font(Owner.Font.FontFamily, 7.5f, FontStyle.Regular);
-            _iconFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+_timeFont = captionFont;
+            _iconFont = captionFont;
         }
 
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = DefaultPad;
+            int pad = DpiScalingHelper.ScaleValue(DefaultPad, Owner);
             ctx.DrawingRect = drawingRect;
 
             int avatar = 40;
@@ -75,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             }
             
             // Draw hashtags/mentions
-            CardRenderingHelpers.DrawChips(g, Owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+            CardRenderingHelpers.DrawChips(g, Owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _timeFont);
             
             // Draw engagement icons (like, share, etc.)
             if (ctx.ShowButton)
@@ -109,9 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         {
             if (!_disposed)
             {
-                _timeFont?.Dispose();
-                _iconFont?.Dispose();
-                _disposed = true;
+_disposed = true;
             }
         }
     }

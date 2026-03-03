@@ -172,7 +172,7 @@ var layouts = new IGridLayoutPreset[]
 // All 15 compile and work! ✅
 foreach (var layout in layouts)
 {
-    Console.WriteLine($"{layout.Name}: {layout.Description}");
+  //  Console.WriteLine($"{layout.Name}: {layout.Description}");
     // Works perfectly!
 }
 ```

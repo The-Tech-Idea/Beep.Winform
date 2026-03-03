@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm_SideBar));
             beepSideMenu1 = new BeepSideMenu();
-            beepDisplayContainer1 = new BeepDisplayContainer();
+            beepDisplayContainer1 = new BeepDisplayContainer2();
             SuspendLayout();
             // 
             // beepSideMenu1
@@ -370,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         }
 
         #endregion
-        private BeepDisplayContainer beepDisplayContainer1;
+        private BeepDisplayContainer2 beepDisplayContainer1;
         private BeepSideMenu beepSideMenu1;
     }
 }

@@ -210,7 +210,7 @@ this.Controls.Add(numericControl);
 
 // Handle value changes
 numericControl.ValueChanged += (sender, e) => {
-    Console.WriteLine($"Value changed to: {numericControl.Value}");
+  //  Console.WriteLine($"Value changed to: {numericControl.Value}");
 };</code></pre>
                     </div>
 
@@ -422,7 +422,7 @@ numericControl.ValueChanged += (sender, e) => {
 
 // Handle value changes
 numericControl.ValueChanged += (sender, e) => {
-    Console.WriteLine($"New value: {numericControl.Value}");
+  //  Console.WriteLine($"New value: {numericControl.Value}");
     UpdateDependentControls(numericControl.Value);
 };
 

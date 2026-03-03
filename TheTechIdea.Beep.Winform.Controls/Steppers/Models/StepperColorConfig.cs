@@ -13,23 +13,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Models
     {
         [Category("Step Colors")]
         [Description("Completed step color")]
-        public Color CompletedStepColor { get; set; } = Color.FromArgb(34, 197, 94);
+        public Color CompletedStepColor { get; set; } = Color.Empty;
 
         [Category("Step Colors")]
         [Description("Active step color")]
-        public Color ActiveStepColor { get; set; } = Color.FromArgb(59, 130, 246);
+        public Color ActiveStepColor { get; set; } = Color.Empty;
 
         [Category("Step Colors")]
         [Description("Pending step color")]
-        public Color PendingStepColor { get; set; } = Color.FromArgb(156, 163, 175);
+        public Color PendingStepColor { get; set; } = Color.Empty;
 
         [Category("Step Colors")]
         [Description("Error step color")]
-        public Color ErrorStepColor { get; set; } = Color.FromArgb(239, 68, 68);
+        public Color ErrorStepColor { get; set; } = Color.Empty;
 
         [Category("Step Colors")]
         [Description("Warning step color")]
-        public Color WarningStepColor { get; set; } = Color.FromArgb(245, 158, 11);
+        public Color WarningStepColor { get; set; } = Color.Empty;
 
         [Category("Text Colors")]
         [Description("Step text color")]
@@ -41,11 +41,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Models
 
         [Category("Connector Colors")]
         [Description("Completed connector line color")]
-        public Color ConnectorCompletedColor { get; set; } = Color.FromArgb(34, 197, 94);
+        public Color ConnectorCompletedColor { get; set; } = Color.Empty;
 
         [Category("Connector Colors")]
         [Description("Pending connector line color")]
-        public Color ConnectorPendingColor { get; set; } = Color.FromArgb(156, 163, 175);
+        public Color ConnectorPendingColor { get; set; } = Color.Empty;
 
         [Category("Background")]
         [Description("Stepper background color")]

@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
         // Timer drives either breathing at rest or optional looping mode
         private Timer _timer;
         private Control _container;
+        private BeepProgressBar _owner;
         private double _phase;        // breathing phase
         private float _loopT;         // 0..1 when HeadLoop = true
         private double _durationMs = 1000; // cached for loop
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
         {
             _container = owner;
+            _owner = owner;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var rect = bounds; rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
 
@@ -37,10 +39,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int headWidth = GetInt(p, "HeadWidth", 18);
             int headHeight = GetInt(p, "HeadHeight", 8);
             Color headColor = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
+            if (!owner.Enabled)
+            {
+                headColor = Color.FromArgb(120, headColor);
+            }
             bool followValue = !GetBool(p, "HeadLoop", false);      // default: follow actual Value
             bool breathing = GetBool(p, "HeadBreathing", true);
             float breathAmp = GetFloat(p, "HeadBreathingAmp", 0.2f); // +/- 20% size
             _breathSpeed = GetDouble(p, "HeadBreathingSpeed", 1.0); // approx Hz
+            if (!owner.Enabled)
+            {
+                breathing = false;
+            }
 
             // Ensure timer when needed (breathing or loop)
             if (breathing || !followValue)
@@ -50,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             else if (_timer != null && _timer.Enabled)
             {
                 // no animation required
-                _timer.Stop();
+                StopTimer();
             }
 
             // Determine head position
@@ -60,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int cx = rect.Left + (int)(te * rect.Width);
 
             // draw filled line up to head
-            using (var fillPen = new Pen(Color.FromArgb(160, headColor), 4) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            using (var fillPen = new Pen(Color.FromArgb(owner.Enabled ? 160 : 110, headColor), 4) { StartCap = LineCap.Round, EndCap = LineCap.Round })
                 g.DrawLine(fillPen, rect.Left, midY, cx, midY);
 
             // Breathing scale
@@ -92,10 +102,36 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             _timer.Tick -= OnTick; _timer.Tick += OnTick;
             if (!_timer.Enabled) _timer.Start();
         }
+        private void StopTimer()
+        {
+            if (_timer == null)
+            {
+                return;
+            }
+
+            _timer.Stop();
+            _timer.Tick -= OnTick;
+            _timer.Dispose();
+            _timer = null;
+        }
 
         private DateTime _lastTick = DateTime.UtcNow;
         private void OnTick(object sender, EventArgs e)
         {
+            if (_owner == null || _owner.IsDisposed || _owner.Disposing || _owner.PainterKind != ProgressPainterKind.ArrowHeadAnimated)
+            {
+                StopTimer();
+                _container = null;
+                _owner = null;
+                return;
+            }
+
+            if (!_owner.Enabled)
+            {
+                StopTimer();
+                return;
+            }
+
             var now = DateTime.UtcNow;
             double dt = (now - _lastTick).TotalSeconds; if (dt <= 0) dt = 0.016; _lastTick = now;
             // advance loop position and breathing phase

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -39,80 +40,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _labelFont?.Dispose(); } catch { }
-            try { _requiredFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 13f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _labelFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _requiredFont = new Font(fontFamily, 9f, FontStyle.Bold);
+_titleFont = titleFont;
+            _descFont = bodyFont;
+            _labelFont = captionFont;
+            _requiredFont = bodyFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descHeight = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
             // Section title
             ctx.HeaderRect = new Rectangle(
-                drawingRect.Left + Padding,
-                drawingRect.Top + Padding,
-                drawingRect.Width - Padding * 2,
-                TitleHeight);
+                drawingRect.Left + padding,
+                drawingRect.Top + padding,
+                drawingRect.Width - padding * 2,
+                titleHeight);
             
             // Section description
             ctx.SubtitleRect = new Rectangle(
-                drawingRect.Left + Padding,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
-                drawingRect.Width - Padding * 2,
-                DescHeight);
+                drawingRect.Left + padding,
+                ctx.HeaderRect.Bottom + elementGap / 2,
+                drawingRect.Width - padding * 2,
+                descHeight);
             
             // Form fields area
-            int fieldsTop = ctx.SubtitleRect.Bottom + ElementGap;
+            int fieldsTop = ctx.SubtitleRect.Bottom + elementGap;
             int fieldsHeight = Math.Max(60,
-                drawingRect.Height - (fieldsTop - drawingRect.Top) - Padding - 
-                (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
+                drawingRect.Height - (fieldsTop - drawingRect.Top) - padding - 
+                (ctx.ShowButton ? buttonHeight + elementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 fieldsTop,
-                drawingRect.Width - Padding * 2,
+                drawingRect.Width - padding * 2,
                 fieldsHeight);
             
             // Action buttons
             if (ctx.ShowButton)
             {
-                int buttonWidth = (drawingRect.Width - Padding * 3) / 2;
+                int buttonWidth = (drawingRect.Width - padding * 3) / 2;
                 
                 if (ctx.ShowSecondaryButton)
                 {
                     ctx.SecondaryButtonRect = new Rectangle(
-                        drawingRect.Left + Padding,
-                        drawingRect.Bottom - Padding - ButtonHeight,
+                        drawingRect.Left + padding,
+                        drawingRect.Bottom - padding - buttonHeight,
                         buttonWidth,
-                        ButtonHeight);
+                        buttonHeight);
                     
                     ctx.ButtonRect = new Rectangle(
-                        ctx.SecondaryButtonRect.Right + Padding,
+                        ctx.SecondaryButtonRect.Right + padding,
                         ctx.SecondaryButtonRect.Top,
                         buttonWidth,
-                        ButtonHeight);
+                        buttonHeight);
                 }
                 else
                 {
                     ctx.ButtonRect = new Rectangle(
-                        drawingRect.Left + Padding,
-                        drawingRect.Bottom - Padding - ButtonHeight,
-                        drawingRect.Width - Padding * 2,
-                        ButtonHeight);
+                        drawingRect.Left + padding,
+                        drawingRect.Bottom - padding - buttonHeight,
+                        drawingRect.Width - padding * 2,
+                        buttonHeight);
                 }
             }
             
@@ -133,20 +131,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             }
             
             // Draw section divider
-            int dividerY = ctx.SubtitleRect.Bottom + ElementGap / 2;
-            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), 1);
+            int dividerY = ctx.SubtitleRect.Bottom + DpiScalingHelper.ScaleValue(ElementGap, _owner) / 2;
+            using var dividerPen = new Pen(Color.FromArgb(30, ctx.AccentColor), DpiScalingHelper.ScaleValue(1, _owner));
             g.DrawLine(dividerPen,
-                ctx.DrawingRect.Left + Padding, dividerY,
-                ctx.DrawingRect.Right - Padding, dividerY);
+                ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner), dividerY,
+                ctx.DrawingRect.Right - DpiScalingHelper.ScaleValue(Padding, _owner), dividerY);
         }
         
         private void DrawFormFields(Graphics g, LayoutContext ctx)
         {
             if (ctx.Tags == null) return;
             
-            int y = ctx.ParagraphRect.Top + ElementGap;
+            int fieldHeight = DpiScalingHelper.ScaleValue(FieldHeight, _owner);
+            int labelHeight = DpiScalingHelper.ScaleValue(LabelHeight, _owner);
+            int fieldGap = DpiScalingHelper.ScaleValue(FieldGap, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int y = ctx.ParagraphRect.Top + elementGap;
             int fieldWidth = ctx.ParagraphRect.Width;
-            int maxY = ctx.ParagraphRect.Bottom - FieldHeight - LabelHeight;
+            int maxY = ctx.ParagraphRect.Bottom - fieldHeight - labelHeight;
             
             foreach (var fieldLabel in ctx.Tags)
             {
@@ -156,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 string label = isRequired ? fieldLabel.TrimEnd('*').Trim() : fieldLabel;
                 
                 // Draw label
-                var labelRect = new Rectangle(ctx.ParagraphRect.Left, y, fieldWidth, LabelHeight);
+                var labelRect = new Rectangle(ctx.ParagraphRect.Left, y, fieldWidth, labelHeight);
                 using var labelBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };
                 g.DrawString(label, _labelFont, labelBrush, labelRect, format);
@@ -166,14 +168,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 {
                     var labelSize = g.MeasureString(label, _labelFont);
                     using var reqBrush = new SolidBrush(Color.FromArgb(220, 53, 69));
-                    g.DrawString("*", _requiredFont, reqBrush, labelRect.Left + labelSize.Width + 2, y);
+                    g.DrawString("*", _requiredFont, reqBrush, labelRect.Left + labelSize.Width + DpiScalingHelper.ScaleValue(2, _owner), y);
                 }
                 
                 // Draw field placeholder
-                var fieldRect = new Rectangle(ctx.ParagraphRect.Left, y + LabelHeight, fieldWidth, FieldHeight);
+                var fieldRect = new Rectangle(ctx.ParagraphRect.Left, y + labelHeight, fieldWidth, fieldHeight);
                 DrawFieldPlaceholder(g, fieldRect, ctx.AccentColor);
                 
-                y += LabelHeight + FieldHeight + FieldGap;
+                y += labelHeight + fieldHeight + fieldGap;
             }
         }
         
@@ -182,12 +184,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Field background
-            using var bgPath = CardRenderingHelpers.CreateRoundedPath(rect, 6);
+            using var bgPath = CardRenderingHelpers.CreateRoundedPath(rect, DpiScalingHelper.ScaleValue(6, _owner));
             using var bgBrush = new SolidBrush(Color.FromArgb(250, 250, 250));
             g.FillPath(bgBrush, bgPath);
             
             // Field border
-            using var borderPen = new Pen(Color.FromArgb(200, 200, 200), 1);
+            using var borderPen = new Pen(Color.FromArgb(200, 200, 200), DpiScalingHelper.ScaleValue(1, _owner));
             g.DrawPath(borderPen, bgPath);
         }
         
@@ -208,13 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            _labelFont?.Dispose();
-            _requiredFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

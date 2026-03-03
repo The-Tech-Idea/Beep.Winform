@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -39,71 +40,70 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _labelFont?.Dispose(); } catch { }
-            try { _valueFont?.Dispose(); } catch { }
-            try { _trendFont?.Dispose(); } catch { }
-            try { _subtitleFont?.Dispose(); } catch { }
-            
-            _labelFont = new Font(fontFamily, 10f, FontStyle.Regular);
-            _valueFont = new Font(fontFamily, 28f, FontStyle.Bold);
-            _trendFont = new Font(fontFamily, 9f, FontStyle.Bold);
-            _subtitleFont = new Font(fontFamily, 9f, FontStyle.Regular);
+_labelFont = captionFont;
+            _valueFont = bodyFont;
+            _trendFont = bodyFont;
+            _subtitleFont = titleFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int labelHeight = DpiScalingHelper.ScaleValue(LabelHeight, _owner);
+            int valueHeight = DpiScalingHelper.ScaleValue(ValueHeight, _owner);
+            int trendHeight = DpiScalingHelper.ScaleValue(TrendHeight, _owner);
+            int statusBarHeight = DpiScalingHelper.ScaleValue(StatusBarHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
             
-            int contentTop = drawingRect.Top + Padding;
-            int contentWidth = drawingRect.Width - Padding * 2;
+            int contentTop = drawingRect.Top + padding;
+            int contentWidth = drawingRect.Width - padding * 2;
             
             // Icon at top-left (optional)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
+                    drawingRect.Left + padding,
                     contentTop,
-                    IconSize,
-                    IconSize);
-                contentTop = ctx.ImageRect.Bottom + ElementGap;
+                    iconSize,
+                    iconSize);
+                contentTop = ctx.ImageRect.Bottom + elementGap;
             }
             
             // Label (e.g., "Active Users")
             ctx.ParagraphRect = new Rectangle(
-                drawingRect.Left + Padding,
+                drawingRect.Left + padding,
                 contentTop,
                 contentWidth,
-                LabelHeight);
+                labelHeight);
             
             // Large value (e.g., "12,458")
             ctx.HeaderRect = new Rectangle(
                 ctx.ParagraphRect.Left,
-                ctx.ParagraphRect.Bottom + ElementGap / 2,
+                ctx.ParagraphRect.Bottom + elementGap / 2,
                 contentWidth,
-                ValueHeight);
+                valueHeight);
             
             // Trend indicator (e.g., "+18.2% from last month")
             ctx.SubtitleRect = new Rectangle(
                 ctx.HeaderRect.Left,
-                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Bottom + elementGap,
                 contentWidth,
-                TrendHeight);
+                trendHeight);
             
             // Status bar at bottom (optional)
             if (ctx.ShowStatus)
             {
                 ctx.StatusRect = new Rectangle(
                     drawingRect.Left,
-                    drawingRect.Bottom - StatusBarHeight,
+                    drawingRect.Bottom - statusBarHeight,
                     drawingRect.Width,
-                    StatusBarHeight);
+                    statusBarHeight);
             }
             
             // No buttons for stat cards
@@ -142,9 +142,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw badge if present
             if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {
-                using var font = new Font(_owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif, 8f, FontStyle.Bold);
                 CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
-                    ctx.Badge1BackColor, ctx.Badge1ForeColor, font);
+                    ctx.Badge1BackColor, ctx.Badge1ForeColor, _labelFont);
             }
         }
         
@@ -160,13 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _labelFont?.Dispose();
-            _valueFont?.Dispose();
-            _trendFont?.Dispose();
-            _subtitleFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

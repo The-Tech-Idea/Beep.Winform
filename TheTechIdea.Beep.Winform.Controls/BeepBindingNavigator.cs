@@ -477,7 +477,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         private void SendLog(string message)
         {
-            Console.WriteLine(message);
+          //  Console.WriteLine(message);
             System.Diagnostics.Debug.WriteLine(message);
         }
     }

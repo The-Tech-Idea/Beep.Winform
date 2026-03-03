@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         protected override void OnMouseEnter(EventArgs e)
         {
+            if (DesignMode) return;
             base.OnMouseEnter(e);
             _isHovered = true;
             Invalidate();
@@ -16,39 +17,133 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         protected override void OnMouseLeave(EventArgs e)
         {
+            if (DesignMode) return;
             base.OnMouseLeave(e);
             _isHovered = false;
             _isButtonHovered = false;
+            _clearButtonHovered = false;
+            // ENH-15: hide overflow tooltip when cursor leaves the control
+            _overflowTooltip?.SetToolTip(this, string.Empty);
             Invalidate();
         }
         
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            if (DesignMode) return;
             base.OnMouseMove(e);
             
             // Check if hovering over dropdown button
-            bool wasButtonHovered = _isButtonHovered;
-            _isButtonHovered = _dropdownButtonRect.Contains(e.Location);
+            bool wasButtonHovered    = _isButtonHovered;
+            bool wasClearHovered     = _clearButtonHovered;
+            _isButtonHovered         = _dropdownButtonRect.Contains(e.Location);
+            _clearButtonHovered      = !_clearButtonRect.IsEmpty && _clearButtonRect.Contains(e.Location);
             
-            if (wasButtonHovered != _isButtonHovered)
+            if (wasButtonHovered != _isButtonHovered || wasClearHovered != _clearButtonHovered)
             {
-                Cursor = _isButtonHovered ? Cursors.Hand : Cursors.Default;
+                Cursor = (_isButtonHovered || _clearButtonHovered) ? Cursors.Hand : Cursors.Default;
                 Invalidate();
+            }
+
+            // ENH-15: show tooltip when display text overflows the text area
+            if (_overflowTooltip != null && !_textAreaRect.IsEmpty && _textAreaRect.Contains(e.Location))
+            {
+                string displayText = _selectedItem?.Text ?? _inputText ?? Text ?? string.Empty;
+                if (!string.IsNullOrEmpty(displayText))
+                {
+                    var measured = System.Windows.Forms.TextRenderer.MeasureText(
+                        displayText, TextFont ?? Font);
+                    string tip = measured.Width > _textAreaRect.Width ? displayText : string.Empty;
+                    if (_overflowTooltip.GetToolTip(this) != tip)
+                        _overflowTooltip.SetToolTip(this, tip);
+                }
             }
         }
         
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            // Always call base so the designer can handle its own selection/focus logic.
+            // Skip ALL our custom combo-box hit-testing at design time to prevent
+            // ToggleDropdown / ShowInlineEditor from firing and causing flicker.
+            if (DesignMode)
+            {
+                base.OnMouseDown(e);
+                return;
+            }
             if (_isLoading) return; // Disable interaction when loading
-            
+
             base.OnMouseDown(e);
-            
-            // Hit testing is handled by BaseControl's hit test system
-            // and the AddHitArea registered in the painter
+
+            if (e.Button != MouseButtons.Left) return;
+
+            // Always recalculate layout before hit-testing on a mouse-down.
+            // Focus-gain fires synchronously inside base.OnMouseDown above and can
+            // shift DrawingRect (e.g. painter widens focused border), so we must
+            // refresh the rects unconditionally to avoid stale hit areas.
+            UpdateLayout();
+            _needsLayoutUpdate = false;
+
+            // ── Clear button (×) ────────────────────────────────────────────
+            // Must be tested before text-area so it doesn't accidentally open the editor.
+            if (!_clearButtonRect.IsEmpty && _clearButtonRect.Contains(e.Location))
+            {
+                ClearSelection();
+                return;
+            }
+
+            // ENH-19: chip × close buttons — remove clicked chip from selection
+            if (ChipCloseRects.Count > 0)
+            {
+                foreach (var kvp in ChipCloseRects)
+                {
+                    if (!kvp.Value.IsEmpty && kvp.Value.Contains(e.Location))
+                    {
+                        var itemToRemove = _selectedItems?.Find(it =>
+                            it.ID.ToString() == kvp.Key || it.Text == kvp.Key);
+                        if (itemToRemove != null)
+                            DeselectItem(itemToRemove);
+                        return;
+                    }
+                }
+            }
+
+            // ── Dropdown button (▲) ─────────────────────────────────────────
+            // Only this zone opens/closes the dropdown list.
+            if (!_dropdownButtonRect.IsEmpty && _dropdownButtonRect.Contains(e.Location))
+            {
+                HideInlineEditor(true);   // commit any open editor first
+                ToggleDropdown();
+                return;
+            }
+
+            // ── Text area ───────────────────────────────────────────────────
+            // When NOT editable: clicking text area toggles the dropdown
+            //   (standard combobox UX — click anywhere to open).
+            // When editable: clicking text area shows the inline editor
+            //   so the user can type a value.
+            if (!_textAreaRect.IsEmpty && _textAreaRect.Contains(e.Location))
+            {
+                if (IsEditable)
+                {
+                    ShowInlineEditor();
+                }
+                else
+                {
+                    ToggleDropdown();
+                }
+                return;
+            }
+
+            // ── Fallback: click anywhere else inside the control ─────────────
+            // Treat it like clicking the dropdown button for accessibility.
+            if (!IsEditable)
+            {
+                ToggleDropdown();
+            }
         }
         
         protected override void OnMouseWheel(MouseEventArgs e)
         {
+            if (DesignMode) return;
             base.OnMouseWheel(e);
             
             // Scroll through items if dropdown is closed
@@ -168,6 +263,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                         e.Handled = true;
                     }
                     break;
+
+                // ENH-09: Backspace removes the last chip in multi-select mode
+                case Keys.Back:
+                    if (AllowMultipleSelection && _selectedItems.Count > 0 && !IsEditable)
+                    {
+                        var last = _selectedItems[_selectedItems.Count - 1];
+                        var updated = new System.Collections.Generic.List<SimpleItem>(_selectedItems);
+                        updated.Remove(last);
+                        SelectedItems = updated;
+                        e.Handled = true;
+                    }
+                    break;
             }
             
             base.OnKeyDown(e);
@@ -259,6 +366,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
             InvalidateLayout();
+
+            // If inline editor is visible, reposition it to the updated text area
+            if (_inlineEditor != null && _inlineEditor.Visible)
+            {
+                UpdateLayout();
+                _inlineEditor.Bounds = _textAreaRect;
+            }
         }
         
         #endregion

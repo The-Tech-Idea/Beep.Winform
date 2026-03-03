@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -42,29 +43,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _dueDateFont?.Dispose(); } catch { }
-            try { _priorityFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _dueDateFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _priorityFont = new Font(fontFamily, 7f, FontStyle.Bold);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_titleFont = titleFont;
+            _descFont = bodyFont;
+            _dueDateFont = titleFont;
+            _priorityFont = bodyFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int checkboxSize = DpiScalingHelper.ScaleValue(CheckboxSize, _owner);
+            int priorityBarWidth = DpiScalingHelper.ScaleValue(PriorityBarWidth, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descHeightMin = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int metaHeight = DpiScalingHelper.ScaleValue(MetaHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Priority indicator bar on left edge
             if (ctx.ShowStatus)
@@ -72,64 +74,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 ctx.StatusRect = new Rectangle(
                     drawingRect.Left,
                     drawingRect.Top,
-                    PriorityBarWidth,
+                    priorityBarWidth,
                     drawingRect.Height);
             }
             
-            int contentLeft = drawingRect.Left + Padding + (ctx.ShowStatus ? PriorityBarWidth : 0);
+            int contentLeft = drawingRect.Left + padding + (ctx.ShowStatus ? priorityBarWidth : 0);
             
             // Checkbox (vertically centered on left)
             ctx.ImageRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + (drawingRect.Height - CheckboxSize) / 2,
-                CheckboxSize,
-                CheckboxSize);
+                drawingRect.Top + (drawingRect.Height - checkboxSize) / 2,
+                checkboxSize,
+                checkboxSize);
             
             // Content area (right of checkbox)
-            int textLeft = ctx.ImageRect.Right + ContentGap;
-            int textWidth = drawingRect.Width - (textLeft - drawingRect.Left) - Padding;
+            int textLeft = ctx.ImageRect.Right + contentGap;
+            int textWidth = drawingRect.Width - (textLeft - drawingRect.Left) - padding;
             
             // Priority/Status badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
-                textWidth -= BadgeWidth + ElementGap;
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
+                textWidth -= badgeWidth + elementGap;
             }
             
             // Task title
             ctx.HeaderRect = new Rectangle(
                 textLeft,
-                drawingRect.Top + Padding,
+                drawingRect.Top + padding,
                 textWidth,
-                TitleHeight);
+                titleHeight);
             
             // Task description
-            int descHeight = Math.Max(DescHeight, drawingRect.Height - Padding * 2 - TitleHeight - MetaHeight - ElementGap * 2);
+            int descHeight = Math.Max(descHeightMin, drawingRect.Height - padding * 2 - titleHeight - metaHeight - elementGap * 2);
             ctx.ParagraphRect = new Rectangle(
                 textLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
-                textWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
+                ctx.HeaderRect.Bottom + elementGap / 2,
+                textWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
                 descHeight);
             
             // Due date and metadata
             ctx.SubtitleRect = new Rectangle(
                 textLeft,
-                ctx.ParagraphRect.Bottom + ElementGap,
-                textWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
-                MetaHeight);
+                ctx.ParagraphRect.Bottom + elementGap,
+                textWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
+                metaHeight);
             
             // Tags area (assignee, labels)
             if (ctx.Tags != null)
             {
                 ctx.TagsRect = new Rectangle(
                     textLeft,
-                    drawingRect.Bottom - Padding - MetaHeight,
+                    drawingRect.Bottom - padding - metaHeight,
                     textWidth,
-                    MetaHeight);
+                    metaHeight);
             }
             
             ctx.ShowButton = false;
@@ -186,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw tags/labels
             if (ctx.Tags != null && !ctx.TagsRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _descFont);
             }
         }
         
@@ -249,14 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            _dueDateFont?.Dispose();
-            _priorityFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

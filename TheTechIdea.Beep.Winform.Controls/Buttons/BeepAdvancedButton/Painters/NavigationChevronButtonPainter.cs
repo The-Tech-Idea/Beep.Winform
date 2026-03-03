@@ -13,6 +13,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
     /// </summary>
     public class NavigationChevronButtonPainter : BaseButtonPainter
     {
+        private const float PrimaryIconSectionScale = 0.86f;
+        private const float SecondaryIconSectionScale = 0.76f;
+        private const float ChevronAngleScale = 0.42f;
+        private const float SeparatorScale = 0.62f;
+
         /// <summary>
         /// Paint the chevron button with diagonal cuts and icon sections
         /// </summary>
@@ -68,16 +73,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         /// </summary>
         private ChevronStyle DetermineChevronStyle(AdvancedButtonPaintContext context)
         {
-            // Use the chevron style from context
-            if (context.ChevronStyle != ChevronStyle.LeftIconRightChevron)
+            if (context.ChevronVariant != ChevronVariant.Auto)
             {
-                return context.ChevronStyle;
+                return MapVariant(context.ChevronVariant);
+            }
+
+            // Use explicit chevron style when provided in context.
+            if (context.ChevronStyle.HasValue)
+            {
+                return context.ChevronStyle.Value;
             }
 
             // Auto-detect based on icon positions
             bool hasLeftIcon = !string.IsNullOrEmpty(context.IconLeft);
             bool hasRightIcon = !string.IsNullOrEmpty(context.IconRight);
-            bool hasCenterIcon = context.ImagePainter != null && !string.IsNullOrEmpty(context.ImagePainter.ImagePath) && !hasLeftIcon && !hasRightIcon;
+            bool hasCenterIcon = HasPrimaryIcon(context) && !hasLeftIcon && !hasRightIcon;
 
             if (hasLeftIcon && hasRightIcon)
             {
@@ -99,6 +109,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             return ChevronStyle.LeftIconRightChevron; // Default
         }
 
+        private static ChevronStyle MapVariant(ChevronVariant variant)
+        {
+            return variant switch
+            {
+                ChevronVariant.LeftIconRightChevron => ChevronStyle.LeftIconRightChevron,
+                ChevronVariant.LeftChevronRightIcon => ChevronStyle.LeftChevronRightIcon,
+                ChevronVariant.BothChevrons => ChevronStyle.BothChevrons,
+                ChevronVariant.LeftIconCenterChevron => ChevronStyle.LeftIconCenterChevron,
+                _ => ChevronStyle.LeftIconRightChevron
+            };
+        }
+
         #region "Chevron Style Renderers"
 
         /// <summary>
@@ -108,9 +130,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawLeftIconRightChevron(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int iconSectionWidth = (int)(bounds.Height * 0.9); // Icon section width
-            int chevronAngle = 20; // Diagonal cut width
-            int separatorWidth = 30; // Small separator section
+            int iconSectionWidth = GetPrimaryIconSectionWidth(bounds.Height);
+            int chevronAngle = GetChevronAngle(bounds.Height);
+            int separatorWidth = GetSeparatorWidth(bounds.Height);
 
             // Calculate sections
             Rectangle iconSection = new Rectangle(bounds.X, bounds.Y, iconSectionWidth, bounds.Height);
@@ -202,9 +224,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawLeftChevronRightIcon(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int iconSectionWidth = (int)(bounds.Height * 0.9); // Icon section width
-            int chevronAngle = 20; // Diagonal cut width
-            int separatorWidth = 30; // Small separator section
+            int iconSectionWidth = GetPrimaryIconSectionWidth(bounds.Height);
+            int chevronAngle = GetChevronAngle(bounds.Height);
+            int separatorWidth = GetSeparatorWidth(bounds.Height);
 
             // Calculate sections
             Rectangle mainSection = new Rectangle(
@@ -301,7 +323,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawBothChevrons(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int iconSectionWidth = (int)(bounds.Height * 0.85);
+            int iconSectionWidth = GetPrimaryIconSectionWidth(bounds.Height);
+            int overlap = GetChevronOverlap(bounds.Height);
 
             // Draw left icon section (white)
             Rectangle leftIconSection = new Rectangle(bounds.X, bounds.Y, iconSectionWidth, bounds.Height);
@@ -323,9 +346,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw main button section
             Rectangle mainSection = new Rectangle(
-                bounds.X + iconSectionWidth - 15,
+                bounds.X + iconSectionWidth - overlap,
                 bounds.Y,
-                bounds.Width - (iconSectionWidth * 2) + 30,
+                bounds.Width - (iconSectionWidth * 2) + (overlap * 2),
                 bounds.Height
             );
 
@@ -363,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
                 Rectangle iconBounds = new Rectangle(
-                    leftIconSection.X + (leftIconSection.Width - 30 - metrics.IconSize) / 2,
+                    leftIconSection.X + (leftIconSection.Width - overlap - metrics.IconSize) / 2,
                     leftIconSection.Y + (leftIconSection.Height - metrics.IconSize) / 2,
                     metrics.IconSize,
                     metrics.IconSize
@@ -378,7 +401,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (!string.IsNullOrEmpty(context.IconRight))
             {
                 Rectangle iconBounds = new Rectangle(
-                    rightIconSection.X + (rightIconSection.Width - metrics.IconSize) / 2 + 15,
+                    rightIconSection.X + (rightIconSection.Width - metrics.IconSize) / 2 + overlap,
                     rightIconSection.Y + (rightIconSection.Height - metrics.IconSize) / 2,
                     metrics.IconSize,
                     metrics.IconSize
@@ -394,8 +417,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawLeftIconCenterChevron(Graphics g, AdvancedButtonPaintContext context, 
             AdvancedButtonMetrics metrics, Rectangle bounds)
         {
-            int leftIconWidth = (int)(bounds.Height * 0.85);
-            int centerIconWidth = (int)(bounds.Height * 0.75);
+            int leftIconWidth = GetPrimaryIconSectionWidth(bounds.Height);
+            int centerIconWidth = GetSecondaryIconSectionWidth(bounds.Height);
+            int overlap = GetChevronOverlap(bounds.Height);
 
             // Draw left icon section (white)
             Rectangle leftIconSection = new Rectangle(bounds.X, bounds.Y, leftIconWidth, bounds.Height);
@@ -414,9 +438,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw main button section with right chevron
             Rectangle mainSection = new Rectangle(
-                bounds.X + leftIconWidth - 15,
+                bounds.X + leftIconWidth - overlap,
                 bounds.Y,
-                bounds.Width - leftIconWidth - centerIconWidth + 30,
+                bounds.Width - leftIconWidth - centerIconWidth + (overlap * 2),
                 bounds.Height
             );
 
@@ -451,7 +475,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
                 Rectangle iconBounds = new Rectangle(
-                    leftIconSection.X + (leftIconSection.Width - 30 - metrics.IconSize) / 2,
+                    leftIconSection.X + (leftIconSection.Width - overlap - metrics.IconSize) / 2,
                     leftIconSection.Y + (leftIconSection.Height - metrics.IconSize) / 2,
                     metrics.IconSize,
                     metrics.IconSize
@@ -463,15 +487,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             DrawText(g, context, mainSection, GetForegroundColor(context));
 
             // Draw center icon
-            if (context.ImagePainter != null && !string.IsNullOrEmpty(context.ImagePainter.ImagePath))
+            if (HasPrimaryIcon(context))
             {
                 Rectangle iconBounds = new Rectangle(
-                    centerIconSection.X + (centerIconSection.Width - metrics.IconSize) / 2 + 10,
+                    centerIconSection.X + (centerIconSection.Width - metrics.IconSize) / 2 + Math.Max(8, overlap - 2),
                     centerIconSection.Y + (centerIconSection.Height - metrics.IconSize) / 2,
                     metrics.IconSize,
                     metrics.IconSize
                 );
-                DrawIcon(g, context, iconBounds, context.ImagePainter.ImagePath);
+                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
         }
 
@@ -485,7 +509,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private GraphicsPath CreateLeftChevronPath(Rectangle bounds, int chevronWidth = 0, bool isIconSection = false)
         {
             GraphicsPath path = new GraphicsPath();
-            int angle = isIconSection ? 20 : (chevronWidth > 0 ? chevronWidth : 25);
+            int angle = isIconSection
+                ? GetIconTipAngle(bounds.Height)
+                : (chevronWidth > 0 ? chevronWidth : GetChevronAngle(bounds.Height));
 
             Point[] points = new Point[]
             {
@@ -507,7 +533,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private GraphicsPath CreateRightChevronPath(Rectangle bounds, int chevronWidth = 0, bool isIconSection = false)
         {
             GraphicsPath path = new GraphicsPath();
-            int angle = isIconSection ? 20 : (chevronWidth > 0 ? chevronWidth : 25);
+            int angle = isIconSection
+                ? GetIconTipAngle(bounds.Height)
+                : (chevronWidth > 0 ? chevronWidth : GetChevronAngle(bounds.Height));
 
             Point[] points = new Point[]
             {
@@ -549,6 +577,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 }
             }
         }
+
+        private static int GetPrimaryIconSectionWidth(int height)
+            => Math.Max(26, (int)Math.Round(height * PrimaryIconSectionScale));
+
+        private static int GetSecondaryIconSectionWidth(int height)
+            => Math.Max(22, (int)Math.Round(height * SecondaryIconSectionScale));
+
+        private static int GetChevronAngle(int height)
+            => Math.Max(14, Math.Min(26, (int)Math.Round(height * ChevronAngleScale)));
+
+        private static int GetSeparatorWidth(int height)
+            => Math.Max(18, Math.Min(34, (int)Math.Round(height * SeparatorScale)));
+
+        private static int GetChevronOverlap(int height)
+            => Math.Max(9, Math.Min(16, (int)Math.Round(height * 0.30f)));
+
+        private static int GetIconTipAngle(int height)
+            => Math.Max(12, Math.Min(22, (int)Math.Round(height * 0.34f)));
 
         #endregion
     }

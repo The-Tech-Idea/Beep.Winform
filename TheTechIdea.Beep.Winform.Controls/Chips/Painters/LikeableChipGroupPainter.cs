@@ -6,9 +6,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 
@@ -22,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private readonly BeepImage _iconRenderer = new BeepImage();
         private readonly StringFormat _centerFormat = new StringFormat
         {
             Alignment = StringAlignment.Center,
@@ -56,8 +52,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             var textSize = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
 
             int extraWidth = 0;
-            // Heart icon always shown
-            extraWidth += DpiScalingHelper.ScaleValue(22, scale); // Heart icon space
+            // Heart selection indicator
+            if (options.ShowSelectionCheck)
+                extraWidth += DpiScalingHelper.ScaleValue(22, scale); // Heart icon space
             // Close button
             if (options.ShowCloseOnSelected)
                 extraWidth += DpiScalingHelper.ScaleValue(16, scale);
@@ -108,14 +105,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             int rightOffset = 0;
 
             // Heart icon (always on left)
-            int heartSize = Math.Min(contentRect.Height - 4, DpiScalingHelper.ScaleValue(18, scale));
-            var heartRect = new Rectangle(
-                contentRect.Left,
-                contentRect.Top + (contentRect.Height - heartSize) / 2,
-                heartSize, heartSize);
-
-            DrawHeart(g, heartRect, heartColor, state.IsSelected, scale);
-            leftOffset += heartSize + DpiScalingHelper.ScaleValue(8, scale);
+            if (options.ShowSelectionCheck)
+            {
+                int heartSize = Math.Min(contentRect.Height - 4, DpiScalingHelper.ScaleValue(18, scale));
+                var heartAnchorRect = new Rectangle(
+                    contentRect.Left,
+                    contentRect.Top,
+                    heartSize + DpiScalingHelper.ScaleValue(2, scale),
+                    contentRect.Height);
+                var heartRect = ChipIconHelpers.CalculateChipIconBounds(heartAnchorRect, options.Size, true);
+                var heartPath = ChipIconHelpers.GetChipIconPath("Heart", ChipIconHelpers.GetChipIconPath("Favorite"));
+                ChipIconHelpers.PaintIcon(
+                    g,
+                    heartRect,
+                    heartPath,
+                    heartColor,
+                    _theme,
+                    false,
+                    ChipVariant.Filled,
+                    state.Color,
+                    state.IsSelected,
+                    state.IsHovered,
+                    _owner.ControlStyle);
+                leftOffset += heartRect.Width + DpiScalingHelper.ScaleValue(8, scale);
+            }
 
             // Close button
             if (options.ShowCloseOnSelected && state.IsSelected)
@@ -149,67 +162,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
         }
 
         #region Private Helpers
-
-        private void DrawHeart(Graphics g, Rectangle rect, Color color, bool filled, float scale)
-        {
-            // Try to use SVG icon first
-            try
-            {
-                using var heartPath = CreateHeartPath(rect);
-                if (filled)
-                {
-                    using var brush = new SolidBrush(color);
-                    g.FillPath(brush, heartPath);
-                }
-                else
-                {
-                    using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale));
-                    g.DrawPath(pen, heartPath);
-                }
-            }
-            catch
-            {
-                // Fallback: draw simple heart shape
-                using var heartPath = CreateHeartPath(rect);
-                if (filled)
-                {
-                    using var brush = new SolidBrush(color);
-                    g.FillPath(brush, heartPath);
-                }
-                else
-                {
-                    using var pen = new Pen(color, DpiScalingHelper.ScaleValue(1.5f, scale));
-                    g.DrawPath(pen, heartPath);
-                }
-            }
-        }
-
-        private GraphicsPath CreateHeartPath(Rectangle rect)
-        {
-            var path = new GraphicsPath();
-            float cx = rect.X + rect.Width / 2f;
-            float cy = rect.Y + rect.Height / 2f;
-            float size = Math.Min(rect.Width, rect.Height);
-
-            // Heart shape using bezier curves
-            float w = size * 0.5f;
-            float h = size * 0.5f;
-
-            path.AddBezier(
-                cx, cy + h * 0.7f,           // Bottom point
-                cx - w, cy + h * 0.1f,       // Left control
-                cx - w, cy - h * 0.5f,       // Left top
-                cx, cy - h * 0.2f);          // Top center
-
-            path.AddBezier(
-                cx, cy - h * 0.2f,           // Top center
-                cx + w, cy - h * 0.5f,       // Right top
-                cx + w, cy + h * 0.1f,       // Right control
-                cx, cy + h * 0.7f);          // Bottom point
-
-            path.CloseFigure();
-            return path;
-        }
 
         private GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
         {

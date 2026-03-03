@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (GraphicsPath trackPath = CreateTrackPath())
             {
                 // Paint track (background) - uses BackgroundPainterFactory
-                _painter.PaintTrack(g, this, trackPath, currentState);
+               // _painter.PaintTrack(g, this, trackPath, currentState);
                 
                 // Paint thumb (toggle knob) - uses BorderPainterFactory
                 _painter.PaintThumb(g, this, _metrics.ThumbCurrentRect, currentState);

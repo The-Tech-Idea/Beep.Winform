@@ -17,6 +17,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             // Skip heavy operations in design mode
             if (DesignMode || !IsHandleCreated) return;
+            _layoutDirty = true;
+
+            // Prevent stale hover/focus state after item source changes.
+            _hitTestHelper.ResetInteractionState();
+
+            if (_disabledItems.Count > 0)
+            {
+                var existing = new HashSet<string>(_items.Where(i => !string.IsNullOrEmpty(i?.Text)).Select(i => i.Text));
+                _disabledItems.RemoveWhere(value => !existing.Contains(value));
+            }
             
             // Update helpers with new data
             _stateHelper.UpdateItems(_items);
@@ -37,14 +47,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 Size = totalSize;
             }
             
-            Invalidate();
+            RequestVisualRefresh();
         }
 
         private void UpdateLayout()
         {
+            if (!_layoutDirty)
+            {
+                return;
+            }
+
             if (_items == null || _items.Count == 0)
             {
                 _itemRectangles.Clear();
+                _layoutDirty = false;
                 return;
             }
 
@@ -60,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             
             // Apply alignment
             _layoutHelper.ApplyAlignment(_itemRectangles, containerRect);
+            _layoutDirty = false;
         }
 
         private void UpdateItemStates()
@@ -80,6 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 
                 _itemStates.Add(state);
             }
+
+            UpdateAccessibilityMetadata();
         }
 
         protected override void OnResize(EventArgs e)
@@ -88,10 +107,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             
             // Ensure DrawingRect is updated
             UpdateDrawingRect();
-            
+            _layoutDirty = true;
             UpdateLayout();
             _hitTestHelper.UpdateItems(_items, _itemRectangles);
-            Invalidate();
+            RequestVisualRefresh();
         }
 
         protected override void DrawContent(Graphics g)

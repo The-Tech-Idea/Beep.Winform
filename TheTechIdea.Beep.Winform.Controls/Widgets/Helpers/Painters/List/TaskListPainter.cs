@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
@@ -12,34 +14,99 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
     /// </summary>
     internal sealed class TaskListPainter : WidgetPainterBase
     {
-        private readonly List<Rectangle> _itemRects = new();
+        private readonly List<Rectangle> _itemRects    = new();
         private readonly List<Rectangle> _checkboxRects = new();
+
+        // Cached fonts — never created inside draw path
+        private Font? _titleFont;
+        private Font? _taskFont;
+        private Font? _taskDoneFont;
+
+        // Mouse-wheel scroll
+        private bool _wheelHooked;
+
+        // Layout constants (logical dp)
+        private const int ItemHeightDp   = 32;
+        private const int CheckSizeDp    = 12;
+        private const int CheckOffsetXDp = 8;
+        private const int TextOffsetXDp  = 28;
+        private const int PadDp          = 16;
+        private const int HeaderHeightDp = 24;
+
+        public override void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            base.Initialize(owner, theme);
+            HookMouseWheel();
+        }
+
+        private void HookMouseWheel()
+        {
+            if (_wheelHooked || Owner == null) return;
+            try { Owner.MouseWheel += OnMouseWheel; _wheelHooked = true; }
+            catch { }
+        }
+
+        private void OnMouseWheel(object? s, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (LastCtx == null) return;
+            int lineH = Dp(ItemHeightDp);
+            LastCtx.ScrollOffsetY = Math.Max(0,
+                Math.Min(LastCtx.ScrollOffsetY - e.Delta / 120 * lineH * 3,
+                         Math.Max(0, LastCtx.TotalContentHeight - LastCtx.ContentRect.Height)));
+            Owner?.Invalidate();
+        }
+
+        protected override void RebuildFonts()
+        {
+            _titleFont?.Dispose();
+            _taskFont?.Dispose();
+            _taskDoneFont?.Dispose();
+            var titleStyle    = Theme?.TaskCardTitleFont    ?? new TypographyStyle { FontSize = 11f, FontWeight = FontWeight.Bold };
+            var taskStyle     = Theme?.LabelSmall           ?? new TypographyStyle { FontSize = 9f };
+            var taskDoneStyle = Theme?.LabelSmall           ?? new TypographyStyle { FontSize = 9f };
+            if (taskDoneStyle == taskStyle) taskDoneStyle = new TypographyStyle { FontSize = taskStyle.FontSize, IsStrikeout = true };
+            _titleFont   = BeepThemesManager.ToFont(titleStyle,    applyDpiScaling: true);
+            _taskFont    = BeepThemesManager.ToFont(taskStyle,     applyDpiScaling: true);
+            _taskDoneFont = BeepThemesManager.ToFont(taskDoneStyle, applyDpiScaling: true);
+        }
+
+        private WidgetContext? LastCtx;
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 16;
+            LastCtx = ctx;
+            int pad = Dp(PadDp);
             var baseRect = Owner?.DrawingRect ?? drawingRect;
             ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
-            
-            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
-            ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 8, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
-            
-            // Precompute item and checkbox rects
+
+            int headerH = Dp(HeaderHeightDp);
+            ctx.HeaderRect  = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, headerH);
+            ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + Dp(8), ctx.DrawingRect.Width - pad * 2,
+                                            ctx.DrawingRect.Height - headerH - pad * 3);
+
+            // Pre-compute item and checkbox rects (virtual / non-scrolled positions)
             _itemRects.Clear();
             _checkboxRects.Clear();
+            int itemH = Dp(ItemHeightDp);
             var items = ctx.ListItems;
             if (items != null && items.Count > 0)
             {
-                int itemHeight = Math.Min(28, ctx.ContentRect.Height / Math.Max(items.Count, 1));
+                ctx.TotalContentHeight = items.Count * itemH;
                 for (int i = 0; i < items.Count; i++)
                 {
-                    int y = ctx.ContentRect.Y + i * itemHeight;
-                    var itemRect = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, itemHeight);
-                    _itemRects.Add(itemRect);
-                    _checkboxRects.Add(new Rectangle(itemRect.X + 8, y + itemHeight / 2 - 6, 12, 12));
+                    int y       = ctx.ContentRect.Y + i * itemH;  // unscrolled
+                    var iRect   = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, itemH);
+                    var chkRect = new Rectangle(iRect.X + Dp(CheckOffsetXDp), y + (itemH - Dp(CheckSizeDp)) / 2, Dp(CheckSizeDp), Dp(CheckSizeDp));
+                    _itemRects.Add(iRect);
+                    _checkboxRects.Add(chkRect);
                 }
             }
-            
+            else
+            {
+                ctx.TotalContentHeight = 0;
+            }
+            ctx.TotalContentWidth = 0;
+            ClampScrollOffset(ctx);
             return ctx;
         }
 
@@ -54,40 +121,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Draw title
-            if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
+            if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title) && _titleFont != null)
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
-                g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
+                using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
+                g.DrawString(ctx.Title, _titleFont, titleBrush, ctx.HeaderRect);
             }
-            
+
             // Draw task items
             var items = ctx.ListItems;
             if (items != null && items.Count > 0)
             {
-                DrawTaskItems(g, ctx.ContentRect, items);
+                var savedClip = g.Clip;
+                g.SetClip(ctx.ContentRect);
+                DrawTaskItems(g, ctx, items);
+                g.Clip = savedClip;
             }
         }
 
-        private void DrawTaskItems(Graphics g, Rectangle rect, List<ListItem> items)
+        private void DrawTaskItems(Graphics g, WidgetContext ctx, List<ListItem> items)
         {
             if (!items.Any()) return;
-            
-            int itemHeight = Math.Min(28, rect.Height / Math.Max(items.Count, 1));
-            using var taskFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            
+
+            int itemH    = Dp(ItemHeightDp);
+            int scroll   = ctx.ScrollOffsetY;
+            var primary  = Theme?.PrimaryColor ?? Color.Blue;
+
+            using var taskFmt = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
-                int y = rect.Y + i * itemHeight;
+                int y = (i < _itemRects.Count ? _itemRects[i].Y : ctx.ContentRect.Y + i * itemH) - scroll;
+                if (y + itemH < ctx.ContentRect.Y) continue;
+                if (y > ctx.ContentRect.Bottom) break;
 
-                var itemRect = _itemRects.Count > i ? _itemRects[i] : new Rectangle(rect.X, y, rect.Width, itemHeight);
-                var checkboxRect = _checkboxRects.Count > i ? _checkboxRects[i] : new Rectangle(itemRect.X + 8, y + itemHeight / 2 - 6, 12, 12);
+                var itemRect    = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width - (NeedsVerticalScroll(ctx) ? Dp(10) : 0), itemH);
+                var checkboxRect = new Rectangle(itemRect.X + Dp(CheckOffsetXDp), y + (itemH - Dp(CheckSizeDp)) / 2, Dp(CheckSizeDp), Dp(CheckSizeDp));
 
                 // Hover background
                 if (IsAreaHovered($"TaskList_Item_{i}"))
                 {
-                    using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+                    using var hover = new SolidBrush(Color.FromArgb(6, primary));
                     g.FillRectangle(hover, itemRect);
                 }
                 
@@ -96,45 +169,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 bool isCompleted = item is TaskItem taskItem && taskItem.IsCompleted;
                 using var checkboxPen = new Pen(Color.FromArgb(IsAreaHovered($"TaskList_Check_{i}") ? 200 : 150, Color.Gray), 1);
                 g.DrawRectangle(checkboxPen, checkboxRect);
-                
+
                 if (isCompleted)
                 {
-                    using var checkBrush = new SolidBrush(Color.Green);
-                    g.FillRectangle(checkBrush, Rectangle.Inflate(checkboxRect, -2, -2));
-                    using var checkPen = new Pen(Color.White, 2);
+                    using var checkBrush = new SolidBrush(Theme?.PrimaryColor ?? Color.Green);
+                    g.FillRectangle(checkBrush, Rectangle.Inflate(checkboxRect, -Dp(2), -Dp(2)));
+                    using var checkPen = new Pen(Color.White, 1.5f);
+                    int d = Dp(3);
                     g.DrawLines(checkPen, new Point[]
                     {
-                        new Point(checkboxRect.X + 3, checkboxRect.Y + 6),
-                        new Point(checkboxRect.X + 6, checkboxRect.Y + 9),
-                        new Point(checkboxRect.X + 10, checkboxRect.Y + 3)
+                        new Point(checkboxRect.X + d,     checkboxRect.Y + checkboxRect.Height / 2),
+                        new Point(checkboxRect.X + checkboxRect.Width / 2, checkboxRect.Bottom - d),
+                        new Point(checkboxRect.Right - d, checkboxRect.Y + d)
                     });
                 }
                 
                 // Task text
-                var taskRect = new Rectangle(itemRect.X + 28, y, itemRect.Width - 36, itemHeight);
+                var taskRect = new Rectangle(itemRect.X + Dp(TextOffsetXDp), y, itemRect.Width - Dp(TextOffsetXDp + 4), itemH);
                 if (!string.IsNullOrEmpty(item.Title))
                 {
-                    Color textColor = isCompleted ? Color.FromArgb(120, Color.Gray) : Color.FromArgb(180, Color.Black);
-                    FontStyle fontStyle = isCompleted ? FontStyle.Strikeout : FontStyle.Regular;
-                    using var taskTextFont = new Font(Owner.Font.FontFamily, 9f, fontStyle);
-                    using var taskBrush = new SolidBrush(textColor);
-                    var taskFormat = new StringFormat { LineAlignment = StringAlignment.Center };
-                    g.DrawString(item.Title, taskTextFont, taskBrush, taskRect, taskFormat);
+                    Color textColor = isCompleted ? Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray) : (Theme?.ForeColor ?? Color.Black);
+                    var font        = isCompleted ? _taskDoneFont : _taskFont;
+                    var taskBrush   = PaintersFactory.GetSolidBrush(textColor);
+                    if (font != null)
+                        g.DrawString(item.Title, font, taskBrush, taskRect, taskFmt);
                 }
             }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Checkbox hover stroke
-            for (int i = 0; i < _checkboxRects.Count; i++)
-            {
-                if (IsAreaHovered($"TaskList_Check_{i}"))
-                {
-                    using var pen = new Pen(Theme?.AccentColor ?? Color.Blue, 1.5f);
-                    g.DrawRectangle(pen, _checkboxRects[i]);
-                }
-            }
+            bool scrollHov = IsAreaHovered("TaskList_Scroll");
+            DrawVerticalScrollbar(g, ctx.ContentRect, ctx, scrollHov);
         }
 
         public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)

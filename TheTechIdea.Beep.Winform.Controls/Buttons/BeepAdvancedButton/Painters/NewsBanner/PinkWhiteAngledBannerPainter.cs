@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.NewsBanner
 {
@@ -11,13 +12,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
     /// </summary>
     public class PinkWhiteAngledBannerPainter : BaseButtonPainter
     {
+        private const float SectionPaddingScale = 0.50f;
+        private const float AngleScale = 0.45f;
+
         public override void Paint(AdvancedButtonPaintContext context)
         {
             Graphics g = context.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var metrics = GetMetrics(context);
             Rectangle bounds = context.Bounds;
 
             // Split text
@@ -26,8 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             string section2Text = parts[1]; // Lorem ipsum
 
             // Measure section 1
-            int section1Width = MeasureTextWidth(g, section1Text, context.Font) + 30;
-            int angleWidth = 30;
+            int sectionInset = Math.Max(8, (int)Math.Round(bounds.Height * 0.22f));
+            int section1Width = MeasureTextWidth(section1Text, context.TextFont) + Math.Max(18, (int)Math.Round(bounds.Height * SectionPaddingScale));
+            int angleWidth = Math.Max(12, Math.Min(26, (int)Math.Round(bounds.Height * AngleScale)));
 
             Color section1Color = context.SolidBackground != Color.Empty
                 ? context.SolidBackground
@@ -66,14 +70,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
 
             // Draw section 1 text
             Rectangle section1TextBounds = new Rectangle(
-                bounds.X + 10,
+                bounds.X + sectionInset,
                 bounds.Y,
-                section1Width - angleWidth - 10,
+                section1Width - angleWidth - sectionInset,
                 bounds.Height
             );
 
             using (Brush text1Brush = new SolidBrush(Color.White))
-            using (Font boldFont = new Font(context.Font, FontStyle.Bold))
+            using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -84,9 +88,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             // Draw "LIVE" badge if present
             float liveHeight = bounds.Height * 0.35f;
             Rectangle liveBounds = new Rectangle(
-                bounds.X + 10,
+                bounds.X + sectionInset,
                 bounds.Y + (int)(bounds.Height * 0.62),
-                60,
+                Math.Max(48, (int)Math.Round(bounds.Height * 1.50f)),
                 (int)liveHeight
             );
 
@@ -96,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             }
 
             using (Brush liveTextBrush = new SolidBrush(section1Color))
-            using (Font liveFont = new Font(context.Font.FontFamily, context.Font.Size * 0.65f, FontStyle.Bold))
+            using (Font liveFont = GetDerivedTextFont(context, sizeScale: 0.65f, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
@@ -108,9 +112,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             if (!string.IsNullOrEmpty(section2Text))
             {
                 Rectangle textBounds = new Rectangle(
-                    section2Bounds.X + metrics.PaddingHorizontal,
+                    section2Bounds.X + sectionInset,
                     section2Bounds.Y,
-                    section2Bounds.Width - metrics.PaddingHorizontal * 2,
+                    section2Bounds.Width - (sectionInset * 2),
                     section2Bounds.Height
                 );
 
@@ -120,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                     format.Alignment = StringAlignment.Near;
                     format.LineAlignment = StringAlignment.Center;
                     format.Trimming = StringTrimming.EllipsisCharacter;
-                    g.DrawString(section2Text, context.Font, textBrush, textBounds, format);
+                    g.DrawString(section2Text, context.TextFont, textBrush, textBounds, format);
                 }
             }
         }
@@ -139,12 +143,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             return new[] { text, "" };
         }
 
-        private int MeasureTextWidth(Graphics g, string text, Font font)
+        private int MeasureTextWidth(string text, Font font)
         {
             if (string.IsNullOrEmpty(text))
                 return 0;
-            SizeF size = g.MeasureString(text, new Font(font, FontStyle.Bold));
-            return (int)size.Width;
+            using Font boldFont = GetDerivedTextFont(font, styleOverride: FontStyle.Bold);
+            return BeepAdvancedButtonHelper.MeasureTextWidth(text, boldFont);
         }
     }
 }

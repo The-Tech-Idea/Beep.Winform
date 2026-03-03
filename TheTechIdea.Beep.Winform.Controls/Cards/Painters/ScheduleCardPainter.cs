@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -43,87 +44,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _timeFont?.Dispose(); } catch { }
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _locationFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _timeFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _titleFont = new Font(fontFamily, 11f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _locationFont = new Font(fontFamily, 8.5f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_timeFont = captionFont;
+            _titleFont = titleFont;
+            _descFont = bodyFont;
+            _locationFont = captionFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int timeBlockWidth = DpiScalingHelper.ScaleValue(TimeBlockWidth, _owner);
+            int timeBlockHeight = DpiScalingHelper.ScaleValue(TimeBlockHeight, _owner);
+            int accentBarWidth = DpiScalingHelper.ScaleValue(AccentBarWidth, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descHeight = DpiScalingHelper.ScaleValue(DescHeight, _owner);
+            int locationHeight = DpiScalingHelper.ScaleValue(LocationHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Accent bar on left
             ctx.StatusRect = new Rectangle(
                 drawingRect.Left,
                 drawingRect.Top,
-                AccentBarWidth,
+                accentBarWidth,
                 drawingRect.Height);
             
             // Time block (left side after accent)
             ctx.ImageRect = new Rectangle(
-                drawingRect.Left + AccentBarWidth + Padding,
-                drawingRect.Top + (drawingRect.Height - TimeBlockHeight) / 2,
-                TimeBlockWidth,
-                TimeBlockHeight);
+                drawingRect.Left + accentBarWidth + padding,
+                drawingRect.Top + (drawingRect.Height - timeBlockHeight) / 2,
+                timeBlockWidth,
+                timeBlockHeight);
             
-            int contentLeft = ctx.ImageRect.Right + ContentGap;
-            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - Padding;
+            int contentLeft = ctx.ImageRect.Right + contentGap;
+            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - padding;
             
             // Status badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
-                contentWidth -= BadgeWidth + ElementGap;
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
+                contentWidth -= badgeWidth + elementGap;
             }
             
             // Title
             ctx.HeaderRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + Padding,
+                drawingRect.Top + padding,
                 contentWidth,
-                TitleHeight);
+                titleHeight);
             
             // Description/attendees
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
-                contentWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
-                DescHeight);
+                ctx.HeaderRect.Bottom + elementGap / 2,
+                contentWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
+                descHeight);
             
             // Location with icon
             ctx.SubtitleRect = new Rectangle(
                 contentLeft,
-                ctx.ParagraphRect.Bottom + ElementGap,
-                contentWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
-                LocationHeight);
+                ctx.ParagraphRect.Bottom + elementGap,
+                contentWidth + (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
+                locationHeight);
             
             // Tags (labels, categories)
             if (ctx.Tags != null)
             {
                 ctx.TagsRect = new Rectangle(
                     contentLeft,
-                    drawingRect.Bottom - Padding - 20,
+                    drawingRect.Bottom - padding - DpiScalingHelper.ScaleValue(20, _owner),
                     contentWidth,
-                    20);
+                    DpiScalingHelper.ScaleValue(20, _owner));
             }
             
             ctx.ShowButton = false;
@@ -164,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             // Draw tags
             if (ctx.Tags != null && !ctx.TagsRect.IsEmpty)
             {
-                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags);
+                CardRenderingHelpers.DrawChips(g, _owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _locationFont);
             }
         }
         
@@ -277,14 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _timeFont?.Dispose();
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            _locationFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

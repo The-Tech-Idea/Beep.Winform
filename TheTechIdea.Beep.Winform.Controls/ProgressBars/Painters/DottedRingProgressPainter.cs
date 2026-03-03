@@ -18,10 +18,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             var rect = new Rectangle(bounds.X + pad, bounds.Y + pad, bounds.Width - pad*2, bounds.Height - pad*2);
             var center = new PointF(rect.X + rect.Width/2f, rect.Y + rect.Height/2f);
             float radius = Math.Min(rect.Width, rect.Height)/2f - 6;
-            float pct = Math.Max(0f, Math.Min(1f, owner.Value / (float)Math.Max(1, owner.Maximum)));
+            float pct = owner.DisplayProgressPercentageAccessor;
             int active = (int)(dots * pct + 0.5f);
             var on = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
-            var off = Color.FromArgb(100, theme.CardTextForeColor);
+            if (!owner.Enabled)
+            {
+                on = Color.FromArgb(120, on);
+            }
+            var off = Color.FromArgb(owner.Enabled ? 100 : 70, theme.CardTextForeColor);
             for (int i = 0; i < dots; i++)
             {
                 double angle = -Math.PI/2 + i * (2*Math.PI / dots);

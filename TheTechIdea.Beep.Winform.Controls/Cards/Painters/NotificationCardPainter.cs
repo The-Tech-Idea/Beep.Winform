@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
@@ -41,93 +42,95 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _messageFont?.Dispose(); } catch { }
-            try { _timeFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 10f, FontStyle.Bold);
-            _messageFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _timeFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_titleFont = titleFont;
+            _messageFont = bodyFont;
+            _timeFont = captionFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int unreadDotSize = DpiScalingHelper.ScaleValue(UnreadDotSize, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int messageHeight = DpiScalingHelper.ScaleValue(MessageHeight, _owner);
+            int timeHeight = DpiScalingHelper.ScaleValue(TimeHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Unread indicator dot (left edge)
             if (ctx.ShowStatus)
             {
                 ctx.StatusRect = new Rectangle(
-                    drawingRect.Left + (Padding - UnreadDotSize) / 2,
-                    drawingRect.Top + (drawingRect.Height - UnreadDotSize) / 2,
-                    UnreadDotSize,
-                    UnreadDotSize);
+                    drawingRect.Left + (padding - unreadDotSize) / 2,
+                    drawingRect.Top + (drawingRect.Height - unreadDotSize) / 2,
+                    unreadDotSize,
+                    unreadDotSize);
             }
             
-            int contentLeft = drawingRect.Left + Padding + (ctx.ShowStatus ? UnreadDotSize / 2 : 0);
+            int contentLeft = drawingRect.Left + padding + (ctx.ShowStatus ? unreadDotSize / 2 : 0);
             
             // Notification icon/avatar
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
                     contentLeft,
-                    drawingRect.Top + (drawingRect.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize);
-                contentLeft = ctx.ImageRect.Right + ContentGap;
+                    drawingRect.Top + (drawingRect.Height - iconSize) / 2,
+                    iconSize,
+                    iconSize);
+                contentLeft = ctx.ImageRect.Right + contentGap;
             }
             
-            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - Padding;
+            int contentWidth = drawingRect.Width - (contentLeft - drawingRect.Left) - padding;
             
             // Timestamp (top-right)
             ctx.SubtitleRect = new Rectangle(
-                drawingRect.Right - Padding - 60,
-                drawingRect.Top + Padding,
-                60,
-                TimeHeight);
+                drawingRect.Right - padding - DpiScalingHelper.ScaleValue(60, _owner),
+                drawingRect.Top + padding,
+                DpiScalingHelper.ScaleValue(60, _owner),
+                timeHeight);
             
             // Notification count badge (optional)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth,
-                    drawingRect.Bottom - Padding - BadgeHeight,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth,
+                    drawingRect.Bottom - padding - badgeHeight,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Title (sender/source)
             ctx.HeaderRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + Padding,
-                contentWidth - 70, // Leave room for timestamp
-                TitleHeight);
+                drawingRect.Top + padding,
+                contentWidth - DpiScalingHelper.ScaleValue(70, _owner), // Leave room for timestamp
+                titleHeight);
             
             // Message preview
-            int messageMaxHeight = Math.Max(MessageHeight, 
-                drawingRect.Height - Padding * 2 - TitleHeight - TimeHeight - ElementGap * 2);
+            int messageMaxHeight = Math.Max(messageHeight, 
+                drawingRect.Height - padding * 2 - titleHeight - timeHeight - elementGap * 2);
             
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                ctx.HeaderRect.Bottom + elementGap / 2,
                 contentWidth,
                 messageMaxHeight);
             
             // Action time at bottom
             ctx.RatingRect = new Rectangle(
                 contentLeft,
-                drawingRect.Bottom - Padding - TimeHeight,
-                contentWidth - (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
-                TimeHeight);
+                drawingRect.Bottom - padding - timeHeight,
+                contentWidth - (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : badgeWidth + elementGap),
+                timeHeight);
             
             ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
@@ -197,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             g.FillEllipse(bgBrush, ctx.ImageRect);
             
             // Draw icon border
-            using var borderPen = new Pen(Color.FromArgb(50, ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor), 2);
+            using var borderPen = new Pen(Color.FromArgb(50, ctx.StatusColor != Color.Empty ? ctx.StatusColor : ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
             g.DrawEllipse(borderPen, ctx.ImageRect);
         }
         
@@ -224,13 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _messageFont?.Dispose();
-            _timeFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

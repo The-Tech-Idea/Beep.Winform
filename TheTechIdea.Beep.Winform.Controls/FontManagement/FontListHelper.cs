@@ -304,7 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to load font file {file}: {ex.Message}");
+                      //  Console.WriteLine($"Failed to load font file {file}: {ex.Message}");
                     }
                 }
             }
@@ -326,6 +326,17 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             public bool IncludeFrameworkAssemblies { get; set; } = false;
             public bool IncludeReferencedAssemblies { get; set; } = true;
             public int MaxReferenceDepth { get; set; } = 2;
+            /// <summary>Extra assemblies to scan beyond the AppDomain + BFS walk.</summary>
+            public IList<Assembly> AdditionalAssemblies { get; set; }
+            /// <summary>Extra namespace roots merged with <see cref="Namespaces"/>.</summary>
+            public IList<string> AdditionalNamespaces { get; set; }
+            /// <summary>
+            /// When true, assemblies are automatically included if any embedded resource
+            /// has a namespace prefix ending with ".Fonts", regardless of the namespace filter.
+            /// Default is <c>false</c> so the lazy / design-time scan path has no extra overhead;
+            /// set to <c>true</c> explicitly in <see cref="BeepFontManager.Initialize"/>.
+            /// </summary>
+            public bool UseConventionDiscovery { get; set; } = false;
         }
 
         /// <summary>
@@ -370,6 +381,15 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 TryAddAssembly(asm);
             }
 
+            // Registry-registered assemblies (always included regardless of other filters)
+            foreach (var asm in BeepFontRegistry.GetRegisteredAssemblies())
+                TryAddAssembly(asm);
+
+            // Explicitly provided additional assemblies
+            if (options.AdditionalAssemblies != null)
+                foreach (var asm in options.AdditionalAssemblies)
+                    TryAddAssembly(asm);
+
             if (options.IncludeReferencedAssemblies && options.MaxReferenceDepth > 0)
             {
                 int depth = 0;
@@ -403,18 +423,42 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 }
             }
 
+            // Build effective namespace filter (merged from all sources)
+            var effectiveNamespaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (options.Namespaces != null)
+                foreach (var ns in options.Namespaces)
+                    if (!string.IsNullOrWhiteSpace(ns)) effectiveNamespaces.Add(ns);
+            if (options.AdditionalNamespaces != null)
+                foreach (var ns in options.AdditionalNamespaces)
+                    if (!string.IsNullOrWhiteSpace(ns)) effectiveNamespaces.Add(ns);
+            foreach (var ns in BeepFontRegistry.GetRegisteredNamespaces())
+                effectiveNamespaces.Add(ns);
+
+            // Pre-compute assemblies that match the ".Fonts" convention (bypass namespace filter)
+            var conventionAssemblies = new HashSet<Assembly>();
+            if (options.UseConventionDiscovery)
+            {
+                foreach (var asm in assemblySet)
+                {
+                    if (BeepFontRegistry.HasConventionFontResource(asm))
+                        conventionAssemblies.Add(asm);
+                }
+            }
+
             foreach (Assembly assembly in assemblySet)
             {
                 string[] resources;
                 try { resources = assembly.GetManifestResourceNames(); }
                 catch { continue; }
 
+                bool isConventionAssembly = conventionAssemblies.Contains(assembly);
+
                 foreach (string resource in resources)
                 {
-                    // Check if resource matches namespace filter if provided
-                    if (options.Namespaces != null && options.Namespaces.Length > 0)
+                    // Apply namespace filter unless the assembly qualifies via convention discovery
+                    if (!isConventionAssembly && effectiveNamespaces.Count > 0)
                     {
-                        if (!options.Namespaces.Any(ns => resource.IndexOf(ns, StringComparison.OrdinalIgnoreCase) >= 0))
+                        if (!effectiveNamespaces.Any(ns => resource.IndexOf(ns, StringComparison.OrdinalIgnoreCase) >= 0))
                             continue;
                     }
 
@@ -472,7 +516,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to load embedded font resource {resource}: {ex.Message}");
+                      //  Console.WriteLine($"Failed to load embedded font resource {resource}: {ex.Message}");
                     }
                 }
             }
@@ -505,6 +549,17 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             public bool IncludeReferencedAssemblies { get; set; } = true;
             public int MaxReferenceDepth { get; set; } = 2;
             public bool ScanSystemFonts { get; set; } = true;
+            /// <summary>Extra assemblies to scan for embedded fonts.</summary>
+            public IList<Assembly> AdditionalAssemblies { get; set; }
+            /// <summary>Extra namespace roots beyond <see cref="EmbeddedNamespaces"/>.</summary>
+            public IList<string> AdditionalNamespaces { get; set; }
+            /// <summary>
+            /// When true, assemblies are automatically included if any embedded resource
+            /// has a namespace prefix ending in ".Fonts".
+            /// Default is <c>false</c> so the lazy / design-time path has no extra overhead.
+            /// Set explicitly to <c>true</c> in <see cref="BeepFontManager.Initialize"/>.
+            /// </summary>
+            public bool UseConventionDiscovery { get; set; } = false;
         }
 
         /// <summary>
@@ -517,19 +572,33 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (options.ScanSystemFonts)
                 GetSystemFonts();
 
-            // folders
-            foreach (var dir in options.Directories.Distinct().Where(d => !string.IsNullOrWhiteSpace(d)))
+            // folders — include registry-registered directories too
+            var allDirs = (options.Directories ?? new List<string>())
+                .Concat(BeepFontRegistry.GetRegisteredDirectories())
+                .Distinct()
+                .Where(d => !string.IsNullOrWhiteSpace(d));
+            foreach (var dir in allDirs)
             {
                 try { GetFontFilesLocations(dir); } catch { /* ignore */ }
             }
 
-            // embedded
+            // embedded — merge registry namespaces and assemblies into EmbeddedScanOptions
+            var embNamespaces = (options.EmbeddedNamespaces ?? Array.Empty<string>())
+                .Concat(BeepFontRegistry.GetRegisteredNamespaces())
+                .ToArray();
+            var embAssemblies = new List<Assembly>(BeepFontRegistry.GetRegisteredAssemblies());
+            if (options.AdditionalAssemblies != null)
+                embAssemblies.AddRange(options.AdditionalAssemblies);
+
             var emb = new EmbeddedScanOptions
             {
-                Namespaces = options.EmbeddedNamespaces ?? Array.Empty<string>(),
+                Namespaces = embNamespaces,
                 IncludeFrameworkAssemblies = options.IncludeFrameworkAssemblies,
                 IncludeReferencedAssemblies = options.IncludeReferencedAssemblies,
-                MaxReferenceDepth = options.MaxReferenceDepth
+                MaxReferenceDepth = options.MaxReferenceDepth,
+                AdditionalAssemblies = embAssemblies,
+                AdditionalNamespaces = options.AdditionalNamespaces,
+                UseConventionDiscovery = options.UseConventionDiscovery
             };
             GetFontResourcesFromEmbedded(emb);
 
@@ -548,6 +617,118 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
             LoadAllFonts(options);
             _fontsLoaded = true;
+        }
+
+        /// <summary>
+        /// Incrementally scans a single assembly for embedded font resources and appends any
+        /// newly discovered fonts to <see cref="FontConfigurations"/>.
+        /// Evicts related entries from the font cache so subsequent <see cref="GetFont"/> calls
+        /// pick up the new fonts immediately.
+        /// This is an O(resources-in-assembly) operation — it does NOT trigger a full reload.
+        /// </summary>
+        /// <param name="assembly">Assembly to scan. Null is silently ignored.</param>
+        public static void RegisterAndLoad(Assembly assembly)
+        {
+            if (assembly == null || assembly.IsDynamic) return;
+
+            var emb = new EmbeddedScanOptions
+            {
+                Namespaces = Array.Empty<string>(),   // accept all font resources from this assembly
+                AdditionalAssemblies = new List<Assembly> { assembly },
+                UseConventionDiscovery = false,        // explicit — include everything font-shaped
+                IncludeReferencedAssemblies = false,   // don't BFS from a single new assembly
+                IncludeFrameworkAssemblies = false
+            };
+
+            // Use a scoped version that scans only the provided assembly
+            var result = GetFontResourcesFromSingleAssembly(assembly);
+
+            if (result.Count > 0)
+            {
+                // Evict cache entries that might have been populated with null fallbacks
+                lock (fontCacheLock)
+                {
+                    var keysToRemove = fontCache.Keys
+                        .Where(k => result.Any(cfg =>
+                            k.StartsWith(cfg.Name + "|", StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
+                    foreach (var key in keysToRemove)
+                        fontCache.Remove(key);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Scans a single assembly for embedded .ttf/.otf resources without a namespace filter.
+        /// Adds new entries to <see cref="FontConfigurations"/> and loads them into the private
+        /// font collection.
+        /// </summary>
+        private static List<FontConfiguration> GetFontResourcesFromSingleAssembly(Assembly assembly)
+        {
+            var result = new List<FontConfiguration>();
+            if (assembly == null || assembly.IsDynamic) return result;
+
+            string[] resources;
+            try { resources = assembly.GetManifestResourceNames(); }
+            catch { return result; }
+
+            foreach (string resource in resources)
+            {
+                string extension = Path.GetExtension(resource)?.ToLowerInvariant();
+                if (extension != ".ttf" && extension != ".otf" && extension != ".ttc" &&
+                    extension != ".woff" && extension != ".woff2")
+                    continue;
+
+                bool alreadyInList = FontConfigurations.Any(
+                    cfg => string.Equals(cfg.Path, resource, StringComparison.OrdinalIgnoreCase)
+                           && string.Equals(cfg.AssemblyFullName, assembly.FullName, StringComparison.OrdinalIgnoreCase));
+                if (alreadyInList) continue;
+
+                try
+                {
+                    using (Stream fontStream = assembly.GetManifestResourceStream(resource))
+                    {
+                        if (fontStream == null) continue;
+                        byte[] fontData = new byte[fontStream.Length];
+                        fontStream.Read(fontData, 0, fontData.Length);
+
+                        IntPtr ptr = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
+                        System.Runtime.InteropServices.Marshal.Copy(fontData, 0, ptr, fontData.Length);
+                        privateFontCollection.AddMemoryFont(ptr, fontData.Length);
+                        System.Runtime.InteropServices.Marshal.FreeCoTaskMem(ptr);
+
+                        int lastIndex = privateFontCollection.Families.Length - 1;
+                        var family = lastIndex >= 0 ? privateFontCollection.Families[lastIndex] : null;
+                        string fontName = family?.Name ?? BeepFontPaths.ExtractFontNameFromPath(resource);
+
+                        var config = new FontConfiguration
+                        {
+                            Index = ++index,
+                            Name = fontName,
+                            Path = resource,
+                            FileName = System.IO.Path.GetFileName(resource),
+                            IsSystemFont = false,
+                            IsPrivateFont = true,
+                            IsEmbeddedResource = true,
+                            AssemblyFullName = assembly.FullName,
+                            AssemblyLocation = SafeGetAssemblyLocation(assembly),
+                            PrivateFontIndex = lastIndex,
+                            StylesAvailable = family != null ? GetAvailableStyles(family) : new List<FontStyle>()
+                        };
+
+                        result.Add(config);
+                    }
+                }
+                catch (Exception ex)
+                {
+                  //  Console.WriteLine($"RegisterAndLoad: failed to load {resource}: {ex.Message}");
+                }
+            }
+
+            if (result.Count > 0)
+                FontConfigurations.AddRange(result);
+
+            return result;
         }
         #endregion
 

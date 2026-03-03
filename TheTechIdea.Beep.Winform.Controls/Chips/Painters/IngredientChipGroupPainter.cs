@@ -6,9 +6,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 
@@ -22,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
     {
         private BaseControl _owner;
         private IBeepTheme _theme;
-        private readonly BeepImage _iconRenderer = new BeepImage();
         private readonly StringFormat _centerFormat = new StringFormat
         {
             Alignment = StringAlignment.Center,
@@ -58,9 +54,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             int extraWidth = 0;
             // Checkbox/checkmark space
-            extraWidth += DpiScalingHelper.ScaleValue(24, scale);
+            if (options.ShowSelectionCheck)
+                extraWidth += DpiScalingHelper.ScaleValue(24, scale);
             // Optional icon
-            if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
                 extraWidth += DpiScalingHelper.ScaleSize(options.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(6, scale);
             // Close button
             if (options.ShowCloseOnSelected)
@@ -106,36 +103,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             int rightOffset = 0;
 
             // Checkbox/Checkmark circle
-            int checkSize = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(18, scale));
-            var checkRect = new Rectangle(
-                contentRect.Left,
-                contentRect.Top + (contentRect.Height - checkSize) / 2,
-                checkSize, checkSize);
+            if (options.ShowSelectionCheck)
+            {
+                int checkSize = Math.Min(contentRect.Height - 6, DpiScalingHelper.ScaleValue(18, scale));
+                var checkRect = new Rectangle(
+                    contentRect.Left,
+                    contentRect.Top + (contentRect.Height - checkSize) / 2,
+                    checkSize, checkSize);
 
-            DrawCheckCircle(g, checkRect, checkColor, state.IsSelected, scale);
-            leftOffset += checkSize + DpiScalingHelper.ScaleValue(8, scale);
+                DrawCheckCircle(g, checkRect, checkColor, state.IsSelected, scale);
+                leftOffset += checkSize + DpiScalingHelper.ScaleValue(8, scale);
+            }
 
             // Leading icon (optional, like ingredient icon)
-            if (options.ShowIcon && !string.IsNullOrEmpty(item?.ImagePath))
+            if (options.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
             {
                 var iconSize = DpiScalingHelper.ScaleSize(options.IconMaxSize, scale);
-                var iconRect = new Rectangle(
+                var iconAnchorRect = new Rectangle(
                     contentRect.Left + leftOffset,
-                    contentRect.Top + (contentRect.Height - iconSize.Height) / 2,
-                    iconSize.Width, iconSize.Height);
-
-                try
-                {
-                    using var iconPath = new GraphicsPath();
-                    iconPath.AddRectangle(iconRect);
-                    StyledImagePainter.PaintWithTint(g, iconPath, item.ImagePath, fgColor, 1f);
-                }
-                catch
-                {
-                    _iconRenderer.ImagePath = item.ImagePath;
-                    _iconRenderer.Draw(g, iconRect);
-                }
-                leftOffset += iconSize.Width + DpiScalingHelper.ScaleValue(6, scale);
+                    contentRect.Top,
+                    iconSize.Width + DpiScalingHelper.ScaleValue(2, scale),
+                    contentRect.Height);
+                var iconRect = ChipIconHelpers.CalculateChipIconBounds(iconAnchorRect, options.Size, true);
+                ChipIconHelpers.PaintIcon(
+                    g,
+                    iconRect,
+                    item.ImagePath,
+                    fgColor,
+                    options.Theme ?? _theme,
+                    false,
+                    ChipVariant.Filled,
+                    state.Color,
+                    state.IsSelected,
+                    state.IsHovered,
+                    _owner.ControlStyle);
+                leftOffset += iconRect.Width + DpiScalingHelper.ScaleValue(6, scale);
             }
 
             // Close button

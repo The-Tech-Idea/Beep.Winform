@@ -40,5 +40,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         /// Get whether this Style supports checkboxes
         /// </summary>
         bool SupportsCheckboxes();
+
+        /// <summary>
+        /// Return the preferred height for a specific item.
+        /// Called when AutoItemHeight = true (non-uniform rows).
+        /// When AutoItemHeight = false the list uses GetPreferredItemHeight() for all rows.
+        /// Default implementation: return GetPreferredItemHeight().
+        /// </summary>
+        int GetItemHeight(BeepListBox owner, object item);
+
+        /// <summary>
+        /// Paint a single group-header row (called by drawing layer when ShowGroups = true).
+        /// </summary>
+        void DrawGroupHeader(Graphics g, BeepListBox owner, Rectangle headerRect,
+                             string groupKey, bool isCollapsed, int itemCount);
     }
 }

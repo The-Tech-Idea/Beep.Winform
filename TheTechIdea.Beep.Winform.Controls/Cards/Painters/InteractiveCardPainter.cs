@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -44,70 +45,72 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         #region ICardPainter Implementation
         
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public void Initialize(BaseControl owner, IBeepTheme theme, Font titleFont, Font bodyFont, Font captionFont)
         {
             _owner = owner;
             _theme = theme;
-            
-            var fontFamily = owner?.Font?.FontFamily ?? FontFamily.GenericSansSerif;
-            
-            try { _titleFont?.Dispose(); } catch { }
-            try { _descFont?.Dispose(); } catch { }
-            try { _metaFont?.Dispose(); } catch { }
-            try { _statsFont?.Dispose(); } catch { }
-            try { _badgeFont?.Dispose(); } catch { }
-            
-            _titleFont = new Font(fontFamily, 12f, FontStyle.Bold);
-            _descFont = new Font(fontFamily, 9f, FontStyle.Regular);
-            _metaFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _statsFont = new Font(fontFamily, 8f, FontStyle.Regular);
-            _badgeFont = new Font(fontFamily, 8f, FontStyle.Bold);
+_titleFont = titleFont;
+            _descFont = bodyFont;
+            _metaFont = captionFont;
+            _statsFont = captionFont;
+            _badgeFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
             ctx.DrawingRect = drawingRect;
+            int padding = DpiScalingHelper.ScaleValue(Padding, _owner);
+            int iconSize = DpiScalingHelper.ScaleValue(IconSize, _owner);
+            int titleHeight = DpiScalingHelper.ScaleValue(TitleHeight, _owner);
+            int descMinHeight = DpiScalingHelper.ScaleValue(DescMinHeight, _owner);
+            int metaHeight = DpiScalingHelper.ScaleValue(MetaHeight, _owner);
+            int badgeWidth = DpiScalingHelper.ScaleValue(BadgeWidth, _owner);
+            int badgeHeight = DpiScalingHelper.ScaleValue(BadgeHeight, _owner);
+            int buttonHeight = DpiScalingHelper.ScaleValue(ButtonHeight, _owner);
+            int chevronSize = DpiScalingHelper.ScaleValue(ChevronSize, _owner);
+            int elementGap = DpiScalingHelper.ScaleValue(ElementGap, _owner);
+            int contentGap = DpiScalingHelper.ScaleValue(ContentGap, _owner);
             
             // Icon or thumbnail (left side)
             if (ctx.ShowImage)
             {
                 ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    drawingRect.Top + Padding,
-                    IconSize,
-                    IconSize);
+                    drawingRect.Left + padding,
+                    drawingRect.Top + padding,
+                    iconSize,
+                    iconSize);
             }
             
             // Content area (right of icon)
-            int contentLeft = drawingRect.Left + Padding + (ctx.ShowImage ? IconSize + ContentGap : 0);
-            int contentWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? IconSize + ContentGap : 0) - ChevronSize - ElementGap;
+            int contentLeft = drawingRect.Left + padding + (ctx.ShowImage ? iconSize + contentGap : 0);
+            int contentWidth = drawingRect.Width - padding * 2 - (ctx.ShowImage ? iconSize + contentGap : 0) - chevronSize - elementGap;
             
             // Title
             ctx.HeaderRect = new Rectangle(
                 contentLeft,
-                drawingRect.Top + Padding,
-                contentWidth - BadgeWidth - ElementGap,
-                TitleHeight);
+                drawingRect.Top + padding,
+                contentWidth - badgeWidth - elementGap,
+                titleHeight);
             
             // Status badge (top-right)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
-                    drawingRect.Right - Padding - BadgeWidth - ChevronSize - ElementGap,
-                    drawingRect.Top + Padding,
-                    BadgeWidth,
-                    BadgeHeight);
+                    drawingRect.Right - padding - badgeWidth - chevronSize - elementGap,
+                    drawingRect.Top + padding,
+                    badgeWidth,
+                    badgeHeight);
             }
             
             // Description
-            int descHeight = Math.Max(DescMinHeight,
-                drawingRect.Height - (ctx.HeaderRect.Bottom - drawingRect.Top + ElementGap) - Padding * 2 - 
-                (ctx.ShowButton ? ButtonHeight + ElementGap : 0) - 
-                (!string.IsNullOrEmpty(ctx.SubtitleText) || ctx.ShowRating ? MetaHeight + ElementGap : 0));
+            int descHeight = Math.Max(descMinHeight,
+                drawingRect.Height - (ctx.HeaderRect.Bottom - drawingRect.Top + elementGap) - padding * 2 - 
+                (ctx.ShowButton ? buttonHeight + elementGap : 0) - 
+                (!string.IsNullOrEmpty(ctx.SubtitleText) || ctx.ShowRating ? metaHeight + elementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap,
+                ctx.HeaderRect.Bottom + elementGap,
                 contentWidth,
                 descHeight);
             
@@ -116,32 +119,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             {
                 ctx.SubtitleRect = new Rectangle(
                     contentLeft,
-                    ctx.ParagraphRect.Bottom + ElementGap,
+                    ctx.ParagraphRect.Bottom + elementGap,
                     contentWidth / 2,
-                    MetaHeight);
+                    metaHeight);
                 
                 // Stats area (downloads, views, etc.)
                 ctx.RatingRect = new Rectangle(
-                    ctx.SubtitleRect.Right + ElementGap,
+                    ctx.SubtitleRect.Right + elementGap,
                     ctx.SubtitleRect.Top,
-                    contentWidth - ctx.SubtitleRect.Width - ElementGap,
-                    MetaHeight);
+                    contentWidth - ctx.SubtitleRect.Width - elementGap,
+                    metaHeight);
             }
             
             // Action buttons
             if (ctx.ShowButton)
             {
-                int buttonTop = drawingRect.Bottom - Padding - ButtonHeight;
+                int buttonTop = drawingRect.Bottom - padding - buttonHeight;
                 
                 if (ctx.ShowSecondaryButton)
                 {
-                    int buttonWidth = (contentWidth - Padding) / 2;
-                    ctx.ButtonRect = new Rectangle(contentLeft, buttonTop, buttonWidth, ButtonHeight);
-                    ctx.SecondaryButtonRect = new Rectangle(ctx.ButtonRect.Right + Padding, buttonTop, buttonWidth, ButtonHeight);
+                    int buttonWidth = (contentWidth - padding) / 2;
+                    ctx.ButtonRect = new Rectangle(contentLeft, buttonTop, buttonWidth, buttonHeight);
+                    ctx.SecondaryButtonRect = new Rectangle(ctx.ButtonRect.Right + padding, buttonTop, buttonWidth, buttonHeight);
                 }
                 else
                 {
-                    ctx.ButtonRect = new Rectangle(contentLeft, buttonTop, contentWidth, ButtonHeight);
+                    ctx.ButtonRect = new Rectangle(contentLeft, buttonTop, contentWidth, buttonHeight);
                 }
             }
             
@@ -182,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
                 using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
                 g.FillPath(bgBrush, bgPath);
                 
-                using var borderPen = new Pen(Color.FromArgb(50, ctx.AccentColor), 2);
+                using var borderPen = new Pen(Color.FromArgb(50, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawPath(borderPen, bgPath);
             }
             
@@ -212,16 +215,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         private void DrawChevron(Graphics g, LayoutContext ctx)
         {
-            int chevronX = ctx.DrawingRect.Right - Padding - ChevronSize / 2;
-            int chevronY = ctx.DrawingRect.Top + (ctx.DrawingRect.Height - ChevronSize) / 2;
+            int chevronSize = DpiScalingHelper.ScaleValue(ChevronSize, _owner);
+            int chevronX = ctx.DrawingRect.Right - DpiScalingHelper.ScaleValue(Padding, _owner) - chevronSize / 2;
+            int chevronY = ctx.DrawingRect.Top + (ctx.DrawingRect.Height - chevronSize) / 2;
             
-            using var pen = new Pen(Color.FromArgb(70, ctx.AccentColor), 2);
+            using var pen = new Pen(Color.FromArgb(70, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
             
             // Draw right-pointing chevron
-            g.DrawLine(pen, chevronX - 4, chevronY + 4, chevronX + 2, chevronY + ChevronSize / 2);
-            g.DrawLine(pen, chevronX + 2, chevronY + ChevronSize / 2, chevronX - 4, chevronY + ChevronSize - 4);
+            g.DrawLine(pen, chevronX - DpiScalingHelper.ScaleValue(4, _owner), chevronY + DpiScalingHelper.ScaleValue(4, _owner), chevronX + DpiScalingHelper.ScaleValue(2, _owner), chevronY + chevronSize / 2);
+            g.DrawLine(pen, chevronX + DpiScalingHelper.ScaleValue(2, _owner), chevronY + chevronSize / 2, chevronX - DpiScalingHelper.ScaleValue(4, _owner), chevronY + chevronSize - DpiScalingHelper.ScaleValue(4, _owner));
         }
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
@@ -246,14 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         public void Dispose()
         {
             if (_disposed) return;
-            
-            _titleFont?.Dispose();
-            _descFont?.Dispose();
-            _metaFont?.Dispose();
-            _statsFont?.Dispose();
-            _badgeFont?.Dispose();
-            
-            _disposed = true;
+_disposed = true;
         }
         
         #endregion

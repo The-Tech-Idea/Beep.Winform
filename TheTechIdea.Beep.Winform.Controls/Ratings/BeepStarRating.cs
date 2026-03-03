@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -5,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Ratings.Painters;
 using TheTechIdea.Beep.Winform.Controls.Ratings;
 using TheTechIdea.Beep.Winform.Controls.Ratings.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Ratings.Models;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -76,6 +78,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<int, Rectangle> _starRectCache = new Dictionary<int, Rectangle>();
         private Dictionary<string, SizeF> _textMeasurementCache = new Dictionary<string, SizeF>();
         private (int startX, int startY, int starSize)? _cachedStarLayout = null;
+
+        // ── Sprint 4 backing fields ────────────────────────────────────────────
+        private RatingSizeVariant _sizeVariant   = RatingSizeVariant.MD;
+        private RatingLayoutMode  _layoutMode    = RatingLayoutMode.Horizontal;
+        private bool  _useColorGrade  = false;
+        private bool  _isRightToLeft  = false;
+        private Color _colorGradeStart = Color.FromArgb(244, 67,  54);  // Material Red
+        private Color _colorGradeEnd   = Color.FromArgb(76,  175, 80);  // Material Green
+        private bool  _showHistogram   = false;
+        private RatingHistogramData   _histogramData;
+        private List<RatingCategory>  _categories = new List<RatingCategory>();
+        private RatingMode            _ratingMode = RatingMode.Stars;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -611,6 +625,115 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        // ── Sprint 4 properties ───────────────────────────────────────────────
+
+        [Category("Appearance")]
+        [Description("T-shirt size variant that controls the star pixel size.")]
+        [DefaultValue(RatingSizeVariant.MD)]
+        public RatingSizeVariant SizeVariant
+        {
+            get => _sizeVariant;
+            set
+            {
+                if (_sizeVariant != value)
+                {
+                    _sizeVariant = value;
+                    _starSize = (int)value;
+                    InvalidateLayoutCache();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Layout orientation of the rating symbols.")]
+        [DefaultValue(RatingLayoutMode.Horizontal)]
+        public RatingLayoutMode LayoutMode
+        {
+            get => _layoutMode;
+            set { _layoutMode = value; InvalidateLayoutCache(); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Transition the filled color from red (1★) to green (N★) when enabled.")]
+        [DefaultValue(false)]
+        public bool UseColorGrade
+        {
+            get => _useColorGrade;
+            set { _useColorGrade = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Starting color for the low end of the color grade (1★).")]
+        public Color ColorGradeStart
+        {
+            get => _colorGradeStart;
+            set { _colorGradeStart = value; if (_useColorGrade) Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Ending color for the high end of the color grade (N★).")]
+        public Color ColorGradeEnd
+        {
+            get => _colorGradeEnd;
+            set { _colorGradeEnd = value; if (_useColorGrade) Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Mirror the control layout for right-to-left locales.")]
+        [DefaultValue(false)]
+        public bool IsRightToLeft
+        {
+            get => _isRightToLeft;
+            set { _isRightToLeft = value; InvalidateLayoutCache(); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Display a vote distribution histogram alongside the stars.")]
+        [DefaultValue(false)]
+        public bool ShowHistogram
+        {
+            get => _showHistogram;
+            set { _showHistogram = value; Invalidate(); }
+        }
+
+        [Category("Rating")]
+        [Description("Vote distribution data for the histogram painter.")]
+        public RatingHistogramData HistogramData
+        {
+            get => _histogramData;
+            set { _histogramData = value; if (_showHistogram) Invalidate(); }
+        }
+
+        [Category("Rating")]
+        [Description("Multi-category ratings collection (e.g. Speed, Quality, Support).")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<RatingCategory> Categories
+        {
+            get => _categories;
+            set { _categories = value ?? new List<RatingCategory>(); Invalidate(); }
+        }
+
+        [Category("Rating")]
+        [Description("High-level rating mode: Stars or NPS numeric scale.")]
+        [DefaultValue(RatingMode.Stars)]
+        public RatingMode RatingMode
+        {
+            get => _ratingMode;
+            set
+            {
+                if (_ratingMode != value)
+                {
+                    _ratingMode = value;
+                    if (value == RatingMode.NPS && _ratingStyle != RatingStyle.NumericScale)
+                        RatingStyle = RatingStyle.NumericScale;
+                    else if (value == RatingMode.Stars && _ratingStyle == RatingStyle.NumericScale)
+                        RatingStyle = RatingStyle.ClassicStar;
+                    Invalidate();
+                }
+            }
+        }
+
         // Events
         public event EventHandler RatingChanged;
         public event EventHandler<RatingSubmittedEventArgs> RatingSubmitted;
@@ -1050,7 +1173,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = _currentTheme,
                 UseThemeColors = UseThemeColors,
                 ControlStyle = ControlStyle,
-                RatingStyle = _ratingStyle
+                RatingStyle = _ratingStyle,
+                // Sprint 4 additions
+                SizeVariant     = _sizeVariant,
+                LayoutMode      = _layoutMode,
+                IsRightToLeft   = _isRightToLeft,
+                UseColorGrade   = _useColorGrade,
+                ColorGradeStart = _colorGradeStart,
+                ColorGradeEnd   = _colorGradeEnd,
+                HistogramData   = _histogramData,
+                Categories      = _categories?.Count > 0 ? _categories.AsReadOnly() : null
             };
 
             // Delegate to painter
@@ -1397,7 +1529,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = _currentTheme,
                 UseThemeColors = UseThemeColors,
                 ControlStyle = ControlStyle,
-                RatingStyle = _ratingStyle
+                RatingStyle = _ratingStyle,
+                // Sprint 4 additions
+                SizeVariant     = _sizeVariant,
+                LayoutMode      = _layoutMode,
+                IsRightToLeft   = _isRightToLeft,
+                UseColorGrade   = _useColorGrade,
+                ColorGradeStart = _colorGradeStart,
+                ColorGradeEnd   = _colorGradeEnd,
+                HistogramData   = _histogramData,
+                Categories      = _categories?.Count > 0 ? _categories.AsReadOnly() : null
             };
         }
         #endregion

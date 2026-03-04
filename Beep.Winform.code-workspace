@@ -32,6 +32,9 @@
 		},
 		{
 			"path": "../BeepDataSources/DataSourcesPluginsCore/LiteDBDataSourceCore"
+		},
+		{
+			"path": "../BeepDataSources/InMemoryDB/DuckDBDataSourceCore"
 		}
 	],
 	"settings": {}

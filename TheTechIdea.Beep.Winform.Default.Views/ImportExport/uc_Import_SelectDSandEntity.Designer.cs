@@ -38,9 +38,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             SourcebeepComboBox = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
             beepLabel1 = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             beepComboBox1 = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
+            // New purpose-panel controls
+            pnlPurpose      = new System.Windows.Forms.Panel();
+            lblPurpose      = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            cmbPurpose      = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
+            lblMatchBy      = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            cmbMatchBy      = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
+            chkUpdateEmpty  = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            lblRowCount     = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            btnRefreshCount = new TheTechIdea.Beep.Winform.Controls.BeepButton();
             beepLabel2 = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             AddSourcebeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
             beepCheckBoxBool1 = new TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool();
+            _sourceEntityLabel      = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            _sourceEntityCombo      = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
+            _destinationEntityLabel = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            _destinationEntityCombo = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
+            _statusLabel            = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             SuspendLayout();
             // 
             // SourcebeepComboBox
@@ -775,18 +789,163 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepCheckBoxBool1.UseGradientBackground = false;
             beepCheckBoxBool1.UseThemeFont = true;
             // 
+            // _sourceEntityLabel
+            // 
+            _sourceEntityLabel.AutoSize  = false;
+            _sourceEntityLabel.Location  = new Point(35, 337);
+            _sourceEntityLabel.Name      = "_sourceEntityLabel";
+            _sourceEntityLabel.Size      = new Size(194, 23);
+            _sourceEntityLabel.TabIndex  = 5;
+            _sourceEntityLabel.Text      = "Source Entity";
+            _sourceEntityLabel.TextAlign = ContentAlignment.MiddleLeft;
+            _sourceEntityLabel.ShowAllBorders = false;
+            _sourceEntityLabel.Theme = "DefaultType";
+            // 
+            // _sourceEntityCombo
+            // 
+            _sourceEntityCombo.Anchor    = AnchorStyles.None;
+            _sourceEntityCombo.Location  = new Point(232, 335);
+            _sourceEntityCombo.Name      = "_sourceEntityCombo";
+            _sourceEntityCombo.Size      = new Size(194, 27);
+            _sourceEntityCombo.TabIndex  = 6;
+            _sourceEntityCombo.Theme     = "DefaultType";
+            // 
+            // _destinationEntityLabel
+            // 
+            _destinationEntityLabel.AutoSize  = false;
+            _destinationEntityLabel.Location  = new Point(35, 369);
+            _destinationEntityLabel.Name      = "_destinationEntityLabel";
+            _destinationEntityLabel.Size      = new Size(194, 23);
+            _destinationEntityLabel.TabIndex  = 7;
+            _destinationEntityLabel.Text      = "Destination Entity";
+            _destinationEntityLabel.TextAlign = ContentAlignment.MiddleLeft;
+            _destinationEntityLabel.ShowAllBorders = false;
+            _destinationEntityLabel.Theme = "DefaultType";
+            // 
+            // _destinationEntityCombo
+            // 
+            _destinationEntityCombo.Anchor    = AnchorStyles.None;
+            _destinationEntityCombo.Location  = new Point(232, 367);
+            _destinationEntityCombo.Name      = "_destinationEntityCombo";
+            _destinationEntityCombo.Size      = new Size(194, 27);
+            _destinationEntityCombo.TabIndex  = 8;
+            _destinationEntityCombo.Theme     = "DefaultType";
+            // 
+            // _statusLabel
+            // 
+            _statusLabel.AutoSize  = false;
+            _statusLabel.Location  = new Point(35, 400);
+            _statusLabel.Name      = "_statusLabel";
+            _statusLabel.Size      = new Size(560, 23);
+            _statusLabel.TabIndex  = 9;
+            _statusLabel.Text      = "Select source and destination entities.";
+            _statusLabel.TextAlign = ContentAlignment.MiddleLeft;
+            _statusLabel.ShowAllBorders = false;
+            _statusLabel.Theme = "DefaultType";
+            //
+            // pnlPurpose  (docked top — Purpose, MatchBy, UpdateEmpty, RowCount rows)
+            //
+            pnlPurpose.Dock      = System.Windows.Forms.DockStyle.Top;
+            pnlPurpose.Height    = 130;
+            pnlPurpose.Name      = "pnlPurpose";
+            pnlPurpose.TabIndex  = 20;
+            pnlPurpose.Controls.Add(btnRefreshCount);
+            pnlPurpose.Controls.Add(lblRowCount);
+            pnlPurpose.Controls.Add(chkUpdateEmpty);
+            pnlPurpose.Controls.Add(cmbMatchBy);
+            pnlPurpose.Controls.Add(lblMatchBy);
+            pnlPurpose.Controls.Add(cmbPurpose);
+            pnlPurpose.Controls.Add(lblPurpose);
+            //
+            // lblPurpose
+            //
+            lblPurpose.AutoSize  = false;
+            lblPurpose.Location  = new System.Drawing.Point(12, 8);
+            lblPurpose.Size      = new System.Drawing.Size(110, 24);
+            lblPurpose.Name      = "lblPurpose";
+            lblPurpose.Text      = "Purpose:";
+            lblPurpose.TextAlign = ContentAlignment.MiddleLeft;
+            lblPurpose.ShowAllBorders = false;
+            lblPurpose.Theme     = "DefaultType";
+            //
+            // cmbPurpose
+            //
+            cmbPurpose.Location  = new System.Drawing.Point(130, 6);
+            cmbPurpose.Size      = new System.Drawing.Size(220, 27);
+            cmbPurpose.Name      = "cmbPurpose";
+            cmbPurpose.TabIndex  = 20;
+            cmbPurpose.Theme     = "DefaultType";
+            //
+            // lblMatchBy
+            //
+            lblMatchBy.AutoSize  = false;
+            lblMatchBy.Location  = new System.Drawing.Point(12, 40);
+            lblMatchBy.Size      = new System.Drawing.Size(110, 24);
+            lblMatchBy.Name      = "lblMatchBy";
+            lblMatchBy.Text      = "Match By:";
+            lblMatchBy.TextAlign = ContentAlignment.MiddleLeft;
+            lblMatchBy.ShowAllBorders = false;
+            lblMatchBy.Theme     = "DefaultType";
+            lblMatchBy.Visible   = false;
+            //
+            // cmbMatchBy
+            //
+            cmbMatchBy.Location  = new System.Drawing.Point(130, 38);
+            cmbMatchBy.Size      = new System.Drawing.Size(220, 27);
+            cmbMatchBy.Name      = "cmbMatchBy";
+            cmbMatchBy.TabIndex  = 21;
+            cmbMatchBy.Theme     = "DefaultType";
+            cmbMatchBy.Visible   = false;
+            //
+            // chkUpdateEmpty
+            //
+            chkUpdateEmpty.AutoSize = false;
+            chkUpdateEmpty.Location = new System.Drawing.Point(12, 72);
+            chkUpdateEmpty.Size     = new System.Drawing.Size(300, 24);
+            chkUpdateEmpty.Name     = "chkUpdateEmpty";
+            chkUpdateEmpty.Text     = "Overwrite empty fields on update";
+            chkUpdateEmpty.TabIndex = 22;
+            chkUpdateEmpty.Theme    = "DefaultType";
+            chkUpdateEmpty.Visible  = false;
+            //
+            // lblRowCount
+            //
+            lblRowCount.AutoSize  = false;
+            lblRowCount.Location  = new System.Drawing.Point(12, 102);
+            lblRowCount.Size      = new System.Drawing.Size(200, 22);
+            lblRowCount.Name      = "lblRowCount";
+            lblRowCount.Text      = "Row count: —";
+            lblRowCount.TextAlign = ContentAlignment.MiddleLeft;
+            lblRowCount.ShowAllBorders = false;
+            lblRowCount.Theme     = "DefaultType";
+            //
+            // btnRefreshCount
+            //
+            btnRefreshCount.Location = new System.Drawing.Point(218, 100);
+            btnRefreshCount.Size     = new System.Drawing.Size(28, 24);
+            btnRefreshCount.Name     = "btnRefreshCount";
+            btnRefreshCount.Text     = "↺";
+            btnRefreshCount.TabIndex = 23;
+            btnRefreshCount.Theme    = "DefaultType";
+            // 
             // uc_Import_SelectDSandEntity
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(_statusLabel);
+            Controls.Add(_destinationEntityCombo);
+            Controls.Add(_destinationEntityLabel);
+            Controls.Add(_sourceEntityCombo);
+            Controls.Add(_sourceEntityLabel);
             Controls.Add(beepCheckBoxBool1);
             Controls.Add(AddSourcebeepButton);
             Controls.Add(beepLabel2);
             Controls.Add(beepComboBox1);
             Controls.Add(beepLabel1);
             Controls.Add(SourcebeepComboBox);
+            Controls.Add(pnlPurpose);
             Name = "uc_Import_SelectDSandEntity";
-            Size = new Size(614, 466);
+            Size = new Size(614, 534);
             ResumeLayout(false);
         }
 
@@ -798,5 +957,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private Controls.BeepLabel beepLabel2;
         private BeepButton AddSourcebeepButton;
         private BeepCheckBoxBool beepCheckBoxBool1;
+        private Controls.BeepLabel _sourceEntityLabel;
+        private BeepComboBox _sourceEntityCombo;
+        private Controls.BeepLabel _destinationEntityLabel;
+        private BeepComboBox _destinationEntityCombo;
+        private Controls.BeepLabel _statusLabel;
+
+        // ── New controls added for Purpose/MatchBy/RowCount ───────────────────
+        private System.Windows.Forms.Panel  pnlPurpose;
+        private Controls.BeepLabel          lblPurpose;
+        private BeepComboBox                cmbPurpose;
+        private Controls.BeepLabel          lblMatchBy;
+        private BeepComboBox                cmbMatchBy;
+        private BeepCheckBoxBool            chkUpdateEmpty;
+        private Controls.BeepLabel          lblRowCount;
+        private BeepButton                  btnRefreshCount;
     }
 }

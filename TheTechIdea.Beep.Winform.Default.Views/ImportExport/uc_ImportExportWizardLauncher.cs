@@ -1,220 +1,540 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Editor.Importing;
+using TheTechIdea.Beep.Editor.Importing.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
-using TheTechIdea.Beep.Workflow.Mapping;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    [AddinAttribute(Caption = "Import/Export Wizard", Name = "uc_ImportExportWizardLauncher", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
-    public class uc_ImportExportWizardLauncher : TemplateUserControl
+    /// <summary>
+    /// Direction for the wizard – controls labels, default pre-fill order, and step titles.
+    /// </summary>
+    public enum ImportExportDirection { Import, Export }
+
+    [AddinAttribute(Caption = "Import/Export Wizard", Name = "uc_ImportExportWizardLauncher",
+        misc = "Config", menu = "Configuration", addinType = AddinType.Control,
+        displayType = DisplayType.InControl, ObjectType = "Beep")]
+    public partial class uc_ImportExportWizardLauncher : TemplateUserControl
     {
         private readonly IServiceProvider _services;
-        private readonly BeepButton _launchWizardButton;
-        private readonly BeepTextBox _logTextBox;
+        private bool _isLoading;
 
+        // ── Backing fields ──────────────────────────────────────────────────────
+        private ImportExportDirection _direction       = ImportExportDirection.Import;
+        private string _sourceDataSourceName           = string.Empty;
+        private string _sourceEntityName               = string.Empty;
+        private string _destinationDataSourceName      = string.Empty;
+        private string _destinationEntityName          = string.Empty;
+
+        // ── Phase 4: history + last summary ────────────────────────────────────
+        private readonly List<(DateTime When, string Src, string Dst, int Rows, bool Success)>
+            _runHistory = new();
+        private ImportRunSummary? _lastSummary;
+
+        // ── Public configuration properties ────────────────────────────────────
+        /// <summary>Import = data flows into this system; Export = data flows out.</summary>
+        [Category("Import/Export"), DefaultValue(ImportExportDirection.Import)]
+        public ImportExportDirection Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value;
+                if (!_isLoading) SyncDirectionUI();
+            }
+        }
+
+        [Category("Import/Export"), DefaultValue("")]
+        public string SourceDataSourceName
+        {
+            get => _sourceDataSourceName;
+            set { _sourceDataSourceName = value ?? string.Empty; if (!_isLoading) cmbSourceDS.SelectItemByText(_sourceDataSourceName); }
+        }
+
+        [Category("Import/Export"), DefaultValue("")]
+        public string SourceEntityName
+        {
+            get => _sourceEntityName;
+            set { _sourceEntityName = value ?? string.Empty; if (!_isLoading) cmbSourceEntity.SelectItemByText(_sourceEntityName); }
+        }
+
+        [Category("Import/Export"), DefaultValue("")]
+        public string DestinationDataSourceName
+        {
+            get => _destinationDataSourceName;
+            set { _destinationDataSourceName = value ?? string.Empty; if (!_isLoading) cmbDestDS.SelectItemByText(_destinationDataSourceName); }
+        }
+
+        [Category("Import/Export"), DefaultValue("")]
+        public string DestinationEntityName
+        {
+            get => _destinationEntityName;
+            set { _destinationEntityName = value ?? string.Empty; if (!_isLoading) cmbDestEntity.SelectItemByText(_destinationEntityName); }
+        }
+
+        [Category("Import/Export"), DefaultValue(true)]
+        public bool CreateDestinationIfNotExists
+        {
+            get => chkCreateIfNotExists.CurrentValue;
+            set { if (!_isLoading) chkCreateIfNotExists.CurrentValue = value; }
+        }
+
+        [Category("Import/Export"), DefaultValue(true)]
+        public bool AddMissingColumns
+        {
+            get => chkAddMissing.CurrentValue;
+            set { if (!_isLoading) chkAddMissing.CurrentValue = value; }
+        }
+
+        // ── Constructor ─────────────────────────────────────────────────────────
         public uc_ImportExportWizardLauncher(IServiceProvider services) : base(services)
         {
-            _services = services;
+            _services         = services;
             Details.AddinName = "Import / Export Wizard";
 
-            _launchWizardButton = new BeepButton
-            {
-                Dock = DockStyle.Top,
-                Height = 34,
-                Text = "Start Import / Export Wizard"
-            };
-            _launchWizardButton.Click += LaunchWizardButton_Click;
+            InitializeComponent();
 
-            _logTextBox = new BeepTextBox
-            {
-                Dock = DockStyle.Fill,
-                Multiline = true,
-                ReadOnly = true,
-                ScrollBars = ScrollBars.Vertical
-            };
+            // Default option values
+            chkCreateIfNotExists.CurrentValue = true;
+            chkAddMissing.CurrentValue        = true;
 
-            Controls.Add(_logTextBox);
-            Controls.Add(_launchWizardButton);
+            // Wire events
+            cmbDirection.SelectedItemChanged   += (_, _) => SyncDirectionFromCombo();
+            cmbSourceDS.SelectedItemChanged    += (_, _) => LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity);
+            cmbDestDS.SelectedItemChanged      += (_, _) => LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity);
+            btnLaunch.Click                    += (_, _) => LaunchWizard();
+            btnClearLog.Click                  += (_, _) => txtLog.Clear();
+            btnSwap.Click                      += (_, _) => SwapSourceDest();
+            btnQuickImport.Click               += (_, _) => QuickImport_Click();
+            btnViewLastSummary.Click           += (_, _) => ViewLastSummary_Click();
+
+            // Seed direction combo
+            var dirItems = new BindingList<SimpleItem>
+            {
+                new SimpleItem { Text = "Import", Item = ImportExportDirection.Import },
+                new SimpleItem { Text = "Export", Item = ImportExportDirection.Export }
+            };
+            cmbDirection.ListItems = dirItems;
+            cmbDirection.SelectItemByText("Import");
+            SyncDirectionUI();
         }
 
-        public override void OnNavigatedTo(Dictionary<string, object> parameters)
-        {
-            base.OnNavigatedTo(parameters);
-            AppendLog("Ready. Click the button to run the 3-step import/export wizard.");
-        }
+        // ── Programmatic launch overloads ───────────────────────────────────────
+        /// <summary>Launch the wizard using whatever is already configured in the UI.</summary>
+        public void Launch() => LaunchWizard();
 
-        private void LaunchWizardButton_Click(object? sender, EventArgs e)
+        /// <summary>Pre-fill source and destination, then immediately launch.</summary>
+        public void Launch(string srcDs, string srcEntity,
+                           string destDs    = null,
+                           string destEntity = null,
+                           ImportExportDirection direction = ImportExportDirection.Import)
         {
+            Direction                 = direction;
+            SourceDataSourceName      = srcDs;
+            SourceEntityName          = srcEntity;
+            if (destDs     != null) DestinationDataSourceName = destDs;
+            if (destEntity != null) DestinationEntityName     = destEntity;
             LaunchWizard();
         }
 
+        /// <summary>Pre-fill for export: the "owned" side is treated as Source.</summary>
+        public void LaunchExport(string srcDs, string srcEntity,
+                                 string destDs = null, string destEntity = null)
+            => Launch(srcDs, srcEntity, destDs, destEntity, ImportExportDirection.Export);
+
+        // ── Navigation ──────────────────────────────────────────────────────────
+        public override void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            base.OnNavigatedTo(parameters);
+            LoadDataSources();
+            InitHistoryGrid();
+            LoadRecentTemplates();
+            AppendLog($"Ready. Configure source/destination then click Launch ({_direction}).");
+        }
+
+        public override void Configure(Dictionary<string, object> settings)
+        {
+            base.Configure(settings);
+            LoadDataSources();
+            InitHistoryGrid();
+            LoadRecentTemplates();
+        }
+
+        // ── Core wizard launch ──────────────────────────────────────────────────
         private void LaunchWizard()
         {
-            ImportExportContextStore.Reset();
+            var config = BuildInitialConfig();
 
-            var selectStep = new uc_Import_SelectDSandEntity(_services);
-            var mapStep = new uc_Import_MapFields(_services);
-            var runStep = new uc_Import_Run(_services);
+            // ── 5-step wizard ────────────────────────────────────────────────
+            var selectStep  = new uc_Import_SelectDSandEntity(_services);
+            var colStep     = new uc_Import_ColumnSelection(_services);
+            var mapStep     = new uc_Import_MapFields(_services);
+            var optionsStep = new uc_Import_Options(_services);
+            var runStep     = new uc_Import_Run(_services);
 
-            var config = new WizardConfig
+            bool isExport  = _direction == ImportExportDirection.Export;
+            string title   = isExport ? "Export Wizard" : "Import Wizard";
+            string desc    = isExport
+                ? "Select source to export from and destination to export to, choose columns, map fields, set options, then run."
+                : "Select source/destination, choose columns, map fields, set options, then run import.";
+
+            var wizardConfig = new WizardConfig
             {
-                Key = $"ImportExportWizard_{Guid.NewGuid():N}",
-                Title = "Import / Export Wizard",
-                Description = "Select source/destination, map fields, then run import.",
-                Style = WizardStyle.HorizontalStepper,
+                Key             = $"ImportExportWizard_{Guid.NewGuid():N}",
+                Title           = title,
+                Description     = desc,
+                Style           = WizardStyle.HorizontalStepper,
                 ShowProgressBar = true,
-                ShowStepList = true,
-                AllowBack = true,
-                AllowCancel = true,
-                ShowInlineErrors = true,
+                ShowStepList    = true,
+                AllowBack       = true,
+                AllowCancel     = true,
+                ShowInlineErrors= true,
                 Steps = new List<WizardStep>
                 {
-                    new WizardStep
-                    {
-                        Key = "select",
-                        Title = "Select Source/Destination",
-                        Description = "Choose data sources and entities.",
-                        Content = selectStep
-                    },
-                    new WizardStep
-                    {
-                        Key = "map",
-                        Title = "Map Fields",
-                        Description = "Map source fields to destination fields.",
-                        Content = mapStep
-                    },
-                    new WizardStep
-                    {
-                        Key = "run",
-                        Title = "Review & Run",
-                        Description = "Review and run import.",
-                        Content = runStep
-                    }
+                    new WizardStep { Key = "select",  Title = "Configure",              Description = "Choose data sources, entities, and import mode.",     Content = selectStep  },
+                    new WizardStep { Key = "columns", Title = "Select Columns",         Description = "Choose which source columns to include.",              Content = colStep     },
+                    new WizardStep { Key = "map",     Title = "Map Fields",             Description = "Map source fields to destination fields.",             Content = mapStep     },
+                    new WizardStep { Key = "options", Title = "Options & Pre-flight",   Description = "Set batch size, dry-run, validation, and review.",     Content = optionsStep },
+                    new WizardStep { Key = "run",     Title = "Review & Run",           Description = "Review summary and execute the import.",               Content = runStep     }
                 }
             };
 
-            config.OnProgress = (current, total, title) =>
-                AppendLog($"Wizard progress: {current}/{total} ({title})");
-            config.OnComplete = RunImportFromWizardContext;
-            config.OnCancel = _ => AppendLog("Wizard cancelled by user.");
+            // Pre-inject the config so Step 1 restores from it
+            wizardConfig.InitialContext = new Dictionary<string, object>
+            {
+                [WizardKeys.ImportConfig] = config
+            };
 
-            AppendLog("Opening wizard...");
-            var owner = FindForm();
+            wizardConfig.OnProgress = (cur, tot, t) => AppendLog($"[{cur}/{tot}] {t}");
+            wizardConfig.OnComplete = RunImportFromWizardContext;
+            wizardConfig.OnCancel   = _ => AppendLog("Wizard cancelled.");
+
+            AppendLog($"Launching {title}…");
+            var owner  = FindForm();
             var result = owner == null
-                ? WizardManager.ShowWizard(config)
-                : WizardManager.ShowWizard(config, owner);
-
-            AppendLog($"Wizard closed with result: {result}");
+                ? WizardManager.ShowWizard(wizardConfig)
+                : WizardManager.ShowWizard(wizardConfig, owner);
+            AppendLog($"Wizard closed: {result}");
         }
 
         private void RunImportFromWizardContext(WizardContext context)
         {
-            var runImport = context.GetValue(ImportExportParameterKeys.RunImportOnFinish, true);
-            if (!runImport)
+            if (context.GetValue<bool>(WizardKeys.LastRunSucceeded, false))
             {
-                AppendLog("Run-on-finish disabled. Import was not executed.");
+                AppendLog("Import already ran inside the wizard step. Done.");
                 return;
             }
-
-            if (Editor == null)
+            if (!context.GetValue<bool>(WizardKeys.RunImportOnFinish, true))
             {
-                AppendLog("Editor is not available. Cannot run import.");
-                return;
+                AppendLog("Run-on-finish disabled."); return;
             }
+            if (Editor == null) { AppendLog("Editor not available."); return; }
 
-            var selection =
-                ImportExportContextStore.ParseSelection(context.GetAllData()) ??
-                ImportExportContextStore.GetSelection();
+            var importConfig = context.GetValue<DataImportConfiguration?>(WizardKeys.ImportConfig, null);
+            if (importConfig == null) { AppendLog("No config in wizard context."); return; }
+            if ((importConfig.Mapping?.MappedEntities?.Count ?? 0) == 0) { AppendLog("No field mappings — import aborted."); return; }
 
-            var mapping =
-                context.GetValue<EntityDataMap?>(ImportExportParameterKeys.Mapping, null) ??
-                ImportExportContextStore.GetMapping();
-            var options = ImportExportContextStore.GetOptions();
-            options.RunImportOnFinish = runImport;
-            options.RunMigrationPreflight = context.GetValue(ImportExportParameterKeys.RunMigrationPreflight, options.RunMigrationPreflight);
-            options.AddMissingColumns = context.GetValue(ImportExportParameterKeys.AddMissingColumns, options.AddMissingColumns);
-            options.CreateSyncProfileDraft = context.GetValue(ImportExportParameterKeys.CreateSyncProfileDraft, options.CreateSyncProfileDraft);
+            AppendLog("Running import…");
 
-            if (selection == null || !selection.IsValid)
+            // Capture any summary the Run step may have stored
+            _lastSummary = context.GetValue<ImportRunSummary?>(WizardKeys.RunSummary, null);
+
+            var manager  = new DataImportManager(Editor);
+            var progress = new Progress<PassedArgs>(args =>
             {
-                AppendLog("Selection is incomplete. Import aborted.");
-                return;
-            }
+                if (!string.IsNullOrWhiteSpace(args?.Messege)) AppendLog(args.Messege);
+            });
 
-            var mappedCount = mapping?.MappedEntities?
-                                  .SelectMany(entity => entity.FieldMapping ?? new List<TheTechIdea.Beep.Workflow.Mapping_rep_fields>())
-                                  .Count() ?? 0;
+            _ = manager.RunImportAsync(importConfig, progress, default)
+                .ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        var msg = t.Exception?.GetBaseException().Message ?? "Unknown error";
+                        AppendLog($"Import failed: {msg}");
+                        AddToHistory(importConfig, 0, false);
+                        if (IsHandleCreated)
+                            BeginInvoke(() => MessageBox.Show($"Import failed:\n{msg}", title: "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error));
+                        return;
+                    }
+                    var info    = t.Result;
+                    var success = info?.Flag == Errors.Ok;
+                    AppendLog(info?.Message ?? "Completed.");
+                    // Capture summary from context if available (Run step may have set it)
+                    var rows = _lastSummary?.TotalRows ?? 0;
+                    AddToHistory(importConfig, rows, success);
+                    if (IsHandleCreated)
+                        BeginInvoke(() => MessageBox.Show(
+                            success ? "Import completed successfully." : $"Import finished with errors:\n{info?.Message}",
+                            success ? "Done" : "Warning",
+                            MessageBoxButtons.OK,
+                            success ? MessageBoxIcon.Information : MessageBoxIcon.Warning));
+                }, TaskScheduler.Default);
+        }
 
-            if (mappedCount <= 0)
+        // ── Helpers ─────────────────────────────────────────────────────────────
+        private DataImportConfiguration BuildInitialConfig()
+        {
+            return new DataImportConfiguration
             {
-                AppendLog("No field mappings were provided. Import aborted.");
-                return;
-            }
+                SourceDataSourceName         = cmbSourceDS.SelectedItem?.Text     ?? string.Empty,
+                SourceEntityName             = cmbSourceEntity.SelectedItem?.Text  ?? string.Empty,
+                DestDataSourceName           = cmbDestDS.SelectedItem?.Text        ?? string.Empty,
+                DestEntityName               = cmbDestEntity.SelectedItem?.Text    ?? string.Empty,
+                CreateDestinationIfNotExists = chkCreateIfNotExists.CurrentValue,
+                AddMissingColumns            = chkAddMissing.CurrentValue
+            };
+        }
 
-            AppendLog("Running import...");
-
+        private void LoadDataSources()
+        {
+            _isLoading = true;
             try
             {
-                using var orchestrator = new ImportExportOrchestrator(Editor);
-                var request = new ImportExecutionRequest
-                {
-                    Selection = selection,
-                    Mapping = mapping,
-                    Options = options
-                };
-                IProgress<IPassedArgs> progress = new Progress<IPassedArgs>(args =>
-                {
-                    var message = args?.Messege;
-                    if (!string.IsNullOrWhiteSpace(message))
-                    {
-                        AppendLog(message);
-                    }
-                });
-                var result = Task.Run(async () => await orchestrator.ExecuteAsync(request, progress, AppendLog))
-                    .GetAwaiter().GetResult().ImportResult;
+                var names = (Editor?.ConfigEditor?.DataConnections ?? new List<ConnectionProperties>())
+                    .Select(p => p.ConnectionName)
+                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(n => n)
+                    .Select(n => new SimpleItem { Text = n, Item = n })
+                    .ToList();
 
-                AppendLog(result?.Message ?? "Import run completed.");
-                if (result?.Flag == Errors.Ok)
-                {
-                    MessageBox.Show("Import completed successfully.", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show($"Import failed: {result?.Message}", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                var list = new BindingList<SimpleItem>(names);
+                cmbSourceDS.ListItems = list;
+                cmbDestDS.ListItems   = new BindingList<SimpleItem>(names);
+
+                if (!string.IsNullOrWhiteSpace(_sourceDataSourceName))
+                    cmbSourceDS.SelectItemByText(_sourceDataSourceName);
+                if (!string.IsNullOrWhiteSpace(_destinationDataSourceName))
+                    cmbDestDS.SelectItemByText(_destinationDataSourceName);
+            }
+            finally { _isLoading = false; }
+
+            // Cascade entity combos
+            LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity, _sourceEntityName);
+            LoadEntities(cmbDestDS.SelectedItem?.Text,   cmbDestEntity,   _destinationEntityName);
+        }
+
+        private void LoadEntities(string dataSourceName, BeepComboBox combo, string restoreValue = null)
+        {
+            if (string.IsNullOrWhiteSpace(dataSourceName) || combo == null) return;
+            try
+            {
+                var ds = Editor?.GetDataSource(dataSourceName);
+                if (ds == null) return;
+                if (ds.ConnectionStatus != System.Data.ConnectionState.Open) ds.Openconnection();
+                var list = ds.GetEntitesList()?.ToList() ?? new List<string>();
+                if (list.Count == 0 && ds.EntitiesNames != null) list = ds.EntitiesNames.ToList();
+
+                var items = new BindingList<SimpleItem>(
+                    list.Where(n => !string.IsNullOrWhiteSpace(n))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(n => n)
+                        .Select(n => new SimpleItem { Text = n, Item = n })
+                        .ToList());
+
+                combo.ListItems = items;
+                var restore = restoreValue ?? combo.SelectedItem?.Text;
+                if (!string.IsNullOrWhiteSpace(restore)) combo.SelectItemByText(restore);
             }
             catch (Exception ex)
             {
-                AppendLog($"Import failed: {ex.Message}");
-                MessageBox.Show($"Import failed: {ex.Message}", "Import Wizard", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Editor?.AddLogMessage("ImportExport", $"Error loading entities for '{dataSourceName}': {ex.Message}",
+                    DateTime.Now, 0, null, Errors.Failed);
             }
+        }
+
+        private void SwapSourceDest()
+        {
+            var srcDs     = cmbSourceDS.SelectedItem?.Text     ?? string.Empty;
+            var srcEntity = cmbSourceEntity.SelectedItem?.Text  ?? string.Empty;
+            var dstDs     = cmbDestDS.SelectedItem?.Text        ?? string.Empty;
+            var dstEntity = cmbDestEntity.SelectedItem?.Text    ?? string.Empty;
+
+            cmbSourceDS.SelectItemByText(dstDs);
+            cmbSourceEntity.SelectItemByText(dstEntity);
+            cmbDestDS.SelectItemByText(srcDs);
+            cmbDestEntity.SelectItemByText(srcEntity);
+            AppendLog("Source and destination swapped.");
+        }
+
+        private void SyncDirectionFromCombo()
+        {
+            if (cmbDirection.SelectedItem?.Item is ImportExportDirection d)
+                _direction = d;
+            SyncDirectionUI();
+        }
+
+        private void SyncDirectionUI()
+        {
+            bool isExport       = _direction == ImportExportDirection.Export;
+            lblSourceDS.Text    = isExport ? "Export From:" : "Source:";
+            lblDestDS.Text      = isExport ? "Export To:"   : "Destination:";
+            btnLaunch.Text      = isExport ? "Launch Export Wizard" : "Launch Import Wizard";
         }
 
         private void AppendLog(string message)
         {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
-
-            if (_logTextBox.InvokeRequired)
-            {
-                _logTextBox.BeginInvoke(new Action<string>(AppendLog), message);
-                return;
-            }
-
-            var line = $"{DateTime.Now:HH:mm:ss} - {message}";
-            _logTextBox.Text = string.IsNullOrWhiteSpace(_logTextBox.Text)
-                ? line
-                : $"{_logTextBox.Text}{Environment.NewLine}{line}";
+            if (string.IsNullOrWhiteSpace(message)) return;
+            if (txtLog.InvokeRequired) { txtLog.BeginInvoke(new Action<string>(AppendLog), message); return; }
+            txtLog.AppendText($"{DateTime.Now:HH:mm:ss}  {message}{Environment.NewLine}");
+            txtLog.SelectionStart = txtLog.TextLength;
+            txtLog.ScrollToCaret();
         }
-    }
+
+        // ── Phase 4: recent templates ────────────────────────────────────────────
+        private void LoadRecentTemplates()
+        {
+            try
+            {
+                var all   = ImportTemplateManager.ListAll() ?? Array.Empty<string>();
+                var items = new System.ComponentModel.BindingList<Controls.Models.SimpleItem>(
+                    all.Take(5)
+                       .Select(n => new Controls.Models.SimpleItem { Text = n, Item = n })
+                       .ToList());
+                cmbRecentTemplates.ListItems = items;
+                btnQuickImport.Enabled = items.Count > 0;
+            }
+            catch { /* templates are optional */ }
+        }
+
+        private void QuickImport_Click()
+        {
+            var templateName = cmbRecentTemplates.SelectedItem?.Text;
+            if (string.IsNullOrWhiteSpace(templateName))
+            {
+                MessageBox.Show("Please select a template first.", "Quick Import",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            try
+            {
+                var dto = ImportTemplateManager.Load(templateName);
+                if (dto == null) { AppendLog($"Template '{templateName}' not found."); return; }
+
+                var config = BuildInitialConfig();
+                ImportTemplateManager.ApplyToConfig(dto, config);
+
+                if ((config.Mapping?.MappedEntities?.Count ?? 0) == 0)
+                {
+                    AppendLog("Template has no field mappings — launching wizard instead.");
+                    LaunchWizard();
+                    return;
+                }
+
+                AppendLog($"Quick Import using template '{templateName}'…");
+                var importManager = new DataImportManager(Editor);
+                var progress      = new Progress<PassedArgs>(a =>
+                { if (!string.IsNullOrWhiteSpace(a?.Messege)) AppendLog(a.Messege); });
+
+                _ = importManager.RunImportAsync(config, progress, default)
+                    .ContinueWith(t =>
+                    {
+                        var success = !t.IsFaulted && t.Result?.Flag == Errors.Ok;
+                        AppendLog(t.IsFaulted
+                            ? $"Quick Import failed: {t.Exception?.GetBaseException().Message}"
+                            : (t.Result?.Message ?? "Done."));
+                        AddToHistory(config, _lastSummary?.TotalRows ?? 0, success);
+                    }, TaskScheduler.Default);
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Quick Import error: {ex.Message}");
+            }
+        }
+
+        private void ViewLastSummary_Click()
+        {
+            if (_lastSummary == null)
+            {
+                MessageBox.Show("No recent import summary available.",
+                    "Last Summary", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("=== Last Import Summary ===");
+            sb.AppendLine($"  Total rows   : {_lastSummary.TotalRows:N0}");
+            sb.AppendLine($"  Added        : {_lastSummary.AddedRows:N0}");
+            sb.AppendLine($"  Updated      : {_lastSummary.UpdatedRows:N0}");
+            sb.AppendLine($"  Skipped      : {_lastSummary.SkippedRows:N0}");
+            sb.AppendLine($"  Failed       : {_lastSummary.FailedRows:N0}");
+            sb.AppendLine($"  Duration     : {_lastSummary.Duration}");
+            sb.AppendLine($"  Rows/sec     : {_lastSummary.RowsPerSec:N1}");
+            if (_lastSummary.Errors.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Errors:");
+                foreach (var e in _lastSummary.Errors.Take(20))
+                    sb.AppendLine($"  Row {e.RowIndex}: {e.ErrorMessage}");
+            }
+            MessageBox.Show(sb.ToString(), "Last Summary", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        // ── Phase 4: history grid ────────────────────────────────────────────────
+        private bool _historyInitialized;
+        private void InitHistoryGrid()
+        {
+            if (_historyInitialized) return;
+            _historyInitialized = true;
+
+            historyGrid.Columns.Clear();
+            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
+                { Name = "colWhen", HeaderText = "Time",   Width = 80,  ReadOnly = true });
+            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
+                { Name = "colSrc",  HeaderText = "Source", Width = 130, ReadOnly = true });
+            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
+                { Name = "colDst",  HeaderText = "Dest",   Width = 130, ReadOnly = true });
+            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
+                { Name = "colRows", HeaderText = "Rows",   Width = 60,  ReadOnly = true });
+            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
+                { Name = "colStatus", HeaderText = "Status", Width = 70, ReadOnly = true });
+        }
+
+        private void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
+        {
+            var entry = (
+                When    : DateTime.Now,
+                Src     : $"{config.SourceDataSourceName}/{config.SourceEntityName}",
+                Dst     : $"{config.DestDataSourceName}/{config.DestEntityName}",
+                Rows    : rowCount,
+                Success : success
+            );
+            _runHistory.Insert(0, entry);
+            if (_runHistory.Count > 50) _runHistory.RemoveAt(_runHistory.Count - 1);
+
+            btnViewLastSummary.Enabled = true;
+
+            if (IsHandleCreated)
+                BeginInvoke(RefreshHistoryGrid);
+        }
+
+        private void RefreshHistoryGrid()
+        {
+            InitHistoryGrid();
+            historyGrid.Rows.Clear();
+            foreach (var h in _runHistory.Take(5))
+            {
+                var rowIdx = historyGrid.Rows.Add(
+                    h.When.ToString("HH:mm:ss"),
+                    h.Src,
+                    h.Dst,
+                    h.Rows.ToString("N0"),
+                    h.Success ? "✓ OK" : "✕ Failed");
+                historyGrid.Rows[rowIdx].DefaultCellStyle.ForeColor =
+                    h.Success ? System.Drawing.Color.DarkGreen : System.Drawing.Color.DarkRed;
+            }
+        }    }
 }

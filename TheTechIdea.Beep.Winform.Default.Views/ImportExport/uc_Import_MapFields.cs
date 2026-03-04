@@ -1,519 +1,314 @@
-using System.ComponentModel;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Editor.Importing;
+using TheTechIdea.Beep.Editor.Importing.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
-using TheTechIdea.Beep.Workflow;
-using TheTechIdea.Beep.Workflow.Mapping;
+using TheTechIdea.Beep.Workflow;            // Mapping_rep_fields
+using TheTechIdea.Beep.Workflow.Mapping;    // EntityDataMap, EntityDataMap_DTL
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    [AddinAttribute(Caption = "Map Entity Fields to Another", Name = "uc_Import_MapFields", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
+    [AddinAttribute(Caption = "Map Fields", Name = "uc_Import_MapFields",
+        misc = "Config", menu = "Configuration", addinType = AddinType.Control,
+        displayType = DisplayType.InControl, ObjectType = "Beep")]
     public partial class uc_Import_MapFields : TemplateUserControl, IWizardStepContent
     {
-        private readonly BindingList<ImportFieldMapRow> _rows = new();
-        private readonly BeepLabel _summaryLabel;
-        private readonly BeepLabel _statusLabel;
-        private readonly BeepButton _autoMapButton;
-        private readonly DataGridView _mappingGrid;
-        private ImportSelectionContext? _selection;
-        private EntityStructure? _sourceStructure;
-        private EntityStructure? _destinationStructure;
-        private bool _isLoading;
+        private BindingList<ImportFieldMapRow> _rows = new();
+        private DataImportConfiguration?      _config;
 
         public uc_Import_MapFields(IServiceProvider services) : base(services)
         {
             InitializeComponent();
+            AttachGridEvents();
 
-            _summaryLabel = new BeepLabel
-            {
-                Dock = DockStyle.Top,
-                Height = 44,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                Padding = new Padding(4, 0, 0, 0)
-            };
-
-            _autoMapButton = new BeepButton
-            {
-                Dock = DockStyle.Top,
-                Height = 32,
-                Text = "Auto map by field name"
-            };
-            _autoMapButton.Click += AutoMapButton_Click;
-
-            _statusLabel = new BeepLabel
-            {
-                Dock = DockStyle.Top,
-                Height = 28,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                Padding = new Padding(4, 0, 0, 0),
-                Text = "Select mappings to continue."
-            };
-
-            _mappingGrid = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                AutoGenerateColumns = false,
-                MultiSelect = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            };
-            _mappingGrid.CurrentCellDirtyStateChanged += MappingGrid_CurrentCellDirtyStateChanged;
-            _mappingGrid.CellValueChanged += MappingGrid_CellValueChanged;
-            _mappingGrid.CellEndEdit += MappingGrid_CellEndEdit;
-
-            _mappingGrid.Columns.Add(new DataGridViewCheckBoxColumn
-            {
-                DataPropertyName = nameof(ImportFieldMapRow.Selected),
-                HeaderText = "Use",
-                Width = 50
-            });
-            _mappingGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ImportFieldMapRow.SourceField),
-                HeaderText = "Source Field",
-                ReadOnly = true,
-                Width = 180
-            });
-            _mappingGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ImportFieldMapRow.SourceType),
-                HeaderText = "Source Type",
-                ReadOnly = true,
-                Width = 120
-            });
-            _mappingGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ImportFieldMapRow.DestinationField),
-                HeaderText = "Destination Field",
-                Width = 180
-            });
-            _mappingGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ImportFieldMapRow.DestinationType),
-                HeaderText = "Destination Type",
-                ReadOnly = true,
-                Width = 120
-            });
-            _mappingGrid.DataSource = _rows;
-
-            var panel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(8)
-            };
-            panel.Controls.Add(_mappingGrid);
-            panel.Controls.Add(_statusLabel);
-            panel.Controls.Add(_autoMapButton);
-            panel.Controls.Add(_summaryLabel);
-            Controls.Add(panel);
+            // Template bar wiring
+            btnTemplateSave.Click   += TemplateSave_Click;
+            btnTemplateDelete.Click += TemplateDelete_Click;
+            cmbTemplateLoad.SelectedItemChanged += TemplateLoad_Changed;
+            LoadTemplateNames();
         }
 
         public event EventHandler<StepValidationEventArgs>? ValidationStateChanged;
-
-        public bool IsComplete => ValidateStep().IsValid;
-
+        public bool   IsComplete     => _rows.Any(r => r.Selected);
         public string NextButtonText => string.Empty;
 
-        public override void OnNavigatedTo(Dictionary<string, object> parameters)
-        {
-            base.OnNavigatedTo(parameters);
-            UpdateSummaryText();
-            RaiseValidationState();
-        }
-
-        public override void Configure(Dictionary<string, object> settings)
-        {
-            base.Configure(settings);
-            UpdateSummaryText();
-            RaiseValidationState();
-        }
+        public override void OnNavigatedTo(Dictionary<string, object> parameters)  { base.OnNavigatedTo(parameters); RaiseValidationState(); }
+        public override void Configure(Dictionary<string, object> settings)        { base.Configure(settings);       RaiseValidationState(); }
 
         public void OnStepEnter(WizardContext context)
         {
-            _isLoading = true;
-            try
-            {
-                _selection =
-                    ImportExportContextStore.ParseSelection(context.GetAllData()) ??
-                    ImportExportContextStore.GetSelection();
-
-                LoadStructuresAndRows();
-
-                var mappingFromContext = context.GetValue<EntityDataMap?>(ImportExportParameterKeys.Mapping, null);
-                ApplyExistingMapping(mappingFromContext ?? ImportExportContextStore.GetMapping());
-            }
-            finally
-            {
-                _isLoading = false;
-            }
-
-            UpdateSummaryText();
-            RaiseValidationState();
+            _config = context.GetValue<DataImportConfiguration?>(WizardKeys.ImportConfig, null);
+            if (_config == null) return;
+            LoadTemplateNames();
+            LoadFieldMapping();
         }
 
         public void OnStepLeave(WizardContext context)
         {
-            var mapping = BuildMappingFromRows();
-            if (mapping != null)
-            {
-                context.SetValue(ImportExportParameterKeys.Mapping, mapping);
-                ImportExportContextStore.SaveMapping(mapping);
-            }
-            else
-            {
-                context.Remove(ImportExportParameterKeys.Mapping);
-                ImportExportContextStore.SaveMapping(null);
-            }
+            if (_config == null) return;
+            _config.Mapping = BuildMappingFromRows();
+            context.SetValue(WizardKeys.ImportConfig, _config);
         }
 
-        WizardValidationResult IWizardStepContent.Validate()
-        {
-            return ValidateStep();
-        }
+        WizardValidationResult IWizardStepContent.Validate() => ValidateStep();
+        public Task<WizardValidationResult> ValidateAsync()  => Task.FromResult(ValidateStep());
+
+        // ── Private helpers ───────────────────────────────────────────────
 
         private WizardValidationResult ValidateStep()
         {
-            if (_selection == null || !_selection.IsValid)
-            {
-                return WizardValidationResult.Error("Complete source and destination selection in the previous step.");
-            }
-
-            if (_sourceStructure?.Fields == null || !_sourceStructure.Fields.Any())
-            {
-                return WizardValidationResult.Error("Unable to load source structure.");
-            }
-
-            if (_destinationStructure?.Fields == null || !_destinationStructure.Fields.Any())
-            {
-                return WizardValidationResult.Error("Unable to load destination structure.");
-            }
-
-            var selectedMappings = _rows.Count(row =>
-                row.Selected &&
-                !string.IsNullOrWhiteSpace(row.DestinationField) &&
-                DestinationFieldExists(row.DestinationField));
-
-            if (selectedMappings == 0)
-            {
-                return WizardValidationResult.Error("Select at least one valid field mapping.");
-            }
-
-            var duplicateDestinations = _rows
-                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
-                .GroupBy(row => row.DestinationField, System.StringComparer.OrdinalIgnoreCase)
-                .Where(group => group.Count() > 1)
-                .Select(group => group.Key)
-                .ToList();
-            if (duplicateDestinations.Count > 0)
-            {
-                return WizardValidationResult.Error(
-                    $"Duplicate destination mappings detected: {string.Join(", ", duplicateDestinations)}");
-            }
-
-            var requiredFields = _destinationStructure.Fields
-                .Where(field => field.AllowDBNull == false)
-                .Select(field => field.FieldName)
-                .ToHashSet(System.StringComparer.OrdinalIgnoreCase);
-            var mappedDestinations = _rows
-                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
-                .Select(row => row.DestinationField)
-                .ToHashSet(System.StringComparer.OrdinalIgnoreCase);
-            var missingRequired = requiredFields
-                .Where(field => !mappedDestinations.Contains(field))
-                .Take(5)
-                .ToList();
-            if (missingRequired.Count > 0)
-            {
-                return WizardValidationResult.Error(
-                    $"Required destination fields are not mapped: {string.Join(", ", missingRequired)}");
-            }
-
-            var incompatibleRows = _rows
-                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
-                .Where(row => !AreTypesCompatible(row.SourceType, LookupDestinationType(row.DestinationField)))
-                .Take(3)
-                .Select(row => $"{row.SourceField} -> {row.DestinationField}")
-                .ToList();
-            if (incompatibleRows.Count > 0)
-            {
-                return WizardValidationResult.Error(
-                    $"Potential type mismatch for mappings: {string.Join(", ", incompatibleRows)}");
-            }
-
+            if (!_rows.Any(r => r.Selected))
+                return WizardValidationResult.Error("Select at least one field to map.");
             return WizardValidationResult.Success();
         }
 
-        public Task<WizardValidationResult> ValidateAsync()
+        private void LoadFieldMapping()
         {
-            return Task.FromResult(ValidateStep());
-        }
-
-        private void AutoMapButton_Click(object? sender, EventArgs e)
-        {
-            if (_destinationStructure?.Fields == null)
-            {
-                return;
-            }
-
-            foreach (var row in _rows)
-            {
-                var destinationField = _destinationStructure.Fields.FirstOrDefault(field =>
-                    field.FieldName.Equals(row.SourceField, System.StringComparison.OrdinalIgnoreCase));
-
-                row.DestinationField = destinationField?.FieldName ?? string.Empty;
-                row.DestinationType = destinationField?.Fieldtype ?? string.Empty;
-                row.Selected = destinationField != null;
-            }
-
-            _mappingGrid.Refresh();
-            UpdateSummaryText();
-            RaiseValidationState();
-        }
-
-        private void MappingGrid_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
-        {
-            if (_mappingGrid.IsCurrentCellDirty)
-            {
-                _mappingGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            }
-        }
-
-        private void MappingGrid_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (_isLoading || e.RowIndex < 0 || e.RowIndex >= _rows.Count)
-            {
-                return;
-            }
-
-            SyncDestinationTypeForRow(e.RowIndex);
-            UpdateSummaryText();
-            RaiseValidationState();
-        }
-
-        private void MappingGrid_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (_isLoading || e.RowIndex < 0 || e.RowIndex >= _rows.Count)
-            {
-                return;
-            }
-
-            SyncDestinationTypeForRow(e.RowIndex);
-            UpdateSummaryText();
-            RaiseValidationState();
-        }
-
-        private void LoadStructuresAndRows()
-        {
+            if (_config == null || Editor == null) return;
             _rows.Clear();
-            _sourceStructure = null;
-            _destinationStructure = null;
 
-            if (_selection == null || !_selection.IsValid || Editor == null)
+            var srcFields  = GetFields(_config.SourceDataSourceName,  _config.SourceEntityName);
+            var destFields = GetFields(_config.DestDataSourceName,     _config.DestEntityName);
+
+            // Restore previously saved mapping if present (from EntityDataMap.MappedEntities[0].FieldMapping)
+            var existingFieldMappings = _config.Mapping?.MappedEntities
+                ?.SelectMany(d => d.FieldMapping ?? new List<Mapping_rep_fields>())
+                .ToList() ?? new List<Mapping_rep_fields>();
+
+            foreach (var sf in srcFields)
             {
-                return;
+                var saved = existingFieldMappings.FirstOrDefault(m =>
+                    string.Equals(m.FromFieldName, sf.FieldName, StringComparison.OrdinalIgnoreCase));
+
+                var matchedDest = saved != null
+                    ? destFields.FirstOrDefault(d => string.Equals(d.FieldName, saved.ToFieldName, StringComparison.OrdinalIgnoreCase))
+                    : destFields.FirstOrDefault(d => string.Equals(d.FieldName, sf.FieldName, StringComparison.OrdinalIgnoreCase));
+
+                _rows.Add(new ImportFieldMapRow
+                {
+                    Selected         = saved != null || matchedDest != null,
+                    SourceField      = sf.FieldName,
+                    SourceType       = sf.Fieldtype ?? string.Empty,
+                    DestinationField = matchedDest?.FieldName ?? (destFields.Count > 0 ? destFields[0].FieldName : string.Empty),
+                    DestinationType  = matchedDest?.Fieldtype ?? string.Empty,
+                    Transform        = saved?.Rules ?? string.Empty
+                });
             }
 
-            try
-            {
-                var sourceDataSource = Editor.GetDataSource(_selection.SourceDataSourceName);
-                var destinationDataSource = Editor.GetDataSource(_selection.DestinationDataSourceName);
-
-                if (sourceDataSource != null && sourceDataSource.ConnectionStatus != System.Data.ConnectionState.Open)
-                {
-                    sourceDataSource.Openconnection();
-                }
-
-                if (destinationDataSource != null && destinationDataSource.ConnectionStatus != System.Data.ConnectionState.Open)
-                {
-                    destinationDataSource.Openconnection();
-                }
-
-                _sourceStructure = sourceDataSource?.GetEntityStructure(_selection.SourceEntityName, false);
-                _destinationStructure = destinationDataSource?.GetEntityStructure(_selection.DestinationEntityName, false);
-
-                var destinationFields = _destinationStructure?.Fields ?? new List<EntityField>();
-                foreach (var sourceField in _sourceStructure?.Fields ?? Enumerable.Empty<EntityField>())
-                {
-                    var destinationMatch = destinationFields.FirstOrDefault(field =>
-                        field.FieldName.Equals(sourceField.FieldName, System.StringComparison.OrdinalIgnoreCase));
-
-                    _rows.Add(new ImportFieldMapRow
-                    {
-                        Selected = destinationMatch != null,
-                        SourceField = sourceField.FieldName,
-                        SourceType = sourceField.Fieldtype,
-                        DestinationField = destinationMatch?.FieldName ?? string.Empty,
-                        DestinationType = destinationMatch?.Fieldtype ?? string.Empty
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Editor.AddLogMessage("ImportExport", $"Error loading structures: {ex.Message}", System.DateTime.Now, 0, null, Errors.Failed);
-            }
+            BindGrid();
+            RaiseValidationState();
         }
 
-        private void ApplyExistingMapping(EntityDataMap? mapping)
+        private EntityDataMap BuildMappingFromRows()
         {
-            if (mapping?.MappedEntities == null || !mapping.MappedEntities.Any())
-            {
-                return;
-            }
-
-            var mappedEntity = mapping.MappedEntities.FirstOrDefault(entity =>
-                _selection != null &&
-                entity.EntityName.Equals(_selection.DestinationEntityName, System.StringComparison.OrdinalIgnoreCase))
-                ?? mapping.MappedEntities.First();
-
-            if (mappedEntity.FieldMapping == null || !mappedEntity.FieldMapping.Any())
-            {
-                return;
-            }
-
-            foreach (var row in _rows)
-            {
-                var fieldMap = mappedEntity.FieldMapping.FirstOrDefault(field =>
-                    field.FromFieldName.Equals(row.SourceField, System.StringComparison.OrdinalIgnoreCase));
-
-                if (fieldMap == null)
+            var fieldMappings = _rows
+                .Where(r => r.Selected && !string.IsNullOrWhiteSpace(r.DestinationField))
+                .Select(r => new Mapping_rep_fields
                 {
-                    row.Selected = false;
-                    row.DestinationField = string.Empty;
-                    row.DestinationType = string.Empty;
-                }
-                else
-                {
-                    row.Selected = true;
-                    row.DestinationField = fieldMap.ToFieldName;
-                    row.DestinationType = LookupDestinationType(fieldMap.ToFieldName);
-                }
-            }
-
-            _mappingGrid.Refresh();
-        }
-
-        private EntityDataMap? BuildMappingFromRows()
-        {
-            if (_selection == null || !_selection.IsValid || _destinationStructure?.Fields == null)
-            {
-                return null;
-            }
-
-            var selectedRows = _rows
-                .Where(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField))
-                .Where(row => DestinationFieldExists(row.DestinationField))
+                    FromEntityName = _config?.SourceEntityName ?? string.Empty,
+                    FromFieldName  = r.SourceField,
+                    FromFieldType  = r.SourceType,
+                    ToEntityName   = _config?.DestEntityName   ?? string.Empty,
+                    ToFieldName    = r.DestinationField,
+                    ToFieldType    = r.DestinationType,
+                    Rules          = r.Transform
+                })
                 .ToList();
 
-            if (!selectedRows.Any())
+            var dtl = new EntityDataMap_DTL
             {
-                return null;
-            }
-
-            var fieldMappings = selectedRows.Select((row, index) => new Mapping_rep_fields
-            {
-                FromEntityName = _selection.SourceEntityName,
-                FromFieldName = row.SourceField,
-                FromFieldType = row.SourceType,
-                FromFieldIndex = index,
-                ToEntityName = _selection.DestinationEntityName,
-                ToFieldName = row.DestinationField,
-                ToFieldType = LookupDestinationType(row.DestinationField),
-                ToFieldIndex = index
-            }).ToList();
-
-            var mappedEntity = new EntityDataMap_DTL
-            {
-                EntityDataSource = _selection.DestinationDataSourceName,
-                EntityName = _selection.DestinationEntityName,
-                EntityFields = _destinationStructure.Fields,
-                SelectedDestFields = _destinationStructure.Fields,
-                FieldMapping = fieldMappings
+                EntityName       = _config?.DestEntityName       ?? string.Empty,
+                EntityDataSource = _config?.DestDataSourceName   ?? string.Empty,
+                FieldMapping     = fieldMappings
             };
 
             return new EntityDataMap
             {
-                EntityName = _selection.DestinationEntityName,
-                EntityDataSource = _selection.DestinationDataSourceName,
-                MappingName = $"{_selection.SourceEntityName}_to_{_selection.DestinationEntityName}",
-                EntityFields = _destinationStructure.Fields,
-                MappedEntities = new List<EntityDataMap_DTL> { mappedEntity }
+                MappingName      = $"{_config?.SourceEntityName}_to_{_config?.DestEntityName}",
+                EntityName       = _config?.SourceEntityName     ?? string.Empty,
+                EntityDataSource = _config?.SourceDataSourceName ?? string.Empty,
+                MappedEntities   = new List<EntityDataMap_DTL> { dtl }
             };
         }
 
-        private bool DestinationFieldExists(string destinationField)
+        private IReadOnlyList<EntityField> GetFields(string dataSourceName, string entityName)
         {
-            return _destinationStructure?.Fields?.Any(field =>
-                       field.FieldName.Equals(destinationField, System.StringComparison.OrdinalIgnoreCase)) == true;
-        }
-
-        private string LookupDestinationType(string destinationField)
-        {
-            var destinationMatch = _destinationStructure?.Fields?.FirstOrDefault(field =>
-                field.FieldName.Equals(destinationField, System.StringComparison.OrdinalIgnoreCase));
-
-            return destinationMatch?.Fieldtype ?? string.Empty;
-        }
-
-        private void SyncDestinationTypeForRow(int rowIndex)
-        {
-            if (rowIndex < 0 || rowIndex >= _rows.Count)
+            if (Editor == null || string.IsNullOrWhiteSpace(dataSourceName) || string.IsNullOrWhiteSpace(entityName))
+                return Array.Empty<EntityField>();
+            try
             {
-                return;
+                var ds = Editor.GetDataSource(dataSourceName);
+                if (ds == null) return Array.Empty<EntityField>();
+                if (ds.ConnectionStatus != System.Data.ConnectionState.Open) ds.Openconnection();
+                var entity = ds.GetEntityStructure(entityName, true);
+                return entity?.Fields?.Cast<EntityField>().ToList() ?? (IReadOnlyList<EntityField>)Array.Empty<EntityField>();
             }
-
-            var row = _rows[rowIndex];
-            row.DestinationType = LookupDestinationType(row.DestinationField);
-            _rows.ResetItem(rowIndex);
+            catch (Exception ex)
+            {
+                Editor?.AddLogMessage("ImportExport", $"Error loading fields for '{entityName}': {ex.Message}",
+                    DateTime.Now, 0, null, Errors.Failed);
+                return Array.Empty<EntityField>();
+            }
         }
 
-        private void UpdateSummaryText()
+        private void BindGrid()
         {
-            var totalSourceFields = _rows.Count;
-            var selectedMappings = _rows.Count(row => row.Selected && !string.IsNullOrWhiteSpace(row.DestinationField));
+            beepDataGrid1.DataSource = null;
+            beepDataGrid1.DataSource = _rows;
+        }
 
-            _summaryLabel.Text = _selection == null
-                ? "Select source/destination first."
-                : $"Source: {_selection.SourceEntityName} -> Destination: {_selection.DestinationEntityName} | " +
-                  $"Mapped: {selectedMappings}/{totalSourceFields}";
+        private void AttachGridEvents()
+        {
+            beepDataGrid1.CellValueChanged += (_, e) =>
+            {
+                if (e.ColumnIndex == 0) RaiseValidationState();
+            };
+            // Type-mismatch colour coding
+            beepDataGrid1.CellFormatting += (_, e) =>
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= _rows.Count) return;
+                var row = _rows[e.RowIndex];
+                int mismatch = HasTypeMismatch(row.SourceType, row.DestinationType);
+                if (mismatch == 0) return;
+                e.CellStyle!.BackColor = mismatch == 1
+                    ? Color.FromArgb(255, 255, 200)   // yellow — warning
+                    : Color.FromArgb(255, 200, 200);  // red — error
+            };
         }
 
         private void RaiseValidationState()
         {
             var result = ValidateStep();
-            _statusLabel.Text = result.IsValid
-                ? "Mapping is valid. Continue to review."
-                : result.ErrorMessage ?? "Mapping is incomplete.";
             ValidationStateChanged?.Invoke(this, new StepValidationEventArgs(result.IsValid, result.ErrorMessage));
+            UpdateMappingStatus();
         }
 
-        private static bool AreTypesCompatible(string sourceType, string destinationType)
+        private void UpdateMappingStatus()
         {
-            if (string.IsNullOrWhiteSpace(sourceType) || string.IsNullOrWhiteSpace(destinationType))
-            {
-                return true;
-            }
+            int mapped   = _rows.Count(r => r.Selected && !string.IsNullOrWhiteSpace(r.DestinationField));
+            int total    = _rows.Count;
+            int warnings = _rows.Count(r => r.Selected && HasTypeMismatch(r.SourceType, r.DestinationType) == 1);
+            int errors   = _rows.Count(r => r.Selected && HasTypeMismatch(r.SourceType, r.DestinationType) == 2);
+            lblMappingStatus.Text = $"{mapped} of {total} fields mapped" +
+                (warnings > 0 ? $" | {warnings} warnings" : "") +
+                (errors   > 0 ? $" | {errors} errors"     : "");
+        }
 
-            if (sourceType.Equals(destinationType, System.StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+        // Returns 0=ok, 1=warning(compatible), 2=error(incompatible)
+        private static int HasTypeMismatch(string srcType, string dstType)
+        {
+            if (string.IsNullOrWhiteSpace(srcType) || string.IsNullOrWhiteSpace(dstType)) return 0;
+            if (string.Equals(srcType, dstType, StringComparison.OrdinalIgnoreCase)) return 0;
+            // Numeric family
+            var numericTypes = new[] { "int", "integer", "long", "short", "byte", "decimal", "float", "double", "numeric", "number" };
+            bool srcNum = numericTypes.Any(n => srcType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+            bool dstNum = numericTypes.Any(n => dstType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (srcNum && dstNum) return 0; // compatible numerics
+            // Date family
+            var dateTypes = new[] { "date", "datetime", "timestamp", "time" };
+            bool srcDate = dateTypes.Any(n => srcType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+            bool dstDate = dateTypes.Any(n => dstType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (srcDate && dstDate) return 0;
+            // String can receive almost anything
+            var strTypes = new[] { "varchar", "nvarchar", "text", "string", "char" };
+            bool dstStr = strTypes.Any(n => dstType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (dstStr) return 1; // warning — may truncate
+            return 2; // error — incompatible
+        }
 
-            var numericAliases = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase)
+        // ── Template methods ───────────────────────────────────────────────────
+
+        private void LoadTemplateNames()
+        {
+            var names = ImportTemplateManager.ListAll();
+            var items = new BindingList<SimpleItem>(
+                names.Select(n => new SimpleItem { Text = n, Item = n }).ToList());
+            cmbTemplateLoad.ListItems = items;
+        }
+
+        private void TemplateLoad_Changed(object? sender, SelectedItemChangedEventArgs e)
+        {
+            var name = cmbTemplateLoad.SelectedItem?.Text;
+            if (string.IsNullOrWhiteSpace(name)) return;
+            var dto = ImportTemplateManager.Load(name);
+            if (dto == null) return;
+            ImportTemplateManager.ApplyToRows(_rows.ToList(), dto);
+            BindGrid();
+            RaiseValidationState();
+        }
+
+        private void TemplateSave_Click(object? sender, EventArgs e)
+        {
+            var name = PromptForTemplateName();
+            if (string.IsNullOrWhiteSpace(name)) return;
+
+            ImportTemplateManager.Save(name, _rows.ToList());
+            LoadTemplateNames();
+            cmbTemplateLoad.SelectItemByText(name);
+        }
+
+        private void TemplateDelete_Click(object? sender, EventArgs e)
+        {
+            var name = cmbTemplateLoad.SelectedItem?.Text;
+            if (string.IsNullOrWhiteSpace(name)) return;
+            if (MessageBox.Show($"Delete template '{name}'?", "Confirm", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            ImportTemplateManager.Delete(name);
+            LoadTemplateNames();
+        }
+
+        private static string? PromptForTemplateName()
+        {
+            using var form = new Form
             {
-                "int", "int16", "int32", "int64", "short", "long", "double", "decimal", "float", "single"
+                Text            = "Save Template",
+                Size            = new System.Drawing.Size(360, 130),
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition   = FormStartPosition.CenterParent,
+                MinimizeBox     = false,
+                MaximizeBox     = false
             };
+            var lbl = new Label { Text = "Template name:", Location = new System.Drawing.Point(12, 12), AutoSize = true };
+            var txt = new TextBox { Location = new System.Drawing.Point(12, 32), Width = 320, Text = "My Template" };
+            var ok  = new Button  { Text = "OK",     DialogResult = DialogResult.OK,     Location = new System.Drawing.Point(175, 62), Width = 80 };
+            var can = new Button  { Text = "Cancel", DialogResult = DialogResult.Cancel,  Location = new System.Drawing.Point(262, 62), Width = 80 };
+            form.Controls.AddRange(new Control[] { lbl, txt, ok, can });
+            form.AcceptButton = ok;
+            form.CancelButton = can;
+            return form.ShowDialog() == DialogResult.OK ? txt.Text.Trim() : null;
+        }
 
-            return numericAliases.Contains(sourceType) && numericAliases.Contains(destinationType);
+        // Toolbar / select-all helpers
+        private void SelectAll_Click(object? sender, EventArgs e)   { foreach (var r in _rows) r.Selected = true;  BindGrid(); RaiseValidationState(); }
+        private void SelectNone_Click(object? sender, EventArgs e)  { foreach (var r in _rows) r.Selected = false; BindGrid(); RaiseValidationState(); }
+        private void AutoMatch_Click(object? sender, EventArgs e)
+        {
+            if (_config == null) return;
+            var dest = GetFields(_config.DestDataSourceName, _config.DestEntityName);
+            foreach (var r in _rows)
+            {
+                var matched = dest.FirstOrDefault(d => string.Equals(d.FieldName, r.SourceField, StringComparison.OrdinalIgnoreCase));
+                if (matched != null)
+                {
+                    r.DestinationField = matched.FieldName;
+                    r.DestinationType  = matched.Fieldtype ?? string.Empty;
+                    r.Selected         = true;
+                }
+            }
+            BindGrid();
+            RaiseValidationState();
         }
     }
 }

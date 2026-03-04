@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Editor.Importing;
+using TheTechIdea.Beep.Editor.Importing.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
@@ -16,54 +19,122 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    [AddinAttribute(Caption = "Select Datasource and Entity", Name = "uc_Import_SelectDSandEntity", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
+    internal static class WizardKeys
+    {
+        public const string ImportConfig      = "ImportConfig";
+        public const string RunImportOnFinish = "RunImportOnFinish";
+        public const string LastRunSucceeded  = "LastRunSucceeded";
+        // Phase 2 additions
+        public const string Purpose           = "Purpose";           // ImportPurpose enum
+        public const string MatchByField      = "MatchByField";      // string
+        public const string UpdateEmptyFields = "UpdateEmptyFields"; // bool
+        public const string SelectedColumns   = "SelectedColumns";   // List<string>
+        public const string TemplateName      = "TemplateName";      // string
+        public const string BatchSize         = "BatchSize";         // int
+        public const string DryRunRowCount    = "DryRunRowCount";    // int (0 = disabled)
+        public const string RunValidation     = "RunValidation";     // bool
+        public const string SkipBlanks        = "SkipBlanks";        // bool
+        public const string RunSchemaPreflight= "RunSchemaPreflight";// bool
+        public const string SaveSyncDraft     = "SaveSyncDraft";     // bool
+        public const string RunSummary        = "RunSummary";        // ImportRunSummary
+    }
+
+    public enum ImportPurpose
+    {
+        AddOnly,
+        AddOrUpdate,
+        ReplaceAll
+    }
+
+    public sealed class ImportRunSummary
+    {
+        public int  TotalRows      { get; set; }
+        public int  AddedRows      { get; set; }
+        public int  UpdatedRows    { get; set; }
+        public int  SkippedRows    { get; set; }
+        public int  FailedRows     { get; set; }
+        public TimeSpan Duration   { get; set; }
+        public double RowsPerSec   { get; set; }
+        public List<ImportRowError> Errors { get; set; } = new();
+    }
+
+    public sealed class ImportRowError
+    {
+        public int    RowIndex     { get; set; }
+        public string FieldName    { get; set; } = string.Empty;
+        public string Value        { get; set; } = string.Empty;
+        public string ErrorMessage { get; set; } = string.Empty;
+    }
+
+    public sealed class ImportFieldMapRow
+    {
+        public bool   Selected         { get; set; }
+        public string SourceField      { get; set; } = string.Empty;
+        public string SourceType       { get; set; } = string.Empty;
+        public string DestinationField { get; set; } = string.Empty;
+        public string DestinationType  { get; set; } = string.Empty;
+        /// <summary>
+        /// Optional transform expression applied before writing to destination.
+        /// Supported tokens: TRIM, UPPER, LOWER, DATE:{format}, or leave empty.
+        /// </summary>
+        public string Transform        { get; set; } = string.Empty;
+        /// <summary>Read-only type-compatibility indicator: ✓ / ⚠ / ✕</summary>
+        [System.ComponentModel.Browsable(false)]
+        public string TypeStatus
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(SourceType) || string.IsNullOrWhiteSpace(DestinationType)) return "✓";
+                if (string.Equals(SourceType, DestinationType, StringComparison.OrdinalIgnoreCase)) return "✓";
+                var numericTypes = new[] { "int", "integer", "long", "short", "byte", "decimal", "float", "double", "numeric", "number" };
+                bool srcNum = numericTypes.Any(n => SourceType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+                bool dstNum = numericTypes.Any(n => DestinationType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (srcNum && dstNum) return "✓";
+                var dateTypes = new[] { "date", "datetime", "timestamp", "time" };
+                bool srcDate = dateTypes.Any(n => SourceType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+                bool dstDate = dateTypes.Any(n => DestinationType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (srcDate && dstDate) return "✓";
+                var strTypes = new[] { "varchar", "nvarchar", "text", "string", "char" };
+                bool dstStr = strTypes.Any(n => DestinationType.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
+                return dstStr ? "⚠" : "✕";
+            }
+        }
+    }
+
+    [AddinAttribute(Caption = "Select Datasource and Entity", Name = "uc_Import_SelectDSandEntity",
+        misc = "Config", menu = "Configuration", addinType = AddinType.Control,
+        displayType = DisplayType.InControl, ObjectType = "Beep")]
     public partial class uc_Import_SelectDSandEntity : TemplateUserControl, IWizardStepContent
     {
-        private readonly BeepComboBox _sourceEntityCombo;
-        private readonly BeepComboBox _destinationEntityCombo;
-        private readonly BeepLabel _sourceEntityLabel;
-        private readonly BeepLabel _destinationEntityLabel;
-        private readonly BeepLabel _statusLabel;
         private bool _isInitializing;
 
         public uc_Import_SelectDSandEntity(IServiceProvider services) : base(services)
         {
             InitializeComponent();
+            _sourceEntityCombo.SelectedItemChanged      += EntityCombo_Changed;
+            _destinationEntityCombo.SelectedItemChanged += EntityCombo_Changed;
+            SourcebeepComboBox.SelectedItemChanged += SourceDS_Changed;
+            beepComboBox1.SelectedItemChanged       += DestDS_Changed;
+            AddSourcebeepButton.Click               += (_, _) => { LoadDataSources(); RaiseValidationState(); };
+            beepCheckBoxBool1.StateChanged          += (_, _) => RaiseValidationState();
+            beepCheckBoxBool1.CurrentValue           = true;
 
-            _sourceEntityLabel = CreateEntityLabel("Source Entity", new System.Drawing.Point(35, 337));
-            _sourceEntityCombo = CreateEntityCombo(new System.Drawing.Point(232, 335));
-            _sourceEntityCombo.SelectedItemChanged += EntityCombo_SelectedIndexChanged;
-
-            _destinationEntityLabel = CreateEntityLabel("Destination Entity", new System.Drawing.Point(35, 369));
-            _destinationEntityCombo = CreateEntityCombo(new System.Drawing.Point(232, 367));
-            _destinationEntityCombo.SelectedItemChanged += EntityCombo_SelectedIndexChanged;
-
-            _statusLabel = new BeepLabel
+            // ── Seed the Purpose combo ────────────────────────────────────────
+            var purposeItems = new BindingList<SimpleItem>
             {
-                AutoSize = false,
-                Text = "Select source and destination entities.",
-                Location = new System.Drawing.Point(35, 400),
-                Size = new System.Drawing.Size(560, 23),
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+                new SimpleItem { Text = "Add Only",       Item = ImportPurpose.AddOnly      },
+                new SimpleItem { Text = "Add or Update",  Item = ImportPurpose.AddOrUpdate  },
+                new SimpleItem { Text = "Replace All",    Item = ImportPurpose.ReplaceAll   }
             };
+            cmbPurpose.ListItems = purposeItems;
+            cmbPurpose.SelectItemByText("Add Only");
+            cmbPurpose.SelectedItemChanged += PurposeCombo_Changed;
 
-            Controls.Add(_sourceEntityLabel);
-            Controls.Add(_sourceEntityCombo);
-            Controls.Add(_destinationEntityLabel);
-            Controls.Add(_destinationEntityCombo);
-            Controls.Add(_statusLabel);
-
-            SourcebeepComboBox.SelectedItemChanged += SourcebeepComboBox_SelectedItemChanged;
-            beepComboBox1.SelectedItemChanged += DestinationbeepComboBox_SelectedItemChanged;
-            AddSourcebeepButton.Click += AddSourcebeepButton_Click;
-            beepCheckBoxBool1.StateChanged += BeepCheckBoxBool1_StateChanged;
-            beepCheckBoxBool1.CurrentValue = true;
+            btnRefreshCount.Click += (_, _) => _ = RefreshRowCountAsync();
         }
 
         public event EventHandler<StepValidationEventArgs>? ValidationStateChanged;
-
-        public bool IsComplete => BuildSelectionFromUi().IsValid;
-
+        public bool   IsComplete     => ValidateStep().IsValid;
         public string NextButtonText => string.Empty;
 
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
@@ -86,275 +157,172 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             try
             {
                 LoadDataSources();
+                var config = context.GetValue<DataImportConfiguration?>(WizardKeys.ImportConfig, null)
+                             ?? new DataImportConfiguration();
+                RestoreFromConfig(config);
 
-                var selection =
-                    ImportExportContextStore.ParseSelection(context.GetAllData()) ??
-                    ImportExportContextStore.GetSelection() ??
-                    new ImportSelectionContext();
+                // Restore new wizard-level keys
+                var purpose = context.GetValue(WizardKeys.Purpose, ImportPurpose.AddOnly);
+                SelectPurposeItem(purpose);
+                ApplyPurposeVisibility(purpose);
 
-                RestoreSelectionToUi(selection);
+                var matchBy = context.GetValue(WizardKeys.MatchByField, string.Empty);
+                if (!string.IsNullOrWhiteSpace(matchBy))
+                    cmbMatchBy.SelectItemByText(matchBy);
+
+                chkUpdateEmpty.CurrentValue = context.GetValue(WizardKeys.UpdateEmptyFields, false);
             }
-            finally
-            {
-                _isInitializing = false;
-            }
-
+            finally { _isInitializing = false; }
+            _ = RefreshRowCountAsync();
             RaiseValidationState();
         }
 
         public void OnStepLeave(WizardContext context)
         {
-            var selection = BuildSelectionFromUi();
-            ImportExportContextStore.SaveSelection(selection);
+            var existing = context.GetValue<DataImportConfiguration?>(WizardKeys.ImportConfig, null)
+                           ?? new DataImportConfiguration();
+            ApplySelectionToConfig(existing);
+            context.SetValue(WizardKeys.ImportConfig, existing);
 
-            context.SetValue(ImportExportParameterKeys.SourceDataSourceName, selection.SourceDataSourceName);
-            context.SetValue(ImportExportParameterKeys.SourceEntityName, selection.SourceEntityName);
-            context.SetValue(ImportExportParameterKeys.DestinationDataSourceName, selection.DestinationDataSourceName);
-            context.SetValue(ImportExportParameterKeys.DestinationEntityName, selection.DestinationEntityName);
-            context.SetValue(ImportExportParameterKeys.CreateDestinationIfNotExists, selection.CreateDestinationIfNotExists);
+            // Persist new fields
+            var purpose = GetSelectedPurpose();
+            context.SetValue(WizardKeys.Purpose,          purpose);
+            context.SetValue(WizardKeys.MatchByField,     cmbMatchBy.SelectedItem?.Text ?? string.Empty);
+            context.SetValue(WizardKeys.UpdateEmptyFields, chkUpdateEmpty.CurrentValue);
         }
 
-        WizardValidationResult IWizardStepContent.Validate()
-        {
-            return ValidateStep();
-        }
+        WizardValidationResult IWizardStepContent.Validate() => ValidateStep();
+        public Task<WizardValidationResult> ValidateAsync()  => Task.FromResult(ValidateStep());
+
+        // ── Private helpers ────────────────────────────────────────────────
 
         private WizardValidationResult ValidateStep()
         {
-            var selection = BuildSelectionFromUi();
-            if (string.IsNullOrWhiteSpace(selection.SourceDataSourceName))
-            {
+            if (string.IsNullOrWhiteSpace(SourcebeepComboBox.SelectedItem?.Text))
                 return WizardValidationResult.Error("Select a source data source.");
-            }
-
-            if (string.IsNullOrWhiteSpace(selection.SourceEntityName))
-            {
+            if (string.IsNullOrWhiteSpace(_sourceEntityCombo.SelectedItem?.Text))
                 return WizardValidationResult.Error("Select a source entity.");
-            }
-
-            if (string.IsNullOrWhiteSpace(selection.DestinationDataSourceName))
-            {
+            if (string.IsNullOrWhiteSpace(beepComboBox1.SelectedItem?.Text))
                 return WizardValidationResult.Error("Select a destination data source.");
-            }
-
-            if (string.IsNullOrWhiteSpace(selection.DestinationEntityName))
-            {
+            if (string.IsNullOrWhiteSpace(_destinationEntityCombo.SelectedItem?.Text))
                 return WizardValidationResult.Error("Select a destination entity.");
-            }
-
             return WizardValidationResult.Success();
         }
 
-        public Task<WizardValidationResult> ValidateAsync()
+        private void ApplySelectionToConfig(DataImportConfiguration config)
         {
-            return Task.FromResult(ValidateStep());
-        }
+            config.SourceDataSourceName  = SourcebeepComboBox.SelectedItem?.Text ?? string.Empty;
+            config.SourceEntityName      = _sourceEntityCombo.SelectedItem?.Text ?? string.Empty;
+            config.DestDataSourceName    = beepComboBox1.SelectedItem?.Text ?? string.Empty;
+            config.DestEntityName        = _destinationEntityCombo.SelectedItem?.Text ?? string.Empty;
+            config.CreateDestinationIfNotExists = beepCheckBoxBool1.CurrentValue;
 
-        private static BeepLabel CreateEntityLabel(string text, System.Drawing.Point location)
-        {
-            return new BeepLabel
+            // Map purpose → SyncMode + upsert key
+            var purpose = GetSelectedPurpose();
+            config.SyncMode = purpose switch
             {
-                AutoSize = false,
-                Text = text,
-                Location = location,
-                Size = new System.Drawing.Size(194, 23),
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+                ImportPurpose.AddOrUpdate => SyncMode.Upsert,
+                ImportPurpose.ReplaceAll  => SyncMode.FullRefresh,
+                _                         => SyncMode.FullRefresh
             };
+            if (purpose == ImportPurpose.AddOrUpdate)
+                config.WatermarkColumn = cmbMatchBy.SelectedItem?.Text ?? string.Empty;
         }
 
-        private static BeepComboBox CreateEntityCombo(System.Drawing.Point location)
-        {
-            return new BeepComboBox
-            {
-                Location = location,
-                Size = new System.Drawing.Size(194, 27),
-                Anchor = AnchorStyles.None
-            };
-        }
-
-        private void AddSourcebeepButton_Click(object? sender, EventArgs e)
-        {
-            LoadDataSources();
-            RaiseValidationState();
-        }
-
-        private void SourcebeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            if (_isInitializing)
-            {
-                return;
-            }
-
-            LoadEntitiesForSelectedSource();
-            RaiseValidationState();
-        }
-
-        private void DestinationbeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            if (_isInitializing)
-            {
-                return;
-            }
-
-            LoadEntitiesForSelectedDestination();
-            RaiseValidationState();
-        }
-
-        private void EntityCombo_SelectedIndexChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            if (_isInitializing)
-            {
-                return;
-            }
-
-            RaiseValidationState();
-        }
-
-        private void BeepCheckBoxBool1_StateChanged(object? sender, EventArgs e)
-        {
-            RaiseValidationState();
-        }
-
-        private void LoadDataSources()
-        {
-            var sourceNames = GetDataSourceNames();
-            var items = new BindingList<SimpleItem>(sourceNames
-                .Select(name => new SimpleItem { Text = name, Item = name })
-                .ToList());
-
-            SourcebeepComboBox.ListItems = new BindingList<SimpleItem>(items.ToList());
-            beepComboBox1.ListItems = new BindingList<SimpleItem>(items.ToList());
-        }
-
-        private List<string> GetDataSourceNames()
-        {
-            var connections = Editor?.ConfigEditor?.DataConnections ?? new List<ConnectionProperties>();
-
-            return connections
-                .Select(p => p.ConnectionName)
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Distinct(System.StringComparer.OrdinalIgnoreCase)
-                .OrderBy(name => name)
-                .ToList();
-        }
-
-        private void LoadEntitiesForSelectedSource()
-        {
-            var sourceDataSourceName = SourcebeepComboBox.SelectedItem?.Text ?? string.Empty;
-            PopulateEntityCombo(_sourceEntityCombo, sourceDataSourceName);
-        }
-
-        private void LoadEntitiesForSelectedDestination()
-        {
-            var destinationDataSourceName = beepComboBox1.SelectedItem?.Text ?? string.Empty;
-            PopulateEntityCombo(_destinationEntityCombo, destinationDataSourceName);
-        }
-
-        private void PopulateEntityCombo(BeepComboBox combo, string dataSourceName)
-        {
-            var currentSelection = combo.SelectedItem?.Text ?? string.Empty;
-            var items = GetEntityNames(dataSourceName)
-                .Select(entityName => new SimpleItem { Text = entityName, Item = entityName })
-                .ToList();
-            combo.ListItems = new BindingList<SimpleItem>(items);
-
-            if (!string.IsNullOrWhiteSpace(currentSelection))
-            {
-                combo.SelectItemByText(currentSelection);
-            }
-            else if (items.Count > 0)
-            {
-                combo.SelectItemByText(items[0].Text);
-            }
-        }
-
-        private List<string> GetEntityNames(string dataSourceName)
-        {
-            if (Editor == null || string.IsNullOrWhiteSpace(dataSourceName))
-            {
-                return new List<string>();
-            }
-
-            try
-            {
-                var dataSource = Editor.GetDataSource(dataSourceName);
-                if (dataSource == null)
-                {
-                    return new List<string>();
-                }
-
-                if (dataSource.ConnectionStatus != ConnectionState.Open)
-                {
-                    dataSource.Openconnection();
-                }
-
-                var entities = dataSource.GetEntitesList()?.ToList() ?? new List<string>();
-                if (entities.Count == 0 && dataSource.EntitiesNames != null)
-                {
-                    entities = dataSource.EntitiesNames.ToList();
-                }
-
-                return entities
-                    .Where(name => !string.IsNullOrWhiteSpace(name))
-                    .Distinct(System.StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(name => name)
-                    .ToList();
-            }
-            catch (System.Exception ex)
-            {
-                Editor.AddLogMessage("ImportExport", $"Error loading entities for '{dataSourceName}': {ex.Message}", System.DateTime.Now, 0, null, Errors.Failed);
-                return new List<string>();
-            }
-        }
-
-        private void RestoreSelectionToUi(ImportSelectionContext selection)
+        private void RestoreFromConfig(DataImportConfiguration config)
         {
             _isInitializing = true;
             try
             {
-                if (!string.IsNullOrWhiteSpace(selection.SourceDataSourceName))
-                {
-                    SourcebeepComboBox.SelectItemByText(selection.SourceDataSourceName);
-                }
-
-                if (!string.IsNullOrWhiteSpace(selection.DestinationDataSourceName))
-                {
-                    beepComboBox1.SelectItemByText(selection.DestinationDataSourceName);
-                }
+                if (!string.IsNullOrWhiteSpace(config.SourceDataSourceName))
+                    SourcebeepComboBox.SelectItemByText(config.SourceDataSourceName);
+                if (!string.IsNullOrWhiteSpace(config.DestDataSourceName))
+                    beepComboBox1.SelectItemByText(config.DestDataSourceName);
 
                 LoadEntitiesForSelectedSource();
                 LoadEntitiesForSelectedDestination();
 
-                SelectComboItem(_sourceEntityCombo, selection.SourceEntityName);
-                SelectComboItem(_destinationEntityCombo, selection.DestinationEntityName);
-                beepCheckBoxBool1.CurrentValue = selection.CreateDestinationIfNotExists;
+                if (!string.IsNullOrWhiteSpace(config.SourceEntityName))
+                    _sourceEntityCombo.SelectItemByText(config.SourceEntityName);
+                if (!string.IsNullOrWhiteSpace(config.DestEntityName))
+                    _destinationEntityCombo.SelectItemByText(config.DestEntityName);
+
+                beepCheckBoxBool1.CurrentValue = config.CreateDestinationIfNotExists;
             }
-            finally
-            {
-                _isInitializing = false;
-            }
+            finally { _isInitializing = false; }
         }
 
-        private static void SelectComboItem(BeepComboBox combo, string value)
+        private void SourceDS_Changed(object? sender, SelectedItemChangedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return;
-            }
-
-            combo.SelectItemByText(value);
+            if (_isInitializing) return;
+            LoadEntitiesForSelectedSource();
+            RaiseValidationState();
         }
 
-        private ImportSelectionContext BuildSelectionFromUi()
+        private void DestDS_Changed(object? sender, SelectedItemChangedEventArgs e)
         {
-            return new ImportSelectionContext
+            if (_isInitializing) return;
+            LoadEntitiesForSelectedDestination();
+            RaiseValidationState();
+        }
+
+        private void EntityCombo_Changed(object? sender, SelectedItemChangedEventArgs e)
+        {
+            if (!_isInitializing) RaiseValidationState();
+        }
+
+        private void LoadDataSources()
+        {
+            var items = new BindingList<SimpleItem>(
+                (Editor?.ConfigEditor?.DataConnections ?? new List<ConnectionProperties>())
+                .Select(p => p.ConnectionName)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n)
+                .Select(n => new SimpleItem { Text = n, Item = n })
+                .ToList());
+            SourcebeepComboBox.ListItems = items;
+            beepComboBox1.ListItems      = new BindingList<SimpleItem>(items.ToList());
+        }
+
+        private void LoadEntitiesForSelectedSource()
+            => PopulateEntityCombo(_sourceEntityCombo, SourcebeepComboBox.SelectedItem?.Text ?? string.Empty);
+
+        private void LoadEntitiesForSelectedDestination()
+            => PopulateEntityCombo(_destinationEntityCombo, beepComboBox1.SelectedItem?.Text ?? string.Empty);
+
+        private void PopulateEntityCombo(BeepComboBox combo, string dataSourceName)
+        {
+            var prev  = combo.SelectedItem?.Text ?? string.Empty;
+            var items = GetEntityNames(dataSourceName)
+                .Select(n => new SimpleItem { Text = n, Item = n }).ToList();
+            combo.ListItems = new BindingList<SimpleItem>(items);
+            if (!string.IsNullOrWhiteSpace(prev))
+                combo.SelectItemByText(prev);
+            else if (items.Count > 0)
+                combo.SelectItemByText(items[0].Text);
+        }
+
+        private List<string> GetEntityNames(string dataSourceName)
+        {
+            if (Editor == null || string.IsNullOrWhiteSpace(dataSourceName)) return new List<string>();
+            try
             {
-                SourceDataSourceName = SourcebeepComboBox.SelectedItem?.Text ?? string.Empty,
-                SourceEntityName = _sourceEntityCombo.SelectedItem?.Text ?? string.Empty,
-                DestinationDataSourceName = beepComboBox1.SelectedItem?.Text ?? string.Empty,
-                DestinationEntityName = _destinationEntityCombo.SelectedItem?.Text ?? string.Empty,
-                CreateDestinationIfNotExists = beepCheckBoxBool1.CurrentValue
-            };
+                var ds = Editor.GetDataSource(dataSourceName);
+                if (ds == null) return new List<string>();
+                if (ds.ConnectionStatus != ConnectionState.Open) ds.Openconnection();
+                var list = ds.GetEntitesList()?.ToList() ?? new List<string>();
+                if (list.Count == 0 && ds.EntitiesNames != null) list = ds.EntitiesNames.ToList();
+                return list.Where(n => !string.IsNullOrWhiteSpace(n))
+                           .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                           .OrderBy(n => n).ToList();
+            }
+            catch (System.Exception ex)
+            {
+                Editor?.AddLogMessage("ImportExport", $"Error loading entities for '{dataSourceName}': {ex.Message}",
+                    System.DateTime.Now, 0, null, Errors.Failed);
+                return new List<string>();
+            }
         }
 
         private void RaiseValidationState()
@@ -365,5 +333,109 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 : result.ErrorMessage ?? "Selection is incomplete.";
             ValidationStateChanged?.Invoke(this, new StepValidationEventArgs(result.IsValid, result.ErrorMessage));
         }
+
+        // ── Purpose helpers ────────────────────────────────────────────────────
+
+        private void PurposeCombo_Changed(object? sender, SelectedItemChangedEventArgs e)
+        {
+            if (_isInitializing) return;
+            var purpose = GetSelectedPurpose();
+            ApplyPurposeVisibility(purpose);
+            RaiseValidationState();
+        }
+
+        private ImportPurpose GetSelectedPurpose()
+        {
+            if (cmbPurpose.SelectedItem?.Item is ImportPurpose p) return p;
+            return ImportPurpose.AddOnly;
+        }
+
+        private void SelectPurposeItem(ImportPurpose purpose)
+        {
+            var text = purpose switch
+            {
+                ImportPurpose.AddOrUpdate => "Add or Update",
+                ImportPurpose.ReplaceAll  => "Replace All",
+                _                         => "Add Only"
+            };
+            cmbPurpose.SelectItemByText(text);
+        }
+
+        private void ApplyPurposeVisibility(ImportPurpose purpose)
+        {
+            bool isUpsert = purpose == ImportPurpose.AddOrUpdate;
+            lblMatchBy.Visible      = isUpsert;
+            cmbMatchBy.Visible      = isUpsert;
+            chkUpdateEmpty.Visible  = isUpsert;
+            if (isUpsert) PopulateMatchByCombo();
+        }
+
+        private void PopulateMatchByCombo()
+        {
+            var srcDs     = SourcebeepComboBox.SelectedItem?.Text ?? string.Empty;
+            var srcEntity = _sourceEntityCombo.SelectedItem?.Text ?? string.Empty;
+            var prev      = cmbMatchBy.SelectedItem?.Text ?? string.Empty;
+
+            var fields = GetEntityFields(srcDs, srcEntity)
+                .Select(f => new SimpleItem { Text = f, Item = f })
+                .ToList();
+            cmbMatchBy.ListItems = new BindingList<SimpleItem>(fields);
+            if (!string.IsNullOrWhiteSpace(prev))
+                cmbMatchBy.SelectItemByText(prev);
+            else if (fields.Count > 0)
+                cmbMatchBy.SelectItemByText(fields[0].Text);
+        }
+
+        private async Task RefreshRowCountAsync()
+        {
+            var srcDs     = SourcebeepComboBox.SelectedItem?.Text ?? string.Empty;
+            var srcEntity = _sourceEntityCombo.SelectedItem?.Text ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(srcDs) || string.IsNullOrWhiteSpace(srcEntity)) return;
+
+            lblRowCount.Text = "Row count: …";
+            try
+            {
+                var count = await Task.Run(async () =>
+                {
+                    var ds = Editor?.GetDataSource(srcDs);
+                    if (ds == null) return -1L;
+                    if (ds.ConnectionStatus != ConnectionState.Open) ds.Openconnection();
+                    // Use GetScalarAsync for SQL-capable sources; fall back to -1 if unsupported
+                    try
+                    {
+                        var result = await ds.GetScalarAsync($"SELECT COUNT(*) FROM {srcEntity}");
+                        return (long)result;
+                    }
+                    catch
+                    {
+                        return -1L;
+                    }
+                });
+                lblRowCount.Text = count >= 0 ? $"Row count: ~{count:N0}" : "Row count: —";
+            }
+            catch
+            {
+                lblRowCount.Text = "Row count: error";
+            }
+        }
+
+        private List<string> GetEntityFields(string dataSourceName, string entityName)
+        {
+            if (Editor == null || string.IsNullOrWhiteSpace(dataSourceName) || string.IsNullOrWhiteSpace(entityName))
+                return new List<string>();
+            try
+            {
+                var ds = Editor.GetDataSource(dataSourceName);
+                if (ds == null) return new List<string>();
+                if (ds.ConnectionStatus != ConnectionState.Open) ds.Openconnection();
+                var entity = ds.GetEntityStructure(entityName, true);
+                return entity?.Fields?.Select(f => f.FieldName)
+                           .Where(n => !string.IsNullOrWhiteSpace(n)).ToList()
+                       ?? new List<string>();
+            }
+            catch { return new List<string>(); }
+        }
+
+
     }
 }

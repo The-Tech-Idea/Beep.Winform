@@ -89,9 +89,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <Compile Remove="NuggetsManage\**" />
-	  <EmbeddedResource Remove="NuggetsManage\**" />
-	  <None Remove="NuggetsManage\**" />
     <Folder Include="CRUD\" />
     <Folder Include="ETL\" />
     <Folder Include="DDL\" />
@@ -101,8 +98,9 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.79" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.133" />
+    <PackageReference Include="NuGet.Protocol" Version="7.3.0" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.80" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.134" />
   </ItemGroup>
 
 </Project>

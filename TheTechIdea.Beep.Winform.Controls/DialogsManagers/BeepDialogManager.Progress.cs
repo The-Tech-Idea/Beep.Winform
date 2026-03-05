@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -183,11 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             private readonly bool _indeterminate;
             private readonly CancellationTokenSource _cts;
 
-            private Form? _dialog;
-            private Label? _messageLabel;
-            private ProgressBar? _progressBar;
-            private Label? _percentLabel;
-            private Button? _cancelButton;
+            private BeepProgressDialog? _dialog;
             private bool _disposed;
 
             public ProgressHandle(BeepDialogManager manager, string title, string? message, bool cancellable, bool indeterminate)
@@ -205,7 +200,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             public void Show()
             {
-                _dialog = CreateProgressDialog();
+                _dialog = new BeepProgressDialog(_title, _initialMessage, _cancellable, _indeterminate);
+
+                // Wire cancel button
+                if (_cancellable && _dialog.CancelButton != null)
+                {
+                    _dialog.CancelButton.Click += (s, e) =>
+                    {
+                        _cts.Cancel();
+                        if (_dialog.MessageLabel != null)
+                            _dialog.MessageLabel.Text = "Cancelling...";
+                        if (_dialog.CancelButton != null)
+                            _dialog.CancelButton.Enabled = false;
+                    };
+                }
+
+                // Apply theme from manager's default theme
+                var theme = _manager._defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
+                if (theme != null)
+                {
+                    _dialog.Theme = theme.ThemeName;
+                    _dialog.ApplyTheme();
+                }
 
                 var owner = _manager._hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
 
@@ -234,20 +250,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
-                if (_progressBar != null && !_indeterminate)
+                if (!_indeterminate)
                 {
-                    _progressBar.Value = Math.Max(0, Math.Min(100, percent));
+                    _dialog.ProgressBarControl.Value = Math.Max(0, Math.Min(100, percent));
+                    if (_dialog.PercentLabel != null)
+                        _dialog.PercentLabel.Text = $"{percent}%";
                 }
 
-                if (_percentLabel != null && !_indeterminate)
-                {
-                    _percentLabel.Text = $"{percent}%";
-                }
-
-                if (status != null && _messageLabel != null)
-                {
-                    _messageLabel.Text = status;
-                }
+                if (status != null)
+                    _dialog.MessageLabel.Text = status;
 
                 Application.DoEvents();
             }
@@ -263,11 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
-                if (_messageLabel != null)
-                {
-                    _messageLabel.Text = status;
-                }
-
+                _dialog.MessageLabel.Text = status;
                 Application.DoEvents();
             }
 
@@ -282,15 +289,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
-                if (_progressBar != null)
-                {
-                    _progressBar.Style = ProgressBarStyle.Marquee;
-                }
-
-                if (_percentLabel != null)
-                {
-                    _percentLabel.Visible = false;
-                }
+                _dialog.ProgressBarControl.ProgressBarStyle = ProgressBars.ProgressBarStyle.Animated;
+                if (_dialog.PercentLabel != null)
+                    _dialog.PercentLabel.Visible = false;
             }
 
             public void Complete(string? message = null)
@@ -304,22 +305,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
-                if (_progressBar != null)
+                _dialog.ProgressBarControl.Value = 100;
+                if (_dialog.PercentLabel != null)
                 {
-                    _progressBar.Style = ProgressBarStyle.Continuous;
-                    _progressBar.Value = 100;
+                    _dialog.PercentLabel.Text = "100%";
+                    _dialog.PercentLabel.Visible = true;
                 }
 
-                if (_percentLabel != null)
-                {
-                    _percentLabel.Text = "100%";
-                    _percentLabel.Visible = true;
-                }
-
-                if (message != null && _messageLabel != null)
-                {
-                    _messageLabel.Text = message;
-                }
+                if (message != null)
+                    _dialog.MessageLabel.Text = message;
 
                 Application.DoEvents();
             }
@@ -335,18 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
-                if (_messageLabel != null)
-                {
-                    _messageLabel.Text = message;
-                    _messageLabel.ForeColor = Color.FromArgb(220, 38, 38);
-                }
-
-                if (_progressBar != null)
-                {
-                    _progressBar.Style = ProgressBarStyle.Continuous;
-                    _progressBar.ForeColor = Color.FromArgb(220, 38, 38);
-                }
-
+                _dialog.MessageLabel.Text = message;
                 Application.DoEvents();
             }
 
@@ -394,92 +377,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 Dispose();
                 return ValueTask.CompletedTask;
             }
-
-            private Form CreateProgressDialog()
-            {
-                var theme = _manager._defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
-
-                var dialog = new Form
-                {
-                    Text = _title,
-                    FormBorderStyle = FormBorderStyle.FixedDialog,
-                    MaximizeBox = false,
-                    MinimizeBox = false,
-                    ShowInTaskbar = false,
-                    Size = new Size(400, _cancellable ? 160 : 130),
-                    BackColor = theme?.BackColor ?? Color.White
-                };
-
-                // Title label
-                var titleLabel = new Label
-                {
-                    Text = _title,
-                    ForeColor = theme?.ForeColor ?? Color.Black,
-                    Location = new Point(20, 16),
-                    Size = new Size(360, 24),
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
-                dialog.Controls.Add(titleLabel);
-
-                // Message label
-                _messageLabel = new Label
-                {
-                    Text = _initialMessage ?? "Please wait...",
-                    ForeColor = Color.FromArgb(100, theme?.ForeColor ?? Color.Black),
-                    Location = new Point(20, 44),
-                    Size = new Size(320, 20),
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
-                dialog.Controls.Add(_messageLabel);
-
-                // Percent label
-                _percentLabel = new Label
-                {
-                    Text = _indeterminate ? "" : "0%",
-                    ForeColor = theme?.ForeColor ?? Color.Black,
-                    Location = new Point(340, 44),
-                    Size = new Size(40, 20),
-                    TextAlign = ContentAlignment.MiddleRight,
-                    Visible = !_indeterminate
-                };
-                dialog.Controls.Add(_percentLabel);
-
-                // Progress bar
-                _progressBar = new ProgressBar
-                {
-                    Location = new Point(20, 70),
-                    Size = new Size(360, 20),
-                    Style = _indeterminate ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous,
-                    MarqueeAnimationSpeed = 30
-                };
-                dialog.Controls.Add(_progressBar);
-
-                // Cancel button
-                if (_cancellable)
-                {
-                    _cancelButton = new Button
-                    {
-                        Text = "Cancel",
-                        Location = new Point(290, 100),
-                        Size = new Size(90, 32),
-                        FlatStyle = FlatStyle.Flat,
-                        BackColor = Color.FromArgb(243, 244, 246),
-                        ForeColor = Color.FromArgb(55, 65, 81)
-                    };
-                    _cancelButton.FlatAppearance.BorderColor = Color.FromArgb(209, 213, 219);
-                    _cancelButton.Click += (s, e) =>
-                    {
-                        _cts.Cancel();
-                        if (_messageLabel != null)
-                            _messageLabel.Text = "Cancelling...";
-                        if (_cancelButton != null)
-                            _cancelButton.Enabled = false;
-                    };
-                    dialog.Controls.Add(_cancelButton);
-                }
-
-                return dialog;
-            }
         }
 
         #endregion
@@ -489,81 +386,52 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         private class BusyOverlay : IDisposable
         {
             private readonly Form _hostForm;
-            private readonly Panel _overlay;
-            private readonly Timer _spinnerTimer;
-            private int _spinnerAngle = 0;
+            private readonly BeepPanel _overlay;
             private bool _disposed;
 
             public BusyOverlay(Form hostForm, string? message)
             {
                 _hostForm = hostForm;
 
-                _overlay = new Panel
+                _overlay = new BeepPanel
                 {
                     Dock = DockStyle.Fill,
-                    BackColor = Color.FromArgb(180, 0, 0, 0)
+                    BackColor = Color.FromArgb(180, 0, 0, 0),
+                    ShowTitle = false,
+                    ShowTitleLine = false,
                 };
 
-                // Spinner panel
-                var spinnerPanel = new Panel
+                // Spinner via BeepProgressBar DotsLoader — no raw GDI painting
+                var spinner = new ProgressBars.BeepProgressBar
                 {
-                    Size = new Size(100, 100),
-                    BackColor = Color.Transparent
+                    Size = new Size(120, 24),
+                    PainterKind = ProgressBars.ProgressPainterKind.DotsLoader,
+                    ProgressBarStyle = ProgressBars.ProgressBarStyle.Animated,
+                    UseThemeColors = true,
+                    VisualMode = ProgressBars.ProgressBarDisplayMode.NoText,
                 };
-                spinnerPanel.Location = new Point(
-                    (_hostForm.ClientSize.Width - spinnerPanel.Width) / 2,
-                    (_hostForm.ClientSize.Height - spinnerPanel.Height) / 2 - 20
+                spinner.Location = new Point(
+                    (_hostForm.ClientSize.Width - spinner.Width) / 2,
+                    (_hostForm.ClientSize.Height - spinner.Height) / 2 - 16
                 );
-                spinnerPanel.Paint += SpinnerPanel_Paint;
+                _overlay.Controls.Add(spinner);
 
-                _overlay.Controls.Add(spinnerPanel);
-
-                // Message label
                 if (!string.IsNullOrEmpty(message))
                 {
-                    var messageLabel = new Label
+                    var messageLabel = new BeepLabel
                     {
                         Text = message,
                         ForeColor = Color.White,
                         TextAlign = ContentAlignment.MiddleCenter,
-                        Size = new Size(300, 30),
-                        BackColor = Color.Transparent
+                        Size = new Size(320, 24),
+                        BackColor = Color.Transparent,
+                        UseThemeColors = false,
                     };
                     messageLabel.Location = new Point(
                         (_hostForm.ClientSize.Width - messageLabel.Width) / 2,
-                        spinnerPanel.Bottom + 16
+                        spinner.Bottom + 10
                     );
                     _overlay.Controls.Add(messageLabel);
-                }
-
-                // Animation timer
-                _spinnerTimer = new Timer { Interval = 50 };
-                _spinnerTimer.Tick += (s, e) =>
-                {
-                    _spinnerAngle = (_spinnerAngle + 30) % 360;
-                    spinnerPanel.Invalidate();
-                };
-            }
-
-            private void SpinnerPanel_Paint(object? sender, PaintEventArgs e)
-            {
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-
-                var center = new Point(50, 50);
-                int radius = 30;
-                int dotCount = 8;
-                int dotSize = 8;
-
-                for (int i = 0; i < dotCount; i++)
-                {
-                    double angle = (i * 360.0 / dotCount + _spinnerAngle) * Math.PI / 180;
-                    int x = center.X + (int)(radius * Math.Cos(angle)) - dotSize / 2;
-                    int y = center.Y + (int)(radius * Math.Sin(angle)) - dotSize / 2;
-
-                    int alpha = (int)(255 * (1.0 - (double)i / dotCount));
-                    using var brush = new SolidBrush(Color.FromArgb(alpha, 255, 255, 255));
-                    g.FillEllipse(brush, x, y, dotSize, dotSize);
                 }
             }
 
@@ -571,22 +439,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 _hostForm.Controls.Add(_overlay);
                 _overlay.BringToFront();
-                _spinnerTimer.Start();
             }
 
             public void Dispose()
             {
-                if (_disposed)
-                    return;
-
+                if (_disposed) return;
                 _disposed = true;
-                _spinnerTimer.Stop();
-                _spinnerTimer.Dispose();
 
                 if (!_hostForm.IsDisposed)
-                {
                     _hostForm.Controls.Remove(_overlay);
-                }
+
                 _overlay.Dispose();
             }
         }

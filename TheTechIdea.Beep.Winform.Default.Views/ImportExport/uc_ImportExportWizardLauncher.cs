@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -42,6 +43,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private readonly List<(DateTime When, string Src, string Dst, int Rows, bool Success)>
             _runHistory = new();
         private ImportRunSummary? _lastSummary;
+        private DataTable _historyDt;
 
         // ── Public configuration properties ────────────────────────────────────
         /// <summary>Import = data flows into this system; Export = data flows out.</summary>
@@ -211,21 +213,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 }
             };
 
-            // Pre-inject the config so Step 1 restores from it
-            wizardConfig.InitialContext = new Dictionary<string, object>
-            {
-                [WizardKeys.ImportConfig] = config
-            };
-
             wizardConfig.OnProgress = (cur, tot, t) => AppendLog($"[{cur}/{tot}] {t}");
             wizardConfig.OnComplete = RunImportFromWizardContext;
             wizardConfig.OnCancel   = _ => AppendLog("Wizard cancelled.");
 
+            // Pre-inject the config so Step 1 restores from it
+            var wizardInstance = WizardManager.CreateWizard(wizardConfig);
+            wizardInstance.Context.SetValue(WizardKeys.ImportConfig, config);
+
             AppendLog($"Launching {title}…");
             var owner  = FindForm();
             var result = owner == null
-                ? WizardManager.ShowWizard(wizardConfig)
-                : WizardManager.ShowWizard(wizardConfig, owner);
+                ? wizardInstance.ShowDialog()
+                : wizardInstance.ShowDialog(owner);
             AppendLog($"Wizard closed: {result}");
         }
 
@@ -252,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             _lastSummary = context.GetValue<ImportRunSummary?>(WizardKeys.RunSummary, null);
 
             var manager  = new DataImportManager(Editor);
-            var progress = new Progress<PassedArgs>(args =>
+            var progress = new Progress<IPassedArgs>(args =>
             {
                 if (!string.IsNullOrWhiteSpace(args?.Messege)) AppendLog(args.Messege);
             });
@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                         AppendLog($"Import failed: {msg}");
                         AddToHistory(importConfig, 0, false);
                         if (IsHandleCreated)
-                            BeginInvoke(() => MessageBox.Show($"Import failed:\n{msg}", title: "Error",
+                            BeginInvoke(() => MessageBox.Show($"Import failed:\n{msg}", caption: "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error));
                         return;
                     }
@@ -437,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
                 AppendLog($"Quick Import using template '{templateName}'…");
                 var importManager = new DataImportManager(Editor);
-                var progress      = new Progress<PassedArgs>(a =>
+                var progress      = new Progress<IPassedArgs>(a =>
                 { if (!string.IsNullOrWhiteSpace(a?.Messege)) AppendLog(a.Messege); });
 
                 _ = importManager.RunImportAsync(config, progress, default)
@@ -490,17 +490,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             if (_historyInitialized) return;
             _historyInitialized = true;
 
+            // Build the backing DataTable
+            _historyDt = new DataTable("RunHistory");
+            _historyDt.Columns.Add("When",   typeof(string));
+            _historyDt.Columns.Add("Source", typeof(string));
+            _historyDt.Columns.Add("Dest",   typeof(string));
+            _historyDt.Columns.Add("Rows",   typeof(string));
+            _historyDt.Columns.Add("Status", typeof(string));
+
+            // Configure BeepGridPro columns
             historyGrid.Columns.Clear();
-            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
-                { Name = "colWhen", HeaderText = "Time",   Width = 80,  ReadOnly = true });
-            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
-                { Name = "colSrc",  HeaderText = "Source", Width = 130, ReadOnly = true });
-            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
-                { Name = "colDst",  HeaderText = "Dest",   Width = 130, ReadOnly = true });
-            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
-                { Name = "colRows", HeaderText = "Rows",   Width = 60,  ReadOnly = true });
-            historyGrid.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn
-                { Name = "colStatus", HeaderText = "Status", Width = 70, ReadOnly = true });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "When",   ColumnCaption = "Time",   Width = 80  });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Source", ColumnCaption = "Source", Width = 130 });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Dest",   ColumnCaption = "Dest",   Width = 130 });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Rows",   ColumnCaption = "Rows",   Width = 60  });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Status", ColumnCaption = "Status", Width = 70  });
+
+            historyGrid.DataSource = _historyDt;
         }
 
         private void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
@@ -524,17 +530,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private void RefreshHistoryGrid()
         {
             InitHistoryGrid();
-            historyGrid.Rows.Clear();
+            _historyDt.Rows.Clear();
             foreach (var h in _runHistory.Take(5))
             {
-                var rowIdx = historyGrid.Rows.Add(
+                _historyDt.Rows.Add(
                     h.When.ToString("HH:mm:ss"),
                     h.Src,
                     h.Dst,
                     h.Rows.ToString("N0"),
                     h.Success ? "✓ OK" : "✕ Failed");
-                historyGrid.Rows[rowIdx].DefaultCellStyle.ForeColor =
-                    h.Success ? System.Drawing.Color.DarkGreen : System.Drawing.Color.DarkRed;
             }
         }    }
 }

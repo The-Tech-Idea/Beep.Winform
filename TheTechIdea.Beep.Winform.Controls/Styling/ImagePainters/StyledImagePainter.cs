@@ -1058,6 +1058,78 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             if (string.IsNullOrEmpty(imagePath)) ClearCache(); else RemoveFromCache(imagePath);
         }
 
+        // ─── Frosted overlay helper ──────────────────────────────────────────
+
+        /// <summary>
+        /// Paints a frosted-glass-style overlay on <paramref name="g"/> covering
+        /// <paramref name="rect"/>. Rather than a true blur (which requires Win32
+        /// DWM APIs), this simulates depth using layered radial gradients and a
+        /// semi-transparent tint, producing a lightweight "frosted" appearance with
+        /// no unmanaged code.
+        /// </summary>
+        /// <param name="g">Target graphics context.</param>
+        /// <param name="rect">The rectangle to fill.</param>
+        /// <param name="blurRadius">
+        ///     Controls the spread of the radial gradient (higher = wider transition).
+        ///     Clamped to [4, 64]. Default: 12.
+        /// </param>
+        /// <param name="tintColor">
+        ///     Overlay tint colour. The alpha channel is respected — pass a colour
+        ///     with <c>A = 0</c> for a pure white frost with no colour cast.
+        ///     Default: <c>Color.FromArgb(28, 0, 0, 0)</c> (dark tint).
+        /// </param>
+        public static void PaintFrostedOverlay(
+            Graphics g,
+            Rectangle rect,
+            int blurRadius = 12,
+            Color? tintColor = null)
+        {
+            if (g == null || rect.IsEmpty) return;
+
+            blurRadius = Math.Max(4, Math.Min(64, blurRadius));
+            var tint = tintColor ?? Color.FromArgb(28, 0, 0, 0);
+
+            // Layer 1 — base semi-transparent fill (the "glass" substrate)
+            using (var baseBrush = new SolidBrush(Color.FromArgb(
+                Math.Max(0, Math.Min(255, (int)(tint.A * 0.55f))),
+                tint.R, tint.G, tint.B)))
+            {
+                g.FillRectangle(baseBrush, rect);
+            }
+
+            // Layer 2 — radial-gradient frosted sheen (simulates light diffusion)
+            var pts = new[]
+            {
+                new Point(rect.Left,  rect.Top),
+                new Point(rect.Right, rect.Top),
+                new Point(rect.Right, rect.Bottom),
+                new Point(rect.Left,  rect.Bottom)
+            };
+
+            using (var pgb = new PathGradientBrush(pts))
+            {
+                pgb.CenterPoint = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
+                // Inner highlight — subtle white sheen
+                int innerA = Math.Max(0, Math.Min(255, blurRadius * 2));
+                pgb.CenterColor = Color.FromArgb(innerA, 255, 255, 255);
+                var edgeAlpha = Color.FromArgb(0, 0, 0, 0);
+                pgb.SurroundColors = new[] { edgeAlpha, edgeAlpha, edgeAlpha, edgeAlpha };
+                g.FillRectangle(pgb, rect);
+            }
+
+            // Layer 3 — top-edge luminosity highlight (glass rim effect)
+            int rimH = Math.Max(2, blurRadius / 3);
+            var rimRect = new Rectangle(rect.Left, rect.Top, rect.Width, rimH);
+            using (var rimBrush = new LinearGradientBrush(
+                new Point(rimRect.Left, rimRect.Top),
+                new Point(rimRect.Left, rimRect.Bottom),
+                Color.FromArgb(Math.Min(255, blurRadius * 3), 255, 255, 255),
+                Color.FromArgb(0, 255, 255, 255)))
+            {
+                g.FillRectangle(rimBrush, rimRect);
+            }
+        }
+
     
     }
 }

@@ -8,11 +8,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
-using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Wizard;
-using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Sheets;
-using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Panels;
-using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Popovers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette;
+using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms;
 using DialogShowAnimation = TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models.DialogShowAnimation;
 using TheTechIdea.Beep.Winform.Controls.Forms;
@@ -66,11 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         private int _progressTokenCounter = 0;
         private readonly Queue<DialogRequest> _dialogQueue = new();
         private bool _isShowingDialog = false;
-        private readonly List<Form> _activeToasts = new();
-        private readonly object _toastLock = new object();
         private readonly Dictionary<string, Rectangle> _dialogRectState = new();
         private readonly Dictionary<string, Queue<string>> _recentInputMemory = new();
-        private BeepDialogModal? _activeModalDialog;
+        private BeepDialogForm? _activeModalDialog;
         private DialogConfig? _activeDialogConfig;
 
         public event EventHandler<DialogConfig>? DialogOpened;
@@ -191,16 +186,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region Advanced Dialog Types
 
-        public System.Windows.Forms.DialogResult ShowWizard(BeepWizardDialog wizard)
+        /// <summary>
+        /// Show a wizard using the Beep WizardManager.
+        /// </summary>
+        public System.Windows.Forms.DialogResult ShowWizard(WizardConfig config)
         {
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            return owner != null ? wizard.ShowDialog(owner) : wizard.ShowDialog();
+            return owner != null
+                ? WizardManager.ShowWizard(config, owner)
+                : WizardManager.ShowWizard(config);
         }
 
+        /// <summary>
+        /// Show a modeless (non-blocking) Beep-themed content window.
+        /// </summary>
         public void ShowModeless(Control content, DialogConfig config)
         {
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var dialog = new BeepModelessDialog { Text = config.Title };
+            dialog.ApplyTheme();
             if (content != null)
             {
                 content.Dock = DockStyle.Fill;
@@ -215,46 +219,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 dialog.Show();
             }
-        }
-
-        public void ShowBottomSheet(Control content, DialogConfig config)
-        {
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            if (owner == null) return;
-            var sheet = new BeepBottomSheet { Text = config.Title };
-            if (content != null)
-            {
-                content.Dock = DockStyle.Fill;
-                sheet.Controls.Add(content);
-            }
-            sheet.AttachToOwner(owner);
-            sheet.Show(owner);
-        }
-
-        public void ShowSidePanel(Control content, DialogConfig config, bool openFromLeft = false)
-        {
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            if (owner == null) return;
-            var panel = new BeepSidePanel { Text = config.Title, OpenFromLeft = openFromLeft };
-            if (content != null)
-            {
-                content.Dock = DockStyle.Fill;
-                panel.Controls.Add(content);
-            }
-            panel.AttachToOwner(owner);
-            panel.Show(owner);
-        }
-
-        public void ShowPopover(Control anchor, Control content)
-        {
-            var pop = new BeepPopover();
-            if (content != null)
-            {
-                content.Dock = DockStyle.Fill;
-                pop.Controls.Add(content);
-            }
-            pop.Attach(anchor);
-            pop.Show();
         }
 
         public System.Windows.Forms.DialogResult ShowCommandPalette(IEnumerable<CommandAction> actions)
@@ -423,12 +387,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 // Check if this is an input dialog that needs items
             }
 
-            // Apply theme
-            if (config.UseBeepThemeColors)
+            // Apply theme — set CurrentTheme (not just the name string) so _currentTheme
+            // is non-null when ApplyTheme() runs and guards don't return early.
             {
                 var theme = _defaultTheme ?? ThemeManagement.BeepThemesManager.CurrentTheme;
-                dialog.Theme = theme?.ThemeName ?? string.Empty;
+                if (theme != null)
+                    dialog.CurrentTheme = theme;  // sets _currentTheme + ThemeName
             }
+            //dialog.ApplyTheme();
 
             // Set position
             dialog.StartPosition = config.Position switch
@@ -456,7 +422,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Creates DialogReturn from dialog result
         /// </summary>
-        private DialogReturn CreateDialogReturn(BeepDialogModal dialog, System.Windows.Forms.DialogResult result)
+        private DialogReturn CreateDialogReturn(BeepDialogForm dialog, System.Windows.Forms.DialogResult result)
         {
             return new DialogReturn
             {

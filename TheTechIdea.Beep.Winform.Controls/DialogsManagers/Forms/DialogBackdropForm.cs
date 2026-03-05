@@ -2,7 +2,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 {
@@ -53,28 +55,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             }
         }
 
+        /// <summary>
+        /// Delegates to the <see cref="BeepControlStyle.GlassAcrylic"/> background painter —
+        /// the same frosted-glass effect used by all Beep controls with that style.
+        /// No custom GDI gradient needed here.
+        /// </summary>
         private void PaintBlurSimulation(Graphics g)
         {
-            var center = new Point(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
-            using var brush = new PathGradientBrush(new[]
-            {
-                new Point(0,0),
-                new Point(ClientRectangle.Width,0),
-                new Point(ClientRectangle.Width,ClientRectangle.Height),
-                new Point(0,ClientRectangle.Height)
-            })
-            {
-                CenterPoint = center,
-                CenterColor = Color.FromArgb(24, 255, 255, 255),
-                SurroundColors = new[]
-                {
-                    Color.FromArgb(6, 0, 0, 0),
-                    Color.FromArgb(6, 0, 0, 0),
-                    Color.FromArgb(6, 0, 0, 0),
-                    Color.FromArgb(6, 0, 0, 0)
-                }
-            };
-            g.FillRectangle(brush, ClientRectangle);
+            var painter = BackgroundPainterFactory.CreatePainter(BeepControlStyle.GlassAcrylic);
+            if (painter == null) return;
+
+            using var path = new GraphicsPath();
+            path.AddRectangle(ClientRectangle);
+            painter.Paint(g, path, BeepControlStyle.GlassAcrylic,
+                theme: null, useThemeColors: false, state: ControlState.Normal);
         }
     }
 }

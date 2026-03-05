@@ -220,7 +220,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void HandleUowPostCommit(object sender, UnitofWorkParams e)
         {
-            _grid.SafeInvalidate();
+            // Re-read all rows to capture server-generated values (PKs, timestamps, computed columns).
+            RefreshBinding();
         }
 
         private void HandleWrapperForwardedEvent(object? sender, UnitofWorkParams e)
@@ -241,7 +242,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     break;
                 case EventAction.PostCommit:
                 case EventAction.PostRollback:
-                    _grid.SafeInvalidate();
+                    // Re-read rows to capture any server-generated or rolled-back values.
+                    RefreshBinding();
                     break;
             }
         }

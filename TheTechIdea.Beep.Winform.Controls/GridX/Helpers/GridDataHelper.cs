@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Data;
@@ -20,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public BindingList<BeepRowConfig> Rows { get; } = new();
         public BeepGridColumnConfigCollection Columns { get; }
         private readonly Dictionary<INotifyPropertyChanged, PropertyChangedEventHandler> _rowChangeHandlers = new();
+        private INotifyCollectionChanged? _subscribedCollectionChanged;
 
         public GridDataHelper(BeepGridPro grid)
         {
@@ -106,15 +108,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void ClearDataSource()
         {
             UnsubscribeRowChangeHandlers();
+            UnsubscribeCollectionChanged();
             DataSource = null;
             DataMember = null;
+        }
+
+        private void UnsubscribeCollectionChanged()
+        {
+            if (_subscribedCollectionChanged != null)
+            {
+                _subscribedCollectionChanged.CollectionChanged -= OnCollectionDataChanged;
+                _subscribedCollectionChanged = null;
+            }
+        }
+
+        private void OnCollectionDataChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            RefreshRows();
+            _grid.Layout?.Recalculate();
+            _grid.SafeInvalidate();
         }
 
         public void Bind(object dataSource, bool triggerAutoSize = true)
         {
             DataSource = dataSource;
             DataMember = _grid.DataMember; // Update DataMember from grid
-            
+
+            // Subscribe to INotifyCollectionChanged for ObservableCollection<T> and similar
+            // (only when the source is NOT already an IBindingList, which has its own event chain)
+            SubscribeCollectionChangedIfNeeded();
+
             // Always ensure system columns are present FIRST
             EnsureSystemColumns();
             
@@ -142,6 +165,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private int GetSystemColumnCount()
         {
             return Columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID);
+        }
+
+        private void SubscribeCollectionChangedIfNeeded()
+        {
+            // Resolve to the actual list object
+            var resolved = ResolveDataForBinding();
+
+            // Only subscribe when: implements INotifyCollectionChanged but NOT IBindingList
+            // (IBindingList is handled by BindingSource.ListChanged; double-subscribing would cause double refreshes)
+            if (resolved is INotifyCollectionChanged incc && resolved is not IBindingList)
+            {
+                if (ReferenceEquals(_subscribedCollectionChanged, incc))
+                    return; // Already subscribed to this same collection
+
+                UnsubscribeCollectionChanged();
+                _subscribedCollectionChanged = incc;
+                incc.CollectionChanged += OnCollectionDataChanged;
+            }
+            else
+            {
+                // Source changed to something without INCC — release any old subscription
+                UnsubscribeCollectionChanged();
+            }
         }
 
         /// <summary>
@@ -430,10 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (resolved == null)
                 return (Array.Empty<object>(), schema);
 
-            if (resolved is BindingSource bs)
-            {
-                resolved = bs.List ?? bs.DataSource;
-            }
+            // Note: ResolveDataForBinding() already unwraps BindingSource, so no second check needed here.
 
             if (resolved is System.Data.DataTable dt)
             {

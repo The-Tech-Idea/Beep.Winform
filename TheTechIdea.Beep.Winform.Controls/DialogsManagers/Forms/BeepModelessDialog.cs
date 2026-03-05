@@ -1,14 +1,14 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 {
-    public class BeepModelessDialog : Form
+    public class BeepModelessDialog : BeepiFormPro
     {
         public BeepModelessDialog()
         {
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
             ShowInTaskbar = false;
             TopMost = true;
             Size = new Size(420, 280);

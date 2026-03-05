@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Editor.UOW;
@@ -202,8 +203,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             try
             {
-                // Re-bind to pick up the new data source
-                _grid.Data.Bind(_bindingSource);
+                // The bound data has been replaced entirely — schema may have changed.
+                // Regenerate columns from the new source to avoid showing stale column structure.
+                _grid.Data.AutoGenerateColumns();
                 _grid.Data.InitializeData();
                 _grid.Layout.Recalculate();
                 _grid.SafeInvalidate();
@@ -215,22 +217,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         /// <summary>
-        /// Handles BindingSource.CurrentChanged - fires when the current item changes.
+        /// Shared position sync called by both CurrentChanged and PositionChanged.
+        /// Avoids double selection updates per navigation step.
         /// </summary>
-        private void BindingSource_CurrentChanged(object? sender, EventArgs e)
+        private void SyncSelectionFromPosition()
         {
             if (_bindingSource == null) return;
-
             try
             {
                 int position = _bindingSource.Position;
                 if (position >= 0 && position < _grid.Rows.Count)
                 {
-                    // Sync the current position with the grid's selected row
                     if (!_grid.Selection.HasSelection || _grid.Selection.RowIndex != position)
-                    {
                         _grid.SelectCell(position, _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0);
-                    }
                 }
             }
             catch
@@ -240,28 +239,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         /// <summary>
+        /// Handles BindingSource.CurrentChanged - fires when the current item changes.
+        /// </summary>
+        private void BindingSource_CurrentChanged(object? sender, EventArgs e) => SyncSelectionFromPosition();
+
+        /// <summary>
         /// Handles BindingSource.PositionChanged - fires when the position changes.
         /// </summary>
-        private void BindingSource_PositionChanged(object? sender, EventArgs e)
-        {
-            if (_bindingSource == null) return;
-
-            try
-            {
-                int position = _bindingSource.Position;
-                if (position >= 0 && position < _grid.Rows.Count)
-                {
-                    if (!_grid.Selection.HasSelection || _grid.Selection.RowIndex != position)
-                    {
-                        _grid.SelectCell(position, _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0);
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore sync failures to keep UI responsive
-            }
-        }
+        private void BindingSource_PositionChanged(object? sender, EventArgs e) => SyncSelectionFromPosition();
 
         private void BindingSource_ListChanged(object? sender, ListChangedEventArgs e)
         {
@@ -273,22 +258,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 if (e.ListChangedType == ListChangedType.ItemChanged)
                 {
-                    bool canFastRefresh =
-                        e.NewIndex >= 0 &&
-                        e.NewIndex < _grid.Rows.Count &&
-                        _grid.Rows[e.NewIndex].RowData is INotifyPropertyChanged;
+                    int idx = e.NewIndex;
+                    if (idx >= 0 && idx < _grid.Rows.Count)
+                    {
+                        var row = _grid.Rows[idx];
 
-                    if (canFastRefresh)
-                    {
-                        _grid.InvalidateRow(e.NewIndex);
+                        // Fast path: DataRowView cell change (DataTable / DataView)
+                        if (row.RowData is DataRowView drv && e.PropertyDescriptor != null)
+                        {
+                            var col = _grid.Columns.FirstOrDefault(c =>
+                                string.Equals(c.ColumnName, e.PropertyDescriptor.Name, StringComparison.OrdinalIgnoreCase));
+                            if (col != null)
+                            {
+                                var cell = row.Cells.FirstOrDefault(c => c.ColumnIndex == col.Index);
+                                if (cell != null && drv.DataView?.Table?.Columns.Contains(col.ColumnName) == true)
+                                {
+                                    cell.CellValue = drv.Row[col.ColumnName];
+                                    cell.IsDirty = true;
+                                    row.IsDirty = true;
+                                    _grid.InvalidateRow(idx);
+                                    return;
+                                }
+                            }
+                        }
+
+                        // Fast path: INPC items handled via OnDataObjectPropertyChanged
+                        if (row.RowData is INotifyPropertyChanged)
+                        {
+                            _grid.InvalidateRow(idx);
+                            return;
+                        }
                     }
-                    else
-                    {
-                        _grid.Data.Bind(_bindingSource);
-                        _grid.Data.InitializeData();
-                        _grid.Layout.Recalculate();
-                        _grid.SafeInvalidate();
-                    }
+
+                    // Fallback: full rebind
+                    _grid.Data.Bind(_bindingSource);
+                    _grid.Data.InitializeData();
+                    _grid.Layout.Recalculate();
+                    _grid.SafeInvalidate();
                     return;
                 }
 

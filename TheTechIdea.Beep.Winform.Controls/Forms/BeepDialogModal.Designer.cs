@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.IsSelected = false;
             panel1.IsSelectedOptionOn = false;
             panel1.IsShadowAffectedByTheme = false;
-            panel1.IsVisible = false;
+            panel1.IsVisible = true;
             panel1.Items = (List<object>)resources.GetObject("panel1.Items");
             panel1.LabelText = "";
             panel1.LeftoffsetForDrawingRect = 0;
@@ -282,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.IsShaking = false;
             DialogImage.IsSpinning = false;
             DialogImage.IsStillImage = false;
-            DialogImage.IsVisible = false;
+            DialogImage.IsVisible = true;
             DialogImage.Items = (List<object>)resources.GetObject("DialogImage.Items");
             DialogImage.LabelText = "";
             DialogImage.LeftoffsetForDrawingRect = 0;
@@ -425,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.IsShadowAffectedByTheme = true;
             CloseButton.IsSideMenuChild = false;
             CloseButton.IsStillButton = false;
-            CloseButton.IsVisible = false;
+            CloseButton.IsVisible = true;
             CloseButton.Items = (List<object>)resources.GetObject("CloseButton.Items");
             CloseButton.LabelText = "";
             CloseButton.LeftoffsetForDrawingRect = 0;
@@ -566,7 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.IsSelected = false;
             TitleLabel.IsSelectedOptionOn = true;
             TitleLabel.IsShadowAffectedByTheme = true;
-            TitleLabel.IsVisible = false;
+            TitleLabel.IsVisible = true;
             TitleLabel.Items = (List<object>)resources.GetObject("TitleLabel.Items");
             TitleLabel.LabelBackColor = Color.Empty;
             TitleLabel.LabelText = "";
@@ -707,7 +707,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.IsSelected = false;
             panel3.IsSelectedOptionOn = false;
             panel3.IsShadowAffectedByTheme = false;
-            panel3.IsVisible = false;
+            panel3.IsVisible = true;
             panel3.Items = (List<object>)resources.GetObject("panel3.Items");
             panel3.LabelText = "";
             panel3.LeftoffsetForDrawingRect = 0;
@@ -850,7 +850,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.IsShadowAffectedByTheme = true;
             MiddleButton.IsSideMenuChild = false;
             MiddleButton.IsStillButton = false;
-            MiddleButton.IsVisible = false;
+            MiddleButton.IsVisible = true;
             MiddleButton.Items = (List<object>)resources.GetObject("MiddleButton.Items");
             MiddleButton.LabelText = "";
             MiddleButton.LeftoffsetForDrawingRect = 0;
@@ -997,7 +997,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.IsShadowAffectedByTheme = true;
             RightButton.IsSideMenuChild = false;
             RightButton.IsStillButton = false;
-            RightButton.IsVisible = false;
+            RightButton.IsVisible = true;
             RightButton.Items = (List<object>)resources.GetObject("RightButton.Items");
             RightButton.LabelText = "";
             RightButton.LeftoffsetForDrawingRect = 0;
@@ -1144,7 +1144,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.IsShadowAffectedByTheme = true;
             LeftButton.IsSideMenuChild = false;
             LeftButton.IsStillButton = false;
-            LeftButton.IsVisible = false;
+            LeftButton.IsVisible = true;
             LeftButton.Items = (List<object>)resources.GetObject("LeftButton.Items");
             LeftButton.LabelText = "";
             LeftButton.LeftoffsetForDrawingRect = 0;
@@ -1290,7 +1290,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.IsSelected = false;
             CaptionTextBox.IsSelectedOptionOn = true;
             CaptionTextBox.IsShadowAffectedByTheme = false;
-            CaptionTextBox.IsVisible = false;
+            CaptionTextBox.IsVisible = true;
             CaptionTextBox.Items = (List<object>)resources.GetObject("CaptionTextBox.Items");
             CaptionTextBox.LabelText = "";
             CaptionTextBox.LeftoffsetForDrawingRect = 0;
@@ -1646,7 +1646,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Name = "BeepDialogModal";
             Padding = new Padding(1);
             Text = "BeepDialogModal";
-            Theme = "DefaultType";
             panel1.ResumeLayout(false);
             panel3.ResumeLayout(false);
             ResumeLayout(false);

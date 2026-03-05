@@ -127,6 +127,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string ReturnValue { get; set; }
         public SimpleItem ReturnItem { get; private set; }
         public  List<SimpleItem> Items { get; set; }
+
+        // ─── Phase 7: Inline live validation ─────────────────────────────────
+        /// <summary>
+        /// Optional validator for <c>GetInputString</c> dialogs.
+        /// Return <c>null</c> (or empty) when the value is valid;
+        /// return a non-empty error message string to block the OK button
+        /// and show it below the input field in <see cref="ErrorColor"/>.
+        /// </summary>
+        public Func<string, string?>? InputValidator { get; set; }
+
+        private BeepLabel? _validationLabel;
          
         private DialogType dialogType = DialogType.None;
         public DialogType DialogType
@@ -153,15 +164,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepDialogModal()
         {
             InitializeComponent();
-            this.FormBorderStyle = FormBorderStyle.FixedDialog; // Ensure it's a modal dialog
+            // BeepiFormPro already sets FormBorderStyle.None and draws its own chrome.
+            // Do NOT override to FixedDialog — that adds a native title bar which
+            // shrinks the client area and breaks all panel layout.
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
             this.ShowInTaskbar = false;
             this.TopMost = true;
-           
-            
 
+            InitValidationLabel();
+        }
+
+        private void InitValidationLabel()
+        {
+            _validationLabel = new BeepLabel
+            {
+                Name = "_validationLabel",
+                // Sit directly below InputTextBox (Location = 50,141 Size = 270×36)
+                Location = new Point(InputTextBox.Left, InputTextBox.Bottom + 2),
+                Size = new Size(InputTextBox.Width, 18),
+                UseThemeColors = true,
+                IsFrameless = true,
+                Visible = false,
+                Text = string.Empty
+            };
+            panel3.Controls.Add(_validationLabel);
         }
 
         private void SetDialogType()
@@ -178,6 +204,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             SetDialogImage();
             // Accessibility and default button mapping
             SetDefaultButtonAndAccessibility();
+            // Apply semantic button coloring for dialog type
+            ApplyButtonSemantics();
         }
 
         private void SetDefaultButtonAndAccessibility()
@@ -543,8 +571,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Setting Icons"
         #region "Setting Buttons Click Events"
+        private void UnwireButtonHandlers()
+        {
+            LeftButton.Click -= LeftButton_Click;
+            RightButton.Click -= RightButton_Click;
+            MiddleButton.Click -= LeftButton_Click;
+            MiddleButton.Click -= CenterButton_Click;
+        }
         public void SetButtonsDialogResultBasedonDialgType()
         {
+            UnwireButtonHandlers();
             switch (DialogType)
             {
                 case DialogType.Information:
@@ -615,33 +651,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Setting Visible Input"
         public void SetInputTypeBasedonDialogType()
         {
-            switch (DialogType)
+            if (inputVisibility.TryGetValue(DialogType, out var vis))
             {
-                case DialogType.Information:
+                if (!vis.textBox && !vis.comboBox)
+                    SetInputHidden();
+                else if (vis.textBox)
                     SetInputVisible();
-                    break;
-                case DialogType.Warning:
-                    SetInputVisible();
-                    break;
-                case DialogType.Error:
-                    SetInputVisible();
-                    break;
-                case DialogType.Question:
-                    SetInputVisible();
-                    break;
-                case DialogType.GetInputString:
-                    SetInputVisible();
-                    break;
-                case DialogType.GetInputFromList:
+                else
                     SetInputListVisible();
-                    break;
-                case DialogType.None:
-                    SetInputVisible();
-                    break;
-                default:
-                    SetInputVisible();
-                    break;
             }
+            else
+            {
+                SetInputHidden();
+            }
+        }
+        public void SetInputHidden()
+        {
+            InputTextBox.Visible = false;
+            SelectFromListComboBox.Visible = false;
+
+            // Remove validation handler and clear error state
+            InputTextBox.TextChanged -= InputTextBox_TextChanged_Validate;
+            ClearValidationError();
         }
         public void SetInputVisible()
         {
@@ -649,6 +680,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.Text = "";
             InputTextBox.Focus();
             SelectFromListComboBox.Visible = false;
+
+            // Wire live validation
+            InputTextBox.TextChanged -= InputTextBox_TextChanged_Validate;
+            InputTextBox.TextChanged += InputTextBox_TextChanged_Validate;
+
+            // Start in valid state (empty field before user types)
+            RunValidation(InputTextBox.Text);
         }
         public void SetInputListVisible()
         {
@@ -684,18 +722,89 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
+
+        // ─── Validation helpers (Phase 7) ────────────────────────────────
+
+        private void InputTextBox_TextChanged_Validate(object? sender, EventArgs e)
+            => RunValidation(InputTextBox.Text);
+
+        private void RunValidation(string text)
+        {
+            if (InputValidator == null)
+            {
+                ClearValidationError();
+                return;
+            }
+
+            string? error = InputValidator(text);
+            bool isValid = string.IsNullOrEmpty(error);
+
+            if (isValid)
+            {
+                ClearValidationError();
+            }
+            else
+            {
+                ShowValidationError(error!);
+            }
+
+            // Enable / disable the confirm button
+            var confirmBtn = MiddleButton.Visible ? MiddleButton : LeftButton;
+            confirmBtn.Enabled = isValid;
+        }
+
+        private void ShowValidationError(string message)
+        {
+            if (_validationLabel == null) return;
+            _validationLabel.Text = message;
+            _validationLabel.Visible = true;
+
+            if (_currentTheme != null)
+            {
+                _validationLabel.ForeColor = _currentTheme.ErrorColor != Color.Empty
+                    ? _currentTheme.ErrorColor
+                    : Color.FromArgb(220, 38, 38);
+            }
+
+            // Highlight text box border in error colour
+            if (_currentTheme != null)
+                InputTextBox.BorderColor = _currentTheme.ErrorColor != Color.Empty
+                    ? _currentTheme.ErrorColor
+                    : Color.FromArgb(220, 38, 38);
+        }
+
+        private void ClearValidationError()
+        {
+            if (_validationLabel != null)
+            {
+                _validationLabel.Text = string.Empty;
+                _validationLabel.Visible = false;
+            }
+
+            // Restore normal border colour
+            if (_currentTheme != null)
+                InputTextBox.BorderColor = _currentTheme.TextBoxBorderColor != Color.Empty
+                    ? _currentTheme.TextBoxBorderColor
+                    : _currentTheme.ButtonBorderColor;
+
+            // Re-enable the confirm button
+            var confirmBtn = MiddleButton.Visible ? MiddleButton : LeftButton;
+            confirmBtn.Enabled = true;
+        }
+
         #endregion "Setting Visible Input"
         public override void ApplyTheme()
         {
-            // base.ApplyTheme();
+            base.ApplyTheme();
             if (panel1 == null) return;
-           panel1.Theme = Theme;
+            if (_currentTheme == null) return;
+            panel1.Theme = Theme;
             panel1.GradientStartColor = _currentTheme.GradientStartColor;
-            panel1.GradientEndColor= _currentTheme.GradientEndColor;
+            panel1.GradientEndColor = _currentTheme.GradientEndColor;
             panel1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            panel3.Theme= Theme;
+            panel3.Theme = Theme;
             panel3.GradientStartColor = _currentTheme.GradientStartColor;
-            panel3.GradientEndColor= _currentTheme.GradientEndColor;
+            panel3.GradientEndColor = _currentTheme.GradientEndColor;
             panel3.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
             LeftButton.Theme = Theme;
             RightButton.Theme = Theme;
@@ -706,6 +815,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.Theme = Theme;
             SelectFromListComboBox.Theme = Theme;
             DialogImage.ApplyThemeOnImage = true;
+
+            // Propagate theme to inline validation label
+            if (_validationLabel != null)
+                _validationLabel.Theme = Theme;
 
             var titleFont = ResolveThemeFont(_currentTheme?.TitleStyle, 12f, FontStyle.Bold);
             var bodyFont = ResolveThemeFont(_currentTheme?.BodyStyle, 10f, FontStyle.Regular);
@@ -718,7 +831,89 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.Font = buttonFont;
             RightButton.Font = buttonFont;
             MiddleButton.Font = buttonFont;
-            this.Font = bodyFont;
+           
+
+            // Apply semantic button coloring based on DialogType
+            ApplyButtonSemantics();
+        }
+
+        /// <summary>
+        /// Apply semantic coloring to buttons based on <see cref="DialogType"/>.
+        /// Destructive types (Error) get a red primary button; Question types with
+        /// YesNo get an accent primary; all others use default theme button colors.
+        /// Called from <see cref="ApplyTheme"/> and <see cref="SetDialogType"/>.
+        /// </summary>
+        private void ApplyButtonSemantics()
+        {
+            if (_currentTheme == null) return;
+
+            // Reset all buttons to default theme values first
+            ResetButtonToThemeDefault(LeftButton);
+            ResetButtonToThemeDefault(RightButton);
+            ResetButtonToThemeDefault(MiddleButton);
+
+            switch (dialogType)
+            {
+                case DialogType.Error:
+                    // Destructive — primary action (OK/Close) gets error-red fill
+                    ApplyDestructiveStyle(MiddleButton.Visible ? MiddleButton : LeftButton);
+                    break;
+
+                case DialogType.Question:
+                    // Affirmative button (Yes/OK) gets accent fill
+                    ApplyPrimaryStyle(LeftButton);
+                    break;
+
+                case DialogType.GetInputString:
+                case DialogType.GetInputFromList:
+                    // OK / confirm gets accent fill
+                    ApplyPrimaryStyle(LeftButton);
+                    break;
+
+                default:
+                    // Information / Warning / None: single close/ok button gets accent fill
+                    if (MiddleButton.Visible)
+                        ApplyPrimaryStyle(MiddleButton);
+                    else
+                        ApplyPrimaryStyle(LeftButton);
+                    break;
+            }
+        }
+
+        private void ResetButtonToThemeDefault(BeepButton btn)
+        {
+            if (btn == null || _currentTheme == null) return;
+            btn.BackColor = _currentTheme.ButtonBackColor;
+            btn.ForeColor = _currentTheme.ButtonForeColor;
+            btn.HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            btn.BorderColor = _currentTheme.ButtonBorderColor;
+            btn.Invalidate();
+        }
+
+        private void ApplyPrimaryStyle(BeepButton btn)
+        {
+            if (btn == null || _currentTheme == null) return;
+            var accent = _currentTheme.AccentColor != Color.Empty
+                ? _currentTheme.AccentColor
+                : Color.FromArgb(59, 130, 246);
+            btn.BackColor = accent;
+            btn.ForeColor = Color.White;
+            btn.HoverBackColor = ControlPaint.Light(accent, 0.15f);
+            btn.BorderColor = Color.Transparent;
+            btn.Invalidate();
+        }
+
+        private void ApplyDestructiveStyle(BeepButton btn)
+        {
+            if (btn == null || _currentTheme == null) return;
+            var errColor = _currentTheme.ErrorColor != Color.Empty
+                ? _currentTheme.ErrorColor
+                : Color.FromArgb(220, 38, 38);
+            btn.BackColor = errColor;
+            btn.ForeColor = Color.White;
+            btn.HoverBackColor = ControlPaint.Light(errColor, 0.10f);
+            btn.BorderColor = Color.Transparent;
+            btn.Invalidate();
         }
 
         private static string ResolveDialogIconPath(DialogType type)

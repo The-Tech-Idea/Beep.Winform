@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -545,18 +546,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
             };
         }
 
-        public static DialogConfig CreateUpdate(string title = "Update available", string message = "A new version is ready to install")
-        {
-            return new DialogConfig
-            {
-                Title = title,
-                Message = message,
-                IconType = BeepDialogIcon.Information,
-                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
-                Preset = DialogPreset.Information
-            };
-        }
-
         public static DialogConfig CreateCookie(string title = "Cookie notice", string message = "Manage your privacy settings")
         {
             return new DialogConfig
@@ -578,6 +567,125 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 IconType = BeepDialogIcon.Information,
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
                 Preset = DialogPreset.None
+            };
+        }
+
+        // ─── New Phase-5 Presets ────────────────────────────────────────────
+
+        /// <summary>
+        /// Destructive-action confirmation (modelled on Linear / Vercel patterns).
+        /// Red / error-themed icon; primary button is the destructive "Delete" action,
+        /// secondary button is "Cancel". The caller should set button labels via the
+        /// <see cref="Builder"/> if different labels are required.
+        /// </summary>
+        /// <param name="title">Dialog title, e.g. "Delete project?"</param>
+        /// <param name="message">Warning message describing what will be lost.</param>
+        public static DialogConfig CreateDestructive(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Danger,
+                IconType = BeepDialogIcon.Error,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Cancel,   // safe default
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// "Unsaved changes" prompt (modelled on Figma / VS Code patterns).
+        /// Three-button layout: Save / Discard / Cancel.
+        /// </summary>
+        /// <param name="documentName">Name of the unsaved document (inserted into the message).</param>
+        public static DialogConfig CreateUnsavedChanges(string documentName = "document")
+        {
+            return new DialogConfig
+            {
+                Title = "Unsaved changes",
+                Message = $"Do you want to save changes to \"{documentName}\" before closing?",
+                Preset = DialogPreset.Warning,
+                IconType = BeepDialogIcon.Warning,
+                Buttons = new[]
+                {
+                    Vis.Modules.BeepDialogButtons.Cancel,
+                    Vis.Modules.BeepDialogButtons.Ok,     // "Discard" — mapped via label
+                    Vis.Modules.BeepDialogButtons.Yes     // "Save"
+                },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Yes,
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Update-available dialog (modelled on Linear / Electron patterns).
+        /// Shows version number and optional release notes in the detail area,
+        /// with "Update Now" (primary) and "Later" (secondary) buttons.
+        /// </summary>
+        /// <param name="version">New version string, e.g. "2.1.0".</param>
+        /// <param name="releaseNotes">Optional changelog / release notes text.</param>
+        public static DialogConfig CreateUpdate(string version, string releaseNotes = "")
+        {
+            return new DialogConfig
+            {
+                Title = $"Update available — v{version}",
+                Message = "A new version is ready to install.",
+                Details = releaseNotes,
+                Preset = DialogPreset.Information,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Multi-step onboarding dialog (modelled on Stripe / Notion patterns).
+        /// Each entry in <paramref name="steps"/> becomes the message for one step;
+        /// the caller is expected to manage step navigation through the fluent builder
+        /// or by pre-building a custom control and supplying it via <see cref="CustomControl"/>.
+        /// </summary>
+        /// <param name="steps">Ordered list of step descriptions.</param>
+        /// <param name="title">Dialog title shown throughout all steps.</param>
+        public static DialogConfig CreateOnboarding(IEnumerable<string> steps, string title = "Getting started")
+        {
+            var stepList = (steps ?? Enumerable.Empty<string>()).ToList();
+            string firstMessage = stepList.Count > 0 ? stepList[0] : string.Empty;
+            string details = stepList.Count > 1
+                ? string.Join(Environment.NewLine, stepList.Skip(1).Select((s, i) => $"Step {i + 2}: {s}"))
+                : string.Empty;
+
+            return new DialogConfig
+            {
+                Title = title,
+                Message = firstMessage,
+                Details = details,
+                Preset = DialogPreset.Information,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Star-rating dialog (modelled on app-store / Figma plugin patterns).
+        /// Intended to host a <c>BeepRating</c> custom control via <see cref="CustomControl"/>;
+        /// the caller must supply the rating control and read back <see cref="DialogResult.UserData"/>.
+        /// </summary>
+        /// <param name="title">Dialog title, e.g. "Rate your experience".</param>
+        public static DialogConfig CreateRating(string title = "Rate your experience")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = "How would you rate this experience?",
+                Preset = DialogPreset.Information,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true
             };
         }
 

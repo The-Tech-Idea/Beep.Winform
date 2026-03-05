@@ -1,83 +1,155 @@
-using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepProgressDialog : BeepiFormPro
+    /// <summary>
+    /// Beep-themed progress dialog built entirely with Beep controls:
+    /// <see cref="BeepPanel"/>, <see cref="BeepLabel"/>, <see cref="BeepProgressBar"/>,
+    /// and <see cref="BeepButton"/>. Inherits <see cref="BeepiFormPro"/> for automatic
+    /// theming and borderless rendering.
+    /// </summary>
+    internal class BeepProgressDialog : BeepiFormPro
     {
-        private ProgressBar? _progressBar;
-        private Label? _messageLabel;
-        private Button? _cancelButton;
-        private bool _cancellable = false;
+        // ── Layout panels ──────────────────────────────────────────────────
+        private readonly BeepPanel _headerPanel;
+        private readonly BeepPanel _bodyPanel;
 
-        public bool IsCancelled { get; private set; } = false;
+        // ── Header ─────────────────────────────────────────────────────────
+        private readonly BeepLabel _titleLabel;
 
-        [Browsable(true)]
-        public bool Cancellable
+        // ── Body (accessible by ProgressHandle for live updates) ──────────
+        /// <summary>Status / message label.</summary>
+        public BeepLabel MessageLabel { get; }
+
+        /// <summary>The progress bar control.</summary>
+        public BeepProgressBar ProgressBarControl { get; }
+
+        /// <summary>Percentage text; null in indeterminate mode.</summary>
+        public BeepLabel? PercentLabel { get; }
+
+        /// <summary>Cancel button; null when not cancellable.</summary>
+        public BeepButton? CancelButton { get; }
+
+        // ──────────────────────────────────────────────────────────────────
+        public BeepProgressDialog(string title, string? message, bool cancellable, bool indeterminate)
         {
-            get => _cancellable;
-            set { _cancellable = value; if (_cancelButton != null) _cancelButton.Visible = value; }
-        }
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ShowInTaskbar = false;
+            Text = title;
+            ClientSize = new Size(400, cancellable ? 172 : 128);
+            StartPosition = FormStartPosition.CenterParent;
 
-        public BeepProgressDialog():base()
-        {
-            // No designer for this form - initialize programmatically
-            InitializeProgressDialog();
-        }
-
-        private void InitializeProgressDialog()
-        {
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.ShowInTaskbar = false;
-            this.TopMost = true;
-            this.Size = new Size(420, 120);
-
-            _progressBar = new ProgressBar { Dock = DockStyle.Bottom, Height = 20, Minimum = 0, Maximum = 100, Value = 0 };
-            _messageLabel = new Label { Dock = DockStyle.Fill, Text = "Please wait...", TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(10) };
-            _cancelButton = new Button { Dock = DockStyle.Right, Text = "Cancel", Width = 80, Visible = false };
-            _cancelButton.Click += (s, e) => { IsCancelled = true; this.DialogResult = DialogResult.Cancel; this.Close(); };
-
-            var bottomPanel = new Panel { Dock = DockStyle.Bottom, Height = 36 };
-            bottomPanel.Controls.Add(_cancelButton);
-            this.Controls.Add(_progressBar);
-            this.Controls.Add(bottomPanel);
-            this.Controls.Add(_messageLabel);
-        }
-
-        public void SetProgress(int percent, string? message = null)
-        {
-            if (percent < 0) percent = 0;
-            if (percent > 100) percent = 100;
-            if (this.InvokeRequired)
+            // ── Header panel ─────────────────────────────────────────────
+            _headerPanel = new BeepPanel
             {
-                this.BeginInvoke(new Action(() => SetProgress(percent, message)));
-                return;
+                Location = new Point(1, 1),
+                Size = new Size(398, 42),
+                ShowTitle = false,
+                ShowTitleLine = false,
+                UseThemeColors = true,
+            };
+
+            _titleLabel = new BeepLabel
+            {
+                Text = title,
+                Location = new Point(12, 11),
+                Size = new Size(374, 20),
+                TextAlign = ContentAlignment.MiddleLeft,
+                UseThemeColors = true,
+            };
+            _headerPanel.Controls.Add(_titleLabel);
+
+            // ── Body panel ───────────────────────────────────────────────
+            int bodyHeight = cancellable ? 128 : 84;
+            _bodyPanel = new BeepPanel
+            {
+                Location = new Point(1, 43),
+                Size = new Size(398, bodyHeight),
+                ShowTitle = false,
+                ShowTitleLine = false,
+                UseThemeColors = true,
+            };
+
+            // Message label (narrower when percent label is alongside)
+            int msgWidth = indeterminate ? 374 : 308;
+            MessageLabel = new BeepLabel
+            {
+                Text = message ?? "Please wait...",
+                Location = new Point(12, 12),
+                Size = new Size(msgWidth, 18),
+                TextAlign = ContentAlignment.MiddleLeft,
+                UseThemeColors = true,
+            };
+            _bodyPanel.Controls.Add(MessageLabel);
+
+            // Percent label — only in determinate mode
+            if (!indeterminate)
+            {
+                PercentLabel = new BeepLabel
+                {
+                    Text = "0%",
+                    Location = new Point(328, 12),
+                    Size = new Size(58, 18),
+                    TextAlign = ContentAlignment.MiddleRight,
+                    UseThemeColors = true,
+                };
+                _bodyPanel.Controls.Add(PercentLabel);
             }
 
-            if (_progressBar != null) _progressBar.Value = percent;
-            if (message != null && _messageLabel != null) _messageLabel.Text = message;
-        }
-
-        public void SetMessage(string message)
-        {
-            if (this.InvokeRequired)
+            // Progress bar: DotsLoader for indeterminate, LinearBadge for determinate
+            ProgressBarControl = new BeepProgressBar
             {
-                this.BeginInvoke(new Action(() => SetMessage(message)));
-                return;
+                Location = new Point(12, 38),
+                Size = new Size(374, 26),
+                Minimum = 0,
+                Maximum = 100,
+                Value = 0,
+                PainterKind = indeterminate
+                    ? ProgressPainterKind.DotsLoader
+                    : ProgressPainterKind.LinearBadge,
+                ProgressBarStyle = indeterminate
+                    ? ProgressBars.ProgressBarStyle.Animated
+                    : ProgressBars.ProgressBarStyle.Gradient,
+                UseThemeColors = true,
+                VisualMode = ProgressBars.ProgressBarDisplayMode.NoText,
+            };
+            _bodyPanel.Controls.Add(ProgressBarControl);
+
+            // Optional cancel button
+            if (cancellable)
+            {
+                CancelButton = new BeepButton
+                {
+                    Text = "Cancel",
+                    Location = new Point(290, 80),
+                    Size = new Size(96, 32),
+                    UseThemeColors = true,
+                };
+                _bodyPanel.Controls.Add(CancelButton);
             }
-            if (_messageLabel != null) _messageLabel.Text = message;
+
+            Controls.Add(_headerPanel);
+            Controls.Add(_bodyPanel);
         }
 
+        // ── Theme propagation ──────────────────────────────────────────────
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            // apply theme if needed
+            if (_headerPanel == null) return;
+
+            _headerPanel.Theme = Theme;
+            _titleLabel.Theme = Theme;
+
+            _bodyPanel.Theme = Theme;
+            MessageLabel.Theme = Theme;
+            ProgressBarControl.Theme = Theme;
+            if (PercentLabel != null) PercentLabel.Theme = Theme;
+            if (CancelButton != null) CancelButton.Theme = Theme;
         }
     }
 }

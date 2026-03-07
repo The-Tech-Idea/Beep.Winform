@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
                 return fallbackIcon;
 
             // Priority 3: Default icon from SvgsUI
-            return SvgsUI.Package ?? SvgsUI.Box ?? SvgsUI.Check;
+            return SvgsUI.BoxMultiple ?? SvgsUI.BoxMultiple ?? SvgsUI.Check;
         }
 
         /// <summary>
@@ -221,3 +221,4 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
         }
     }
 }
+

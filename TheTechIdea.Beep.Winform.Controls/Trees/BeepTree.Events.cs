@@ -82,6 +82,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     switch (type)
                     {
                         case "toggle":
+                            // COM-01: fire before-expand/collapse; callers can cancel
+                            var cancelArgs = new BeepTreeNodeCancelEventArgs(item);
+                            if (item.IsExpanded)
+                                NodeBeforeCollapse?.Invoke(this, cancelArgs);
+                            else
+                                NodeBeforeExpand?.Invoke(this, cancelArgs);
+                            if (cancelArgs.Cancel) break;
+
                             item.IsExpanded = !item.IsExpanded;
                             RebuildVisible();
                             UpdateScrollBars();
@@ -121,7 +129,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     {
                                         SelectedNodes.Add(item);
                                         item.IsSelected = true;
-                                        NodeSelected?.Invoke(this, args);
                                     }
                                 }
                                 else
@@ -199,6 +206,101 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             NodeMouseLeave?.Invoke(this, new BeepMouseEventArgs("MouseLeave", null));
+        }
+
+        #endregion
+
+        #region Keyboard Navigation
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            if (_visibleNodes == null || _visibleNodes.Count == 0)
+                return;
+
+            switch (e.KeyCode)
+            {
+                case Keys.Up:
+                    SelectPreviousNode();
+                    e.Handled = true;
+                    break;
+
+                case Keys.Down:
+                    SelectNextNode();
+                    e.Handled = true;
+                    break;
+
+                case Keys.Left:
+                    if (SelectedNode != null && SelectedNode.IsExpanded && SelectedNode.Children?.Count > 0)
+                    {
+                        SelectedNode.IsExpanded = false;
+                        RebuildVisible();
+                        UpdateScrollBars();
+                        NodeCollapsed?.Invoke(this, new BeepMouseEventArgs("keyboard", SelectedNode));
+                        Invalidate();
+                    }
+                    else if (SelectedNode?.ParentItem != null)
+                    {
+                        HighlightNode(SelectedNode.ParentItem);
+                    }
+                    e.Handled = true;
+                    break;
+
+                case Keys.Right:
+                    if (SelectedNode != null && !(SelectedNode.IsExpanded) && SelectedNode.Children?.Count > 0)
+                    {
+                        SelectedNode.IsExpanded = true;
+                        RebuildVisible();
+                        UpdateScrollBars();
+                        NodeExpanded?.Invoke(this, new BeepMouseEventArgs("keyboard", SelectedNode));
+                        Invalidate();
+                    }
+                    e.Handled = true;
+                    break;
+
+                case Keys.Enter:
+                case Keys.Space:
+                    if (SelectedNode != null)
+                    {
+                        NodeSelected?.Invoke(this, new BeepMouseEventArgs("keyboard", SelectedNode));
+                        OnSelectedItemChanged(SelectedNode);
+                    }
+                    e.Handled = true;
+                    break;
+
+                case Keys.Home:
+                    if (_visibleNodes.Count > 0)
+                        HighlightNode(_visibleNodes[0].Item);
+                    e.Handled = true;
+                    break;
+
+                case Keys.End:
+                    if (_visibleNodes.Count > 0)
+                        HighlightNode(_visibleNodes[_visibleNodes.Count - 1].Item);
+                    e.Handled = true;
+                    break;
+
+                case Keys.PageUp:
+                {
+                    int currentIndex = SelectedNode != null ? _visibleNodes.FindIndex(n => n.Item == SelectedNode) : 0;
+                    int pageSize = Math.Max(1, DrawingRect.Height / Math.Max(1, GetScaledMinRowHeight()));
+                    int targetIndex = Math.Max(0, currentIndex - pageSize);
+                    HighlightNode(_visibleNodes[targetIndex].Item);
+                    e.Handled = true;
+                    break;
+                }
+
+                case Keys.PageDown:
+                {
+                    int currentIndex = SelectedNode != null ? _visibleNodes.FindIndex(n => n.Item == SelectedNode) : 0;
+                    int pageSize = Math.Max(1, DrawingRect.Height / Math.Max(1, GetScaledMinRowHeight()));
+                    int targetIndex = Math.Min(_visibleNodes.Count - 1, currentIndex + pageSize);
+                    HighlightNode(_visibleNodes[targetIndex].Item);
+                    e.Handled = true;
+                    break;
+                }
+            }
         }
 
         #endregion
@@ -297,12 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Transform content rect to viewport
-            Rectangle ToViewport(Rectangle rc) => new Rectangle(
-                DrawingRect.Left + rc.X - _xOffset,
-                DrawingRect.Top + rc.Y - _yOffset,
-                rc.Width,
-                rc.Height);
+            // Transform content rect to viewport via layout helper
 
             // Check each visible node
             for (int i = startIndex; i < _visibleNodes.Count; i++)
@@ -324,7 +421,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Check parts in priority order: toggle, check, icon, row
 
                 // Toggle button
-                var toggleVp = ToViewport(n.ToggleRectContent);
+                var toggleVp = _layoutHelper.TransformToViewport(n.ToggleRectContent);
                 if (!n.ToggleRectContent.IsEmpty && toggleVp.Contains(p))
                 {
                     name = $"toggle_{n.Item.GuidId}";
@@ -336,7 +433,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Checkbox
                 if (ShowCheckBox && !n.CheckRectContent.IsEmpty)
                 {
-                    var checkVp = ToViewport(n.CheckRectContent);
+                    var checkVp = _layoutHelper.TransformToViewport(n.CheckRectContent);
                     if (checkVp.Contains(p))
                     {
                         name = $"check_{n.Item.GuidId}";
@@ -349,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Icon
                 if (!n.IconRectContent.IsEmpty)
                 {
-                    var iconVp = ToViewport(n.IconRectContent);
+                    var iconVp = _layoutHelper.TransformToViewport(n.IconRectContent);
                     if (iconVp.Contains(p))
                     {
                         name = $"icon_{n.Item.GuidId}";

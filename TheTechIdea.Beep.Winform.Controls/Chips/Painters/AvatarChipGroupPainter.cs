@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
             // Draw initials
             string initials = GetInitials(item?.Text ?? item?.DisplayField ?? "?");
-            var font = new Font("Segoe UI", rect.Height * 0.35f, FontStyle.Bold);
+            var font = ChipFontHelpers.GetAvatarFont(_owner.ControlStyle, rect.Height * 0.35f);
             using (var brush = new SolidBrush(Color.White))
             {
                 var format = new StringFormat

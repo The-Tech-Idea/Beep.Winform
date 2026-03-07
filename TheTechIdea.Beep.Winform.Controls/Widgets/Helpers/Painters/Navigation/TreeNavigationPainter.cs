@@ -147,12 +147,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private string GetTreeNodeIconSvg(TreeNodeItem item)
         {
-            if (item.HasChildren && item.IsExpanded) return SvgsUI.FolderPlus;
+            if (item.HasChildren && item.IsExpanded) return SvgsUI.FolderOpen;
             if (item.HasChildren) return SvgsUI.Folder;
 
             var text = item.Text?.ToLower() ?? "";
             if (text.Contains(".pdf") || text.Contains(".doc")) return SvgsUI.FileText;
-            if (text.Contains(".jpg") || text.Contains(".png") || text.Contains("image")) return SvgsUI.Image;
+            if (text.Contains(".jpg") || text.Contains(".png") || text.Contains("image")) return SvgsUI.Photo;
             if (text.Contains("setting")) return SvgsUI.Settings;
             return SvgsUI.FileText;
         }

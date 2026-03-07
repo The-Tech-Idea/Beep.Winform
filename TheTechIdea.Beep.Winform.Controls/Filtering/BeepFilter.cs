@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Text.Json;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Filtering;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
@@ -1008,8 +1011,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void ShowCommandPalette()
         {
-            // TODO: Implement command palette popup
-            MessageBox.Show("Command Palette (Ctrl+K) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending("Command Palette", "Ctrl+K", "beepfilter-command-palette-pending");
         }
 
         /// <summary>
@@ -1026,8 +1029,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void UndoLastChange()
         {
-            // TODO: Implement undo stack in Phase 2
-            MessageBox.Show("Undo (Ctrl+Z) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending("Undo", "Ctrl+Z", "beepfilter-undo-pending");
         }
 
         /// <summary>
@@ -1035,8 +1038,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void RedoLastChange()
         {
-            // TODO: Implement redo stack in Phase 2
-            MessageBox.Show("Redo (Ctrl+Y) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending("Redo", "Ctrl+Y", "beepfilter-redo-pending");
         }
 
         /// <summary>
@@ -1044,8 +1047,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void SaveCurrentView()
         {
-            // TODO: Implement saved views in Phase 2
-            MessageBox.Show("Save View (Ctrl+S) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending("Save View", "Ctrl+S", "beepfilter-save-view-pending");
         }
 
         /// <summary>
@@ -1053,8 +1056,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void OpenSavedView()
         {
-            // TODO: Implement saved views in Phase 2
-            MessageBox.Show("Open View (Ctrl+O) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending("Open View", "Ctrl+O", "beepfilter-open-view-pending");
         }
 
         /// <summary>
@@ -1062,8 +1065,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void SelectAllFilters()
         {
-            // TODO: Implement multi-select in Phase 2
-            MessageBox.Show("Select All (Ctrl+A) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending("Select All", "Ctrl+A", "beepfilter-select-all-pending");
         }
 
         /// <summary>
@@ -1097,8 +1100,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void ShowAdvancedFilterDialog()
         {
-            // TODO: Implement advanced dialog in Phase 2
-            MessageBox.Show("Advanced Filter (Ctrl+Shift+F) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending(
+                "Advanced Filter",
+                "Ctrl+Shift+F",
+                "beepfilter-advanced-pending");
         }
 
         /// <summary>
@@ -1115,8 +1121,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void DeleteSelectedFilters()
         {
-            // TODO: Implement multi-select and delete in Phase 2
-            MessageBox.Show("Delete Selected (Ctrl+Shift+D) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending(
+                "Delete Selected",
+                "Ctrl+Shift+D",
+                "beepfilter-delete-selected-pending");
         }
 
         /// <summary>
@@ -1124,8 +1133,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void ExportFilters()
         {
-            // TODO: Implement export in Phase 2
-            MessageBox.Show("Export Filters (Ctrl+Shift+E) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            var path = dialogManager.SaveFileWithConfirm(
+                filter: "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                defaultFileName: "filters.json",
+                title: "Export Filters");
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
+            try
+            {
+                var snapshot = _activeFilter?.Clone() ?? new FilterConfiguration();
+                var json = JsonSerializer.Serialize(snapshot, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(path, json);
+
+                var sourceName = Path.GetFileName(path);
+                dialogManager.NotifyExportSuccess(sourceName, snapshot.Criteria?.Count ?? 0);
+            }
+            catch (Exception ex)
+            {
+                dialogManager.NotifyExportFailure(Path.GetFileName(path), ex.Message);
+            }
         }
 
         /// <summary>
@@ -1133,8 +1164,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void ImportFilters()
         {
-            // TODO: Implement import in Phase 2
-            MessageBox.Show("Import Filters (Ctrl+Shift+I) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            var path = dialogManager.OpenFile(
+                filter: "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                title: "Import Filters");
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
+            try
+            {
+                var json = File.ReadAllText(path);
+                var imported = JsonSerializer.Deserialize<FilterConfiguration>(json);
+                if (imported == null)
+                {
+                    dialogManager.NotifyImportFailure(Path.GetFileName(path), "Invalid filter file format.");
+                    return;
+                }
+
+                imported.Criteria ??= new List<FilterCriteria>();
+                imported.ModifiedDate = DateTime.Now;
+
+                _activeFilter = imported;
+                _filterCount = _activeFilter.Criteria.Count;
+                OnFilterChanged();
+                RecalculateLayout();
+                Invalidate();
+
+                dialogManager.NotifyImportSuccess(Path.GetFileName(path), _filterCount);
+            }
+            catch (Exception ex)
+            {
+                dialogManager.NotifyImportFailure(Path.GetFileName(path), ex.Message);
+            }
+        }
+
+        private BeepDialogManager CreateDialogManager()
+        {
+            var manager = BeepDialogManager.Instance;
+            manager.SetHostForm(FindForm());
+            return manager;
         }
 
         /// <summary>
@@ -1159,8 +1230,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         /// </summary>
         internal void ActivateSavedView(int viewIndex)
         {
-            // TODO: Implement saved views in Phase 2
-            MessageBox.Show($"Activate View {viewIndex + 1} (Alt+{viewIndex + 1}) - Coming in Phase 2!", "BeepFilter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var dialogManager = CreateDialogManager();
+            dialogManager.NotifyFeaturePending(
+                $"Activate View {viewIndex + 1}",
+                $"Alt+{viewIndex + 1}",
+                $"beepfilter-saved-view-pending::{viewIndex}");
         }
 
         /// <summary>
@@ -1220,7 +1294,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
             if (_keyboardHandler != null)
             {
                 string help = _keyboardHandler.GetShortcutsHelp();
-                MessageBox.Show(help, "BeepFilter Keyboard Shortcuts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var dialogManager = CreateDialogManager();
+                dialogManager.ShowInfo("BeepFilter Keyboard Shortcuts", help);
             }
         }
 

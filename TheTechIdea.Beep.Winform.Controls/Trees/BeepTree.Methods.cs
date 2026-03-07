@@ -128,7 +128,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 node.IsVisible = true;
             }
+            _filterText = string.Empty;
             RebuildVisible();
+            UpdateScrollBars();
             Invalidate();
         }
 
@@ -225,7 +227,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public SimpleItem AddNodeWithBranch(SimpleItem newItem, string parentGuidId = null)
         {
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Start adding node '{newItem?.Text}' with parentGuidId = {parentGuidId ?? "null (root)"}"); 
+#endif
             if (newItem == null) return null;
 
             try
@@ -236,15 +240,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                     newItem.GuidId = Guid.NewGuid().ToString();
                 }
 
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Adding node '{newItem.Text}' (GuidId: {newItem.GuidId})");
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] parentGuidId = {parentGuidId ?? "null (root)"}");
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] _nodes count BEFORE = {_nodes.Count}");
+#endif
 
                 // Handle root or child
                 if (string.IsNullOrEmpty(parentGuidId))
                 {
                     _nodes.Add(newItem);
+#if DEBUG
                     System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Added as ROOT node. _nodes count AFTER = {_nodes.Count}");
+#endif
                 }
                 else
                 {
@@ -252,7 +260,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (parentItem == null)
                     {
                         _nodes.Add(newItem);
+#if DEBUG
                         System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Parent not found, added as ROOT. _nodes count AFTER = {_nodes.Count}");
+#endif
                     }
                     else
                     {
@@ -261,25 +271,37 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         parentItem.Children.Add(newItem);
                         newItem.ParentItem = parentItem;
+#if DEBUG
                         System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Added as CHILD of '{parentItem.Text}'. Parent now has {parentItem.Children.Count} children");
+#endif
                     }
                 }
 
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Calling RebuildVisible...");
+#endif
                 RebuildVisible();
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Calling UpdateScrollBars...");
+#endif
                 UpdateScrollBars();
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Calling Invalidate...");
+#endif
                 Invalidate();
 
                 NodeAdded?.Invoke(this, new BeepMouseEventArgs("NodeAdded", newItem));
 
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Completed for node '{newItem.Text}'");
+#endif
                 return newItem;
             }
             catch (Exception ex)
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] ERROR: {ex.Message}");
+#endif
                 return null;
             }
         }
@@ -472,6 +494,103 @@ namespace TheTechIdea.Beep.Winform.Controls
             return removed;
         }
         
+        #endregion
+
+        #region Search and Filter
+
+        /// <summary>
+        /// Returns all nodes (at any depth) whose <see cref="SimpleItem.Text"/> contains
+        /// <paramref name="text"/> (case-insensitive).  Does not change the visible layout.
+        /// </summary>
+        public List<SimpleItem> SearchNodes(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return new List<SimpleItem>();
+
+            return TraverseAll(_nodes)
+                .Where(n => n.Text?.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Clears the active filter and restores the full tree view.
+        /// </summary>
+        //public void ClearFilter()
+        //{
+        //    _filterText = string.Empty;
+        //    RebuildVisible();
+        //    UpdateScrollBars();
+        //    Invalidate();
+        //}
+
+        /// <summary>
+        /// Rebuilds the visible-node list so that only nodes matching <see cref="FilterText"/>
+        /// (and their ancestor chain) are shown.  Passing an empty/null filter restores the
+        /// normal view via <see cref="RebuildVisible"/>.
+        /// </summary>
+        private void ApplyFilter()
+        {
+            if (string.IsNullOrWhiteSpace(_filterText))
+            {
+                RebuildVisible();
+                UpdateScrollBars();
+                Invalidate();
+                return;
+            }
+
+            // 1. Build the set of GuidIds that should be visible:
+            //    every matching node plus all of its ancestors.
+            var visibleGuids = new HashSet<string>(StringComparer.Ordinal);
+
+            void MarkAncestors(SimpleItem item)
+            {
+                while (item != null)
+                {
+                    if (!visibleGuids.Add(item.GuidId)) break; // already added whole branch
+                    item = item.ParentItem;
+                }
+            }
+
+            foreach (var item in TraverseAll(_nodes))
+            {
+                if (item.Text?.IndexOf(_filterText, StringComparison.OrdinalIgnoreCase) >= 0)
+                    MarkAncestors(item);
+            }
+
+            // 2. Rebuild _visibleNodes with only the nodes in visibleGuids,
+            //    preserving depth-first order and level information.
+            _visibleNodes.Clear();
+
+            void Recurse(SimpleItem item, int level)
+            {
+                if (!visibleGuids.Contains(item.GuidId)) return;
+
+                _visibleNodes.Add(new NodeInfo { Item = item, Level = level });
+
+                if (item.Children == null || item.Children.Count == 0) return;
+                foreach (var child in item.Children)
+                    Recurse(child, level + 1);
+            }
+
+            foreach (var root in _nodes)
+                Recurse(root, 0);
+
+            // 3. Sync geometry caches.
+            RecalculateLayoutCache();
+            _layoutHelper?.SyncFromVisibleNodes(_visibleNodes);
+            _virtualSize = new System.Drawing.Size(
+                _layoutHelper?.CalculateTotalContentWidth() ?? 0,
+                _layoutHelper?.CalculateTotalContentHeight() ?? 0);
+
+            if (!DesignMode && IsHandleCreated)
+            {
+                UpdateScrollBars();
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+            }
+
+            Invalidate();
+        }
+
         #endregion
     }
 }

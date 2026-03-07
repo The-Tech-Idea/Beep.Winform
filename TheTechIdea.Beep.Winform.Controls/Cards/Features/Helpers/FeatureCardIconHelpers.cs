@@ -25,9 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers
         {
             // Try common logo icon paths
             string[] logoPaths = {
-                SvgsUI.Apps ?? "apps.svg",
-                SvgsUI.Logo ?? "logo.svg",
-                SvgsUI.Brand ?? "brand.svg",
+                SvgsUI.BrandTabler ?? "logo.svg",
+                 SvgsUI.AppWindow ?? "app-window.svg",
+                SvgsUI.BrandTabler ?? "brand.svg",
                 "logo.svg"
             };
 
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers
             string[] bulletPaths = {
                 SvgsUI.Check ?? "check.svg",
                 SvgsUI.Circle ?? "circle.svg",
-                SvgsUI.Dot ?? "dot.svg",
+                SvgsUI.CircleDot ?? "dot.svg",
                 "bullet.svg"
             };
 
@@ -69,10 +69,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers
         {
             return index switch
             {
-                0 => SvgsUI.More ?? SvgsUI.Menu ?? "more.svg",
-                1 => SvgsUI.Settings ?? SvgsUI.Sliders ?? "settings.svg",
-                2 => SvgsUI.Info ?? SvgsUI.HelpCircle ?? "info.svg",
-                _ => SvgsUI.More ?? "more.svg"
+                0 => SvgsUI.Dots ?? SvgsUI.MenuN2 ?? "more.svg",
+                1 => SvgsUI.Settings ?? SvgsUI.Adjustments ?? "settings.svg",
+                2 => SvgsUI.InfoCircle ?? SvgsUI.HelpCircle ?? "info.svg",
+                _ => SvgsUI.Dots ?? "more.svg"
             };
         }
 
@@ -83,8 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers
         {
             // Try common card icon paths
             string[] cardIconPaths = {
-                SvgsUI.Apps ?? "apps.svg",
-                SvgsUI.Grid ?? "grid.svg",
+                SvgsUI.LayoutGrid ?? "grid.svg",
+                 SvgsUI.AppWindow ?? "app-window.svg",
                 SvgsUI.Layout ?? "layout.svg",
                 "card-icon.svg"
             };
@@ -213,4 +213,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Features.Helpers
         #endregion
     }
 }
+
 

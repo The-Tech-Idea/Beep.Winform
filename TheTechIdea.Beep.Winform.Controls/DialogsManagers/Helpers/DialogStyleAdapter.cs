@@ -129,6 +129,62 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
         }
 
         /// <summary>
+        /// Returns the semantic primary-action button colour for a given dialog
+        /// preset, resolved against the supplied theme.
+        /// Falls back to <paramref name="theme"/>.AccentColor (blue) for neutral
+        /// presets and when <paramref name="theme"/> is null.
+        /// </summary>
+        public static Color GetPresetPrimaryColor(DialogPreset preset, IBeepTheme? theme)
+        {
+            var accent  = theme?.AccentColor  is { IsEmpty: false } a ? a : Color.FromArgb(59, 130, 246);
+            var error   = theme?.ErrorColor   is { IsEmpty: false } e ? e : Color.FromArgb(220, 38,  38);
+            var warning = theme?.WarningColor is { IsEmpty: false } w ? w : Color.FromArgb(245, 158, 11);
+            var success = theme?.SuccessColor is { IsEmpty: false } s ? s : Color.FromArgb(16,  185, 129);
+
+            return preset switch
+            {
+                DialogPreset.DestructiveConfirm => error,
+                DialogPreset.BlockingError      => error,
+                DialogPreset.Danger             => error,
+                DialogPreset.Warning            => warning,
+                DialogPreset.UnsavedChanges     => warning,
+                DialogPreset.InlineValidation   => warning,
+                DialogPreset.SessionTimeout     => warning,
+                DialogPreset.Success            => success,
+                DialogPreset.SuccessWithUndo    => success,
+                _                               => accent
+            };
+        }
+
+        /// <summary>
+        /// Returns a subtle header-panel background tint colour for a given
+        /// preset.  The tint is a low-opacity blend so it remains readable on
+        /// any theme background.  Returns <see cref="Color.Empty"/> for neutral
+        /// presets (callers should leave the header untinted in that case).
+        /// </summary>
+        public static Color GetPresetHeaderTint(DialogPreset preset, IBeepTheme? theme)
+        {
+            var errorBase   = theme?.ErrorColor   is { IsEmpty: false } e ? e : Color.FromArgb(220, 38,  38);
+            var warningBase = theme?.WarningColor is { IsEmpty: false } w ? w : Color.FromArgb(245, 158, 11);
+            var successBase = theme?.SuccessColor is { IsEmpty: false } s ? s : Color.FromArgb(16,  185, 129);
+
+            // 18-alpha overlay — keeps contrast while providing a gentle semantic cue.
+            return preset switch
+            {
+                DialogPreset.DestructiveConfirm => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
+                DialogPreset.BlockingError      => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
+                DialogPreset.Danger             => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
+                DialogPreset.Warning            => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
+                DialogPreset.UnsavedChanges     => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
+                DialogPreset.SessionTimeout     => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
+                DialogPreset.InlineValidation   => Color.FromArgb(18, warningBase.R, warningBase.G, warningBase.B),
+                DialogPreset.Success            => Color.FromArgb(18, successBase.R, successBase.G, successBase.B),
+                DialogPreset.SuccessWithUndo    => Color.FromArgb(18, successBase.R, successBase.G, successBase.B),
+                _                               => Color.Empty
+            };
+        }
+
+        /// <summary>
         /// Get button text for standard dialog buttons
         /// </summary>
         public static string GetButtonText(Vis.Modules.BeepDialogButtons button)

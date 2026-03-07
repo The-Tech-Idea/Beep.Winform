@@ -24,9 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         {
             // Try common trend up icon paths
             string[] trendUpPaths = {
-                SvgsUI.TrendingUp ?? "trending-up.svg",
-                SvgsUI.ArrowUp ?? "arrow-up.svg",
-                SvgsUI.ChevronUp ?? "chevron-up.svg",
+                SvgsUI.ArrowBadgeUp ?? "trending-up.svg",
+                SvgsUI.CircleArrowUp ?? "arrow-up.svg",
+                SvgsUI.CircleChevronUp ?? "chevron-up.svg",
                 "trendup.svg"
             };
 
@@ -46,8 +46,8 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         {
             // Try common trend down icon paths
             string[] trendDownPaths = {
-                SvgsUI.TrendingDown ?? "trending-down.svg",
-                SvgsUI.ArrowDown ?? "arrow-down.svg",
+                SvgsUI.ArrowBadgeDown ?? "trending-down.svg",
+                SvgsUI.CircleArrowDown ?? "arrow-down.svg",
                 SvgsUI.ChevronDown ?? "chevron-down.svg",
                 "trenddown.svg"
             };
@@ -71,18 +71,18 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
                 // Try to match card type to icon
                 string lowerType = cardType.ToLowerInvariant();
                 if (lowerType.Contains("revenue") || lowerType.Contains("money"))
-                    return SvgsUI.DollarSign ?? SvgsUI.Currency ?? "revenue.svg";
+                    return SvgsUI.CashBanknote ?? SvgsUI.CashBanknote ?? "revenue.svg";
                 if (lowerType.Contains("user") || lowerType.Contains("member"))
-                    return SvgsUI.User ?? SvgsUI.Users ?? "users.svg";
+                    return SvgsUI.User ?? SvgsUI.User ?? "users.svg";
                 if (lowerType.Contains("view") || lowerType.Contains("visit"))
-                    return SvgsUI.Eye ?? SvgsUI.BarChart ?? "views.svg";
+                    return SvgsUI.Eye ?? SvgsUI.ChartDots ?? "views.svg";
             }
 
             // Default card icon
             string[] cardIconPaths = {
-                SvgsUI.Apps ?? "apps.svg",
-                SvgsUI.Chart ?? "chart.svg",
-                SvgsUI.BarChart ?? "bar-chart.svg",
+                 SvgsUI.AppWindow ?? "app-window.svg",
+                SvgsUI.ChartDots ?? "chart.svg",
+                SvgsUI.ChartDots ?? "bar-chart.svg",
                 "card-icon.svg"
             };
 
@@ -208,4 +208,5 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers
         #endregion
     }
 }
+
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -21,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a text input dialog (async)
         /// </summary>
-        public async Task<string?> InputTextAsync(string title, string prompt, string? defaultValue = null)
+        public Task<string?> InputTextAsync(string title, string prompt, string? defaultValue = null)
         {
             var config = new DialogConfig
             {
@@ -32,13 +33,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 Buttons = new[] { BeepDialogButtons.Cancel, BeepDialogButtons.Ok }
             };
 
-            using var dialog = new BeepDialogModal();
+            using var dialog = new BeepDialogForm();
             dialog.Title = title;
             dialog.Message = prompt;
             dialog.DialogType = DialogType.GetInputString;
 
             if (_defaultTheme != null)
-                dialog.Theme = _defaultTheme.ThemeName;
+                dialog.CurrentTheme = _defaultTheme;
 
             dialog.StartPosition = FormStartPosition.CenterParent;
 
@@ -55,14 +56,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     if (!validation.Valid)
                     {
                         DialogMotionEngine.ShakeDialog(dialog);
-                        return null;
+                        return Task.FromResult<string?>(null);
                     }
                 }
                 StoreRecentInput(config, value ?? string.Empty);
-                return value;
+                return Task.FromResult<string?>(value);
             }
 
-            return null;
+            return Task.FromResult<string?>(null);
         }
 
         /// <summary>
@@ -70,13 +71,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         public string? InputText(string title, string prompt, string? defaultValue = null)
         {
-            using var dialog = new BeepDialogModal();
+            using var dialog = new BeepDialogForm();
             dialog.Title = title;
             dialog.Message = prompt;
             dialog.DialogType = DialogType.GetInputString;
 
             if (_defaultTheme != null)
-                dialog.Theme = _defaultTheme.ThemeName;
+                dialog.CurrentTheme = _defaultTheme;
 
             dialog.StartPosition = FormStartPosition.CenterParent;
 
@@ -109,13 +110,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         public string? InputPassword(string title, string prompt)
         {
-            using var dialog = new BeepDialogModal();
+            using var dialog = new BeepDialogForm();
             dialog.Title = title;
             dialog.Message = prompt;
             dialog.DialogType = DialogType.GetInputString;
 
             if (_defaultTheme != null)
-                dialog.Theme = _defaultTheme.ThemeName;
+                dialog.CurrentTheme = _defaultTheme;
 
             dialog.StartPosition = FormStartPosition.CenterParent;
 
@@ -132,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #endregion
 
-        public async Task<string?> InputTextValidatedAsync(
+        public Task<string?> InputTextValidatedAsync(
             string title,
             string prompt,
             Func<string, (bool Valid, string Error)> validator,
@@ -147,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 EnableRecentInputMemory = true
             };
             config.FieldValidators["value"] = validator;
-            return await InputTextAsync(title, prompt, defaultValue);
+            return InputTextAsync(title, prompt, defaultValue);
         }
 
         #region Numeric Input
@@ -218,19 +219,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a selection dialog from a list of items (async)
         /// </summary>
-        public async Task<SimpleItem?> InputSelectAsync(string title, string prompt, List<SimpleItem> items)
+        public Task<SimpleItem?> InputSelectAsync(string title, string prompt, List<SimpleItem> items)
         {
             if (items == null || items.Count == 0)
-                return null;
+                return Task.FromResult<SimpleItem?>(null);
 
-            using var dialog = new BeepDialogModal();
+            using var dialog = new BeepDialogForm();
             dialog.Title = title;
             dialog.Message = prompt;
             dialog.DialogType = DialogType.GetInputFromList;
             dialog.Items = items;
 
             if (_defaultTheme != null)
-                dialog.Theme = _defaultTheme.ThemeName;
+                dialog.CurrentTheme = _defaultTheme;
 
             dialog.StartPosition = FormStartPosition.CenterParent;
 
@@ -239,10 +240,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                return dialog.ReturnItem;
+                return Task.FromResult<SimpleItem?>(dialog.ReturnItem);
             }
 
-            return null;
+            return Task.FromResult<SimpleItem?>(null);
         }
 
         /// <summary>
@@ -253,14 +254,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             if (items == null || items.Count == 0)
                 return null;
 
-            using var dialog = new BeepDialogModal();
+            using var dialog = new BeepDialogForm();
             dialog.Title = title;
             dialog.Message = prompt;
             dialog.DialogType = DialogType.GetInputFromList;
             dialog.Items = items;
 
             if (_defaultTheme != null)
-                dialog.Theme = _defaultTheme.ThemeName;
+                dialog.CurrentTheme = _defaultTheme;
 
             dialog.StartPosition = FormStartPosition.CenterParent;
 
@@ -395,7 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a color picker dialog (async)
         /// </summary>
-        public async Task<Color?> InputColorAsync(string? title = null, Color? initialColor = null)
+        public Task<Color?> InputColorAsync(string? title = null, Color? initialColor = null)
         {
             using var cd = new ColorDialog();
 
@@ -409,10 +410,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                return cd.Color;
+                return Task.FromResult<Color?>(cd.Color);
             }
 
-            return null;
+            return Task.FromResult<Color?>(null);
         }
 
         /// <summary>
@@ -445,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a font picker dialog (async)
         /// </summary>
-        public async Task<Font?> InputFontAsync(string? title = null, Font? initialFont = null)
+        public Task<Font?> InputFontAsync(string? title = null, Font? initialFont = null)
         {
             using var fd = new FontDialog();
 
@@ -454,10 +455,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                return fd.Font;
+                return Task.FromResult<Font?>(fd.Font);
             }
 
-            return null;
+            return Task.FromResult<Font?>(null);
         }
 
         /// <summary>

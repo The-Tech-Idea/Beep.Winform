@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DriversConfigurations;
@@ -52,10 +52,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             base.Configure(settings);
             viewModel = new DriversConfigViewModel(beepService.DMEEditor, appManager);
             beepGridPro1.ReadOnly=true;
-            beepGridPro1.SaveCalled += BeepSimpleGrid1_SaveCalled;
+            beepGridPro1.SaveCalled += BeepGridPro1_SaveCalled;
         }
 
-        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
+        private void BeepGridPro1_SaveCalled(object? sender, EventArgs e)
         {
             viewModel.Save();
         }

@@ -235,16 +235,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private Font GetFont(ChipRenderOptions options, float scale)
         {
-             // High contrast needs clear, bold fonts
-            float size = options.Size switch
-            {
-                ChipSize.Small => 9f,
-                ChipSize.Medium => 10f,
-                ChipSize.Large => 11f,
-                _ => 10f
-            };
-            float scaledSize = DpiScalingHelper.ScaleValue(size, scale);
-            return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, scaledSize, FontStyle.Bold);
+            return ChipFontHelpers.GetChipFont(
+                _owner.ControlStyle,
+                options.Size,
+                scale,
+                FontWeight.Bold,
+                FontStyle.Bold);
         }
 
         private (Color bg, Color fg, Color border) GetColors(ChipVisualState state)

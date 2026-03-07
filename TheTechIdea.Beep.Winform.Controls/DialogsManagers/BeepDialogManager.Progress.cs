@@ -17,6 +17,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #region Progress Handle Interface
 
         /// <summary>
+        /// Semantic progress states used by progress dialogs.
+        /// </summary>
+        public enum ProgressState
+        {
+            Pending,
+            InProgress,
+            Completed,
+            Failed,
+            Retrying
+        }
+
+        /// <summary>
         /// Handle for managing progress dialogs
         /// </summary>
         public interface IProgressDialogHandle : IDisposable
@@ -45,6 +57,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             /// Shows an error and closes the progress
             /// </summary>
             void Error(string message);
+
+            /// <summary>
+            /// Updates the semantic state and optional message/percent.
+            /// </summary>
+            void UpdateState(ProgressState state, string? status = null, int? percent = null);
 
             /// <summary>
             /// Gets whether cancellation has been requested
@@ -184,6 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             private BeepProgressDialog? _dialog;
             private bool _disposed;
+            private ProgressState _state = ProgressState.Pending;
 
             public ProgressHandle(BeepDialogManager manager, string title, string? message, bool cancellable, bool indeterminate)
             {
@@ -236,7 +254,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     _dialog.Show();
                 }
 
-                Application.DoEvents();
+                if (string.IsNullOrWhiteSpace(_initialMessage))
+                {
+                    UpdateState(ProgressState.Pending);
+                }
             }
 
             public void UpdateProgress(int percent, string? status = null)
@@ -257,10 +278,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                         _dialog.PercentLabel.Text = $"{percent}%";
                 }
 
+                _state = ProgressState.InProgress;
                 if (status != null)
                     _dialog.MessageLabel.Text = status;
 
-                Application.DoEvents();
+                _dialog.Refresh();
             }
 
             public void UpdateStatus(string status)
@@ -274,8 +296,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
+                _state = ProgressState.InProgress;
                 _dialog.MessageLabel.Text = status;
-                Application.DoEvents();
+                _dialog.Refresh();
             }
 
             public void SetIndeterminate()
@@ -292,6 +315,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _dialog.ProgressBarControl.ProgressBarStyle = ProgressBars.ProgressBarStyle.Animated;
                 if (_dialog.PercentLabel != null)
                     _dialog.PercentLabel.Visible = false;
+
+                _dialog.Refresh();
             }
 
             public void Complete(string? message = null)
@@ -312,10 +337,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     _dialog.PercentLabel.Visible = true;
                 }
 
-                if (message != null)
-                    _dialog.MessageLabel.Text = message;
+                _state = ProgressState.Completed;
+                _dialog.MessageLabel.Text = string.IsNullOrWhiteSpace(message)
+                    ? BuildStatePrefix(ProgressState.Completed)
+                    : message;
 
-                Application.DoEvents();
+                _dialog.Refresh();
             }
 
             public void Error(string message)
@@ -329,8 +356,53 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     return;
                 }
 
+                _state = ProgressState.Failed;
                 _dialog.MessageLabel.Text = message;
-                Application.DoEvents();
+                _dialog.Refresh();
+            }
+
+            public void UpdateState(ProgressState state, string? status = null, int? percent = null)
+            {
+                if (_disposed || _dialog == null || _dialog.IsDisposed)
+                    return;
+
+                if (_dialog.InvokeRequired)
+                {
+                    _dialog.BeginInvoke(new Action(() => UpdateState(state, status, percent)));
+                    return;
+                }
+
+                _state = state;
+
+                if (percent.HasValue && !_indeterminate)
+                {
+                    var clamped = Math.Max(0, Math.Min(100, percent.Value));
+                    _dialog.ProgressBarControl.Value = clamped;
+                    if (_dialog.PercentLabel != null)
+                    {
+                        _dialog.PercentLabel.Text = $"{clamped}%";
+                        _dialog.PercentLabel.Visible = true;
+                    }
+                }
+
+                _dialog.MessageLabel.Text = string.IsNullOrWhiteSpace(status)
+                    ? BuildStatePrefix(state)
+                    : status;
+
+                _dialog.Refresh();
+            }
+
+            private static string BuildStatePrefix(ProgressState state)
+            {
+                return state switch
+                {
+                    ProgressState.Pending => "Pending...",
+                    ProgressState.InProgress => "In progress...",
+                    ProgressState.Completed => "Completed",
+                    ProgressState.Failed => "Failed",
+                    ProgressState.Retrying => "Retrying...",
+                    _ => "Working..."
+                };
             }
 
             public void Dispose()

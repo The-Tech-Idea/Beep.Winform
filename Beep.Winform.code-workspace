@@ -35,7 +35,12 @@
 		},
 		{
 			"path": "../BeepDataSources/InMemoryDB/DuckDBDataSourceCore"
+		},
+		{
+			"path": "../Beep.Winform.Sample"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "Beep.Winform"
+	}
 }

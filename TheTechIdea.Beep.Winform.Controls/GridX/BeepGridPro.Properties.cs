@@ -822,5 +822,46 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 SafeInvalidate();
             }
         }
+
+        #region Selection Properties
+
+        private BeepGridSelectionMode _selectionMode = BeepGridSelectionMode.FullRowSelect;
+
+        /// <summary>
+        /// Gets or sets the selection behaviour of the grid.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Determines how rows and cells can be selected.")]
+        [DefaultValue(BeepGridSelectionMode.FullRowSelect)]
+        public BeepGridSelectionMode SelectionMode
+        {
+            get => _selectionMode;
+            set => _selectionMode = value;
+        }
+
+        /// <summary>
+        /// Gets a wrapper around the currently-selected row, or <see langword="null"/> if
+        /// no row is selected.  Supports <c>CurrentRow?.Cells["col"]?.Value</c> access.
+        /// </summary>
+        [Browsable(false)]
+        public BeepGridCurrentRow? CurrentRow
+        {
+            get
+            {
+                int idx = Selection.RowIndex;
+                if (idx < 0 || idx >= Data.Rows.Count) return null;
+                return new BeepGridCurrentRow(Data.Rows[idx]) { Index = idx };
+            }
+        }
+
+        /// <summary>
+        /// Gets the zero-based index of the currently-selected row, or -1 when
+        /// nothing is selected.
+        /// </summary>
+        [Browsable(false)]
+        public int CurrentRowIndex => Selection.RowIndex;
+
+        #endregion
     }
 }

@@ -25,8 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
             // Try common avatar icon paths
             string[] avatarPaths = {
                 SvgsUI.User ?? "user.svg",
-                SvgsUI.Users ?? "users.svg",
-                SvgsUI.Person ?? "person.svg",
+                SvgsUI.User ?? "users.svg",
+                SvgsUI.User ?? "person.svg",
                 "avatar.svg"
             };
 
@@ -46,9 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
         {
             // Try common company logo icon paths
             string[] logoPaths = {
-                SvgsUI.Brand ?? "brand.svg",
-                SvgsUI.Logo ?? "logo.svg",
-                SvgsUI.Company ?? "company.svg",
+                SvgsUI.BrandTabler ?? "brand.svg",
+                SvgsUI.BrandTabler ?? "logo.svg",
+                SvgsUI.BuildingBroadcastTower ?? "company.svg",
                 "company-logo.svg"
             };
 
@@ -179,4 +179,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Testimonials.Helpers
         #endregion
     }
 }
+
 

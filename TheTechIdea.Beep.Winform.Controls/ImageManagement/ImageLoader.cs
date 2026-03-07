@@ -62,7 +62,14 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
             string extension = Path.GetExtension(resourcePath).ToLower();
             if (extension == ".svg")
             {
-                var svgDoc = SvgDocument.Open<SvgDocument>(stream);
+                using var reader = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8);
+                string svgContent = reader.ReadToEnd();
+                svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
+                                       .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
+                                       .Replace("stroke=\"null\"", "stroke=\"none\"")
+                                       .Replace("currentColor", "black");
+                using var sanitizedStream = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgContent));
+                var svgDoc = SvgDocument.Open<SvgDocument>(sanitizedStream);
                 return (true, svgDoc);
             }
             else

@@ -281,18 +281,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private Font GetFont(ChipRenderOptions options, float scale)
         {
-             // Bold font for colorful chips too? The original code didn't specify, but let's stick to ChipFontHelpers or custom if previously custom.
-             // Original: return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, size, FontStyle.Bold);
-             // So it is bold.
-            float size = options.Size switch
-            {
-                ChipSize.Small => 8.5f,
-                ChipSize.Medium => 9.5f,
-                ChipSize.Large => 10.5f,
-                _ => 9.5f
-            };
-            float scaledSize = DpiScalingHelper.ScaleValue(size, scale);
-            return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, scaledSize, FontStyle.Bold);
+            return ChipFontHelpers.GetChipFont(
+                _owner.ControlStyle,
+                options.Size,
+                scale,
+                FontWeight.Bold,
+                FontStyle.Bold);
         }
 
         #endregion

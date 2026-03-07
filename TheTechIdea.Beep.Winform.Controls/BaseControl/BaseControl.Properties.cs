@@ -78,9 +78,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     _controlstyle = value;
                 }
-                
-                UpdateBorderPainter();
-                InvalidateOnce();
+                if (_currentTheme != null)
+                {
+                    UpdateBorderPainter();
+                   // InvalidateOnce();
+                }
+              
             }
         }
         private IBorderPainter _currentBorderPainter = null;
@@ -1231,13 +1234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     var oldStyle = _controlstyle; // capture old style for delta-based resize
                     _controlstyle = value;
 
-                    // CRITICAL: Synchronize BorderPainter with ControlStyle
-                    // This ensures border style, color, and width update when ControlStyle changes
-                    if (_borderPainterStyle != value)
-                    {
-                        _borderPainterStyle = value;
-                        UpdateBorderPainter();
-                    }
+                   
                     // Get corresponding FormStyle from ControlStyle
 
                     Theme = BeepStyling.GetThemeStyle(_controlstyle);
@@ -1253,7 +1250,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         }
                     }
                     catch { /* design-time safe */ }
-
+                    // CRITICAL: Synchronize BorderPainter with ControlStyle
+                    // This ensures border style, color, and width update when ControlStyle changes
+                    if (_borderPainterStyle != value && _currentTheme!=null)
+                    {
+                        _borderPainterStyle = value;
+                        UpdateBorderPainter();
+                    }
                     InvalidateParentBackgroundCache();
                     Invalidate();
                 }

@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
 
             // Trigger a repaint if the border style changed
-            InvalidateOnce();
+            //InvalidateOnce();
         }
 
         /// <summary>

@@ -21,9 +21,7 @@ using TheTechIdea.Beep.Workflow.Mapping;    // EntityDataMap, EntityDataMap_DTL
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    [AddinAttribute(Caption = "Map Fields", Name = "uc_Import_MapFields",
-        misc = "Config", menu = "Configuration", addinType = AddinType.Control,
-        displayType = DisplayType.InControl, ObjectType = "Beep")]
+   
     public partial class uc_Import_MapFields : TemplateUserControl, IWizardStepContent
     {
         private BindingList<ImportFieldMapRow> _rows = new();

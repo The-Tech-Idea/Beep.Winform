@@ -1157,6 +1157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (string.IsNullOrEmpty(fontName))
                 return -1;
 
+            EnsureInitialized();
             var fontConfig = FontConfigurations.FirstOrDefault(
                 f => f.Name.Equals(fontName, StringComparison.OrdinalIgnoreCase));
 
@@ -1168,6 +1169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static List<string> GetFontNames()
         {
+            EnsureInitialized();
             return FontConfigurations.Select(f => f.Name).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
@@ -1176,6 +1178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static List<string> GetSystemFontNames()
         {
+            EnsureInitialized();
             return FontConfigurations.Where(f => f.IsSystemFont).Select(f => f.Name).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
@@ -1184,6 +1187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         public static List<string> GetPrivateFontNames()
         {
+            EnsureInitialized();
             return FontConfigurations.Where(f => f.IsPrivateFont).Select(f => f.Name).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 

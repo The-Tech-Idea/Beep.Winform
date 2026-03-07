@@ -228,17 +228,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
 
         private Font GetFont(ChipRenderOptions options, float scale)
         {
-             // Bold font customization
-            float size = options.Size switch
-            {
-                ChipSize.Small => 8.5f,
-                ChipSize.Medium => 9.5f,
-                ChipSize.Large => 10.5f,
-                _ => 9.5f
-            };
-            // Manually scaling the font size here since we want specific bold sizes
-            float scaledSize = DpiScalingHelper.ScaleValue(size, scale);
-             return new Font(options.Font?.FontFamily ?? FontFamily.GenericSansSerif, scaledSize, FontStyle.Bold);
+            return ChipFontHelpers.GetChipFont(
+                _owner.ControlStyle,
+                options.Size,
+                scale,
+                FontWeight.Bold,
+                FontStyle.Bold);
         }
 
         private (Color bg, Color fg, Color accent) GetColors(ChipVisualState state, ChipRenderOptions options)

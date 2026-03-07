@@ -470,8 +470,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (fontSize <= 0) fontSize = 9.0f;
 
             string fontFamily = style.FontFamily;
-            if (string.IsNullOrWhiteSpace(fontFamily) || !BeepFontManager.IsFontAvailable(fontFamily))
-                fontFamily = "Arial";
+            if (string.IsNullOrWhiteSpace(fontFamily))
+                fontFamily = "Segoe UI";
+
+            // Guard: fall back to Segoe UI for fonts not installed on this machine.
+            // GetFontIndex now correctly calls EnsureInitialized(), so this check is reliable.
+            // Without this guard, GDI+ creates substituted font handles that can throw
+            // "Parameter is not valid" in .NET 8 WinForms internals (System.Private.Windows.Core).
+            if (!BeepFontManager.IsFontAvailable(fontFamily))
+                fontFamily = "Segoe UI";
 
             FontStyle fontStyle = style.FontStyle;
             if (style.FontWeight >= FontWeight.Bold)
@@ -498,8 +505,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             fontSize = Math.Max(fontSize, 6.0f);
 
             string fontFamily = style.FontFamily;
-            if (string.IsNullOrWhiteSpace(fontFamily) || !BeepFontManager.IsFontAvailable(fontFamily))
-                fontFamily = "Arial";
+            if (string.IsNullOrWhiteSpace(fontFamily))
+                fontFamily = "Segoe UI";
+
+            if (!BeepFontManager.IsFontAvailable(fontFamily))
+                fontFamily = "Segoe UI";
 
             FontStyle fontStyle = style.FontStyle;
             if (style.FontWeight >= FontWeight.Bold)
@@ -539,9 +549,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         {
             if (fontSize <= 0) fontSize = 9.0f;
 
-            // Check if font is available via BeepFontManager
-            if (string.IsNullOrWhiteSpace(fontFamily) || !BeepFontManager.IsFontAvailable(fontFamily))
-                fontFamily = "Arial";
+            if (string.IsNullOrWhiteSpace(fontFamily))
+                fontFamily = "Segoe UI";
+
+            if (!BeepFontManager.IsFontAvailable(fontFamily))
+                fontFamily = "Segoe UI";
 
             // DPI multiplication intentionally removed (see ToFont(TypographyStyle, bool) notes).
             // WinForms handles point font scaling automatically via ScaleControl.

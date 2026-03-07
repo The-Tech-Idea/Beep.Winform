@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -127,7 +128,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Text
             if (!node.TextRectContent.IsEmpty && _owner?.LayoutHelper != null)
             {
-                var font = _owner?.UseThemeFont == true ? (BeepThemesManager.ToFont(_owner?._currentTheme?.LabelFont) ?? _owner.TextFont) : _owner?.TextFont;
+                var font = _owner?.UseThemeFont == true
+                    ? (BeepThemesManager.ToFontForControl(_owner?._currentTheme?.LabelFont, _owner) ?? _owner?.TextFont)
+                    : _owner?.TextFont;
                 font ??= SystemFonts.DefaultFont;
                 var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                 PaintText(g, textRect, node.Item?.Text ?? string.Empty, font, isSelected, isHovered);
@@ -246,12 +249,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         }
 
         /// <summary>
-        /// Helper to get scaled value - framework handles DPI scaling
+        /// Helper to get scaled value using the owner control's DPI scale factor.
         /// </summary>
         protected int Scale(int value)
         {
-            // Framework handles DPI scaling automatically
-            return value;
+            return _owner != null ? DpiScalingHelper.ScaleValue(value, _owner) : value;
         }
 
         /// <summary>

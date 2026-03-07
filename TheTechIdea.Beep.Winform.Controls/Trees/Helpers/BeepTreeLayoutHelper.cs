@@ -152,7 +152,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             nodeInfo.TextSize = textSize;
             nodeInfo.RowHeight = rowHeight;
             nodeInfo.RowWidth = rowWidth;
-            nodeInfo.ToggleRectContent = toggleRect;
+            // Only assign a toggle rect for nodes that actually have children
+            nodeInfo.ToggleRectContent = (nodeInfo.Item?.Children?.Count > 0) ? toggleRect : Rectangle.Empty;
             nodeInfo.CheckRectContent = checkRect;
             nodeInfo.IconRectContent = iconRect;
             nodeInfo.TextRectContent = textRect;
@@ -277,6 +278,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         public void InvalidateCache()
         {
             _layoutCache.Clear();
+        }
+
+        /// <summary>
+        /// Syncs the layout cache directly from pre-computed visible nodes,
+        /// eliminating the need for a second tree traversal and O(depth) level lookups.
+        /// </summary>
+        public void SyncFromVisibleNodes(IReadOnlyList<NodeInfo> visibleNodes)
+        {
+            _layoutCache.Clear();
+            if (visibleNodes == null || visibleNodes.Count == 0)
+                return;
+            // NodeInfo is a value type — each Add copies the struct
+            for (int i = 0; i < visibleNodes.Count; i++)
+                _layoutCache.Add(visibleNodes[i]);
         }
 
         public int CalculateTotalContentHeight()

@@ -22,7 +22,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void RebuildVisible()
         {
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: Starting with {_nodes.Count} root nodes");
+#endif
             _visibleNodes.Clear();
 
             void Recurse(SimpleItem item, int level, SimpleItem parent = null)
@@ -47,27 +49,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Recurse(root, 0, null);
             }
             
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: Created {_visibleNodes.Count} visible nodes");
+#endif
 
             // Recalculate layout after rebuilding
             RecalculateLayoutCache();
 
-            // Keep the layout helper's cache in sync so DrawVisibleNodes() has data
+            // Sync helper cache from already-computed _visibleNodes (avoids second traversal)
             try
             {
-                _layoutHelper?.InvalidateCache();
-                var cached = _layoutHelper?.RecalculateLayout();
-                if (cached != null)
-                {
-                    // Recompute virtual size from helper cache for accurate scrollbars
-                    _virtualSize = new Size(
-                        _layoutHelper.CalculateTotalContentWidth(),
-                        _layoutHelper.CalculateTotalContentHeight());
-                }
+                _layoutHelper?.SyncFromVisibleNodes(_visibleNodes);
+                // Recompute virtual size from helper cache for accurate scrollbars
+                _virtualSize = new Size(
+                    _layoutHelper?.CalculateTotalContentWidth() ?? 0,
+                    _layoutHelper?.CalculateTotalContentHeight() ?? 0);
             }
             catch (Exception ex)
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: LayoutHelper sync failed: {ex.Message}");
+#else
+                _ = ex; // suppress unused warning in Release
+#endif
             }
 
             // Update scrollbars after layout changes
@@ -93,12 +97,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // This ensures the painter has properly calculated border/padding/shadow
             UpdateDrawingRect();
             
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"BeepTree.RecalculateLayoutCache: Processing {_visibleNodes.Count} nodes");
             System.Diagnostics.Debug.WriteLine($"BeepTree.RecalculateLayoutCache: DrawingRect = {DrawingRect}, ControlStyle = {ControlStyle}, UseFormStylePaint = {UseFormStylePaint}");
-            
+#endif
             if (_visibleNodes.Count == 0)
             {
-                System.Diagnostics.Debug.WriteLine("BeepTree.RecalculateLayoutCache: No visible nodes to process");
                 return;
             }
 
@@ -195,9 +199,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 y += nodeInfo.RowHeight;
             }
 
-            // Update virtual size
+            // Update total content height (virtual size is owned by RebuildVisible via layout helper)
             _totalContentHeight = y;
-            _virtualSize = new Size(maxWidth, _totalContentHeight);
         }
 
         #endregion

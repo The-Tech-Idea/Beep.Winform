@@ -1,427 +1,1089 @@
-using Svg;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
- 
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Icons
 {
     /// <summary>
-    /// Static class providing easy access to all embedded SVG image paths in the Beep.Winform.Controls assembly.
-    /// All paths are formatted as embedded resource names for use with Assembly.GetManifestResourceStream().
-    /// UI Icons from Material Design Icons (https://materialdesignicons.com/)
+    /// Static class providing access to all embedded SVG image paths in the Beep.Winform.Controls assembly.
+    /// Constants are generated from actual files under GFX/Icons/tablerfilled.
     /// </summary>
     public static class SvgsUI
     {
-        private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI";
-        private static string R(string fileName) => SvgResourcePathHelper.Build(BaseNamespace, fileName);
+        private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled";
 
         /// <summary>
         /// Gets the assembly containing the embedded SVG resources.
         /// </summary>
         public static Assembly ResourceAssembly => Assembly.GetExecutingAssembly();
 
-        #region "Alerts & Notifications"
-        public static readonly string AlertCircle = R("alert-circle.svg");
+        public static readonly string Accessible = $"{BaseNamespace}.accessible.svg";
+        public static readonly string AdCircle = $"{BaseNamespace}.ad-circle.svg";
+        public static readonly string Ad = $"{BaseNamespace}.ad.svg";
+        public static readonly string AdjustmentsHorizontal = $"{BaseNamespace}.adjustments-horizontal.svg";
+        public static readonly string Adjustments = $"{BaseNamespace}.adjustments.svg";
+        public static readonly string AerialLift = $"{BaseNamespace}.aerial-lift.svg";
+        public static readonly string Affiliate = $"{BaseNamespace}.affiliate.svg";
+        public static readonly string AirBalloon = $"{BaseNamespace}.air-balloon.svg";
+        public static readonly string AlarmMinus = $"{BaseNamespace}.alarm-minus.svg";
+        public static readonly string AlarmPlus = $"{BaseNamespace}.alarm-plus.svg";
+        public static readonly string AlarmSnooze = $"{BaseNamespace}.alarm-snooze.svg";
+        public static readonly string Alarm = $"{BaseNamespace}.alarm.svg";
+        public static readonly string AlertCircle = $"{BaseNamespace}.alert-circle.svg";
+        public static readonly string AlertHexagon = $"{BaseNamespace}.alert-hexagon.svg";
         public static readonly string AlertOctagon = $"{BaseNamespace}.alert-octagon.svg";
+        public static readonly string AlertSquareRounded = $"{BaseNamespace}.alert-square-rounded.svg";
+        public static readonly string AlertSquare = $"{BaseNamespace}.alert-square.svg";
         public static readonly string AlertTriangle = $"{BaseNamespace}.alert-triangle.svg";
-        public static readonly string Bell = $"{BaseNamespace}.bell.svg";
-        public static readonly string BellOff = $"{BaseNamespace}.bell-off.svg";
-        public static readonly string CheckCircle = $"{BaseNamespace}.check-circle.svg";
-        public static readonly string Info = $"{BaseNamespace}.info.svg";
-        public static readonly string LifeBuoy = $"{BaseNamespace}.life-buoy.svg";
-        #endregion
-
-        #region "Arrows & Navigation"
-        public static readonly string ArrowDown = $"{BaseNamespace}.arrow-down.svg";
-        public static readonly string ArrowDownCircle = $"{BaseNamespace}.arrow-down-circle.svg";
-        public static readonly string ArrowDownLeft = $"{BaseNamespace}.arrow-down-left.svg";
-        public static readonly string ArrowDownRight = $"{BaseNamespace}.arrow-down-right.svg";
-        public static readonly string ArrowLeft = $"{BaseNamespace}.arrow-left.svg";
-        public static readonly string ArrowLeftCircle = $"{BaseNamespace}.arrow-left-circle.svg";
-        public static readonly string ArrowRight = $"{BaseNamespace}.arrow-right.svg";
-        public static readonly string ArrowRightCircle = $"{BaseNamespace}.arrow-right-circle.svg";
-        public static readonly string ArrowUp = $"{BaseNamespace}.arrow-up.svg";
-        public static readonly string ArrowUpCircle = $"{BaseNamespace}.arrow-up-circle.svg";
-        public static readonly string ArrowUpLeft = $"{BaseNamespace}.arrow-up-left.svg";
-        public static readonly string ArrowUpRight = $"{BaseNamespace}.arrow-up-right.svg";
-        public static readonly string ChevronDown = $"{BaseNamespace}.chevron-down.svg";
-        public static readonly string ChevronLeft = $"{BaseNamespace}.chevron-left.svg";
-        public static readonly string ChevronRight = $"{BaseNamespace}.chevron-right.svg";
-        public static readonly string ChevronUp = $"{BaseNamespace}.chevron-up.svg";
-        public static readonly string ChevronsDown = $"{BaseNamespace}.chevrons-down.svg";
-        public static readonly string ChevronsLeft = $"{BaseNamespace}.chevrons-left.svg";
-        public static readonly string ChevronsRight = $"{BaseNamespace}.chevrons-right.svg";
-        public static readonly string ChevronsUp = $"{BaseNamespace}.chevrons-up.svg";
-        public static readonly string CornerDownLeft = $"{BaseNamespace}.corner-down-left.svg";
-        public static readonly string CornerDownRight = $"{BaseNamespace}.corner-down-right.svg";
-        public static readonly string CornerLeftDown = $"{BaseNamespace}.corner-left-down.svg";
-        public static readonly string CornerLeftUp = $"{BaseNamespace}.corner-left-up.svg";
-        public static readonly string CornerRightDown = $"{BaseNamespace}.corner-right-down.svg";
-        public static readonly string CornerRightUp = $"{BaseNamespace}.corner-right-up.svg";
-        public static readonly string CornerUpLeft = $"{BaseNamespace}.corner-up-left.svg";
-        public static readonly string CornerUpRight = $"{BaseNamespace}.corner-up-right.svg";
-        public static readonly string ExternalLink = $"{BaseNamespace}.external-link.svg";
-        public static readonly string FastForward = $"{BaseNamespace}.fast-forward.svg";
-        public static readonly string Navigation = $"{BaseNamespace}.navigation.svg";
-        public static readonly string Navigation2 = $"{BaseNamespace}.navigation-2.svg";
-        public static readonly string Rewind = $"{BaseNamespace}.rewind.svg";
-        public static readonly string SkipBack = $"{BaseNamespace}.skip-back.svg";
-        public static readonly string SkipForward = $"{BaseNamespace}.skip-forward.svg";
-        #endregion
-
-        #region "Buttons & Controls"
-        public static readonly string Check = $"{BaseNamespace}.check.svg";
-        public static readonly string CheckSquare = $"{BaseNamespace}.check-square.svg";
-        public static readonly string Circle = $"{BaseNamespace}.circle.svg";
-        public static readonly string Minus = $"{BaseNamespace}.minus.svg";
-        public static readonly string MinusCircle = $"{BaseNamespace}.minus-circle.svg";
-        public static readonly string MinusSquare = $"{BaseNamespace}.minus-square.svg";
-        public static readonly string Plus = $"{BaseNamespace}.plus.svg";
-        public static readonly string PlusCircle = $"{BaseNamespace}.plus-circle.svg";
-        public static readonly string PlusSquare = $"{BaseNamespace}.plus-square.svg";
-        public static readonly string Square = $"{BaseNamespace}.square.svg";
-        public static readonly string ToggleLeft = $"{BaseNamespace}.toggle-left.svg";
-        public static readonly string ToggleRight = $"{BaseNamespace}.toggle-right.svg";
-        public static readonly string X = $"{BaseNamespace}.x.svg";
-        public static readonly string XCircle = $"{BaseNamespace}.x-circle.svg";
-        public static readonly string XOctagon = $"{BaseNamespace}.x-octagon.svg";
-        public static readonly string XSquare = $"{BaseNamespace}.x-square.svg";
-        #endregion
-
-        #region "Media & Images"
-        public static readonly string Activity = $"{BaseNamespace}.activity.svg";
-        public static readonly string Airplay = $"{BaseNamespace}.airplay.svg";
-        public static readonly string Camera = $"{BaseNamespace}.camera.svg";
-        public static readonly string CameraOff = $"{BaseNamespace}.camera-off.svg";
-        public static readonly string Cast = $"{BaseNamespace}.cast.svg";
-        public static readonly string Disc = $"{BaseNamespace}.disc.svg";
-        public static readonly string Dribbble = $"{BaseNamespace}.dribbble.svg";
-        public static readonly string Film = $"{BaseNamespace}.film.svg";
-        public static readonly string Image = $"{BaseNamespace}.image.svg";
-        public static readonly string Instagram = $"{BaseNamespace}.instagram.svg";
-        public static readonly string Pause = $"{BaseNamespace}.pause.svg";
-        public static readonly string PauseCircle = $"{BaseNamespace}.pause-circle.svg";
-        public static readonly string Play = $"{BaseNamespace}.play.svg";
-        public static readonly string PlayCircle = $"{BaseNamespace}.play-circle.svg";
-        public static readonly string Repeat = $"{BaseNamespace}.repeat.svg";
-        public static readonly string Shuffle = $"{BaseNamespace}.shuffle.svg";
-        public static readonly string Sound = $"{BaseNamespace}.sound.svg";
-        public static readonly string Twitch = $"{BaseNamespace}.twitch.svg";
-        public static readonly string Twitter = $"{BaseNamespace}.twitter.svg";
-        public static readonly string Video = $"{BaseNamespace}.video.svg";
-        public static readonly string VideoOff = $"{BaseNamespace}.video-off.svg";
-        public static readonly string Volume = $"{BaseNamespace}.volume.svg";
-        public static readonly string Volume1 = $"{BaseNamespace}.volume-1.svg";
-        public static readonly string Volume2 = $"{BaseNamespace}.volume-2.svg";
-        public static readonly string VolumeX = $"{BaseNamespace}.volume-x.svg";
-        public static readonly string Youtube = $"{BaseNamespace}.youtube.svg";
-        #endregion
-
-        #region "Text & Editing"
-        public static readonly string AlignCenter = $"{BaseNamespace}.align-center.svg";
-        public static readonly string AlignJustify = $"{BaseNamespace}.align-justify.svg";
-        public static readonly string AlignLeft = $"{BaseNamespace}.align-left.svg";
-        public static readonly string AlignRight = $"{BaseNamespace}.align-right.svg";
-        public static readonly string Bold = $"{BaseNamespace}.bold.svg";
-        public static readonly string Code = $"{BaseNamespace}.code.svg";
-        public static readonly string DotsVertical = $"{BaseNamespace}.dotsvertical.svg";
-        public static readonly string MoreVertical = DotsVertical;
-        public static readonly string Edit = $"{BaseNamespace}.edit.svg";
-        public static readonly string Edit2 = $"{BaseNamespace}.edit-2.svg";
-        public static readonly string Edit3 = $"{BaseNamespace}.edit-3.svg";
-        public static readonly string Ellipsis = $"{BaseNamespace}.ellipsis.svg";
-        public static readonly string FileText = $"{BaseNamespace}.file-text.svg";
-        public static readonly string Hash = $"{BaseNamespace}.hash.svg";
-        public static readonly string Italic = $"{BaseNamespace}.italic.svg";
-        public static readonly string List = $"{BaseNamespace}.list.svg";
-        public static readonly string Slash = $"{BaseNamespace}.slash.svg";
-        public static readonly string Sliders = $"{BaseNamespace}.sliders.svg";
-        public static readonly string Type = $"{BaseNamespace}.type.svg";
-        public static readonly string Underline = $"{BaseNamespace}.underline.svg";
-        #endregion
-
-        #region "File & Folder"
+        public static readonly string Alien = $"{BaseNamespace}.alien.svg";
+        public static readonly string AlignBoxBottomCenter = $"{BaseNamespace}.align-box-bottom-center.svg";
+        public static readonly string AlignBoxBottomLeft = $"{BaseNamespace}.align-box-bottom-left.svg";
+        public static readonly string AlignBoxBottomRight = $"{BaseNamespace}.align-box-bottom-right.svg";
+        public static readonly string AlignBoxCenterMiddle = $"{BaseNamespace}.align-box-center-middle.svg";
+        public static readonly string AlignBoxLeftBottom = $"{BaseNamespace}.align-box-left-bottom.svg";
+        public static readonly string AlignBoxLeftMiddle = $"{BaseNamespace}.align-box-left-middle.svg";
+        public static readonly string AlignBoxLeftTop = $"{BaseNamespace}.align-box-left-top.svg";
+        public static readonly string AlignBoxRightBottom = $"{BaseNamespace}.align-box-right-bottom.svg";
+        public static readonly string AlignBoxRightMiddle = $"{BaseNamespace}.align-box-right-middle.svg";
+        public static readonly string AlignBoxRightTop = $"{BaseNamespace}.align-box-right-top.svg";
+        public static readonly string AlignBoxTopCenter = $"{BaseNamespace}.align-box-top-center.svg";
+        public static readonly string AlignBoxTopLeft = $"{BaseNamespace}.align-box-top-left.svg";
+        public static readonly string AlignBoxTopRight = $"{BaseNamespace}.align-box-top-right.svg";
+        public static readonly string Analyze = $"{BaseNamespace}.analyze.svg";
+        public static readonly string AppWindow = $"{BaseNamespace}.app-window.svg";
+        public static readonly string Apple = $"{BaseNamespace}.apple.svg";
+        public static readonly string Apps = $"{BaseNamespace}.apps.svg";
+        public static readonly string BoltOff = $"{BaseNamespace}.bolt-off.svg";
         public static readonly string Archive = $"{BaseNamespace}.archive.svg";
-        public static readonly string Doc = $"{BaseNamespace}.doc.svg";
-        public static readonly string Docx = $"{BaseNamespace}.docx.svg";
-        public static readonly string File = $"{BaseNamespace}.file.svg";
-        public static readonly string FileMinus = $"{BaseNamespace}.file-minus.svg";
-        public static readonly string FilePlus = $"{BaseNamespace}.file-plus.svg";
-        public static readonly string Folder = $"{BaseNamespace}.folder.svg";
-        public static readonly string FolderMinus = $"{BaseNamespace}.folder-minus.svg";
-        public static readonly string FolderPlus = $"{BaseNamespace}.folder-plus.svg";
-        public static readonly string Pdf = $"{BaseNamespace}.pdf.svg";
-        public static readonly string Ppt = $"{BaseNamespace}.ppt.svg";
-        public static readonly string Pptx = $"{BaseNamespace}.pptx.svg";
-        public static readonly string Xls = $"{BaseNamespace}.xls.svg";
-        public static readonly string Xlsx = $"{BaseNamespace}.xlsx.svg";
-        #endregion
-
-        #region "Cloud & Weather"
-        public static readonly string Cloud = $"{BaseNamespace}.cloud.svg";
-        public static readonly string CloudDrizzle = $"{BaseNamespace}.cloud-drizzle.svg";
-        public static readonly string CloudLightning = $"{BaseNamespace}.cloud-lightning.svg";
-        public static readonly string CloudOff = $"{BaseNamespace}.cloud-off.svg";
-        public static readonly string CloudRain = $"{BaseNamespace}.cloud-rain.svg";
-        public static readonly string CloudSnow = $"{BaseNamespace}.cloud-snow.svg";
-        public static readonly string Sun = $"{BaseNamespace}.sun.svg";
-        public static readonly string Sunrise = $"{BaseNamespace}.sunrise.svg";
-        public static readonly string Sunset = $"{BaseNamespace}.sunset.svg";
-        public static readonly string Wind = $"{BaseNamespace}.wind.svg";
-        #endregion
-
-        #region "User & People"
-        public static readonly string Person = $"{BaseNamespace}.person.svg";
-        public static readonly string User = $"{BaseNamespace}.user.svg";
-        public static readonly string UserCheck = $"{BaseNamespace}.user-check.svg";
-        public static readonly string UserCircle = $"{BaseNamespace}.usercircle.svg";
-        public static readonly string UserMinus = $"{BaseNamespace}.user-minus.svg";
-        public static readonly string UserPlus = $"{BaseNamespace}.user-plus.svg";
-        public static readonly string UserX = $"{BaseNamespace}.user-x.svg";
-        public static readonly string Users = $"{BaseNamespace}.users.svg";
-        #endregion
-
-        #region "Communication"
-        public static readonly string AtSign = $"{BaseNamespace}.at-sign.svg";
-        public static readonly string Mail = $"{BaseNamespace}.mail.svg";
-        public static readonly string MessageCircle = $"{BaseNamespace}.message-circle.svg";
-        public static readonly string MessageSquare = $"{BaseNamespace}.message-square.svg";
-        public static readonly string Mic = $"{BaseNamespace}.mic.svg";
-        public static readonly string MicOff = $"{BaseNamespace}.mic-off.svg";
-        public static readonly string Phone = $"{BaseNamespace}.phone.svg";
-        public static readonly string PhoneCall = $"{BaseNamespace}.phone-call.svg";
-        public static readonly string PhoneForwarded = $"{BaseNamespace}.phone-forwarded.svg";
-        public static readonly string PhoneIncoming = $"{BaseNamespace}.phone-incoming.svg";
-        public static readonly string PhoneMissed = $"{BaseNamespace}.phone-missed.svg";
-        public static readonly string PhoneOff = $"{BaseNamespace}.phone-off.svg";
-        public static readonly string PhoneOutgoing = $"{BaseNamespace}.phone-outgoing.svg";
-        public static readonly string Send = $"{BaseNamespace}.send.svg";
-        public static readonly string Slack = $"{BaseNamespace}.slack.svg";
-        public static readonly string Trello = $"{BaseNamespace}.trello.svg";
-        #endregion
-
-        #region "Shopping & Commerce"
-        public static readonly string Cart = $"{BaseNamespace}.cart.svg";
-        public static readonly string CreditCard = $"{BaseNamespace}.credit-card.svg";
-        public static readonly string Dollar = $"{BaseNamespace}.dollar.svg";
-        public static readonly string DollarSign = $"{BaseNamespace}.dollar-sign.svg";
-        public static readonly string Gift = $"{BaseNamespace}.gift.svg";
-        public static readonly string Shopping = $"{BaseNamespace}.shopping.svg";
-        public static readonly string ShoppingBag = $"{BaseNamespace}.shopping-bag.svg";
-        public static readonly string ShoppingCart = $"{BaseNamespace}.shopping-cart.svg";
-        public static readonly string Shopify = $"{BaseNamespace}.shopify.svg";
-        public static readonly string Stripe = $"{BaseNamespace}.stripe.svg";
-        public static readonly string Trello2 = $"{BaseNamespace}.trello.svg";
-        #endregion
-
-        #region "Authentication & Login"
-        public static readonly string Github = $"{BaseNamespace}.github.svg";
-        public static readonly string Google = $"{BaseNamespace}.google.svg";
-        public static readonly string LogIn = $"{BaseNamespace}.login.svg";
-        public static readonly string Microsoft = $"{BaseNamespace}.microsoft.svg";
-        #endregion
-
-        #region "Branding & Logos"
-        public static readonly string Brand = $"{BaseNamespace}.trademark.svg";
-        public static readonly string Logo = $"{BaseNamespace}.trademark.svg";
-        #endregion
-
-        #region "Science & Technology"
-        public static readonly string Aperture = $"{BaseNamespace}.aperture.svg";
-        public static readonly string Bluetooth = $"{BaseNamespace}.bluetooth.svg";
-        public static readonly string Cpu = $"{BaseNamespace}.cpu.svg";
-        public static readonly string Database = $"{BaseNamespace}.database.svg";
-        public static readonly string HardDrive = $"{BaseNamespace}.hard-drive.svg";
-        public static readonly string Monitor = $"{BaseNamespace}.monitor.svg";
-        public static readonly string Radio = $"{BaseNamespace}.radio.svg";
-        public static readonly string Server = $"{BaseNamespace}.server.svg";
-        public static readonly string Signal = $"{BaseNamespace}.signal.svg";
-        public static readonly string SignalOff = $"{BaseNamespace}.signaloff.svg";
-        public static readonly string Smartphone = $"{BaseNamespace}.smartphone.svg";
-        public static readonly string Tablet = $"{BaseNamespace}.tablet.svg";
-        public static readonly string Terminal = $"{BaseNamespace}.terminal.svg";
-        public static readonly string Tv = $"{BaseNamespace}.tv.svg";
-        public static readonly string Watch = $"{BaseNamespace}.watch.svg";
+        public static readonly string ArrowAutofitContent = $"{BaseNamespace}.arrow-autofit-content.svg";
+        public static readonly string ArrowAutofitDown = $"{BaseNamespace}.arrow-autofit-down.svg";
+        public static readonly string LockOpen = $"{BaseNamespace}.lock-open.svg";
+        public static readonly string ArrowAutofitHeight = $"{BaseNamespace}.arrow-autofit-height.svg";
+        public static readonly string ArrowAutofitLeft = $"{BaseNamespace}.arrow-autofit-left.svg";
+        public static readonly string ArrowAutofitRight = $"{BaseNamespace}.arrow-autofit-right.svg";
+        public static readonly string ArrowAutofitUp = $"{BaseNamespace}.arrow-autofit-up.svg";
+        public static readonly string MicrophoneOff = $"{BaseNamespace}.microphone-off.svg";
+        public static readonly string ArrowAutofitWidth = $"{BaseNamespace}.arrow-autofit-width.svg";
+        public static readonly string ArrowBadgeDown = $"{BaseNamespace}.arrow-badge-down.svg";
+        public static readonly string ArrowBadgeLeft = $"{BaseNamespace}.arrow-badge-left.svg";
+        public static readonly string Music = $"{BaseNamespace}.music.svg";
+        public static readonly string ArrowBadgeRight = $"{BaseNamespace}.arrow-badge-right.svg";
+        public static readonly string ArrowBadgeUp = $"{BaseNamespace}.arrow-badge-up.svg";
+        public static readonly string ArrowBigDownLine = $"{BaseNamespace}.arrow-big-down-line.svg";
+        public static readonly string ArrowBigDownLines = $"{BaseNamespace}.arrow-big-down-lines.svg";
+        public static readonly string Hash = $"{BaseNamespace}.hash.svg";
+        public static readonly string ArrowBigDown = $"{BaseNamespace}.arrow-big-down.svg";
+        public static readonly string ArrowBigLeftLine = $"{BaseNamespace}.arrow-big-left-line.svg";
+        public static readonly string ArrowBigLeftLines = $"{BaseNamespace}.arrow-big-left-lines.svg";
+        public static readonly string Percentage = $"{BaseNamespace}.percentage.svg";
+        public static readonly string ArrowBigLeft = $"{BaseNamespace}.arrow-big-left.svg";
+        public static readonly string ArrowBigRightLine = $"{BaseNamespace}.arrow-big-right-line.svg";
+        public static readonly string ArrowBigRightLines = $"{BaseNamespace}.arrow-big-right-lines.svg";
+        public static readonly string Temperature = $"{BaseNamespace}.temperature.svg";
+        public static readonly string ArrowBigRight = $"{BaseNamespace}.arrow-big-right.svg";
+        public static readonly string ArrowBigUpLine = $"{BaseNamespace}.arrow-big-up-line.svg";
+        public static readonly string ArrowBigUpLines = $"{BaseNamespace}.arrow-big-up-lines.svg";
+        public static readonly string ArrowBigUp = $"{BaseNamespace}.arrow-big-up.svg";
+        public static readonly string ArrowDownCircle = $"{BaseNamespace}.arrow-down-circle.svg";
+        public static readonly string ArrowDownRhombus = $"{BaseNamespace}.arrow-down-rhombus.svg";
+        public static readonly string Volume = $"{BaseNamespace}.volume.svg";
+        public static readonly string VolumeOff = $"{BaseNamespace}.volume-off.svg";
+        public static readonly string Speakerphone = $"{BaseNamespace}.speakerphone.svg";
         public static readonly string Wifi = $"{BaseNamespace}.wifi.svg";
         public static readonly string WifiOff = $"{BaseNamespace}.wifi-off.svg";
-        #endregion
-
-        #region "Navigation & Layout"
-        public static readonly string Apps = $"{BaseNamespace}.apps.svg";
-        public static readonly string Columns = $"{BaseNamespace}.columns.svg";
-        public static readonly string Command = $"{BaseNamespace}.command.svg";
-        public static readonly string Compass = $"{BaseNamespace}.compass.svg";
-        public static readonly string Grid = $"{BaseNamespace}.grid.svg";
-        public static readonly string Home = $"{BaseNamespace}.home.svg";
-        public static readonly string Layout = $"{BaseNamespace}.layout.svg";
-        public static readonly string Menu = $"{BaseNamespace}.menu.svg";
-        public static readonly string Sidebar = $"{BaseNamespace}.sidebar.svg";
-        #endregion
-
-        #region "Search & Find"
-        public static readonly string Search = $"{BaseNamespace}.search.svg";
-        public static readonly string ZoomIn = $"{BaseNamespace}.zoom-in.svg";
-        public static readonly string ZoomOut = $"{BaseNamespace}.zoom-out.svg";
-        #endregion
-
-        #region "Maps & Location"
-        public static readonly string Compass2 = $"{BaseNamespace}.compass.svg";
-        public static readonly string Globe = $"{BaseNamespace}.globe.svg";
-        public static readonly string MapPin = $"{BaseNamespace}.map-pin.svg";
-        public static readonly string Map = $"{BaseNamespace}.map.svg";
-        #endregion
-
-        #region "Time & Calendar"
-        public static readonly string Calendar = $"{BaseNamespace}.calendar.svg";
-        public static readonly string Clock = $"{BaseNamespace}.clock.svg";
-        public static readonly string Loader = $"{BaseNamespace}.loader.svg";
-        public static readonly string Moon = $"{BaseNamespace}.moon.svg";
-        public static readonly string Watch2 = $"{BaseNamespace}.watch.svg";
-        #endregion
-
-        #region "Charts & Analytics"
-        public static readonly string BarChart = $"{BaseNamespace}.bar-chart.svg";
-        public static readonly string BarChart2 = $"{BaseNamespace}.bar-chart-2.svg";
-        public static readonly string Chart = $"{BaseNamespace}.chart.svg";
-        public static readonly string PieChart = $"{BaseNamespace}.pie-chart.svg";
-        public static readonly string TrendingDown = $"{BaseNamespace}.trending-down.svg";
-        public static readonly string TrendingUp = $"{BaseNamespace}.trending-up.svg";
-        #endregion
-
-        #region "Drawing & Design"
-        public static readonly string Anchor = $"{BaseNamespace}.anchor.svg";
+        public static readonly string ArrowDownSquare = $"{BaseNamespace}.arrow-down-square.svg";
+        public static BeepImage SetMenuIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.MenuN2);
+        public static readonly string ArrowLeftCircle = $"{BaseNamespace}.arrow-left-circle.svg";
+        public static readonly string ArrowLeftRhombus = $"{BaseNamespace}.arrow-left-rhombus.svg";
+        public static readonly string ArrowLeftSquare = $"{BaseNamespace}.arrow-left-square.svg";
+        public static readonly string ArrowMoveDown = $"{BaseNamespace}.arrow-move-down.svg";
+        public static readonly string ArrowMoveLeft = $"{BaseNamespace}.arrow-move-left.svg";
+        public static readonly string ArrowMoveRight = $"{BaseNamespace}.arrow-move-right.svg";
+        public static readonly string ArrowMoveUp = $"{BaseNamespace}.arrow-move-up.svg";
+        public static readonly string ArrowRightCircle = $"{BaseNamespace}.arrow-right-circle.svg";
+        public static readonly string ArrowRightRhombus = $"{BaseNamespace}.arrow-right-rhombus.svg";
+        public static readonly string ArrowRightSquare = $"{BaseNamespace}.arrow-right-square.svg";
+        public static readonly string ArrowUpCircle = $"{BaseNamespace}.arrow-up-circle.svg";
+        public static readonly string ArrowUpRhombus = $"{BaseNamespace}.arrow-up-rhombus.svg";
+        public static readonly string ArrowUpSquare = $"{BaseNamespace}.arrow-up-square.svg";
+        public static readonly string Artboard = $"{BaseNamespace}.artboard.svg";
+        public static readonly string Article = $"{BaseNamespace}.article.svg";
+        public static readonly string AspectRatio = $"{BaseNamespace}.aspect-ratio.svg";
+        public static readonly string Assembly = $"{BaseNamespace}.assembly.svg";
+        public static readonly string Asset = $"{BaseNamespace}.asset.svg";
+        public static readonly string AtomN2 = $"{BaseNamespace}.atom-2.svg";
+        public static readonly string AutomaticGearbox = $"{BaseNamespace}.automatic-gearbox.svg";
         public static readonly string Award = $"{BaseNamespace}.award.svg";
-        public static readonly string Clipboard = $"{BaseNamespace}.clipboard.svg";
-        public static readonly string Code2 = $"{BaseNamespace}.code.svg";
-        public static readonly string Codepen = $"{BaseNamespace}.codepen.svg";
-        public static readonly string Codesandbox = $"{BaseNamespace}.codesandbox.svg";
-        public static readonly string Command2 = $"{BaseNamespace}.command.svg";
-        public static readonly string Crop = $"{BaseNamespace}.crop.svg";
-        public static readonly string Crosshair = $"{BaseNamespace}.crosshair.svg";
-        public static readonly string Droplet = $"{BaseNamespace}.droplet.svg";
-        public static readonly string Eye = $"{BaseNamespace}.eye.svg";
-        public static readonly string EyeOff = $"{BaseNamespace}.eye-off.svg";
-        public static readonly string Feather = $"{BaseNamespace}.feather.svg";
-        public static readonly string Figma = $"{BaseNamespace}.figma.svg";
-        public static readonly string Framer = $"{BaseNamespace}.framer.svg";
-        public static readonly string Layers = $"{BaseNamespace}.layers.svg";
-        public static readonly string Move = $"{BaseNamespace}.move.svg";
-        public static readonly string PenTool = $"{BaseNamespace}.pen-tool.svg";
-        public static readonly string RotateCcw = $"{BaseNamespace}.rotate-ccw.svg";
-        public static readonly string RotateCw = $"{BaseNamespace}.rotate-cw.svg";
-        public static readonly string Scissors = $"{BaseNamespace}.scissors.svg";
-        public static readonly string Triangle = $"{BaseNamespace}.triangle.svg";
-        #endregion
-
-        #region "Objects & Shapes"
-        public static readonly string Box = $"{BaseNamespace}.box.svg";
-        public static readonly string Hexagon = $"{BaseNamespace}.hexagon.svg";
-        public static readonly string Octagon = $"{BaseNamespace}.octagon.svg";
-        public static readonly string Package = $"{BaseNamespace}.package.svg";
-        #endregion
-
-        #region "Emotions & Expressions"
-        public static readonly string Frown = $"{BaseNamespace}.frown.svg";
-        public static readonly string Happy = $"{BaseNamespace}.happy.svg";
-        public static readonly string Meh = $"{BaseNamespace}.meh.svg";
-        public static readonly string Sad = $"{BaseNamespace}.sad.svg";
-        public static readonly string Smile = $"{BaseNamespace}.smile.svg";
-        #endregion
-
-        #region "Favorites & Social"
-        public static readonly string BookOpen = $"{BaseNamespace}.book-open.svg";
+        public static readonly string BabyCarriage = $"{BaseNamespace}.baby-carriage.svg";
+        public static readonly string Backspace = $"{BaseNamespace}.backspace.svg";
+        public static readonly string BadgeN3d = $"{BaseNamespace}.badge-3d.svg";
+        public static readonly string BadgeN4k = $"{BaseNamespace}.badge-4k.svg";
+        public static readonly string BadgeN8k = $"{BaseNamespace}.badge-8k.svg";
+        public static readonly string BadgeAd = $"{BaseNamespace}.badge-ad.svg";
+        public static readonly string BadgeAr = $"{BaseNamespace}.badge-ar.svg";
+        public static readonly string BadgeCc = $"{BaseNamespace}.badge-cc.svg";
+        public static readonly string BadgeHd = $"{BaseNamespace}.badge-hd.svg";
+        public static readonly string BadgeSd = $"{BaseNamespace}.badge-sd.svg";
+        public static readonly string BadgeTm = $"{BaseNamespace}.badge-tm.svg";
+        public static readonly string BadgeVo = $"{BaseNamespace}.badge-vo.svg";
+        public static readonly string BadgeVr = $"{BaseNamespace}.badge-vr.svg";
+        public static readonly string BadgeWc = $"{BaseNamespace}.badge-wc.svg";
+        public static readonly string Badge = $"{BaseNamespace}.badge.svg";
+        public static readonly string Badges = $"{BaseNamespace}.badges.svg";
+        public static readonly string BallBowling = $"{BaseNamespace}.ball-bowling.svg";
+        public static readonly string Balloon = $"{BaseNamespace}.balloon.svg";
+        public static readonly string Ballpen = $"{BaseNamespace}.ballpen.svg";
+        public static readonly string Bandage = $"{BaseNamespace}.bandage.svg";
+        public static readonly string Barbell = $"{BaseNamespace}.barbell.svg";
+        public static readonly string BarrierBlock = $"{BaseNamespace}.barrier-block.svg";
+        public static readonly string Basket = $"{BaseNamespace}.basket.svg";
+        public static readonly string Bath = $"{BaseNamespace}.bath.svg";
+        public static readonly string BatteryN1 = $"{BaseNamespace}.battery-1.svg";
+        public static readonly string BatteryN2 = $"{BaseNamespace}.battery-2.svg";
+        public static readonly string BatteryN3 = $"{BaseNamespace}.battery-3.svg";
+        public static readonly string BatteryN4 = $"{BaseNamespace}.battery-4.svg";
+        public static readonly string BatteryAutomotive = $"{BaseNamespace}.battery-automotive.svg";
+        public static readonly string BatteryVerticalN1 = $"{BaseNamespace}.battery-vertical-1.svg";
+        public static readonly string BatteryVerticalN2 = $"{BaseNamespace}.battery-vertical-2.svg";
+        public static readonly string BatteryVerticalN3 = $"{BaseNamespace}.battery-vertical-3.svg";
+        public static readonly string BatteryVerticalN4 = $"{BaseNamespace}.battery-vertical-4.svg";
+        public static readonly string BatteryVertical = $"{BaseNamespace}.battery-vertical.svg";
+        public static readonly string Battery = $"{BaseNamespace}.battery.svg";
+        public static readonly string BedFlat = $"{BaseNamespace}.bed-flat.svg";
+        public static readonly string Bed = $"{BaseNamespace}.bed.svg";
+        public static readonly string Beer = $"{BaseNamespace}.beer.svg";
+        public static readonly string BellMinus = $"{BaseNamespace}.bell-minus.svg";
+        public static readonly string BellPlus = $"{BaseNamespace}.bell-plus.svg";
+        public static readonly string BellRingingN2 = $"{BaseNamespace}.bell-ringing-2.svg";
+        public static readonly string BellRinging = $"{BaseNamespace}.bell-ringing.svg";
+        public static readonly string BellX = $"{BaseNamespace}.bell-x.svg";
+        public static readonly string BellZ = $"{BaseNamespace}.bell-z.svg";
+        public static readonly string Bell = $"{BaseNamespace}.bell.svg";
+        public static readonly string Bike = $"{BaseNamespace}.bike.svg";
+        public static readonly string BinaryTreeN2 = $"{BaseNamespace}.binary-tree-2.svg";
+        public static readonly string BinaryTree = $"{BaseNamespace}.binary-tree.svg";
+        public static readonly string Binoculars = $"{BaseNamespace}.binoculars.svg";
+        public static readonly string Biohazard = $"{BaseNamespace}.biohazard.svg";
+        public static readonly string Blade = $"{BaseNamespace}.blade.svg";
+        public static readonly string Blender = $"{BaseNamespace}.blender.svg";
+        public static readonly string Blob = $"{BaseNamespace}.blob.svg";
+        public static readonly string Bolt = $"{BaseNamespace}.bolt.svg";
+        public static readonly string Bomb = $"{BaseNamespace}.bomb.svg";
+        public static readonly string Bone = $"{BaseNamespace}.bone.svg";
+        public static readonly string Bong = $"{BaseNamespace}.bong.svg";
         public static readonly string Book = $"{BaseNamespace}.book.svg";
         public static readonly string Bookmark = $"{BaseNamespace}.bookmark.svg";
-        public static readonly string Facebook = $"{BaseNamespace}.facebook.svg";
-        public static readonly string Heart = $"{BaseNamespace}.heart.svg";
-        public static readonly string HeartOff = $"{BaseNamespace}.heartoff.svg";
-        public static readonly string Linkedin = $"{BaseNamespace}.linkedin.svg";
-        public static readonly string Star = $"{BaseNamespace}.star.svg";
-        public static readonly string ThumbsDown = $"{BaseNamespace}.thumbs-down.svg";
-        public static readonly string ThumbsUp = $"{BaseNamespace}.thumbs-up.svg";
-        #endregion
-
-        #region "Lock & Security"
-        public static readonly string Key = $"{BaseNamespace}.key.svg";
-        public static readonly string Lock = $"{BaseNamespace}.lock.svg";
-        public static readonly string Unlock = $"{BaseNamespace}.unlock.svg";
-        public static readonly string Shield = $"{BaseNamespace}.shield.svg";
-        public static readonly string ShieldOff = $"{BaseNamespace}.shield-off.svg";
-        #endregion
-
-        #region "Miscellaneous"
-        public static readonly string Battery = $"{BaseNamespace}.battery.svg";
-        public static readonly string BatteryCharging = $"{BaseNamespace}.battery-charging.svg";
+        public static readonly string Bookmarks = $"{BaseNamespace}.bookmarks.svg";
+        public static readonly string Boom = $"{BaseNamespace}.boom.svg";
+        public static readonly string Bottle = $"{BaseNamespace}.bottle.svg";
+        public static readonly string BounceLeft = $"{BaseNamespace}.bounce-left.svg";
+        public static readonly string BounceRight = $"{BaseNamespace}.bounce-right.svg";
+        public static readonly string Bow = $"{BaseNamespace}.bow.svg";
+        public static readonly string BowlChopsticks = $"{BaseNamespace}.bowl-chopsticks.svg";
+        public static readonly string BowlSpoon = $"{BaseNamespace}.bowl-spoon.svg";
+        public static readonly string Bowl = $"{BaseNamespace}.bowl.svg";
+        public static readonly string BoxAlignBottomLeft = $"{BaseNamespace}.box-align-bottom-left.svg";
+        public static readonly string BoxAlignBottomRight = $"{BaseNamespace}.box-align-bottom-right.svg";
+        public static readonly string BoxAlignBottom = $"{BaseNamespace}.box-align-bottom.svg";
+        public static readonly string BoxAlignLeft = $"{BaseNamespace}.box-align-left.svg";
+        public static readonly string BoxAlignRight = $"{BaseNamespace}.box-align-right.svg";
+        public static readonly string BoxAlignTopLeft = $"{BaseNamespace}.box-align-top-left.svg";
+        public static readonly string BoxAlignTopRight = $"{BaseNamespace}.box-align-top-right.svg";
+        public static readonly string BoxAlignTop = $"{BaseNamespace}.box-align-top.svg";
+        public static readonly string BoxMultiple = $"{BaseNamespace}.box-multiple.svg";
+        public static readonly string BrandAngular = $"{BaseNamespace}.brand-angular.svg";
+        public static readonly string BrandApple = $"{BaseNamespace}.brand-apple.svg";
+        public static readonly string BrandBitbucket = $"{BaseNamespace}.brand-bitbucket.svg";
+        public static readonly string BrandDiscord = $"{BaseNamespace}.brand-discord.svg";
+        public static readonly string BrandDribbble = $"{BaseNamespace}.brand-dribbble.svg";
+        public static readonly string BrandFacebook = $"{BaseNamespace}.brand-facebook.svg";
+        public static readonly string BrandGithub = $"{BaseNamespace}.brand-github.svg";
+        public static readonly string BrandGoogle = $"{BaseNamespace}.brand-google.svg";
+        public static readonly string BrandInstagram = $"{BaseNamespace}.brand-instagram.svg";
+        public static readonly string BrandKick = $"{BaseNamespace}.brand-kick.svg";
+        public static readonly string BrandLinkedin = $"{BaseNamespace}.brand-linkedin.svg";
+        public static readonly string BrandMessenger = $"{BaseNamespace}.brand-messenger.svg";
+        public static readonly string BrandOpenSource = $"{BaseNamespace}.brand-open-source.svg";
+        public static readonly string BrandOpera = $"{BaseNamespace}.brand-opera.svg";
+        public static readonly string BrandPatreon = $"{BaseNamespace}.brand-patreon.svg";
+        public static readonly string BrandPaypal = $"{BaseNamespace}.brand-paypal.svg";
+        public static readonly string BrandPinterest = $"{BaseNamespace}.brand-pinterest.svg";
+        public static readonly string BrandSketch = $"{BaseNamespace}.brand-sketch.svg";
+        public static readonly string BrandSnapchat = $"{BaseNamespace}.brand-snapchat.svg";
+        public static readonly string BrandSpotify = $"{BaseNamespace}.brand-spotify.svg";
+        public static readonly string BrandSteam = $"{BaseNamespace}.brand-steam.svg";
+        public static readonly string BrandStripe = $"{BaseNamespace}.brand-stripe.svg";
+        public static readonly string BrandTabler = $"{BaseNamespace}.brand-tabler.svg";
+        public static readonly string BrandTiktok = $"{BaseNamespace}.brand-tiktok.svg";
+        public static readonly string BrandTinder = $"{BaseNamespace}.brand-tinder.svg";
+        public static readonly string BrandTumblr = $"{BaseNamespace}.brand-tumblr.svg";
+        public static readonly string BrandTwitter = $"{BaseNamespace}.brand-twitter.svg";
+        public static readonly string BrandVercel = $"{BaseNamespace}.brand-vercel.svg";
+        public static readonly string BrandVimeo = $"{BaseNamespace}.brand-vimeo.svg";
+        public static readonly string BrandWeibo = $"{BaseNamespace}.brand-weibo.svg";
+        public static readonly string BrandWhatsapp = $"{BaseNamespace}.brand-whatsapp.svg";
+        public static readonly string BrandWindows = $"{BaseNamespace}.brand-windows.svg";
+        public static readonly string BrandX = $"{BaseNamespace}.brand-x.svg";
+        public static readonly string BrandYoutube = $"{BaseNamespace}.brand-youtube.svg";
+        public static readonly string Bread = $"{BaseNamespace}.bread.svg";
+        public static readonly string BriefcaseN2 = $"{BaseNamespace}.briefcase-2.svg";
         public static readonly string Briefcase = $"{BaseNamespace}.briefcase.svg";
-        public static readonly string Chrome = $"{BaseNamespace}.chrome.svg";
-        public static readonly string Coffee = $"{BaseNamespace}.coffee.svg";
-        public static readonly string Company = $"{BaseNamespace}.company.svg";
-        public static readonly string Copy2 = $"{BaseNamespace}.copy.svg";
-        public static readonly string Currency = $"{BaseNamespace}.currency.svg";
-        public static readonly string Divide = $"{BaseNamespace}.divide.svg";
-        public static readonly string DivideCircle = $"{BaseNamespace}.divide-circle.svg";
-        public static readonly string DivideSquare = $"{BaseNamespace}.divide-square.svg";
-        public static readonly string Dot = $"{BaseNamespace}.dot.svg";
-        public static readonly string Droplet2 = $"{BaseNamespace}.droplet.svg";
+        public static readonly string BrightnessAuto = $"{BaseNamespace}.brightness-auto.svg";
+        public static readonly string BrightnessDown = $"{BaseNamespace}.brightness-down.svg";
+        public static readonly string BrightnessUp = $"{BaseNamespace}.brightness-up.svg";
+        public static readonly string Brightness = $"{BaseNamespace}.brightness.svg";
+        public static readonly string BubbleText = $"{BaseNamespace}.bubble-text.svg";
+        public static readonly string Bubble = $"{BaseNamespace}.bubble.svg";
+        public static readonly string Bug = $"{BaseNamespace}.bug.svg";
+        public static readonly string BuildingBridgeN2 = $"{BaseNamespace}.building-bridge-2.svg";
+        public static readonly string BuildingBroadcastTower = $"{BaseNamespace}.building-broadcast-tower.svg";
+        public static readonly string Bulb = $"{BaseNamespace}.bulb.svg";
+        public static readonly string Bus = $"{BaseNamespace}.bus.svg";
+        public static readonly string Butterfly = $"{BaseNamespace}.butterfly.svg";
+        public static readonly string Cactus = $"{BaseNamespace}.cactus.svg";
+        public static readonly string Calculator = $"{BaseNamespace}.calculator.svg";
+        public static readonly string CalendarEvent = $"{BaseNamespace}.calendar-event.svg";
+        public static readonly string CalendarMonth = $"{BaseNamespace}.calendar-month.svg";
+        public static readonly string CalendarWeek = $"{BaseNamespace}.calendar-week.svg";
+        public static readonly string Calendar = $"{BaseNamespace}.calendar.svg";
+        public static readonly string Camera = $"{BaseNamespace}.camera.svg";
+        public static readonly string Campfire = $"{BaseNamespace}.campfire.svg";
+        public static readonly string Candle = $"{BaseNamespace}.candle.svg";
+        public static readonly string Cannabis = $"{BaseNamespace}.cannabis.svg";
+        public static readonly string CapsuleHorizontal = $"{BaseNamespace}.capsule-horizontal.svg";
+        public static readonly string Capsule = $"{BaseNamespace}.capsule.svg";
+        public static readonly string Capture = $"{BaseNamespace}.capture.svg";
+        public static readonly string CarN4wd = $"{BaseNamespace}.car-4wd.svg";
+        public static readonly string CarCrane = $"{BaseNamespace}.car-crane.svg";
+        public static readonly string CarFan = $"{BaseNamespace}.car-fan.svg";
+        public static readonly string CarSuv = $"{BaseNamespace}.car-suv.svg";
+        public static readonly string Car = $"{BaseNamespace}.car.svg";
+        public static readonly string Carambola = $"{BaseNamespace}.carambola.svg";
+        public static readonly string Caravan = $"{BaseNamespace}.caravan.svg";
+        public static readonly string Cardboards = $"{BaseNamespace}.cardboards.svg";
+        public static readonly string Cards = $"{BaseNamespace}.cards.svg";
+        public static readonly string CaretDown = $"{BaseNamespace}.caret-down.svg";
+        public static readonly string CaretLeftRight = $"{BaseNamespace}.caret-left-right.svg";
+        public static readonly string CaretLeft = $"{BaseNamespace}.caret-left.svg";
+        public static readonly string CaretRight = $"{BaseNamespace}.caret-right.svg";
+        public static readonly string CaretUpDown = $"{BaseNamespace}.caret-up-down.svg";
+        public static readonly string CaretUp = $"{BaseNamespace}.caret-up.svg";
+        public static readonly string CarouselHorizontal = $"{BaseNamespace}.carousel-horizontal.svg";
+        public static readonly string CarouselVertical = $"{BaseNamespace}.carousel-vertical.svg";
+        public static readonly string CashBanknote = $"{BaseNamespace}.cash-banknote.svg";
+        public static readonly string Category = $"{BaseNamespace}.category.svg";
+        public static readonly string ChargingPile = $"{BaseNamespace}.charging-pile.svg";
+        public static readonly string ChartAreaLine = $"{BaseNamespace}.chart-area-line.svg";
+        public static readonly string ChartArea = $"{BaseNamespace}.chart-area.svg";
+        public static readonly string ChartBubble = $"{BaseNamespace}.chart-bubble.svg";
+        public static readonly string ChartCandle = $"{BaseNamespace}.chart-candle.svg";
+        public static readonly string ChartDonut = $"{BaseNamespace}.chart-donut.svg";
+        public static readonly string ChartDotsN2 = $"{BaseNamespace}.chart-dots-2.svg";
+        public static readonly string ChartDotsN3 = $"{BaseNamespace}.chart-dots-3.svg";
+        public static readonly string ChartDots = $"{BaseNamespace}.chart-dots.svg";
+        public static readonly string ChartFunnel = $"{BaseNamespace}.chart-funnel.svg";
+        public static readonly string ChartGridDots = $"{BaseNamespace}.chart-grid-dots.svg";
+        public static readonly string ChartPieN2 = $"{BaseNamespace}.chart-pie-2.svg";
+        public static readonly string ChartPieN3 = $"{BaseNamespace}.chart-pie-3.svg";
+        public static readonly string ChartPieN4 = $"{BaseNamespace}.chart-pie-4.svg";
+        public static readonly string ChartPie = $"{BaseNamespace}.chart-pie.svg";
+        public static readonly string Check = $"{BaseNamespace}.check.svg";
+        public static readonly string ChefHat = $"{BaseNamespace}.chef-hat.svg";
+        public static readonly string Cherry = $"{BaseNamespace}.cherry.svg";
+        public static readonly string ChessBishop = $"{BaseNamespace}.chess-bishop.svg";
+        public static readonly string ChessKing = $"{BaseNamespace}.chess-king.svg";
+        public static readonly string ChessKnight = $"{BaseNamespace}.chess-knight.svg";
+        public static readonly string ChessQueen = $"{BaseNamespace}.chess-queen.svg";
+        public static readonly string ChessRook = $"{BaseNamespace}.chess-rook.svg";
+        public static readonly string Chess = $"{BaseNamespace}.chess.svg";
+        public static readonly string ChevronDown = $"{BaseNamespace}.chevron-down.svg";
+        public static readonly string ChevronRight = $"{BaseNamespace}.chevron-right.svg";
+        public static readonly string ChristmasTree = $"{BaseNamespace}.christmas-tree.svg";
+        public static readonly string CircleArrowDownLeft = $"{BaseNamespace}.circle-arrow-down-left.svg";
+        public static readonly string CircleArrowDownRight = $"{BaseNamespace}.circle-arrow-down-right.svg";
+        public static readonly string CircleArrowDown = $"{BaseNamespace}.circle-arrow-down.svg";
+        public static readonly string CircleArrowLeft = $"{BaseNamespace}.circle-arrow-left.svg";
+        public static readonly string CircleArrowRight = $"{BaseNamespace}.circle-arrow-right.svg";
+        public static readonly string CircleArrowUpLeft = $"{BaseNamespace}.circle-arrow-up-left.svg";
+        public static readonly string CircleArrowUpRight = $"{BaseNamespace}.circle-arrow-up-right.svg";
+        public static readonly string CircleArrowUp = $"{BaseNamespace}.circle-arrow-up.svg";
+        public static readonly string CircleCaretDown = $"{BaseNamespace}.circle-caret-down.svg";
+        public static readonly string CircleCaretLeft = $"{BaseNamespace}.circle-caret-left.svg";
+        public static readonly string CircleCaretRight = $"{BaseNamespace}.circle-caret-right.svg";
+        public static readonly string CircleCaretUp = $"{BaseNamespace}.circle-caret-up.svg";
+        public static readonly string CircleCheck = $"{BaseNamespace}.circle-check.svg";
+        public static readonly string CircleChevronDown = $"{BaseNamespace}.circle-chevron-down.svg";
+        public static readonly string CircleChevronLeft = $"{BaseNamespace}.circle-chevron-left.svg";
+        public static readonly string CircleChevronRight = $"{BaseNamespace}.circle-chevron-right.svg";
+        public static readonly string CircleChevronUp = $"{BaseNamespace}.circle-chevron-up.svg";
+        public static readonly string CircleChevronsDown = $"{BaseNamespace}.circle-chevrons-down.svg";
+        public static readonly string CircleChevronsLeft = $"{BaseNamespace}.circle-chevrons-left.svg";
+        public static readonly string CircleChevronsRight = $"{BaseNamespace}.circle-chevrons-right.svg";
+        public static readonly string CircleChevronsUp = $"{BaseNamespace}.circle-chevrons-up.svg";
+        public static readonly string CircleDot = $"{BaseNamespace}.circle-dot.svg";
+        public static readonly string CircleKey = $"{BaseNamespace}.circle-key.svg";
+        public static readonly string CircleLetterA = $"{BaseNamespace}.circle-letter-a.svg";
+        public static readonly string CircleLetterB = $"{BaseNamespace}.circle-letter-b.svg";
+        public static readonly string CircleLetterC = $"{BaseNamespace}.circle-letter-c.svg";
+        public static readonly string CircleLetterD = $"{BaseNamespace}.circle-letter-d.svg";
+        public static readonly string CircleLetterE = $"{BaseNamespace}.circle-letter-e.svg";
+        public static readonly string CircleLetterF = $"{BaseNamespace}.circle-letter-f.svg";
+        public static readonly string CircleLetterG = $"{BaseNamespace}.circle-letter-g.svg";
+        public static readonly string CircleLetterH = $"{BaseNamespace}.circle-letter-h.svg";
+        public static readonly string CircleLetterI = $"{BaseNamespace}.circle-letter-i.svg";
+        public static readonly string CircleLetterJ = $"{BaseNamespace}.circle-letter-j.svg";
+        public static readonly string CircleLetterK = $"{BaseNamespace}.circle-letter-k.svg";
+        public static readonly string CircleLetterL = $"{BaseNamespace}.circle-letter-l.svg";
+        public static readonly string CircleLetterM = $"{BaseNamespace}.circle-letter-m.svg";
+        public static readonly string CircleLetterN = $"{BaseNamespace}.circle-letter-n.svg";
+        public static readonly string CircleLetterO = $"{BaseNamespace}.circle-letter-o.svg";
+        public static readonly string CircleLetterP = $"{BaseNamespace}.circle-letter-p.svg";
+        public static readonly string CircleLetterQ = $"{BaseNamespace}.circle-letter-q.svg";
+        public static readonly string CircleLetterR = $"{BaseNamespace}.circle-letter-r.svg";
+        public static readonly string CircleLetterS = $"{BaseNamespace}.circle-letter-s.svg";
+        public static readonly string CircleLetterT = $"{BaseNamespace}.circle-letter-t.svg";
+        public static readonly string CircleLetterU = $"{BaseNamespace}.circle-letter-u.svg";
+        public static readonly string CircleLetterV = $"{BaseNamespace}.circle-letter-v.svg";
+        public static readonly string CircleLetterW = $"{BaseNamespace}.circle-letter-w.svg";
+        public static readonly string CircleLetterX = $"{BaseNamespace}.circle-letter-x.svg";
+        public static readonly string CircleLetterY = $"{BaseNamespace}.circle-letter-y.svg";
+        public static readonly string CircleLetterZ = $"{BaseNamespace}.circle-letter-z.svg";
+        public static readonly string CircleNumberN0 = $"{BaseNamespace}.circle-number-0.svg";
+        public static readonly string CircleNumberN1 = $"{BaseNamespace}.circle-number-1.svg";
+        public static readonly string CircleNumberN2 = $"{BaseNamespace}.circle-number-2.svg";
+        public static readonly string CircleNumberN3 = $"{BaseNamespace}.circle-number-3.svg";
+        public static readonly string CircleNumberN4 = $"{BaseNamespace}.circle-number-4.svg";
+        public static readonly string CircleNumberN5 = $"{BaseNamespace}.circle-number-5.svg";
+        public static readonly string CircleNumberN6 = $"{BaseNamespace}.circle-number-6.svg";
+        public static readonly string CircleNumberN7 = $"{BaseNamespace}.circle-number-7.svg";
+        public static readonly string CircleNumberN8 = $"{BaseNamespace}.circle-number-8.svg";
+        public static readonly string CircleNumberN9 = $"{BaseNamespace}.circle-number-9.svg";
+        public static readonly string CirclePercentage = $"{BaseNamespace}.circle-percentage.svg";
+        public static readonly string CirclePlus = $"{BaseNamespace}.circle-plus.svg";
+        public static readonly string CircleRectangle = $"{BaseNamespace}.circle-rectangle.svg";
+        public static readonly string CircleX = $"{BaseNamespace}.circle-x.svg";
+        public static readonly string Circle = $"{BaseNamespace}.circle.svg";
+        public static readonly string Circles = $"{BaseNamespace}.circles.svg";
+        public static readonly string Click = $"{BaseNamespace}.click.svg";
+        public static readonly string ClipboardCheck = $"{BaseNamespace}.clipboard-check.svg";
+        public static readonly string ClipboardData = $"{BaseNamespace}.clipboard-data.svg";
+        public static readonly string ClipboardList = $"{BaseNamespace}.clipboard-list.svg";
+        public static readonly string ClipboardPlus = $"{BaseNamespace}.clipboard-plus.svg";
+        public static readonly string ClipboardSmile = $"{BaseNamespace}.clipboard-smile.svg";
+        public static readonly string ClipboardText = $"{BaseNamespace}.clipboard-text.svg";
+        public static readonly string ClipboardTypography = $"{BaseNamespace}.clipboard-typography.svg";
+        public static readonly string ClipboardX = $"{BaseNamespace}.clipboard-x.svg";
+        public static readonly string Clipboard = $"{BaseNamespace}.clipboard.svg";
+        public static readonly string ClockHourN1 = $"{BaseNamespace}.clock-hour-1.svg";
+        public static readonly string ClockHourN10 = $"{BaseNamespace}.clock-hour-10.svg";
+        public static readonly string ClockHourN11 = $"{BaseNamespace}.clock-hour-11.svg";
+        public static readonly string ClockHourN12 = $"{BaseNamespace}.clock-hour-12.svg";
+        public static readonly string ClockHourN2 = $"{BaseNamespace}.clock-hour-2.svg";
+        public static readonly string ClockHourN3 = $"{BaseNamespace}.clock-hour-3.svg";
+        public static readonly string ClockHourN4 = $"{BaseNamespace}.clock-hour-4.svg";
+        public static readonly string ClockHourN5 = $"{BaseNamespace}.clock-hour-5.svg";
+        public static readonly string ClockHourN6 = $"{BaseNamespace}.clock-hour-6.svg";
+        public static readonly string ClockHourN7 = $"{BaseNamespace}.clock-hour-7.svg";
+        public static readonly string ClockHourN8 = $"{BaseNamespace}.clock-hour-8.svg";
+        public static readonly string ClockHourN9 = $"{BaseNamespace}.clock-hour-9.svg";
+        public static readonly string Clock = $"{BaseNamespace}.clock.svg";
+        public static readonly string CloudComputing = $"{BaseNamespace}.cloud-computing.svg";
+        public static readonly string CloudDataConnection = $"{BaseNamespace}.cloud-data-connection.svg";
+        public static readonly string Cloud = $"{BaseNamespace}.cloud.svg";
+        public static readonly string Clover = $"{BaseNamespace}.clover.svg";
+        public static readonly string Clubs = $"{BaseNamespace}.clubs.svg";
+        public static readonly string CodeCircleN2 = $"{BaseNamespace}.code-circle-2.svg";
+        public static readonly string CodeCircle = $"{BaseNamespace}.code-circle.svg";
+        public static readonly string CoinBitcoin = $"{BaseNamespace}.coin-bitcoin.svg";
+        public static readonly string CoinEuro = $"{BaseNamespace}.coin-euro.svg";
+        public static readonly string CoinMonero = $"{BaseNamespace}.coin-monero.svg";
+        public static readonly string CoinPound = $"{BaseNamespace}.coin-pound.svg";
+        public static readonly string CoinRupee = $"{BaseNamespace}.coin-rupee.svg";
+        public static readonly string CoinTaka = $"{BaseNamespace}.coin-taka.svg";
+        public static readonly string CoinYen = $"{BaseNamespace}.coin-yen.svg";
+        public static readonly string CoinYuan = $"{BaseNamespace}.coin-yuan.svg";
+        public static readonly string Coin = $"{BaseNamespace}.coin.svg";
+        public static readonly string ColumnsN1 = $"{BaseNamespace}.columns-1.svg";
+        public static readonly string ColumnsN2 = $"{BaseNamespace}.columns-2.svg";
+        public static readonly string ColumnsN3 = $"{BaseNamespace}.columns-3.svg";
+        public static readonly string Compass = $"{BaseNamespace}.compass.svg";
+        public static readonly string ConeN2 = $"{BaseNamespace}.cone-2.svg";
+        public static readonly string Cone = $"{BaseNamespace}.cone.svg";
+        public static readonly string Confetti = $"{BaseNamespace}.confetti.svg";
+        public static readonly string Container = $"{BaseNamespace}.container.svg";
+        public static readonly string ContrastN2 = $"{BaseNamespace}.contrast-2.svg";
+        public static readonly string Contrast = $"{BaseNamespace}.contrast.svg";
+        public static readonly string CookieMan = $"{BaseNamespace}.cookie-man.svg";
+        public static readonly string Cookie = $"{BaseNamespace}.cookie.svg";
+        public static readonly string CopyCheck = $"{BaseNamespace}.copy-check.svg";
+        public static readonly string CopyMinus = $"{BaseNamespace}.copy-minus.svg";
+        public static readonly string CopyPlus = $"{BaseNamespace}.copy-plus.svg";
+        public static readonly string CopyX = $"{BaseNamespace}.copy-x.svg";
+        public static readonly string Copy = $"{BaseNamespace}.copy.svg";
+        public static readonly string Copyleft = $"{BaseNamespace}.copyleft.svg";
+        public static readonly string Copyright = $"{BaseNamespace}.copyright.svg";
+        public static readonly string CreditCard = $"{BaseNamespace}.credit-card.svg";
+        public static readonly string CropN1N1 = $"{BaseNamespace}.crop-1-1.svg";
+        public static readonly string CropN16N9 = $"{BaseNamespace}.crop-16-9.svg";
+        public static readonly string CropN3N2 = $"{BaseNamespace}.crop-3-2.svg";
+        public static readonly string CropN5N4 = $"{BaseNamespace}.crop-5-4.svg";
+        public static readonly string CropN7N5 = $"{BaseNamespace}.crop-7-5.svg";
+        public static readonly string CropLandscape = $"{BaseNamespace}.crop-landscape.svg";
+        public static readonly string CropPortrait = $"{BaseNamespace}.crop-portrait.svg";
+        public static readonly string Cross = $"{BaseNamespace}.cross.svg";
+        public static readonly string Crown = $"{BaseNamespace}.crown.svg";
+        public static readonly string CurrentLocation = $"{BaseNamespace}.current-location.svg";
+        public static readonly string Dashboard = $"{BaseNamespace}.dashboard.svg";
+        public static readonly string Database = $"{BaseNamespace}.database.svg";
+        public static readonly string DeviceCctv = $"{BaseNamespace}.device-cctv.svg";
+        public static readonly string DeviceDesktop = $"{BaseNamespace}.device-desktop.svg";
+        public static readonly string DeviceFloppy = $"{BaseNamespace}.device-floppy.svg";
+        public static readonly string DeviceGamepadN2 = $"{BaseNamespace}.device-gamepad-2.svg";
+        public static readonly string DeviceGamepadN3 = $"{BaseNamespace}.device-gamepad-3.svg";
+        public static readonly string DeviceGamepad = $"{BaseNamespace}.device-gamepad.svg";
+        public static readonly string DeviceHeartMonitor = $"{BaseNamespace}.device-heart-monitor.svg";
+        public static readonly string DeviceImac = $"{BaseNamespace}.device-imac.svg";
+        public static readonly string DeviceIpad = $"{BaseNamespace}.device-ipad.svg";
+        public static readonly string DeviceMobile = $"{BaseNamespace}.device-mobile.svg";
+        public static readonly string DeviceRemote = $"{BaseNamespace}.device-remote.svg";
+        public static readonly string DeviceSpeaker = $"{BaseNamespace}.device-speaker.svg";
+        public static readonly string DeviceTablet = $"{BaseNamespace}.device-tablet.svg";
+        public static readonly string DeviceTvOld = $"{BaseNamespace}.device-tv-old.svg";
+        public static readonly string DeviceTv = $"{BaseNamespace}.device-tv.svg";
+        public static readonly string DeviceUnknown = $"{BaseNamespace}.device-unknown.svg";
+        public static readonly string DeviceUsb = $"{BaseNamespace}.device-usb.svg";
+        public static readonly string DeviceVisionPro = $"{BaseNamespace}.device-vision-pro.svg";
+        public static readonly string DeviceWatch = $"{BaseNamespace}.device-watch.svg";
+        public static readonly string Dialpad = $"{BaseNamespace}.dialpad.svg";
+        public static readonly string Diamond = $"{BaseNamespace}.diamond.svg";
+        public static readonly string Diamonds = $"{BaseNamespace}.diamonds.svg";
+        public static readonly string DiceN1 = $"{BaseNamespace}.dice-1.svg";
+        public static readonly string DiceN2 = $"{BaseNamespace}.dice-2.svg";
+        public static readonly string DiceN3 = $"{BaseNamespace}.dice-3.svg";
+        public static readonly string DiceN4 = $"{BaseNamespace}.dice-4.svg";
+        public static readonly string DiceN5 = $"{BaseNamespace}.dice-5.svg";
+        public static readonly string DiceN6 = $"{BaseNamespace}.dice-6.svg";
+        public static readonly string Dice = $"{BaseNamespace}.dice.svg";
+        public static readonly string DirectionArrows = $"{BaseNamespace}.direction-arrows.svg";
+        public static readonly string DirectionSign = $"{BaseNamespace}.direction-sign.svg";
+        public static readonly string Directions = $"{BaseNamespace}.directions.svg";
+        public static readonly string Disc = $"{BaseNamespace}.disc.svg";
+        public static readonly string Discount = $"{BaseNamespace}.discount.svg";
+        public static readonly string DotsVertical = $"{BaseNamespace}.dots-vertical.svg";
+        public static readonly string Dots = $"{BaseNamespace}.dots.svg";
+        public static readonly string Download = $"{BaseNamespace}.download.svg";
+        public static readonly string DropCircle = $"{BaseNamespace}.drop-circle.svg";
+        public static readonly string DropletHalfN2 = $"{BaseNamespace}.droplet-half-2.svg";
+        public static readonly string DropletHalf = $"{BaseNamespace}.droplet-half.svg";
+        public static readonly string Droplet = $"{BaseNamespace}.droplet.svg";
+        public static readonly string Droplets = $"{BaseNamespace}.droplets.svg";
+        public static readonly string DualScreen = $"{BaseNamespace}.dual-screen.svg";
+        public static readonly string Dumpling = $"{BaseNamespace}.dumpling.svg";
+        public static readonly string EaseInControlPoint = $"{BaseNamespace}.ease-in-control-point.svg";
+        public static readonly string EaseInOutControlPoints = $"{BaseNamespace}.ease-in-out-control-points.svg";
+        public static readonly string EaseOutControlPoint = $"{BaseNamespace}.ease-out-control-point.svg";
+        public static readonly string Edit = $"{BaseNamespace}.edit.svg";
+        public static readonly string EggCracked = $"{BaseNamespace}.egg-cracked.svg";
+        public static readonly string EggFried = $"{BaseNamespace}.egg-fried.svg";
+        public static readonly string Egg = $"{BaseNamespace}.egg.svg";
+        public static readonly string Elevator = $"{BaseNamespace}.elevator.svg";
+        public static readonly string Engine = $"{BaseNamespace}.engine.svg";
+        public static readonly string EscalatorDown = $"{BaseNamespace}.escalator-down.svg";
+        public static readonly string EscalatorUp = $"{BaseNamespace}.escalator-up.svg";
+        public static readonly string Escalator = $"{BaseNamespace}.escalator.svg";
+        public static readonly string Exchange = $"{BaseNamespace}.exchange.svg";
+        public static readonly string ExclamationCircle = $"{BaseNamespace}.exclamation-circle.svg";
+        public static readonly string Explicit = $"{BaseNamespace}.explicit.svg";
+        public static readonly string Exposure = $"{BaseNamespace}.exposure.svg";
+        public static readonly string ExternalLink = $"{BaseNamespace}.external-link.svg";
+        public static readonly string EyeTable = $"{BaseNamespace}.eye-table.svg";
+        public static readonly string Eye = $"{BaseNamespace}.eye.svg";
+        public static readonly string EyeglassN2 = $"{BaseNamespace}.eyeglass-2.svg";
+        public static readonly string Eyeglass = $"{BaseNamespace}.eyeglass.svg";
+        public static readonly string FaceMask = $"{BaseNamespace}.face-mask.svg";
+        public static readonly string Favicon = $"{BaseNamespace}.favicon.svg";
+        public static readonly string Feather = $"{BaseNamespace}.feather.svg";
+        public static readonly string Fence = $"{BaseNamespace}.fence.svg";
+        public static readonly string Ferry = $"{BaseNamespace}.ferry.svg";
+        public static readonly string FidgetSpinner = $"{BaseNamespace}.fidget-spinner.svg";
+        public static readonly string FileAnalytics = $"{BaseNamespace}.file-analytics.svg";
+        public static readonly string FileCheck = $"{BaseNamespace}.file-check.svg";
+        public static readonly string FileCodeN2 = $"{BaseNamespace}.file-code-2.svg";
+        public static readonly string FileCode = $"{BaseNamespace}.file-code.svg";
+        public static readonly string FileCv = $"{BaseNamespace}.file-cv.svg";
+        public static readonly string FileDelta = $"{BaseNamespace}.file-delta.svg";
+        public static readonly string FileDescription = $"{BaseNamespace}.file-description.svg";
+        public static readonly string FileDiff = $"{BaseNamespace}.file-diff.svg";
+        public static readonly string FileDigit = $"{BaseNamespace}.file-digit.svg";
+        public static readonly string FileDollar = $"{BaseNamespace}.file-dollar.svg";
+        public static readonly string FileDots = $"{BaseNamespace}.file-dots.svg";
+        public static readonly string FileDownload = $"{BaseNamespace}.file-download.svg";
+        public static readonly string FileEuro = $"{BaseNamespace}.file-euro.svg";
+        public static readonly string FileFunction = $"{BaseNamespace}.file-function.svg";
+        public static readonly string FileHorizontal = $"{BaseNamespace}.file-horizontal.svg";
+        public static readonly string FileInfo = $"{BaseNamespace}.file-info.svg";
+        public static readonly string FileInvoice = $"{BaseNamespace}.file-invoice.svg";
+        public static readonly string FileLambda = $"{BaseNamespace}.file-lambda.svg";
+        public static readonly string FileMinus = $"{BaseNamespace}.file-minus.svg";
+        public static readonly string FileMusic = $"{BaseNamespace}.file-music.svg";
+        public static readonly string FileNeutral = $"{BaseNamespace}.file-neutral.svg";
+        public static readonly string FilePencil = $"{BaseNamespace}.file-pencil.svg";
+        public static readonly string FilePercent = $"{BaseNamespace}.file-percent.svg";
+        public static readonly string FilePhone = $"{BaseNamespace}.file-phone.svg";
+        public static readonly string FilePower = $"{BaseNamespace}.file-power.svg";
+        public static readonly string FileRss = $"{BaseNamespace}.file-rss.svg";
+        public static readonly string FileSad = $"{BaseNamespace}.file-sad.svg";
+        public static readonly string FileScissors = $"{BaseNamespace}.file-scissors.svg";
+        public static readonly string FileSettings = $"{BaseNamespace}.file-settings.svg";
+        public static readonly string FileSignal = $"{BaseNamespace}.file-signal.svg";
+        public static readonly string FileSmile = $"{BaseNamespace}.file-smile.svg";
+        public static readonly string FileStar = $"{BaseNamespace}.file-star.svg";
+        public static readonly string FileText = $"{BaseNamespace}.file-text.svg";
+        public static readonly string FileTime = $"{BaseNamespace}.file-time.svg";
+        public static readonly string FileTypography = $"{BaseNamespace}.file-typography.svg";
+        public static readonly string FileUnknown = $"{BaseNamespace}.file-unknown.svg";
+        public static readonly string FileUpload = $"{BaseNamespace}.file-upload.svg";
+        public static readonly string FileVector = $"{BaseNamespace}.file-vector.svg";
+        public static readonly string FileX = $"{BaseNamespace}.file-x.svg";
+        public static readonly string File = $"{BaseNamespace}.file.svg";
+        public static readonly string Files = $"{BaseNamespace}.files.svg";
+        public static readonly string Filter = $"{BaseNamespace}.filter.svg";
+        public static readonly string Filters = $"{BaseNamespace}.filters.svg";
+        public static readonly string FishBone = $"{BaseNamespace}.fish-bone.svg";
+        public static readonly string FlagN2 = $"{BaseNamespace}.flag-2.svg";
+        public static readonly string FlagN3 = $"{BaseNamespace}.flag-3.svg";
+        public static readonly string Flag = $"{BaseNamespace}.flag.svg";
+        public static readonly string Flame = $"{BaseNamespace}.flame.svg";
+        public static readonly string Flare = $"{BaseNamespace}.flare.svg";
+        public static readonly string FlaskN2 = $"{BaseNamespace}.flask-2.svg";
+        public static readonly string Flask = $"{BaseNamespace}.flask.svg";
+        public static readonly string Flower = $"{BaseNamespace}.flower.svg";
+        public static readonly string FolderOpen = $"{BaseNamespace}.folder-open.svg";
+        public static readonly string Folder = $"{BaseNamespace}.folder.svg";
+        public static readonly string Folders = $"{BaseNamespace}.folders.svg";
+        public static readonly string ForbidN2 = $"{BaseNamespace}.forbid-2.svg";
+        public static readonly string Forbid = $"{BaseNamespace}.forbid.svg";
+        public static readonly string Fountain = $"{BaseNamespace}.fountain.svg";
+        public static readonly string Function = $"{BaseNamespace}.function.svg";
+        public static readonly string GardenCart = $"{BaseNamespace}.garden-cart.svg";
+        public static readonly string GasStation = $"{BaseNamespace}.gas-station.svg";
+        public static readonly string Gauge = $"{BaseNamespace}.gauge.svg";
+        public static readonly string GhostN2 = $"{BaseNamespace}.ghost-2.svg";
+        public static readonly string GhostN3 = $"{BaseNamespace}.ghost-3.svg";
+        public static readonly string Ghost = $"{BaseNamespace}.ghost.svg";
+        public static readonly string GiftCard = $"{BaseNamespace}.gift-card.svg";
+        public static readonly string Gift = $"{BaseNamespace}.gift.svg";
+        public static readonly string GlassFull = $"{BaseNamespace}.glass-full.svg";
+        public static readonly string Glass = $"{BaseNamespace}.glass.svg";
+        public static readonly string Globe = $"{BaseNamespace}.globe.svg";
+        public static readonly string Golf = $"{BaseNamespace}.golf.svg";
+        public static readonly string Gps = $"{BaseNamespace}.gps.svg";
+        public static readonly string Graph = $"{BaseNamespace}.graph.svg";
+        public static readonly string GridPattern = $"{BaseNamespace}.grid-pattern.svg";
+        public static readonly string GuitarPick = $"{BaseNamespace}.guitar-pick.svg";
+        public static readonly string HangerN2 = $"{BaseNamespace}.hanger-2.svg";
         public static readonly string Headphones = $"{BaseNamespace}.headphones.svg";
+        public static readonly string Headset = $"{BaseNamespace}.headset.svg";
+        public static readonly string HeartBroken = $"{BaseNamespace}.heart-broken.svg";
+        public static readonly string Heart = $"{BaseNamespace}.heart.svg";
+        public static readonly string HelicopterLanding = $"{BaseNamespace}.helicopter-landing.svg";
+        public static readonly string Helicopter = $"{BaseNamespace}.helicopter.svg";
         public static readonly string HelpCircle = $"{BaseNamespace}.help-circle.svg";
-        public static readonly string Inbox = $"{BaseNamespace}.inbox.svg";
-        public static readonly string More = $"{BaseNamespace}.more.svg";
-        public static readonly string Paperclip = $"{BaseNamespace}.paperclip.svg";
-        public static readonly string Percent = $"{BaseNamespace}.percent.svg";
-        public static readonly string Pocket = $"{BaseNamespace}.pocket.svg";
-        public static readonly string Power = $"{BaseNamespace}.power.svg";
-        public static readonly string PowerOff = $"{BaseNamespace}.poweroff.svg";
-        public static readonly string Printer = $"{BaseNamespace}.printer.svg";
-        public static readonly string RefreshCcw = $"{BaseNamespace}.refresh-ccw.svg";
-        public static readonly string RefreshCw = $"{BaseNamespace}.refresh-cw.svg";
-        public static readonly string Rss = $"{BaseNamespace}.rss.svg";
-        public static readonly string Save = $"{BaseNamespace}.save.svg";
+        public static readonly string HelpHexagon = $"{BaseNamespace}.help-hexagon.svg";
+        public static readonly string HelpOctagon = $"{BaseNamespace}.help-octagon.svg";
+        public static readonly string HelpSquareRounded = $"{BaseNamespace}.help-square-rounded.svg";
+        public static readonly string HelpSquare = $"{BaseNamespace}.help-square.svg";
+        public static readonly string HelpTriangle = $"{BaseNamespace}.help-triangle.svg";
+        public static readonly string Help = $"{BaseNamespace}.help.svg";
+        public static readonly string HexagonLetterA = $"{BaseNamespace}.hexagon-letter-a.svg";
+        public static readonly string HexagonLetterB = $"{BaseNamespace}.hexagon-letter-b.svg";
+        public static readonly string HexagonLetterC = $"{BaseNamespace}.hexagon-letter-c.svg";
+        public static readonly string HexagonLetterD = $"{BaseNamespace}.hexagon-letter-d.svg";
+        public static readonly string HexagonLetterE = $"{BaseNamespace}.hexagon-letter-e.svg";
+        public static readonly string HexagonLetterF = $"{BaseNamespace}.hexagon-letter-f.svg";
+        public static readonly string HexagonLetterG = $"{BaseNamespace}.hexagon-letter-g.svg";
+        public static readonly string HexagonLetterH = $"{BaseNamespace}.hexagon-letter-h.svg";
+        public static readonly string HexagonLetterI = $"{BaseNamespace}.hexagon-letter-i.svg";
+        public static readonly string HexagonLetterJ = $"{BaseNamespace}.hexagon-letter-j.svg";
+        public static readonly string HexagonLetterK = $"{BaseNamespace}.hexagon-letter-k.svg";
+        public static readonly string HexagonLetterL = $"{BaseNamespace}.hexagon-letter-l.svg";
+        public static readonly string HexagonLetterM = $"{BaseNamespace}.hexagon-letter-m.svg";
+        public static readonly string HexagonLetterN = $"{BaseNamespace}.hexagon-letter-n.svg";
+        public static readonly string HexagonLetterO = $"{BaseNamespace}.hexagon-letter-o.svg";
+        public static readonly string HexagonLetterP = $"{BaseNamespace}.hexagon-letter-p.svg";
+        public static readonly string HexagonLetterQ = $"{BaseNamespace}.hexagon-letter-q.svg";
+        public static readonly string HexagonLetterR = $"{BaseNamespace}.hexagon-letter-r.svg";
+        public static readonly string HexagonLetterS = $"{BaseNamespace}.hexagon-letter-s.svg";
+        public static readonly string HexagonLetterT = $"{BaseNamespace}.hexagon-letter-t.svg";
+        public static readonly string HexagonLetterU = $"{BaseNamespace}.hexagon-letter-u.svg";
+        public static readonly string HexagonLetterV = $"{BaseNamespace}.hexagon-letter-v.svg";
+        public static readonly string HexagonLetterW = $"{BaseNamespace}.hexagon-letter-w.svg";
+        public static readonly string HexagonLetterX = $"{BaseNamespace}.hexagon-letter-x.svg";
+        public static readonly string HexagonLetterY = $"{BaseNamespace}.hexagon-letter-y.svg";
+        public static readonly string HexagonLetterZ = $"{BaseNamespace}.hexagon-letter-z.svg";
+        public static readonly string HexagonMinus = $"{BaseNamespace}.hexagon-minus.svg";
+        public static readonly string HexagonNumberN0 = $"{BaseNamespace}.hexagon-number-0.svg";
+        public static readonly string HexagonNumberN1 = $"{BaseNamespace}.hexagon-number-1.svg";
+        public static readonly string HexagonNumberN2 = $"{BaseNamespace}.hexagon-number-2.svg";
+        public static readonly string HexagonNumberN3 = $"{BaseNamespace}.hexagon-number-3.svg";
+        public static readonly string HexagonNumberN4 = $"{BaseNamespace}.hexagon-number-4.svg";
+        public static readonly string HexagonNumberN5 = $"{BaseNamespace}.hexagon-number-5.svg";
+        public static readonly string HexagonNumberN6 = $"{BaseNamespace}.hexagon-number-6.svg";
+        public static readonly string HexagonNumberN7 = $"{BaseNamespace}.hexagon-number-7.svg";
+        public static readonly string HexagonNumberN8 = $"{BaseNamespace}.hexagon-number-8.svg";
+        public static readonly string HexagonNumberN9 = $"{BaseNamespace}.hexagon-number-9.svg";
+        public static readonly string HexagonPlus = $"{BaseNamespace}.hexagon-plus.svg";
+        public static readonly string Hexagon = $"{BaseNamespace}.hexagon.svg";
+        public static readonly string HomeN2 = $"{BaseNamespace}.home-2.svg";
+        public static readonly string Home = $"{BaseNamespace}.home.svg";
+        public static readonly string HospitalCircle = $"{BaseNamespace}.hospital-circle.svg";
+        public static readonly string Hourglass = $"{BaseNamespace}.hourglass.svg";
+        public static readonly string Icons = $"{BaseNamespace}.icons.svg";
+        public static readonly string Id = $"{BaseNamespace}.id.svg";
+        public static readonly string InfoCircle = $"{BaseNamespace}.info-circle.svg";
+        public static readonly string InfoHexagon = $"{BaseNamespace}.info-hexagon.svg";
+        public static readonly string InfoOctagon = $"{BaseNamespace}.info-octagon.svg";
+        public static readonly string InfoSquareRounded = $"{BaseNamespace}.info-square-rounded.svg";
+        public static readonly string InfoSquare = $"{BaseNamespace}.info-square.svg";
+        public static readonly string InfoTriangle = $"{BaseNamespace}.info-triangle.svg";
+        public static readonly string InnerShadowBottomLeft = $"{BaseNamespace}.inner-shadow-bottom-left.svg";
+        public static readonly string InnerShadowBottomRight = $"{BaseNamespace}.inner-shadow-bottom-right.svg";
+        public static readonly string InnerShadowBottom = $"{BaseNamespace}.inner-shadow-bottom.svg";
+        public static readonly string InnerShadowLeft = $"{BaseNamespace}.inner-shadow-left.svg";
+        public static readonly string InnerShadowRight = $"{BaseNamespace}.inner-shadow-right.svg";
+        public static readonly string InnerShadowTopLeft = $"{BaseNamespace}.inner-shadow-top-left.svg";
+        public static readonly string InnerShadowTopRight = $"{BaseNamespace}.inner-shadow-top-right.svg";
+        public static readonly string InnerShadowTop = $"{BaseNamespace}.inner-shadow-top.svg";
+        public static readonly string IroningN1 = $"{BaseNamespace}.ironing-1.svg";
+        public static readonly string IroningN2 = $"{BaseNamespace}.ironing-2.svg";
+        public static readonly string IroningN3 = $"{BaseNamespace}.ironing-3.svg";
+        public static readonly string IroningSteam = $"{BaseNamespace}.ironing-steam.svg";
+        public static readonly string Ironing = $"{BaseNamespace}.ironing.svg";
+        public static readonly string Jetpack = $"{BaseNamespace}.jetpack.svg";
+        public static readonly string JewishStar = $"{BaseNamespace}.jewish-star.svg";
+        public static readonly string Key = $"{BaseNamespace}.key.svg";
+        public static readonly string Keyboard = $"{BaseNamespace}.keyboard.svg";
+        public static readonly string KeyframeAlignCenter = $"{BaseNamespace}.keyframe-align-center.svg";
+        public static readonly string KeyframeAlignHorizontal = $"{BaseNamespace}.keyframe-align-horizontal.svg";
+        public static readonly string KeyframeAlignVertical = $"{BaseNamespace}.keyframe-align-vertical.svg";
+        public static readonly string Keyframe = $"{BaseNamespace}.keyframe.svg";
+        public static readonly string Keyframes = $"{BaseNamespace}.keyframes.svg";
+        public static readonly string LabelImportant = $"{BaseNamespace}.label-important.svg";
+        public static readonly string Label = $"{BaseNamespace}.label.svg";
+        public static readonly string LassoPolygon = $"{BaseNamespace}.lasso-polygon.svg";
+        public static readonly string LaurelWreathN1 = $"{BaseNamespace}.laurel-wreath-1.svg";
+        public static readonly string LaurelWreathN2 = $"{BaseNamespace}.laurel-wreath-2.svg";
+        public static readonly string LaurelWreathN3 = $"{BaseNamespace}.laurel-wreath-3.svg";
+        public static readonly string LaurelWreath = $"{BaseNamespace}.laurel-wreath.svg";
+        public static readonly string LayoutN2 = $"{BaseNamespace}.layout-2.svg";
+        public static readonly string LayoutAlignBottom = $"{BaseNamespace}.layout-align-bottom.svg";
+        public static readonly string LayoutAlignCenter = $"{BaseNamespace}.layout-align-center.svg";
+        public static readonly string LayoutAlignLeft = $"{BaseNamespace}.layout-align-left.svg";
+        public static readonly string LayoutAlignMiddle = $"{BaseNamespace}.layout-align-middle.svg";
+        public static readonly string LayoutAlignRight = $"{BaseNamespace}.layout-align-right.svg";
+        public static readonly string LayoutAlignTop = $"{BaseNamespace}.layout-align-top.svg";
+        public static readonly string LayoutBoardSplit = $"{BaseNamespace}.layout-board-split.svg";
+        public static readonly string LayoutBoard = $"{BaseNamespace}.layout-board.svg";
+        public static readonly string LayoutBottombarCollapse = $"{BaseNamespace}.layout-bottombar-collapse.svg";
+        public static readonly string LayoutBottombarExpand = $"{BaseNamespace}.layout-bottombar-expand.svg";
+        public static readonly string LayoutBottombar = $"{BaseNamespace}.layout-bottombar.svg";
+        public static readonly string LayoutCards = $"{BaseNamespace}.layout-cards.svg";
+        public static readonly string LayoutDashboard = $"{BaseNamespace}.layout-dashboard.svg";
+        public static readonly string LayoutDistributeHorizontal = $"{BaseNamespace}.layout-distribute-horizontal.svg";
+        public static readonly string LayoutDistributeVertical = $"{BaseNamespace}.layout-distribute-vertical.svg";
+        public static readonly string LayoutGrid = $"{BaseNamespace}.layout-grid.svg";
+        public static readonly string LayoutKanban = $"{BaseNamespace}.layout-kanban.svg";
+        public static readonly string LayoutList = $"{BaseNamespace}.layout-list.svg";
+        public static readonly string LayoutNavbarCollapse = $"{BaseNamespace}.layout-navbar-collapse.svg";
+        public static readonly string LayoutNavbarExpand = $"{BaseNamespace}.layout-navbar-expand.svg";
+        public static readonly string LayoutNavbar = $"{BaseNamespace}.layout-navbar.svg";
+        public static readonly string LayoutSidebarLeftCollapse = $"{BaseNamespace}.layout-sidebar-left-collapse.svg";
+        public static readonly string LayoutSidebarLeftExpand = $"{BaseNamespace}.layout-sidebar-left-expand.svg";
+        public static readonly string LayoutSidebarRightCollapse = $"{BaseNamespace}.layout-sidebar-right-collapse.svg";
+        public static readonly string LayoutSidebarRightExpand = $"{BaseNamespace}.layout-sidebar-right-expand.svg";
+        public static readonly string LayoutSidebarRight = $"{BaseNamespace}.layout-sidebar-right.svg";
+        public static readonly string LayoutSidebar = $"{BaseNamespace}.layout-sidebar.svg";
+        public static readonly string Layout = $"{BaseNamespace}.layout.svg";
+        public static readonly string Leaf = $"{BaseNamespace}.leaf.svg";
+        public static readonly string Lego = $"{BaseNamespace}.lego.svg";
+        public static readonly string LemonN2 = $"{BaseNamespace}.lemon-2.svg";
+        public static readonly string LibraryPlus = $"{BaseNamespace}.library-plus.svg";
+        public static readonly string Library = $"{BaseNamespace}.library.svg";
+        public static readonly string Lifebuoy = $"{BaseNamespace}.lifebuoy.svg";
+        public static readonly string Link = $"{BaseNamespace}.link.svg";
+        public static readonly string ListCheck = $"{BaseNamespace}.list-check.svg";
+        public static readonly string ListDetails = $"{BaseNamespace}.list-details.svg";
+        public static readonly string List = $"{BaseNamespace}.list.svg";
+        public static readonly string LivePhoto = $"{BaseNamespace}.live-photo.svg";
+        public static readonly string LiveView = $"{BaseNamespace}.live-view.svg";
+        public static readonly string Location = $"{BaseNamespace}.location.svg";
+        public static readonly string LockSquareRounded = $"{BaseNamespace}.lock-square-rounded.svg";
+        public static readonly string Lock = $"{BaseNamespace}.lock.svg";
+        public static readonly string Lungs = $"{BaseNamespace}.lungs.svg";
+        public static readonly string Macro = $"{BaseNamespace}.macro.svg";
+        public static readonly string Magnet = $"{BaseNamespace}.magnet.svg";
+        public static readonly string MailOpened = $"{BaseNamespace}.mail-opened.svg";
+        public static readonly string Mail = $"{BaseNamespace}.mail.svg";
+        public static readonly string Man = $"{BaseNamespace}.man.svg";
+        public static readonly string ManualGearbox = $"{BaseNamespace}.manual-gearbox.svg";
+        public static readonly string MapPin = $"{BaseNamespace}.map-pin.svg";
+        public static readonly string MedicalCross = $"{BaseNamespace}.medical-cross.svg";
+        public static readonly string Meeple = $"{BaseNamespace}.meeple.svg";
+        public static readonly string Melon = $"{BaseNamespace}.melon.svg";
+        public static readonly string MenuN2 = $"{BaseNamespace}.menu-2.svg";
+        public static readonly string MessageN2 = $"{BaseNamespace}.message-2.svg";
+        public static readonly string MessageChatbot = $"{BaseNamespace}.message-chatbot.svg";
+        public static readonly string MessageCircle = $"{BaseNamespace}.message-circle.svg";
+        public static readonly string MessageReport = $"{BaseNamespace}.message-report.svg";
+        public static readonly string Message = $"{BaseNamespace}.message.svg";
+        public static readonly string Messages = $"{BaseNamespace}.messages.svg";
+        public static readonly string Meteor = $"{BaseNamespace}.meteor.svg";
+        public static readonly string MichelinStar = $"{BaseNamespace}.michelin-star.svg";
+        public static readonly string Mickey = $"{BaseNamespace}.mickey.svg";
+        public static readonly string Microphone = $"{BaseNamespace}.microphone.svg";
+        public static readonly string Microscope = $"{BaseNamespace}.microscope.svg";
+        public static readonly string Microwave = $"{BaseNamespace}.microwave.svg";
+        public static readonly string MilitaryRank = $"{BaseNamespace}.military-rank.svg";
+        public static readonly string Milk = $"{BaseNamespace}.milk.svg";
+        public static readonly string MoodAngry = $"{BaseNamespace}.mood-angry.svg";
+        public static readonly string MoodConfuzed = $"{BaseNamespace}.mood-confuzed.svg";
+        public static readonly string MoodCrazyHappy = $"{BaseNamespace}.mood-crazy-happy.svg";
+        public static readonly string MoodEmpty = $"{BaseNamespace}.mood-empty.svg";
+        public static readonly string MoodHappy = $"{BaseNamespace}.mood-happy.svg";
+        public static readonly string MoodKid = $"{BaseNamespace}.mood-kid.svg";
+        public static readonly string MoodNeutral = $"{BaseNamespace}.mood-neutral.svg";
+        public static readonly string MoodSad = $"{BaseNamespace}.mood-sad.svg";
+        public static readonly string MoodSmile = $"{BaseNamespace}.mood-smile.svg";
+        public static readonly string MoodWrrr = $"{BaseNamespace}.mood-wrrr.svg";
+        public static readonly string Moon = $"{BaseNamespace}.moon.svg";
+        public static readonly string Motorbike = $"{BaseNamespace}.motorbike.svg";
+        public static readonly string Mountain = $"{BaseNamespace}.mountain.svg";
+        public static readonly string Mouse = $"{BaseNamespace}.mouse.svg";
+        public static readonly string Mug = $"{BaseNamespace}.mug.svg";
+        public static readonly string Mushroom = $"{BaseNamespace}.mushroom.svg";
+        public static readonly string Navigation = $"{BaseNamespace}.navigation.svg";
+        public static readonly string Nurse = $"{BaseNamespace}.nurse.svg";
+        public static readonly string OctagonMinus = $"{BaseNamespace}.octagon-minus.svg";
+        public static readonly string OctagonPlus = $"{BaseNamespace}.octagon-plus.svg";
+        public static readonly string Octagon = $"{BaseNamespace}.octagon.svg";
+        public static readonly string OvalVertical = $"{BaseNamespace}.oval-vertical.svg";
+        public static readonly string Oval = $"{BaseNamespace}.oval.svg";
+        public static readonly string Pacman = $"{BaseNamespace}.pacman.svg";
+        public static readonly string Paint = $"{BaseNamespace}.paint.svg";
+        public static readonly string Palette = $"{BaseNamespace}.palette.svg";
+        public static readonly string PanoramaHorizontal = $"{BaseNamespace}.panorama-horizontal.svg";
+        public static readonly string PanoramaVertical = $"{BaseNamespace}.panorama-vertical.svg";
+        public static readonly string ParkingCircle = $"{BaseNamespace}.parking-circle.svg";
+        public static readonly string Paw = $"{BaseNamespace}.paw.svg";
+        public static readonly string Pencil = $"{BaseNamespace}.pencil.svg";
+        public static readonly string PennantN2 = $"{BaseNamespace}.pennant-2.svg";
+        public static readonly string Pennant = $"{BaseNamespace}.pennant.svg";
+        public static readonly string Pentagon = $"{BaseNamespace}.pentagon.svg";
+        public static readonly string PhoneCall = $"{BaseNamespace}.phone-call.svg";
+        public static readonly string PhoneCalling = $"{BaseNamespace}.phone-calling.svg";
+        public static readonly string PhoneCheck = $"{BaseNamespace}.phone-check.svg";
+        public static readonly string PhoneX = $"{BaseNamespace}.phone-x.svg";
+        public static readonly string Phone = $"{BaseNamespace}.phone.svg";
+        public static readonly string Photo = $"{BaseNamespace}.photo.svg";
+        public static readonly string PictureInPictureTop = $"{BaseNamespace}.picture-in-picture-top.svg";
+        public static readonly string PictureInPicture = $"{BaseNamespace}.picture-in-picture.svg";
+        public static readonly string Pig = $"{BaseNamespace}.pig.svg";
+        public static readonly string Pill = $"{BaseNamespace}.pill.svg";
+        public static readonly string Pin = $"{BaseNamespace}.pin.svg";
+        public static readonly string Pinned = $"{BaseNamespace}.pinned.svg";
+        public static readonly string Pizza = $"{BaseNamespace}.pizza.svg";
+        public static readonly string PlaneArrival = $"{BaseNamespace}.plane-arrival.svg";
+        public static readonly string PlaneDeparture = $"{BaseNamespace}.plane-departure.svg";
+        public static readonly string PlaneTilt = $"{BaseNamespace}.plane-tilt.svg";
+        public static readonly string Plane = $"{BaseNamespace}.plane.svg";
+        public static readonly string PlayCardN1 = $"{BaseNamespace}.play-card-1.svg";
+        public static readonly string PlayCardN10 = $"{BaseNamespace}.play-card-10.svg";
+        public static readonly string PlayCardN2 = $"{BaseNamespace}.play-card-2.svg";
+        public static readonly string PlayCardN3 = $"{BaseNamespace}.play-card-3.svg";
+        public static readonly string PlayCardN4 = $"{BaseNamespace}.play-card-4.svg";
+        public static readonly string PlayCardN5 = $"{BaseNamespace}.play-card-5.svg";
+        public static readonly string PlayCardN6 = $"{BaseNamespace}.play-card-6.svg";
+        public static readonly string PlayCardN7 = $"{BaseNamespace}.play-card-7.svg";
+        public static readonly string PlayCardN8 = $"{BaseNamespace}.play-card-8.svg";
+        public static readonly string PlayCardN9 = $"{BaseNamespace}.play-card-9.svg";
+        public static readonly string PlayCardA = $"{BaseNamespace}.play-card-a.svg";
+        public static readonly string PlayCardJ = $"{BaseNamespace}.play-card-j.svg";
+        public static readonly string PlayCardK = $"{BaseNamespace}.play-card-k.svg";
+        public static readonly string PlayCardQ = $"{BaseNamespace}.play-card-q.svg";
+        public static readonly string PlayCardStar = $"{BaseNamespace}.play-card-star.svg";
+        public static readonly string PlayCard = $"{BaseNamespace}.play-card.svg";
+        public static readonly string PlayerEject = $"{BaseNamespace}.player-eject.svg";
+        public static readonly string PlayerPause = $"{BaseNamespace}.player-pause.svg";
+        public static readonly string PlayerPlay = $"{BaseNamespace}.player-play.svg";
+        public static readonly string PlayerRecord = $"{BaseNamespace}.player-record.svg";
+        public static readonly string PlayerSkipBack = $"{BaseNamespace}.player-skip-back.svg";
+        public static readonly string PlayerSkipForward = $"{BaseNamespace}.player-skip-forward.svg";
+        public static readonly string PlayerStop = $"{BaseNamespace}.player-stop.svg";
+        public static readonly string PlayerTrackNext = $"{BaseNamespace}.player-track-next.svg";
+        public static readonly string PlayerTrackPrev = $"{BaseNamespace}.player-track-prev.svg";
+        public static readonly string Playlist = $"{BaseNamespace}.playlist.svg";
+        public static readonly string Plus = $"{BaseNamespace}.plus.svg";
+        public static readonly string Point = $"{BaseNamespace}.point.svg";
+        public static readonly string Pointer = $"{BaseNamespace}.pointer.svg";
+        public static readonly string Polaroid = $"{BaseNamespace}.polaroid.svg";
+        public static readonly string Poo = $"{BaseNamespace}.poo.svg";
+        public static readonly string PresentationAnalytics = $"{BaseNamespace}.presentation-analytics.svg";
+        public static readonly string Presentation = $"{BaseNamespace}.presentation.svg";
+        public static readonly string Puzzle = $"{BaseNamespace}.puzzle.svg";
+        public static readonly string Quote = $"{BaseNamespace}.quote.svg";
+        public static readonly string Radar = $"{BaseNamespace}.radar.svg";
+        public static readonly string Radioactive = $"{BaseNamespace}.radioactive.svg";
+        public static readonly string ReceiptDollar = $"{BaseNamespace}.receipt-dollar.svg";
+        public static readonly string ReceiptEuro = $"{BaseNamespace}.receipt-euro.svg";
+        public static readonly string ReceiptPound = $"{BaseNamespace}.receipt-pound.svg";
+        public static readonly string ReceiptRupee = $"{BaseNamespace}.receipt-rupee.svg";
+        public static readonly string ReceiptYen = $"{BaseNamespace}.receipt-yen.svg";
+        public static readonly string ReceiptYuan = $"{BaseNamespace}.receipt-yuan.svg";
+        public static readonly string Receipt = $"{BaseNamespace}.receipt.svg";
+        public static readonly string RectangleVertical = $"{BaseNamespace}.rectangle-vertical.svg";
+        public static readonly string Rectangle = $"{BaseNamespace}.rectangle.svg";
+        public static readonly string Registered = $"{BaseNamespace}.registered.svg";
+        public static readonly string RelationManyToMany = $"{BaseNamespace}.relation-many-to-many.svg";
+        public static readonly string RelationOneToMany = $"{BaseNamespace}.relation-one-to-many.svg";
+        public static readonly string RelationOneToOne = $"{BaseNamespace}.relation-one-to-one.svg";
+        public static readonly string Replace = $"{BaseNamespace}.replace.svg";
+        public static readonly string ReportAnalytics = $"{BaseNamespace}.report-analytics.svg";
+        public static readonly string ReportMoney = $"{BaseNamespace}.report-money.svg";
+        public static readonly string Rollercoaster = $"{BaseNamespace}.rollercoaster.svg";
+        public static readonly string RosetteDiscountCheck = $"{BaseNamespace}.rosette-discount-check.svg";
+        public static readonly string RosetteDiscount = $"{BaseNamespace}.rosette-discount.svg";
+        public static readonly string Rosette = $"{BaseNamespace}.rosette.svg";
+        public static readonly string Salad = $"{BaseNamespace}.salad.svg";
+        public static readonly string Satellite = $"{BaseNamespace}.satellite.svg";
+        public static readonly string Scale = $"{BaseNamespace}.scale.svg";
+        public static readonly string School = $"{BaseNamespace}.school.svg";
+        public static readonly string ScubaDivingTank = $"{BaseNamespace}.scuba-diving-tank.svg";
+        public static readonly string Search = $"{BaseNamespace}.search.svg";
+        public static readonly string Section = $"{BaseNamespace}.section.svg";
+        public static readonly string Seedling = $"{BaseNamespace}.seedling.svg";
+        public static readonly string Send = $"{BaseNamespace}.send.svg";
         public static readonly string Settings = $"{BaseNamespace}.settings.svg";
-        public static readonly string Share = $"{BaseNamespace}.share.svg";
-        public static readonly string Share2 = $"{BaseNamespace}.share-2.svg";
-        public static readonly string Speaker = $"{BaseNamespace}.speaker.svg";
+        public static readonly string ShieldCheck = $"{BaseNamespace}.shield-check.svg";
+        public static readonly string ShieldCheckered = $"{BaseNamespace}.shield-checkered.svg";
+        public static readonly string ShieldHalf = $"{BaseNamespace}.shield-half.svg";
+        public static readonly string ShieldLock = $"{BaseNamespace}.shield-lock.svg";
+        public static readonly string Shield = $"{BaseNamespace}.shield.svg";
+        public static readonly string Shirt = $"{BaseNamespace}.shirt.svg";
+        public static readonly string ShoppingCart = $"{BaseNamespace}.shopping-cart.svg";
+        public static readonly string SignLeft = $"{BaseNamespace}.sign-left.svg";
+        public static readonly string SignRight = $"{BaseNamespace}.sign-right.svg";
+        public static readonly string Sitemap = $"{BaseNamespace}.sitemap.svg";
+        public static readonly string SortAscendingN2 = $"{BaseNamespace}.sort-ascending-2.svg";
+        public static readonly string SortAscendingShapes = $"{BaseNamespace}.sort-ascending-shapes.svg";
+        public static readonly string SortDescendingN2 = $"{BaseNamespace}.sort-descending-2.svg";
+        public static readonly string SortDescendingShapes = $"{BaseNamespace}.sort-descending-shapes.svg";
+        public static readonly string Soup = $"{BaseNamespace}.soup.svg";
+        public static readonly string Spade = $"{BaseNamespace}.spade.svg";
+        public static readonly string SparklesN2 = $"{BaseNamespace}.sparkles-2.svg";
+        public static readonly string Sparkles = $"{BaseNamespace}.sparkles.svg";
+        public static readonly string Speedboat = $"{BaseNamespace}.speedboat.svg";
+        public static readonly string Spider = $"{BaseNamespace}.spider.svg";
+        public static readonly string SquareArrowDown = $"{BaseNamespace}.square-arrow-down.svg";
+        public static readonly string SquareArrowLeft = $"{BaseNamespace}.square-arrow-left.svg";
+        public static readonly string SquareArrowRight = $"{BaseNamespace}.square-arrow-right.svg";
+        public static readonly string SquareArrowUp = $"{BaseNamespace}.square-arrow-up.svg";
+        public static readonly string SquareAsterisk = $"{BaseNamespace}.square-asterisk.svg";
+        public static readonly string SquareCheck = $"{BaseNamespace}.square-check.svg";
+        public static readonly string SquareChevronDown = $"{BaseNamespace}.square-chevron-down.svg";
+        public static readonly string SquareChevronLeft = $"{BaseNamespace}.square-chevron-left.svg";
+        public static readonly string SquareChevronRight = $"{BaseNamespace}.square-chevron-right.svg";
+        public static readonly string SquareChevronUp = $"{BaseNamespace}.square-chevron-up.svg";
+        public static readonly string SquareChevronsDown = $"{BaseNamespace}.square-chevrons-down.svg";
+        public static readonly string SquareChevronsLeft = $"{BaseNamespace}.square-chevrons-left.svg";
+        public static readonly string SquareChevronsRight = $"{BaseNamespace}.square-chevrons-right.svg";
+        public static readonly string SquareChevronsUp = $"{BaseNamespace}.square-chevrons-up.svg";
+        public static readonly string SquareDot = $"{BaseNamespace}.square-dot.svg";
+        public static readonly string SquareF0 = $"{BaseNamespace}.square-f0.svg";
+        public static readonly string SquareF1 = $"{BaseNamespace}.square-f1.svg";
+        public static readonly string SquareF2 = $"{BaseNamespace}.square-f2.svg";
+        public static readonly string SquareF3 = $"{BaseNamespace}.square-f3.svg";
+        public static readonly string SquareF4 = $"{BaseNamespace}.square-f4.svg";
+        public static readonly string SquareF5 = $"{BaseNamespace}.square-f5.svg";
+        public static readonly string SquareF6 = $"{BaseNamespace}.square-f6.svg";
+        public static readonly string SquareF7 = $"{BaseNamespace}.square-f7.svg";
+        public static readonly string SquareF8 = $"{BaseNamespace}.square-f8.svg";
+        public static readonly string SquareF9 = $"{BaseNamespace}.square-f9.svg";
+        public static readonly string SquareLetterA = $"{BaseNamespace}.square-letter-a.svg";
+        public static readonly string SquareLetterB = $"{BaseNamespace}.square-letter-b.svg";
+        public static readonly string SquareLetterC = $"{BaseNamespace}.square-letter-c.svg";
+        public static readonly string SquareLetterD = $"{BaseNamespace}.square-letter-d.svg";
+        public static readonly string SquareLetterE = $"{BaseNamespace}.square-letter-e.svg";
+        public static readonly string SquareLetterF = $"{BaseNamespace}.square-letter-f.svg";
+        public static readonly string SquareLetterG = $"{BaseNamespace}.square-letter-g.svg";
+        public static readonly string SquareLetterH = $"{BaseNamespace}.square-letter-h.svg";
+        public static readonly string SquareLetterI = $"{BaseNamespace}.square-letter-i.svg";
+        public static readonly string SquareLetterJ = $"{BaseNamespace}.square-letter-j.svg";
+        public static readonly string SquareLetterK = $"{BaseNamespace}.square-letter-k.svg";
+        public static readonly string SquareLetterL = $"{BaseNamespace}.square-letter-l.svg";
+        public static readonly string SquareLetterM = $"{BaseNamespace}.square-letter-m.svg";
+        public static readonly string SquareLetterN = $"{BaseNamespace}.square-letter-n.svg";
+        public static readonly string SquareLetterO = $"{BaseNamespace}.square-letter-o.svg";
+        public static readonly string SquareLetterP = $"{BaseNamespace}.square-letter-p.svg";
+        public static readonly string SquareLetterQ = $"{BaseNamespace}.square-letter-q.svg";
+        public static readonly string SquareLetterR = $"{BaseNamespace}.square-letter-r.svg";
+        public static readonly string SquareLetterS = $"{BaseNamespace}.square-letter-s.svg";
+        public static readonly string SquareLetterT = $"{BaseNamespace}.square-letter-t.svg";
+        public static readonly string SquareLetterU = $"{BaseNamespace}.square-letter-u.svg";
+        public static readonly string SquareLetterV = $"{BaseNamespace}.square-letter-v.svg";
+        public static readonly string SquareLetterW = $"{BaseNamespace}.square-letter-w.svg";
+        public static readonly string SquareLetterX = $"{BaseNamespace}.square-letter-x.svg";
+        public static readonly string SquareLetterY = $"{BaseNamespace}.square-letter-y.svg";
+        public static readonly string SquareLetterZ = $"{BaseNamespace}.square-letter-z.svg";
+        public static readonly string SquareMinus = $"{BaseNamespace}.square-minus.svg";
+        public static readonly string SquareNumberN0 = $"{BaseNamespace}.square-number-0.svg";
+        public static readonly string SquareNumberN1 = $"{BaseNamespace}.square-number-1.svg";
+        public static readonly string SquareNumberN2 = $"{BaseNamespace}.square-number-2.svg";
+        public static readonly string SquareNumberN3 = $"{BaseNamespace}.square-number-3.svg";
+        public static readonly string SquareNumberN4 = $"{BaseNamespace}.square-number-4.svg";
+        public static readonly string SquareNumberN5 = $"{BaseNamespace}.square-number-5.svg";
+        public static readonly string SquareNumberN6 = $"{BaseNamespace}.square-number-6.svg";
+        public static readonly string SquareNumberN7 = $"{BaseNamespace}.square-number-7.svg";
+        public static readonly string SquareNumberN8 = $"{BaseNamespace}.square-number-8.svg";
+        public static readonly string SquareNumberN9 = $"{BaseNamespace}.square-number-9.svg";
+        public static readonly string SquareRotated = $"{BaseNamespace}.square-rotated.svg";
+        public static readonly string SquareRoundedArrowDown = $"{BaseNamespace}.square-rounded-arrow-down.svg";
+        public static readonly string SquareRoundedArrowLeft = $"{BaseNamespace}.square-rounded-arrow-left.svg";
+        public static readonly string SquareRoundedArrowRight = $"{BaseNamespace}.square-rounded-arrow-right.svg";
+        public static readonly string SquareRoundedArrowUp = $"{BaseNamespace}.square-rounded-arrow-up.svg";
+        public static readonly string SquareRoundedCheck = $"{BaseNamespace}.square-rounded-check.svg";
+        public static readonly string SquareRoundedChevronDown = $"{BaseNamespace}.square-rounded-chevron-down.svg";
+        public static readonly string SquareRoundedChevronLeft = $"{BaseNamespace}.square-rounded-chevron-left.svg";
+        public static readonly string SquareRoundedChevronRight = $"{BaseNamespace}.square-rounded-chevron-right.svg";
+        public static readonly string SquareRoundedChevronUp = $"{BaseNamespace}.square-rounded-chevron-up.svg";
+        public static readonly string SquareRoundedChevronsDown = $"{BaseNamespace}.square-rounded-chevrons-down.svg";
+        public static readonly string SquareRoundedChevronsLeft = $"{BaseNamespace}.square-rounded-chevrons-left.svg";
+        public static readonly string SquareRoundedChevronsRight = $"{BaseNamespace}.square-rounded-chevrons-right.svg";
+        public static readonly string SquareRoundedChevronsUp = $"{BaseNamespace}.square-rounded-chevrons-up.svg";
+        public static readonly string SquareRoundedLetterA = $"{BaseNamespace}.square-rounded-letter-a.svg";
+        public static readonly string SquareRoundedLetterB = $"{BaseNamespace}.square-rounded-letter-b.svg";
+        public static readonly string SquareRoundedLetterC = $"{BaseNamespace}.square-rounded-letter-c.svg";
+        public static readonly string SquareRoundedLetterD = $"{BaseNamespace}.square-rounded-letter-d.svg";
+        public static readonly string SquareRoundedLetterE = $"{BaseNamespace}.square-rounded-letter-e.svg";
+        public static readonly string SquareRoundedLetterF = $"{BaseNamespace}.square-rounded-letter-f.svg";
+        public static readonly string SquareRoundedLetterG = $"{BaseNamespace}.square-rounded-letter-g.svg";
+        public static readonly string SquareRoundedLetterH = $"{BaseNamespace}.square-rounded-letter-h.svg";
+        public static readonly string SquareRoundedLetterI = $"{BaseNamespace}.square-rounded-letter-i.svg";
+        public static readonly string SquareRoundedLetterJ = $"{BaseNamespace}.square-rounded-letter-j.svg";
+        public static readonly string SquareRoundedLetterK = $"{BaseNamespace}.square-rounded-letter-k.svg";
+        public static readonly string SquareRoundedLetterL = $"{BaseNamespace}.square-rounded-letter-l.svg";
+        public static readonly string SquareRoundedLetterM = $"{BaseNamespace}.square-rounded-letter-m.svg";
+        public static readonly string SquareRoundedLetterN = $"{BaseNamespace}.square-rounded-letter-n.svg";
+        public static readonly string SquareRoundedLetterO = $"{BaseNamespace}.square-rounded-letter-o.svg";
+        public static readonly string SquareRoundedLetterP = $"{BaseNamespace}.square-rounded-letter-p.svg";
+        public static readonly string SquareRoundedLetterQ = $"{BaseNamespace}.square-rounded-letter-q.svg";
+        public static readonly string SquareRoundedLetterR = $"{BaseNamespace}.square-rounded-letter-r.svg";
+        public static readonly string SquareRoundedLetterS = $"{BaseNamespace}.square-rounded-letter-s.svg";
+        public static readonly string SquareRoundedLetterT = $"{BaseNamespace}.square-rounded-letter-t.svg";
+        public static readonly string SquareRoundedLetterU = $"{BaseNamespace}.square-rounded-letter-u.svg";
+        public static readonly string SquareRoundedLetterV = $"{BaseNamespace}.square-rounded-letter-v.svg";
+        public static readonly string SquareRoundedLetterW = $"{BaseNamespace}.square-rounded-letter-w.svg";
+        public static readonly string SquareRoundedLetterX = $"{BaseNamespace}.square-rounded-letter-x.svg";
+        public static readonly string SquareRoundedLetterY = $"{BaseNamespace}.square-rounded-letter-y.svg";
+        public static readonly string SquareRoundedLetterZ = $"{BaseNamespace}.square-rounded-letter-z.svg";
+        public static readonly string SquareRoundedMinus = $"{BaseNamespace}.square-rounded-minus.svg";
+        public static readonly string SquareRoundedNumberN0 = $"{BaseNamespace}.square-rounded-number-0.svg";
+        public static readonly string SquareRoundedNumberN1 = $"{BaseNamespace}.square-rounded-number-1.svg";
+        public static readonly string SquareRoundedNumberN2 = $"{BaseNamespace}.square-rounded-number-2.svg";
+        public static readonly string SquareRoundedNumberN3 = $"{BaseNamespace}.square-rounded-number-3.svg";
+        public static readonly string SquareRoundedNumberN4 = $"{BaseNamespace}.square-rounded-number-4.svg";
+        public static readonly string SquareRoundedNumberN5 = $"{BaseNamespace}.square-rounded-number-5.svg";
+        public static readonly string SquareRoundedNumberN6 = $"{BaseNamespace}.square-rounded-number-6.svg";
+        public static readonly string SquareRoundedNumberN7 = $"{BaseNamespace}.square-rounded-number-7.svg";
+        public static readonly string SquareRoundedNumberN8 = $"{BaseNamespace}.square-rounded-number-8.svg";
+        public static readonly string SquareRoundedNumberN9 = $"{BaseNamespace}.square-rounded-number-9.svg";
+        public static readonly string SquareRoundedPlus = $"{BaseNamespace}.square-rounded-plus.svg";
+        public static readonly string SquareRoundedX = $"{BaseNamespace}.square-rounded-x.svg";
+        public static readonly string SquareRounded = $"{BaseNamespace}.square-rounded.svg";
+        public static readonly string SquareX = $"{BaseNamespace}.square-x.svg";
+        public static readonly string Square = $"{BaseNamespace}.square.svg";
+        public static readonly string Squares = $"{BaseNamespace}.squares.svg";
+        public static readonly string StackN2 = $"{BaseNamespace}.stack-2.svg";
+        public static readonly string StackN3 = $"{BaseNamespace}.stack-3.svg";
+        public static readonly string Stack = $"{BaseNamespace}.stack.svg";
+        public static readonly string StarHalf = $"{BaseNamespace}.star-half.svg";
+        public static readonly string Star = $"{BaseNamespace}.star.svg";
+        public static readonly string Stars = $"{BaseNamespace}.stars.svg";
+        public static readonly string SteeringWheel = $"{BaseNamespace}.steering-wheel.svg";
+        public static readonly string SunHigh = $"{BaseNamespace}.sun-high.svg";
+        public static readonly string SunLow = $"{BaseNamespace}.sun-low.svg";
+        public static readonly string Sun = $"{BaseNamespace}.sun.svg";
+        public static readonly string Sunglasses = $"{BaseNamespace}.sunglasses.svg";
+        public static readonly string Sunrise = $"{BaseNamespace}.sunrise.svg";
+        public static readonly string SunsetN2 = $"{BaseNamespace}.sunset-2.svg";
+        public static readonly string Sunset = $"{BaseNamespace}.sunset.svg";
+        public static readonly string SwipeDown = $"{BaseNamespace}.swipe-down.svg";
+        public static readonly string SwipeLeft = $"{BaseNamespace}.swipe-left.svg";
+        public static readonly string SwipeRight = $"{BaseNamespace}.swipe-right.svg";
+        public static readonly string SwipeUp = $"{BaseNamespace}.swipe-up.svg";
+        public static readonly string Table = $"{BaseNamespace}.table.svg";
         public static readonly string Tag = $"{BaseNamespace}.tag.svg";
-        public static readonly string Target = $"{BaseNamespace}.target.svg";
-        public static readonly string Thermometer = $"{BaseNamespace}.thermometer.svg";
-        public static readonly string Tool = $"{BaseNamespace}.tool.svg";
+        public static readonly string Tags = $"{BaseNamespace}.tags.svg";
+        public static readonly string TemperatureMinus = $"{BaseNamespace}.temperature-minus.svg";
+        public static readonly string TemperaturePlus = $"{BaseNamespace}.temperature-plus.svg";
+        public static readonly string Template = $"{BaseNamespace}.template.svg";
+        public static readonly string TestPipeN2 = $"{BaseNamespace}.test-pipe-2.svg";
+        public static readonly string ThumbDown = $"{BaseNamespace}.thumb-down.svg";
+        public static readonly string ThumbUp = $"{BaseNamespace}.thumb-up.svg";
+        public static readonly string Ticket = $"{BaseNamespace}.ticket.svg";
+        public static readonly string TiltShift = $"{BaseNamespace}.tilt-shift.svg";
+        public static readonly string TimelineEvent = $"{BaseNamespace}.timeline-event.svg";
+        public static readonly string ToggleLeft = $"{BaseNamespace}.toggle-left.svg";
+        public static readonly string ToggleRight = $"{BaseNamespace}.toggle-right.svg";
+        public static readonly string ToolsKitchenN2 = $"{BaseNamespace}.tools-kitchen-2.svg";
+        public static readonly string Train = $"{BaseNamespace}.train.svg";
+        public static readonly string Transform = $"{BaseNamespace}.transform.svg";
+        public static readonly string TransitionBottom = $"{BaseNamespace}.transition-bottom.svg";
+        public static readonly string TransitionLeft = $"{BaseNamespace}.transition-left.svg";
+        public static readonly string TransitionRight = $"{BaseNamespace}.transition-right.svg";
+        public static readonly string TransitionTop = $"{BaseNamespace}.transition-top.svg";
+        public static readonly string TrashX = $"{BaseNamespace}.trash-x.svg";
         public static readonly string Trash = $"{BaseNamespace}.trash.svg";
-        public static readonly string Trash2 = $"{BaseNamespace}.trash-2.svg";
+        public static readonly string TriangleInverted = $"{BaseNamespace}.triangle-inverted.svg";
+        public static readonly string TriangleSquareCircle = $"{BaseNamespace}.triangle-square-circle.svg";
+        public static readonly string Triangle = $"{BaseNamespace}.triangle.svg";
+        public static readonly string Trolley = $"{BaseNamespace}.trolley.svg";
+        public static readonly string Trophy = $"{BaseNamespace}.trophy.svg";
         public static readonly string Truck = $"{BaseNamespace}.truck.svg";
+        public static readonly string Ufo = $"{BaseNamespace}.ufo.svg";
         public static readonly string Umbrella = $"{BaseNamespace}.umbrella.svg";
-        public static readonly string Zap = $"{BaseNamespace}.zap.svg";
-        public static readonly string ZapOff = $"{BaseNamespace}.zap-off.svg";
-        #endregion
-
-        #region "Datasources & Databases"
-        public static readonly string AnalyticsPlatform = $"{BaseNamespace}.analyticsplatform.svg";
-        public static readonly string Asana = $"{BaseNamespace}.asana.svg";
-        public static readonly string AwsIot = $"{BaseNamespace}.awsiot.svg";
-        public static readonly string AwsIotAnalytics = $"{BaseNamespace}.awsiotanalytics.svg";
-        public static readonly string AwsIotEvents = $"{BaseNamespace}.awsiotevents.svg";
-        public static readonly string AzureBoards = $"{BaseNamespace}.azureboards.svg";
-        public static readonly string Druid = $"{BaseNamespace}.druid.svg";
-        public static readonly string Firebird = $"{BaseNamespace}.firebird.svg";
-        public static readonly string Grpc = $"{BaseNamespace}.grpc.svg";
-        public static readonly string Jira = $"{BaseNamespace}.jira.svg";
-        public static readonly string Mailchimp = $"{BaseNamespace}.mailchimp.svg";
-        public static readonly string MariaDb = $"{BaseNamespace}.mariadb.svg";
-        public static readonly string Mongodb = $"{BaseNamespace}.mongodb.svg";
-        public static readonly string Opencart = $"{BaseNamespace}.opencart.svg";
-        public static readonly string Pcloud = $"{BaseNamespace}.pcloud.svg";
-        public static readonly string Podio = $"{BaseNamespace}.podio.svg";
-        public static readonly string Postgresql = $"{BaseNamespace}.postgresql.svg";
-        public static readonly string RavenDb = $"{BaseNamespace}.ravendb.svg";
-        public static readonly string Redis = $"{BaseNamespace}.redis.svg";
-        public static readonly string Shopify2 = $"{BaseNamespace}.shopify.svg";
-        public static readonly string Sqlite = $"{BaseNamespace}.sqlite.svg";
-        public static readonly string Sqlserver = $"{BaseNamespace}.sqlserver.svg";
-        public static readonly string Twist = $"{BaseNamespace}.twist.svg";
-        public static readonly string Weaviate = $"{BaseNamespace}.weaviate.svg";
-        public static readonly string Zendesk = $"{BaseNamespace}.zendesk.svg";
-        #endregion
+        public static readonly string User = $"{BaseNamespace}.user.svg";
+        public static readonly string Versions = $"{BaseNamespace}.versions.svg";
+        public static readonly string VideoMinus = $"{BaseNamespace}.video-minus.svg";
+        public static readonly string VideoPlus = $"{BaseNamespace}.video-plus.svg";
+        public static readonly string Video = $"{BaseNamespace}.video.svg";
+        public static readonly string Windmill = $"{BaseNamespace}.windmill.svg";
+        public static readonly string Windsock = $"{BaseNamespace}.windsock.svg";
+        public static readonly string Woman = $"{BaseNamespace}.woman.svg";
+        public static readonly string World = $"{BaseNamespace}.world.svg";
+        public static readonly string WritingSign = $"{BaseNamespace}.writing-sign.svg";
+        public static readonly string Writing = $"{BaseNamespace}.writing.svg";
+        public static readonly string X = $"{BaseNamespace}.x.svg";
+        public static readonly string XboxA = $"{BaseNamespace}.xbox-a.svg";
+        public static readonly string XboxB = $"{BaseNamespace}.xbox-b.svg";
+        public static readonly string XboxX = $"{BaseNamespace}.xbox-x.svg";
+        public static readonly string XboxY = $"{BaseNamespace}.xbox-y.svg";
+        public static readonly string YinYang = $"{BaseNamespace}.yin-yang.svg";
+        public static readonly string Zeppelin = $"{BaseNamespace}.zeppelin.svg";
+        public static readonly string ZoomCancel = $"{BaseNamespace}.zoom-cancel.svg";
+        public static readonly string ZoomCheck = $"{BaseNamespace}.zoom-check.svg";
+        public static readonly string ZoomCode = $"{BaseNamespace}.zoom-code.svg";
+        public static readonly string ZoomExclamation = $"{BaseNamespace}.zoom-exclamation.svg";
+        public static readonly string ZoomInArea = $"{BaseNamespace}.zoom-in-area.svg";
+        public static readonly string ZoomIn = $"{BaseNamespace}.zoom-in.svg";
+        public static readonly string ZoomMoney = $"{BaseNamespace}.zoom-money.svg";
+        public static readonly string ZoomOutArea = $"{BaseNamespace}.zoom-out-area.svg";
+        public static readonly string ZoomOut = $"{BaseNamespace}.zoom-out.svg";
+        public static readonly string ZoomPan = $"{BaseNamespace}.zoom-pan.svg";
+        public static readonly string ZoomQuestion = $"{BaseNamespace}.zoom-question.svg";
+        public static readonly string ZoomScan = $"{BaseNamespace}.zoom-scan.svg";
+        public static readonly string Zoom = $"{BaseNamespace}.zoom.svg";
 
         /// <summary>
         /// Gets all SVG resource paths as a dictionary for easy enumeration.
@@ -439,7 +1101,7 @@ namespace TheTechIdea.Beep.Icons
                     var value = field.GetValue(null) as string;
                     if (!string.IsNullOrEmpty(value) && value.EndsWith(".svg"))
                     {
-                        paths[field.Name] = SvgResourcePathHelper.Normalize(value);
+                        paths[field.Name] = value;
                     }
                 }
             }
@@ -450,49 +1112,29 @@ namespace TheTechIdea.Beep.Icons
         /// <summary>
         /// Checks if a resource path exists in the assembly.
         /// </summary>
-        /// <param name="resourcePath">The full resource path</param>
-        /// <returns>True if the resource exists</returns>
         public static bool ResourceExists(string resourcePath)
         {
-            string normalizedPath = SvgResourcePathHelper.Normalize(resourcePath);
             var resourceNames = ResourceAssembly.GetManifestResourceNames();
-            return resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase));
+            return resourceNames.Contains(resourcePath);
         }
 
         /// <summary>
         /// Gets all available SVG resource names from the assembly.
         /// </summary>
-        /// <returns>Array of resource names</returns>
         public static string[] GetAvailableResources()
         {
-            string normalizedBase = SvgResourcePathHelper.Normalize(BaseNamespace);
             return ResourceAssembly.GetManifestResourceNames()
-                .Where(name => name.StartsWith(normalizedBase, StringComparison.OrdinalIgnoreCase) &&
-                               name.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                .Where(name => name.StartsWith(BaseNamespace) && name.EndsWith(".svg"))
                 .ToArray();
         }
 
         /// <summary>
-        /// Returns icon constants that currently do not match an embedded manifest resource.
-        /// </summary>
-        public static Dictionary<string, string> GetInvalidPaths()
-        {
-            return GetAllPaths()
-                .Where(kvp => !ResourceExists(kvp.Value))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        }
-
-        /// <summary>
         /// Helper method to get the full file system path (useful for development/debugging).
-        /// This assumes the standard project structure.
         /// </summary>
-        /// <param name="svgFileName">Just the SVG filename (e.g., "search.svg")</param>
-        /// <returns>Full file system path</returns>
         public static string GetFileSystemPath(string svgFileName)
         {
-            // This is for development use - gets the actual file path
             string baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return Path.Combine(baseDirectory, "..", "..", "..", "GFX", "Icons", "UI", svgFileName);
+            return Path.Combine(baseDirectory, "..", "..", "..", "GFX", "Icons", "tablerfilled", svgFileName);
         }
     }
 
@@ -501,12 +1143,6 @@ namespace TheTechIdea.Beep.Icons
     /// </summary>
     public static class BeepSvgUIExtensions
     {
-        /// <summary>
-        /// Sets the image path for a BeepImage control using SvgsUI
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <param name="svgPath">The SVG path from SvgsUI</param>
-        /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetUISvgPath(this BeepImage beepImage, string svgPath)
         {
             if (beepImage != null)
@@ -516,144 +1152,20 @@ namespace TheTechIdea.Beep.Icons
             return beepImage;
         }
 
-        /// <summary>
-        /// Sets a search icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetSearchIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Search);
-        }
-
-        /// <summary>
-        /// Sets a close icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetCloseIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.XCircle);
-        }
-
-        /// <summary>
-        /// Sets an edit/pencil icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetEditIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Edit);
-        }
-
-        /// <summary>
-        /// Sets a user icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetUserIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.User);
-        }
-
-        /// <summary>
-        /// Sets a plus/add icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetAddIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Plus);
-        }
-
-        /// <summary>
-        /// Sets a delete/trash icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetDeleteIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Trash);
-        }
-
-        /// <summary>
-        /// Sets a save icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetSaveIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Save);
-        }
-
-        /// <summary>
-        /// Sets a refresh icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetRefreshIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.RefreshCw);
-        }
-
-        /// <summary>
-        /// Sets a settings/gear icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetSettingsIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Command);
-        }
-
-        /// <summary>
-        /// Sets a home icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetHomeIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Home);
-        }
-
-        /// <summary>
-        /// Sets a menu icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetMenuIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.Menu);
-        }
-
-        /// <summary>
-        /// Sets an alert/warning icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetAlertIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.AlertTriangle);
-        }
-
-        /// <summary>
-        /// Sets a success/check icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetSuccessIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.CheckCircle);
-        }
-
-        /// <summary>
-        /// Sets a help/question icon for the BeepImage
-        /// </summary>
-        /// <param name="beepImage">The BeepImage control</param>
-        /// <returns>The BeepImage for method chaining</returns>
-        public static BeepImage SetHelpIcon(this BeepImage beepImage)
-        {
-            return beepImage.SetUISvgPath(SvgsUI.HelpCircle);
-        }
+        public static BeepImage SetSearchIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.Search);
+        public static BeepImage SetCloseIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.CircleX);
+        public static BeepImage SetEditIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.Edit);
+        public static BeepImage SetUserIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.User);
+        public static BeepImage SetAddIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.Plus);
+        public static BeepImage SetDeleteIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.Trash);
+        public static BeepImage SetSaveIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.DeviceFloppy);
+        public static BeepImage SetRefreshIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.CircleArrowRight);
+        public static BeepImage SetSettingsIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.Settings);
+        public static BeepImage SetHomeIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.Home);
+            public static BeepImage SetMenuIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.MenuN2);
+        public static BeepImage SetAlertIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.AlertTriangle);
+        public static BeepImage SetSuccessIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.CircleCheck);
+        public static BeepImage SetHelpIcon(this BeepImage beepImage) => beepImage.SetUISvgPath(SvgsUI.HelpCircle);
     }
 }
+

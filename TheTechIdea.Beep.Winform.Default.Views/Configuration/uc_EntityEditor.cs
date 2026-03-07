@@ -1,15 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Icons;
 
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Logger;
@@ -27,11 +30,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_EntityEditor : TemplateUserControl, IAddinVisSchema
     {
+        private enum EntityEditorMode
+        {
+            CreateNew,
+            UpdateExisting
+        }
+
+        private EntityEditorMode _mode = EntityEditorMode.CreateNew;
+        private bool _isApplyingSchema;
+        private string _lastSummary = "Idle";
+        private BeepLabel? _titleLabel;
+        private BeepLabel? _stateLabel;
+
         public uc_EntityEditor(IServiceProvider services): base(services)
         {
             InitializeComponent();
           
             Details.AddinName = "Entity Editor";
+            EnsureVisualScaffolding();
+            Resize -= Uc_EntityEditor_Resize;
+            Resize += Uc_EntityEditor_Resize;
 
         }
         #region "IAddinVisSchema"
@@ -129,25 +147,48 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         private void ApplyLayoutDefaults()
         {
-            //beepWebHeaderAppBar1.Text = "Entity Editor";
-            //beepButton1.Text = "Save";
-            //beepButton2.Text = "Delete";
+            EnsureVisualScaffolding();
 
-            DatasourcebeepComboBox.PlaceholderText = "Datasource";
-            EntitiesbeepComboBox.PlaceholderText = "Entity";
-            ApplybeepButton.Text = "Create";
+            DatasourcebeepComboBox.PlaceholderText = "Select datasource";
+            DatasourcebeepComboBox.LabelText = "Datasource";
+            DatasourcebeepComboBox.LabelTextOn = true;
+            DatasourcebeepComboBox.ShowSearchInDropdown = true;
+            DatasourcebeepComboBox.ToolTipText = "Choose the datasource where the entity will be created or updated.";
 
-            DatasourcebeepComboBox.Location = new System.Drawing.Point(16, 76);
-            DatasourcebeepComboBox.Size = new System.Drawing.Size(260, 44);
-            EntitiesbeepComboBox.Location = new System.Drawing.Point(292, 76);
-            EntitiesbeepComboBox.Size = new System.Drawing.Size(220, 44);
-            //beepButton1.Location = new System.Drawing.Point(528, 76);
-            //beepButton1.Size = new System.Drawing.Size(96, 44);
-            //beepButton2.Location = new System.Drawing.Point(636, 76);
-            //beepButton2.Size = new System.Drawing.Size(96, 44);
+            EntitiesbeepComboBox.PlaceholderText = "Select or type entity name";
+            EntitiesbeepComboBox.LabelText = "Entity";
+            EntitiesbeepComboBox.LabelTextOn = true;
+            EntitiesbeepComboBox.ShowSearchInDropdown = true;
+            EntitiesbeepComboBox.ToolTipText = "Pick an existing entity to update schema or type a new name to create.";
 
-            //beepSimpleGrid1.Location = new System.Drawing.Point(16, 140);
-            //beepSimpleGrid1.Size = new System.Drawing.Size(908, 590);
+            ApplybeepButton.Text = "Create Entity";
+            ApplybeepButton.ToolTipText = "Applies create or update operation based on current mode.";
+            ConfigureContextIcons();
+
+            ApplyResponsiveLayout();
+            RefreshProgressiveDisclosure(GetEntityNameFromUi());
+        }
+
+        private void ConfigureContextIcons()
+        {
+            DatasourcebeepComboBox.LeadingImagePath = SvgsUI.Database;
+            DatasourcebeepComboBox.DropdownIconPath = SvgsUI.ChevronDown;
+            EntitiesbeepComboBox.LeadingImagePath = SvgsUI.Grid;
+            EntitiesbeepComboBox.DropdownIconPath = SvgsUI.ChevronDown;
+            RefreshApplyButtonIcon();
+        }
+
+        private void RefreshApplyButtonIcon()
+        {
+            if (!ApplybeepButton.Enabled)
+            {
+                ApplybeepButton.ImagePath = SvgsUI.AlertTriangle;
+                return;
+            }
+
+            ApplybeepButton.ImagePath = _mode == EntityEditorMode.CreateNew
+                ? SvgsUI.PlusCircle
+                : SvgsUI.Save;
         }
 
         private void DatasourcebeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
@@ -185,8 +226,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 viewModel.DBWork = null;
                 viewModel.Fields = null;
                 viewModel.EntityName = null;
+                _lastSummary = $"Datasource: {datasource}";
                 SyncBindings();
                 LoadEntitiesList();
+                RefreshProgressiveDisclosure(viewModel.EntityName);
 
             }
         }
@@ -199,6 +242,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             }
 
             LoadOrCreateEntity(e.SelectedItem.Text);
+            RefreshEditorModeState(e.SelectedItem.Text);
+            RefreshProgressiveDisclosure(e.SelectedItem.Text);
         }
 
         private void BeepButton1_Click(object? sender, EventArgs e)
@@ -279,14 +324,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 viewModel.LoadOrCreateEntityStructure(entityname);
                 viewModel.IsNew = false;
                 viewModel.IsChanged = false;
+                RefreshEditorModeState(entityname);
                 
             }
             else
             {
                 viewModel.IsNew = true;
+                _mode = EntityEditorMode.CreateNew;
             }
             //HeaderbeepPanel.TitleText = viewModel.EntityName?? "Entity Editor";
-          //  beepSimpleGrid1.TitleText =  "Field Structure";
+          //  EntityFieldsbeepGridPro.TitleText = "Field Structure";
             SyncBindings();
         }
 
@@ -300,6 +347,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             if (viewModel.SourceConnection == null)
             {
                 beepService.DMEEditor.AddLogMessage("Beep", "Select a datasource first", DateTime.Now, 0, null, Errors.Failed);
+                return;
+            }
+
+            if (_isApplyingSchema)
+            {
+                LogStatus("Schema operation is already running.", Errors.Warning);
                 return;
             }
 
@@ -324,11 +377,30 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 cm.EndCurrentEdit();
             }
 
-            viewModel.IsChanged = true;
-            viewModel.SaveEntity();
+            _isApplyingSchema = true;
+            try
+            {
+                var draft = BuildDraftStructure(entityName);
+                if (!ValidateDraft(draft))
+                {
+                    return;
+                }
 
-            SyncBindings();
-            LoadEntitiesList();
+                RefreshEditorModeState(entityName);
+                if (_mode == EntityEditorMode.CreateNew)
+                {
+                    ExecuteCreate(draft);
+                }
+                else
+                {
+                    ExecuteUpdate(draft);
+                }
+            }
+            finally
+            {
+                _isApplyingSchema = false;
+                SyncBindings();
+            }
         }
 
         private bool LoadOrCreateEntity(string? entityName)
@@ -402,7 +474,491 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             }
             ConfigureEditorsFromEntityFieldProperties();
             ConfigureFieldTypeColumn();
-            ApplybeepButton.Text = viewModel.IsNew ? "Create" : "Update";
+            RefreshEditorModeState(viewModel.EntityName);
+            RefreshProgressiveDisclosure(viewModel.EntityName);
+        }
+
+        private void RefreshEditorModeState(string? entityName)
+        {
+            var canApply = viewModel?.SourceConnection != null;
+            if (!canApply)
+            {
+                _mode = EntityEditorMode.CreateNew;
+                ApplybeepButton.Text = "Create Entity";
+                ApplybeepButton.Enabled = false;
+                RefreshApplyButtonIcon();
+                return;
+            }
+
+            var normalizedName = entityName?.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+            {
+                _mode = EntityEditorMode.CreateNew;
+                ApplybeepButton.Text = "Create Entity";
+                ApplybeepButton.Enabled = true;
+                RefreshApplyButtonIcon();
+                return;
+            }
+
+            var exists = false;
+            try
+            {
+                exists = viewModel!.SourceConnection.CheckEntityExist(normalizedName);
+            }
+            catch
+            {
+                exists = false;
+            }
+
+            _mode = exists ? EntityEditorMode.UpdateExisting : EntityEditorMode.CreateNew;
+            if (_mode == EntityEditorMode.CreateNew)
+            {
+                ApplybeepButton.Text = "Create Entity";
+                ApplybeepButton.Enabled = true;
+                RefreshApplyButtonIcon();
+                return;
+            }
+
+            var helper = beepService?.DMEEditor?.GetDataSourceHelper(viewModel!.SourceConnection.DatasourceType);
+            var canEvolve = helper?.Capabilities == null || helper.Capabilities.SupportsSchemaEvolution;
+            ApplybeepButton.Text = canEvolve ? "Update Schema" : "Update Not Supported";
+            ApplybeepButton.Enabled = canEvolve;
+            RefreshApplyButtonIcon();
+
+            if (_stateLabel != null)
+            {
+                _stateLabel.Text = canEvolve
+                    ? $"Mode: Update existing schema | {_lastSummary}"
+                    : $"Mode: Update unavailable for datasource type '{viewModel.SourceConnection.DatasourceType}'";
+            }
+        }
+
+        private EntityStructure BuildDraftStructure(string entityName)
+        {
+            var structure = viewModel?.Structure != null ? (EntityStructure)viewModel.Structure.Clone() : new EntityStructure();
+            structure.EntityName = entityName.Trim();
+            structure.DatasourceEntityName = entityName.Trim();
+            structure.DatabaseType = viewModel?.SourceConnection?.DatasourceType ?? structure.DatabaseType;
+            structure.Fields = ExtractDraftFields();
+            return structure;
+        }
+
+        private List<EntityField> ExtractDraftFields()
+        {
+            var fields = new List<EntityField>();
+            var source = viewModel?.DBWork?.Units as IEnumerable<object>;
+            if (source != null)
+            {
+                fields.AddRange(source.OfType<EntityField>().Select(CloneField));
+            }
+            else if (viewModel?.Fields is IEnumerable<object> fallback)
+            {
+                fields.AddRange(fallback.OfType<EntityField>().Select(CloneField));
+            }
+
+            return fields;
+        }
+
+        private static EntityField CloneField(EntityField input)
+        {
+            return new EntityField
+            {
+                FieldName = input.FieldName,
+                Originalfieldname = input.Originalfieldname,
+                Fieldtype = input.Fieldtype,
+                FieldCategory = input.FieldCategory,
+                Size1 = input.Size1,
+                Size = input.Size,
+                Size2 = input.Size2,
+                NumericPrecision = input.NumericPrecision,
+                NumericScale = input.NumericScale,
+                AllowDBNull = input.AllowDBNull,
+                IsKey = input.IsKey,
+                IsAutoIncrement = input.IsAutoIncrement,
+                IsUnique = input.IsUnique,
+                IsIdentity = input.IsIdentity,
+                ValueRetrievedFromParent = input.ValueRetrievedFromParent,
+                IsReadOnly = input.IsReadOnly,
+                IsDisplayField = input.IsDisplayField,
+                EntityName = input.EntityName,
+                Description = input.Description,
+                DefaultValue = input.DefaultValue
+            };
+        }
+
+        private bool ValidateDraft(EntityStructure draft)
+        {
+            if (draft == null || string.IsNullOrWhiteSpace(draft.EntityName))
+            {
+                LogStatus("Validation failed: entity name is required.", Errors.Failed);
+                return false;
+            }
+
+            if (draft.Fields == null || draft.Fields.Count == 0)
+            {
+                LogStatus("Validation failed: at least one field is required.", Errors.Failed);
+                return false;
+            }
+
+            var duplicate = draft.Fields
+                .Where(f => !string.IsNullOrWhiteSpace(f?.FieldName))
+                .GroupBy(f => f.FieldName, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(g => g.Count() > 1);
+            if (duplicate != null)
+            {
+                LogStatus($"Validation failed: duplicate field name '{duplicate.Key}'.", Errors.Failed);
+                return false;
+            }
+
+            var helper = beepService?.DMEEditor?.GetDataSourceHelper(viewModel!.SourceConnection.DatasourceType);
+            if (helper != null)
+            {
+                try
+                {
+                    var (isValid, errors) = helper.ValidateEntity(draft);
+                    if (!isValid)
+                    {
+                        var message = errors != null && errors.Count > 0
+                            ? string.Join("; ", errors)
+                            : "Unknown validation error.";
+                        LogStatus($"Validation failed: {message}", Errors.Failed);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogStatus($"Validation warning: helper validation skipped ({ex.Message}).", Errors.Warning);
+                }
+            }
+
+            return true;
+        }
+
+        private void ExecuteCreate(EntityStructure draft)
+        {
+            var source = viewModel?.SourceConnection;
+            if (source == null)
+            {
+                LogStatus("Create failed: datasource is not available.", Errors.Failed);
+                return;
+            }
+
+            if (source.CheckEntityExist(draft.EntityName))
+            {
+                LogStatus($"Create blocked: entity '{draft.EntityName}' already exists.", Errors.Failed);
+                return;
+            }
+
+            var started = DateTime.Now;
+            var created = source.CreateEntityAs(draft);
+            var elapsed = DateTime.Now - started;
+            if (!created)
+            {
+                var details = source.ErrorObject?.Message ?? "Unknown datasource error.";
+                LogStatus($"Create failed: {details}", Errors.Failed);
+                return;
+            }
+
+            _lastSummary = $"Created {draft.EntityName} in {elapsed.TotalMilliseconds:0} ms";
+            LogStatus(_lastSummary, Errors.Ok);
+            LoadEntitiesList();
+            SelectEntity(draft.EntityName);
+            LoadOrCreateEntity(draft.EntityName);
+            RefreshEditorModeState(draft.EntityName);
+        }
+
+        private sealed class SchemaStep
+        {
+            public string Description { get; set; } = string.Empty;
+            public string Sql { get; set; } = string.Empty;
+        }
+
+        private void ExecuteUpdate(EntityStructure desired)
+        {
+            var source = viewModel?.SourceConnection;
+            if (source == null)
+            {
+                LogStatus("Update failed: datasource is not available.", Errors.Failed);
+                return;
+            }
+
+            if (!source.CheckEntityExist(desired.EntityName))
+            {
+                LogStatus($"Update blocked: entity '{desired.EntityName}' does not exist.", Errors.Failed);
+                return;
+            }
+
+            var helper = beepService?.DMEEditor?.GetDataSourceHelper(source.DatasourceType);
+            if (helper == null)
+            {
+                LogStatus($"Update not supported: no helper registered for '{source.DatasourceType}'.", Errors.Failed);
+                return;
+            }
+
+            if (helper.Capabilities != null && !helper.Capabilities.SupportsSchemaEvolution)
+            {
+                LogStatus($"Update not supported: datasource '{source.DatasourceType}' does not support schema evolution.", Errors.Failed);
+                return;
+            }
+
+            var current = source.GetEntityStructure(desired.EntityName, true);
+            if (current?.Fields == null)
+            {
+                LogStatus("Update failed: unable to resolve current entity structure.", Errors.Failed);
+                return;
+            }
+
+            var steps = BuildSchemaSteps(helper, desired.EntityName, current.Fields, desired.Fields ?? new List<EntityField>());
+            if (steps.Count == 0)
+            {
+                LogStatus("No schema changes detected.", Errors.Information);
+                return;
+            }
+
+            var preview = BuildPreviewMessage(steps);
+            var confirm = MessageBox.Show(preview, "Apply Schema Update", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirm != DialogResult.Yes)
+            {
+                LogStatus("Update cancelled by user.", Errors.Warning);
+                return;
+            }
+
+            var started = DateTime.Now;
+            foreach (var step in steps)
+            {
+                var result = source.ExecuteSql(step.Sql);
+                if (result == null || result.Flag == Errors.Failed)
+                {
+                    var msg = result?.Message ?? "Unknown execution error.";
+                    LogStatus($"Update failed at step '{step.Description}': {msg}", Errors.Failed);
+                    return;
+                }
+            }
+
+            var elapsed = DateTime.Now - started;
+            _lastSummary = $"Updated {desired.EntityName} ({steps.Count} steps) in {elapsed.TotalMilliseconds:0} ms";
+            LogStatus(_lastSummary, Errors.Ok);
+            LoadEntitiesList();
+            SelectEntity(desired.EntityName);
+            LoadOrCreateEntity(desired.EntityName);
+            RefreshEditorModeState(desired.EntityName);
+        }
+
+        private static List<SchemaStep> BuildSchemaSteps(IDataSourceHelper helper, string entityName, List<EntityField> currentFields, List<EntityField> desiredFields)
+        {
+            var steps = new List<SchemaStep>();
+            var current = currentFields
+                .Where(f => !string.IsNullOrWhiteSpace(f?.FieldName))
+                .ToDictionary(f => f.FieldName, StringComparer.OrdinalIgnoreCase);
+            var desired = desiredFields
+                .Where(f => !string.IsNullOrWhiteSpace(f?.FieldName))
+                .ToDictionary(f => f.FieldName, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var kv in desired)
+            {
+                if (!current.ContainsKey(kv.Key))
+                {
+                    var (sql, success, _) = helper.GenerateAddColumnSql(entityName, kv.Value);
+                    if (success && !string.IsNullOrWhiteSpace(sql))
+                    {
+                        steps.Add(new SchemaStep { Description = $"Add column {kv.Key}", Sql = sql });
+                    }
+                }
+            }
+
+            foreach (var kv in desired)
+            {
+                if (!current.TryGetValue(kv.Key, out var oldField))
+                {
+                    continue;
+                }
+
+                if (FieldsEqual(oldField, kv.Value))
+                {
+                    continue;
+                }
+
+                var (sql, success, _) = helper.GenerateAlterColumnSql(entityName, kv.Key, kv.Value);
+                if (success && !string.IsNullOrWhiteSpace(sql))
+                {
+                    steps.Add(new SchemaStep { Description = $"Alter column {kv.Key}", Sql = sql });
+                }
+            }
+
+            foreach (var kv in current)
+            {
+                if (desired.ContainsKey(kv.Key))
+                {
+                    continue;
+                }
+
+                var (sql, success, _) = helper.GenerateDropColumnSql(entityName, kv.Key);
+                if (success && !string.IsNullOrWhiteSpace(sql))
+                {
+                    steps.Add(new SchemaStep { Description = $"Drop column {kv.Key}", Sql = sql });
+                }
+            }
+
+            return steps;
+        }
+
+        private static bool FieldsEqual(EntityField current, EntityField desired)
+        {
+            if (current == null || desired == null)
+            {
+                return false;
+            }
+
+            return string.Equals(current.Fieldtype, desired.Fieldtype, StringComparison.OrdinalIgnoreCase)
+                   && current.Size1 == desired.Size1
+                   && current.NumericPrecision == desired.NumericPrecision
+                   && current.NumericScale == desired.NumericScale
+                   && current.AllowDBNull == desired.AllowDBNull;
+        }
+
+        private static string BuildPreviewMessage(List<SchemaStep> steps)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Apply {steps.Count} schema changes?");
+            sb.AppendLine();
+            foreach (var step in steps.Take(8))
+            {
+                sb.AppendLine($"- {step.Description}");
+            }
+
+            if (steps.Count > 8)
+            {
+                sb.AppendLine($"- ... and {steps.Count - 8} more");
+            }
+
+            return sb.ToString();
+        }
+
+        private void LogStatus(string message, Errors flag)
+        {
+            _lastSummary = message ?? string.Empty;
+            beepService?.DMEEditor?.AddLogMessage("EntityEditor", _lastSummary, DateTime.Now, 0, viewModel?.EntityName, flag);
+            if (_stateLabel != null)
+            {
+                _stateLabel.Text = $"Status: {_lastSummary}";
+            }
+        }
+
+        private void EnsureVisualScaffolding()
+        {
+            if (_titleLabel == null)
+            {
+                _titleLabel = new BeepLabel
+                {
+                    Name = "EntityEditorTitlebeepLabel",
+                    Text = "Entity Editor",
+                    IsChild = true,
+                    UseThemeColors = true,
+                    UseThemeFont = true
+                };
+                Controls.Add(_titleLabel);
+                _titleLabel.BringToFront();
+            }
+
+            if (_stateLabel == null)
+            {
+                _stateLabel = new BeepLabel
+                {
+                    Name = "EntityEditorStatebeepLabel",
+                    Text = "Select datasource to begin.",
+                    IsChild = true,
+                    UseThemeColors = true,
+                    UseThemeFont = true
+                };
+                Controls.Add(_stateLabel);
+                _stateLabel.BringToFront();
+            }
+        }
+
+        private void Uc_EntityEditor_Resize(object? sender, EventArgs e)
+        {
+            ApplyResponsiveLayout();
+        }
+
+        private void ApplyResponsiveLayout()
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            const int outerMargin = 16;
+            const int sectionGap = 12;
+            const int topY = 44;
+            const int controlHeight = 44;
+            const int applyWidth = 170;
+            const int minComboWidth = 180;
+            const int gridTop = 132;
+            const int gridBottomGap = 16;
+
+            if (_titleLabel != null)
+            {
+                _titleLabel.Location = new System.Drawing.Point(outerMargin, 12);
+                _titleLabel.Size = new System.Drawing.Size(Math.Max(220, Width / 3), 24);
+            }
+
+            var contentWidth = Math.Max(0, Width - (outerMargin * 2));
+            var totalGap = sectionGap * 2;
+            var availableForCombo = Math.Max((minComboWidth * 2), contentWidth - applyWidth - totalGap);
+            var comboWidth = Math.Max(minComboWidth, availableForCombo / 2);
+
+            DatasourcebeepComboBox.Location = new System.Drawing.Point(outerMargin, topY);
+            DatasourcebeepComboBox.Size = new System.Drawing.Size(comboWidth, controlHeight);
+
+            EntitiesbeepComboBox.Location = new System.Drawing.Point(DatasourcebeepComboBox.Right + sectionGap, topY);
+            EntitiesbeepComboBox.Size = new System.Drawing.Size(comboWidth, controlHeight);
+
+            ApplybeepButton.Location = new System.Drawing.Point(Math.Max(outerMargin, Width - outerMargin - applyWidth), topY + 4);
+            ApplybeepButton.Size = new System.Drawing.Size(applyWidth, 36);
+            ApplybeepButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+
+            if (_stateLabel != null)
+            {
+                _stateLabel.Location = new System.Drawing.Point(outerMargin, 96);
+                _stateLabel.Size = new System.Drawing.Size(Math.Max(120, Width - (outerMargin * 2)), 24);
+            }
+
+            EntityFieldsbeepGridPro.Location = new System.Drawing.Point(outerMargin, gridTop);
+            EntityFieldsbeepGridPro.Size = new System.Drawing.Size(
+                Math.Max(240, Width - (outerMargin * 2)),
+                Math.Max(180, Height - gridTop - gridBottomGap));
+            EntityFieldsbeepGridPro.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        }
+
+        private void RefreshProgressiveDisclosure(string? entityName)
+        {
+            var hasDatasource = viewModel?.SourceConnection != null;
+            var hasEntityName = !string.IsNullOrWhiteSpace(entityName);
+
+            EntitiesbeepComboBox.Enabled = hasDatasource;
+            EntityFieldsbeepGridPro.Enabled = hasDatasource && hasEntityName;
+            ApplybeepButton.Enabled = ApplybeepButton.Enabled && hasDatasource;
+
+            if (_stateLabel == null)
+            {
+                return;
+            }
+
+            if (!hasDatasource)
+            {
+                _stateLabel.Text = "Step 1 of 3: Select datasource.";
+                return;
+            }
+
+            if (!hasEntityName)
+            {
+                _stateLabel.Text = "Step 2 of 3: Select existing entity or type a new entity name.";
+                return;
+            }
+
+            _stateLabel.Text = _mode == EntityEditorMode.CreateNew
+                ? $"Step 3 of 3: Review fields and create new entity '{entityName}'."
+                : $"Step 3 of 3: Review diff and update schema for '{entityName}'.";
         }
 
         private void ConfigureEditorsFromEntityFieldProperties()

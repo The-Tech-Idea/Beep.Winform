@@ -16,9 +16,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    [AddinAttribute(Caption = "Run Import", Name = "uc_Import_Run",
-        misc = "Config", menu = "Configuration", addinType = AddinType.Control,
-        displayType = DisplayType.InControl, ObjectType = "Beep")]
+    
     public partial class uc_Import_Run : TemplateUserControl, IWizardStepContent
     {
         private DataImportConfiguration? _config;

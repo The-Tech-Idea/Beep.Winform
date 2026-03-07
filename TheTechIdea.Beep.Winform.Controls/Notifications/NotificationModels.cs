@@ -204,10 +204,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public static string GetDefaultIconForType(NotificationType type) => type switch
         {
-            NotificationType.Success => SvgsUI.CheckCircle,      // check-circle.svg
+            NotificationType.Success => SvgsUI.CircleCheck,      // check-circle.svg
             NotificationType.Warning => SvgsUI.AlertTriangle,    // alert-triangle.svg
-            NotificationType.Error   => SvgsUI.XCircle,          // x-circle.svg
-            NotificationType.Info    => SvgsUI.Info,              // info.svg
+            NotificationType.Error   => SvgsUI.CircleX,          // x-circle.svg
+            NotificationType.Info    => SvgsUI.InfoCircle,              // info.svg
             NotificationType.System  => SvgsUI.Settings,         // settings.svg
             _                        => SvgsUI.Bell,              // bell.svg
         };
@@ -235,3 +235,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public bool Cancel { get; set; }
     }
 }
+

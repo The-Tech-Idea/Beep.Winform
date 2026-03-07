@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             // Get icon path using helper
             string iconPath = GetIconPath(Owner.IsOn);
             if (string.IsNullOrEmpty(iconPath))
-                iconPath = Owner.IsOn ? SvgsUI.Smile : SvgsUI.Frown;
+                iconPath = Owner.IsOn ? SvgsUI.MoodSmile : SvgsUI.MoodSad;
 
             // Use StyledImagePainter with custom colors
             using (var iconPathShape = GetRoundedRectPath(IconRegion, 0))
@@ -266,3 +266,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
         #endregion
     }
 }
+

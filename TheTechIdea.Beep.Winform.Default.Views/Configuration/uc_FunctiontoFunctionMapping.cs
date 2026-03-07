@@ -1,4 +1,4 @@
-﻿
+
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.MVVM.ViewModels;
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             base.OnNavigatedTo(parameters);
        //     viewModel.LoadData();
-       //     beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
+       //     beepGridPro1.DataSource = viewModel.DBWork.Units;
 
 
         }

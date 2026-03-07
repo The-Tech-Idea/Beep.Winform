@@ -59,17 +59,51 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Debug.WriteLine($"BeepTree: SetClip failed: {ex.Message}");
             }
 
+            // FIG-03: Empty-state rendering — show a centred message when there are no nodes
+            if (_nodes.Count == 0)
+            {
+                var emptyFont = _useThemeFont && _currentTheme?.LabelFont != null
+                    ? (ThemeManagement.BeepThemesManager.ToFontForControl(_currentTheme.LabelFont, this) ?? _textFont)
+                    : _textFont;
+                var emptyColor = _currentTheme?.TreeForeColor ?? ForeColor;
+                TextRenderer.DrawText(g, _emptyStateText, emptyFont, drawingArea, emptyColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
+                return;
+            }
+
             // Let the painter draw the ENTIRE TREE (all nodes)
             try
             {
            //     System.Diagnostics.Debug.WriteLine($"[BeepTree] Calling painter.Paint() to draw entire tree");
                 painter.Paint(g, this, drawingArea);
-                // After painting, refresh hit areas for BaseControl hit-test infra
-                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[BeepTree] Painter.Paint failed: {ex.Message}\n{ex.StackTrace}");
+            }
+
+            // FIG-04: Focus ring — draw a dotted accent-colour rect around the selected node row
+            if (Focused && SelectedNode != null && _visibleNodes.Count > 0)
+            {
+                NodeInfo ni = default;
+                for (int i = 0; i < _visibleNodes.Count; i++)
+                {
+                    if (_visibleNodes[i].Item == SelectedNode) { ni = _visibleNodes[i]; break; }
+                }
+                if (ni.Item != null && ni.RowRectContent.Width > 0)
+                {
+                    var vp = _layoutHelper.TransformToViewport(ni.RowRectContent);
+                    vp.Intersect(drawingArea);
+                    if (vp.Width > 4 && vp.Height > 4)
+                    {
+                        var focusColor = _currentTheme?.AccentColor ?? System.Drawing.Color.DodgerBlue;
+                        using var focusPen = new System.Drawing.Pen(focusColor, 1.5f)
+                        {
+                            DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
+                        };
+                        g.DrawRectangle(focusPen, System.Drawing.Rectangle.Inflate(vp, -1, -1));
+                    }
+                }
             }
 
           
@@ -85,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public override void ApplyTheme()
         {
-          //  base.ApplyTheme();
+            base.ApplyTheme();
 
             if (_currentTheme != null)
             {

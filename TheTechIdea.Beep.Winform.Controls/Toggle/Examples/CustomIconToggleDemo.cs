@@ -123,8 +123,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
             return new BeepToggle
             {
                 ToggleStyle = ToggleStyle.IconCustom,
-                OnIconPath = SvgsUI.Pause,
-                OffIconPath = SvgsUI.Play,
+                OnIconPath = SvgsUI.PlayerPause,
+                OffIconPath = SvgsUI.PlayerPlay,
                 OnColor = Color.FromArgb(244, 67, 54),  // Red when playing/paused
                 OffColor = Color.FromArgb(76, 175, 80), // Green when stopped
                 Size = new Size(60, 30),
@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
             {
                 ToggleStyle = ToggleStyle.IconCustom,
                 OnIconPath = SvgsUI.Bell,
-                OffIconPath = SvgsUI.BellOff,
+                OffIconPath = SvgsUI.BellX,
                 OnColor = Color.FromArgb(33, 150, 243), // Blue
                 OffColor = Color.FromArgb(158, 158, 158),
                 Size = new Size(60, 30),
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
             {
                 ToggleStyle = ToggleStyle.IconCustom,
                 OnIconPath = SvgsUI.Eye,
-                OffIconPath = SvgsUI.EyeOff,
+                OffIconPath = SvgsUI.Eye,
                 OnColor = Color.FromArgb(103, 58, 183), // Purple
                 OffColor = Color.FromArgb(158, 158, 158),
                 Size = new Size(60, 30),
@@ -180,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
             {
                 ToggleStyle = ToggleStyle.IconCustom,
                 OnIconPath = SvgsUI.Shield,
-                OffIconPath = SvgsUI.ShieldOff,
+                OffIconPath = SvgsUI.ShieldHalf,
                 OnColor = Color.FromArgb(76, 175, 80),  // Green
                 OffColor = Color.FromArgb(244, 67, 54), // Red
                 Size = new Size(60, 30),
@@ -193,8 +193,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
             return new BeepToggle
             {
                 ToggleStyle = ToggleStyle.IconCustom,
-                OnIconPath = SvgsUI.ArrowDown,
-                OffIconPath = SvgsUI.ArrowUp,
+                OnIconPath = SvgsUI.CircleArrowDown,
+                OffIconPath = SvgsUI.CircleArrowUp,
                 OnColor = Color.FromArgb(0, 150, 136),  // Teal
                 OffColor = Color.FromArgb(255, 87, 34), // Deep Orange
                 Size = new Size(60, 30),
@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
             return new BeepToggle
             {
                 ToggleStyle = ToggleStyle.IconCustom,
-                OnIconPath = SvgsUI.Grid,
+                OnIconPath = SvgsUI.LayoutGrid,
                 OffIconPath = SvgsUI.List,
                 OnColor = Color.FromArgb(156, 39, 176), // Purple
                 OffColor = Color.FromArgb(96, 125, 139), // Blue Gray
@@ -239,3 +239,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Examples
         }
     }
 }
+

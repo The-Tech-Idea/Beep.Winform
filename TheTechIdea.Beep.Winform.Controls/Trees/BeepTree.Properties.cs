@@ -182,6 +182,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+
+        /// <summary>
+        /// Gets or sets the text shown when the tree has no nodes.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text displayed in the center of the tree when there are no nodes.")]
+        [DefaultValue("No items to display")]
+        public string EmptyStateText
+        {
+            get => _emptyStateText;
+            set { _emptyStateText = value ?? string.Empty; Invalidate(); }
+        }
         
         #endregion
         
@@ -237,12 +250,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _nodes;
             set
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"BeepTree.Nodes setter called with {value?.Count ?? 0} items");
-                
+#endif
                 // Replace the list
                 _nodes = value ?? new List<SimpleItem>();
-                
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"BeepTree._nodes now has {_nodes.Count} items");
+#endif
                 RefreshTree();
             }
         }
@@ -422,6 +437,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        #endregion
+
+        #region Search and Filter Properties
+
+        /// <summary>
+        /// Gets or sets the filter text. Setting this property immediately filters the visible nodes
+        /// to only those whose <see cref="SimpleItem.Text"/> contains the value (case-insensitive).
+        /// Set to <see langword="null"/> or an empty string to clear the filter.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("When non-empty, only nodes whose text contains this value (and their ancestors) are shown.")]
+        [DefaultValue("")]
+        public string FilterText
+        {
+            get => _filterText;
+            set
+            {
+                _filterText = value ?? string.Empty;
+                ApplyFilter();
+            }
+        }
+
         #endregion
     }
 }

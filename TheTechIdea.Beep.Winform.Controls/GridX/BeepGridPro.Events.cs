@@ -18,6 +18,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public event EventHandler<BeepRowSelectedEventArgs>? RowSelectionChanged;
 
         /// <summary>
+        /// Lightweight selection-changed event (same timing as <see cref="RowSelectionChanged"/>
+        /// but with plain <see cref="EventArgs"/>, matching the standard WinForms pattern).
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Raised whenever the active row selection changes. Uses plain EventArgs.")]
+        public event EventHandler? SelectionChanged;
+
+        /// <summary>
         /// Raised when a save operation is requested/completed.
         /// </summary>
         [Browsable(true)]
@@ -59,6 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             BeepRowConfig? row = (rowIndex >= 0 && rowIndex < Data.Rows.Count) ? Data.Rows[rowIndex] : null;
             RowSelectionChanged?.Invoke(this, new BeepRowSelectedEventArgs(rowIndex, row));
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

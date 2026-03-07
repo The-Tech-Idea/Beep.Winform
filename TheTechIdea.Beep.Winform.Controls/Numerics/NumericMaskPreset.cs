@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MaskPattern = "###-##-####";
                     config.MaxLength = 11;
                     config.AllowNegative = false;
-                    config.IconPath = "SvgsUI.IdCard";
+                    config.IconPath = "SvgsUI.Id";
                     break;
 
                 case NumericMaskPreset.CreditCard:
@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MaskPattern = "$#,###.##";
                     config.DecimalPlaces = 2;
                     config.AllowNegative = true;
-                    config.IconPath = "SvgsUI.DollarSign";
+                    config.IconPath = "SvgsUI.CashBanknote";
                     break;
 
                 case NumericMaskPreset.Percentage:
@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MinValue = 0;
                     config.MaxValue = 100;
                     config.AllowNegative = false;
-                    config.IconPath = "SvgsUI.Percent";
+                        config.IconPath = "SvgsUI.Percentage";
                     break;
 
                 case NumericMaskPreset.Time24Hour:
@@ -280,26 +280,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MaskPattern = "##:##:##:##:##:##";
                     config.MaxLength = 17;
                     config.AllowNegative = false;
-                    config.IconPath = "SvgsUI.Wifi";
+                        config.IconPath = "SvgsUI.Hash";
                     break;
 
                 case NumericMaskPreset.Decimal2Places:
                     config.MaskPattern = "#,###.##";
                     config.DecimalPlaces = 2;
-                    config.IconPath = "SvgsUI.Hash";
+                        config.IconPath = "SvgsUI.Hash";
                     break;
 
                 case NumericMaskPreset.Decimal4Places:
                     config.MaskPattern = "#,###.####";
                     config.DecimalPlaces = 4;
-                    config.IconPath = "SvgsUI.Hash";
+                        config.IconPath = "SvgsUI.Hash";
                     break;
 
                 case NumericMaskPreset.IntegerWithCommas:
                     config.MaskPattern = "#,###";
                     config.DecimalPlaces = 0;
                     config.AllowNegative = true;
-                    config.IconPath = "SvgsUI.Hash";
+                        config.IconPath = "SvgsUI.Hash";
                     break;
 
                 case NumericMaskPreset.AccountNumber:
@@ -313,14 +313,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MaskPattern = "#########";
                     config.MaxLength = 9;
                     config.AllowNegative = false;
-                    config.IconPath = "SvgsUI.Building";
+                    config.IconPath = "SvgsUI.BuildingBroadcastTower";
                     break;
 
                 case NumericMaskPreset.EIN:
                     config.MaskPattern = "##-#######";
                     config.MaxLength = 10;
                     config.AllowNegative = false;
-                    config.IconPath = "SvgsUI.Building";
+                    config.IconPath = "SvgsUI.BuildingBroadcastTower";
                     break;
 
                 case NumericMaskPreset.WeightKg:
@@ -341,14 +341,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MaskPattern = "###.#";
                     config.DecimalPlaces = 1;
                     config.Unit = "°C";
-                    config.IconPath = "SvgsUI.Thermometer";
+                        config.IconPath = "SvgsUI.Temperature";
                     break;
 
                 case NumericMaskPreset.TemperatureFahrenheit:
                     config.MaskPattern = "###.#";
                     config.DecimalPlaces = 1;
                     config.Unit = "°F";
-                    config.IconPath = "SvgsUI.Thermometer";
+                        config.IconPath = "SvgsUI.Temperature";
                     break;
 
                 case NumericMaskPreset.DistanceKm:
@@ -369,20 +369,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.MaskPattern = "#,###.##";
                     config.DecimalPlaces = 2;
                     config.Unit = "MB";
-                    config.IconPath = "SvgsUI.HardDrive";
+                    config.IconPath = "SvgsUI.DeviceDesktop";
                     break;
 
                 case NumericMaskPreset.FileSizeGB:
                     config.MaskPattern = "#,###.##";
                     config.DecimalPlaces = 2;
                     config.Unit = "GB";
-                    config.IconPath = "SvgsUI.HardDrive";
+                    config.IconPath = "SvgsUI.DeviceDesktop";
                     break;
 
                 case NumericMaskPreset.Scientific:
                     config.MaskPattern = "#.####E+##";
                     config.DecimalPlaces = 4;
-                    config.IconPath = "SvgsUI.Atom";
+                    config.IconPath = "SvgsUI.AtomN2";
                     break;
 
                 case NumericMaskPreset.Latitude:
@@ -410,3 +410,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         }
     }
 }
+

@@ -133,9 +133,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (string.IsNullOrEmpty(tabText)) return null;
             var text = tabText.ToLower();
             if (text.Contains("overview") || text.Contains("dashboard")) return SvgsUI.Home;
-            if (text.Contains("detail")   || text.Contains("info"))      return SvgsUI.Info;
+            if (text.Contains("detail")   || text.Contains("info"))      return SvgsUI.InfoCircle;
             if (text.Contains("setting")  || text.Contains("config"))    return SvgsUI.Settings;
-            if (text.Contains("chart")    || text.Contains("analytic"))   return SvgsUI.BarChart2;
+            if (text.Contains("chart")    || text.Contains("analytic"))   return SvgsUI.ChartDotsN2;
             if (text.Contains("user")     || text.Contains("profile"))    return SvgsUI.User;
             return null;
         }

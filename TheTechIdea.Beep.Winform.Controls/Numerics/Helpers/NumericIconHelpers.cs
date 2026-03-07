@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
             if (!string.IsNullOrEmpty(customIcon))
                 return customIcon;
 
-            return SvgsUI.ChevronUp ?? SvgsUI.ArrowUp ?? SvgsUI.Circle;
+            return SvgsUI.CircleChevronUp ?? SvgsUI.CircleArrowUp ?? SvgsUI.Circle;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
             if (!string.IsNullOrEmpty(customIcon))
                 return customIcon;
 
-            return SvgsUI.ChevronDown ?? SvgsUI.ArrowDown ?? SvgsUI.Circle;
+            return SvgsUI.ChevronDown ?? SvgsUI.CircleArrowDown ?? SvgsUI.Circle;
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
             if (!string.IsNullOrEmpty(customIcon))
                 return customIcon;
 
-            return Svgs.Minus ?? SvgsUI.Minus ?? SvgsUI.Circle;
+            return Svgs.Minus ?? SvgsUI.SquareMinus ?? SvgsUI.Circle;
         }
 
         /// <summary>
@@ -175,3 +175,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
         }
     }
 }
+

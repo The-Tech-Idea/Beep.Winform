@@ -31,15 +31,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             // Priority 2: Painter-specific icons from SvgsUI
             return painterKind switch
             {
-                ProgressPainterKind.RingCenterImage => SvgsUI.Activity ?? SvgsUI.Loader ?? SvgsUI.Circle,
-                ProgressPainterKind.LinearTrackerIcon => SvgsUI.ArrowRight ?? SvgsUI.ChevronRight ?? SvgsUI.Navigation,
-                ProgressPainterKind.LinearBadge => SvgsUI.CheckCircle ?? SvgsUI.Circle,
-                ProgressPainterKind.StepperCircles => SvgsUI.Circle ?? SvgsUI.CheckCircle,
-                ProgressPainterKind.ChevronSteps => SvgsUI.ChevronRight ?? SvgsUI.ArrowRight,
-                ProgressPainterKind.DotsLoader => SvgsUI.Circle ?? SvgsUI.Loader,
-                ProgressPainterKind.ArrowStripe => SvgsUI.ArrowRight ?? SvgsUI.ChevronRight,
-                ProgressPainterKind.ArrowHeadAnimated => SvgsUI.ArrowRight ?? SvgsUI.Navigation,
-                _ => SvgsUI.Circle ?? SvgsUI.CheckCircle // Default fallback
+                ProgressPainterKind.RingCenterImage => SvgsUI.Analyze ?? SvgsUI.CircleArrowRight ?? SvgsUI.Circle,
+                ProgressPainterKind.LinearTrackerIcon => SvgsUI.CircleArrowRight ?? SvgsUI.ChevronRight ?? SvgsUI.Navigation,
+                ProgressPainterKind.LinearBadge => SvgsUI.CircleCheck ?? SvgsUI.Circle,
+                ProgressPainterKind.StepperCircles => SvgsUI.Circle ?? SvgsUI.CircleCheck,
+                ProgressPainterKind.ChevronSteps => SvgsUI.ChevronRight ?? SvgsUI.CircleArrowRight,
+                ProgressPainterKind.DotsLoader => SvgsUI.Circle ?? SvgsUI.CircleArrowRight,
+                ProgressPainterKind.ArrowStripe => SvgsUI.CircleArrowRight ?? SvgsUI.ChevronRight,
+                ProgressPainterKind.ArrowHeadAnimated => SvgsUI.CircleArrowRight ?? SvgsUI.Navigation,
+                _ => SvgsUI.Circle ?? SvgsUI.CircleCheck // Default fallback
             };
         }
 
@@ -377,17 +377,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
         {
             return useCase.ToLowerInvariant() switch
             {
-                "loading" or "spinner" => SvgsUI.Loader ?? SvgsUI.Activity,
-                "progress" or "activity" => SvgsUI.Activity ?? SvgsUI.Loader,
-                "check" or "complete" => SvgsUI.CheckCircle ?? SvgsUI.Check,
-                "arrow" or "next" => SvgsUI.ArrowRight ?? SvgsUI.ChevronRight,
-                "tracker" or "marker" => SvgsUI.Navigation ?? SvgsUI.ArrowRight,
-                "badge" or "label" => SvgsUI.Circle ?? SvgsUI.CheckCircle,
-                "step" or "circle" => SvgsUI.Circle ?? SvgsUI.CheckCircle,
+                "loading" or "spinner" => SvgsUI.CircleArrowRight ?? SvgsUI.Analyze,
+                "progress" or "activity" => SvgsUI.Analyze ?? SvgsUI.CircleArrowRight,
+                "check" or "complete" => SvgsUI.CircleCheck ?? SvgsUI.Check,
+                "arrow" or "next" => SvgsUI.CircleArrowRight ?? SvgsUI.ChevronRight,
+                "tracker" or "marker" => SvgsUI.Navigation ?? SvgsUI.CircleArrowRight,
+                "badge" or "label" => SvgsUI.Circle ?? SvgsUI.CircleCheck,
+                "step" or "circle" => SvgsUI.Circle ?? SvgsUI.CircleCheck,
                 "dot" => SvgsUI.Circle,
                 _ => SvgsUI.Circle // Default
             };
         }
     }
 }
+
 

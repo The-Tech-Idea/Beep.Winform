@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Editor.Importing;
 using TheTechIdea.Beep.Editor.Importing.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
@@ -27,7 +28,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     [AddinAttribute(Caption = "Import/Export Wizard", Name = "uc_ImportExportWizardLauncher",
         misc = "Config", menu = "Configuration", addinType = AddinType.Control,
         displayType = DisplayType.InControl, ObjectType = "Beep")]
-    public partial class uc_ImportExportWizardLauncher : TemplateUserControl
+    [AddinVisSchema(BranchID = 5, RootNodeName = "Configuration", Order = 5, ID = 5, BranchText = "Import/Export Wizard", BranchType = EnumPointType.Function, IconImageName = "drivers.svg", BranchClass = "ADDIN", BranchDescription = "Import and export wizard for data movement workflows")]
+    public partial class uc_ImportExportWizardLauncher : TemplateUserControl, IAddinVisSchema
     {
         private readonly IServiceProvider _services;
         private bool _isLoading;
@@ -44,6 +46,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             _runHistory = new();
         private ImportRunSummary? _lastSummary;
         private DataTable _historyDt;
+
+        #region IAddinVisSchema
+        public string RootNodeName { get; set; } = "Configuration";
+        public string CatgoryName { get; set; } = string.Empty;
+        public int Order { get; set; } = 5;
+        public int ID { get; set; } = 5;
+        public string BranchText { get; set; } = "Import/Export Wizard";
+        public int Level { get; set; }
+        public EnumPointType BranchType { get; set; } = EnumPointType.Function;
+        public int BranchID { get; set; } = 5;
+        public string IconImageName { get; set; } = "drivers.svg";
+        public string BranchStatus { get; set; } = string.Empty;
+        public int ParentBranchID { get; set; }
+        public string BranchDescription { get; set; } = "Import and export wizard for data movement workflows";
+        public string BranchClass { get; set; } = "ADDIN";
+        public string AddinName { get; set; } = "uc_ImportExportWizardLauncher";
+        #endregion
 
         // ── Public configuration properties ────────────────────────────────────
         /// <summary>Import = data flows into this system; Export = data flows out.</summary>
@@ -138,10 +157,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         public void Launch() => LaunchWizard();
 
         /// <summary>Pre-fill source and destination, then immediately launch.</summary>
-        public void Launch(string srcDs, string srcEntity,
-                           string destDs    = null,
-                           string destEntity = null,
-                           ImportExportDirection direction = ImportExportDirection.Import)
+        public void LaunchWithSelection(string srcDs, string srcEntity,
+                                        string destDs    = null,
+                                        string destEntity = null,
+                                        ImportExportDirection direction = ImportExportDirection.Import)
         {
             Direction                 = direction;
             SourceDataSourceName      = srcDs;
@@ -154,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         /// <summary>Pre-fill for export: the "owned" side is treated as Source.</summary>
         public void LaunchExport(string srcDs, string srcEntity,
                                  string destDs = null, string destEntity = null)
-            => Launch(srcDs, srcEntity, destDs, destEntity, ImportExportDirection.Export);
+            => LaunchWithSelection(srcDs, srcEntity, destDs, destEntity, ImportExportDirection.Export);
 
         // ── Navigation ──────────────────────────────────────────────────────────
         public override void OnNavigatedTo(Dictionary<string, object> parameters)

@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         public static string GetDefaultLogoPath(LoginViewType viewType)
         {
             // Use SVG from IconsManagement
-            return SvgsUI.Logo ?? SvgsUI.Image ?? SvgsUI.Home;
+            return SvgsUI.BrandTabler ?? SvgsUI.Photo ?? SvgsUI.Home;
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         /// </summary>
         public static string GetDefaultAvatarPath()
         {
-            return SvgsUI.User ?? SvgsUI.User ?? SvgsUI.Users;
+            return SvgsUI.User ?? SvgsUI.User ?? SvgsUI.User;
         }
 
         /// <summary>
@@ -37,12 +37,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         {
             return provider.ToLowerInvariant() switch
             {
-                "google" => SvgsUI.Google ?? SvgsUI.Globe,
-                "facebook" => SvgsUI.Facebook ?? SvgsUI.Users,
-                "twitter" => SvgsUI.Twitter ?? SvgsUI.MessageCircle,
-                "github" => SvgsUI.Github ?? SvgsUI.Code,
-                "microsoft" => SvgsUI.Microsoft ?? SvgsUI.Monitor,
-                _ => SvgsUI.LogIn
+                "google" => SvgsUI.BrandGoogle ?? SvgsUI.Globe,
+                "facebook" => SvgsUI.BrandFacebook ?? SvgsUI.User,
+                "twitter" => SvgsUI.BrandTwitter ?? SvgsUI.MessageCircle,
+                "github" => SvgsUI.BrandGithub ?? SvgsUI.CodeCircle,
+                "microsoft" => SvgsUI.BrandWindows ?? SvgsUI.DeviceDesktop,
+                    _ => SvgsUI.BrandTabler ?? SvgsUI.AppWindow
             };
         }
 
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         /// </summary>
         public static string GetRecommendedLogoPath()
         {
-            return SvgsUI.Logo ?? SvgsUI.Image ?? SvgsUI.Home;
+            return SvgsUI.BrandTabler ?? SvgsUI.Photo ?? SvgsUI.Home;
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         /// </summary>
         public static string GetRecommendedAvatarPath()
         {
-            return SvgsUI.User ?? SvgsUI.UserCircle ?? SvgsUI.Users;
+            return SvgsUI.User ?? SvgsUI.User ?? SvgsUI.User;
         }
 
         /// <summary>
@@ -181,4 +181,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         }
     }
 }
+
 

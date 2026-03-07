@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers

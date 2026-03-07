@@ -80,12 +80,10 @@
     <ProjectReference Include="..\..\Beep.Shared\TheTechIdea.Beep.Icons\TheTechIdea.Beep.Icons.csproj" />
     <ProjectReference Include="..\..\Beep.ViewModels\TheTechIdea.Beep.MVVM\TheTechIdea.Beep.MVVM.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Design.Server\TheTechIdea.Beep.Winform.Controls.Design.Server.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
     <!-- Ensure the designer-only assembly is available at design-time so UITypeEditors can be created -->
-    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Design.Server\TheTechIdea.Beep.Winform.Controls.Design.Server.csproj">
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -93,14 +91,13 @@
     <Folder Include="ETL\" />
     <Folder Include="DDL\" />
     <Folder Include="docs\" />
-    <Folder Include="NuggetsManage\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="NuGet.Protocol" Version="7.3.0" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.81" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.135" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.82" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.136" />
   </ItemGroup>
 
 </Project>

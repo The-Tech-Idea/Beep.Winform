@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
@@ -27,14 +28,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
         private readonly BeepMultiChipGroup _categoryChips;
         private readonly BeepListBox _list;
         private readonly BeepLabel _hintLabel;
+        private readonly BeepLabel _emptyLabel;
 
         // ─── State ────────────────────────────────────────────────────────────
         private readonly List<CommandAction> _actions = new();
         private List<CommandAction> _filtered = new();
         private string _activeCategory = string.Empty;
 
-        // Recent items: stores up to 5 most recently executed action texts
-        private readonly Queue<string> _recentTexts = new(5);
+        // Recent items: stores MRU list (most-recent-first)
+        private static readonly List<string> _recentTexts = new();
+        private const int MaxRecentItems = 8;
 
         // ─────────────────────────────────────────────────────────────────────
 
@@ -99,7 +102,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
                 UseThemeColors = true,
                 ShowImage = true   // renders ImagePath column from SimpleItem
             };
+
+            _emptyLabel = new BeepLabel
+            {
+                Dock = DockStyle.Fill,
+                UseThemeColors = true,
+                IsFrameless = true,
+                Text = "No matching commands",
+                Visible = false,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
             _bodyPanel.Controls.Add(_list);
+            _bodyPanel.Controls.Add(_emptyLabel);
 
             // ── Footer panel (keyboard hint bar) ──────────────────────────
             _footerPanel = new BeepPanel
@@ -122,6 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
             // ── Wire up events ─────────────────────────────────────────────
             _searchBox.TextChanged += (s, e) => Rebind();
             _list.DoubleClick += (s, e) => ExecuteSelected();
+            _list.SelectedItemChanged += (s, e) => UpdateHintForSelection();
             _categoryChips.SelectionChanged += OnCategoryChanged;
 
             // ── Add controls in Z-order (bottom → top for Dock) ───────────
@@ -255,18 +270,33 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
                     a.Text.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     (!string.IsNullOrEmpty(a.Category) && a.Category.Contains(query, StringComparison.OrdinalIgnoreCase)));
 
-            // When search is empty and no category active: pin recent items at top
+            // When search is empty and no category active: pin favorites then recent items.
             List<CommandAction> result;
             if (string.IsNullOrWhiteSpace(query) && string.IsNullOrEmpty(_activeCategory) && _recentTexts.Count > 0)
             {
                 var recentSet = new HashSet<string>(_recentTexts, StringComparer.OrdinalIgnoreCase);
-                var recents = source.Where(a => recentSet.Contains(a.Text)).ToList();
-                var rest = source.Where(a => !recentSet.Contains(a.Text)).ToList();
-                result = recents.Concat(rest).ToList();
+                var recentIndex = _recentTexts
+                    .Select((text, idx) => new { text, idx })
+                    .ToDictionary(x => x.text, x => x.idx, StringComparer.OrdinalIgnoreCase);
+
+                var favorites = source.Where(a => a.IsFavorite).ToList();
+                var nonFavorites = source.Where(a => !a.IsFavorite).ToList();
+
+                var recents = nonFavorites
+                    .Where(a => recentSet.Contains(a.Text))
+                    .OrderBy(a => recentIndex.TryGetValue(a.Text, out int idx) ? idx : int.MaxValue)
+                    .ToList();
+
+                var rest = nonFavorites.Where(a => !recentSet.Contains(a.Text)).ToList();
+                result = favorites.Concat(recents).Concat(rest).ToList();
             }
             else
             {
-                result = source.ToList();
+                // Keep favorites near top during search/filter as well.
+                result = source
+                    .OrderByDescending(a => a.IsFavorite)
+                    .ThenBy(a => a.Text, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
             }
 
             _filtered = result;
@@ -278,6 +308,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
                 SubText = a.ShortcutText,   // right-aligned shortcut hint via SubText
                 Value = a
             }).ToList());
+
+            _emptyLabel.Visible = _filtered.Count == 0;
+            _list.Visible = _filtered.Count > 0;
+
+            if (_filtered.Count > 0)
+            {
+                _list.SelectedIndex = 0;
+            }
+
+            UpdateHintForSelection();
         }
 
         private void ExecuteSelected()
@@ -285,24 +325,33 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
             if (_list.SelectedItem?.Value is CommandAction action)
             {
                 // Track recent
-                if (_recentTexts.Contains(action.Text))
-                {
-                    // Bring to front: remove and re-add
-                    var tmp = _recentTexts.ToList();
-                    tmp.Remove(action.Text);
-                    tmp.Insert(0, action.Text);
-                    _recentTexts.Clear();
-                    foreach (var t in tmp.Take(5)) _recentTexts.Enqueue(t);
-                }
-                else
-                {
-                    if (_recentTexts.Count >= 5) _recentTexts.Dequeue();
-                    _recentTexts.Enqueue(action.Text);
-                }
+                _recentTexts.RemoveAll(t => string.Equals(t, action.Text, StringComparison.OrdinalIgnoreCase));
+                _recentTexts.Insert(0, action.Text);
+                if (_recentTexts.Count > MaxRecentItems)
+                    _recentTexts.RemoveRange(MaxRecentItems, _recentTexts.Count - MaxRecentItems);
 
                 action.Action?.Invoke();
                 DialogResult = DialogResult.OK;
                 Close();
+            }
+        }
+
+        private void UpdateHintForSelection()
+        {
+            var selected = _list.SelectedItem?.Value as CommandAction;
+            if (selected == null)
+            {
+                _hintLabel.Text = "↑↓ navigate   Tab move focus   ↵ execute   Esc close";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(selected.ShortcutText))
+            {
+                _hintLabel.Text = $"↑↓ navigate   ↵ execute   Esc close   Shortcut: {selected.ShortcutText}";
+            }
+            else
+            {
+                _hintLabel.Text = "↑↓ navigate   ↵ execute   Esc close";
             }
         }
     }

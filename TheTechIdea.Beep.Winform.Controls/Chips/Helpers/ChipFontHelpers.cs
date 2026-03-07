@@ -24,19 +24,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
             ChipSize chipSize,
             float dpiScale = 1.0f)
         {
-            // Try to get font from current theme first
-            var theme = BeepThemesManager.CurrentTheme;
-            if (theme != null && theme.ButtonFont != null)
-            {
-                var themeFont = BeepThemesManager.ToFont(theme.ButtonFont);
-                if (themeFont != null)
-                    return themeFont;
-            }
+            return GetChipFont(controlStyle, chipSize, dpiScale, null, null);
+        }
 
-            // Fallback to computed font
-            float baseSize = StyleTypography.GetFontSize(controlStyle);
-            
-            // Adjust size based on chip size
+        /// <summary>
+        /// Gets the font for chip text with optional theme-aware weight/style overrides.
+        /// Uses the current theme as the primary source of family and sizing, then applies
+        /// chip-size adjustments and any requested emphasis without creating ad-hoc fonts in painters.
+        /// </summary>
+        public static Font GetChipFont(
+            BeepControlStyle controlStyle,
+            ChipSize chipSize,
+            float dpiScale,
+            FontWeight? fontWeightOverride,
+            FontStyle? fontStyleOverride)
+        {
+            var themeStyle = BeepThemesManager.CurrentTheme?.ButtonFont;
+            float baseSize = themeStyle?.FontSize > 0
+                ? themeStyle.FontSize
+                : StyleTypography.GetFontSize(controlStyle);
+
             float chipFontSize = chipSize switch
             {
                 ChipSize.Small => baseSize * 0.85f,
@@ -45,13 +52,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 _ => baseSize
             };
 
-            FontStyle fontStyle = FontStyle.Regular;
-
-            string fontFamily = StyleTypography.GetFontFamily(controlStyle);
-            string primaryFont = fontFamily.Split(',')[0].Trim();
-
-            // Use BeepThemesManager.ToFont as the single scaling authority to avoid double-DPI scaling.
-            return BeepThemesManager.ToFont(primaryFont, Math.Max(6f, chipFontSize), FontWeight.Normal, fontStyle);
+            return CreateThemeAwareFont(
+                controlStyle,
+                chipFontSize,
+                themeStyle,
+                fontWeightOverride ?? FontWeight.Normal,
+                fontStyleOverride ?? FontStyle.Regular);
         }
 
         /// <summary>
@@ -87,6 +93,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
 
             // Use BeepThemesManager.ToFont as the single scaling authority to avoid double-DPI scaling.
             return BeepThemesManager.ToFont(primaryFont, Math.Max(6f, titleSize), FontWeight.Bold, fontStyle);
+        }
+
+        /// <summary>
+        /// Gets a theme-derived font for avatar initials while keeping the size proportional
+        /// to the avatar bounds used by the painter.
+        /// </summary>
+        public static Font GetAvatarFont(
+            BeepControlStyle controlStyle,
+            float targetFontSize,
+            FontWeight fontWeight = FontWeight.Bold,
+            FontStyle fontStyle = FontStyle.Bold)
+        {
+            var themeStyle = BeepThemesManager.CurrentTheme?.ButtonFont;
+            return CreateThemeAwareFont(controlStyle, targetFontSize, themeStyle, fontWeight, fontStyle);
         }
 
         /// <summary>
@@ -147,6 +167,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
             
             // GetChipFont already checks theme first, then falls back to computed font
             control.Font = GetChipFont(controlStyle, chipSize, dpiScale);
+        }
+
+        private static Font CreateThemeAwareFont(
+            BeepControlStyle controlStyle,
+            float targetFontSize,
+            TypographyStyle themeStyle,
+            FontWeight fontWeight,
+            FontStyle fontStyle)
+        {
+            string fontFamily = themeStyle?.FontFamily;
+            if (string.IsNullOrWhiteSpace(fontFamily))
+                fontFamily = StyleTypography.GetFontFamily(controlStyle);
+
+            string primaryFont = fontFamily.Split(',')[0].Trim();
+            FontStyle resolvedStyle = (themeStyle?.FontStyle ?? FontStyle.Regular) | fontStyle;
+
+            if (themeStyle?.IsUnderlined == true)
+                resolvedStyle |= FontStyle.Underline;
+            if (themeStyle?.IsStrikeout == true)
+                resolvedStyle |= FontStyle.Strikeout;
+
+            FontWeight resolvedWeight = themeStyle?.FontWeight ?? FontWeight.Normal;
+            if (fontWeight != FontWeight.Normal)
+                resolvedWeight = fontWeight;
+
+            return BeepThemesManager.ToFont(primaryFont, Math.Max(6f, targetFontSize), resolvedWeight, resolvedStyle);
         }
     }
 }

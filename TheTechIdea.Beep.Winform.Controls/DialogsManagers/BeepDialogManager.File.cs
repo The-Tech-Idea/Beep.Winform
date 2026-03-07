@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows an open file dialog (async)
         /// </summary>
-        public async Task<string?> OpenFileAsync(string? filter = null, string? initialDir = null, string? title = null)
+        public Task<string?> OpenFileAsync(string? filter = null, string? initialDir = null, string? title = null)
         {
             using var ofd = new OpenFileDialog();
 
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null;
+            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : (string?)null);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows an open file dialog for multiple files (async)
         /// </summary>
-        public async Task<List<string>> OpenFilesAsync(string? filter = null, string? initialDir = null, string? title = null)
+        public Task<List<string>> OpenFilesAsync(string? filter = null, string? initialDir = null, string? title = null)
         {
             using var ofd = new OpenFileDialog();
 
@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? ofd.FileNames.ToList() : new List<string>();
+            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? ofd.FileNames.ToList() : new List<string>());
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a save file dialog (async)
         /// </summary>
-        public async Task<string?> SaveFileAsync(string? filter = null, string? initialDir = null, string? defaultFileName = null, string? title = null)
+        public Task<string?> SaveFileAsync(string? filter = null, string? initialDir = null, string? defaultFileName = null, string? title = null)
         {
             using var sfd = new SaveFileDialog();
 
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? sfd.ShowDialog(owner) : sfd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? sfd.FileName : null;
+            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? sfd.FileName : (string?)null);
         }
 
         /// <summary>
@@ -156,9 +156,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (path != null && File.Exists(path))
             {
-                var confirm = ConfirmSync("Confirm Overwrite", $"The file '{Path.GetFileName(path)}' already exists. Do you want to overwrite it?");
+                var overwriteConfig = CreateOverwriteDialogConfig(path);
+                var confirm = Show(overwriteConfig).Submit;
                 if (!confirm)
+                {
+                    ToastDeduped(
+                        $"Save cancelled. Existing file '{Path.GetFileName(path)}' was not overwritten.",
+                        ToastType.Warning,
+                        dedupeKey: $"overwrite-cancel::{path}");
                     return null;
+                }
             }
 
             return path;
@@ -171,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Shows a folder browser dialog (async)
         /// </summary>
-        public async Task<string?> SelectFolderAsync(string? title = null, string? initialDir = null, bool allowCreate = true)
+        public Task<string?> SelectFolderAsync(string? title = null, string? initialDir = null, bool allowCreate = true)
         {
             using var fbd = new FolderBrowserDialog();
 
@@ -184,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? fbd.ShowDialog(owner) : fbd.ShowDialog();
 
-            return result == System.Windows.Forms.DialogResult.OK ? fbd.SelectedPath : null;
+            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? fbd.SelectedPath : (string?)null);
         }
 
         /// <summary>
@@ -263,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             return CreatePathReturn(path);
         }
 
-        async Task<DialogReturn> IDialogManager.LoadFileDialogAsync(string exts, string dir, string filter, string initialFileName, System.Threading.CancellationToken cancellationToken)
+        Task<DialogReturn> IDialogManager.LoadFileDialogAsync(string exts, string dir, string filter, string initialFileName, System.Threading.CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             using var ofd = new OpenFileDialog();
@@ -274,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
-            return await Task.FromResult(CreatePathReturn(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null));
+            return Task.FromResult(CreatePathReturn(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null));
         }
 
         Task<List<string>> IDialogManager.LoadFilesDialogAsync(string exts, string dir, string filter, System.Threading.CancellationToken cancellationToken)
@@ -329,8 +336,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         async Task<DialogReturn> IDialogManager.ConfirmOverwriteAsync(string filePath, System.Threading.CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var result = await ShowAsync(DialogConfig.CreateQuestion("Confirm Overwrite", $"The file '{Path.GetFileName(filePath)}' already exists. Do you want to overwrite it?"), cancellationToken);
+            var result = await ShowAsync(CreateOverwriteDialogConfig(filePath), cancellationToken);
             return result;
+        }
+
+        private static DialogConfig CreateOverwriteDialogConfig(string filePath)
+        {
+            var fileName = Path.GetFileName(filePath);
+            return new DialogConfig
+            {
+                Title   = "Confirm Overwrite",
+                Message = $"The file '{fileName}' already exists. Replacing it will discard the current file content.",
+                Preset  = DialogPreset.Warning,
+                IconType = BeepDialogIcon.Warning,
+                ShowIcon = true,
+                Buttons = new[] { BeepDialogButtons.YesNo },
+                DefaultButton = BeepDialogButtons.No,
+                CloseOnEscape = true,
+                ShowCloseButton = true,
+                Details = $"Target path:{Environment.NewLine}{filePath}",
+                CustomButtonLabels = new System.Collections.Generic.Dictionary<BeepDialogButtons, string>
+                {
+                    [BeepDialogButtons.Yes] = "Overwrite",
+                    [BeepDialogButtons.No]  = "Keep Existing"
+                }
+            };
         }
 
         async Task<DialogReturn> IDialogManager.SelectSpecialDirectoriesComboBoxAsync(System.Threading.CancellationToken cancellationToken)

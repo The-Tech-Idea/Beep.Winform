@@ -239,9 +239,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #region Core Show Methods (Async)
 
         /// <summary>
-        /// Shows a dialog with full configuration (async)
+        /// Shows a dialog with full configuration (async).
+        /// Safe to call from both UI and background threads.
+        /// When already on the UI thread the dialog runs synchronously via
+        /// ShowDialog() so that callers using .GetAwaiter().GetResult() don't
+        /// deadlock the WinForms SynchronizationContext.
         /// </summary>
-        public async Task<DialogReturn> ShowAsync(DialogConfig config, CancellationToken cancellationToken = default)
+        public Task<DialogReturn> ShowAsync(DialogConfig config, CancellationToken cancellationToken = default)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
@@ -252,12 +256,41 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             config.AnimationDuration = config.AnimationDuration == 0 ? _animationDuration : config.AnimationDuration;
             config.ReducedMotion = config.ReducedMotion || _options.ReducedMotion;
 
-            var tcs = new TaskCompletionSource<DialogReturn>();
+            // --- Already on the UI thread → run inline, return completed task ----
+            bool onUiThread = (_hostForm != null && !_hostForm.InvokeRequired)
+                           || (_hostForm == null && Application.OpenForms.Count > 0 && !Application.OpenForms[0].InvokeRequired)
+                           || (_hostForm == null && Application.OpenForms.Count == 0);
+
+            if (onUiThread)
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var result = ShowDialogInternal(config);
+                    return Task.FromResult(result);
+                }
+                catch (OperationCanceledException)
+                {
+                    return Task.FromCanceled<DialogReturn>(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    return Task.FromException<DialogReturn>(ex);
+                }
+            }
+
+            // --- Background thread → marshal to UI via BeginInvoke ---------------
+            var tcs = new TaskCompletionSource<DialogReturn>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             void ShowDialogAction()
             {
                 try
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        tcs.TrySetCanceled(cancellationToken);
+                        return;
+                    }
                     var result = ShowDialogInternal(config);
                     tcs.TrySetResult(result);
                 }
@@ -267,27 +300,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 }
             }
 
-            // Ensure we're on the UI thread
-            if (_hostForm != null && _hostForm.InvokeRequired)
+            var target = _hostForm as Control
+                      ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+
+            if (target != null)
             {
-                _hostForm.BeginInvoke(new Action(ShowDialogAction));
-            }
-            else if (Application.OpenForms.Count > 0 && Application.OpenForms[0].InvokeRequired)
-            {
-                Application.OpenForms[0].BeginInvoke(new Action(ShowDialogAction));
+                target.BeginInvoke(new Action(ShowDialogAction));
             }
             else
             {
+                // No UI control available – run inline (best-effort)
                 ShowDialogAction();
             }
 
-            // Handle cancellation
             if (cancellationToken.CanBeCanceled)
             {
                 cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
             }
 
-            return await tcs.Task;
+            return tcs.Task;
         }
 
         /// <summary>
@@ -313,6 +344,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         private DialogReturn ShowDialogInternal(DialogConfig config)
         {
+            // Backward-compatible behavior: if callers set CloseOnClickOutside,
+            // ensure backdrop clicks actually dismiss unless a stricter policy is explicit.
+            if (config.CloseOnClickOutside && config.BackdropClickPolicy == DialogBackdropClickPolicy.Ignore)
+            {
+                config.BackdropClickPolicy = DialogBackdropClickPolicy.CancelDialog;
+            }
+
             // Show backdrop if configured
             if (config.ShowBackdrop && _hostForm != null)
             {
@@ -334,6 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
                 // Set owner
                 var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+                var previousFocusedControl = owner?.ActiveControl;
 
                 if (config.RememberSizeAndPosition &&
                     !string.IsNullOrWhiteSpace(config.DialogKey) &&
@@ -353,6 +392,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 {
                     _dialogRectState[config.DialogKey] = new Rectangle(dialog.Location, dialog.Size);
                 }
+
+                // Return focus to the previously active owner control when possible.
+                if (previousFocusedControl != null && !previousFocusedControl.IsDisposed && previousFocusedControl.CanFocus)
+                {
+                    previousFocusedControl.Focus();
+                }
+                else if (owner != null && !owner.IsDisposed && owner.CanFocus)
+                {
+                    owner.Focus();
+                }
+
                 return dialogReturn;
             }
             finally
@@ -366,20 +416,38 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// <summary>
         /// Creates appropriate dialog form based on config
         /// </summary>
-        private BeepDialogModal CreateDialog(DialogConfig config)
+        private BeepDialogForm CreateDialog(DialogConfig config)
         {
-            var dialog = new BeepDialogModal();
+            var dialog = new BeepDialogForm();
 
-            // Set basic properties
-            dialog.Title = config.Title;
-            dialog.Message = config.Message;
-            dialog.DialogType = MapPresetToDialogType(config.Preset, config.IconType);
+            // ── Non-triggering properties first ────────────────────────────────────────
+            // These do NOT call ConfigureForDialogType, so order among them doesn't matter.
+            dialog.Title          = config.Title;
+            dialog.Message        = config.Message;
+            dialog.DetailsText    = config.Details;
+            dialog.PresetIntent   = config.Preset;   // read by SetIcon()
 
-            // Map buttons
+            dialog.AllowEscapeClose              = config.CloseOnEscape;
+            dialog.DefaultActionButton           = config.DefaultButton;
+            dialog.RequireTypedConfirmation      = config.RequireTypedConfirmation;
+            dialog.ConfirmationKeyword           = config.ConfirmationKeyword;
+            dialog.DisablePrimaryUntilAcknowledged = config.DisablePrimaryUntilAcknowledged;
+            dialog.AllowCaptionCloseButton       = config.ShowCloseButton;
+
+            // CustomButtonLabels is read by GetLabel() inside SetButtonVisibilityAndCaptions —
+            // must be set before DialogButtons and DialogType trigger ConfigureForDialogType.
+            if (config.CustomButtonLabels != null && config.CustomButtonLabels.Count > 0)
+                dialog.CustomButtonLabels = config.CustomButtonLabels;
+
+            // ── Triggering properties — order matters ──────────────────────────────────
+            // DialogButtons setter triggers ConfigureForDialogType. Set it before DialogType
+            // so that when DialogType is set the button reconfigure uses the intended set.
             if (config.Buttons != null && config.Buttons.Length > 0)
-            {
                 dialog.DialogButtons = MapButtonsArray(config.Buttons);
-            }
+
+            // DialogType is set last — its setter triggers the authoritative
+            // ConfigureForDialogType call that now sees all correct state.
+            dialog.DialogType = MapPresetToDialogType(config.Preset, config.IconType);
 
             // Set items for list dialogs
             if (config.CustomControl == null && config.Preset == DialogPreset.None)
@@ -415,6 +483,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 dialog.Size = config.CustomSize.Value;
             }
+
+            // Wire auto-close countdown from DialogConfig.AutoCloseTimeout.
+            if (config.AutoCloseTimeout > 0)
+                dialog.StartAutoClose(config.AutoCloseTimeout);
 
             return dialog;
         }
@@ -659,6 +731,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             if (_backdropForm != null && !_backdropForm.IsDisposed)
             {
                 var backdrop = _backdropForm;
+                // Null the field inside the callback AFTER the animation
+                // completes.  Previously it was set to null here, which
+                // could allow ShowBackdrop to create a second overlay
+                // while the first was still fading out.
                 DialogMotionEngine.AnimateOpacity(backdrop, backdrop.Opacity, 0, Math.Max(100, _animationDuration / 2), DialogAnimationEasing.EaseInOutQuad, () =>
                 {
                     if (!backdrop.IsDisposed)
@@ -666,8 +742,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                         backdrop.Hide();
                         backdrop.Dispose();
                     }
+                    // Clear reference only once the form is actually gone
+                    if (_backdropForm == backdrop)
+                        _backdropForm = null;
                 }, animationKey: "backdrop-opacity");
-                _backdropForm = null;
             }
             if (_backdropOverlay != null)
             {
@@ -853,10 +931,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 return preset switch
                 {
                     DialogPreset.Success => DialogType.Information,
+                    DialogPreset.SuccessWithUndo => DialogType.Information,
                     DialogPreset.Warning => DialogType.Warning,
+                    DialogPreset.UnsavedChanges => DialogType.Warning,
+                    DialogPreset.InlineValidation => DialogType.Warning,
                     DialogPreset.Danger => DialogType.Error,
+                    DialogPreset.DestructiveConfirm => DialogType.Error,
+                    DialogPreset.BlockingError => DialogType.Error,
                     DialogPreset.Question => DialogType.Question,
+                    DialogPreset.SessionTimeout => DialogType.Question,
                     DialogPreset.Information => DialogType.Information,
+                    DialogPreset.MultiStepProgress => DialogType.Information,
+                    DialogPreset.Announcement => DialogType.Information,
                     _ => DialogType.None
                 };
             }
@@ -885,6 +971,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 if (ContainsButtons(buttons, BeepDialogButtons.Abort, BeepDialogButtons.Retry, BeepDialogButtons.Ignore))
                     return BeepDialogButtons.AbortRetryIgnore;
+
+                // Compatibility mapping: callers may pass Yes/No/Cancel for unsaved-changes style prompts.
+                if (ContainsButtons(buttons, BeepDialogButtons.Yes, BeepDialogButtons.No, BeepDialogButtons.Cancel))
+                    return BeepDialogButtons.SaveDontSaveCancel;
             }
 
             // Default to first button or Ok
@@ -939,7 +1029,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             var result = await ShowAsync(DialogConfig.CreateDanger(title, message));
             if (result.Submit)
             {
-                SnackbarUndo("Action completed", undoAction, 4000);
+                var dedupeKey = $"undo::{title?.Trim()}::{message?.Trim()}";
+                SnackbarUndo("Action completed", undoAction, 4000, dedupeKey);
                 return true;
             }
             return false;

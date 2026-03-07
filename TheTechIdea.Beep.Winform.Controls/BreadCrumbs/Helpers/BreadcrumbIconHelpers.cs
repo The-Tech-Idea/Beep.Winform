@@ -40,9 +40,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 var n when n.Contains("home") => GetHomeIconPath(),
                 var n when n.Contains("folder") || n.Contains("directory") => SvgsUI.Folder,
                 var n when n.Contains("file") || n.Contains("document") => SvgsUI.File,
-                var n when n.Contains("image") || n.Contains("picture") => SvgsUI.Image,
+                var n when n.Contains("image") || n.Contains("picture") => SvgsUI.Photo,
                 var n when n.Contains("video") => SvgsUI.Video,
-                var n when n.Contains("music") || n.Contains("audio") => SvgsUI.Sound,
+                    var n when n.Contains("music") || n.Contains("audio") => SvgsUI.Music,
                 var n when n.Contains("settings") || n.Contains("config") => SvgsUI.Settings,
                 var n when n.Contains("user") || n.Contains("profile") => SvgsUI.User,
                 var n when n.Contains("search") => SvgsUI.Search,
@@ -334,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
                 "home" => GetHomeIconPath(),
                 "folder" or "directory" => SvgsUI.Folder,
                 "file" or "document" => SvgsUI.File,
-                "image" or "picture" => SvgsUI.Image,
+                "image" or "picture" => SvgsUI.Photo,
                 "video" => SvgsUI.Video,
                 "settings" or "config" => SvgsUI.Settings,
                 "user" or "profile" => SvgsUI.User,
@@ -345,4 +345,5 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
         }
     }
 }
+
 

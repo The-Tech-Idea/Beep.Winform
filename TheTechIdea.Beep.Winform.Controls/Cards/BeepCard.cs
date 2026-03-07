@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showSelectionCheckbox;
         private bool _isCollapsible;
         private int _accentBarHeight;
-        private string _contextMenuIcon = SvgsUI.MoreVertical;
+        private string _contextMenuIcon = SvgsUI.DotsVertical;
 
         // Enhanced properties for new styles
         private string _badgeText1 = string.Empty; // Primary badge (e.g., PRO, FREE)
@@ -767,7 +767,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showSelectionCheckbox && !_selectionRect.IsEmpty)
             {
                 float opacity = _isSelected ? 1f : 0.55f;
-                StyledImagePainter.PaintWithTint(g, _selectionRect, SvgsUI.CheckCircle, iconTint, opacity, Scale(4));
+                StyledImagePainter.PaintWithTint(g, _selectionRect, SvgsUI.CircleCheck, iconTint, opacity, Scale(4));
             }
 
             if (!string.IsNullOrWhiteSpace(_contextMenuIcon) && !_contextMenuRect.IsEmpty)
@@ -777,7 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_isCollapsible && !_collapseRect.IsEmpty)
             {
-                string chevron = _isExpanded ? SvgsUI.ChevronUp : SvgsUI.ChevronDown;
+                string chevron = _isExpanded ? SvgsUI.CircleChevronUp : SvgsUI.ChevronDown;
                 StyledImagePainter.PaintWithTint(g, _collapseRect, chevron, iconTint, 0.85f, Scale(4));
             }
         }
@@ -1843,7 +1843,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _contextMenuIcon;
             set
             {
-                _contextMenuIcon = string.IsNullOrWhiteSpace(value) ? SvgsUI.MoreVertical : value;
+                _contextMenuIcon = string.IsNullOrWhiteSpace(value) ? SvgsUI.DotsVertical : value;
                 Invalidate();
             }
         }

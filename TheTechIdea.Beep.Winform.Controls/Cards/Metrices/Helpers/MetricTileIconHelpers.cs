@@ -29,20 +29,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
                 // Try to match metric type to icon
                 string lowerType = metricType.ToLowerInvariant();
                 if (lowerType.Contains("view") || lowerType.Contains("visit"))
-                    return SvgsUI.Eye ?? SvgsUI.Chart ?? "views.svg";
+                    return SvgsUI.Eye ?? SvgsUI.ChartDots ?? "views.svg";
                 if (lowerType.Contains("user") || lowerType.Contains("member"))
-                    return SvgsUI.User ?? SvgsUI.Users ?? "users.svg";
+                    return SvgsUI.User ?? SvgsUI.User ?? "users.svg";
                 if (lowerType.Contains("revenue") || lowerType.Contains("money"))
-                    return SvgsUI.Dollar ?? SvgsUI.Currency ?? "revenue.svg";
+                    return SvgsUI.CashBanknote ?? SvgsUI.CashBanknote ?? "revenue.svg";
                 if (lowerType.Contains("sale"))
-                    return SvgsUI.Shopping ?? SvgsUI.Cart ?? "sales.svg";
+                    return SvgsUI.ShoppingCart ?? SvgsUI.ShoppingCart ?? "sales.svg";
             }
 
             // Default metric icon
             string[] metricIconPaths = {
-                SvgsUI.Chart ?? "chart.svg",
-                SvgsUI.BarChart ?? "bar-chart.svg",
-                SvgsUI.TrendingUp ?? "trending-up.svg",
+                SvgsUI.ChartDots ?? "chart.svg",
+                SvgsUI.ChartDots ?? "bar-chart.svg",
+                SvgsUI.ArrowBadgeUp ?? "trending-up.svg",
                 "metric.svg"
             };
 
@@ -69,13 +69,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
                 if (lowerType.Contains("user") || lowerType.Contains("member"))
                     return SvgsUI.User ?? "users-silhouette.svg";
                 if (lowerType.Contains("revenue") || lowerType.Contains("money"))
-                    return SvgsUI.Dollar ?? "revenue-silhouette.svg";
+                    return SvgsUI.CashBanknote ?? "revenue-silhouette.svg";
             }
 
             // Default silhouette icon
             string[] silhouettePaths = {
-                SvgsUI.Chart ?? "chart-silhouette.svg",
-                SvgsUI.BarChart ?? "bar-chart-silhouette.svg",
+                SvgsUI.ChartDots ?? "chart-silhouette.svg",
+                SvgsUI.ChartDots ?? "bar-chart-silhouette.svg",
                 "silhouette.svg"
             };
 
@@ -251,4 +251,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers
         #endregion
     }
 }
+
 

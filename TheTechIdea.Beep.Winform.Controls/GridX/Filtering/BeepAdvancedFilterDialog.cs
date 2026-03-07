@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
@@ -498,7 +499,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                     });
                     System.IO.File.WriteAllText(dialog.FileName, json);
 
-                    MessageBox.Show("Filter configuration saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    var dialogManager = BeepDialogManager.Instance;
+                    dialogManager.SetHostForm(this);
+                    dialogManager.NotifyExportSuccess(System.IO.Path.GetFileName(dialog.FileName), config.Criteria.Count);
                 }
             }
         }
@@ -520,12 +523,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                         if (config != null)
                         {
                             LoadConfiguration(config);
-                            MessageBox.Show("Filter configuration loaded successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                            var dialogManager = BeepDialogManager.Instance;
+                            dialogManager.SetHostForm(this);
+                            dialogManager.NotifyImportSuccess(System.IO.Path.GetFileName(dialog.FileName), config.Criteria?.Count ?? 0);
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading configuration: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        var dialogManager = BeepDialogManager.Instance;
+                        dialogManager.SetHostForm(this);
+                        dialogManager.NotifyImportFailure(System.IO.Path.GetFileName(dialog.FileName), ex.Message);
                     }
                 }
             }

@@ -14,7 +14,6 @@ namespace TheTechIdea.Beep.Icons
     public static class Svgs
     {
         private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.GFX.SVG";
-        private static string R(string fileName) => SvgResourcePathHelper.Build(BaseNamespace, fileName);
 
         /// <summary>
         /// Gets the assembly containing the embedded SVG resources.
@@ -24,8 +23,8 @@ namespace TheTechIdea.Beep.Icons
 
         #region "General Actions & UI"
       
-        public static readonly string Person = R("person.svg");
-        public static readonly string Send = R("send.svg");
+        public static readonly string Person = $"{BaseNamespace}.person.svg";
+        public static readonly string Send = $"{BaseNamespace}send.svg";
         public static readonly string Microphone = $"{BaseNamespace}.circle-microphone-lines.svg";
         public static readonly string CheckCircle = $"{BaseNamespace}.check-circle.svg";
         public static readonly string ExclamationTriangle = $"{BaseNamespace}.triangle-warning.svg";
@@ -272,7 +271,7 @@ namespace TheTechIdea.Beep.Icons
                     var value = field.GetValue(null) as string;
                     if (!string.IsNullOrEmpty(value) && value.EndsWith(".svg"))
                     {
-                        paths[field.Name] = SvgResourcePathHelper.Normalize(value);
+                        paths[field.Name] = value;
                     }
                 }
             }
@@ -287,9 +286,8 @@ namespace TheTechIdea.Beep.Icons
         /// <returns>True if the resource exists</returns>
         public static bool ResourceExists(string resourcePath)
         {
-            string normalizedPath = SvgResourcePathHelper.Normalize(resourcePath);
             var resourceNames = ResourceAssembly.GetManifestResourceNames();
-            return resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase));
+            return resourceNames.Contains(resourcePath);
         }
 
         /// <summary>
@@ -298,21 +296,9 @@ namespace TheTechIdea.Beep.Icons
         /// <returns>Array of resource names</returns>
         public static string[] GetAvailableResources()
         {
-            string normalizedBase = SvgResourcePathHelper.Normalize(BaseNamespace);
             return ResourceAssembly.GetManifestResourceNames()
-                .Where(name => name.StartsWith(normalizedBase, StringComparison.OrdinalIgnoreCase) &&
-                               name.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                .Where(name => name.StartsWith(BaseNamespace) && name.EndsWith(".svg"))
                 .ToArray();
-        }
-
-        /// <summary>
-        /// Returns icon constants that currently do not match an embedded manifest resource.
-        /// </summary>
-        public static Dictionary<string, string> GetInvalidPaths()
-        {
-            return GetAllPaths()
-                .Where(kvp => !ResourceExists(kvp.Value))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         /// <summary>

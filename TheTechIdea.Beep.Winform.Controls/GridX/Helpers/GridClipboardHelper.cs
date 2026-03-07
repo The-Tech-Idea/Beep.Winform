@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -108,8 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error copying to clipboard: {ex.Message}", "Copy Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                NotifyClipboardError($"Error copying to clipboard: {ex.Message}", "grid-copy-error");
             }
         }
 
@@ -170,8 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error cutting to clipboard: {ex.Message}", "Cut Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                NotifyClipboardError($"Error cutting to clipboard: {ex.Message}", "grid-cut-error");
             }
         }
 
@@ -277,8 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error pasting from clipboard: {ex.Message}", "Paste Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                NotifyClipboardError($"Error pasting from clipboard: {ex.Message}", "grid-paste-error");
             }
         }
 
@@ -434,9 +432,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error copying cell: {ex.Message}", "Copy Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                NotifyClipboardError($"Error copying cell: {ex.Message}", "grid-copy-cell-error");
             }
+        }
+
+        private void NotifyClipboardError(string message, string dedupeKey)
+        {
+            var dialogManager = BeepDialogManager.Instance;
+            dialogManager.SetHostForm(_grid.FindForm());
+            dialogManager.ToastDeduped(message, BeepDialogManager.ToastType.Error, durationMs: 0, dedupeKey: dedupeKey);
         }
     }
 

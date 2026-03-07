@@ -18,7 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         {
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar = false;
-            TopMost = true;
+            // Do NOT set TopMost = true.  The backdrop is shown via
+            // Show(owner) which keeps it behind any modal dialog shown
+            // with ShowDialog(owner).  TopMost caused a Z-order race
+            // where the backdrop could hide the dialog, making the app
+            // appear frozen.
             StartPosition = FormStartPosition.Manual;
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);

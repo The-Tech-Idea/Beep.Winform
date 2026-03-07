@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         {
             return ResolveIconPath(
                 new[] { "Check", "CheckCircle", "CircleCheck" },
-                SvgsUI.Check ?? SvgsUI.CheckCircle ?? SvgsUI.Circle);
+                SvgsUI.Check ?? SvgsUI.CircleCheck ?? SvgsUI.Circle);
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         {
             return ResolveIconPath(
                 new[] { "Minus", "Subtract", "Dash" },
-                SvgsUI.Minus ?? SvgsUI.Circle);
+                SvgsUI.SquareMinus ?? SvgsUI.Circle);
         }
 
         private static string ResolveIconPath(string[] iconNames, string fallback)
@@ -203,3 +203,4 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         }
     }
 }
+

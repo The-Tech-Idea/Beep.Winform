@@ -23,7 +23,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
                     string svgContent = reader.ReadToEnd();
                     svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
                                            .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
-                                           .Replace("stroke=\"null\"", "stroke=\"none\"");
+                                           .Replace("stroke=\"null\"", "stroke=\"none\"")
+                                           .Replace("currentColor", "black");
                     using var sanitizedStream = new MemoryStream(Encoding.UTF8.GetBytes(svgContent));
                     SvgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
                 }
@@ -181,7 +182,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
             string svgContent = File.ReadAllText(svgFilePath);
             svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
                                    .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
-                                   .Replace("stroke=\"null\"", "stroke=\"none\"");
+                                   .Replace("stroke=\"null\"", "stroke=\"none\"")
+                                   .Replace("currentColor", "black");
             return SvgDocument.FromSvg<SvgDocument>(svgContent);
         }
 
@@ -273,7 +275,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
                                 string svgContent = reader.ReadToEnd();
                                 svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
                                                        .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
-                                                       .Replace("stroke=\"null\"", "stroke=\"none\"");
+                                                       .Replace("stroke=\"null\"", "stroke=\"none\"")
+                                                       .Replace("currentColor", "black");
 
                                 using var sanitizedStream = new MemoryStream(Encoding.UTF8.GetBytes(svgContent));
                                 _svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);

@@ -238,14 +238,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             var t = text.ToLowerInvariant();
             if (t.Contains("dashboard") || t.Contains("home")) return SvgsUI.Home;
-            if (t.Contains("analytic"))                         return SvgsUI.BarChart2;
+            if (t.Contains("analytic"))                         return SvgsUI.ChartDotsN2;
             if (t.Contains("report"))                           return SvgsUI.FileText;
             if (t.Contains("setting"))                          return SvgsUI.Settings;
             if (t.Contains("user") || t.Contains("profile"))   return SvgsUI.User;
             if (t.Contains("message"))                          return SvgsUI.MessageCircle;
-            if (t.Contains("chart"))                            return SvgsUI.PieChart;
+            if (t.Contains("chart"))                            return SvgsUI.ChartPie;
             if (t.Contains("list"))                             return SvgsUI.List;
-            if (t.Contains("grid") || t.Contains("table"))     return SvgsUI.Grid;
+            if (t.Contains("grid") || t.Contains("table"))     return SvgsUI.LayoutGrid;
             return SvgsUI.Circle;
         }
 

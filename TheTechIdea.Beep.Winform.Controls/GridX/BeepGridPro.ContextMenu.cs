@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
@@ -110,7 +111,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Layout.Recalculate();
             Invalidate();
         }
-        private void ExportToExcel() { /* TODO */ }
-        private void ExportToCsv() { /* TODO */ }
+        private void ExportToExcel()
+        {
+            var dialogManager = BeepDialogManager.Instance;
+            dialogManager.SetHostForm(FindForm());
+            dialogManager.NotifyFeaturePending("Export to Excel", dedupeKey: "grid-export-excel-pending");
+        }
+
+        private void ExportToCsv()
+        {
+            var dialogManager = BeepDialogManager.Instance;
+            dialogManager.SetHostForm(FindForm());
+            dialogManager.NotifyFeaturePending("Export to CSV", dedupeKey: "grid-export-csv-pending");
+        }
     }
 }

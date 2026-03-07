@@ -249,6 +249,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public bool CloseOnEscape { get; set; } = true;
 
         /// <summary>
+        /// For high-risk actions, require the user to type a confirmation phrase.
+        /// </summary>
+        public bool RequireTypedConfirmation { get; set; } = false;
+
+        /// <summary>
+        /// Expected confirmation text when <see cref="RequireTypedConfirmation"/> is enabled.
+        /// </summary>
+        public string ConfirmationKeyword { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When true, disables primary action until acknowledgement/validation succeeds.
+        /// </summary>
+        public bool DisablePrimaryUntilAcknowledged { get; set; } = false;
+
+        /// <summary>
         /// Auto-close timeout in milliseconds (0 = no auto-close)
         /// </summary>
         public int AutoCloseTimeout { get; set; } = 0;
@@ -586,11 +601,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
             {
                 Title = title,
                 Message = message,
-                Preset = DialogPreset.Danger,
+                Preset = DialogPreset.DestructiveConfirm,
                 IconType = BeepDialogIcon.Error,
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
                 DefaultButton = Vis.Modules.BeepDialogButtons.Cancel,   // safe default
-                ShowIcon = true
+                ShowIcon = true,
+                RequireTypedConfirmation = true,
+                ConfirmationKeyword = "DELETE",
+                DisablePrimaryUntilAcknowledged = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Delete",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Keep"
+                }
             };
         }
 
@@ -605,16 +628,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
             {
                 Title = "Unsaved changes",
                 Message = $"Do you want to save changes to \"{documentName}\" before closing?",
-                Preset = DialogPreset.Warning,
+                Preset = DialogPreset.UnsavedChanges,
                 IconType = BeepDialogIcon.Warning,
-                Buttons = new[]
-                {
-                    Vis.Modules.BeepDialogButtons.Cancel,
-                    Vis.Modules.BeepDialogButtons.Ok,     // "Discard" — mapped via label
-                    Vis.Modules.BeepDialogButtons.Yes     // "Save"
-                },
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.SaveDontSaveCancel },
                 DefaultButton = Vis.Modules.BeepDialogButtons.Yes,
-                ShowIcon = true
+                ShowIcon = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Yes] = "Save",
+                    [Vis.Modules.BeepDialogButtons.No] = "Don't Save",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Cancel"
+                }
             };
         }
 
@@ -632,11 +656,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 Title = $"Update available — v{version}",
                 Message = "A new version is ready to install.",
                 Details = releaseNotes,
-                Preset = DialogPreset.Information,
+                Preset = DialogPreset.Announcement,
                 IconType = BeepDialogIcon.Information,
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
                 DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
-                ShowIcon = true
+                ShowIcon = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Update Now",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Later"
+                }
             };
         }
 
@@ -666,6 +695,143 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                 Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
                 DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
                 ShowIcon = true
+            };
+        }
+
+        /// <summary>
+        /// Blocking error dialog with explicit acknowledgement.
+        /// </summary>
+        public static DialogConfig CreateBlockingError(string title, string message, string details = "")
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Details = details,
+                Preset = DialogPreset.BlockingError,
+                IconType = BeepDialogIcon.Error,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true,
+                CloseOnEscape = false,
+                ShowCloseButton = false,
+                CloseOnClickOutside = false,
+                BackdropClickPolicy = DialogBackdropClickPolicy.Ignore,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Acknowledge"
+                }
+            };
+        }
+
+        /// <summary>
+        /// Session timeout prompt with sign-in action.
+        /// </summary>
+        public static DialogConfig CreateSessionTimeout(string message = "Your session has expired. Please sign in again.")
+        {
+            return new DialogConfig
+            {
+                Title = "Session expired",
+                Message = message,
+                Preset = DialogPreset.SessionTimeout,
+                IconType = BeepDialogIcon.Warning,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Sign In",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Not Now"
+                }
+            };
+        }
+
+        /// <summary>
+        /// Success dialog that provides an optional undo path.
+        /// </summary>
+        public static DialogConfig CreateSuccessWithUndo(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.SuccessWithUndo,
+                IconType = BeepDialogIcon.Success,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Done",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Undo"
+                }
+            };
+        }
+
+        /// <summary>
+        /// Inline validation dialog for corrective data entry.
+        /// </summary>
+        public static DialogConfig CreateInlineValidation(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.InlineValidation,
+                IconType = BeepDialogIcon.Warning,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true,
+                DisablePrimaryUntilAcknowledged = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Fix and Continue",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Cancel"
+                }
+            };
+        }
+
+        /// <summary>
+        /// Multi-step progress status dialog.
+        /// </summary>
+        public static DialogConfig CreateMultiStepProgress(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.MultiStepProgress,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Cancel, Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true,
+                CloseOnClickOutside = false,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Continue",
+                    [Vis.Modules.BeepDialogButtons.Cancel] = "Stop"
+                }
+            };
+        }
+
+        /// <summary>
+        /// Announcement dialog for low-risk notices.
+        /// </summary>
+        public static DialogConfig CreateAnnouncement(string title, string message)
+        {
+            return new DialogConfig
+            {
+                Title = title,
+                Message = message,
+                Preset = DialogPreset.Announcement,
+                IconType = BeepDialogIcon.Information,
+                Buttons = new[] { Vis.Modules.BeepDialogButtons.Ok },
+                DefaultButton = Vis.Modules.BeepDialogButtons.Ok,
+                ShowIcon = true,
+                CustomButtonLabels = new Dictionary<Vis.Modules.BeepDialogButtons, string>
+                {
+                    [Vis.Modules.BeepDialogButtons.Ok] = "Got it"
+                }
             };
         }
 

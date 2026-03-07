@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             // Get icon path using helper
             string iconPath = GetIconPath(Owner.IsOn);
             if (string.IsNullOrEmpty(iconPath))
-                iconPath = SvgsUI.Settings ?? SvgsUI.Sliders ?? SvgsUI.Tool;
+                iconPath = SvgsUI.Settings ?? SvgsUI.Adjustments ?? SvgsUI.Settings;
 
             // Save graphics state for rotation
             var graphicsState = g.Save();
@@ -263,3 +263,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
         #endregion
     }
 }
+

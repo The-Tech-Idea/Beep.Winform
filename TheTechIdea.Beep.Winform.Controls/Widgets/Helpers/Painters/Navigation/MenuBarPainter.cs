@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (text.Contains("edit"))  return SvgsUI.Edit;
             if (text.Contains("view"))  return SvgsUI.Eye;
             if (text.Contains("help"))  return SvgsUI.HelpCircle;
-            return SvgsUI.Menu;
+            return SvgsUI.MenuN2;
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx) { }

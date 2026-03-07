@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
             }
 
             // Fallback
-            return SvgsUI.ChevronRight ?? SvgsUI.ArrowRight ?? SvgsUI.Circle;
+            return SvgsUI.ChevronRight ?? SvgsUI.CircleArrowRight ?? SvgsUI.Circle;
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
             }
 
             // Fallback
-            return SvgsUI.ChevronDown ?? SvgsUI.ArrowDown ?? SvgsUI.Circle;
+            return SvgsUI.ChevronDown ?? SvgsUI.CircleArrowDown ?? SvgsUI.Circle;
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
             }
 
             // Fallback
-            return SvgsUI.Menu ?? SvgsUI.Box;
+            return SvgsUI.MenuN2 ?? SvgsUI.BoxMultiple;
         }
 
         /// <summary>
@@ -225,3 +225,4 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
         }
     }
 }
+

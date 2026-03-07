@@ -545,7 +545,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             int xOff = (rect.Width  - iconSize) / 2;
             int yOff = (rect.Height - iconSize) / 2;
             var iconRect = new Rectangle(rect.X + xOff, rect.Y + yOff, iconSize, iconSize);
-            DrawSvgIcon(g, iconRect, SvgsUI.XCircle, tint, 0.75f);
+            DrawSvgIcon(g, iconRect, SvgsUI.CircleX, tint, 0.75f);
         }
 
         /// <summary>
@@ -599,7 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             int cy = buttonRect.Top  + (buttonRect.Height - spinSize) / 2;
             var spinRect = new Rectangle(cx, cy, spinSize, spinSize);
 
-            DrawSvgIcon(g, spinRect, SvgsUI.Loader,
+            DrawSvgIcon(g, spinRect, SvgsUI.CircleArrowRight,
                 GetIconTint(BeepComboBoxIconRole.Spinner, _theme, owner),
                 opacity:     0.75f,
                 rotationDeg: owner.LoadingRotationAngle);
@@ -654,3 +654,4 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         #endregion
     }
 }
+

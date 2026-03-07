@@ -47,8 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
 
             // Priority 3: Default icons based on state
             return isOn
-                ? (SvgsUI.Check ?? SvgsUI.Circle ?? SvgsUI.Box)
-                : (SvgsUI.Circle ?? SvgsUI.Box);
+                ? (SvgsUI.Check ?? SvgsUI.Circle ?? SvgsUI.BoxMultiple)
+                : (SvgsUI.Circle ?? SvgsUI.BoxMultiple);
         }
 
         /// <summary>
@@ -161,3 +161,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
         }
     }
 }
+

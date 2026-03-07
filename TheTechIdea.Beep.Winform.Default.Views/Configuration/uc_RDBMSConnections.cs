@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -57,18 +57,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             
         }
       
-        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
+        private void BeepGridPro1_SaveCalled(object? sender, EventArgs e)
         {
             viewModel.Save();
         }
 
-        private void BeepSimpleGrid1_CellValueChanged(object? sender, BeepCellEventArgs e)
+        private void BeepGridPro1_CellValueChanged(object? sender, BeepCellEventArgs e)
         {
-            //BeepColumnConfig beepColumnConfig = beepSimpleGrid1.GetColumnByName("DriverName");
-            //BeepColumnConfig currentcolumn = beepSimpleGrid1.GetColumnByIndex(e.Cell.ColumnIndex);
+            //BeepColumnConfig beepColumnConfig = beepGridPro1.GetColumnByName("DriverName");
+            //BeepColumnConfig currentcolumn = beepGridPro1.GetColumnByIndex(e.Cell.ColumnIndex);
             //if (currentcolumn.ColumnName == "DriverName")
             //{
-            //    BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
+            //    BeepColumnConfig driverversion = beepGridPro1.GetColumnByName("DriverVersion");
             //    driverversion.Items.Clear();
             //    e.Cell.FilterdList = new List<SimpleItem>();
             //    foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == e.Cell.CellValue.ToString()))
@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             viewModel = new DataConnectionViewModel(beepService.DMEEditor, appManager);
             viewModel.DBWork.Units.Filter = "Category = " + DatasourceCategory.RDBMS;
             BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
-            beepSimpleGrid1.CellValueChanged += BeepSimpleGrid1_CellValueChanged;
+            beepSimpleGrid1.CellValueChanged += BeepGridPro1_CellValueChanged;
             List<SimpleItem> versions = new List<SimpleItem>();
             foreach (var item in viewModel.PackageNames)
             {
@@ -125,8 +125,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
             driverversion.ParentColumnName = "DriverName";
             driverversion.Items = versions;
-            beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
-            beepSimpleGrid1.ShowCheckboxes = true;
+            beepSimpleGrid1.SaveCalled += BeepGridPro1_SaveCalled;
+            beepSimpleGrid1.ShowCheckBox = true;
             // idx = 0;
             //foreach (var item in viewModel.PackageVersions)
             //{

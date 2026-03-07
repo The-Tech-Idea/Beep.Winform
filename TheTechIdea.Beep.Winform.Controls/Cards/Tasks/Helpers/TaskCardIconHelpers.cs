@@ -25,10 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         {
             // Try common more icon paths
             string[] moreIconPaths = {
-                SvgsUI.More ?? "more.svg",
-                SvgsUI.Menu ?? "menu.svg",
+                SvgsUI.Dots ?? "more.svg",
+                SvgsUI.MenuN2 ?? "menu.svg",
                 SvgsUI.DotsVertical ?? "dots-vertical.svg",
-                SvgsUI.Ellipsis ?? "ellipsis.svg",
+                SvgsUI.Dots ?? "ellipsis.svg",
                 "more.svg"
             };
 
@@ -49,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
             // Try common avatar icon paths
             string[] avatarPaths = {
                 SvgsUI.User ?? "user.svg",
-                SvgsUI.Users ?? "users.svg",
-                SvgsUI.Person ?? "person.svg",
+                SvgsUI.User ?? "users.svg",
+                SvgsUI.User ?? "person.svg",
                 "avatar.svg"
             };
 
@@ -229,4 +229,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
         #endregion
     }
 }
+
 

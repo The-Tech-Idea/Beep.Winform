@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Lovs.Helpers
             if (!string.IsNullOrEmpty(customIcon))
                 return customIcon;
 
-            return SvgsUI.ChevronDown ?? SvgsUI.ArrowDown ?? SvgsUI.Circle;
+            return SvgsUI.ChevronDown ?? SvgsUI.CircleArrowDown ?? SvgsUI.Circle;
         }
 
         /// <summary>
@@ -131,3 +131,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Lovs.Helpers
         }
     }
 }
+

@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 return fallbackIcon;
 
             // Priority 3: Default icon
-            return SvgsUI.Circle ?? SvgsUI.Box;
+            return SvgsUI.Circle ?? SvgsUI.BoxMultiple;
         }
 
         /// <summary>
@@ -195,3 +195,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         }
     }
 }
+

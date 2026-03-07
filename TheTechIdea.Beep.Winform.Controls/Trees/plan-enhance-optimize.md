@@ -87,3 +87,63 @@ Current status
 ---
 
 Reply `continue` to create and validate the benchmark now.
+
+---
+
+## Phase 1: Core Bug Fixes — COMPLETED ✅
+
+Eight bugs and one standard violation fixed (BUG-01 through BUG-07 + STD-07):
+
+| ID | File | Fix |
+|---|---|---|
+| BUG-01 | `BeepTree.Layout.cs` | `UpdateScrollBars()` now calls `UpdateDrawingRect()` first so viewport is valid before scroll math |
+| BUG-02 | `BeepTree.Drawing.cs` | Removed `RegisterHitAreas()` from inside `DrawContent()` — was O(n) rebuild every frame |
+| BUG-03 | `BeepTree.Events.cs` | Removed duplicate `NodeSelected?.Invoke()` inside the else branch of the left-click handler |
+| BUG-04 | `BeepTree.Layout.cs` / helpers | Toggle-rect guard added for leaf nodes in `BeepTreeLayoutHelper` |
+| BUG-05 | `BeepTree.Events.cs` | Added `OnKeyDown` override: Arrow Up/Down navigation, Left/Right expand/collapse, Enter = select, Space = check |
+| BUG-06 | `BeepTree.Core.cs` | All `GetScaled*()` helpers now call `ScaleValue(N)` instead of returning literals |
+| BUG-07 | `BeepTree.Drawing.cs` / `BaseTreePainter.cs` | Uncommented `base.ApplyTheme()`; dead code in `GetCurrentPainter()` removed; `BaseTreePainter.Scale()` → `DpiScalingHelper.ScaleValue()` |
+| STD-07 | multiple | All `Debug.WriteLine` calls guarded with `#if DEBUG` |
+
+**Build result:** ✅ PASS (zero errors)
+
+---
+
+## Phase 2: Layout Merge & Deduplication — COMPLETED ✅
+
+| Item | File | Change |
+|---|---|---|
+| Layout merge | `BeepTreeLayoutHelper.cs` | Added `SyncFromVisibleNodes(IReadOnlyList<NodeInfo>)` — O(n) struct-copy from tree's pre-built `_visibleNodes`; eliminates the second full traversal that `RecalculateLayout()` was doing |
+| RebuildVisible uses sync | `BeepTree.Layout.cs` | `RebuildVisible()` now calls `_layoutHelper.SyncFromVisibleNodes(_visibleNodes)` instead of `InvalidateCache()` + `RecalculateLayout()` |
+| Resize timer | `BeepTree.Core.cs` | `_resizeTimer.Tick` uses `SyncFromVisibleNodes` |
+| ToViewport dedup | `BeepTree.Events.cs` | Removed inline `ToViewport` lambda in `LocalHitTest`; all 3 call sites use `_layoutHelper.TransformToViewport()` |
+| Font fix | `BaseTreePainter.cs` | `PaintNode()` uses `BeepThemesManager.ToFontForControl()` for correct DPI behaviour |
+| Debug guards | `BeepTree.Core.cs` | Remaining `Debug.WriteLine` calls in `HandleCreated` / `VisibleChanged` guarded |
+
+**Build result:** ✅ PASS (zero errors)
+
+---
+
+## Phase 3: Figma + UX Enhancements — COMPLETED ✅
+
+| Item | Files | Change |
+|---|---|---|
+| FIG-03: Empty state | `Core.cs` (field), `Properties.cs` (`EmptyStateText`), `Drawing.cs` | When `_nodes.Count == 0`, `DrawContent()` renders `EmptyStateText` centred in the drawing area using theme font/colour; returns early |
+| FIG-04: Focus ring | `Drawing.cs` | After `painter.Paint()`, if focused and a node is selected, draws a 1.5 px dotted accent-colour rect around the selected row (clipped to drawing area) |
+| COM-01: Cancellable events | `Core.cs` (`BeepTreeNodeCancelEventArgs`, `NodeBeforeExpand`, `NodeBeforeCollapse`), `Events.cs` | Toggle handler fires before-event; `Cancel == true` skips the expand/collapse |
+| COM-04: Search / filter | `Core.cs` (field), `Properties.cs` (`FilterText`), `Methods.cs` (`ApplyFilter`, `ClearFilter`, `SearchNodes`) | Setting `FilterText` walks tree, builds ancestor set, rebuilds `_visibleNodes`, syncs geometry caches |
+
+**Build result:** ✅ PASS (zero errors)
+
+---
+
+## Phase 4: Benchmark — NEXT
+
+**Goal:** Baseline CPU time for a full tree paint pass so each subsequent optimization can be measured.
+
+**Plan:**
+- Create `BenchmarkSuite1` that renders a `BeepTree` (100+ nodes, mixed expanded/collapsed) to an off-screen `Bitmap`.
+- Record baseline; re-run after each painter optimization.
+- Target files: `StandardTreePainter`, `AntDesignTreePainter`, `Material3TreePainter`, `Fluent2TreePainter`.
+
+Reply `continue` to create the benchmark project and run the baseline.

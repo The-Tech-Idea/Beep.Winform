@@ -54,6 +54,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
                 return;
 
+            // Ensure DrawingRect is current before checking dimensions
+            UpdateDrawingRect();
+
             // Always base layout on the BaseControl-provided DrawingRect
             // so we match other controls (ComboBox, Chart, etc.).
             var inner = DrawingRect; // content area from BaseControl painter

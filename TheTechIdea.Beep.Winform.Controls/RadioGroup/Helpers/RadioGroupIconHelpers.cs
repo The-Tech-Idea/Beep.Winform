@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 return ResolveSvgSymbolPath(fallbackIcon);
 
             // Priority 3: Default icon from SvgsUI
-            return SvgsUI.Circle ?? SvgsUI.Check ?? SvgsUI.Box;
+            return SvgsUI.Circle ?? SvgsUI.Check ?? SvgsUI.BoxMultiple;
         }
 
         private static string ResolveSvgSymbolPath(string iconPath)
@@ -208,3 +208,4 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         }
     }
 }
+

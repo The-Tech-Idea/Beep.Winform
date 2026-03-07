@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig70 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig71 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig72 = new BeepColumnConfig();
-            beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
+            beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro();
             dataConnectionViewModelBindingSource = new BindingSource(components);
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).BeginInit();
             SuspendLayout();
@@ -136,9 +136,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.UpperX = 0;
             beepRowConfig1.UpperY = 0;
             beepRowConfig1.Width = 100;
-            beepSimpleGrid1.aggregationRow = beepRowConfig1;
-            beepSimpleGrid1.AllowUserToAddRows = false;
-            beepSimpleGrid1.AllowUserToDeleteRows = false;
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
@@ -162,7 +159,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.CanBeHovered = false;
             beepSimpleGrid1.CanBePressed = true;
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
-            beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
             beepColumnConfig1.AggregationType = AggregationType.None;
             beepColumnConfig1.AllowSort = true;
@@ -3402,27 +3398,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Columns.Add(beepColumnConfig71);
             beepSimpleGrid1.Columns.Add(beepColumnConfig72);
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
-            beepSimpleGrid1.DataNavigator = null;
             beepSimpleGrid1.DataSource = dataConnectionViewModelBindingSource;
             beepSimpleGrid1.DataSourceProperty = null;
-            beepSimpleGrid1.DataSourceType = GridDataSourceType.Fixed;
-            beepSimpleGrid1.DefaultColumnHeaderWidth = 50;
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledBorderColor = Color.Empty;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
             //beepSimpleGrid1.DisableDpiAndScaling = true;
             beepSimpleGrid1.Dock = DockStyle.Fill;
-            beepSimpleGrid1.DrawInBlackAndWhite = false;
-            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1154, 661);
+           // beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1154, 661);
             beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.EnableHighQualityRendering = true;
             beepSimpleGrid1.EnableRippleEffect = false;
             beepSimpleGrid1.EnableSplashEffect = true;
-            beepSimpleGrid1.EntityName = "ConnectionProperties";
             beepSimpleGrid1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepSimpleGrid1.FitColumnToContent = false;
             beepSimpleGrid1.FloatingLabel = true;
             beepSimpleGrid1.FocusBackColor = Color.White;
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
@@ -3456,11 +3446,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.IsDeleted = false;
             beepSimpleGrid1.IsDirty = false;
             beepSimpleGrid1.IsEditable = false;
-            beepSimpleGrid1.IsFiltered = false;
             beepSimpleGrid1.IsFocused = false;
             beepSimpleGrid1.IsFrameless = true;
             beepSimpleGrid1.IsHovered = false;
-            beepSimpleGrid1.IsLogging = false;
             beepSimpleGrid1.IsNew = false;
             beepSimpleGrid1.IsPressed = false;
             beepSimpleGrid1.IsReadOnly = false;
@@ -3482,13 +3470,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;
             beepSimpleGrid1.ParentBackColor = Color.Empty;
-            beepSimpleGrid1.ParentControl = null;
-            beepSimpleGrid1.PercentageText = "36%";
+            // beepSimpleGrid1.ParentControl = null;
             beepSimpleGrid1.PressedBackColor = Color.FromArgb(0, 120, 215);
             beepSimpleGrid1.PressedBorderColor = Color.Black;
             beepSimpleGrid1.PressedForeColor = Color.Black;
-            beepSimpleGrid1.QueryFunction = null;
-            beepSimpleGrid1.QueryFunctionName = null;
             beepSimpleGrid1.RadialCenter = (PointF)resources.GetObject("beepSimpleGrid1.RadialCenter");
             beepSimpleGrid1.ReadOnly = false;
             beepSimpleGrid1.RightoffsetForDrawingRect = 0;
@@ -3499,57 +3484,33 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SelectedBorderColor = Color.Empty;
             beepSimpleGrid1.SelectedForeColor = Color.FromArgb(40, 40, 40);
             beepSimpleGrid1.SelectedValue = null;
-            beepSimpleGrid1.SelectionColumnWidth = 30;
-            beepSimpleGrid1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             beepSimpleGrid1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepSimpleGrid1.ShadowOffset = 0;
             beepSimpleGrid1.ShadowOpacity = 0.5F;
-            beepSimpleGrid1.ShowAggregationRow = false;
             beepSimpleGrid1.ShowAllBorders = true;
             beepSimpleGrid1.ShowBottomBorder = true;
-            beepSimpleGrid1.ShowCheckboxes = false;
             beepSimpleGrid1.ShowColumnHeaders = true;
-            beepSimpleGrid1.ShowFilter = false;
-            beepSimpleGrid1.ShowFilterIcon = false;
             beepSimpleGrid1.ShowFocusIndicator = false;
-            beepSimpleGrid1.ShowFooter = false;
-            beepSimpleGrid1.ShowHeaderPanel = false;
-            beepSimpleGrid1.ShowHeaderPanelBorder = true;
-            beepSimpleGrid1.ShowHorizontalGridLines = true;
-            beepSimpleGrid1.ShowHorizontalScrollBar = true;
             beepSimpleGrid1.ShowLeftBorder = true;
             beepSimpleGrid1.ShowNavigator = true;
             beepSimpleGrid1.ShowRightBorder = true;
-            beepSimpleGrid1.ShowRowHeaders = true;
-            beepSimpleGrid1.ShowRowNumbers = true;
             beepSimpleGrid1.ShowShadow = false;
-            beepSimpleGrid1.ShowSortIcon = false;
-            beepSimpleGrid1.ShowSortIcons = true;
             beepSimpleGrid1.ShowTopBorder = true;
-            beepSimpleGrid1.ShowVerticalGridLines = true;
-            beepSimpleGrid1.ShowVerticalScrollBar = true;
             beepSimpleGrid1.Size = new Size(1156, 663);
             beepSimpleGrid1.SlideFrom = SlideDirection.Left;
-            beepSimpleGrid1.SortDirection = SortDirection.None;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
        
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
-            beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
             beepSimpleGrid1.Theme = "DefaultType";
-            beepSimpleGrid1.TitleHeaderImage = "simpleinfoapps.svg";
-            beepSimpleGrid1.TitleText = "Simple BeepGrid";
-            beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
             beepSimpleGrid1.ToolTipText = "";
             beepSimpleGrid1.TopoffsetForDrawingRect = 0;
           
-            beepSimpleGrid1.UpdateLog = null;
             beepSimpleGrid1.UseExternalBufferedGraphics = false;
             beepSimpleGrid1.UseGlassmorphism = false;
             beepSimpleGrid1.UseGradientBackground = false;
             beepSimpleGrid1.UseThemeFont = true;
-            beepSimpleGrid1.XOffset = 0;
             // 
             // dataConnectionViewModelBindingSource
             // 
@@ -3568,7 +3529,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         #endregion
 
-        private Controls.BeepSimpleGrid beepSimpleGrid1;
+        private TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro beepSimpleGrid1;
         private BindingSource dataConnectionViewModelBindingSource;
     }
 }

@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 if (canLeft)
                 {
                     using var lPath = CreateRoundedPath(Rectangle.Inflate(leftRect, -Dp(6), -Dp(6)), 0);
-                    StyledImagePainter.PaintWithTint(g, lPath, SvgsUI.ChevronLeft, Theme?.ForeColor ?? Color.Black, canLeft ? 0.9f : 0.3f);
+                    StyledImagePainter.PaintWithTint(g, lPath, SvgsUI.CircleChevronLeft, Theme?.ForeColor ?? Color.Black, canLeft ? 0.9f : 0.3f);
                 }
 
                 // Right arrow
@@ -338,3 +338,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         }
     }
 }
+

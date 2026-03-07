@@ -16,9 +16,7 @@ using TheTechIdea.Beep.Workflow;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    [AddinAttribute(Caption = "Options & Pre-flight", Name = "uc_Import_Options",
-        misc = "Config", menu = "Configuration", addinType = AddinType.Control,
-        displayType = DisplayType.InControl, ObjectType = "Beep")]
+    
     public partial class uc_Import_Options : TemplateUserControl, IWizardStepContent
     {
         private DataImportConfiguration? _config;

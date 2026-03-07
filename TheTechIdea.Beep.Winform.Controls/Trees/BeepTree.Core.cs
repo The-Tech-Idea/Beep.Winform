@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
@@ -71,6 +72,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 		// Timers
 		private System.Windows.Forms.Timer _resizeTimer;
+
+		// Phase 3: empty state and filter
+		private string _emptyStateText = "No items to display";
+		private string _filterText = string.Empty;
 		#endregion
 
 		#region Events
@@ -82,6 +87,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 		public event EventHandler<BeepMouseEventArgs> NodeDeselected;
 		public event EventHandler<BeepMouseEventArgs> NodeExpanded;
 		public event EventHandler<BeepMouseEventArgs> NodeCollapsed;
+		/// <summary>Fired before a node expands; set Cancel = true to prevent the expansion.</summary>
+		public event EventHandler<BeepTreeNodeCancelEventArgs> NodeBeforeExpand;
+		/// <summary>Fired before a node collapses; set Cancel = true to prevent the collapse.</summary>
+		public event EventHandler<BeepTreeNodeCancelEventArgs> NodeBeforeCollapse;
 		public event EventHandler<BeepMouseEventArgs> NodeChecked;
 		public event EventHandler<BeepMouseEventArgs> NodeUnchecked;
 	public event EventHandler<BeepMouseEventArgs> NodeAdded;
@@ -145,12 +154,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 			{
 				RecalculateLayoutCache();
 			}
-			// Also sync layout helper's cache
-			if (_layoutHelper != null)
-			{
-				_layoutHelper.InvalidateCache();
-				_layoutHelper.RecalculateLayout();
-			}
+			// Sync helper cache from already-computed visible nodes (no second traversal)
+			_layoutHelper?.SyncFromVisibleNodes(_visibleNodes);
 			UpdateScrollBars();
 			Invalidate();
 		};			// Initialize scrollbars
@@ -166,7 +171,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 			// CRITICAL FIX: Handle visibility changes to ensure initial paint
 			this.HandleCreated += (s, e) =>
 			{
+#if DEBUG
 				System.Diagnostics.Debug.WriteLine("[BeepTree] HandleCreated - forcing refresh");
+#endif
 				RebuildVisible();
 				UpdateScrollBars();
 				Invalidate(); // Let normal paint cycle handle rendering
@@ -178,7 +185,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 			{
 				if (this.Visible)
 				{
+#if DEBUG
 					System.Diagnostics.Debug.WriteLine("[BeepTree] VisibleChanged to true - forcing refresh");
+#endif
 					Invalidate();
 					Update(); // Force immediate paint
 				}
@@ -205,16 +214,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 		private ITreePainter GetCurrentPainter()
 		{
 			return _currentPainter;
-					try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
 		}
 		#endregion
 
-		#region Scaling helpers - framework handles DPI scaling
-	internal int GetScaledBoxSize() => 14;
-	internal int GetScaledImageSize() => 20;
-	internal int GetScaledMinRowHeight() => 24;
-	internal int GetScaledIndentWidth() => 16;
-	internal int GetScaledVerticalPadding() => 4;
+		#region Scaling helpers - DPI-aware scaling via DpiScalingHelper
+	internal int GetScaledBoxSize() => DpiScalingHelper.ScaleValue(14, this);
+	internal int GetScaledImageSize() => DpiScalingHelper.ScaleValue(20, this);
+	internal int GetScaledMinRowHeight() => DpiScalingHelper.ScaleValue(24, this);
+	internal int GetScaledIndentWidth() => DpiScalingHelper.ScaleValue(16, this);
+	internal int GetScaledVerticalPadding() => DpiScalingHelper.ScaleValue(4, this);
 	#endregion
 
 		#region Accessors used by helpers and painters
@@ -224,5 +232,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 	internal SimpleItem LastHoveredItem => _lastHoveredItem;
 	internal List<NodeInfo> VisibleNodes => _visibleNodes;
 	#endregion
+	}
+
+	/// <summary>
+	/// Event arguments for cancellable node expand/collapse operations.
+	/// Set <see cref="CancelEventArgs.Cancel"/> = true to prevent the state change.
+	/// </summary>
+	public sealed class BeepTreeNodeCancelEventArgs : CancelEventArgs
+	{
+		/// <summary>The node that is about to be expanded or collapsed.</summary>
+		public SimpleItem Node { get; }
+
+		public BeepTreeNodeCancelEventArgs(SimpleItem node)
+		{
+			Node = node;
+		}
 	}
 }

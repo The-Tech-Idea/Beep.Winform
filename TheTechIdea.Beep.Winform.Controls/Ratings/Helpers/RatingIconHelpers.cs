@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                 RatingStyle.ClassicStar => isFilled ? SvgsUI.Star ?? "star.svg" : SvgsUI.Star ?? "star-outline.svg",
                 RatingStyle.ModernStar => isFilled ? SvgsUI.Star ?? "star-rounded.svg" : SvgsUI.Star ?? "star-outline.svg",
                 RatingStyle.Heart => isFilled ? SvgsUI.Heart ?? "heart.svg" : SvgsUI.Heart ?? SvgsUI.Heart ?? "heart-outline.svg",
-                RatingStyle.Thumb => isFilled ? SvgsUI.ThumbsUp ?? "thumb-up.svg" : SvgsUI.ThumbsDown ?? "thumb-down.svg",
+                RatingStyle.Thumb => isFilled ? SvgsUI.ThumbUp ?? "thumb-up.svg" : SvgsUI.ThumbDown ?? "thumb-down.svg",
                 RatingStyle.Circle => isFilled ? SvgsUI.Circle ?? "circle-filled.svg" : SvgsUI.Circle ?? "circle-outline.svg",
                 RatingStyle.Emoji => GetEmojiIconPath(ratingIndex),
                 RatingStyle.Bar => "bar.svg", // Bars are drawn, not icons
@@ -475,4 +475,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
         #endregion
     }
 }
+
 

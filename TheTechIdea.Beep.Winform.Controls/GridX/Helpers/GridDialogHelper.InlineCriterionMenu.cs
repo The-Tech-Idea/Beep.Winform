@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -297,13 +298,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 if (!isUnary && string.IsNullOrWhiteSpace(v1))
                 {
-                    MessageBox.Show(_grid, "Please enter a value.", "Filter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    var dialogManager = BeepDialogManager.Instance;
+                    dialogManager.SetHostForm(_grid.FindForm());
+                    dialogManager.ToastDeduped("Please enter a value.", BeepDialogManager.ToastType.Warning, dedupeKey: "grid-filter-value-required");
                     return;
                 }
 
                 if (needsSecond && string.IsNullOrWhiteSpace(v2))
                 {
-                    MessageBox.Show(_grid, "Please enter the second value.", "Filter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    var dialogManager = BeepDialogManager.Instance;
+                    dialogManager.SetHostForm(_grid.FindForm());
+                    dialogManager.ToastDeduped("Please enter the second value.", BeepDialogManager.ToastType.Warning, dedupeKey: "grid-filter-second-value-required");
                     return;
                 }
 

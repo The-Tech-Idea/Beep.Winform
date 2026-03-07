@@ -36,16 +36,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
             return toggleStyle switch
             {
                 ToggleStyle.IconThumb => isOn ? SvgsUI.Check : SvgsUI.X,
-                ToggleStyle.IconLock => isOn ? SvgsUI.Lock : SvgsUI.Unlock,
-                ToggleStyle.IconSettings => SvgsUI.Settings ?? SvgsUI.Sliders ?? SvgsUI.Tool,
-                ToggleStyle.IconMood => isOn ? SvgsUI.Smile ?? SvgsUI.Happy : SvgsUI.Frown ?? SvgsUI.Sad,
-                ToggleStyle.IconCheck => isOn ? SvgsUI.CheckCircle : SvgsUI.XCircle,
-                ToggleStyle.IconEye => isOn ? SvgsUI.Eye : SvgsUI.EyeOff,
-                ToggleStyle.IconVolume => isOn ? SvgsUI.Volume : SvgsUI.VolumeX,
-                ToggleStyle.IconMic => isOn ? SvgsUI.Mic : SvgsUI.MicOff,
-                ToggleStyle.IconPower => isOn ? SvgsUI.Power : SvgsUI.PowerOff ?? SvgsUI.ZapOff,
-                ToggleStyle.IconHeart => isOn ? SvgsUI.Heart : SvgsUI.HeartOff ?? SvgsUI.Heart,
-                ToggleStyle.IconLike => isOn ? SvgsUI.ThumbsUp : SvgsUI.ThumbsDown,
+                    ToggleStyle.IconLock => isOn ? SvgsUI.Lock : SvgsUI.LockOpen,
+                ToggleStyle.IconSettings => SvgsUI.Settings ?? SvgsUI.Adjustments ?? SvgsUI.Settings,
+                ToggleStyle.IconMood => isOn ? SvgsUI.MoodSmile ?? SvgsUI.MoodHappy : SvgsUI.MoodSad ?? SvgsUI.MoodSad,
+                ToggleStyle.IconCheck => isOn ? SvgsUI.CircleCheck : SvgsUI.CircleX,
+                ToggleStyle.IconEye => isOn ? SvgsUI.Eye : SvgsUI.Eye,
+                    ToggleStyle.IconVolume => isOn ? SvgsUI.Volume : SvgsUI.VolumeOff,
+                    ToggleStyle.IconMic => isOn ? SvgsUI.Microphone : SvgsUI.MicrophoneOff,
+                    ToggleStyle.IconPower => isOn ? SvgsUI.Bolt : SvgsUI.BoltOff,
+                ToggleStyle.IconHeart => isOn ? SvgsUI.Heart : SvgsUI.HeartBroken ?? SvgsUI.Heart,
+                ToggleStyle.IconLike => isOn ? SvgsUI.ThumbUp : SvgsUI.ThumbDown,
                 ToggleStyle.IconCustom => isOn 
                     ? (customOnIconPath ?? SvgsUI.Check)
                     : (customOffIconPath ?? SvgsUI.X),
@@ -307,17 +307,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
         {
             return useCase.ToLowerInvariant() switch
             {
-                "playpause" or "media" => (SvgsUI.Pause, SvgsUI.Play),
-                "lock" or "security" => (SvgsUI.Lock, SvgsUI.Unlock),
-                "wifi" or "network" => (SvgsUI.Wifi ?? SvgsUI.Signal, SvgsUI.WifiOff ?? SvgsUI.SignalOff),
-                "volume" or "sound" => (SvgsUI.Volume, SvgsUI.VolumeX),
-                "mic" or "microphone" => (SvgsUI.Mic, SvgsUI.MicOff),
-                "eye" or "visibility" => (SvgsUI.Eye, SvgsUI.EyeOff),
-                "heart" or "favorite" => (SvgsUI.Heart, SvgsUI.HeartOff ?? SvgsUI.Heart),
-                "like" or "thumbs" => (SvgsUI.ThumbsUp, SvgsUI.ThumbsDown),
-                "power" or "onoff" => (SvgsUI.Power, SvgsUI.PowerOff ?? SvgsUI.ZapOff),
+                "playpause" or "media" => (SvgsUI.PlayerPause, SvgsUI.PlayerPlay),
+                    "lock" or "security" => (SvgsUI.Lock, SvgsUI.LockOpen),
+                    "wifi" or "network" => (SvgsUI.Wifi, SvgsUI.WifiOff),
+                    "volume" or "sound" => (SvgsUI.Volume, SvgsUI.VolumeOff),
+                    "mic" or "microphone" => (SvgsUI.Microphone, SvgsUI.MicrophoneOff),
+                "eye" or "visibility" => (SvgsUI.Eye, SvgsUI.Eye),
+                "heart" or "favorite" => (SvgsUI.Heart, SvgsUI.HeartBroken ?? SvgsUI.Heart),
+                "like" or "thumbs" => (SvgsUI.ThumbUp, SvgsUI.ThumbDown),
+                    "power" or "onoff" => (SvgsUI.Bolt, SvgsUI.BoltOff),
                 "theme" or "darkmode" => (SvgsUI.Moon ?? SvgsUI.Moon, SvgsUI.Sun ?? SvgsUI.Sun),
-                "settings" or "gear" => (SvgsUI.Settings ?? SvgsUI.Sliders, SvgsUI.Settings ?? SvgsUI.Sliders),
+                "settings" or "gear" => (SvgsUI.Settings ?? SvgsUI.Adjustments, SvgsUI.Settings ?? SvgsUI.Adjustments),
                 _ => (SvgsUI.Check, SvgsUI.X) // Default
             };
         }
@@ -377,4 +377,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
         }
     }
 }
+
 

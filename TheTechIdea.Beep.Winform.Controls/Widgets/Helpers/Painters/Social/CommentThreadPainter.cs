@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Comments icon
             var iconRect = new Rectangle(rect.X, rect.Y + Dp(4), Dp(24), Dp(24));
             using var iconPath = CreateRoundedPath(iconRect, 0);
-            StyledImagePainter.PaintWithTint(g, iconPath, SvgsUI.MessageSquare, ctx.AccentColor, 0.9f);
+            StyledImagePainter.PaintWithTint(g, iconPath, SvgsUI.MessageCircle, ctx.AccentColor, 0.9f);
 
             // Thread title
             var titleRect = new Rectangle(iconRect.Right + Dp(8), rect.Y, rect.Width - iconRect.Width - Dp(100), Dp(20));
@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             var upvoteRect = new Rectangle(currentX, rect.Y, btnSize, btnSize);
             Color upvoteColor = comment.UserVote == VoteType.Upvote ? (Theme?.SuccessColor ?? Color.Empty) : PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.SecondaryTextColor ?? Color.Empty, 150);
             using (var upPath = CreateRoundedPath(upvoteRect, 0))
-                StyledImagePainter.PaintWithTint(g, upPath, SvgsUI.ChevronUp, upvoteColor, 0.8f);
+                StyledImagePainter.PaintWithTint(g, upPath, SvgsUI.CircleChevronUp, upvoteColor, 0.8f);
 
             // Vote count
             Color voteTextColor = comment.UserVote != VoteType.None ?
@@ -360,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Reply button
             var replyRect = new Rectangle(currentX, rect.Y + Dp(2), Dp(16), Dp(16));
             using (var replyIconPath = CreateRoundedPath(replyRect, 0))
-                StyledImagePainter.PaintWithTint(g, replyIconPath, SvgsUI.CornerDownRight, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
+                StyledImagePainter.PaintWithTint(g, replyIconPath, SvgsUI.CircleArrowDownRight, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
 
             var replyBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
             g.DrawString("Reply", _smallFont ?? SystemFonts.DefaultFont, replyBrush, currentX + Dp(20), rect.Y + Dp(4));
@@ -372,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             {
                 var moreRect = new Rectangle(currentX, rect.Y + Dp(2), Dp(16), Dp(16));
                 using var morePath = CreateRoundedPath(moreRect, 0);
-                StyledImagePainter.PaintWithTint(g, morePath, SvgsUI.More, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
+                StyledImagePainter.PaintWithTint(g, morePath, SvgsUI.Dots, PathPainterHelpers.WithAlphaIfNotEmpty(Theme?.CardTextForeColor ?? Color.Empty, 120), 0.8f);
             }
         }
 
@@ -429,7 +429,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 Dp(64), Dp(64)
             );
             using (var emptyIconPath = CreateRoundedPath(illustrationRect, 0))
-                StyledImagePainter.PaintWithTint(g, emptyIconPath, SvgsUI.MessageSquare, Color.FromArgb(150, Color.Gray), 0.6f);
+                StyledImagePainter.PaintWithTint(g, emptyIconPath, SvgsUI.MessageCircle, Color.FromArgb(150, Color.Gray), 0.6f);
 
             // Empty state text
             var emptyBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Black));

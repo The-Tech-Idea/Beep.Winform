@@ -55,7 +55,47 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Backward compatibility preset, use Question for new code
         /// </summary>
         [Obsolete("Use Question preset instead")]
-        ConfirmAction
+        ConfirmAction,
+
+        /// <summary>
+        /// Destructive confirmation flow with explicit consequence labels.
+        /// </summary>
+        DestructiveConfirm,
+
+        /// <summary>
+        /// Unsaved changes flow (Save / Don't Save / Cancel).
+        /// </summary>
+        UnsavedChanges,
+
+        /// <summary>
+        /// Blocking error that requires acknowledgement before continuing.
+        /// </summary>
+        BlockingError,
+
+        /// <summary>
+        /// Session timeout / re-authentication prompt.
+        /// </summary>
+        SessionTimeout,
+
+        /// <summary>
+        /// Inline validation-focused dialog for corrective input.
+        /// </summary>
+        InlineValidation,
+
+        /// <summary>
+        /// Success dialog that advertises undo when available.
+        /// </summary>
+        SuccessWithUndo,
+
+        /// <summary>
+        /// Multi-step progress/task status dialog.
+        /// </summary>
+        MultiStepProgress,
+
+        /// <summary>
+        /// Low-risk announcement/notice dialog.
+        /// </summary>
+        Announcement
     }
 
     /// <summary>
@@ -130,10 +170,60 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
                     UseFilledButtons = true
                 },
 
+                DialogPreset.DestructiveConfirm => new ButtonEmphasis
+                {
+                    PrimaryIsDanger = true,
+                    UseFilledButtons = true
+                },
+
                 DialogPreset.Warning => new ButtonEmphasis
                 {
                     PrimaryIsWarning = true,
                     UseFilledButtons = true
+                },
+
+                DialogPreset.UnsavedChanges => new ButtonEmphasis
+                {
+                    PrimaryIsWarning = true,
+                    UseFilledButtons = true,
+                    SecondaryIsNeutral = true
+                },
+
+                DialogPreset.BlockingError => new ButtonEmphasis
+                {
+                    PrimaryIsDanger = true,
+                    UseFilledButtons = true
+                },
+
+                DialogPreset.SessionTimeout => new ButtonEmphasis
+                {
+                    PrimaryIsInfo = true,
+                    UseFilledButtons = true
+                },
+
+                DialogPreset.InlineValidation => new ButtonEmphasis
+                {
+                    PrimaryIsWarning = true,
+                    UseFilledButtons = true
+                },
+
+                DialogPreset.SuccessWithUndo => new ButtonEmphasis
+                {
+                    PrimaryIsSuccess = true,
+                    UseFilledButtons = true
+                },
+
+                DialogPreset.MultiStepProgress => new ButtonEmphasis
+                {
+                    PrimaryIsInfo = true,
+                    UseFilledButtons = true
+                },
+
+                DialogPreset.Announcement => new ButtonEmphasis
+                {
+                    PrimaryIsInfo = true,
+                    UseFilledButtons = false,
+                    SecondaryIsNeutral = true
                 },
 
                 DialogPreset.Information => new ButtonEmphasis
@@ -195,10 +285,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
             return preset switch
             {
                 DialogPreset.Success => theme.SuccessColor,
+                DialogPreset.SuccessWithUndo => theme.SuccessColor,
                 DialogPreset.Danger => theme.ErrorColor,
+                DialogPreset.DestructiveConfirm => theme.ErrorColor,
+                DialogPreset.BlockingError => theme.ErrorColor,
                 DialogPreset.Warning => theme.WarningColor,
+                DialogPreset.UnsavedChanges => theme.WarningColor,
+                DialogPreset.InlineValidation => theme.WarningColor,
                 DialogPreset.Information => theme.DialogInformationButtonBackColor,
+                DialogPreset.Announcement => theme.DialogInformationButtonBackColor,
                 DialogPreset.Question => theme.DialogQuestionButtonBackColor,
+                DialogPreset.SessionTimeout => theme.DialogQuestionButtonBackColor,
+                DialogPreset.MultiStepProgress => theme.DialogInformationButtonBackColor,
                 _ => theme.DialogForeColor
             };
         }
@@ -238,8 +336,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
             return preset switch
             {
                 DialogPreset.Success => Color.FromArgb(240, theme.SuccessColor),
+                DialogPreset.SuccessWithUndo => Color.FromArgb(240, theme.SuccessColor),
                 DialogPreset.Danger => Color.FromArgb(240, theme.ErrorColor),
+                DialogPreset.DestructiveConfirm => Color.FromArgb(240, theme.ErrorColor),
+                DialogPreset.BlockingError => Color.FromArgb(240, theme.ErrorColor),
                 DialogPreset.Warning => Color.FromArgb(240, theme.WarningColor),
+                DialogPreset.UnsavedChanges => Color.FromArgb(240, theme.WarningColor),
+                DialogPreset.InlineValidation => Color.FromArgb(240, theme.WarningColor),
                 _ => theme.DialogBackColor
             };
         }
